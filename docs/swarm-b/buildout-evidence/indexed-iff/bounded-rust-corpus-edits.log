@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized] target(s) in 0.01s
+     Running tests/indexed_iff_corpus.rs (/tmp/wonderland-b-formats-1q900fp8/debug/deps/indexed_iff_corpus-ef5f59e4fd7b27c5)
+
+running 2 tests
+test source_derived_v1_input_supports_all_five_structural_edits ... ok
+indexed=198, exact=195, strict_duplicates=3, unsupported_edits=3, successful_edits=960, map_entries=13084, size_styles=[10, 88, 94]
+test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.76s
+

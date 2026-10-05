@@ -1,0 +1,17 @@
+    Finished `dev` profile [unoptimized] target(s) in 0.06s
+     Running `/tmp/wonderland-b-cooker-oxq2kuea/debug/wonderland-asset-cooker demo /tmp/wonderland-b-demo-d733as1q/first`
+verified 4 resources in 2 packs; manifest sha256 5ea34ee7ebda50e70f6adb77d14c82d08161ecd8442e58858a2f5ec2b6b24b66
+{
+  "manifest_hash": "5ea34ee7ebda50e70f6adb77d14c82d08161ecd8442e58858a2f5ec2b6b24b66",
+  "content_version": "4ae6cf6b2e40e1bf2b1d3ac5634f8d6e45bf1e3722765215c0dd0ebac3888311",
+  "resources": [
+    "fixture/chunk-42434f4e-1000",
+    "fixture/resolved-tuning",
+    "fixture/chunk-42484156-1000"
+  ],
+  "packs": [
+    "c89522cc08e11b5bb01e31b6250bd1b1e1ebe669915c450a9d691a03ba652c9c"
+  ],
+  "download_bytes": 655
+}
+Authored content pipeline fixture only; this is not a playable simulation.

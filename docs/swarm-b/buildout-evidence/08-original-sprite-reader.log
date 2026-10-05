@@ -1,0 +1,7 @@
+Authored 18 independent boundary cases (54280 encoded bytes)
+/tmp/wonderland-sprite-reader-6zjk_biw/Reader.cs(78,21): warning CS0219: The variable `spriteVersion' is assigned but its value is never used
+/tmp/wonderland-sprite-reader-6zjk_biw/Reader.cs(72,209): warning CS0414: The private field `SPR2Frame.Version' is assigned but its value is never used
+/tmp/wonderland-sprite-reader-6zjk_biw/Reader.cs(72,233): warning CS0414: The private field `SPR2Frame.ToDecode' is assigned but its value is never used
+Compilation succeeded - 3 warning(s)
+PASS: 18 cases, 34 frames, 294034 pixels decoded with source SPR2 reader methods
+Extracted source methods SHA-256: 0d5a24fe4449de91f4413dba38208d5ee3a134ed614beb10bdbb4a0ae97479ba

@@ -1,0 +1,121 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling zmij v1.0.23
+   Compiling memchr v2.8.3
+   Compiling cpufeatures v0.2.17
+   Compiling serde_json v1.0.151
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling quick-xml v0.38.4
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling wonderland-legacy-formats v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/legacy-formats)
+   Compiling wonderland-content-ir v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/content-ir)
+   Compiling wonderland-creator v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/tools/creator)
+   Compiling wonderland-asset-cooker v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/tools/asset-cooker)
+    Finished `test` profile [unoptimized] target(s) in 13.87s
+     Running unittests src/lib.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/wonderland_creator-46088db20af1d3bb)
+
+running 1 test
+test workspace::tests::temporary_collision_keeps_final_path_unpublished_until_complete ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/creator-1c795dcf877d6d6d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/tools/authoring.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/authoring-07ba5e1719dcf2bc)
+
+running 17 tests
+test hand_built_sprite_fixtures_are_valid_source_inputs ... ok
+test package_and_source_limits_cover_aggregate_pixels_and_empty_frame_counts ... ok
+test every_source_guard_and_immutable_identity_conflict_leaves_document_exact ... ok
+test setters_validate_before_mutation_and_channel_changes_require_matching_planes ... ok
+test source_palette_discovery_uses_only_effective_dependencies_and_keeps_other_palettes_opaque ... ok
+test late_sprite_row_failure_does_not_commit_an_earlier_palette_change ... ok
+test strict_package_schema_rejects_unknown_duplicate_positional_and_malformed_values ... ok
+test tighter_caller_input_limit_is_enforced_on_existing_document ... ok
+test typed_import_refuses_source_pixels_that_canonical_encoding_would_normalize ... ok
+test transparent_u16_index_uses_full_palette_rgb_and_low_byte_stored_index ... ok
+test unsupported_map_allows_exact_sprite_noop_and_rejects_changed_candidate ... ok
+test sprite_cli_rejects_unsafe_paths_and_oversized_package_before_publication ... ok
+test palette_only_changes_and_explicit_quantization_preserve_sprite_passthrough ... ok
+test indexed_iff_sprite_edit_rebuilds_map_and_late_failures_keep_destination ... ok
+test cli_sprite_roundtrip_and_edits_preserve_unrelated_resources_in_both_layouts ... ok
+test sprite_publication_accounts_for_retained_document_and_iff_writer_workspace ... ok
+test authored_sprite_and_palette_changes_recook_and_invalidate_dependent_cache_keys ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running ../../tests/tools/city.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/city-48aca4f8e69f685a)
+
+running 4 tests
+test bad_semantic_pixel_and_malformed_bmp_do_not_change_data ... ok
+test imported_geometry_getters_and_one_pixel_boundary_remain_consistent ... ok
+test pixel_edit_preserves_orientation_padding_and_all_other_bytes ... ok
+test top_down_rgba_edits_keep_alpha_and_trailing_bytes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running ../../tests/tools/cli.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/cli-0dca0ff6b1e3d730)
+
+running 2 tests
+test actual_cli_end_to_end_generated_fixtures ... ok
+test actual_cli_guarded_transactions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.60s
+
+     Running ../../tests/tools/resources.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/resources-15b21a172fa7cbf0)
+
+running 15 tests
+test cfg_reports_unreachable_code_and_source_253_fallback ... ok
+test indexed_source_passthrough_and_edit_rejection_are_explicit ... ok
+test explicit_key_swap_uses_source_guards_and_preserves_chunk_order ... ok
+test aggregate_limits_and_resource_hash_conflicts_are_rejected ... ok
+test consecutive_indexed_transactions_refresh_writer_managed_map_and_guards ... ok
+test invalid_branch_hash_and_version_leave_document_unchanged ... ok
+test no_op_and_branch_edits_reopen_without_unrelated_changes ... ok
+test raw_unknown_replacement_keeps_known_chunks ... ok
+test map_resources_cannot_be_directly_authored_even_as_no_ops ... ok
+test added_known_semantics_are_validated_and_unknown_payloads_remain_opaque ... ok
+test transaction_limits_are_checked_without_publishing_state ... ok
+test transaction_publishes_add_remove_and_exact_metadata_together ... ok
+test string_tuning_and_old_slot_edits_keep_other_fields_and_tail ... ok
+test duplicate_target_collision_stale_resource_and_version_fail_without_mutation ... ok
+test failure_after_a_valid_candidate_edit_keeps_document_and_guards_unchanged ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/tools/workspace.rs (/tmp/wonderland-b-creator-8qej12t1/debug/deps/workspace-a7c0ac16649d9c11)
+
+running 6 tests
+test hashes_use_standard_sha256 ... ok
+test bounded_read_and_failed_output_preserve_existing_file ... ok
+test unknown_transaction_fields_are_rejected_before_their_values_are_read ... ok
+test root_boundary_and_atomic_write ... ok
+test rejects_symlink_reads_outputs_and_parents ... ok
+test transaction_sidecar_capacity_stays_inside_its_decoded_memory_budget ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland_creator
+
+running 2 tests
+test src/city.rs - city::BmpMap (line 55) - compile fail ... ok
+test src/city.rs - city::BmpMap (line 50) - compile fail ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+

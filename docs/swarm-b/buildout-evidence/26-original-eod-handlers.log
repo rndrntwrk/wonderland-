@@ -1,0 +1,2 @@
+{"compared_private_events": 116, "compared_provider_events": 61, "compared_stages": 223, "compared_vm_events": 106, "comparison_sha256": "599b98108be8c7d4cf7460ee4c9525c84a3b6147c80a20c8302caf54ea96cb15", "result": "pass", "scenarios": 27, "stages": 226}
+Original EOD handler component oracle: PASS; evidence: /workspace/scratch/378e4c36af7b/swarm-b-buildout-verification-final/eod-source-oracle
