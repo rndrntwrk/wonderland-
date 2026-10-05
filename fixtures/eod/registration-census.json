@@ -1,0 +1,1213 @@
+{
+  "schema_version": 1,
+  "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "evidence_kind": "static-source-registration-census; synthetic source-derived native tests only",
+  "server_registrations": 30,
+  "ui_registrations": 28,
+  "entries": [
+    {
+      "id": 4096,
+      "id_hex": "0x00001000",
+      "server": {
+        "type": "VMEODFNewspaperPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 55,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs",
+          "line": 8,
+          "sha256": "84da0dd6b542f01be3f1fc7c5ecb7e8822b3139625e9801c7294e9e7474477f4"
+        }
+      },
+      "ui": {
+        "type": "UINewspaperEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 37,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UINewspaperEOD.cs",
+          "line": 17,
+          "sha256": "94f254cf0cdbfa9a6d6493f7f247f1d9373d701f7db42ad750b386bfbfcbc555"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00001000-SOURCE-TRACE",
+        "EOD-00001000-RECOVERY",
+        "EOD-00001000-NATIVE",
+        "EOD-00001000-PROVIDER"
+      ],
+      "prerequisites": "GlobalLink.GetDynPayouts provider, serialized news/payout limits and UI traces"
+    },
+    {
+      "id": 4097,
+      "id_hex": "0x00001001",
+      "server": {
+        "type": "VMEODHoldEmCasinoPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 56,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs",
+          "line": 12,
+          "sha256": "d4184b04e7a10a98dedfdcd4b53bc25bab7afb1c603ce1352ec9f94d894defdb"
+        }
+      },
+      "ui": {
+        "type": "UIHoldEmCasinoEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 38,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIHoldEmCasinoEOD.cs",
+          "line": 15,
+          "sha256": "512e2188daccd4a50b4abfce3b381bbaf4cf54d64fab1a3ca4c9c37b300642ae"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00001001-SOURCE-TRACE",
+        "EOD-00001001-RECOVERY",
+        "EOD-00001001-NATIVE",
+        "EOD-00001001-PROVIDER"
+      ],
+      "prerequisites": "private cards/RNG, multiplayer betting, budget/settlement/refund provider and casino traces"
+    },
+    {
+      "id": 4099,
+      "id_hex": "0x00001003",
+      "server": {
+        "type": "VMEODBulletinPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 57,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBulletinPlugin.cs",
+          "line": 3,
+          "sha256": "fb9138029606f564e0180b94dd1307d297a9002cdb31351dffb4562395e87732"
+        }
+      },
+      "ui": {
+        "type": "UIBulletinEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 39,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIBulletinEOD.cs",
+          "line": 8,
+          "sha256": "524e144eede2bc4df3a996ab7171bc5088f1d4477f2fee3124d3a736698f3e0b"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00001003-SOURCE-TRACE",
+        "EOD-00001003-RECOVERY",
+        "EOD-00001003-NATIVE",
+        "EOD-00001003-PROVIDER"
+      ],
+      "prerequisites": "bulletin service/provider, permissions/moderation, callbacks and serialization traces"
+    },
+    {
+      "id": 4100,
+      "id_hex": "0x00001004",
+      "server": {
+        "type": "VMEODCooldownEventPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 58,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODCooldownEventPlugin.cs",
+          "line": 10,
+          "sha256": "74af8fdffe55a83354c250c813e48bf5ca73c4f9b3ce6c8263445bedac735ebe"
+        }
+      },
+      "ui": {
+        "type": "UICooldownEventEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 40,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UICooldownEventEOD.cs",
+          "line": 6,
+          "sha256": "6b20100a3675a14a96a1463811f0ab362f30c9f2df31735373e1ccde72a44094"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00001004-SOURCE-TRACE",
+        "EOD-00001004-RECOVERY",
+        "EOD-00001004-NATIVE",
+        "EOD-00001004-PROVIDER"
+      ],
+      "prerequisites": "cooldown persistence/transaction provider, authoritative time and callback/retry traces"
+    },
+    {
+      "id": 4101,
+      "id_hex": "0x00001005",
+      "server": {
+        "type": "VMEODGameshowBuzzerPlayerPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 59,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerPlayerPlugin.cs",
+          "line": 6,
+          "sha256": "d5ab32db83d6e934846dc8186ffce352a3baae039370fa3ce2ce14abf43bf1e5"
+        }
+      },
+      "ui": {
+        "type": "UIGameshowBuzzerPlayerEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 41,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerPlayerEOD.cs",
+          "line": 10,
+          "sha256": "1d50c042bcb86a09dbaeac6424f6c21db19895df198f15368f9c9944bb73166d"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00001005-SOURCE-TRACE",
+        "EOD-00001005-RECOVERY",
+        "EOD-00001005-NATIVE",
+        "EOD-00001005-PROVIDER"
+      ],
+      "prerequisites": "host/player cross-plugin callbacks, queued object events and UI synchronization traces"
+    },
+    {
+      "id": 4102,
+      "id_hex": "0x00001006",
+      "server": {
+        "type": "VMEODGameshowBuzzerHostPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 60,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerHostPlugin.cs",
+          "line": 8,
+          "sha256": "ce67a394ecfd4b2f1207650a3091a308c3bf403ff1b6be50fed84946d2bbcb22"
+        }
+      },
+      "ui": {
+        "type": "UIGameshowBuzzerHostEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 42,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerHostEOD.cs",
+          "line": 16,
+          "sha256": "589cc77bf69724cd06cb90e41e801eb72ef133518aa2ebec7a6d2acdd2d26df9"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00001006-SOURCE-TRACE",
+        "EOD-00001006-RECOVERY",
+        "EOD-00001006-NATIVE",
+        "EOD-00001006-PROVIDER"
+      ],
+      "prerequisites": "host/player cross-plugin lifecycle, scores/judgments and timer/object-event traces"
+    },
+    {
+      "id": 8192,
+      "id_hex": "0x00002000",
+      "server": {
+        "type": "VMEODPropertySelectPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 63,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPropertySelectPlugin.cs",
+          "line": 6,
+          "sha256": "7cecc6e29b3c4919a7ca987862f89e6adb5393c3b8df04052ee72307f766749b"
+        }
+      },
+      "ui": {
+        "type": "UIPropertySelectEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 45,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIPropertySelectEOD.cs",
+          "line": 17,
+          "sha256": "691a707fccc1551dba9986cef9e71883ab19aa5f0b09da28c431e4f47c832f2b"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-00002000-SOURCE-TRACE",
+        "EOD-00002000-RECOVERY",
+        "EOD-00002000-NATIVE",
+        "EOD-00002000-PROVIDER"
+      ],
+      "prerequisites": "archive property-selection/travel provider, search bounds and VM/UI traces"
+    },
+    {
+      "id": 155838104,
+      "id_hex": "0x0949E698",
+      "server": {
+        "type": "VMEODScoreboardPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 36,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODScoreboardPlugin.cs",
+          "line": 9,
+          "sha256": "fb6a2f71cb147e3813a406d7ed615000629be092ccf25f3215754dd804f29101"
+        }
+      },
+      "ui": {
+        "type": "UIScoreboardEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 20,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIScoreboardEOD.cs",
+          "line": 9,
+          "sha256": "0f94383ff46a33f1dc281e98e32c5d7701442b14dd5e1221b25074001d942f20"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-0949E698-SOURCE-TRACE",
+        "EOD-0949E698-RECOVERY",
+        "EOD-0949E698-NATIVE",
+        "EOD-0949E698-PROVIDER"
+      ],
+      "prerequisites": "EODPersist provider, patch ordering and color/score overflow source traces"
+    },
+    {
+      "id": 174715551,
+      "id_hex": "0x0A69F29F",
+      "server": {
+        "type": "VMEODPermissionDoorPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 37,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPermissionDoorPlugin.cs",
+          "line": 7,
+          "sha256": "e9bcbe861ba445d766f5d597d4ab5687187592e1368eb5ffba5dad3bd5832ba5"
+        }
+      },
+      "ui": {
+        "type": "UIPermissionDoorEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 21,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIPermissionDoorEOD.cs",
+          "line": 7,
+          "sha256": "b861460d84ca688f5832fbef0fbb7680a4e805256b398373dfb38e3c1a845762"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-0A69F29F-SOURCE-TRACE",
+        "EOD-0A69F29F-RECOVERY",
+        "EOD-0A69F29F-NATIVE",
+        "EOD-0A69F29F-PROVIDER"
+      ],
+      "prerequisites": "private door-code persistence, permission/access policy and door-state object-event traces"
+    },
+    {
+      "id": 187329411,
+      "id_hex": "0x0B2A6B83",
+      "server": {
+        "type": "VMEODRoulettePlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 44,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs",
+          "line": 9,
+          "sha256": "bfccf0b83d16cf3e42ffcf826a3b7ab0ffec1d424652c93e420b972f176387e2"
+        }
+      },
+      "ui": {
+        "type": "UIRouletteEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 28,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIRouletteEOD.cs",
+          "line": 17,
+          "sha256": "300a9b15813d04ea455d25731ca815e89a0855a35c90e1fdcde5586eecb2f8a4"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-0B2A6B83-SOURCE-TRACE",
+        "EOD-0B2A6B83-RECOVERY",
+        "EOD-0B2A6B83-NATIVE",
+        "EOD-0B2A6B83-PROVIDER"
+      ],
+      "prerequisites": "private spin outcome, multiplayer bets, budget/reserve/settle/refund provider and casino traces"
+    },
+    {
+      "id": 711153312,
+      "id_hex": "0x2A6356A0",
+      "server": {
+        "type": "VMEODSignsPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 29,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSignsPlugin.cs",
+          "line": 9,
+          "sha256": "51b26aededbe620d24fdbbeb54dbc690e3563f58981567b89ceb4af07952fd75"
+        }
+      },
+      "ui": {
+        "type": "UISignsEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 13,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UISignsEOD.cs",
+          "line": 8,
+          "sha256": "0219463a283945d826b0b9cc2f91a0aef9bb093c58a1b42ceae8d3d43a6df5d3"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-2A6356A0-SOURCE-TRACE",
+        "EOD-2A6356A0-RECOVERY",
+        "EOD-2A6356A0-NATIVE",
+        "EOD-2A6356A0-PROVIDER"
+      ],
+      "prerequisites": "GlobalLink plugin text persistence, owner/edit permissions and source UI byte traces"
+    },
+    {
+      "id": 724550932,
+      "id_hex": "0x2B2FC514",
+      "server": {
+        "type": "VMEODBlackjackPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 46,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+          "line": 10,
+          "sha256": "a77a31c729b52ffe89c4ee401faef42b2c04db6241f5916e2601bd6475be0547"
+        }
+      },
+      "ui": {
+        "type": "UIBlackjackEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 30,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIBlackjackEOD.cs",
+          "line": 16,
+          "sha256": "aab72c6ffa56def6f507ea95c18495503a43431ff7c7c2183f502f83bc933d5d"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-2B2FC514-SOURCE-TRACE",
+        "EOD-2B2FC514-RECOVERY",
+        "EOD-2B2FC514-NATIVE",
+        "EOD-2B2FC514-PROVIDER"
+      ],
+      "prerequisites": "private deck/dealer state, player lobby, casino transactions and disconnect/refund traces"
+    },
+    {
+      "id": 727187979,
+      "id_hex": "0x2B58020B",
+      "server": {
+        "type": "VMEODRackOwnerPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 33,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs",
+          "line": 9,
+          "sha256": "d95f2b0df125ed473d2a46928468e8a9220442fd477de99986f75ebe9ab1bea4"
+        }
+      },
+      "ui": {
+        "type": "UIRackOwnerEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 17,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIRackOwnerEOD.cs",
+          "line": 14,
+          "sha256": "54dd241af9c74bb7064963d398a70c42edddb6d5bc77835144b7fb250fe203ce"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-2B58020B-SOURCE-TRACE",
+        "EOD-2B58020B-RECOVERY",
+        "EOD-2B58020B-NATIVE",
+        "EOD-2B58020B-PROVIDER"
+      ],
+      "prerequisites": "rack inventory/catalog provider, ownership and transaction failure/retry traces"
+    },
+    {
+      "id": 761539897,
+      "id_hex": "0x2D642D39",
+      "server": {
+        "type": "VMEODWarGamePlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 40,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODWarGamePlugin.cs",
+          "line": 8,
+          "sha256": "8fa2a81ed38fd9f215fdfc6584308b18cfdd30a3b56c8f25b5fb5cdfb04a3238"
+        }
+      },
+      "ui": {
+        "type": "UIWarGameEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 24,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIWarGameEOD.cs",
+          "line": 11,
+          "sha256": "c77fe83608b78a70438ddcaf5bd183ffe5907544d3ffe14221bd4a1e056ee8b3"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-2D642D39-SOURCE-TRACE",
+        "EOD-2D642D39-RECOVERY",
+        "EOD-2D642D39-NATIVE",
+        "EOD-2D642D39-PROVIDER"
+      ],
+      "prerequisites": "private game choices, lobby synchronization and round/object-event traces"
+    },
+    {
+      "id": 1243896354,
+      "id_hex": "0x4A245A22",
+      "server": {
+        "type": "VMEODTwoPersonJobObjectMazePlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 47,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTwoPersonJobObjectMazePlugin.cs",
+          "line": 9,
+          "sha256": "cbd4487ef61b120c467e9e56270827e3cc9d3e15090b8ae109bfde862beedb4f"
+        }
+      },
+      "ui": {
+        "type": "UITwoPersonJobObjectMazeEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 31,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UITwoPersonJobObjectMazeEOD.cs",
+          "line": 13,
+          "sha256": "9246d59b7dd4365ddd31972ab5f768d3d175123f1ddf8d1eb0b0a633f4ec4ab0"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-4A245A22-SOURCE-TRACE",
+        "EOD-4A245A22-RECOVERY",
+        "EOD-4A245A22-NATIVE",
+        "EOD-4A245A22-PROVIDER"
+      ],
+      "prerequisites": "maze RNG, two-role lobby, movement/timing and object-event traces"
+    },
+    {
+      "id": 1247537323,
+      "id_hex": "0x4A5BE8AB",
+      "server": {
+        "type": "VMEODDanceFloorPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 30,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDanceFloorPlugin.cs",
+          "line": 5,
+          "sha256": "40fdd6267c7f68a93b89224d6138566b69bb5213ebc32a752502a463dd449e9e"
+        }
+      },
+      "ui": {
+        "type": "UIDanceFloorEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 14,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIDanceFloorEOD.cs",
+          "line": 6,
+          "sha256": "2871d4ac9ee0eeb89b5c888fc77a3d51006dec39903014c3f879056b58122ad3"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-4A5BE8AB-SOURCE-TRACE",
+        "EOD-4A5BE8AB-RECOVERY",
+        "EOD-4A5BE8AB-NATIVE",
+        "EOD-4A5BE8AB-PROVIDER"
+      ],
+      "prerequisites": "dance-state object events, avatar selection and multi-client source traces"
+    },
+    {
+      "id": 1817998677,
+      "id_hex": "0x6C5C7555",
+      "server": {
+        "type": "VMEODDJStationPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 51,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDJStationPlugin.cs",
+          "line": 9,
+          "sha256": "ee4838085dfd66b33b86c7d8875c9f791e619dc9f23aaefd4346e19b237397be"
+        }
+      },
+      "ui": {
+        "type": "UIDJStationEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 34,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIDJStationEOD.cs",
+          "line": 8,
+          "sha256": "bbb9c612fc55526c96240bf3215fbd7e7981f4a619e34b20868b1bd20213e774"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-6C5C7555-SOURCE-TRACE",
+        "EOD-6C5C7555-RECOVERY",
+        "EOD-6C5C7555-NATIVE",
+        "EOD-6C5C7555-PROVIDER"
+      ],
+      "prerequisites": "nightclub music/controller integration and pattern/UI/object-event traces"
+    },
+    {
+      "id": 1829845061,
+      "id_hex": "0x6D113845",
+      "server": {
+        "type": "VMEODNCDanceFloorPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 49,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNCDanceFloorPlugin.cs",
+          "line": 10,
+          "sha256": "b68e9376bbe1df1fc7bfb25f42576a26959192d4c4b4051d18df0ab4ad9629b2"
+        }
+      },
+      "ui": null,
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "not-registered",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-6D113845-SOURCE-TRACE",
+        "EOD-6D113845-RECOVERY",
+        "EOD-6D113845-NATIVE",
+        "EOD-6D113845-PROVIDER"
+      ],
+      "prerequisites": "nightclub controller coupling, dance-floor object/tile state and server-only traces"
+    },
+    {
+      "id": 2304515307,
+      "id_hex": "0x895C1CEB",
+      "server": {
+        "type": "VMEODGameCompDrawACardPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 42,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameCompDrawACardPlugin.cs",
+          "line": 12,
+          "sha256": "497d13ce613a08f21a37f1f72b7d571641cf199b29e150c9a1355b19b9d03be1"
+        }
+      },
+      "ui": {
+        "type": "UIGameCompDrawACardPluginEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 26,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIGameCompDrawACardPluginEOD.cs",
+          "line": 12,
+          "sha256": "229a52e73031307b63ee88ba13eaecee6bcd3a4998c1ad9b93e8ed3baac5f83a"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-895C1CEB-SOURCE-TRACE",
+        "EOD-895C1CEB-RECOVERY",
+        "EOD-895C1CEB-NATIVE",
+        "EOD-895C1CEB-PROVIDER"
+      ],
+      "prerequisites": "persisted deck/editor data, private shuffle/draw state and owner/UI traces"
+    },
+    {
+      "id": 2306835189,
+      "id_hex": "0x897F82F5",
+      "server": {
+        "type": "VMEODSecureTradePlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 45,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs",
+          "line": 9,
+          "sha256": "40bed698f504c240ccba6f7eb7983a3038670f7fe97fd1693b5fc160ea62885d"
+        }
+      },
+      "ui": {
+        "type": "UISecureTradeEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 29,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UISecureTradeEOD.cs",
+          "line": 27,
+          "sha256": "5735d667823c981cb36d05ff2f6b1d266a97a89c530aec9441485f6980c5e096"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-897F82F5-SOURCE-TRACE",
+        "EOD-897F82F5-RECOVERY",
+        "EOD-897F82F5-NATIVE",
+        "EOD-897F82F5-PROVIDER"
+      ],
+      "prerequisites": "item/funds escrow, ownership validation, atomic trade/refund provider and retry traces"
+    },
+    {
+      "id": 2329921442,
+      "id_hex": "0x8ADFC7A2",
+      "server": {
+        "type": "VMEODBandPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 43,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBandPlugin.cs",
+          "line": 10,
+          "sha256": "8bb4a703b8b8567b2b814fc3d37e0df3790b147aafef1d5e9bfbf1e3dab0108d"
+        }
+      },
+      "ui": {
+        "type": "UIBandEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 27,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIBandEOD.cs",
+          "line": 16,
+          "sha256": "6c7f7a9a9e54b15854366016a755568b909ccf9cb94c78a56f6fd3839c74ab04"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-8ADFC7A2-SOURCE-TRACE",
+        "EOD-8ADFC7A2-RECOVERY",
+        "EOD-8ADFC7A2-NATIVE",
+        "EOD-8ADFC7A2-PROVIDER"
+      ],
+      "prerequisites": "band lobby, sequence RNG, skill/music integration and timing/object-event traces"
+    },
+    {
+      "id": 2335178856,
+      "id_hex": "0x8B300068",
+      "server": {
+        "type": "VMEODDresserPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 35,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDresserPlugin.cs",
+          "line": 10,
+          "sha256": "fa888ba49262035dc25d13d31c4af327203a7986eb0787fa7c1344a4e2f74ad0"
+        }
+      },
+      "ui": {
+        "type": "UIDresserEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 19,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIDresserEOD.cs",
+          "line": 17,
+          "sha256": "c8d5c45bf21ebd5d5d178f914c2660ce0a2825d78711eee0d140075bd6fef4fc"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-8B300068-SOURCE-TRACE",
+        "EOD-8B300068-RECOVERY",
+        "EOD-8B300068-NATIVE",
+        "EOD-8B300068-PROVIDER"
+      ],
+      "prerequisites": "avatar outfit inventory/equip provider and VM/UI clothing traces"
+    },
+    {
+      "id": 2858301148,
+      "id_hex": "0xAA5E36DC",
+      "server": {
+        "type": "VMEODTrunkPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 39,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTrunkPlugin.cs",
+          "line": 10,
+          "sha256": "1501eb652541a80864166f2c54b1742e0a03554f1f07ed4ffb7dd16bf19553b6"
+        }
+      },
+      "ui": {
+        "type": "UITrunkEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 23,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UITrunkEOD.cs",
+          "line": 12,
+          "sha256": "75381ae079f9e9f323c16cd32af3f76a2bdc93abd8b8d3cd04e8a3d87338a565"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-AA5E36DC-SOURCE-TRACE",
+        "EOD-AA5E36DC-RECOVERY",
+        "EOD-AA5E36DC-NATIVE",
+        "EOD-AA5E36DC-PROVIDER"
+      ],
+      "prerequisites": "outfit catalog/inventory and appearance/equip provider with source traces"
+    },
+    {
+      "id": 2858811038,
+      "id_hex": "0xAA65FE9E",
+      "server": {
+        "type": "VMEODTimerPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 41,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTimerPlugin.cs",
+          "line": 6,
+          "sha256": "70231132461a85d594f986f0c99b60cc8a01a5473bf29ddba2e636b9993c34ee"
+        }
+      },
+      "ui": {
+        "type": "UITimerPluginEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 25,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UITimerPluginEOD.cs",
+          "line": 8,
+          "sha256": "f7d077632ea522c8070d895fd602f1d6393380a7e5883a25174cc104abe4686d"
+        }
+      },
+      "runtime_status": "source-translated-timer-only",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "restore-private-schema-1-at-VM-barrier",
+      "remaining_leaf_ids": [
+        "EOD-AA65FE9E-SOURCE-TRACE",
+        "EOD-AA65FE9E-RECOVERY"
+      ],
+      "prerequisites": "authoritative TempRegisters adapter, synchronized event barrier, original C# + UI differential traces and restart rehearsal"
+    },
+    {
+      "id": 3393290758,
+      "id_hex": "0xCA418206",
+      "server": {
+        "type": "VMEODPaperChasePlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 32,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPaperChasePlugin.cs",
+          "line": 8,
+          "sha256": "4915b6470819ed83596488c908f0d65be2ad60f07ecb55dc055ef1f4f4a70c1a"
+        }
+      },
+      "ui": {
+        "type": "UIPaperChaseEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 16,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIPaperChaseEOD.cs",
+          "line": 11,
+          "sha256": "449bcca532e2514cc7088d4761c318d9bbd528bec78f167dd52296fa2027845b"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-CA418206-SOURCE-TRACE",
+        "EOD-CA418206-RECOVERY",
+        "EOD-CA418206-NATIVE",
+        "EOD-CA418206-PROVIDER"
+      ],
+      "prerequisites": "three-player lobby, private combination RNG, round timing and object-event traces"
+    },
+    {
+      "id": 3408402891,
+      "id_hex": "0xCB2819CB",
+      "server": {
+        "type": "VMEODSlotsPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 38,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs",
+          "line": 7,
+          "sha256": "89dd97a8cef1e4f0ffac2aab0e4af5198a241e4aea246563d284de9455adda17"
+        }
+      },
+      "ui": {
+        "type": "UISlotsEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 22,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UISlotsEOD.cs",
+          "line": 13,
+          "sha256": "a200537b79a308aa8c4ad554e0d1152ff78e418e19aba47cb50ed19821710863"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-CB2819CB-SOURCE-TRACE",
+        "EOD-CB2819CB-RECOVERY",
+        "EOD-CB2819CB-NATIVE",
+        "EOD-CB2819CB-PROVIDER"
+      ],
+      "prerequisites": "private RNG, payouts/budgets, owner controls and transactional reserve/refund provider"
+    },
+    {
+      "id": 3410568837,
+      "id_hex": "0xCB492685",
+      "server": {
+        "type": "VMEODRackPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 34,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs",
+          "line": 8,
+          "sha256": "dcbbc8e4d7449783e6355f8f5e5e134e6eac8599456e76b564a42e3c907e886e"
+        }
+      },
+      "ui": {
+        "type": "UIRackEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 18,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIRackEOD.cs",
+          "line": 10,
+          "sha256": "a33f0a6b6278b106202b83955f0c541321fb8c2ffe9f42bffdffcf1c02b3bdfa"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-CB492685-SOURCE-TRACE",
+        "EOD-CB492685-RECOVERY",
+        "EOD-CB492685-NATIVE",
+        "EOD-CB492685-PROVIDER"
+      ],
+      "prerequisites": "rack inventory provider, outfit ownership and purchase/equip transaction traces"
+    },
+    {
+      "id": 3435510851,
+      "id_hex": "0xCCC5BC43",
+      "server": {
+        "type": "VMEODNightclubControllerPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 52,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNightclubControllerPlugin.cs",
+          "line": 8,
+          "sha256": "e544bf7caa67abeb679046b9b6338744f4d758f24f659869109d4a09b83d771f"
+        }
+      },
+      "ui": null,
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "not-registered",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-CCC5BC43-SOURCE-TRACE",
+        "EOD-CCC5BC43-RECOVERY",
+        "EOD-CCC5BC43-NATIVE",
+        "EOD-CCC5BC43-PROVIDER"
+      ],
+      "prerequisites": "cross-plugin nightclub controller lifecycle, tuning, VM events and server-only traces"
+    },
+    {
+      "id": 3930566201,
+      "id_hex": "0xEA47AE39",
+      "server": {
+        "type": "VMEODPizzaMakerPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 31,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPizzaMakerPlugin.cs",
+          "line": 7,
+          "sha256": "5cd6b29c0b66c7b41d2864bd0f72c9ef86405f35e7e4327ae5fe7a610842d5af"
+        }
+      },
+      "ui": {
+        "type": "UIPizzaMakerEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 15,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIPizzaMakerEOD.cs",
+          "line": 11,
+          "sha256": "c13612d40e827ded07fe97b8a0e72792b99dbb670c6e218f8c5de6f3b7f10230"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-EA47AE39-SOURCE-TRACE",
+        "EOD-EA47AE39-RECOVERY",
+        "EOD-EA47AE39-NATIVE",
+        "EOD-EA47AE39-PROVIDER"
+      ],
+      "prerequisites": "four-player lobby, ingredient/oven state, timing and object-event traces"
+    },
+    {
+      "id": 3965048581,
+      "id_hex": "0xEC55D705",
+      "server": {
+        "type": "VMEODDancePlatformPlugin",
+        "registration": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+          "line": 50,
+          "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+        },
+        "source": {
+          "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDancePlatformPlugin.cs",
+          "line": 9,
+          "sha256": "20903d3d7c32b4565f2adcebc7456eb86661f87e34e24b4be48c54a9dff45e21"
+        }
+      },
+      "ui": {
+        "type": "UINCDanceFloorEOD",
+        "registration": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+          "line": 33,
+          "sha256": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+        },
+        "source": {
+          "path": "TSOClient/tso.client/UI/Panels/EODs/UINCDanceFloorEOD.cs",
+          "line": 7,
+          "sha256": "cc30f6af73b4c7df2ed639b9b37bc3933d652644257b43a2cac080b3793e726e"
+        }
+      },
+      "runtime_status": "unsupported-unverified",
+      "original_runtime_verification": "unverified",
+      "ui_runtime_verification": "unverified",
+      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "remaining_leaf_ids": [
+        "EOD-EC55D705-SOURCE-TRACE",
+        "EOD-EC55D705-RECOVERY",
+        "EOD-EC55D705-NATIVE",
+        "EOD-EC55D705-PROVIDER"
+      ],
+      "prerequisites": "nightclub controller coupling and exact UINCDanceFloorEOD message/event traces"
+    }
+  ]
+}
