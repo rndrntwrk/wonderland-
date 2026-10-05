@@ -56,6 +56,7 @@ const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript
 const server=createServer(async(req,res)=>{
   try{
     const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname),path=resolve(root,`.${name}`);
+    if(name==='/favicon.ico'){res.writeHead(204);res.end();return;}
     if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403);res.end();return;}
     const file=(await stat(path)).isDirectory()?resolve(path,'index.html'):path;
     res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream','Cache-Control':'no-store'});
@@ -76,9 +77,53 @@ async function renderedAfter(page,before){
   // Uniform/material changes can be queued one render behind the main-world acknowledgement.
   await page.waitForTimeout(150);
 }
+async function diagnosticSnapshot(page){
+  let timer;
+  try{return await Promise.race([
+    snapshot(page).catch(error=>({diagnosticError:String(error)})),
+    new Promise(resolveTimeout=>{timer=setTimeout(()=>resolveTimeout({diagnosticError:'Snapshot timed out after 5 seconds'}),5000);})
+  ]);}finally{clearTimeout(timer);}
+}
+async function captureCanvas(page,path,expected={width:640,height:480}){
+  await page.locator('#engine-canvas').scrollIntoViewIfNeeded();
+  const viewport=await page.evaluate(async()=>{
+    await document.fonts.ready;
+    return window.__wonderlandProbe.alignForCapture();
+  });
+  assert.equal(viewport.cssWidth,expected.width,'Canvas CSS width differs from the requested drawable size');
+  assert.equal(viewport.cssHeight,expected.height,'Canvas CSS height differs from the requested drawable size');
+  assert.ok(Math.abs(viewport.documentX-Math.round(viewport.documentX))<0.001,'Canvas document x must lie on an integer CSS pixel');
+  assert.ok(Math.abs(viewport.documentY-Math.round(viewport.documentY))<0.001,'Canvas document y must lie on an integer CSS pixel');
+  const bytes=await page.locator('#engine-canvas').screenshot({path,scale:'css',style:'#engine-canvas { outline: none !important; }'});
+  const image=readPng(bytes);
+  if(image.width!==expected.width||image.height!==expected.height){
+    console.error('WONDERLAND_CAPTURE_DIMENSIONS '+JSON.stringify({viewport,png:{width:image.width,height:image.height},expected}));
+    throw new Error('Canvas screenshot dimensions differ from the exact drawable size: '+image.width+'x'+image.height+' versus '+expected.width+'x'+expected.height);
+  }
+  return {bytes,image,viewport};
+}
+
+async function captureColor(page,path){
+  const deadline=Date.now()+15000;
+  let bytes,image,distinct;
+  do{
+    const capture=await captureCanvas(page,path);bytes=capture.bytes;image=capture.image;distinct=new Set();
+    for(let i=0;i<image.pixels.length;i+=4)distinct.add(image.pixels[i]|image.pixels[i+1]<<8|image.pixels[i+2]<<16);
+    if(distinct.size>16)break;
+    await page.waitForTimeout(250);
+  }while(Date.now()<deadline);
+  return {bytes,image,distinctColors:distinct.size};
+}
 async function ready(page){
-  await page.waitForFunction(()=>window.__wonderlandProbe?.snapshot().ready||window.__wonderlandProbe?.snapshot().errors.length,undefined,{timeout:60000});
-  const s=await snapshot(page);assert.equal(s.errors.length,0,s.errors.join('\n'));assert.equal(s.ready,true);
+  try{
+    await page.waitForFunction(()=>{const state=window.__wonderlandProbe?.snapshot();return state&&(state.ready||state.errors.length||state.lifecycle==='lost');},undefined,{timeout:60000});
+  }catch(error){
+    console.error('WONDERLAND_STARTUP_TIMEOUT '+JSON.stringify(await diagnosticSnapshot(page)));
+    throw error;
+  }
+  const s=await snapshot(page);assert.equal(s.errors.length,0,s.errors.join('\n'));
+  assert.notEqual(s.lifecycle,'lost','Engine graphics device was lost during startup: '+JSON.stringify(s.lossEvents));
+  assert.equal(s.ready,true);
   assert.equal(s.actualBackend,backend);assert.equal(s.wasmMemoryShared,false);assert.equal(s.crossOriginIsolated,false);
   await renderedAfter(page,0);return snapshot(page);
 }
@@ -97,7 +142,11 @@ try{
     const context=await browser.newContext({viewport:{width:1400,height:1100},deviceScaleFactor:dpr});
     await context.tracing.start({screenshots:true,snapshots:true,sources:true});
     const page=await context.newPage();page.setDefaultTimeout(20000);
-    page.on('console',message=>report.console.push({avatars,type:message.type(),text:message.text()}));
+    let forwardedConsole=0;
+    page.on('console',message=>{
+      const item={avatars,type:message.type(),text:message.text()};report.console.push(item);
+      if(forwardedConsole<64&&(item.type==='error'||item.text.startsWith('WONDERLAND_BOOTSTRAP '))){forwardedConsole++;console.log('WONDERLAND_BROWSER_CONSOLE '+JSON.stringify({...item,text:item.text.slice(0,4000)}));}
+    });
     page.on('pageerror',error=>report.console.push({avatars,type:'pageerror',text:String(error.stack||error)}));
     page.on('requestfailed',request=>report.requests.push({avatars,url:request.url(),error:request.failure()}));
     try{
@@ -114,14 +163,13 @@ try{
         const state=await snapshot(page);check(`fixture-hash-${mode}-${avatars}`,state.sceneHash===expected.fixtureHash,{expected:expected.fixtureHash,actual:state.sceneHash});
         const prefix=`${mode}-${avatars}-dpr${dpr}`;
         const colorPath=resolve(output,`${prefix}-color.png`),pickPath=resolve(output,`${prefix}-pick.png`);
-        const colorBytes=await page.locator('#engine-canvas').screenshot({path:colorPath,scale:'css'});
-        const gpuColor=readPng(colorBytes),cpuColor=readPpm(await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ppm`)));
+        const capture=await captureColor(page,colorPath),colorBytes=capture.bytes,gpuColor=capture.image;
+        const cpuColor=readPpm(await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ppm`)));
         const color=colorDifference(gpuColor,cpuColor);
-        const distinct=new Set();for(let i=0;i<gpuColor.pixels.length;i+=4)distinct.add(gpuColor.pixels[i]|gpuColor.pixels[i+1]<<8|gpuColor.pixels[i+2]<<16);
-        check(`nonempty-render-${mode}-${avatars}`,distinct.size>16,{distinctColors:distinct.size});
+        check(`nonempty-render-${mode}-${avatars}`,capture.distinctColors>16,{distinctColors:capture.distinctColors});
         check(`color-parity-${mode}-${avatars}`,color.meanAbsoluteByteError<=4&&color.rootMeanSquareByteError<=12&&color.channelFractionOver8<=0.03,color);
         await command(page,'setPass','pick');await renderedAfter(page,state.gpuSubmissions+state.glDrawCalls);
-        const pickState=await snapshot(page),pickBytes=await page.locator('#engine-canvas').screenshot({path:pickPath,scale:'css'});
+        const pickState=await snapshot(page),pickCapture=await captureCanvas(page,pickPath),pickBytes=pickCapture.bytes;
         const ids=await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ids`));
         const depths=await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.depth`));
         const idComparison=compareIds(readPng(pickBytes),ids,depths,pickState.idMap);
@@ -156,8 +204,10 @@ try{
       await step(`resize-and-DPR-${avatars}`,async()=>{
         const before=await snapshot(page);await page.evaluate(()=>window.__wonderlandProbe.resize(402,302));await page.waitForTimeout(250);
         const after=await snapshot(page);assert.equal(after.sceneHash,before.sceneHash);assert.equal(Math.round(after.viewport.cssWidth),400);assert.equal(Math.round(after.viewport.cssHeight),300);
-        assert.ok(after.viewport.width>=400);assert.equal(after.devicePixelRatio,dpr);
-        await page.locator('#engine-canvas').screenshot({path:resolve(output,`resize-${avatars}-dpr${dpr}.png`),scale:'css'});
+        assert.equal(after.devicePixelRatio,dpr);
+        assert.ok(Math.abs(after.viewport.width-after.viewport.cssWidth*dpr)<=1,'Canvas backing width must track CSS width times actual DPR');
+        assert.ok(Math.abs(after.viewport.height-after.viewport.cssHeight*dpr)<=1,'Canvas backing height must track CSS height times actual DPR');
+        await captureCanvas(page,resolve(output,`resize-${avatars}-dpr${dpr}.png`),{width:400,height:300});
         await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));return {before:before.viewport,after:after.viewport,dpr};
       });
       await step(`presentation-suspend-${avatars}`,async()=>{
@@ -184,6 +234,7 @@ try{
         const before=await snapshot(page);
         for(let i=0;i<8;i++)await command(page,'reloadFixture');await page.waitForTimeout(500);const after=await snapshot(page);
         assert.equal(after.sceneHash,before.sceneHash);assert.equal(after.meshCount,before.meshCount);assert.equal(after.spriteCount,before.spriteCount);
+        if(before.engineResourceOwnership&&after.engineResourceOwnership)assert.deepEqual(after.engineResourceOwnership,before.engineResourceOwnership,'Owned engine resources changed after identical resets');
         if(before.memoryBytes!==null&&after.memoryBytes!==null)assert.ok(after.memoryBytes-before.memoryBytes<=256*1024*1024,'WASM memory grew more than 256 MiB over eight identical resets');
         return {resets:8,beforeMemory:before.memoryBytes,afterMemory:after.memoryBytes,beforeOwnership:before.engineResourceOwnership??null,afterOwnership:after.engineResourceOwnership??null};
       });
@@ -192,6 +243,8 @@ try{
         assert.equal(after.simulatedLossCount,before.simulatedLossCount+1);assert.equal(after.actualLossCount,before.actualLossCount);assert.equal(after.suspended,true);await command(page,'resume');return after.simulatedLossCount;
       });
       const beforeLoss=await snapshot(page);check(`no-runtime-errors-before-loss-${avatars}`,beforeLoss.errors.length===0,beforeLoss.errors);
+      const consoleErrors=report.console.filter(item=>item.avatars===avatars&&['error','pageerror'].includes(item.type));
+      check(`no-console-errors-before-loss-${avatars}`,consoleErrors.length===0,consoleErrors);
       await step(`actual-device-loss-and-recovery-${avatars}`,async()=>{
         await page.evaluate(backend=>window.__wonderlandProbe[backend==='webgpu'?'loseDevice':'loseContext'](),backend);
         await page.waitForFunction(()=>window.__wonderlandProbe.snapshot().actualLossCount>0);const lost=await snapshot(page);assert.equal(lost.ready,false);assert.equal(lost.lifecycle,'lost');
@@ -199,7 +252,7 @@ try{
         const recovered=await ready(page);const expected=manifest.scenes.find(s=>s.mode==='hybrid2d'&&s.avatars===avatars);
         assert.equal(recovered.sceneHash,expected.fixtureHash);return {lost,recovered};
       });
-    }catch(error){failure(`browser-context-${avatars}`,error);try{await page.screenshot({path:resolve(output,`failure-${avatars}.png`),fullPage:true});report.lifecycle.push({name:`failure-state-${avatars}`,state:await snapshot(page)});}catch{} }
+    }catch(error){failure(`browser-context-${avatars}`,error);try{await page.screenshot({path:resolve(output,`failure-${avatars}.png`),fullPage:true});report.lifecycle.push({name:`failure-state-${avatars}`,state:await diagnosticSnapshot(page)});}catch{} }
     finally{await context.tracing.stop({path:resolve(output,`trace-${avatars}.zip`)});await context.close();}
   }
 }catch(error){failure('runner',error);}

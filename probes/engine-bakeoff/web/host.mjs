@@ -14,8 +14,18 @@ controller.status.devicePixelRatio=devicePixelRatio;
 controller.status.startupMs=null;
 controller.status.submittedFrameTimes=[];
 controller.status.audio={state:'not-created',available:false};
+controller.status.bootstrap=[];
+const observedGpuDevices=new WeakSet(),observedGpuContexts=new WeakSet(),gpuDeviceIds=new WeakMap();
+let nextGpuDeviceId=1;
+function diagnostic(stage,detail={}){
+  const event={stage,elapsedMs:Math.round(performance.now()-started),...detail};
+  controller.status.bootstrap.push(event);
+  if(controller.status.bootstrap.length>48)controller.status.bootstrap.shift();
+  console.info('WONDERLAND_BOOTSTRAP '+JSON.stringify(event));
+}
+diagnostic('host-start',{variant:config.variant,secureContext:isSecureContext,hasNavigatorGpu:!!navigator.gpu,crossOriginIsolated:controller.status.crossOriginIsolated,dpr:devicePixelRatio});
 
-function fail(error){controller.fail(error?.stack||String(error));refresh();}
+function fail(error){const reason=error?.stack||error?.message||String(error);controller.fail(reason);diagnostic('error',{reason:String(reason).slice(0,4000)});refresh();}
 window.addEventListener('error',event=>fail(event.error||event.message));
 window.addEventListener('unhandledrejection',event=>fail(event.reason));
 function issue(kind,args){
@@ -27,11 +37,20 @@ function issue(kind,args){
 function audioSnapshot(){return audioAdapter?.snapshot()||controller.status.audio;}
 function snapshot(){
   const rect=canvas.getBoundingClientRect();
-  return {...controller.snapshot(),viewport:{width:canvas.width,height:canvas.height,cssWidth:rect.width,cssHeight:rect.height},
+  return {...controller.snapshot(),viewport:{width:canvas.width,height:canvas.height,cssWidth:rect.width,cssHeight:rect.height,cssX:rect.x,cssY:rect.y,documentX:rect.x+scrollX,documentY:rect.y+scrollY},
     memoryBytes:wasm?.memory?.buffer?.byteLength??null,elapsedMs:performance.now()-started,audio:audioSnapshot()};
 }
+function alignForCapture(){
+  // Playwright encloses element screenshots in integer document pixels. Move
+  // the entire host so fractional text/layout positions cannot add an image row.
+  // This changes neither the canvas size nor any pixels in its drawing buffer.
+  host.style.transform='none';
+  const rect=canvas.getBoundingClientRect(),x=rect.x+scrollX,y=rect.y+scrollY;
+  host.style.transform='translate('+(Math.round(x)-x)+'px,'+(Math.round(y)-y)+'px)';
+  return snapshot().viewport;
+}
 const api={
-  snapshot,
+  snapshot,alignForCapture,
   setMode:mode=>issue('setMode',{mode}),setTick:tick=>issue('setTick',{tick}),
   selectAt:(x,y)=>issue('selectAt',{x,y}),setPass:pass=>issue('setPass',{pass}),
   suspend:()=>issue('suspend'),resume:()=>issue('resume'),simulateLoss:()=>issue('simulateLoss'),
@@ -60,7 +79,12 @@ const api={
   recover:()=>location.reload(),
 };
 Object.defineProperty(window,'__wonderlandProbe',{value:Object.freeze(api),writable:false});
-window.__wonderlandHost={config,drain:()=>controller.drain(),publish:value=>{controller.publish(value);refresh();},fail};
+let firstFixturePublished=false;
+window.__wonderlandHost={config,drain:()=>controller.drain(),publish:value=>{
+  controller.publish(value);
+  if(!firstFixturePublished&&value.sceneHash){firstFixturePublished=true;diagnostic('fixture-published',{sceneHash:value.sceneHash,mode:value.mode,avatars:value.avatars});}
+  refresh();
+},fail};
 
 function attach(next){
   if(!(next instanceof HTMLCanvasElement))return;
@@ -74,38 +98,81 @@ function observeGl(gl,next){
   const adapter={api:gl.getParameter(gl.VERSION),vendor:debug?gl.getParameter(debug.UNMASKED_VENDOR_WEBGL):gl.getParameter(gl.VENDOR),
     renderer:debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)};
   controller.observeBackend('webgl2',adapter);
+  diagnostic('webgl2-context-observed',adapter);
   for(const name of ['drawArrays','drawElements','drawArraysInstanced','drawElementsInstanced']){
     const original=gl[name];if(!original)continue;
     gl[name]=function(...args){const result=original.apply(this,args);controller.submission('webgl2');return result;};
   }
 }
+function observeGpuDevice(device,details={}){
+  if(!device)throw new Error('The engine supplied no WebGPU device');
+  gpuDevice=device;
+  const prior=controller.status.actualBackend==='webgpu'?(controller.status.adapter||{}):{};
+  controller.observeBackend('webgpu',{...prior,...details});
+  if(observedGpuDevices.has(device))return;
+  observedGpuDevices.add(device);
+  const deviceId=nextGpuDeviceId++;gpuDeviceIds.set(device,deviceId);
+  diagnostic('webgpu-device-observed',{deviceId,...details,features:Array.from(device.features||[])});
+  const originalDestroy=device.destroy.bind(device);
+  device.destroy=()=>{
+    diagnostic('webgpu-device-destroy-called',{deviceId,active:device===gpuDevice,stack:new Error('GPUDevice.destroy caller').stack?.slice(0,3500)});
+    return originalDestroy();
+  };
+  const originalSubmit=device.queue.submit.bind(device.queue);
+  device.queue.submit=commands=>{const result=originalSubmit(commands);controller.submission('webgpu');return result;};
+  device.addEventListener('uncapturederror',event=>fail(event.error));
+  device.lost.then(info=>{
+    diagnostic('webgpu-device-lost',{deviceId,reason:info.reason,message:info.message,active:device===gpuDevice});
+    if(device!==gpuDevice)return;
+    controller.actualLoss('webgpu',info.reason+': '+info.message);audioAdapter?.suspend();refresh();
+  });
+}
+function observeGpuContext(context,next){
+  attach(next);
+  if(observedGpuContexts.has(context))return;
+  observedGpuContexts.add(context);
+  diagnostic('webgpu-canvas-context-created');
+  const configure=context.configure.bind(context);
+  context.configure=configuration=>{
+    const result=configure(configuration);
+    observeGpuDevice(configuration.device,{observation:'engine canvas configure',format:configuration.format,alphaMode:configuration.alphaMode??null});
+    diagnostic('webgpu-canvas-configured',{deviceId:gpuDeviceIds.get(configuration.device),format:configuration.format,width:next.width,height:next.height});
+    return result;
+  };
+}
+
 // Observe the engine's own context. No independent capability probe can set actualBackend.
 const originalGetContext=HTMLCanvasElement.prototype.getContext;
 HTMLCanvasElement.prototype.getContext=function(kind,...args){
   const context=originalGetContext.call(this,kind,...args);
   if(context&&kind==='webgl2'&&context!==glContext){try{observeGl(context,this);}catch(error){fail(error);throw error;}}
-  if(context&&kind==='webgpu')attach(this);
+  if(context&&kind==='webgpu')observeGpuContext(context,this);
   return context;
 };
 if(navigator.gpu){
   const originalRequestAdapter=navigator.gpu.requestAdapter.bind(navigator.gpu);
   navigator.gpu.requestAdapter=async options=>{
-    const adapter=await originalRequestAdapter(options);
-    if(!adapter)return adapter;
+    diagnostic('webgpu-adapter-requested',{options:options??null});
+    let adapter;
+    try{adapter=await originalRequestAdapter(options);}
+    catch(error){fail(error);throw error;}
+    if(!adapter){fail('The engine WebGPU adapter request returned null');return adapter;}
+    const info=adapter.info||{};
+    const details={vendor:info.vendor??null,architecture:info.architecture??null,device:info.device??null,description:info.description??null,requestedOptions:options??null};
+    diagnostic('webgpu-adapter-returned',details);
     const originalRequestDevice=adapter.requestDevice.bind(adapter);
     adapter.requestDevice=async descriptor=>{
-      const device=await originalRequestDevice(descriptor);gpuDevice=device;
-      const info=adapter.info||{};
-      controller.observeBackend('webgpu',{vendor:info.vendor??null,architecture:info.architecture??null,device:info.device??null,description:info.description??null,
-        features:Array.from(device.features||[]),requestedOptions:options??null});
-      const originalSubmit=device.queue.submit.bind(device.queue);
-      device.queue.submit=commands=>{const result=originalSubmit(commands);controller.submission('webgpu');return result;};
-      device.addEventListener('uncapturederror',event=>fail(event.error));
-      device.lost.then(info=>{controller.actualLoss('webgpu',`${info.reason}: ${info.message}`);audioAdapter?.suspend();refresh();});
-      return device;
+      diagnostic('webgpu-device-requested',{requiredFeatures:Array.from(descriptor?.requiredFeatures||[]),requiredLimits:descriptor?.requiredLimits??null});
+      try{
+        const device=await originalRequestDevice(descriptor);
+        observeGpuDevice(device,{...details,observation:'engine adapter requestDevice'});
+        return device;
+      }catch(error){fail(error);throw error;}
     };
     return adapter;
   };
+}else if(controller.status.requestedBackend==='webgpu'){
+  fail('navigator.gpu is unavailable in this browser context');
 }
 // Fyrox appends its canvas to body after creating the GL context. Reparent it into the controlled host.
 new MutationObserver(records=>{
@@ -178,6 +245,12 @@ function samplePresentation(now){
 }
 requestAnimationFrame(samplePresentation);
 
+
+for(const delay of [5000,15000,45000])setTimeout(()=>{
+  const s=snapshot();
+  if(!s.ready)diagnostic('startup-pending',{requestedBackend:s.requestedBackend,actualBackend:s.actualBackend,readiness:s.readiness,errors:s.errors,gpuSubmissions:s.gpuSubmissions,glDrawCalls:s.glDrawCalls,viewport:s.viewport});
+},delay);
+
 try{
   const {BrowserAudio}=await import('./audio/browser-audio.mjs');
   audioAdapter=new BrowserAudio({contextFactory:()=>new AudioContext(),maxVoices:8,maxPendingDecodes:4,maxPcmBytes:2*1024*1024,
@@ -188,14 +261,20 @@ try{
     }});
 }catch(error){controller.status.audio={available:false,error:String(error)};}
 try{
+  diagnostic('wasm-module-import-start',{path:`./pkg/${config.variant}/engine.js`});
   const module=await import(`./pkg/${config.variant}/engine.js`);
+  diagnostic('wasm-module-imported',{exports:Object.keys(module)});
+  diagnostic('wasm-initialization-start');
   wasm=await module.default();
+  diagnostic('wasm-initialized',{memoryBytes:wasm?.memory?.buffer?.byteLength??null});
   if(!wasm?.memory)throw new Error('Engine WASM memory export is unavailable for the no-shared-memory gate');
   const shared=typeof SharedArrayBuffer!=='undefined'&&wasm.memory.buffer instanceof SharedArrayBuffer;
   controller.status.wasmMemoryShared=shared;
   if(shared)throw new Error('Shared WASM memory violates this probe baseline');
   controller.status.startupMs=performance.now()-started;
   if(typeof module.run!=='function')throw new Error('Packaged engine has no exported run()');
+  diagnostic('engine-run-called');
   module.run();
+  diagnostic('engine-run-returned');
 }catch(error){fail(error);}
 refresh();

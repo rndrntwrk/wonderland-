@@ -49,7 +49,7 @@ export function readPpm(input){
 }
 
 export function colorDifference(gpu,cpu){
-  if(gpu.width!==cpu.width||gpu.height!==cpu.height)throw new Error('Comparison image dimensions differ');
+  if(gpu.width!==cpu.width||gpu.height!==cpu.height)throw new Error(`Comparison image dimensions differ: GPU ${gpu.width}x${gpu.height}, CPU ${cpu.width}x${cpu.height}`);
   let absolute=0,squared=0,maximum=0,over8=0;const n=cpu.width*cpu.height*3;
   for(let i=0;i<cpu.width*cpu.height;i++)for(let c=0;c<3;c++){
     const d=Math.abs(gpu.pixels[i*4+c]-cpu.pixels[i*3+c]);absolute+=d;squared+=d*d;maximum=Math.max(maximum,d);if(d>8)over8++;

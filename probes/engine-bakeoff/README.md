@@ -33,7 +33,7 @@ cargo +1.95.0 run --locked --manifest-path probes/engine-bakeoff/fyrox/Cargo.tom
 
 Omit `--frames` to keep the native window open. Keys `1`, `2`, and `3` change view.
 `WONDERLAND_PROBE_FRAMES` supplies the same exit limit. Bevy counts render schedule
-cleanup visits; Fyrox waits for preceding renderer statistics containing draw
+cleanup visits; Fyrox counts completed custom LDR passes that issued fixture draw
 calls. These counters do not certify nonempty fixture pixels or screenshot parity.
 The native logs preserve `WONDERLAND_PROBE` JSON and engine renderer diagnostics.
 
@@ -107,9 +107,11 @@ are the authoritative identity. Engine entity/node/asset handles stay private.
 
 **Selection currently uses the CPU reference and generation-checked tickets.**
 `setPass('pick')` is the actual engine shader ID visualization path, but asynchronous
-GPU ID readback and its pixel validation remain pending. The material compensates
-for the output display transfer; engine target blending and final output parity
-must still be measured against the source reference. No GPU parity claim follows
+GPU ID readback remains pending. The browser gate reads the actual ID visualization
+screenshot and compares its stable interior bytes with the independent CPU reference.
+Bevy uses `CompositingSpace::Srgb`, and Fyrox draws in a custom LDR pass after tone
+mapping and FXAA. Both paths blend source-encoded, premultiplied colors in source
+draw order. Final output parity must still be measured; no GPU parity claim follows
 from the source arithmetic tests.
 
 Replacing the fixture rebuilds presentation resources, preserves a live selection,
@@ -124,6 +126,7 @@ frame timing must still be measured under repeated changes.
 | Method | Contract |
 |---|---|
 | `snapshot()` | Side-effect-free copy of runtime observations and current fixture state |
+| `alignForCapture()` | Translate the complete host to integer document pixels without changing drawable size |
 | `setMode(mode)`, `setTick(tick)` | Queue explicit fixture replacement; return command sequence |
 | `selectAt(x,y)` | Queue a reference pick; integer coordinates must be within 640×480 |
 | `setPass('color'|'pick')` | Change custom GPU color/ID visualization branch |
@@ -148,6 +151,10 @@ actual GL draw calls; `renderScheduleVisits` is an engine control-flow counter.
 `submittedFrameTimes` samples browser animation-frame intervals with submissions;
 it is not GPU execution time. Snapshot calls never advance any counter.
 `wasmMemoryShared` is checked against the actual exported WASM memory buffer.
+`engineResourceOwnership` reports owned engine handles rather than fixture counts.
+Fyrox also exposes actual renderer cache entries, CPU render time and custom-pass
+draw counts. These measurements are merged with fixture state; they are neither
+GPU memory-byte measurements nor GPU execution timings.
 
 DOM login/chat/search/interaction fields retain keyboard input. Game view keys
 and pointer selection require canvas focus; pointer cancellation cannot select.
@@ -175,6 +182,27 @@ bash -n probes/engine-bakeoff/web/package.sh
 ```
 
 These checks cover control/transfer arithmetic, not engine compilation. The
-root-owned `tools/swarm-c/browser-gate.mjs` performs available browser scenarios.
+coordinated `tools/swarm-c/browser-gate.mjs` performs available browser scenarios.
 Headless software renderer results remain distinct from physical Safari/iPhone,
 iPad, Android Chrome and desktop hardware acceptance.
+
+## Evidence status after the first engine CI run
+
+At checkpoint `ca79bbd251491277d9fd5838d3f84d247675709a`, Fyrox native
+compilation and all ten library tests succeeded, and Fyrox WebGL2 WASM compiled.
+Its browser packaging then failed while hashing a directory; its native executable
+stopped because `libxkbcommon-x11.so` was missing. Bevy's three builds reported
+three API compatibility errors involving optional depth state and a mutable asset
+guard. The coordinated checkpoint `809ec200e186871970b2e4cabb06d7f6c08ecd9e`
+contains those compiler, system-library and packaging corrections. Its next CI
+run succeeded for both native jobs and all three WASM builds. Both WebGL2 browser
+runs then stopped at strict screenshot dimensions, while WebGPU readiness timed
+out. The source-space compositing, custom LDR, capture-alignment and bootstrap
+changes require a fresh engine/browser run. No renderer or physical-device
+qualification is implied.
+
+Element screenshots require integer document-pixel bounds because Playwright
+rounds fractional rectangles outward. The gate calls alignForCapture(), checks
+the exact CSS drawable size and then checks the PNG is exactly 640 by 480. It does
+not repair mismatches by image resizing. Bootstrap events are available in the
+snapshot and emitted as WONDERLAND_BOOTSTRAP console records for startup diagnosis.

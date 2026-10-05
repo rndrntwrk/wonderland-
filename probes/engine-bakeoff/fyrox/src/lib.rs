@@ -4,6 +4,7 @@
 mod bridge;
 #[path = "../../web/math.rs"]
 mod math;
+mod source_pass;
 #[path = "../../web/upload.rs"]
 mod upload;
 
@@ -68,6 +69,9 @@ struct Game {
     #[visit(skip)]
     #[reflect(hidden)]
     observed_frames: u64,
+    #[visit(skip)]
+    #[reflect(hidden)]
+    source_frames: source_pass::FrameCounter,
 }
 impl std::fmt::Debug for Game {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -105,6 +109,7 @@ pub fn run() {
 }
 impl Plugin for Game {
     fn init(&mut self, _scene_path: Option<&str>, context: PluginContext) -> GameResult {
+        source_pass::install(context.graphics_context, &self.source_frames);
         let state = bridge::initial_config()
             .and_then(bridge::State::new)
             .map_err(GameError::str)?;
@@ -113,6 +118,10 @@ impl Plugin for Game {
         self.materials = materials;
         state.publish("fyrox-1.0.1", 0);
         self.state = Some(state);
+        Ok(())
+    }
+    fn on_graphics_context_initialized(&mut self, context: PluginContext) -> GameResult {
+        source_pass::install(context.graphics_context, &self.source_frames);
         Ok(())
     }
     fn update(&mut self, context: &mut PluginContext) -> GameResult {
@@ -139,7 +148,14 @@ impl Plugin for Game {
             material.data_ref().set_property("passFlags", flags);
         }
         let scene = context.scenes.try_get_mut(self.scene)?;
-        scene.rendering_options.get_value_mut_and_mark_modified().clear_color=Some(if state.pick_pass {Color::BLACK}else{Color::opaque(22,29,40)});
+        scene
+            .rendering_options
+            .get_value_mut_and_mark_modified()
+            .clear_color = Some(if state.pick_pass {
+            Color::BLACK
+        } else {
+            Color::opaque(22, 29, 40)
+        });
         if *scene.enabled == state.suspended {
             scene.enabled.set_value_and_mark_modified(!state.suspended);
         }
@@ -162,10 +178,26 @@ impl Plugin for Game {
         self.render_visits += 1;
         if let GraphicsContext::Initialized(graphics) = context.graphics_context {
             let stats = graphics.renderer.get_statistics();
-            // Statistics here describe the preceding completed render, not a requested future frame.
-            if stats.geometry.draw_calls > 0 {
-                self.observed_frames += 1;
-            }
+            // Count only completed custom passes that issued actual fixture draw calls.
+            self.observed_frames = self
+                .source_frames
+                .load(std::sync::atomic::Ordering::Relaxed);
+            #[cfg(target_arch = "wasm32")]
+            bridge::metrics(serde_json::json!({
+                "engineResourceOwnership": {
+                    "materials": self.materials.len(),
+                    "fixtureScenes": usize::from(self.scene.is_some())
+                },
+                "engineRendererStatistics": {
+                    "drawCalls": stats.geometry.draw_calls,
+                    "triangles": stats.geometry.triangles_rendered,
+                    "cpuRenderSeconds": stats.pure_frame_time,
+                    "textureCacheEntries": stats.texture_cache_size,
+                    "geometryCacheEntries": stats.geometry_cache_size,
+                    "shaderCacheEntries": stats.shader_cache_size,
+                    "uniformBufferCacheEntries": stats.uniform_buffer_cache_size
+                }
+            }));
             #[cfg(not(target_arch = "wasm32"))]
             if self.observed_frames == 1 {
                 println!("WONDERLAND_RENDER_OBSERVATION {{\"actualBackend\":\"opengl\",\"drawCalls\":{},\"triangles\":{},\"cpuRenderSeconds\":{},\"adapter\":\"see engine GL initialization log\"}}",stats.geometry.draw_calls,stats.geometry.triangles_rendered,stats.pure_frame_time);
@@ -222,7 +254,10 @@ fn create_scene(state: &bridge::State) -> Result<(Scene, Vec<MaterialResource>),
     .map_err(|e| e.to_string())?;
     let mut scene = Scene::new();
     scene.set_skybox(None);
-    scene.rendering_options.get_value_mut_and_mark_modified().clear_color=Some(Color::opaque(22,29,40));
+    scene
+        .rendering_options
+        .get_value_mut_and_mark_modified()
+        .clear_color = Some(Color::opaque(22, 29, 40));
     let mut materials = Vec::new();
     let c = state.scene.camera;
     let eye = vec3([c.eye.x, c.eye.y, c.eye.z]);

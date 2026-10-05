@@ -16,9 +16,9 @@
             (name:"unlit",kind:Float(value:1.0)),
         ]),binding:0),
     ],
-    disabled_passes:["GBuffer","DirectionalShadow","PointShadow","SpotShadow"],
+    disabled_passes:["Forward","GBuffer","DirectionalShadow","PointShadow","SpotShadow"],
     passes:[(
-        name:"Forward",
+        name:"WonderlandSource",
         draw_parameters:DrawParameters(
             cull_face:None,
             color_write:ColorMask(red:true,green:true,blue:true,alpha:true),
@@ -52,7 +52,6 @@
             in vec3 normal;
             in vec4 color;
             out vec4 FragColor;
-            vec3 sourceToLinear(vec3 c){return mix(c/12.92,pow((c+0.055)/1.055,vec3(2.4)),greaterThan(c,vec3(0.04045)));}
             void main(){
                 vec4 texel=texture(colorImage,uv)*properties.color*color;
                 vec4 aux=texture(depthAlpha,uv);
@@ -65,7 +64,7 @@
                 if(properties.passFlags.x>0.5){
                     if(byteAlpha<26.0||texel.a<properties.lightCutoff.a)discard;
                     // Ownerless surfaces write zero ID plus depth to preserve occlusion.
-                    FragColor=vec4(sourceToLinear(properties.idColor.rgb),1.0);return;
+                    FragColor=vec4(properties.idColor.rgb,1.0);return;
                 }
                 if(byteAlpha<=2.0||texel.a<properties.lightCutoff.a)discard;
                 vec3 rgb=texel.rgb;
@@ -75,8 +74,8 @@
                     else if(room==65533)rgb=vec3(dot(rgb,vec3(0.2989,0.587,0.114)));
                     else if(room!=65535&&room%256!=0)rgb=pow(pow(rgb,vec3(2.2))*properties.lightCutoff.rgb,vec3(1.0/2.2));
                 }else if(properties.unlit<0.5){rgb*=0.35+0.65*max(dot(normalize(normal),normalize(vec3(0.4,1.0,0.25))),0.0);}
-                // Source gamma lighting is explicit; final target blending/display transfer must be measured.
-                FragColor=vec4(sourceToLinear(rgb)*texel.a,texel.a);
+                // The custom LDR pass blends source-encoded colors directly into an RGBA8 target.
+                FragColor=vec4(rgb*texel.a,texel.a);
             }
         "#,
     )],

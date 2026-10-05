@@ -254,6 +254,14 @@ fn publish(value: &str) {
     #[cfg(not(target_arch = "wasm32"))]
     println!("WONDERLAND_PROBE {value}");
 }
+/// Partial runtime observations; the browser host merges these with fixture state.
+pub fn metrics(value: serde_json::Value) {
+    #[cfg(target_arch = "wasm32")]
+    publish_json(&value.to_string());
+    #[cfg(not(target_arch = "wasm32"))]
+    println!("WONDERLAND_ENGINE_METRICS {value}");
+}
+
 pub fn fail(value: &str) {
     #[cfg(target_arch = "wasm32")]
     fail_json(value);

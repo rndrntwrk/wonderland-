@@ -23,7 +23,7 @@ use bevy::{
     mesh::{Indices, MeshVertexBufferLayoutRef, PrimitiveTopology},
     pbr::{MaterialPipeline, MaterialPipelineKey},
     prelude::*,
-    render::{render_resource::*, Render, RenderApp, RenderSystems},
+    render::{render_resource::*, renderer::RenderAdapterInfo, Render, RenderApp, RenderSystems},
     shader::ShaderRef,
     window::WindowResolution,
 };
@@ -56,6 +56,8 @@ struct Parameters {
 }
 #[derive(Asset, TypePath, AsBindGroup, Clone, Debug)]
 struct SourceMaterial {
+    // Preserve the reference draw order; this affects sorting, never fragment depth.
+    source_order_bias: f32,
     #[uniform(0)]
     parameters: Parameters,
     #[texture(1)]
@@ -74,6 +76,9 @@ impl Material for SourceMaterial {
     }
     fn alpha_mode(&self) -> AlphaMode {
         AlphaMode::Premultiplied
+    }
+    fn depth_bias(&self) -> f32 {
+        self.source_order_bias
     }
     fn specialize(
         _: &MaterialPipeline,
@@ -115,7 +120,7 @@ pub fn run() {
     app.insert_resource(Probe(state))
         .insert_resource(visits.clone())
         .init_resource::<Ownership>()
-        .insert_resource(ClearColor(Color::srgb_u8(22,29,40)))
+        .insert_resource(ClearColor(Color::srgb_u8(22, 29, 40)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Wonderland Swarm C — Bevy 0.19.1".into(),
@@ -137,8 +142,24 @@ pub fn run() {
     }
     app.run();
 }
-fn count_render(visits: Res<RenderVisits>) {
-    visits.0.fetch_add(1, Ordering::Relaxed);
+fn count_render(visits: Res<RenderVisits>, adapter: Res<RenderAdapterInfo>) {
+    let previous = visits.0.fetch_add(1, Ordering::Relaxed);
+    #[cfg(not(target_arch = "wasm32"))]
+    if previous == 0 {
+        println!(
+            "WONDERLAND_RENDER_OBSERVATION {}",
+            serde_json::json!({
+                "actualBackend": format!("{:?}", adapter.backend),
+                "name": adapter.name,
+                "driver": adapter.driver,
+                "driverInfo": adapter.driver_info,
+                "deviceType": format!("{:?}", adapter.device_type),
+                "evidence": "engine-selected adapter and render-schedule visit; pixel gate is separate"
+            })
+        );
+    }
+    #[cfg(target_arch = "wasm32")]
+    let _ = (previous, adapter);
 }
 
 fn setup(
@@ -196,11 +217,12 @@ fn spawn_scene(
         Camera3d::default(),
         projection,
         Msaa::Off,
+        CompositingSpace::Srgb,
         Tonemapping::None,
         Transform::from_translation(eye)
             .looking_at(target, Vec3::new(camera.up.x, camera.up.y, camera.up.z)),
     ));
-    for draw in prepared {
+    for (draw_order, draw) in prepared.into_iter().enumerate() {
         let mesh = meshes.add(
             Mesh::new(
                 PrimitiveTopology::TriangleList,
@@ -215,6 +237,9 @@ fn spawn_scene(
         let color = images.add(image(draw.image));
         let depth = images.add(image(draw.depth_alpha));
         let material = materials.add(SourceMaterial {
+            // Fixture geometry is bounded by this finite camera range. A gap of twice
+            // that range keeps each source draw ahead of every later source draw.
+            source_order_bias: draw_order as f32 * (2.0 * camera.far + 1.0),
             parameters: Parameters {
                 view_projection: vp,
                 color: Vec4::from_array(draw.color),
@@ -319,7 +344,11 @@ fn update(
         }
     }
     let pass = if probe.0.pick_pass { 1.0 } else { 0.0 };
-    clear.0=if probe.0.pick_pass {Color::BLACK}else{Color::srgb_u8(22,29,40)};
+    clear.0 = if probe.0.pick_pass {
+        Color::BLACK
+    } else {
+        Color::srgb_u8(22, 29, 40)
+    };
     for handle in &owned.materials {
         if materials
             .get(handle)
@@ -338,7 +367,16 @@ fn update(
     }
     let rendered = visits.0.load(Ordering::Relaxed);
     #[cfg(target_arch = "wasm32")]
-    probe.0.publish("bevy-0.19.1", rendered);
+    {
+        bridge::metrics(serde_json::json!({
+            "engineResourceOwnership": {
+                "meshes": owned.meshes.len(),
+                "materials": owned.materials.len(),
+                "images": owned.images.len()
+            }
+        }));
+        probe.0.publish("bevy-0.19.1", rendered);
+    }
     #[cfg(not(target_arch = "wasm32"))]
     if rebuild
         || probe.0.update_count == 1

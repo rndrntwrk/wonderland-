@@ -23,6 +23,8 @@ test('bounded command queue rejects out-of-range pick and stale input after susp
   assert.throws(()=>c.enqueue('selectAt',{x:640,y:0}));
   assert.throws(()=>c.enqueue('selectAt',{x:0,y:480}));
   assert.throws(()=>c.enqueue('selectAt',{x:-1,y:0}));
+  assert.throws(()=>c.enqueue('selectAt',{x:'10',y:20}));
+  assert.throws(()=>c.enqueue('setTick',{tick:'30'}));
   c.enqueue('selectAt',{x:100,y:90});c.enqueue('suspend');
   assert.throws(()=>c.enqueue('selectAt',{x:100,y:90}));
   assert.equal(c.drain().length,2);assert.equal(c.drain().length,0);
@@ -36,4 +38,15 @@ test('simulated loss is recorded separately and never certifies actual context l
   assert.equal(c.snapshot().simulatedLossCount,1);assert.equal(c.snapshot().actualLossCount,0);
   c.actualLoss('webgl2','browser event');
   assert.equal(c.snapshot().actualLossCount,1);assert.equal(c.snapshot().lifecycle,'lost');
+});
+
+test('partial renderer observations survive subsequent fixture-state publications',()=>{
+  const c=new ProbeController(parseConfig(''));
+  c.publish({engineResourceOwnership:{meshes:7,materials:7,images:14},fixtureDrawCalls:7});
+  c.publish({sceneHash:'immutable-fixture',ready:true,mode:'hybrid2d'});
+  assert.deepEqual(c.snapshot().engineResourceOwnership,{meshes:7,materials:7,images:14});
+  assert.equal(c.snapshot().fixtureDrawCalls,7);
+  c.publish({fixtureDrawCalls:8});
+  assert.equal(c.snapshot().sceneHash,'immutable-fixture');
+  assert.equal(c.snapshot().fixtureDrawCalls,8);
 });

@@ -25,7 +25,6 @@ struct VertexOutput {
     out.position=clip;out.uv=v.uv;out.color=v.color;out.normal=v.normal;return out;
 }
 struct FragmentOutput { @location(0) color:vec4<f32>, @builtin(frag_depth) depth:f32 };
-fn srgb_to_linear(c:vec3<f32>)->vec3<f32>{return select(c/12.92,pow((c+0.055)/1.055,vec3(2.4)),c>vec3(0.04045));}
 @fragment fn fragment(v:VertexOutput)->FragmentOutput {
     var texel=textureSample(color_image,color_sampler,v.uv)*p.color*v.color;
     let aux=textureSample(depth_alpha,depth_sampler,v.uv);
@@ -37,7 +36,7 @@ fn srgb_to_linear(c:vec3<f32>)->vec3<f32>{return select(c/12.92,pow((c+0.055)/1.
     if p.flags.x>0.5 {
         if byte_alpha<26.0 || texel.a<p.light_cutoff.a {discard;}
         // Ownerless geometry writes opaque zero ID and still occludes objects behind it.
-        return FragmentOutput(vec4(srgb_to_linear(p.id_color.rgb),1.0),depth);
+        return FragmentOutput(vec4(p.id_color.rgb,1.0),depth);
     }
     if byte_alpha<=2.0 || texel.a<p.light_cutoff.a {discard;}
     var rgb=texel.rgb;
@@ -49,7 +48,7 @@ fn srgb_to_linear(c:vec3<f32>)->vec3<f32>{return select(c/12.92,pow((c+0.055)/1.
     } else if p.flags.y<0.5 {
         rgb*=0.35+0.65*max(dot(normalize(v.normal),normalize(vec3(0.4,1.0,0.25))),0.0);
     }
-    // Bevy's output attachment performs sRGB encoding. Invert that transfer here.
-    // Translucent blending remains the engine's linear target path; source-space blend parity is a gate.
-    return FragmentOutput(vec4(srgb_to_linear(rgb)*texel.a,texel.a),depth);
+    // CompositingSpace::Srgb uses an UNORM intermediate for source-space blending.
+    // Bevy converts to the display attachment only in its final blit.
+    return FragmentOutput(vec4(rgb*texel.a,texel.a),depth);
 }

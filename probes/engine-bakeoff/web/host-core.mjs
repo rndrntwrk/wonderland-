@@ -3,6 +3,10 @@ const modes=new Set(['full2d','hybrid2d','full3d']);
 function integer(value,min,max,label){
   const n=Number(value);if(!Number.isSafeInteger(n)||n<min||n>max)throw new Error(`${label} must be an integer in ${min}..${max}`);return n;
 }
+function commandInteger(value,min,max,label){
+  if(typeof value!=='number')throw new Error(`${label} must be a number`);
+  return integer(value,min,max,label);
+}
 export function parseConfig(search=''){
   const q=new URLSearchParams(search);
   const variant=q.get('variant')||`${q.get('engine')||'bevy'}-${q.get('backend')||'webgpu'}`;
@@ -25,7 +29,7 @@ export class ProbeController {
     readiness:this.status.errors.length?'failed':this.engine.readiness||this.status.readiness,
   });}
   publish(value){
-    this.engine=value;
+    this.engine={...this.engine,...value};
     if(this.status.lifecycle==='starting')this.status.lifecycle='running';
     for(const error of value.engineErrors||[])if(!this.status.errors.includes(error))this.fail(error);
   }
@@ -41,9 +45,9 @@ export class ProbeController {
     if(this.queue.length>=128)throw new Error('Presentation command queue limit (128) reached');
     switch(kind){
       case 'setMode':if(!modes.has(args.mode))throw new Error('Unknown view mode');break;
-      case 'setTick':integer(args.tick,0,Number.MAX_SAFE_INTEGER,'tick');break;
+      case 'setTick':commandInteger(args.tick,0,Number.MAX_SAFE_INTEGER,'tick');break;
       case 'selectAt':
-        integer(args.x,0,639,'pick x');integer(args.y,0,479,'pick y');
+        commandInteger(args.x,0,639,'pick x');commandInteger(args.y,0,479,'pick y');
         if(this.status.suspended||this.status.lifecycle==='lost')throw new Error('Picking is suspended');break;
       case 'setPass':if(!['color','pick'].includes(args.pass))throw new Error('Unknown render pass');break;
       case 'suspend':this.status.suspended=true;break;
