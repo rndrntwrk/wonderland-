@@ -1,9 +1,12 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
   "evidence_kind": "static-source-registration-census; synthetic source-derived native tests only",
   "server_registrations": 30,
   "ui_registrations": 28,
+  "source_translated_native_handlers": 5,
+  "original_runtime_verified_handlers": 0,
+  "production_provider_verified_handlers": 0,
   "entries": [
     {
       "id": 4096,
@@ -35,6 +38,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -76,6 +80,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -117,6 +122,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -158,6 +164,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -199,6 +206,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -240,6 +248,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -281,6 +290,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -321,14 +331,14 @@
           "sha256": "0f94383ff46a33f1dc281e98e32c5d7701442b14dd5e1221b25074001d942f20"
         }
       },
-      "runtime_status": "unsupported-unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-2-checkpointed-intents-and-provider-reconciliation",
       "remaining_leaf_ids": [
         "EOD-0949E698-SOURCE-TRACE",
         "EOD-0949E698-RECOVERY",
-        "EOD-0949E698-NATIVE",
         "EOD-0949E698-PROVIDER"
       ],
       "prerequisites": "EODPersist provider, patch ordering and color/score overflow source traces"
@@ -362,14 +372,14 @@
           "sha256": "b861460d84ca688f5832fbef0fbb7680a4e805256b398373dfb38e3c1a845762"
         }
       },
-      "runtime_status": "unsupported-unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-2-checkpointed-intents-and-provider-reconciliation",
       "remaining_leaf_ids": [
         "EOD-0A69F29F-SOURCE-TRACE",
         "EOD-0A69F29F-RECOVERY",
-        "EOD-0A69F29F-NATIVE",
         "EOD-0A69F29F-PROVIDER"
       ],
       "prerequisites": "private door-code persistence, permission/access policy and door-state object-event traces"
@@ -404,6 +414,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -444,14 +455,14 @@
           "sha256": "0219463a283945d826b0b9cc2f91a0aef9bb093c58a1b42ceae8d3d43a6df5d3"
         }
       },
-      "runtime_status": "unsupported-unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-2-checkpointed-intents-and-provider-reconciliation",
       "remaining_leaf_ids": [
         "EOD-2A6356A0-SOURCE-TRACE",
         "EOD-2A6356A0-RECOVERY",
-        "EOD-2A6356A0-NATIVE",
         "EOD-2A6356A0-PROVIDER"
       ],
       "prerequisites": "GlobalLink plugin text persistence, owner/edit permissions and source UI byte traces"
@@ -486,6 +497,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -527,6 +539,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -568,6 +581,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -609,6 +623,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -649,15 +664,14 @@
           "sha256": "2871d4ac9ee0eeb89b5c888fc77a3d51006dec39903014c3f879056b58122ad3"
         }
       },
-      "runtime_status": "unsupported-unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "not-required-by-translated-handler",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-2-detached-controller",
       "remaining_leaf_ids": [
         "EOD-4A5BE8AB-SOURCE-TRACE",
-        "EOD-4A5BE8AB-RECOVERY",
-        "EOD-4A5BE8AB-NATIVE",
-        "EOD-4A5BE8AB-PROVIDER"
+        "EOD-4A5BE8AB-RECOVERY"
       ],
       "prerequisites": "dance-state object events, avatar selection and multi-client source traces"
     },
@@ -691,6 +705,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -720,6 +735,7 @@
       },
       "ui": null,
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "not-registered",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -761,6 +777,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -802,6 +819,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -843,6 +861,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -884,6 +903,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -925,6 +945,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -965,7 +986,8 @@
           "sha256": "f7d077632ea522c8070d895fd602f1d6393380a7e5883a25174cc104abe4686d"
         }
       },
-      "runtime_status": "source-translated-timer-only",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "not-required-by-translated-handler",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "restore-private-schema-1-at-VM-barrier",
@@ -1005,6 +1027,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -1046,6 +1069,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -1087,6 +1111,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -1116,6 +1141,7 @@
       },
       "ui": null,
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "not-registered",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -1157,6 +1183,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
@@ -1198,6 +1225,7 @@
         }
       },
       "runtime_status": "unsupported-unverified",
+      "production_provider_verification": "unverified",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
       "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",

@@ -5,7 +5,7 @@
 //! authority, never from these bytes. This is a new native boundary, not the
 //! legacy `VMNetEODMessageCmd` wire format.
 
-use crate::{HostLimits, TimerVmEvent};
+use crate::{HostLimits, SourceObjectEvent, TimerVmEvent};
 use std::fmt;
 
 macro_rules! id {
@@ -123,6 +123,19 @@ pub enum Error {
     EffectConflict,
     UnknownEffect,
     ProviderReceiptMismatch,
+    PluginInputRequired,
+    InvalidPluginInput,
+    PluginNotReady,
+    NotAuthorized,
+    ControllerAlreadyConnected,
+    PersistedObjectBusy,
+    PersistencePending,
+    PersistenceLimit,
+    PersistenceTooLarge,
+    PersistenceUnavailable,
+    InvalidPluginData,
+    ReconciliationRequired,
+    PersistenceDiverged,
 }
 
 impl fmt::Display for Error {
@@ -214,6 +227,15 @@ pub enum PublicVmEvent {
         invoker: InvokerId,
         event: TimerVmEvent,
     },
+    DanceFloor {
+        controller: InvokerId,
+        button: u8,
+        avatar_object: i16,
+    },
+    SourcePlugin {
+        invoker: InvokerId,
+        event: SourceObjectEvent,
+    },
 }
 
 impl PublicVmEvent {
@@ -222,6 +244,15 @@ impl PublicVmEvent {
             Self::Connected { invoker } => (*invoker, -2, vec![]),
             Self::Disconnected { invoker } => (*invoker, -1, vec![]),
             Self::Timer { invoker, event } => {
+                let (code, arguments) = event.source_event();
+                (*invoker, code, arguments)
+            }
+            Self::DanceFloor {
+                controller,
+                button,
+                avatar_object,
+            } => (*controller, i16::from(*button), vec![*avatar_object]),
+            Self::SourcePlugin { invoker, event } => {
                 let (code, arguments) = event.source_event();
                 (*invoker, code, arguments)
             }

@@ -6,8 +6,10 @@
 //! There is deliberately no generic checkpoint byte getter or Debug dump.
 
 use crate::{
-    host::{Instance, Participant, State},
-    registry::TIMER_PLUGIN,
+    host::{DanceController, HandlerState, Instance, Participant, State},
+    persistence::{Binding, BindingStatus, WriteRecord, *},
+    registry::{self, TIMER_PLUGIN},
+    source_plugins::{PermissionDoor, Scoreboard, Signs},
     timer::Timer,
     *,
 };
@@ -70,7 +72,15 @@ impl NativeHost {
         &mut self,
         store: &mut impl PrivateCheckpointStore,
     ) -> Result<CheckpointStamp, Error> {
-        if !self.state.public.is_empty() || !self.state.private.is_empty() {
+        if !self.state.public.is_empty()
+            || !self.state.private.is_empty()
+            || self.state.instances.values().any(|instance| {
+                instance
+                    .persistence
+                    .as_ref()
+                    .is_some_and(|binding| binding.status == BindingStatus::Reconcile)
+            })
+        {
             return Err(Error::CheckpointBusy);
         }
         let revision = self
@@ -83,6 +93,30 @@ impl NativeHost {
             epoch: self.identity.epoch,
             revision,
         };
+        if !self.state.controllers.is_empty()
+            || !self.state.writes.is_empty()
+            || self
+                .state
+                .instances
+                .values()
+                .any(|instance| !matches!(instance.handler, HandlerState::Timer(_)))
+        {
+            let bytes = encode_v2(self, stamp)?;
+            store
+                .write_private(
+                    PrivateCheckpointKey {
+                        scope: stamp.scope,
+                        kind: CheckpointKind::Host,
+                    },
+                    &bytes,
+                )
+                .map_err(map_store_error)?;
+            self.state.checkpoint_revision = revision;
+            for record in self.state.writes.values_mut() {
+                record.prepared = true;
+            }
+            return Ok(stamp);
+        }
         let size = self
             .state
             .instances
@@ -107,6 +141,9 @@ impl NativeHost {
         writer.u32(self.state.instances.len() as u32);
         for (id, instance) in &self.state.instances {
             let participant = &instance.participant;
+            let HandlerState::Timer(timer) = &instance.handler else {
+                return Err(Error::InvalidCheckpoint);
+            };
             writer.u64(id.0);
             writer.u32(instance.plugin.0);
             writer.u32(instance.object);
@@ -117,12 +154,12 @@ impl NativeHost {
             writer.u64(participant.next_sequence);
             writer.u64(participant.rate_tick);
             writer.u32(participant.messages_this_tick);
-            writer.i16(instance.timer.minutes);
-            writer.i16(instance.timer.seconds);
-            writer.u8(u8::from(instance.timer.running));
-            writer.u8(instance.timer.mode);
-            writer.u8(u8::from(instance.timer.updated_after_stop));
-            writer.i32(instance.timer.tock);
+            writer.i16(timer.minutes);
+            writer.i16(timer.seconds);
+            writer.u8(u8::from(timer.running));
+            writer.u8(timer.mode);
+            writer.u8(u8::from(timer.updated_after_stop));
+            writer.i32(timer.tock);
         }
         debug_assert_eq!(writer.0.len(), size);
         let key = PrivateCheckpointKey {
@@ -188,6 +225,9 @@ fn decode(
     expected: CheckpointStamp,
     limits: HostLimits,
 ) -> Result<NativeHost, Error> {
+    if bytes.get(..6) == Some(&b"EODP\x02\x00"[..]) {
+        return decode_v2(bytes, identity, expected, limits);
+    }
     let mut reader = Reader { bytes, position: 0 };
     if reader.take(4)? != b"EODP" {
         return Err(Error::InvalidCheckpoint);
@@ -284,7 +324,8 @@ fn decode(
             Instance {
                 plugin,
                 object,
-                timer,
+                handler: HandlerState::Timer(timer),
+                persistence: None,
                 participant: Participant {
                     actor,
                     connection: None,
@@ -309,15 +350,531 @@ fn decode(
             next_instance,
             next_session,
             checkpoint_revision: stamp.revision,
+            next_write: 1,
             instances,
+            controllers: BTreeMap::new(),
+            writes: BTreeMap::new(),
             public: vec![],
             private: vec![],
         },
     })
 }
 
+// Format 2 stores per-handler schemas, native controller bindings and immutable
+// plugin-data intents. No connection IDs or public/private delivery queues occur.
+fn encode_v2(host: &NativeHost, stamp: CheckpointStamp) -> Result<Vec<u8>, Error> {
+    let limit = host.limits.max_checkpoint_bytes;
+    let mut writer = Writer(Vec::new());
+    check_write_size(0, HEADER_SIZE, limit)?;
+    writer.0.extend_from_slice(b"EODP");
+    writer.u16(2);
+    writer.u16(1);
+    writer.u64(stamp.scope.0);
+    writer.u64(stamp.epoch);
+    writer.u64(stamp.revision);
+    writer.u64(host.state.tick);
+    writer.u64(host.state.next_instance);
+    writer.u64(host.state.next_session);
+    writer.u64(host.limits.idle_timeout_ticks);
+    writer.u32(host.state.instances.len() as u32);
+    for (id, instance) in &host.state.instances {
+        let payload = encode_handler(&instance.handler);
+        if payload.len() > host.limits.max_plugin_data_bytes + 128 {
+            return Err(Error::CheckpointTooLarge);
+        }
+        let binding_size = instance
+            .persistence
+            .as_ref()
+            .map_or(0, |binding| 18 + binding.bytes.len());
+        check_write_size(writer.0.len(), 71 + payload.len() + binding_size, limit)?;
+        let participant = &instance.participant;
+        writer.u64(id.0);
+        writer.u32(instance.plugin.0);
+        writer.u32(instance.object);
+        writer.u64(participant.actor.0);
+        writer.u32(participant.invoker.0);
+        writer.u64(participant.generation);
+        writer.u64(participant.last_activity);
+        writer.u64(participant.next_sequence);
+        writer.u64(participant.rate_tick);
+        writer.u32(participant.messages_this_tick);
+        writer.u16(1); // Per-plugin native checkpoint schema, not source persistence schema.
+        writer.blob(&payload);
+        writer.u8(u8::from(instance.persistence.is_some()));
+        if let Some(binding) = &instance.persistence {
+            writer.u8(match binding.status {
+                BindingStatus::Loading => 0,
+                BindingStatus::Ready => 1,
+                BindingStatus::Reconcile => return Err(Error::CheckpointBusy),
+            });
+            writer.u32(binding.key.persistent_object);
+            writer.u64(binding.revision);
+            writer.u8(u8::from(binding.exists));
+            writer.blob(&binding.bytes);
+        }
+    }
+    check_write_size(
+        writer.0.len(),
+        16 + host.state.controllers.len() * 16,
+        limit,
+    )?;
+    writer.u32(host.state.controllers.len() as u32);
+    for (id, controller) in &host.state.controllers {
+        writer.u64(id.0);
+        writer.u32(controller.object);
+        writer.u32(controller.invoker.0);
+    }
+    writer.u64(host.state.next_write);
+    writer.u32(host.state.writes.len() as u32);
+    for (id, record) in &host.state.writes {
+        let request = &record.request;
+        check_write_size(writer.0.len(), 53 + request.bytes.len(), limit)?;
+        writer.u64(id.origin_epoch);
+        writer.u64(id.instance.0);
+        writer.u64(id.operation);
+        writer.u32(id.key.plugin.0);
+        writer.u32(id.key.persistent_object);
+        writer.u64(request.actor.0);
+        writer.u64(request.expected_revision);
+        writer.u8(u8::from(record.conflicted));
+        writer.blob(&request.bytes);
+    }
+    Ok(writer.0)
+}
+
+fn check_write_size(current: usize, extra: usize, limit: usize) -> Result<(), Error> {
+    if current.checked_add(extra).is_none_or(|size| size > limit) {
+        Err(Error::CheckpointTooLarge)
+    } else {
+        Ok(())
+    }
+}
+
+fn encode_handler(handler: &HandlerState) -> Vec<u8> {
+    match handler {
+        HandlerState::Timer(timer) => {
+            let mut writer = Writer(vec![]);
+            writer.i16(timer.minutes);
+            writer.i16(timer.seconds);
+            writer.u8(u8::from(timer.running));
+            writer.u8(timer.mode);
+            writer.u8(u8::from(timer.updated_after_stop));
+            writer.i32(timer.tock);
+            writer.0
+        }
+        HandlerState::DanceFloor { avatar_object } => avatar_object.to_le_bytes().to_vec(),
+        HandlerState::Signs(state) => state.save_private(),
+        HandlerState::Scoreboard(state) => state.save_private(),
+        HandlerState::PermissionDoor(state) => state.save_private(),
+    }
+}
+
+fn decode_handler(plugin: PluginId, payload: &[u8]) -> Result<HandlerState, Error> {
+    let registration = registry::lookup(plugin).ok_or(Error::UnregisteredPlugin)?;
+    if registration.runtime == registry::RuntimeStatus::UnsupportedUnverified {
+        return Err(Error::UnverifiedPlugin);
+    }
+    Ok(match plugin {
+        registry::TIMER_PLUGIN => {
+            let mut reader = Reader {
+                bytes: payload,
+                position: 0,
+            };
+            let timer = Timer {
+                minutes: reader.i16()?,
+                seconds: reader.i16()?,
+                running: reader.boolean()?,
+                mode: reader.u8()?,
+                updated_after_stop: reader.boolean()?,
+                tock: reader.i32()?,
+            };
+            if timer.mode > 1 || reader.position != payload.len() {
+                return Err(Error::InvalidCheckpoint);
+            }
+            HandlerState::Timer(timer)
+        }
+        registry::DANCE_FLOOR_PLUGIN => {
+            let avatar_object =
+                i16::from_le_bytes(payload.try_into().map_err(|_| Error::InvalidCheckpoint)?);
+            if avatar_object <= 0 {
+                return Err(Error::InvalidCheckpoint);
+            }
+            HandlerState::DanceFloor { avatar_object }
+        }
+        registry::SIGNS_PLUGIN => HandlerState::Signs(
+            Signs::restore_private(payload).map_err(|_| Error::InvalidCheckpoint)?,
+        ),
+        registry::SCOREBOARD_PLUGIN => HandlerState::Scoreboard(
+            Scoreboard::restore_private(payload).map_err(|_| Error::InvalidCheckpoint)?,
+        ),
+        registry::PERMISSION_DOOR_PLUGIN => HandlerState::PermissionDoor(
+            PermissionDoor::restore_private(payload).map_err(|_| Error::InvalidCheckpoint)?,
+        ),
+        _ => return Err(Error::UnverifiedPlugin),
+    })
+}
+
+fn decode_v2(
+    bytes: &[u8],
+    identity: HostIdentity,
+    expected: CheckpointStamp,
+    limits: HostLimits,
+) -> Result<NativeHost, Error> {
+    let mut reader = Reader { bytes, position: 0 };
+    if reader.take(4)? != b"EODP" || reader.u16()? != 2 {
+        return Err(Error::UnsupportedCheckpointVersion);
+    }
+    if reader.u16()? != 1 {
+        return Err(Error::UnsupportedPluginSchema);
+    }
+    let stamp = CheckpointStamp {
+        scope: HostScopeId(reader.u64()?),
+        epoch: reader.u64()?,
+        revision: reader.u64()?,
+    };
+    if stamp != expected {
+        return Err(Error::CheckpointStampMismatch);
+    }
+    let tick = reader.u64()?;
+    let next_instance = reader.u64()?;
+    let next_session = reader.u64()?;
+    let idle_timeout = reader.u64()?;
+    let count = reader.u32()? as usize;
+    if idle_timeout != limits.idle_timeout_ticks
+        || next_instance == 0
+        || next_session == 0
+        || count > limits.max_instances
+        || count > limits.max_participants
+    {
+        return Err(Error::InvalidCheckpoint);
+    }
+    let mut instances = BTreeMap::new();
+    let mut actors = BTreeSet::new();
+    let mut invokers = BTreeSet::new();
+    let mut generations = BTreeSet::new();
+    let mut storage_keys = BTreeSet::new();
+    let mut avatars = BTreeSet::new();
+    let mut timers = 0;
+    let mut storage_bytes = 0usize;
+    for _ in 0..count {
+        let id = InstanceId(reader.u64()?);
+        let plugin = PluginId(reader.u32()?);
+        let object = reader.u32()?;
+        let actor = ActorId(reader.u64()?);
+        let invoker = InvokerId(reader.u32()?);
+        let generation = reader.u64()?;
+        let last_activity = reader.u64()?;
+        let next_sequence = reader.u64()?;
+        let rate_tick = reader.u64()?;
+        let messages_this_tick = reader.u32()?;
+        if reader.u16()? != 1 {
+            return Err(Error::UnsupportedPluginSchema);
+        }
+        let payload = reader.blob(limits.max_plugin_data_bytes + 128)?;
+        let handler = decode_handler(plugin, payload)?;
+        if matches!(handler, HandlerState::Timer(_)) {
+            timers += 1;
+        }
+        if let HandlerState::DanceFloor { avatar_object } = handler
+            && !avatars.insert(avatar_object)
+        {
+            return Err(Error::InvalidCheckpoint);
+        }
+        let persistence = if reader.boolean()? {
+            let status = match reader.u8()? {
+                0 => BindingStatus::Loading,
+                1 => BindingStatus::Reconcile,
+                _ => return Err(Error::InvalidCheckpoint),
+            };
+            let key = PluginDataKey {
+                scope: identity.scope,
+                plugin,
+                persistent_object: reader.u32()?,
+            };
+            let revision = reader.u64()?;
+            let exists = reader.boolean()?;
+            let data = reader.blob(limits.max_plugin_data_bytes)?;
+            storage_bytes = storage_bytes
+                .checked_add(data.len())
+                .ok_or(Error::InvalidCheckpoint)?;
+            if storage_bytes > limits.max_total_persistence_bytes
+                || key.persistent_object == 0
+                || !storage_keys.insert(key)
+                || (exists && revision == 0)
+                || (!exists && (revision != 0 || !data.is_empty()))
+                || (status == BindingStatus::Loading
+                    && (exists || revision != 0 || !data.is_empty()))
+            {
+                return Err(Error::InvalidCheckpoint);
+            }
+            Some(Binding {
+                key,
+                revision,
+                exists,
+                bytes: data.to_vec(),
+                status,
+            })
+        } else {
+            None
+        };
+        let loaded = match &handler {
+            HandlerState::Signs(state) => Some(state.is_loaded()),
+            HandlerState::Scoreboard(state) => Some(state.is_loaded()),
+            HandlerState::PermissionDoor(state) => Some(state.is_loaded()),
+            _ => None,
+        };
+        match (loaded, &persistence) {
+            (Some(loaded), Some(binding))
+                if loaded == (binding.status != BindingStatus::Loading) => {}
+            (None, None) => {}
+            _ => return Err(Error::InvalidCheckpoint),
+        }
+        if id.0 == 0
+            || id.0 >= next_instance
+            || object == 0
+            || actor.0 == 0
+            || invoker.0 == 0
+            || generation == 0
+            || generation >= next_session
+            || next_sequence == 0
+            || last_activity > tick
+            || rate_tick > tick
+            || messages_this_tick > limits.max_messages_per_tick
+            || last_activity
+                .checked_add(idle_timeout)
+                .is_none_or(|deadline| deadline <= tick)
+            || !actors.insert(actor)
+            || !invokers.insert(invoker)
+            || !generations.insert(generation)
+            || instances.contains_key(&id)
+            || timers > limits.max_timers
+        {
+            return Err(Error::InvalidCheckpoint);
+        }
+        instances.insert(
+            id,
+            Instance {
+                plugin,
+                object,
+                handler,
+                persistence,
+                participant: Participant {
+                    actor,
+                    connection: None,
+                    invoker,
+                    generation,
+                    last_activity,
+                    next_sequence,
+                    rate_tick,
+                    messages_this_tick,
+                },
+            },
+        );
+    }
+    let controller_count = reader.u32()? as usize;
+    if controller_count > limits.max_instances.saturating_sub(count)
+        || controller_count > limits.max_participants.saturating_sub(count)
+    {
+        return Err(Error::InvalidCheckpoint);
+    }
+    let mut controllers = BTreeMap::new();
+    let mut floors = BTreeSet::new();
+    for _ in 0..controller_count {
+        let id = InstanceId(reader.u64()?);
+        let object = reader.u32()?;
+        let invoker = InvokerId(reader.u32()?);
+        if id.0 == 0
+            || id.0 >= next_instance
+            || object == 0
+            || invoker.0 == 0
+            || instances.contains_key(&id)
+            || controllers.contains_key(&id)
+            || !floors.insert(object)
+            || !invokers.insert(invoker)
+        {
+            return Err(Error::InvalidCheckpoint);
+        }
+        controllers.insert(
+            id,
+            DanceController {
+                object,
+                invoker,
+                attached: false,
+            },
+        );
+    }
+    let next_write = reader.u64()?;
+    let write_count = reader.u32()? as usize;
+    if next_write == 0
+        || write_count
+            > limits
+                .max_persistence_records
+                .saturating_sub(storage_keys.len())
+    {
+        return Err(Error::InvalidCheckpoint);
+    }
+    let mut writes = BTreeMap::new();
+    let mut operations = BTreeSet::new();
+    let mut pending_keys = BTreeSet::new();
+    for _ in 0..write_count {
+        let origin_epoch = reader.u64()?;
+        let instance = InstanceId(reader.u64()?);
+        let operation = reader.u64()?;
+        let plugin = PluginId(reader.u32()?);
+        let key = PluginDataKey {
+            scope: identity.scope,
+            plugin,
+            persistent_object: reader.u32()?,
+        };
+        let actor = ActorId(reader.u64()?);
+        let expected_revision = reader.u64()?;
+        let conflicted = reader.boolean()?;
+        let data = reader.blob(limits.max_plugin_data_bytes)?;
+        storage_bytes = storage_bytes
+            .checked_add(data.len())
+            .ok_or(Error::InvalidCheckpoint)?;
+        if storage_bytes > limits.max_total_persistence_bytes
+            || origin_epoch == 0
+            || origin_epoch > stamp.epoch
+            || instance.0 == 0
+            || instance.0 >= next_instance
+            || operation == 0
+            || operation >= next_write
+            || !operations.insert(operation)
+            || !pending_keys.insert(key)
+            || key.persistent_object == 0
+            || actor.0 == 0
+            || expected_revision == u64::MAX
+            || controllers.contains_key(&instance)
+            || !matches!(
+                plugin,
+                registry::SIGNS_PLUGIN
+                    | registry::SCOREBOARD_PLUGIN
+                    | registry::PERMISSION_DOOR_PLUGIN
+            )
+        {
+            return Err(Error::InvalidCheckpoint);
+        }
+        if let Some(current) = instances.get(&instance) {
+            let binding = current
+                .persistence
+                .as_ref()
+                .ok_or(Error::InvalidCheckpoint)?;
+            if binding.key != key
+                || binding.revision != expected_revision
+                || binding.status == BindingStatus::Loading
+                || current.participant.actor != actor
+            {
+                return Err(Error::InvalidCheckpoint);
+            }
+        } else if storage_keys.contains(&key) {
+            return Err(Error::InvalidCheckpoint);
+        }
+        validate_write_bytes(plugin, data)?;
+        let id = PluginWriteId {
+            key,
+            origin_epoch,
+            instance,
+            operation,
+        };
+        writes.insert(
+            id,
+            WriteRecord {
+                request: PluginDataWrite {
+                    id,
+                    actor,
+                    expected_revision,
+                    bytes: data.to_vec(),
+                },
+                prepared: true,
+                conflicted,
+            },
+        );
+    }
+    if reader.position != bytes.len() {
+        return Err(Error::InvalidCheckpoint);
+    }
+    // A provider receipt must never reconcile bytes that disagree with the
+    // private handler state reconstructed for the VM/UI. Source redaction and
+    // the Door Edit cached-code quirk are validated by each handler explicitly.
+    for (id, instance) in &instances {
+        let Some(binding) = &instance.persistence else {
+            continue;
+        };
+        if binding.status == BindingStatus::Loading {
+            continue;
+        }
+        let pending = writes
+            .values()
+            .find(|record| record.request.id.instance == *id);
+        let bytes = if let Some(record) = pending {
+            Some(record.request.bytes.as_slice())
+        } else {
+            binding.exists.then_some(binding.bytes.as_slice())
+        };
+        let valid = match &instance.handler {
+            HandlerState::Signs(state) => {
+                state.matches_persistence(bytes, pending.is_some())
+                    && pending.is_none_or(|record| {
+                        state.preserves_write_permissions(
+                            binding.exists.then_some(binding.bytes.as_slice()),
+                            &record.request.bytes,
+                        )
+                    })
+            }
+            HandlerState::Scoreboard(state) => state.matches_persistence(bytes, pending.is_some()),
+            HandlerState::PermissionDoor(state) => {
+                state.matches_persistence(bytes, pending.is_some())
+            }
+            _ => false,
+        };
+        if !valid {
+            return Err(Error::InvalidCheckpoint);
+        }
+    }
+    let mut host = NativeHost::new(identity, limits)?;
+    host.commit(State {
+        tick,
+        next_instance,
+        next_session,
+        checkpoint_revision: stamp.revision,
+        next_write,
+        instances,
+        controllers,
+        writes,
+        public: vec![],
+        private: vec![],
+    })?;
+    Ok(host)
+}
+
+fn validate_write_bytes(plugin: PluginId, data: &[u8]) -> Result<(), Error> {
+    let valid = match plugin {
+        registry::SIGNS_PLUGIN => Signs::canonical_write(data),
+        registry::SCOREBOARD_PLUGIN => Scoreboard::canonical_write(data),
+        registry::PERMISSION_DOOR_PLUGIN => {
+            let code = crate::source_plugins::parse_source_u32(data)
+                .map_err(|_| Error::InvalidCheckpoint)?;
+            if code > 999_999_999 || code.to_string().as_bytes() != data {
+                return Err(Error::InvalidCheckpoint);
+            }
+            return Ok(());
+        }
+        _ => return Err(Error::InvalidCheckpoint),
+    };
+    if valid {
+        Ok(())
+    } else {
+        Err(Error::InvalidCheckpoint)
+    }
+}
+
 struct Writer(Vec<u8>);
 impl Writer {
+    fn blob(&mut self, bytes: &[u8]) {
+        self.u32(bytes.len() as u32);
+        self.0.extend_from_slice(bytes);
+    }
     fn u8(&mut self, value: u8) {
         self.0.push(value);
     }
@@ -343,6 +900,13 @@ struct Reader<'a> {
     position: usize,
 }
 impl<'a> Reader<'a> {
+    fn blob(&mut self, limit: usize) -> Result<&'a [u8], Error> {
+        let length = self.u32()? as usize;
+        if length > limit {
+            return Err(Error::InvalidCheckpoint);
+        }
+        self.take(length)
+    }
     fn take(&mut self, count: usize) -> Result<&'a [u8], Error> {
         let end = self
             .position

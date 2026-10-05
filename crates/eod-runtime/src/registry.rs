@@ -6,14 +6,18 @@
 use crate::PluginId;
 
 pub const TIMER_PLUGIN: PluginId = PluginId(0xAA65FE9E);
+pub const DANCE_FLOOR_PLUGIN: PluginId = PluginId(0x4A5BE8AB);
+pub const SIGNS_PLUGIN: PluginId = PluginId(0x2A6356A0);
+pub const SCOREBOARD_PLUGIN: PluginId = PluginId(0x0949E698);
+pub const PERMISSION_DOOR_PLUGIN: PluginId = PluginId(0x0A69F29F);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RuntimeStatus { SourceTranslatedTimer, UnsupportedUnverified }
+pub enum RuntimeStatus { SourceTranslatedTimer, SourceTranslatedNative, UnsupportedUnverified }
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RecoveryPolicy { RestorePrivateSchema1, AbortAndReconcileThroughProvider }
+pub enum RecoveryPolicy { RestorePrivateSchema1, RestorePrivateFormat2, ReconcilePrivateFormat2, AbortAndReconcileThroughProvider }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Registration {
@@ -105,8 +109,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UIScoreboardEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODScoreboardPlugin.cs:9",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UIScoreboardEOD.cs:9"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::ReconcilePrivateFormat2,
         original_runtime_verified: false,
     },
     Registration {
@@ -115,8 +119,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UIPermissionDoorEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPermissionDoorPlugin.cs:7",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UIPermissionDoorEOD.cs:7"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::ReconcilePrivateFormat2,
         original_runtime_verified: false,
     },
     Registration {
@@ -135,8 +139,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UISignsEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSignsPlugin.cs:9",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UISignsEOD.cs:8"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::ReconcilePrivateFormat2,
         original_runtime_verified: false,
     },
     Registration {
@@ -185,8 +189,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UIDanceFloorEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDanceFloorPlugin.cs:5",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UIDanceFloorEOD.cs:6"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::RestorePrivateFormat2,
         original_runtime_verified: false,
     },
     Registration {
