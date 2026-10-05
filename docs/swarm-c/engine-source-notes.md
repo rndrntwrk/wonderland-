@@ -77,6 +77,15 @@ during the blend itself. In Bevy 0.19.1, CompositingSpace::Srgb selects an
 Rgba8Unorm intermediate and converts the completed image for the display in its
 final blit. The custom shader consequently emits encoded source RGB directly.
 
+The actual checkpoint-4 WebGL2 run rejected that target because Bevy requests
+alternate sRGB texture views, while the WebGL2 adapter lacks VIEW_FORMATS.
+The WebGL2 variant therefore also sets Hdr to select Rgba16Float storage, which
+the released target allocator creates without alternate view formats. The
+CompositingSpace::Srgb tag still preserves encoded blending and final display
+conversion. Tonemapping::None exits the released tone-mapping node before any
+transform. This path needs the same color/ID gate as every other backend;
+floating-point storage is not itself proof of equivalent output.
+
 Fyrox's ordinary Forward path always applies ACES luminance tone mapping,
 including when exposure is Manual(1.0). It would therefore change both source
 colors and exact ID bytes. The adapter disables the built-in Forward shader pass
@@ -153,3 +162,11 @@ initial fixture publication. WebGPU device observation also occurs when the
 engine configures its own GPU canvas. Null adapters and missing navigator.gpu
 become explicit startup failures. These diagnostic hooks do not claim that a
 previous timeout has been resolved; that requires the next actual browser run.
+
+Checkpoint 4 reproduced WebGPU loss on the same device that configured the
+engine canvas, without an observed JavaScript GPUDevice.destroy call. The runner
+now retains bounded Chromium process stderr and performs a separate WebGPU clear
+and mapped-pixel diagnostic after both engine runs. That diagnostic cannot warm
+the engine's cold start, set its observed backend, or satisfy renderer parity.
+HTTP error responses are also recorded with their actual URLs instead of
+assuming that an unidentified browser 404 was a favicon.

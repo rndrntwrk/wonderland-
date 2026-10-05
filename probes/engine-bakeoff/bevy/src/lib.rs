@@ -23,7 +23,12 @@ use bevy::{
     mesh::{Indices, MeshVertexBufferLayoutRef, PrimitiveTopology},
     pbr::{MaterialPipeline, MaterialPipelineKey},
     prelude::*,
-    render::{render_resource::*, renderer::RenderAdapterInfo, Render, RenderApp, RenderSystems},
+    render::{
+        error_handler::{RenderErrorHandler, RenderErrorPolicy},
+        render_resource::*,
+        renderer::RenderAdapterInfo,
+        Render, RenderApp, RenderSystems,
+    },
     shader::ShaderRef,
     window::WindowResolution,
 };
@@ -120,6 +125,14 @@ pub fn run() {
     app.insert_resource(Probe(state))
         .insert_resource(visits.clone())
         .init_resource::<Ownership>()
+        .insert_resource(RenderErrorHandler(|error, main_world, _| {
+            bridge::fail(&format!(
+                "Bevy renderer {:?}: {}",
+                error.ty, error.description
+            ));
+            main_world.write_message(AppExit::error());
+            RenderErrorPolicy::StopRendering
+        }))
         .insert_resource(ClearColor(Color::srgb_u8(22, 29, 40)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -140,7 +153,13 @@ pub fn run() {
             .insert_resource(visits)
             .add_systems(Render, count_render.in_set(RenderSystems::Cleanup));
     }
-    app.run();
+    let result = app.run();
+    #[cfg(not(target_arch = "wasm32"))]
+    if !matches!(result, AppExit::Success) {
+        std::process::exit(1);
+    }
+    #[cfg(target_arch = "wasm32")]
+    let _ = result;
 }
 fn count_render(visits: Res<RenderVisits>, adapter: Res<RenderAdapterInfo>) {
     let previous = visits.0.fetch_add(1, Ordering::Relaxed);
@@ -212,16 +231,26 @@ fn spawn_scene(
             ..default()
         })
     };
-    commands.spawn((
-        FixtureNode,
-        Camera3d::default(),
-        projection,
-        Msaa::Off,
-        CompositingSpace::Srgb,
-        Tonemapping::None,
-        Transform::from_translation(eye)
-            .looking_at(target, Vec3::new(camera.up.x, camera.up.y, camera.up.z)),
-    ));
+    let camera_entity = commands
+        .spawn((
+            FixtureNode,
+            Camera3d::default(),
+            projection,
+            Msaa::Off,
+            CompositingSpace::Srgb,
+            Tonemapping::None,
+            Transform::from_translation(eye)
+                .looking_at(target, Vec3::new(camera.up.x, camera.up.y, camera.up.z)),
+        ))
+        .id();
+    // Bevy 0.19.1 requests alternate sRGB views for an Rgba8Unorm main
+    // target, but WebGL2 lacks VIEW_FORMATS. Half-float storage needs no
+    // alternate view. Srgb compositing still keeps source RGB encoded, and
+    // Tonemapping::None bypasses the HDR tone mapper entirely.
+    #[cfg(feature = "webgl2")]
+    commands.entity(camera_entity).insert(bevy::camera::Hdr);
+    #[cfg(not(feature = "webgl2"))]
+    let _ = camera_entity;
     for (draw_order, draw) in prepared.into_iter().enumerate() {
         let mesh = meshes.add(
             Mesh::new(

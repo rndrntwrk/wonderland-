@@ -136,7 +136,7 @@ function observeGpuContext(context,next){
   context.configure=configuration=>{
     const result=configure(configuration);
     observeGpuDevice(configuration.device,{observation:'engine canvas configure',format:configuration.format,alphaMode:configuration.alphaMode??null});
-    diagnostic('webgpu-canvas-configured',{deviceId:gpuDeviceIds.get(configuration.device),format:configuration.format,width:next.width,height:next.height});
+    diagnostic('webgpu-canvas-configured',{deviceId:gpuDeviceIds.get(configuration.device),format:configuration.format,viewFormats:Array.from(configuration.viewFormats||[]),usage:configuration.usage??null,colorSpace:configuration.colorSpace??null,width:next.width,height:next.height});
     return result;
   };
 }

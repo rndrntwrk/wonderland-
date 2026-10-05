@@ -48,7 +48,7 @@ struct FragmentOutput { @location(0) color:vec4<f32>, @builtin(frag_depth) depth
     } else if p.flags.y<0.5 {
         rgb*=0.35+0.65*max(dot(normalize(v.normal),normalize(vec3(0.4,1.0,0.25))),0.0);
     }
-    // CompositingSpace::Srgb uses an UNORM intermediate for source-space blending.
+    // CompositingSpace::Srgb keeps the intermediate encoded for source-space blending.
     // Bevy converts to the display attachment only in its final blit.
     return FragmentOutput(vec4(rgb*texel.a,texel.a),depth);
 }

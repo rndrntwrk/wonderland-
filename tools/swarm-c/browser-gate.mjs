@@ -57,6 +57,7 @@ const server=createServer(async(req,res)=>{
   try{
     const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname),path=resolve(root,`.${name}`);
     if(name==='/favicon.ico'){res.writeHead(204);res.end();return;}
+    if(name==='/__webgpu_diagnostic.html'){res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});res.end('<!doctype html><meta charset="utf-8"><canvas width="4" height="4"></canvas>');return;}
     if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403);res.end();return;}
     const file=(await stat(path)).isDirectory()?resolve(path,'index.html'):path;
     res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream','Cache-Control':'no-store'});
@@ -65,7 +66,14 @@ const server=createServer(async(req,res)=>{
 });
 await new Promise(resolveListen=>server.listen(0,'127.0.0.1',resolveListen));
 const base=`http://127.0.0.1:${server.address().port}/probes/engine-bakeoff/web/index.html`;
-let browser;
+let browser,browserServer;
+const browserProcessLog=[];let browserLogBytes=0,forwardedProcessLines=0;
+function recordBrowserProcess(chunk){
+  const value=String(chunk);if(browserLogBytes<1024*1024){browserProcessLog.push(value.slice(0,1024*1024-browserLogBytes));browserLogBytes+=Buffer.byteLength(value);}
+  for(const line of value.split('\n'))if(forwardedProcessLines<64&&/gpu|dawn|vulkan|device|validation/i.test(line)){
+    forwardedProcessLines++;console.log('WONDERLAND_BROWSER_PROCESS '+line.slice(0,4000));
+  }
+}
 async function snapshot(page){return page.evaluate(()=>window.__wonderlandProbe.snapshot());}
 async function command(page,method,...args){
   const sequence=await page.evaluate(({method,args})=>window.__wonderlandProbe[method](...args),{method,args});
@@ -128,6 +136,42 @@ async function ready(page){
   await renderedAfter(page,0);return snapshot(page);
 }
 
+async function diagnoseWebGpu(){
+  // A separate API diagnostic after both engine runs. It cannot set the engine's
+  // observed backend or satisfy any renderer/parity gate, or warm its cold start.
+  const context=await browser.newContext(),page=await context.newPage();let timer;
+  try{
+    await page.goto(new URL('/__webgpu_diagnostic.html',base).href);
+    return await Promise.race([
+      page.evaluate(async()=>{
+        if(!navigator.gpu)return {passed:false,error:'navigator.gpu unavailable'};
+        let device,loss=null;const errors=[];
+        try{
+          const adapter=await navigator.gpu.requestAdapter({powerPreference:'high-performance'});
+          if(!adapter)return {passed:false,error:'No WebGPU adapter'};
+          device=await adapter.requestDevice();device.lost.then(info=>{loss={reason:info.reason,message:info.message};});
+          device.addEventListener('uncapturederror',event=>errors.push(event.error.message));
+          const canvas=document.querySelector('canvas'),gpu=canvas.getContext('webgpu');
+          gpu.configure({device,format:'rgba8unorm',viewFormats:['rgba8unorm-srgb'],usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.COPY_SRC,alphaMode:'opaque'});
+          const expected=[64,128,191,255],decode=value=>{const s=value/255;return s<=0.04045?s/12.92:((s+0.055)/1.055)**2.4;};
+          let pixels=[];
+          for(let frame=0;frame<3;frame++){
+            const texture=gpu.getCurrentTexture(),buffer=device.createBuffer({size:1024,usage:GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ});
+            const encoder=device.createCommandEncoder(),pass=encoder.beginRenderPass({colorAttachments:[{view:texture.createView({format:'rgba8unorm-srgb'}),clearValue:{r:decode(64),g:decode(128),b:decode(191),a:1},loadOp:'clear',storeOp:'store'}]});
+            pass.end();encoder.copyTextureToBuffer({texture},{buffer,bytesPerRow:256},{width:4,height:4,depthOrArrayLayers:1});
+            device.queue.submit([encoder.finish()]);await buffer.mapAsync(GPUMapMode.READ);pixels=Array.from(new Uint8Array(buffer.getMappedRange(),0,4));buffer.unmap();buffer.destroy();
+            await new Promise(resolveFrame=>requestAnimationFrame(()=>setTimeout(resolveFrame,100)));
+            if(loss)break;
+          }
+          return {passed:!loss&&!errors.length&&pixels.every((v,i)=>Math.abs(v-expected[i])<=1),pixels,expected,loss,errors,framesRequested:3,adapter:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture},evidence:'separate WebGPU clear and mapped pixel readback; no engine qualification'};
+        }catch(error){return {passed:false,error:String(error.stack||error),loss,errors};}
+        finally{device?.destroy();}
+      }),
+      new Promise(resolveTimeout=>{timer=setTimeout(()=>resolveTimeout({passed:false,error:'WebGPU diagnostic timed out after 20 seconds'}),20000);})
+    ]);
+  }finally{clearTimeout(timer);await context.close();}
+}
+
 try{
   const manifest=JSON.parse(await readFile(resolve(root,'tools/swarm-c/output/reference/manifest.json'),'utf8'));
   assert.equal(manifest.width,640);assert.equal(manifest.height,480);
@@ -136,7 +180,9 @@ try{
   const args=backend==='webgl2'?['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader']:
     ['--enable-unsafe-webgpu','--use-webgpu-adapter=swiftshader'];
   report.browserArgs=args;
-  browser=await chromium.launch({channel:'chromium',headless:true,args});report.browserVersion=browser.version();
+  browserServer=await chromium.launchServer({channel:'chromium',headless:true,args,host:'127.0.0.1'});
+  browserServer.process().stderr?.on('data',recordBrowserProcess);
+  browser=await chromium.connect(browserServer.wsEndpoint());report.browserVersion=browser.version();
   for(const avatars of [32,64]){
     const dpr=avatars===32?1:2;
     const context=await browser.newContext({viewport:{width:1400,height:1100},deviceScaleFactor:dpr});
@@ -149,6 +195,7 @@ try{
     });
     page.on('pageerror',error=>report.console.push({avatars,type:'pageerror',text:String(error.stack||error)}));
     page.on('requestfailed',request=>report.requests.push({avatars,url:request.url(),error:request.failure()}));
+    page.on('response',response=>{if(response.status()>=400){const item={avatars,url:response.url(),status:response.status()};report.requests.push(item);console.log('WONDERLAND_HTTP_ERROR '+JSON.stringify(item));}});
     try{
       const url=`${base}?variant=${variant}&mode=hybrid2d&avatars=${avatars}&tick=30`;
       await page.goto(url,{waitUntil:'domcontentloaded'});const initial=await ready(page);
@@ -255,12 +302,17 @@ try{
     }catch(error){failure(`browser-context-${avatars}`,error);try{await page.screenshot({path:resolve(output,`failure-${avatars}.png`),fullPage:true});report.lifecycle.push({name:`failure-state-${avatars}`,state:await diagnosticSnapshot(page)});}catch{} }
     finally{await context.tracing.stop({path:resolve(output,`trace-${avatars}.zip`)});await context.close();}
   }
+  if(backend==='webgpu'){
+    report.webgpuDiagnostic=await diagnoseWebGpu();
+    console.log('WONDERLAND_WEBGPU_DIAGNOSTIC '+JSON.stringify(report.webgpuDiagnostic));
+  }
 }catch(error){failure('runner',error);}
 finally{
-  if(browser)await browser.close();await new Promise(resolveClose=>server.close(resolveClose));
+  if(browser)await browser.close();if(browserServer)await browserServer.close();await new Promise(resolveClose=>server.close(resolveClose));
   report.finishedAt=new Date().toISOString();report.status=report.failures.length?'failed':'software-browser-checks-passed';
   await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)+'\n');
   await writeFile(resolve(output,'console.json'),JSON.stringify(report.console,null,2)+'\n');
+  await writeFile(resolve(output,'browser-process.log'),browserProcessLog.join(''));
   console.log(JSON.stringify({variant,status:report.status,scenes:report.scenes.length,failures:report.failures.length,rendererQualified:false,report:resolve(output,'report.json')}));
   process.exitCode=report.failures.length?1:0;
 }

@@ -131,19 +131,44 @@ jobs:
         if: always()
         run: |
           python3 - <<'PY'
-          import base64, json, os, pathlib
+          import hashlib, json, os, pathlib
           for path in (pathlib.Path('probes/engine-bakeoff') / os.environ['WONDERLAND_ENGINE'] / 'Cargo.lock', pathlib.Path('tools/swarm-c/package-lock.json')):
               if path.is_file():
-                  data = base64.b64encode(path.read_bytes()).decode('ascii')
-                  print('WONDERLAND_FILE_BEGIN ' + str(path))
-                  for offset in range(0, len(data), 12000):
-                      print('WONDERLAND_FILE_DATA ' + data[offset:offset + 12000])
-                  print('WONDERLAND_FILE_END ' + str(path))
+                  data = path.read_bytes()
+                  print('LOCKFILE', json.dumps({'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}))
           for path in sorted(pathlib.Path('tools/swarm-c/output').rglob('*')):
-              if path.is_file() and path.name in ('report.json', 'console.json', 'native-report.json', 'native.log'):
+              if path.is_file() and path.name in ('report.json', 'console.json', 'native-report.json', 'native.log', 'browser-process.log'):
                   print('DIAGNOSTIC_FILE', path)
-                  print(path.read_text(errors='replace')[-60000:])
+                  raw = path.read_text(errors='replace')
+                  if path.name == 'report.json':
+                      report = json.loads(raw)
+                      summary = {key: value for key, value in report.items() if key not in ('console', 'requests', 'checks', 'scenes', 'lifecycle')}
+                      summary['checks'] = [{key: value for key, value in item.items() if key != 'detail' or not item.get('passed')} for item in report.get('checks', [])]
+                      summary['scenes'] = [{key: value for key, value in item.items() if key != 'state'} for item in report.get('scenes', [])]
+                      summary['lifecycle'] = [{key: value for key, value in item.items() if key not in ('detail', 'state')} for item in report.get('lifecycle', [])]
+                      summary['requestFailures'] = report.get('requests', [])
+                      print(json.dumps(summary, indent=2))
+                  elif path.name == 'console.json':
+                      messages = json.loads(raw)
+                      errors = [item for item in messages if item.get('type') in ('error', 'pageerror')]
+                      print(json.dumps({'totalMessages': len(messages), 'totalErrors': len(errors), 'errors': errors[:64]}, indent=2))
+                  else:
+                      print(raw[-60000:])
           PY
+      - name: Preserve compact reports and screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-${{ matrix.engine }}-${{ matrix.backend }}-evidence-${{ github.sha }}
+          path: |
+            tools/swarm-c/output/**/report.json
+            tools/swarm-c/output/**/console.json
+            tools/swarm-c/output/**/native-report.json
+            tools/swarm-c/output/**/native.log
+            tools/swarm-c/output/**/browser-process.log
+            tools/swarm-c/output/**/*.png
+          retention-days: 14
+          if-no-files-found: warn
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
