@@ -4,12 +4,14 @@
 use wonderland_creator::{
     city::{BmpMap, MapLayer},
     debug::{DebugSnapshot, IsolatedDebugProvider, UnsupportedDebugProvider},
-    decode_hex, default_limits, hex, json_string, sha256, Edit, ResourceDocument, ResourceGuard,
-    ResourceOperation, ResourceTransaction, TuningDocument, Workspace, MAX_TRANSACTION_SPEC_BYTES,
-    TOOL_INVENTORY,
+    decode_hex, default_limits,
+    editors::sprites::{SpritePackage, MAX_SPRITE_PACKAGE_BYTES},
+    hex, json_string, sha256, Edit, ResourceDocument, ResourceGuard, ResourceOperation,
+    ResourceTransaction, TuningDocument, Workspace, MAX_TRANSACTION_SPEC_BYTES, TOOL_INVENTORY,
 };
 use wonderland_legacy_formats::{
     iff::{ChunkKey, IffChunk},
+    sprites::Spr2AlphaMode,
     ContainerFormat,
 };
 const HELP: &str = r#"creator — bounded offline resource inspection and editing
@@ -39,6 +41,13 @@ Paths are relative to the root. Parent traversal, absolute paths and symlinks ar
   New commands require exact 128-digit LABEL_HEX; RESOURCE_SHA is the payload SHA-256.
   Transactions bind all operations to one source SHA and explicit resource SHA/version guards.
   JSON payload_file paths require payload_sha256; resource-map rsmp edits are writer-managed.
+  sprite-export INPUT SPR2_ID PACKAGE_JSON
+  sprite-import INPUT OUTPUT PACKAGE_JSON
+  sprite-pixel PACKAGE_JSON OUTPUT_JSON FRAME X Y INDEX ALPHA DEPTH
+  sprite-palette PACKAGE_JSON OUTPUT_JSON PALETTE_ID INDEX R G B
+  sprite-alpha-mode PACKAGE_JSON OUTPUT_JSON exact|source
+  Sprite packages preserve source/frame/palette identity. DEPTH is a byte or 'none'.
+  Pixel coordinates are top-left; alpha quantization requires explicit source mode.
   otf-inspect INPUT                     external OTF tuning JSON
   otf-edit INPUT OUTPUT SHA TABLE_ID KEY_ID I32_VALUE
   container-list FORMAT INPUT           FORMAT: far1a, far1b, far3, dbpf
@@ -117,6 +126,35 @@ fn guarded_publish(
 ) -> Result<(), String> {
     check_hash(expected, &ws.read(input)?)?;
     ws.write_atomic(output, bytes)?;
+    Ok(())
+}
+fn read_sprite_package(
+    ws: &Workspace,
+    path: &str,
+    limits: &wonderland_legacy_formats::Limits,
+) -> Result<(SpritePackage, String), String> {
+    let bytes = ws.read_limited(
+        path,
+        MAX_SPRITE_PACKAGE_BYTES
+            .min(limits.max_input_bytes)
+            .min(limits.max_resource_bytes),
+    )?;
+    let hash = sha256(&bytes);
+    let package = SpritePackage::from_json(&bytes, limits)?;
+    Ok((package, hash))
+}
+fn publish_sprite_package(
+    ws: &Workspace,
+    input: &str,
+    expected: &str,
+    output: &str,
+    package: &SpritePackage,
+    limits: &wonderland_legacy_formats::Limits,
+) -> Result<(), String> {
+    let bytes = package.to_json(limits)?;
+    check_hash(expected, &ws.read_limited(input, MAX_SPRITE_PACKAGE_BYTES)?)?;
+    ws.write_atomic(output, bytes.as_bytes())?;
+    println!("wrote {} bytes to {output}", bytes.len());
     Ok(())
 }
 fn format(s: &str) -> Result<ContainerFormat, String> {
@@ -203,6 +241,74 @@ fn run() -> Result<(), String> {
             let chunk = doc.chunk(key(&args[1], &args[2])?)?;
             guarded_publish(&ws, &args[0], &sha256(&bytes), &args[3], &chunk.data)?;
             println!("extracted {} bytes", chunk.data.len());
+        }
+        "sprite-export" => {
+            require(&args, 3)?;
+            let bytes = ws.read(&args[0])?;
+            let expected = sha256(&bytes);
+            let doc = ResourceDocument::import(&bytes, &limits)?;
+            drop(bytes);
+            let package = doc.export_sprite(u16_arg(&args[1])?, &limits)?;
+            let output = package.to_json(&limits)?;
+            guarded_publish(&ws, &args[0], &expected, &args[2], output.as_bytes())?;
+            println!("wrote {} bytes to {}", output.len(), args[2]);
+        }
+        "sprite-import" => {
+            require(&args, 3)?;
+            let bytes = ws.read(&args[0])?;
+            let mut doc = ResourceDocument::import(&bytes, &limits)?;
+            drop(bytes);
+            let (package, package_hash) = read_sprite_package(&ws, &args[2], &limits)?;
+            let report = doc.import_sprite(&package, &limits)?;
+            check_hash(
+                &package_hash,
+                &ws.read_limited(&args[2], MAX_SPRITE_PACKAGE_BYTES)?,
+            )?;
+            let output = doc.export(&limits)?;
+            guarded_publish(&ws, &args[0], package.source_sha256(), &args[1], &output)?;
+            println!(
+                "{}",
+                serde_json::to_string(&report).map_err(|error| error.to_string())?
+            );
+        }
+        "sprite-pixel" => {
+            require(&args, 8)?;
+            let (mut package, expected) = read_sprite_package(&ws, &args[0], &limits)?;
+            let depth = if args[7] == "none" {
+                None
+            } else {
+                Some(u8_arg(&args[7])?)
+            };
+            package.set_pixel(
+                usize_arg(&args[2])?,
+                [usize_arg(&args[3])?, usize_arg(&args[4])?],
+                u8_arg(&args[5])?,
+                u8_arg(&args[6])?,
+                depth,
+                &limits,
+            )?;
+            publish_sprite_package(&ws, &args[0], &expected, &args[1], &package, &limits)?;
+        }
+        "sprite-palette" => {
+            require(&args, 7)?;
+            let (mut package, expected) = read_sprite_package(&ws, &args[0], &limits)?;
+            package.set_palette_color(
+                u16_arg(&args[2])?,
+                usize_arg(&args[3])?,
+                [u8_arg(&args[4])?, u8_arg(&args[5])?, u8_arg(&args[6])?],
+            )?;
+            publish_sprite_package(&ws, &args[0], &expected, &args[1], &package, &limits)?;
+        }
+        "sprite-alpha-mode" => {
+            require(&args, 3)?;
+            let (mut package, expected) = read_sprite_package(&ws, &args[0], &limits)?;
+            let mode = match args[2].as_str() {
+                "exact" => Spr2AlphaMode::Exact,
+                "source" => Spr2AlphaMode::QuantizeLikeSource,
+                _ => return Err("sprite alpha mode must be exact or source".into()),
+            };
+            package.set_alpha_mode(mode)?;
+            publish_sprite_package(&ws, &args[0], &expected, &args[1], &package, &limits)?;
         }
         "edit" => {
             if args.len() < 8 {

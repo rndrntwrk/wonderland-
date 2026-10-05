@@ -1,6 +1,6 @@
 # Creator: offline resource inspection and guarded transactions
 
-`wonderland-creator` is a standalone Rust library and CLI for inspecting local resources and making precise, reviewable edits. It consumes the real `wonderland-legacy-formats` IFF/container parsers, semantic resource APIs and PALT codec. It supports source-bound add, remove, metadata and typed-edit transactions, including source-backed resource-map rebuilding. It does not implement a VM or a graphical Volcanic replacement.
+`wonderland-creator` is a standalone Rust library and CLI for inspecting local resources and making precise, reviewable edits. It consumes the real `wonderland-legacy-formats` IFF/container parsers, semantic resource APIs and palette/sprite codecs. It supports source-bound add, remove, metadata and typed-edit transactions, including source-backed resource-map rebuilding, plus [guarded SPR2 editing packages](creator-sprites.md) with exact index/alpha/depth planes and palette RGB. It does not implement a VM or a graphical Volcanic replacement.
 
 ## Build and verify without external assets
 
@@ -62,6 +62,25 @@ String edits address an explicit language set; they do not apply locale fallback
 PALT `palette INDEX R G B` changes one zero-based RGB triple using the real palette decoder/encoder. Each channel must be an integer from 0 through 255. Source version 0/1, color count, reserved bytes, every other color and unrelated chunks are preserved. PALT stores RGB only, so this operation does not invent an alpha channel. `inspect` reports each entry as an RGB array; sprite rendering and dependent-palette previews remain outside the CLI.
 
 Unknown binary replacement is restricted to kinds for which the creator has no typed validator. It is explicit binary interchange, not a promise that the replacement is meaningful to the original runtime. Known kinds cannot bypass validation through `unknown`. The `rsmp` resource is always managed by the IFF writer and cannot be added, removed, rekeyed, relabeled or raw-replaced directly.
+
+### Guarded sprite packages
+
+The dedicated `sprite-export`, `sprite-pixel`, `sprite-palette`,
+`sprite-alpha-mode` and `sprite-import` commands provide a source-bound SPR2
+1000/1001 and PALT 0/1 editing workflow. A strict JSON package carries the exact
+index, straight-alpha and optional depth planes with required palette RGB.
+Import checks source/resource hashes, preserves frame and palette identities,
+and publishes palette/sprite changes in one atomic IFF replacement. Alpha is
+exact by default; source-compatible quantization is an explicit package choice
+and reports the number of affected samples. Palette-only edits and semantic
+no-ops retain the original SPR2 bytes, including after quantization back to
+existing values.
+
+See [Creator sprite packages](creator-sprites.md) for the commands, complete
+schema, geometry/channel editing, reports, allocation limits and recooking
+acceptance. Contextual sprite validation belongs to these commands. Generic
+`inspect`, `validate` and `unknown` replacement still treat SPR2 as raw
+interchange and do not certify its internal sprite semantics.
 
 ### Add, remove and metadata commands
 

@@ -6,6 +6,7 @@ mod workspace;
 pub use hash::sha256;
 pub use workspace::Workspace;
 pub mod city;
+pub mod editors;
 mod resources;
 pub use resources::{
     Edit, EditGuard, ResourceDocument, ResourceGuard, ResourceOperation, ResourceTransaction,
