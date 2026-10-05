@@ -458,7 +458,9 @@ fn main() -> std::result::Result<(), Box<dyn StdError>> {
         "effective_identity_statement":"All object effective_content_id values remain null until an explicit ordered source/patch/tuning/dependency manifest is resolved.",
         "default_limits":limits,"retry_limits":retry_limits,"summary":summary,"files":files
     });
-    let encoded = serde_json::to_vec_pretty(&document)?;
+    let mut encoded = Vec::new();
+    serde_json::to_writer(&mut encoded, &document)?;
+    encoded.push(b'\n');
     if encoded.len() > 128 * 1024 * 1024 {
         return Err("census metadata output limit exceeded".into());
     }

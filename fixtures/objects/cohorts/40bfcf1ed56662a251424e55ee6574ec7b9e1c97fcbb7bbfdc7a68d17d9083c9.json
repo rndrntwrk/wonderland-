@@ -1,0 +1,421 @@
+{
+  "behaviors": [
+    {
+      "args": 4,
+      "chunk_id": 4106,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "init floor model",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 12,
+      "tree_version": 5,
+      "version": 32770
+    },
+    {
+      "args": 4,
+      "chunk_id": 4096,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 5,
+      "kind": 22,
+      "label": "main",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 13,
+      "tree_version": 3,
+      "version": 32770
+    }
+  ],
+  "cohort_id": "sha256:40bfcf1ed56662a251424e55ee6574ec7b9e1c97fcbb7bbfdc7a68d17d9083c9",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 131,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 4099,
+          "autonomy_threshold": 50,
+          "flags": 80,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4100
+        },
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 9,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4098
+        }
+      ],
+      "resource_ordinal": 16,
+      "version": 9
+    },
+    {
+      "chunk_id": 132,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 9,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4098
+        }
+      ],
+      "resource_ordinal": 17,
+      "version": 9
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-40bfcf1ed56662a251424e55ee6574ec7b9e1c97fcbb7bbfdc7a68d17d9083c9-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 131,
+          "field": "action_function",
+          "id": 4097,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 131,
+          "field": "action_function",
+          "id": 4099,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 131,
+          "field": "test_function",
+          "id": 4098,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 131,
+          "field": "test_function",
+          "id": 4100,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-40bfcf1ed56662a251424e55ee6574ec7b9e1c97fcbb7bbfdc7a68d17d9083c9-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16807,
+      "chunk_sha256": "5c5d1af2975339929f53e3f29f582f7990c7440a8add807ac3d172bf1a9d2ebd",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 619332361,
+      "guid_hex": "24ea4309",
+      "label": "Essentials - Coal Skuttle",
+      "raw_fields": {
+        "base_graphic_id": 101,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 16,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 3,
+        "rating_skill_flags": 0,
+        "room_flags": 89,
+        "slot_id": 128,
+        "sub_index": 0,
+        "tree_table_id": 131,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 0,
+      "version": 138
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "f0f85408b8804bf37b72bce108a3ffc939f10c91",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/k8esslivingcoalskuttlets.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 13,
+      "id": 0,
+      "kind": "FWAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 17,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 14,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 18,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 18,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 21,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 22,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 8
+    },
+    {
+      "byte_len": 24,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 9
+    },
+    {
+      "byte_len": 19,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 17,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 156,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 72,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 54,
+      "id": 131,
+      "kind": "TTAB",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 30,
+      "id": 132,
+      "kind": "TTAB",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 140,
+      "id": 16807,
+      "kind": "OBJf",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 296,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 23
+    }
+  ],
+  "source_sha256": "40bfcf1ed56662a251424e55ee6574ec7b9e1c97fcbb7bbfdc7a68d17d9083c9",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

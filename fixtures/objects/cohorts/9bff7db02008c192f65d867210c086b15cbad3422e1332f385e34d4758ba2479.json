@@ -1,0 +1,2373 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [
+        302
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Clean",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 302
+        }
+      ],
+      "resource_ordinal": 37,
+      "tree_version": 0,
+      "version": 32768
+    },
+    {
+      "args": 4,
+      "chunk_id": 4116,
+      "direct_calls": [],
+      "instruction_count": 0,
+      "kind": 0,
+      "label": "start fire",
+      "locals": 0,
+      "opcode_counts": [],
+      "resource_ordinal": 38,
+      "tree_version": 0,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "update function scores",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 39,
+      "tree_version": 0,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [
+        283
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "tweak wait in line",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 283
+        }
+      ],
+      "resource_ordinal": 40,
+      "tree_version": 0,
+      "version": 32770
+    },
+    {
+      "args": 4,
+      "chunk_id": 4117,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "main delay",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 41,
+      "tree_version": 0,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4099,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "turn off",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 21
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 2,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 48
+        }
+      ],
+      "resource_ordinal": 42,
+      "tree_version": 5,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4127,
+      "direct_calls": [
+        260
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "open microwave",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 260
+        }
+      ],
+      "resource_ordinal": 43,
+      "tree_version": 4,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4121,
+      "direct_calls": [
+        4098
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "init expensive",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        }
+      ],
+      "resource_ordinal": 44,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4135,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Cheat TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 45,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4134,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Force Fire",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 46,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4126,
+      "direct_calls": [
+        260,
+        4120
+      ],
+      "instruction_count": 34,
+      "kind": 0,
+      "label": "put food in microwave",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 24,
+          "opcode": 2
+        },
+        {
+          "count": 5,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 43
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        }
+      ],
+      "resource_ordinal": 47,
+      "tree_version": 7,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4129,
+      "direct_calls": [
+        260,
+        4115,
+        4120
+      ],
+      "instruction_count": 29,
+      "kind": 0,
+      "label": "get food from microwave",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 20,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 48
+        },
+        {
+          "count": 2,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        }
+      ],
+      "resource_ordinal": 48,
+      "tree_version": 7,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "tweak cook finished",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 49,
+      "tree_version": 0,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        4119
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Go to Main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 4119
+        }
+      ],
+      "resource_ordinal": 50,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 2,
+      "chunk_id": 4100,
+      "direct_calls": [],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "tweak cook begin",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 51,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 2,
+      "chunk_id": 4130,
+      "direct_calls": [],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "operate microwave",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 23
+        },
+        {
+          "count": 5,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 48
+        }
+      ],
+      "resource_ordinal": 52,
+      "tree_version": 8,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [
+        282,
+        4105
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "tweak cook inc",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 282
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        }
+      ],
+      "resource_ordinal": 53,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4128,
+      "direct_calls": [
+        260
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "close microwave door",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 260
+        }
+      ],
+      "resource_ordinal": 54,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "signal cook progress",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        }
+      ],
+      "resource_ordinal": 55,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "signal cook finished",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        }
+      ],
+      "resource_ordinal": 56,
+      "tree_version": 3,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4137,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "show situation info",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        }
+      ],
+      "resource_ordinal": 57,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4138,
+      "direct_calls": [
+        260,
+        4120
+      ],
+      "instruction_count": 31,
+      "kind": 0,
+      "label": "put food in toastoven",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 23,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 43
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        }
+      ],
+      "resource_ordinal": 58,
+      "tree_version": 7,
+      "version": 32770
+    },
+    {
+      "args": 2,
+      "chunk_id": 4139,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "operate toastoven",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 5,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 48
+        }
+      ],
+      "resource_ordinal": 59,
+      "tree_version": 4,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4140,
+      "direct_calls": [
+        260,
+        4115,
+        4120
+      ],
+      "instruction_count": 31,
+      "kind": 0,
+      "label": "get food from toastoven",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 22,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        }
+      ],
+      "resource_ordinal": 60,
+      "tree_version": 6,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "end help",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 61,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4118,
+      "direct_calls": [],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "do processing",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 15
+        }
+      ],
+      "resource_ordinal": 62,
+      "tree_version": 18,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4119,
+      "direct_calls": [
+        4117,
+        4118
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "main",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4117
+        },
+        {
+          "count": 1,
+          "opcode": 4118
+        }
+      ],
+      "resource_ordinal": 63,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "tweak should start fire",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 64,
+      "tree_version": 5,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4136,
+      "direct_calls": [],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "display help",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 65,
+      "tree_version": 6,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4122,
+      "direct_calls": [
+        4098
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "init microwave",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        }
+      ],
+      "resource_ordinal": 66,
+      "tree_version": 5,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4123,
+      "direct_calls": [
+        4098
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "init toaster oven",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        }
+      ],
+      "resource_ordinal": 67,
+      "tree_version": 5,
+      "version": 32770
+    },
+    {
+      "args": 4,
+      "chunk_id": 4097,
+      "direct_calls": [],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "turn on",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 21
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 3,
+          "opcode": 44
+        }
+      ],
+      "resource_ordinal": 68,
+      "tree_version": 4,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4111,
+      "direct_calls": [
+        281,
+        4100,
+        4101,
+        4102,
+        4106
+      ],
+      "instruction_count": 19,
+      "kind": 0,
+      "label": "cook loop ( Cheap / Expensive )",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 6
+        },
+        {
+          "count": 5,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 48
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        },
+        {
+          "count": 1,
+          "opcode": 4102
+        },
+        {
+          "count": 1,
+          "opcode": 4106
+        }
+      ],
+      "resource_ordinal": 69,
+      "tree_version": 16,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "get food for cook",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 70,
+      "tree_version": 0,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4131,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "put food in pot",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        }
+      ],
+      "resource_ordinal": 71,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4133,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "cook test",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 72,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4120,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "force slot object to same direction",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        }
+      ],
+      "resource_ordinal": 73,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "grab contained object",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4
+        },
+        {
+          "count": 1,
+          "opcode": 47
+        }
+      ],
+      "resource_ordinal": 74,
+      "tree_version": 4,
+      "version": 32770
+    },
+    {
+      "args": 2,
+      "chunk_id": 4124,
+      "direct_calls": [
+        284,
+        4097,
+        4099,
+        4108,
+        4109,
+        4110,
+        4111,
+        4115,
+        4120,
+        4131,
+        4133
+      ],
+      "instruction_count": 47,
+      "kind": 0,
+      "label": "cook core ( Cheap / Expensive )",
+      "locals": 5,
+      "opcode_counts": [
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 9
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 43
+        },
+        {
+          "count": 5,
+          "opcode": 44
+        },
+        {
+          "count": 4,
+          "opcode": 48
+        },
+        {
+          "count": 1,
+          "opcode": 284
+        },
+        {
+          "count": 1,
+          "opcode": 4097
+        },
+        {
+          "count": 1,
+          "opcode": 4099
+        },
+        {
+          "count": 1,
+          "opcode": 4108
+        },
+        {
+          "count": 1,
+          "opcode": 4109
+        },
+        {
+          "count": 1,
+          "opcode": 4110
+        },
+        {
+          "count": 1,
+          "opcode": 4111
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 2,
+          "opcode": 4120
+        },
+        {
+          "count": 1,
+          "opcode": 4131
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        }
+      ],
+      "resource_ordinal": 75,
+      "tree_version": 40,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4112,
+      "direct_calls": [
+        4103,
+        4104,
+        4124,
+        4125,
+        4136
+      ],
+      "instruction_count": 23,
+      "kind": 0,
+      "label": "cook function",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 3,
+          "opcode": 4103
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        },
+        {
+          "count": 1,
+          "opcode": 4124
+        },
+        {
+          "count": 1,
+          "opcode": 4125
+        },
+        {
+          "count": 1,
+          "opcode": 4136
+        }
+      ],
+      "resource_ordinal": 76,
+      "tree_version": 5,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        4098
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "init cheap",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        }
+      ],
+      "resource_ordinal": 77,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 4,
+      "chunk_id": 4114,
+      "direct_calls": [
+        272,
+        273
+      ],
+      "instruction_count": 14,
+      "kind": 0,
+      "label": "pickup function",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 272
+        },
+        {
+          "count": 2,
+          "opcode": 273
+        }
+      ],
+      "resource_ordinal": 78,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 79,
+      "tree_version": 7,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4132,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "put food in microwave pot",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 91,
+      "tree_version": 3,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4125,
+      "direct_calls": [
+        284,
+        291,
+        295,
+        370,
+        4106,
+        4108,
+        4109,
+        4110,
+        4126,
+        4129,
+        4130,
+        4132,
+        4133,
+        4138,
+        4139,
+        4140
+      ],
+      "instruction_count": 35,
+      "kind": 0,
+      "label": "cook core ( Microwave/Toast Oven )",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 9
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 2,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 284
+        },
+        {
+          "count": 1,
+          "opcode": 291
+        },
+        {
+          "count": 1,
+          "opcode": 295
+        },
+        {
+          "count": 1,
+          "opcode": 370
+        },
+        {
+          "count": 1,
+          "opcode": 4106
+        },
+        {
+          "count": 1,
+          "opcode": 4108
+        },
+        {
+          "count": 1,
+          "opcode": 4109
+        },
+        {
+          "count": 1,
+          "opcode": 4110
+        },
+        {
+          "count": 1,
+          "opcode": 4126
+        },
+        {
+          "count": 1,
+          "opcode": 4129
+        },
+        {
+          "count": 1,
+          "opcode": 4130
+        },
+        {
+          "count": 1,
+          "opcode": 4132
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 4138
+        },
+        {
+          "count": 1,
+          "opcode": 4139
+        },
+        {
+          "count": 1,
+          "opcode": 4140
+        }
+      ],
+      "resource_ordinal": 92,
+      "tree_version": 22,
+      "version": 32770
+    }
+  ],
+  "cohort_id": "sha256:9bff7db02008c192f65d867210c086b15cbad3422e1332f385e34d4758ba2479",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 129,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4134,
+          "autonomy_threshold": 100,
+          "flags": 128,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4135
+        }
+      ],
+      "resource_ordinal": 82,
+      "version": 8
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-9bff7db02008c192f65d867210c086b15cbad3422e1332f385e34d4758ba2479-OBJD-16809"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-9bff7db02008c192f65d867210c086b15cbad3422e1332f385e34d4758ba2479-OBJD-16809",
+      "objd_chunk_id": 16809,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16809,
+      "chunk_sha256": "7435e1baddd6a0926742dfa1652480f09bf598ddffc872a2227e7bfdf0e0a85b",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3068805928,
+      "guid_hex": "b6ea4328",
+      "label": "Oblique Microwave",
+      "raw_fields": {
+        "base_graphic_id": 300,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2002,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 4,
+        "function_subsort": 4,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 12,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 6,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 2,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 1,
+        "slot_id": 129,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 93,
+      "version": 138
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 4,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGrab",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGrab.cs",
+          "name": "grab",
+          "source_line": 112,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 6,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeSuitOrAccessory",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeSuitOrAccessory.cs",
+          "name": "change_suit_or_accessory",
+          "source_line": 126,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 9,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMBurn",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMBurn.cs",
+          "name": "burn",
+          "source_line": 147,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 15,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMBreakPoint",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMBreakPoint.cs",
+          "name": "breakpoint",
+          "source_line": 184,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 21,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMShowString",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMShowString.cs",
+          "name": "show_string",
+          "source_line": 223,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 43,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDropOnto",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDropOnto.cs",
+          "name": "drop_onto",
+          "source_line": 362,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 47,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMReach",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMReach.cs",
+          "name": "reach",
+          "source_line": 390,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 48,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMStopAllSounds",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMStopAllSounds.cs",
+          "name": "stop_all_sounds",
+          "source_line": 397,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 49,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMNotifyOutOfIdle",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMNotifyOutOfIdle.cs",
+          "name": "stackobj_notify_out_of_idle",
+          "source_line": 404,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "c1b3e0715aef16fb933f7cc695fc0a6cd93e8e2c",
+  "source_parse_errors": [
+    {
+      "chunk_id": 128,
+      "error": {
+        "context": "TTAB 2",
+        "kind": "UnsupportedVersion",
+        "offset": 2
+      },
+      "kind": "TTAB",
+      "resource_ordinal": 81
+    },
+    {
+      "chunk_id": 300,
+      "error": {
+        "context": "STR/TTAs 512",
+        "kind": "UnsupportedVersion",
+        "offset": 0
+      },
+      "kind": "STR#",
+      "resource_ordinal": 85
+    }
+  ],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/k8oblmicrowavets.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 13,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 16,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 16,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 12,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 16,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 16,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 17,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 10,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 22,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 8
+    },
+    {
+      "byte_len": 10,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 9
+    },
+    {
+      "byte_len": 13,
+      "id": 11,
+      "kind": "FWAV",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 10,
+      "id": 12,
+      "kind": "FWAV",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 19,
+      "id": 13,
+      "kind": "FWAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 25,
+      "id": 14,
+      "kind": "FWAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 15,
+      "id": 15,
+      "kind": "FWAV",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 17,
+      "id": 16,
+      "kind": "FWAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 20,
+      "id": 17,
+      "kind": "FWAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 20,
+      "id": 18,
+      "kind": "FWAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 19,
+      "id": 19,
+      "kind": "FWAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 17,
+      "id": 23,
+      "kind": "FWAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 15,
+      "id": 24,
+      "kind": "FWAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 25,
+      "id": 25,
+      "kind": "FWAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 16,
+      "id": 26,
+      "kind": "FWAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 36,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 12,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 48,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 24,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 24,
+      "id": 4117,
+      "kind": "BHAV",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 96,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 42
+    },
+    {
+      "byte_len": 84,
+      "id": 4127,
+      "kind": "BHAV",
+      "resource_ordinal": 43
+    },
+    {
+      "byte_len": 72,
+      "id": 4121,
+      "kind": "BHAV",
+      "resource_ordinal": 44
+    },
+    {
+      "byte_len": 24,
+      "id": 4135,
+      "kind": "BHAV",
+      "resource_ordinal": 45
+    },
+    {
+      "byte_len": 24,
+      "id": 4134,
+      "kind": "BHAV",
+      "resource_ordinal": 46
+    },
+    {
+      "byte_len": 420,
+      "id": 4126,
+      "kind": "BHAV",
+      "resource_ordinal": 47
+    },
+    {
+      "byte_len": 360,
+      "id": 4129,
+      "kind": "BHAV",
+      "resource_ordinal": 48
+    },
+    {
+      "byte_len": 24,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 60,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 132,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 132,
+      "id": 4130,
+      "kind": "BHAV",
+      "resource_ordinal": 52
+    },
+    {
+      "byte_len": 84,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 96,
+      "id": 4128,
+      "kind": "BHAV",
+      "resource_ordinal": 54
+    },
+    {
+      "byte_len": 252,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 55
+    },
+    {
+      "byte_len": 84,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 56
+    },
+    {
+      "byte_len": 36,
+      "id": 4137,
+      "kind": "BHAV",
+      "resource_ordinal": 57
+    },
+    {
+      "byte_len": 384,
+      "id": 4138,
+      "kind": "BHAV",
+      "resource_ordinal": 58
+    },
+    {
+      "byte_len": 96,
+      "id": 4139,
+      "kind": "BHAV",
+      "resource_ordinal": 59
+    },
+    {
+      "byte_len": 384,
+      "id": 4140,
+      "kind": "BHAV",
+      "resource_ordinal": 60
+    },
+    {
+      "byte_len": 120,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 61
+    },
+    {
+      "byte_len": 156,
+      "id": 4118,
+      "kind": "BHAV",
+      "resource_ordinal": 62
+    },
+    {
+      "byte_len": 48,
+      "id": 4119,
+      "kind": "BHAV",
+      "resource_ordinal": 63
+    },
+    {
+      "byte_len": 216,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 64
+    },
+    {
+      "byte_len": 120,
+      "id": 4136,
+      "kind": "BHAV",
+      "resource_ordinal": 65
+    },
+    {
+      "byte_len": 132,
+      "id": 4122,
+      "kind": "BHAV",
+      "resource_ordinal": 66
+    },
+    {
+      "byte_len": 132,
+      "id": 4123,
+      "kind": "BHAV",
+      "resource_ordinal": 67
+    },
+    {
+      "byte_len": 120,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 68
+    },
+    {
+      "byte_len": 240,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 69
+    },
+    {
+      "byte_len": 84,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 70
+    },
+    {
+      "byte_len": 36,
+      "id": 4131,
+      "kind": "BHAV",
+      "resource_ordinal": 71
+    },
+    {
+      "byte_len": 72,
+      "id": 4133,
+      "kind": "BHAV",
+      "resource_ordinal": 72
+    },
+    {
+      "byte_len": 72,
+      "id": 4120,
+      "kind": "BHAV",
+      "resource_ordinal": 73
+    },
+    {
+      "byte_len": 48,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 74
+    },
+    {
+      "byte_len": 576,
+      "id": 4124,
+      "kind": "BHAV",
+      "resource_ordinal": 75
+    },
+    {
+      "byte_len": 288,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 76
+    },
+    {
+      "byte_len": 84,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 77
+    },
+    {
+      "byte_len": 180,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 78
+    },
+    {
+      "byte_len": 60,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 79
+    },
+    {
+      "byte_len": 180,
+      "id": 128,
+      "kind": "TTAB",
+      "resource_ordinal": 81
+    },
+    {
+      "byte_len": 132,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 82
+    },
+    {
+      "byte_len": 140,
+      "id": 16809,
+      "kind": "OBJf",
+      "resource_ordinal": 90
+    },
+    {
+      "byte_len": 72,
+      "id": 4132,
+      "kind": "BHAV",
+      "resource_ordinal": 91
+    },
+    {
+      "byte_len": 432,
+      "id": 4125,
+      "kind": "BHAV",
+      "resource_ordinal": 92
+    },
+    {
+      "byte_len": 156,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 94
+    },
+    {
+      "byte_len": 156,
+      "id": 129,
+      "kind": "SLOT",
+      "resource_ordinal": 95
+    },
+    {
+      "byte_len": 156,
+      "id": 130,
+      "kind": "SLOT",
+      "resource_ordinal": 96
+    },
+    {
+      "byte_len": 918,
+      "id": 305,
+      "kind": "DGRP",
+      "resource_ordinal": 111
+    },
+    {
+      "byte_len": 918,
+      "id": 304,
+      "kind": "DGRP",
+      "resource_ordinal": 112
+    },
+    {
+      "byte_len": 918,
+      "id": 303,
+      "kind": "DGRP",
+      "resource_ordinal": 113
+    },
+    {
+      "byte_len": 918,
+      "id": 302,
+      "kind": "DGRP",
+      "resource_ordinal": 114
+    },
+    {
+      "byte_len": 918,
+      "id": 301,
+      "kind": "DGRP",
+      "resource_ordinal": 115
+    },
+    {
+      "byte_len": 918,
+      "id": 300,
+      "kind": "DGRP",
+      "resource_ordinal": 116
+    }
+  ],
+  "source_sha256": "9bff7db02008c192f65d867210c086b15cbad3422e1332f385e34d4758ba2479",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

@@ -1,0 +1,206 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4300,
+      "direct_calls": [
+        293
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "FSO - Helper - Try Roulette",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 16
+        },
+        {
+          "count": 2,
+          "opcode": 42
+        },
+        {
+          "count": 1,
+          "opcode": 293
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:b5893e63f8b5529000851768c20f2176ecd99de694193f0f489e4cdc9ebe4b3c",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-b5893e63f8b5529000851768c20f2176ecd99de694193f0f489e4cdc9ebe4b3c-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4300,
+          "field": "BHAV",
+          "id": 4300,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4300,
+          "field": "instruction_opcode",
+          "id": 293,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        }
+      ],
+      "leaf_id": "OBJ-b5893e63f8b5529000851768c20f2176ecd99de694193f0f489e4cdc9ebe4b3c-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [
+        2,
+        8,
+        16,
+        42
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4300
+      ]
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 2,
+      "is_user_category": false,
+      "patch_operations": 13,
+      "source_name": "food.iff",
+      "version": 1
+    }
+  ],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 16,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMFindLocationFor",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMFindLocationFor.cs",
+          "name": "find_location_for",
+          "source_line": 191,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "6ed69f87f2b43bf4a6c02f7665de0db8fbda23ad",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/Pizza/food.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 121,
+      "id": 4300,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    }
+  ],
+  "source_sha256": "b5893e63f8b5529000851768c20f2176ecd99de694193f0f489e4cdc9ebe4b3c",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

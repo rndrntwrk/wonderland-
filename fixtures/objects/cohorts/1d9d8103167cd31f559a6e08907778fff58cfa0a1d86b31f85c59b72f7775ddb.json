@@ -1,0 +1,626 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [
+        8193
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init flower",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 8193
+        }
+      ],
+      "resource_ordinal": 28,
+      "tree_version": 3,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [
+        8193
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init left",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 8193
+        }
+      ],
+      "resource_ordinal": 29,
+      "tree_version": 3,
+      "version": 32770
+    }
+  ],
+  "cohort_id": "sha256:1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [
+    {
+      "chunk_id": 128,
+      "name": "ArtGlobals",
+      "resource_ordinal": 6
+    }
+  ],
+  "interaction_tables": [
+    {
+      "chunk_id": 129,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 50,
+          "flags": 1,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4101
+        }
+      ],
+      "resource_ordinal": 31,
+      "version": 5
+    },
+    {
+      "chunk_id": 130,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 8196,
+          "autonomy_threshold": 50,
+          "flags": 33,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 8197
+        }
+      ],
+      "resource_ordinal": 32,
+      "version": 9
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16808",
+    "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16809",
+    "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16810",
+    "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16811",
+    "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16812"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 130,
+          "field": "action_function",
+          "id": 8196,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 130,
+          "field": "test_function",
+          "id": 8197,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 8193,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4106,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4104,
+          "origin": "OBJD",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [
+        2,
+        7
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4106
+      ]
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16809",
+      "objd_chunk_id": 16809,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16810",
+      "objd_chunk_id": 16810,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16811",
+      "objd_chunk_id": 16811,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16812",
+      "objd_chunk_id": 16812,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16809,
+      "chunk_sha256": "46bb4bca2c9485930551bfbfc277ce9a0510bd1fd99700fc49c3b01e82a8f1c1",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 4159324928,
+      "guid_hex": "f7ea4300",
+      "label": "Painting - Abstract - Left",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 768,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 44,
+      "version": 138
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16810,
+      "chunk_sha256": "cecaedf9a7e4ef0bf9738168c9e1f09d5f5483ce337971b53cc87c152e98c045",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3303686914,
+      "guid_hex": "c4ea4302",
+      "label": "Painting - Abstract - CenterL",
+      "raw_fields": {
+        "base_graphic_id": 201,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 512,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 45,
+      "version": 138
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4106
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4104
+        }
+      ],
+      "chunk_id": 16808,
+      "chunk_sha256": "f993d08b09061cbff28e2f26debf2879c12fe74a67d17db0c9acf3f6359e7414",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1458193249,
+      "guid_hex": "56ea4361",
+      "label": "Tonight Josephine Curtains",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 16,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 2,
+        "rating_skill_flags": 0,
+        "room_flags": 46,
+        "slot_id": 0,
+        "sub_index": -1,
+        "tree_table_id": 130,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 46,
+      "version": 138
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16811,
+      "chunk_sha256": "44ee47eddcf6062719178e720fcae51e06db90691a6fdc18ff9c13c18fd87471",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 367674189,
+      "guid_hex": "15ea434d",
+      "label": "Painting - Abstract - CenterR",
+      "raw_fields": {
+        "base_graphic_id": 202,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 256,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 47,
+      "version": 138
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16812,
+      "chunk_sha256": "5540f51e163c0a3bc3fe97b6b5a164f2852b6feca2bd2e3c7612574fa3f774a4",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1441416104,
+      "guid_hex": "55ea43a8",
+      "label": "Painting - Abstract - Right",
+      "raw_fields": {
+        "base_graphic_id": 203,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 48,
+      "version": 138
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "1fdefb1830e51a22d9218e5f064875126bdbcdd5",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/k8tojcurtainshd.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 14,
+      "id": 0,
+      "kind": "FWAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 12,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 17,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 16,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 14,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 11,
+      "id": 128,
+      "kind": "GLOB",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 48,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 60,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 64,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 29,
+      "id": 130,
+      "kind": "TTAB",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 140,
+      "id": 16809,
+      "kind": "OBJf",
+      "resource_ordinal": 36
+    },
+    {
+      "byte_len": 140,
+      "id": 16810,
+      "kind": "OBJf",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 140,
+      "id": 16811,
+      "kind": "OBJf",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 140,
+      "id": 16812,
+      "kind": "OBJf",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 534,
+      "id": 200,
+      "kind": "DGRP",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 534,
+      "id": 201,
+      "kind": "DGRP",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 534,
+      "id": 202,
+      "kind": "DGRP",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 534,
+      "id": 203,
+      "kind": "DGRP",
+      "resource_ordinal": 52
+    }
+  ],
+  "source_sha256": "1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

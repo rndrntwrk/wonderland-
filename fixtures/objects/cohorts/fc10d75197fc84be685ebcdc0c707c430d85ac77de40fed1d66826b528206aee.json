@@ -1,0 +1,1392 @@
+{
+  "behaviors": [
+    {
+      "args": 4,
+      "chunk_id": 4101,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "init common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 16,
+      "tree_version": 11,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init F new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 17,
+      "tree_version": 3,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4103,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init H new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 18,
+      "tree_version": 4,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "init E new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init G new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 3,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init D new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 4,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Try Roar",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 11
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 4,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "load tree",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4099,
+      "direct_calls": [
+        265
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Hide Menu TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 265
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 4,
+      "chunk_id": 4096,
+      "direct_calls": [
+        280,
+        4100
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 3,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 12,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Go Here pushed",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 27
+        }
+      ],
+      "resource_ordinal": 26,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Interaction - Go Here",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 27,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init A new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 28,
+      "tree_version": 4,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init B new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 29,
+      "tree_version": 4,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "init C new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 30,
+      "tree_version": 8,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4111,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Go Here TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 31,
+      "tree_version": 5,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [
+        4101
+      ],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "init I new",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 5,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 32,
+      "tree_version": 6,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 129,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 1541,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4111
+        },
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 1537,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4099
+        }
+      ],
+      "resource_ordinal": 34,
+      "version": 8
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16820",
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16827",
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16835",
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16839",
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16847",
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16851",
+    "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16855"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4097,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4098,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4099,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4111,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Clean",
+          "id": 4099,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4101,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16820",
+      "objd_chunk_id": 16820,
+      "primitive_opcodes": [
+        2,
+        8,
+        11,
+        13,
+        18,
+        23,
+        27,
+        31,
+        32,
+        42
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098,
+        4099,
+        4100,
+        4101,
+        4111
+      ]
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16827",
+      "objd_chunk_id": 16827,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16835",
+      "objd_chunk_id": 16835,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16839",
+      "objd_chunk_id": 16839,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16847",
+      "objd_chunk_id": 16847,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16851",
+      "objd_chunk_id": 16851,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16855",
+      "objd_chunk_id": 16855,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16827,
+      "chunk_sha256": "38abfa07ac506a59062bc3d58600d17bff8f5032c668ee9b9386026a6757e3ea",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 2250723615,
+      "guid_hex": "8627511f",
+      "label": "Rug - Retro - B",
+      "raw_fields": {
+        "base_graphic_id": 503,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 256,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 42,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16835,
+      "chunk_sha256": "9828818e096083cf93097c2bf9ab777e20af2d9cfb98ca7983af7730756b6f92",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 170348808,
+      "guid_hex": "0a275108",
+      "label": "Rug - Retro - D",
+      "raw_fields": {
+        "base_graphic_id": 506,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 512,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 43,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16839,
+      "chunk_sha256": "f2d116e451bb069659fe4faebc8eefe8d3cf59bc5b078fb0945c54b2d53b3cb5",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3542569449,
+      "guid_hex": "d32751e9",
+      "label": "Rug - Retro - E",
+      "raw_fields": {
+        "base_graphic_id": 504,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 257,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 44,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16847,
+      "chunk_sha256": "4dfaad5fec952ce5a78a388e1f8c28a217ae2c0715aa09293fdb9c37f98875c0",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3844559318,
+      "guid_hex": "e52751d6",
+      "label": "Rug - Retro - G",
+      "raw_fields": {
+        "base_graphic_id": 507,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 102,
+        "sub_index": 513,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 45,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16851,
+      "chunk_sha256": "efeb322ed5b627b0aaa2045ca57993dbc1eed2ff1583e54403de4efde6c61d0e",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 338121112,
+      "guid_hex": "14275198",
+      "label": "Rug - Retro - H",
+      "raw_fields": {
+        "base_graphic_id": 501,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 1,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 46,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16855,
+      "chunk_sha256": "28a24d3009e1f5e6a5aaf381c972f8d658625cd8aed888e473e3e17e51d1b15b",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3274133867,
+      "guid_hex": "c327516b",
+      "label": "Rug - Retro - I",
+      "raw_fields": {
+        "base_graphic_id": 500,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 64,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 47,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4101
+        },
+        {
+          "field": "BHAV_Clean",
+          "id": 4099
+        }
+      ],
+      "chunk_id": 16820,
+      "chunk_sha256": "ab85f6a55de2be3f4ed53723043048006d4fc490cab2794cb400a071e353ffff",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 2837926310,
+      "guid_hex": "a92751a6",
+      "label": "Rug - Retro",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2004,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 5,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 4,
+        "rating_skill_flags": 0,
+        "room_flags": 128,
+        "slot_id": 128,
+        "sub_index": -1,
+        "tree_table_id": 129,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 48,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 11,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGetDistanceTo",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGetDistanceTo.cs",
+          "name": "get_distance_to",
+          "source_line": 156,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "8fd07da54a17f4c1c5247fa6358a00f2a56d2b07",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/stp_wfrug.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 226,
+      "id": 103,
+      "kind": "SLOT",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 436,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 156,
+      "id": 100,
+      "kind": "SLOT",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 156,
+      "id": 101,
+      "kind": "SLOT",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 156,
+      "id": 102,
+      "kind": "SLOT",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 14,
+      "id": 0,
+      "kind": "FWAV",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 169,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 49,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 61,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 73,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 61,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 49,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 109,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 37,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 25,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 109,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 25,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 73,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 49,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 61,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 121,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 37,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 193,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 260,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 34
+    },
+    {
+      "byte_len": 140,
+      "id": 16827,
+      "kind": "OBJf",
+      "resource_ordinal": 36
+    },
+    {
+      "byte_len": 140,
+      "id": 16835,
+      "kind": "OBJf",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 140,
+      "id": 16855,
+      "kind": "OBJf",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 140,
+      "id": 16851,
+      "kind": "OBJf",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 140,
+      "id": 16839,
+      "kind": "OBJf",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 140,
+      "id": 16847,
+      "kind": "OBJf",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 534,
+      "id": 503,
+      "kind": "DGRP",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 534,
+      "id": 506,
+      "kind": "DGRP",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 534,
+      "id": 504,
+      "kind": "DGRP",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 534,
+      "id": 507,
+      "kind": "DGRP",
+      "resource_ordinal": 52
+    },
+    {
+      "byte_len": 534,
+      "id": 501,
+      "kind": "DGRP",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 534,
+      "id": 500,
+      "kind": "DGRP",
+      "resource_ordinal": 54
+    }
+  ],
+  "source_sha256": "fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

@@ -1,0 +1,249 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Functional - init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Functional - Main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:059e883f1882b45a6c4c7019c90d6890471274cd7a41cc2857206aac7a00e7c0",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-059e883f1882b45a6c4c7019c90d6890471274cd7a41cc2857206aac7a00e7c0-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-059e883f1882b45a6c4c7019c90d6890471274cd7a41cc2857206aac7a00e7c0-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "2541100a70b0faa0cc1388bd73da0589b1e046be4a07c1644bf0d620ef8d034e",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1763902666,
+      "guid_hex": "692304ca",
+      "label": "fso-decor-Red Bow",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "444df62821361abd1dc4e118335bb34660cd3b79",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso-decor-toddy-Red_Bow.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 85,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 25,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 8080,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 9
+    }
+  ],
+  "source_sha256": "059e883f1882b45a6c4c7019c90d6890471274cd7a41cc2857206aac7a00e7c0",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

@@ -1,0 +1,430 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4161,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - FSO - Serve Ice Cream Platter TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4160,
+      "direct_calls": [
+        4115,
+        4162
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Interaction - FSO - Serve Ice Cream Platter",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4162
+        }
+      ],
+      "resource_ordinal": 1,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4162,
+      "direct_calls": [
+        272,
+        273,
+        281,
+        4115,
+        4122,
+        4142,
+        4163
+      ],
+      "instruction_count": 18,
+      "kind": 0,
+      "label": "get party platter - ice cream",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 272
+        },
+        {
+          "count": 1,
+          "opcode": 273
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4122
+        },
+        {
+          "count": 1,
+          "opcode": 4142
+        },
+        {
+          "count": 1,
+          "opcode": 4163
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4163,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "create party platter - ice cream",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:816d066b51ae13cffae1d8c503f0d5c9f598ec6c0c8f6d15d60b1a4c7f380fee",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-816d066b51ae13cffae1d8c503f0d5c9f598ec6c0c8f6d15d60b1a4c7f380fee-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4160,
+          "field": "BHAV",
+          "id": 4160,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4160,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4160,
+          "field": "instruction_opcode",
+          "id": 4162,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4161,
+          "field": "BHAV",
+          "id": 4161,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "BHAV",
+          "id": 4162,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 272,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 273,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 4122,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 4142,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4162,
+          "field": "instruction_opcode",
+          "id": 4163,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4163,
+          "field": "BHAV",
+          "id": 4163,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-816d066b51ae13cffae1d8c503f0d5c9f598ec6c0c8f6d15d60b1a4c7f380fee-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [
+        2,
+        13,
+        18,
+        28,
+        42
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4160,
+        4161,
+        4162,
+        4163
+      ]
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 11,
+      "is_user_category": false,
+      "patch_operations": 8,
+      "source_name": "fridges2.iff",
+      "version": 2
+    }
+  ],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "e28ad3b5f5e41dcb607c15c41a684d033acd68bb",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/fridges2.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 25,
+      "id": 4161,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 121,
+      "id": 4160,
+      "kind": "BHAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 229,
+      "id": 4162,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 49,
+      "id": 4163,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    }
+  ],
+  "source_sha256": "816d066b51ae13cffae1d8c503f0d5c9f598ec6c0c8f6d15d60b1a4c7f380fee",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

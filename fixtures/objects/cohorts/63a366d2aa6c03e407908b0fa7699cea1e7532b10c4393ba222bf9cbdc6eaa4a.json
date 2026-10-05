@@ -1,0 +1,471 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        8195
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init-Ghost",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8195
+        }
+      ],
+      "resource_ordinal": 130,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        8203
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "main-Ghost",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 8203
+        }
+      ],
+      "resource_ordinal": 131,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - Is Electrical?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 132,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4099,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - Play break sound",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 23
+        }
+      ],
+      "resource_ordinal": 133,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - Play off sound",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 23
+        }
+      ],
+      "resource_ordinal": 134,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - Play on sound",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 23
+        }
+      ],
+      "resource_ordinal": 135,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:63a366d2aa6c03e407908b0fa7699cea1e7532b10c4393ba222bf9cbdc6eaa4a",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [
+    {
+      "chunk_id": 1,
+      "name": "LightGlobals",
+      "resource_ordinal": 136
+    }
+  ],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-63a366d2aa6c03e407908b0fa7699cea1e7532b10c4393ba222bf9cbdc6eaa4a-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-63a366d2aa6c03e407908b0fa7699cea1e7532b10c4393ba222bf9cbdc6eaa4a-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16807,
+      "chunk_sha256": "16083ec46a2a2264024fb20e13d79bc2f8a9c30534ec0232a4a3b96913ef7f8b",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1288681242,
+      "guid_hex": "4ccfb71a",
+      "label": "8-bit Chromatic Cloud",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 11,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 1,
+        "sub_index": 0,
+        "tree_table_id": 129,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "cb64da42a3bf02748188bde9d882212b4424ad5c",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso-8bit-pride-cloudlamp.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 119
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 120
+    },
+    {
+      "byte_len": 534,
+      "id": 102,
+      "kind": "DGRP",
+      "resource_ordinal": 121
+    },
+    {
+      "byte_len": 534,
+      "id": 103,
+      "kind": "DGRP",
+      "resource_ordinal": 122
+    },
+    {
+      "byte_len": 534,
+      "id": 104,
+      "kind": "DGRP",
+      "resource_ordinal": 123
+    },
+    {
+      "byte_len": 534,
+      "id": 105,
+      "kind": "DGRP",
+      "resource_ordinal": 124
+    },
+    {
+      "byte_len": 534,
+      "id": 106,
+      "kind": "DGRP",
+      "resource_ordinal": 125
+    },
+    {
+      "byte_len": 534,
+      "id": 107,
+      "kind": "DGRP",
+      "resource_ordinal": 126
+    },
+    {
+      "byte_len": 534,
+      "id": 108,
+      "kind": "DGRP",
+      "resource_ordinal": 127
+    },
+    {
+      "byte_len": 534,
+      "id": 109,
+      "kind": "DGRP",
+      "resource_ordinal": 128
+    },
+    {
+      "byte_len": 534,
+      "id": 110,
+      "kind": "DGRP",
+      "resource_ordinal": 129
+    },
+    {
+      "byte_len": 61,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 130
+    },
+    {
+      "byte_len": 25,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 131
+    },
+    {
+      "byte_len": 25,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 132
+    },
+    {
+      "byte_len": 25,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 133
+    },
+    {
+      "byte_len": 25,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 134
+    },
+    {
+      "byte_len": 25,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 135
+    },
+    {
+      "byte_len": 13,
+      "id": 1,
+      "kind": "GLOB",
+      "resource_ordinal": 136
+    },
+    {
+      "byte_len": 140,
+      "id": 16807,
+      "kind": "OBJf",
+      "resource_ordinal": 143
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 145
+    },
+    {
+      "byte_len": 8608,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 149
+    },
+    {
+      "byte_len": 13471,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 150
+    },
+    {
+      "byte_len": 13472,
+      "id": 102,
+      "kind": "FSOM",
+      "resource_ordinal": 151
+    },
+    {
+      "byte_len": 13469,
+      "id": 103,
+      "kind": "FSOM",
+      "resource_ordinal": 152
+    },
+    {
+      "byte_len": 13482,
+      "id": 104,
+      "kind": "FSOM",
+      "resource_ordinal": 153
+    },
+    {
+      "byte_len": 13470,
+      "id": 105,
+      "kind": "FSOM",
+      "resource_ordinal": 154
+    },
+    {
+      "byte_len": 13468,
+      "id": 106,
+      "kind": "FSOM",
+      "resource_ordinal": 155
+    },
+    {
+      "byte_len": 13471,
+      "id": 107,
+      "kind": "FSOM",
+      "resource_ordinal": 156
+    },
+    {
+      "byte_len": 13485,
+      "id": 108,
+      "kind": "FSOM",
+      "resource_ordinal": 157
+    },
+    {
+      "byte_len": 13472,
+      "id": 109,
+      "kind": "FSOM",
+      "resource_ordinal": 158
+    },
+    {
+      "byte_len": 13486,
+      "id": 110,
+      "kind": "FSOM",
+      "resource_ordinal": 159
+    },
+    {
+      "byte_len": 86,
+      "id": 1,
+      "kind": "SLOT",
+      "resource_ordinal": 161
+    },
+    {
+      "byte_len": 21,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 162
+    },
+    {
+      "byte_len": 19,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 163
+    }
+  ],
+  "source_sha256": "63a366d2aa6c03e407908b0fa7699cea1e7532b10c4393ba222bf9cbdc6eaa4a",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

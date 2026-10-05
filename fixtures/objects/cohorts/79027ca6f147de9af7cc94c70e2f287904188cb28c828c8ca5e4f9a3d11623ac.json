@@ -1,0 +1,755 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4200,
+      "direct_calls": [
+        272,
+        273,
+        280,
+        324,
+        4112,
+        4114,
+        4115,
+        4116,
+        4117,
+        4121,
+        4201,
+        4202,
+        4204
+      ],
+      "instruction_count": 81,
+      "kind": 0,
+      "label": "Interaction - FSO Teleport No Collision",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 26,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 6
+        },
+        {
+          "count": 3,
+          "opcode": 16
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 29
+        },
+        {
+          "count": 1,
+          "opcode": 35
+        },
+        {
+          "count": 12,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 45
+        },
+        {
+          "count": 2,
+          "opcode": 46
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        },
+        {
+          "count": 1,
+          "opcode": 272
+        },
+        {
+          "count": 6,
+          "opcode": 273
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 2,
+          "opcode": 324
+        },
+        {
+          "count": 3,
+          "opcode": 4112
+        },
+        {
+          "count": 4,
+          "opcode": 4114
+        },
+        {
+          "count": 4,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4116
+        },
+        {
+          "count": 1,
+          "opcode": 4117
+        },
+        {
+          "count": 1,
+          "opcode": 4121
+        },
+        {
+          "count": 2,
+          "opcode": 4201
+        },
+        {
+          "count": 1,
+          "opcode": 4202
+        },
+        {
+          "count": 1,
+          "opcode": 4204
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4201,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - FSO Snap into Intersection",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 46
+        }
+      ],
+      "resource_ordinal": 1,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4202,
+      "direct_calls": [],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "Helper - FSO find teleporter of same color no col",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 17,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4128,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "FSO Teleport TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4203,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Interaction - FSO Toggle Collision",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 4,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4204,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "power up FSO",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 5,
+      "tree_version": 8,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:79027ca6f147de9af7cc94c70e2f287904188cb28c828c8ca5e4f9a3d11623ac",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-79027ca6f147de9af7cc94c70e2f287904188cb28c828c8ca5e4f9a3d11623ac-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4128,
+          "field": "BHAV",
+          "id": 4128,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "BHAV",
+          "id": 4200,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 272,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 273,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 324,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4112,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4114,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4117,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4121,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4201,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4202,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4200,
+          "field": "instruction_opcode",
+          "id": 4204,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4201,
+          "field": "BHAV",
+          "id": 4201,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4202,
+          "field": "BHAV",
+          "id": 4202,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4203,
+          "field": "BHAV",
+          "id": 4203,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4204,
+          "field": "BHAV",
+          "id": 4204,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4204,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        }
+      ],
+      "leaf_id": "OBJ-79027ca6f147de9af7cc94c70e2f287904188cb28c828c8ca5e4f9a3d11623ac-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [
+        2,
+        6,
+        7,
+        8,
+        16,
+        23,
+        29,
+        31,
+        35,
+        36,
+        44,
+        45,
+        46,
+        49
+      ],
+      "routing_opcodes": [
+        45
+      ],
+      "source_bhav_dependency_ids": [
+        4128,
+        4200,
+        4201,
+        4202,
+        4203,
+        4204
+      ]
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 18,
+      "is_user_category": false,
+      "patch_operations": 93,
+      "source_name": "teleporter.iff",
+      "version": 2
+    }
+  ],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 6,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeSuitOrAccessory",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeSuitOrAccessory.cs",
+          "name": "change_suit_or_accessory",
+          "source_line": 126,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 16,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMFindLocationFor",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMFindLocationFor.cs",
+          "name": "find_location_for",
+          "source_line": 191,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 29,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetMotiveChange",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetMotiveChange.cs",
+          "name": "set_motive_deltas",
+          "source_line": 273,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 35,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSpecialEffect",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSpecialEffect.cs",
+          "name": "special_effect",
+          "source_line": 306,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 45,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRoutingSlot",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRoutingSlot.cs",
+          "name": "goto_routing_slot",
+          "source_line": 376,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 46,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSnap",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSnap.cs",
+          "name": "snap",
+          "source_line": 383,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 49,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMNotifyOutOfIdle",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMNotifyOutOfIdle.cs",
+          "name": "stackobj_notify_out_of_idle",
+          "source_line": 404,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "793a34858928044d72568a76350de55a6caae266",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/teleporter.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 985,
+      "id": 4200,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 73,
+      "id": 4201,
+      "kind": "BHAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 253,
+      "id": 4202,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 25,
+      "id": 4128,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 97,
+      "id": 4203,
+      "kind": "BHAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 85,
+      "id": 4204,
+      "kind": "BHAV",
+      "resource_ordinal": 5
+    }
+  ],
+  "source_sha256": "79027ca6f147de9af7cc94c70e2f287904188cb28c828c8ca5e4f9a3d11623ac",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

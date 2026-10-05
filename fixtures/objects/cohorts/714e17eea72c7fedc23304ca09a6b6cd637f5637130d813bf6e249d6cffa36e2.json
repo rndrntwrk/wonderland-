@@ -1,0 +1,2744 @@
+{
+  "behaviors": [
+    {
+      "args": 1,
+      "chunk_id": 4099,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "interaction - go here",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "interaction - go here pushed",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 27
+        }
+      ],
+      "resource_ordinal": 1,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "interction - go here test",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [
+        265
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "interaction - hide menu test",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 265
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        4096
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Function - Init - tile A",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4096
+        }
+      ],
+      "resource_ordinal": 4,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 4,
+      "chunk_id": 4098,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Function - Main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 5,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 4,
+      "chunk_id": 4096,
+      "direct_calls": [
+        271,
+        427
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Function - Init common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        },
+        {
+          "count": 1,
+          "opcode": 427
+        }
+      ],
+      "resource_ordinal": 6,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 129,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4099,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 62,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 62,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4102
+        },
+        {
+          "action_function": 0,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 0
+        }
+      ],
+      "resource_ordinal": 7,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16807",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16808",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16809",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16810",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16811",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16812",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16813",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16814",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16815",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16816",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16817",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16818",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16819",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16820",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16821",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16822",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16823",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16824",
+    "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16825"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4099,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4100,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4101,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4102,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        2,
+        13,
+        27,
+        42
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098,
+        4099,
+        4100,
+        4101,
+        4102
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4096,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16809",
+      "objd_chunk_id": 16809,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16810",
+      "objd_chunk_id": 16810,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16811",
+      "objd_chunk_id": 16811,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4099,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4100,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4101,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4102,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16812",
+      "objd_chunk_id": 16812,
+      "primitive_opcodes": [
+        2,
+        13,
+        27,
+        42
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098,
+        4099,
+        4100,
+        4101,
+        4102
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4096,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16813",
+      "objd_chunk_id": 16813,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16814",
+      "objd_chunk_id": 16814,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16815",
+      "objd_chunk_id": 16815,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16816",
+      "objd_chunk_id": 16816,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16817",
+      "objd_chunk_id": 16817,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16818",
+      "objd_chunk_id": 16818,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4099,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4100,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4101,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4102,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16819",
+      "objd_chunk_id": 16819,
+      "primitive_opcodes": [
+        2,
+        13,
+        27,
+        42
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098,
+        4099,
+        4100,
+        4101,
+        4102
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4096,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16820",
+      "objd_chunk_id": 16820,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16821",
+      "objd_chunk_id": 16821,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16822",
+      "objd_chunk_id": 16822,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16823",
+      "objd_chunk_id": 16823,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16824",
+      "objd_chunk_id": 16824,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2-OBJD-16825",
+      "objd_chunk_id": 16825,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "a8c017d2c1164ef0c14e3568b2141749a7ffe76801ea70ff510d72754c14618c",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225793,
+      "guid_hex": "deef5101",
+      "label": "Rug - bsj96 - Snowman",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": -1,
+        "tree_table_id": 129,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 10,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097
+        }
+      ],
+      "chunk_id": 16808,
+      "chunk_sha256": "f81d41753da194cfc88a7754541b3f059abbeb578614af180921d1391147f780",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225794,
+      "guid_hex": "deef5102",
+      "label": "Rug - bsj96 - Snowman A",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 11,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16809,
+      "chunk_sha256": "27209532e7faf98cc6f5187b22b0f04f4388c081afd66a8ad014f5de057bb949",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225795,
+      "guid_hex": "deef5103",
+      "label": "Rug - bsj96 - Snowman B",
+      "raw_fields": {
+        "base_graphic_id": 101,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 256,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 12,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16811,
+      "chunk_sha256": "c68473366aeb86933776e0a92dc1fb403e84739f528b78ca9cd0cb644a58204e",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225796,
+      "guid_hex": "deef5104",
+      "label": "Rug - bsj96 - Snowman D",
+      "raw_fields": {
+        "base_graphic_id": 103,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 1,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 13,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16810,
+      "chunk_sha256": "1f0e88e129222b39963a21d76caa15ab360f3e046a07ee2330fb972ccd9fae09",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225797,
+      "guid_hex": "deef5105",
+      "label": "Rug - bsj96 - Snowman C",
+      "raw_fields": {
+        "base_graphic_id": 102,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 257,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 14,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16812,
+      "chunk_sha256": "cb2d4fc06b09c15dad0cfc48304faab34f6f2cc64d0247189a1c010fabd48bde",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225805,
+      "guid_hex": "deef510d",
+      "label": "Rug - bsj96 - Holly",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": -1,
+        "tree_table_id": 129,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 15,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097
+        }
+      ],
+      "chunk_id": 16813,
+      "chunk_sha256": "503c709a75222ac7cf0b7c023fc9bf7e1b5e1fcaa6a6d72f06ee4744f3d16322",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225806,
+      "guid_hex": "deef510e",
+      "label": "Rug - bsj96 - Holly A (0)",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 16,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16814,
+      "chunk_sha256": "b2f4c21ca96c60734cc7d0f941e206c4befc2e6af5ee532e4948e79fef37c844",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225807,
+      "guid_hex": "deef510f",
+      "label": "Rug - bsj96 - Holly B (1)",
+      "raw_fields": {
+        "base_graphic_id": 201,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 1,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 17,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16815,
+      "chunk_sha256": "7fefef96676f633edde98c6f970b7685a0facef9bb01984dbc93d1babe6c57fd",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225808,
+      "guid_hex": "deef5110",
+      "label": "Rug - bsj96 - Holly C (2)",
+      "raw_fields": {
+        "base_graphic_id": 202,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 2,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 18,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16816,
+      "chunk_sha256": "7b75be18dd66d51f7dff060aea192eb39600ff0da22115ad07abc7071bdd1e8c",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225809,
+      "guid_hex": "deef5111",
+      "label": "Rug - bsj96 - Holly D (256)",
+      "raw_fields": {
+        "base_graphic_id": 203,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 256,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 19,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16817,
+      "chunk_sha256": "0e4be802eca0d6bc26c2535c55c445e7c1f54fea22668868bcef66711f8c497c",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225810,
+      "guid_hex": "deef5112",
+      "label": "Rug - bsj96 - Holly E (257)",
+      "raw_fields": {
+        "base_graphic_id": 204,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 257,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 20,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16818,
+      "chunk_sha256": "c42186dd1e4fc47c97b0b9c58ea3147923928d4d038f2c9af04ef06e0c79323f",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225811,
+      "guid_hex": "deef5113",
+      "label": "Rug - bsj96 - Holly F (258)",
+      "raw_fields": {
+        "base_graphic_id": 205,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 258,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 21,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16819,
+      "chunk_sha256": "fea489646b3c7e23249961d0cc2e796cba1853fa58465706502fff160055974d",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225798,
+      "guid_hex": "deef5106",
+      "label": "Rug - bsj96 - Peppermints",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2002,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": -1,
+        "tree_table_id": 129,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 22,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097
+        }
+      ],
+      "chunk_id": 16820,
+      "chunk_sha256": "4a90e517728c46f7f47529e548c18e96f9989d077e954261d01149fad71e9716",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225799,
+      "guid_hex": "deef5107",
+      "label": "Rug - bsj96 - Peppermints A (0)",
+      "raw_fields": {
+        "base_graphic_id": 300,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 23,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16821,
+      "chunk_sha256": "39941ddc7e206bfe1a2355599b86de558dd3c35e3a7397c4873627ab78c05d98",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225800,
+      "guid_hex": "deef5108",
+      "label": "Rug - bsj96 - Peppermints B (1)",
+      "raw_fields": {
+        "base_graphic_id": 301,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 1,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 24,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16822,
+      "chunk_sha256": "7892baccaf1cfb93b3821d1bdd1ece9d474cdcb0ad87c2159f9c472d7997c383",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225801,
+      "guid_hex": "deef5109",
+      "label": "Rug - bsj96 - Peppermints C (2)",
+      "raw_fields": {
+        "base_graphic_id": 302,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 2,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 25,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16823,
+      "chunk_sha256": "e5bd0e6e2eb81ba6fedd5b71b73017ac766e1e1ac7b1927e5af283f66741e1b1",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225802,
+      "guid_hex": "deef510a",
+      "label": "Rug - bsj96 - Peppermints D (256)",
+      "raw_fields": {
+        "base_graphic_id": 303,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 256,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 26,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16824,
+      "chunk_sha256": "b75cd7352351d0fdb52e429d3179c00a246958c6ed235b2b3bd58d6dd47eb6ce",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225803,
+      "guid_hex": "deef510b",
+      "label": "Rug - bsj96 - Peppermints E (257)",
+      "raw_fields": {
+        "base_graphic_id": 304,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 257,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 27,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16825,
+      "chunk_sha256": "dbb6b9c57fe4f71055012c7ff6ff67e52a42990cbc09e85a7439e7e4b2f558a6",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3740225804,
+      "guid_hex": "deef510c",
+      "label": "Rug - bsj96 - Peppermints F (258)",
+      "raw_fields": {
+        "base_graphic_id": 305,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 258,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 28,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "076ecc37711fe0de80651d180f5dbf708731ebb3",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/rugs_bsj96_christmas2019.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 85,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 25,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 25,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 25,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 37,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 25,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 121,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 401,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 240
+    },
+    {
+      "byte_len": 534,
+      "id": 103,
+      "kind": "DGRP",
+      "resource_ordinal": 241
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 242
+    },
+    {
+      "byte_len": 534,
+      "id": 102,
+      "kind": "DGRP",
+      "resource_ordinal": 243
+    },
+    {
+      "byte_len": 534,
+      "id": 200,
+      "kind": "DGRP",
+      "resource_ordinal": 244
+    },
+    {
+      "byte_len": 534,
+      "id": 201,
+      "kind": "DGRP",
+      "resource_ordinal": 245
+    },
+    {
+      "byte_len": 534,
+      "id": 202,
+      "kind": "DGRP",
+      "resource_ordinal": 246
+    },
+    {
+      "byte_len": 534,
+      "id": 203,
+      "kind": "DGRP",
+      "resource_ordinal": 247
+    },
+    {
+      "byte_len": 534,
+      "id": 204,
+      "kind": "DGRP",
+      "resource_ordinal": 248
+    },
+    {
+      "byte_len": 534,
+      "id": 205,
+      "kind": "DGRP",
+      "resource_ordinal": 249
+    },
+    {
+      "byte_len": 534,
+      "id": 300,
+      "kind": "DGRP",
+      "resource_ordinal": 250
+    },
+    {
+      "byte_len": 534,
+      "id": 301,
+      "kind": "DGRP",
+      "resource_ordinal": 251
+    },
+    {
+      "byte_len": 534,
+      "id": 302,
+      "kind": "DGRP",
+      "resource_ordinal": 252
+    },
+    {
+      "byte_len": 534,
+      "id": 303,
+      "kind": "DGRP",
+      "resource_ordinal": 253
+    },
+    {
+      "byte_len": 534,
+      "id": 304,
+      "kind": "DGRP",
+      "resource_ordinal": 254
+    },
+    {
+      "byte_len": 534,
+      "id": 305,
+      "kind": "DGRP",
+      "resource_ordinal": 255
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 259
+    },
+    {
+      "byte_len": 293,
+      "id": 102,
+      "kind": "FSOM",
+      "resource_ordinal": 263
+    },
+    {
+      "byte_len": 288,
+      "id": 103,
+      "kind": "FSOM",
+      "resource_ordinal": 264
+    },
+    {
+      "byte_len": 305,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 265
+    },
+    {
+      "byte_len": 287,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 266
+    },
+    {
+      "byte_len": 139,
+      "id": 205,
+      "kind": "FSOM",
+      "resource_ordinal": 267
+    },
+    {
+      "byte_len": 137,
+      "id": 204,
+      "kind": "FSOM",
+      "resource_ordinal": 268
+    },
+    {
+      "byte_len": 134,
+      "id": 201,
+      "kind": "FSOM",
+      "resource_ordinal": 269
+    },
+    {
+      "byte_len": 133,
+      "id": 200,
+      "kind": "FSOM",
+      "resource_ordinal": 270
+    },
+    {
+      "byte_len": 138,
+      "id": 202,
+      "kind": "FSOM",
+      "resource_ordinal": 271
+    },
+    {
+      "byte_len": 137,
+      "id": 203,
+      "kind": "FSOM",
+      "resource_ordinal": 272
+    },
+    {
+      "byte_len": 132,
+      "id": 300,
+      "kind": "FSOM",
+      "resource_ordinal": 273
+    },
+    {
+      "byte_len": 133,
+      "id": 303,
+      "kind": "FSOM",
+      "resource_ordinal": 274
+    },
+    {
+      "byte_len": 133,
+      "id": 305,
+      "kind": "FSOM",
+      "resource_ordinal": 275
+    },
+    {
+      "byte_len": 133,
+      "id": 304,
+      "kind": "FSOM",
+      "resource_ordinal": 276
+    },
+    {
+      "byte_len": 131,
+      "id": 301,
+      "kind": "FSOM",
+      "resource_ordinal": 277
+    },
+    {
+      "byte_len": 135,
+      "id": 302,
+      "kind": "FSOM",
+      "resource_ordinal": 278
+    }
+  ],
+  "source_sha256": "714e17eea72c7fedc23304ca09a6b6cd637f5637130d813bf6e249d6cffa36e2",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

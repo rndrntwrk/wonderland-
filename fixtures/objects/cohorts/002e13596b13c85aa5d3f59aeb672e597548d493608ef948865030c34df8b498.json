@@ -1,0 +1,1648 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 4,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        280,
+        4099,
+        4100
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "main - trap",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4099
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        }
+      ],
+      "resource_ordinal": 5,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        345,
+        4111
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "allow intersection - trap",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 4111
+        }
+      ],
+      "resource_ordinal": 6,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4099,
+      "direct_calls": [
+        345,
+        458,
+        4103,
+        4110
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "get a victim in temp 0",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 458
+        },
+        {
+          "count": 1,
+          "opcode": 4103
+        },
+        {
+          "count": 1,
+          "opcode": 4110
+        }
+      ],
+      "resource_ordinal": 7,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [
+        4102
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "push trapped on stack object",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 2,
+          "opcode": 4102
+        }
+      ],
+      "resource_ordinal": 8,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [
+        280,
+        4114,
+        4117
+      ],
+      "instruction_count": 30,
+      "kind": 0,
+      "label": "Interaction - Trapped",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 6,
+          "opcode": 6
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 5,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 24
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 5,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4114
+        },
+        {
+          "count": 1,
+          "opcode": 4117
+        }
+      ],
+      "resource_ordinal": 9,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "set trapped state",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 24
+        }
+      ],
+      "resource_ordinal": 10,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "is stack object trapped",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 24
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 11,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Trap Type Bucket",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 12,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Trap Type Anvil",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 13,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Trap Type Arrow",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 14,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Interaction - Toggle Directional",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        }
+      ],
+      "resource_ordinal": 15,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Make Two-Way TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 16,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Make One Way TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 17,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4110,
+      "direct_calls": [],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "am i facing within x notches of stack object",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 18,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4111,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "am i facing perpendicular to stack object",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4112,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "load",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        287,
+        422
+      ],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "Helper - Water Balloon Tie-In",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 16
+        },
+        {
+          "count": 3,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 422
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4114,
+      "direct_calls": [
+        4113,
+        4115,
+        4116
+      ],
+      "instruction_count": 24,
+      "kind": 0,
+      "label": "Helper - Teleport to Cage or Mailbox",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 16
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 42
+        },
+        {
+          "count": 4,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 4113
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 2,
+          "opcode": 4116
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "Helper - Random Cage in Temp 0",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4116,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Helper - Reset all Cage Lockouts",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4117,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Helper - Escape Room Tie-In",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:002e13596b13c85aa5d3f59aeb672e597548d493608ef948865030c34df8b498",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 128,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4101,
+          "autonomy_threshold": 0,
+          "flags": 1024,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 265
+        },
+        {
+          "action_function": 4107,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 5,
+          "test_function": 4109
+        },
+        {
+          "action_function": 4107,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 4,
+          "test_function": 4108
+        },
+        {
+          "action_function": 4104,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 0
+        },
+        {
+          "action_function": 4106,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 0
+        },
+        {
+          "action_function": 4105,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 0
+        }
+      ],
+      "resource_ordinal": 26,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-002e13596b13c85aa5d3f59aeb672e597548d493608ef948865030c34df8b498-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4101,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4104,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4105,
+          "interaction_index": 5,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4106,
+          "interaction_index": 4,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4107,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4107,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 128,
+          "field": "test_function",
+          "id": 4108,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "test_function",
+          "id": 4109,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4099,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 345,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4111,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 345,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 4110,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 458,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4114,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4117,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 422,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 4113,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-002e13596b13c85aa5d3f59aeb672e597548d493608ef948865030c34df8b498-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        13,
+        16,
+        18,
+        23,
+        24,
+        26,
+        28,
+        31,
+        32,
+        42,
+        44,
+        49
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098,
+        4099,
+        4100,
+        4101,
+        4102,
+        4103,
+        4104,
+        4105,
+        4106,
+        4107,
+        4108,
+        4109,
+        4110,
+        4111,
+        4113,
+        4114,
+        4115,
+        4116,
+        4117
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "6c7089730556e26b786fcf10934bf8050deaa1b52297f79b204e06edfb010ad6",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1194390119,
+      "guid_hex": "4730f267",
+      "label": "Trap - 1x1",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 128,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 2,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 128,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 6,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeSuitOrAccessory",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeSuitOrAccessory.cs",
+          "name": "change_suit_or_accessory",
+          "source_line": 126,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 16,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMFindLocationFor",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMFindLocationFor.cs",
+          "name": "find_location_for",
+          "source_line": 191,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 24,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "old_relationship",
+          "source_line": 244,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 26,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "relationship",
+          "source_line": 252,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 49,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMNotifyOutOfIdle",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMNotifyOutOfIdle.cs",
+          "name": "stackobj_notify_out_of_idle",
+          "source_line": 404,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "721d1690f73d1a2f53ec2993c220a261d9960139",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/floor_trap.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 49,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 73,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 109,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 121,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 73,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 8
+    },
+    {
+      "byte_len": 373,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 9
+    },
+    {
+      "byte_len": 25,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 97,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 25,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 25,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 25,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 61,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 25,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 25,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 121,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 97,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 37,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 193,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 301,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 169,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 49,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 97,
+      "id": 4117,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 797,
+      "id": 128,
+      "kind": "TTAB",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 13,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 15,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 16,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 13,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 17,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 33
+    },
+    {
+      "byte_len": 13,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 34
+    },
+    {
+      "byte_len": 15,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 35
+    },
+    {
+      "byte_len": 10,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 36
+    },
+    {
+      "byte_len": 18,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 20,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 13,
+      "id": 11,
+      "kind": "FWAV",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 21,
+      "id": 12,
+      "kind": "FWAV",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 16,
+      "id": 13,
+      "kind": "FWAV",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 19,
+      "id": 14,
+      "kind": "FWAV",
+      "resource_ordinal": 42
+    },
+    {
+      "byte_len": 13,
+      "id": 15,
+      "kind": "FWAV",
+      "resource_ordinal": 43
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 70
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 71
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 72
+    },
+    {
+      "byte_len": 2743,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 75
+    },
+    {
+      "byte_len": 2080,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 76
+    }
+  ],
+  "source_sha256": "002e13596b13c85aa5d3f59aeb672e597548d493608ef948865030c34df8b498",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

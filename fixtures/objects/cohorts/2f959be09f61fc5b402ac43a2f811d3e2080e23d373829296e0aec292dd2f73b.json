@@ -1,0 +1,333 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4132,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Is This A Community Lot?",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 4,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4133,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Debug - Set Price",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 1,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4134,
+      "direct_calls": [
+        4106,
+        4132
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Function - User Placement - main piece",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4106
+        },
+        {
+          "count": 1,
+          "opcode": 4132
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4135,
+      "direct_calls": [
+        4099,
+        4132
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "fsoCommunity - reset price if needed",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4099
+        },
+        {
+          "count": 1,
+          "opcode": 4132
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:2f959be09f61fc5b402ac43a2f811d3e2080e23d373829296e0aec292dd2f73b",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-2f959be09f61fc5b402ac43a2f811d3e2080e23d373829296e0aec292dd2f73b-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4132,
+          "field": "BHAV",
+          "id": 4132,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4133,
+          "field": "BHAV",
+          "id": 4133,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4134,
+          "field": "BHAV",
+          "id": 4134,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4134,
+          "field": "instruction_opcode",
+          "id": 4106,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4134,
+          "field": "instruction_opcode",
+          "id": 4132,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4135,
+          "field": "BHAV",
+          "id": 4135,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4135,
+          "field": "instruction_opcode",
+          "id": 4099,
+          "origin": "BHAV",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4135,
+          "field": "instruction_opcode",
+          "id": 4132,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2f959be09f61fc5b402ac43a2f811d3e2080e23d373829296e0aec292dd2f73b-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [
+        1,
+        2,
+        36
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4132,
+        4133,
+        4134,
+        4135
+      ]
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 29,
+      "is_user_category": false,
+      "patch_operations": 267,
+      "source_name": "buffettablevacation.iff",
+      "version": 2
+    }
+  ],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "ec76d06e764afd227b32027e1b32165ad4521e24",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/buffettablevacation.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 73,
+      "id": 4132,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 85,
+      "id": 4133,
+      "kind": "BHAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 85,
+      "id": 4134,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 73,
+      "id": 4135,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    }
+  ],
+  "source_sha256": "2f959be09f61fc5b402ac43a2f811d3e2080e23d373829296e0aec292dd2f73b",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

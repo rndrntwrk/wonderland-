@@ -1,0 +1,866 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "random idle",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 1,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4133,
+      "direct_calls": [
+        8199
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "animate",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8199
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 10,
+      "version": 32770
+    },
+    {
+      "args": 4,
+      "chunk_id": 4096,
+      "direct_calls": [
+        256,
+        280,
+        301,
+        4110,
+        4133,
+        8198,
+        8200
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "main",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 256
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 301
+        },
+        {
+          "count": 1,
+          "opcode": 4110
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 8198
+        },
+        {
+          "count": 1,
+          "opcode": 8200
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 16,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        8195
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 8195
+        }
+      ],
+      "resource_ordinal": 54,
+      "tree_version": 7,
+      "version": 32770
+    }
+  ],
+  "cohort_id": "sha256:1ceb35f91ba113ddbacb194f93071f9b1376dc5eb134a47a0363fcd3a826f298",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [
+    {
+      "chunk_id": 128,
+      "name": "LightGlobals",
+      "resource_ordinal": 40
+    }
+  ],
+  "interaction_tables": [
+    {
+      "chunk_id": 129,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 4,
+      "version": 8
+    },
+    {
+      "chunk_id": 130,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 5,
+      "version": 8
+    },
+    {
+      "chunk_id": 131,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 6,
+      "version": 8
+    },
+    {
+      "chunk_id": 132,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 7,
+      "version": 8
+    },
+    {
+      "chunk_id": 134,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 8,
+      "version": 8
+    },
+    {
+      "chunk_id": 133,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 9,
+      "version": 8
+    },
+    {
+      "chunk_id": 135,
+      "compression_code": null,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4099
+        },
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4101
+        },
+        {
+          "action_function": 4103,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4127,
+          "autonomy_threshold": 100,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4126
+        }
+      ],
+      "resource_ordinal": 10,
+      "version": 8
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-1ceb35f91ba113ddbacb194f93071f9b1376dc5eb134a47a0363fcd3a826f298-OBJD-16813"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 135,
+          "field": "action_function",
+          "id": 4098,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "action_function",
+          "id": 4100,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "action_function",
+          "id": 4103,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "action_function",
+          "id": 4127,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "test_function",
+          "id": 4099,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "test_function",
+          "id": 4101,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "test_function",
+          "id": 4104,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 135,
+          "field": "test_function",
+          "id": 4126,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-1ceb35f91ba113ddbacb194f93071f9b1376dc5eb134a47a0363fcd3a826f298-OBJD-16813",
+      "objd_chunk_id": 16813,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16813,
+      "chunk_sha256": "7386c7fb08d35ee67211b835a9fd9c2bbc389af468d836657b4eee67468b86e1",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 2011841496,
+      "guid_hex": "77ea43d8",
+      "label": "Luminosity Wall Light",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 128,
+        "function_subsort": 1,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 2,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 32,
+        "slot_id": 129,
+        "sub_index": 0,
+        "tree_table_id": 135,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 18,
+      "version": 138
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "2ab8e28d91a7f9bb46bc541ff3cdfc8d38b6a5a6",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/k8lmypwalllightts.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 140,
+      "id": 16813,
+      "kind": "OBJf",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 516,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 516,
+      "id": 130,
+      "kind": "TTAB",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 516,
+      "id": 131,
+      "kind": "TTAB",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 516,
+      "id": 132,
+      "kind": "TTAB",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 516,
+      "id": 134,
+      "kind": "TTAB",
+      "resource_ordinal": 8
+    },
+    {
+      "byte_len": 516,
+      "id": 133,
+      "kind": "TTAB",
+      "resource_ordinal": 9
+    },
+    {
+      "byte_len": 516,
+      "id": 135,
+      "kind": "TTAB",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 48,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 36,
+      "id": 4133,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 132,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 13,
+      "id": 128,
+      "kind": "GLOB",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 86,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 86,
+      "id": 129,
+      "kind": "SLOT",
+      "resource_ordinal": 42
+    },
+    {
+      "byte_len": 21,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 45
+    },
+    {
+      "byte_len": 18,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 46
+    },
+    {
+      "byte_len": 25,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 47
+    },
+    {
+      "byte_len": 25,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 48
+    },
+    {
+      "byte_len": 18,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 19,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 18,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 19,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 52
+    },
+    {
+      "byte_len": 18,
+      "id": 11,
+      "kind": "FWAV",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 132,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 54
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 59
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 60
+    }
+  ],
+  "source_sha256": "1ceb35f91ba113ddbacb194f93071f9b1376dc5eb134a47a0363fcd3a826f298",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

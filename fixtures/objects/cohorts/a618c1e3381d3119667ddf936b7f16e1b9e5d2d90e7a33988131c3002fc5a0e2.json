@@ -1,0 +1,306 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - IsElectrical?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 31,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        8194
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8194
+        }
+      ],
+      "resource_ordinal": 32,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:a618c1e3381d3119667ddf936b7f16e1b9e5d2d90e7a33988131c3002fc5a0e2",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [
+    {
+      "chunk_id": 1,
+      "name": "LightGlobals",
+      "resource_ordinal": 33
+    }
+  ],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-a618c1e3381d3119667ddf936b7f16e1b9e5d2d90e7a33988131c3002fc5a0e2-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 8194,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 8215,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 8197,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Repair",
+          "id": 8231,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_UserPickup",
+          "id": 8196,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_UserPlace",
+          "id": 8201,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        }
+      ],
+      "leaf_id": "OBJ-a618c1e3381d3119667ddf936b7f16e1b9e5d2d90e7a33988131c3002fc5a0e2-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4097
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 8197
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4097
+        },
+        {
+          "field": "BHAV_UserPickup",
+          "id": 8196
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 8215
+        },
+        {
+          "field": "BHAV_UserPlace",
+          "id": 8201
+        },
+        {
+          "field": "BHAV_Repair",
+          "id": 8231
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "6124f86975f67a300986f1f797c3849995de5b9bcacb8266a4d60a696f211f17",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1170398383,
+      "guid_hex": "45c2dcaf",
+      "label": "ChristmasCandle",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 2,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 129,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "a03df05c7c1d7ed03b544a2ab5f29f09d4b7f2fa",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/Lamp_m97s_ChristmasCandle.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 25,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 49,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 13,
+      "id": 1,
+      "kind": "GLOB",
+      "resource_ordinal": 33
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 35
+    },
+    {
+      "byte_len": 5979,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 6117,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 38
+    }
+  ],
+  "source_sha256": "a618c1e3381d3119667ddf936b7f16e1b9e5d2d90e7a33988131c3002fc5a0e2",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

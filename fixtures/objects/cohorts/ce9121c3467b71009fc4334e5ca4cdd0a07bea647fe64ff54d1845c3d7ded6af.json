@@ -1,0 +1,2320 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 12,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        280,
+        4098,
+        4105,
+        4107,
+        4116,
+        4134
+      ],
+      "instruction_count": 38,
+      "kind": 0,
+      "label": "main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 21,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 6,
+          "opcode": 23
+        },
+        {
+          "count": 3,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        },
+        {
+          "count": 1,
+          "opcode": 4107
+        },
+        {
+          "count": 1,
+          "opcode": 4116
+        },
+        {
+          "count": 1,
+          "opcode": 4134
+        }
+      ],
+      "resource_ordinal": 13,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4098,
+      "direct_calls": [
+        4113,
+        4114,
+        4128
+      ],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - End Game",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4113
+        },
+        {
+          "count": 1,
+          "opcode": 4114
+        },
+        {
+          "count": 1,
+          "opcode": 4128
+        }
+      ],
+      "resource_ordinal": 14,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 3,
+      "chunk_id": 4099,
+      "direct_calls": [
+        4131
+      ],
+      "instruction_count": 32,
+      "kind": 0,
+      "label": "CT - Param 0 hit Param 1",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 22,
+          "opcode": 2
+        },
+        {
+          "count": 9,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 4131
+        }
+      ],
+      "resource_ordinal": 15,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [
+        4098,
+        4103,
+        4104,
+        4105,
+        4106,
+        4112
+      ],
+      "instruction_count": 65,
+      "kind": 0,
+      "label": "CT - Source Game Functions",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 34,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 11,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        },
+        {
+          "count": 8,
+          "opcode": 4103
+        },
+        {
+          "count": 6,
+          "opcode": 4104
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        },
+        {
+          "count": 1,
+          "opcode": 4106
+        },
+        {
+          "count": 1,
+          "opcode": 4112
+        }
+      ],
+      "resource_ordinal": 16,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [],
+      "instruction_count": 52,
+      "kind": 0,
+      "label": "CT - Source Game Functions TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 1
+        },
+        {
+          "count": 30,
+          "opcode": 2
+        },
+        {
+          "count": 20,
+          "opcode": 50
+        }
+      ],
+      "resource_ordinal": 17,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [],
+      "instruction_count": 0,
+      "kind": 0,
+      "label": "CT - Is Param 0 Sim Disqualified",
+      "locals": 0,
+      "opcode_counts": [],
+      "resource_ordinal": 18,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 16,
+      "kind": 0,
+      "label": "Helper - Display Game Settings",
+      "locals": 12,
+      "opcode_counts": [
+        {
+          "count": 14,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 2,
+      "chunk_id": 4104,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Helper - Validate Temp 0 Between P0,P1",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [
+        461,
+        4115,
+        4130
+      ],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Start Game",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 461
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4130
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [
+        4118
+      ],
+      "instruction_count": 37,
+      "kind": 0,
+      "label": "Helper - Display Winners",
+      "locals": 7,
+      "opcode_counts": [
+        {
+          "count": 24,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 7,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 4118
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [
+        4108,
+        4109,
+        4110,
+        4119,
+        4120,
+        4122
+      ],
+      "instruction_count": 19,
+      "kind": 0,
+      "label": "Helper - Should Game End?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4108
+        },
+        {
+          "count": 2,
+          "opcode": 4109
+        },
+        {
+          "count": 1,
+          "opcode": 4110
+        },
+        {
+          "count": 1,
+          "opcode": 4119
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        },
+        {
+          "count": 1,
+          "opcode": 4122
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Get Sim Past Score Threshold",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Count Sims Ever Participated",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Helper - Count Sims With Lives (Temp0/Temp1)",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 26,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        345,
+        4111,
+        4117,
+        4119,
+        4120,
+        4121
+      ],
+      "instruction_count": 23,
+      "kind": 0,
+      "label": "Helper - Calculate Winners",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 4111
+        },
+        {
+          "count": 1,
+          "opcode": 4117
+        },
+        {
+          "count": 1,
+          "opcode": 4119
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        },
+        {
+          "count": 1,
+          "opcode": 4121
+        }
+      ],
+      "resource_ordinal": 27,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4111,
+      "direct_calls": [],
+      "instruction_count": 19,
+      "kind": 0,
+      "label": "Helper - Sort Score Winners (result in rel 2)",
+      "locals": 5,
+      "opcode_counts": [
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 28,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4112,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Helper - Update Team Limits",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 29,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4114,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Notify Players of Winners",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 30,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "Helper - Ensure Sims holding Balloons have Rels",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 31,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4116,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Advance Invuln Timers",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 32,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4117,
+      "direct_calls": [],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Helper - Ensure Sims With Lives Have High Score",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 33,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4118,
+      "direct_calls": [],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "Helper - Display Team Winners",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 34,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4119,
+      "direct_calls": [],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Count Team Scores in Temps",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 35,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4120,
+      "direct_calls": [],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "Helper - Count Team Lives in Temps",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 36,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4122,
+      "direct_calls": [],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "Helper - # of Non-Zero Temp 0-3",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 37,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4121,
+      "direct_calls": [],
+      "instruction_count": 14,
+      "kind": 0,
+      "label": "Helper - Max Temp 0-3 with ind in 0, value in 1",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 14,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 38,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4123,
+      "direct_calls": [
+        4125
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "CT - FSO Player Joined",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 4125
+        }
+      ],
+      "resource_ordinal": 39,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4125,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Helper - Is Snowball Event?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 40,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4126,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Helper - Assign Forced Team",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 26
+        }
+      ],
+      "resource_ordinal": 41,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4127,
+      "direct_calls": [
+        4098,
+        4105
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "CT - Set Game State",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        }
+      ],
+      "resource_ordinal": 42,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4128,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Clear all Indicators",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 43,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4130,
+      "direct_calls": [
+        4129
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Helper - Add indicators for all sims",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4129
+        }
+      ],
+      "resource_ordinal": 44,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4129,
+      "direct_calls": [],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Add indicator to param",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 2,
+          "opcode": 42
+        },
+        {
+          "count": 1,
+          "opcode": 43
+        }
+      ],
+      "resource_ordinal": 45,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4124,
+      "direct_calls": [
+        4126
+      ],
+      "instruction_count": 16,
+      "kind": 0,
+      "label": "Interaction - Determine Team (me)",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 67
+        },
+        {
+          "count": 3,
+          "opcode": 4126
+        }
+      ],
+      "resource_ordinal": 46,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4132,
+      "direct_calls": [
+        4133
+      ],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Interaction - Determine Team (stack object)",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 67
+        },
+        {
+          "count": 3,
+          "opcode": 4133
+        }
+      ],
+      "resource_ordinal": 47,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4133,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Helper - Assign Forced Team (from controller)",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 26
+        }
+      ],
+      "resource_ordinal": 48,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4134,
+      "direct_calls": [
+        4132
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Preload all Sim Teams",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4132
+        }
+      ],
+      "resource_ordinal": 49,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4135,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "init score inventory worker",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 50,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4131,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Event - Spawn Score Token Handler (non-yielding)",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 51,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4136,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "main score inventory worker",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 67
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 52,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:ce9121c3467b71009fc4334e5ca4cdd0a07bea647fe64ff54d1845c3d7ded6af",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 100,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4106,
+          "autonomy_threshold": 0,
+          "flags": 1024,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 265
+        },
+        {
+          "action_function": 4124,
+          "autonomy_threshold": 0,
+          "flags": 1028,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 265
+        }
+      ],
+      "resource_ordinal": 60,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-ce9121c3467b71009fc4334e5ca4cdd0a07bea647fe64ff54d1845c3d7ded6af-OBJD-16807",
+    "OBJ-ce9121c3467b71009fc4334e5ca4cdd0a07bea647fe64ff54d1845c3d7ded6af-OBJD-16808"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 100,
+          "field": "action_function",
+          "id": 4106,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 100,
+          "field": "action_function",
+          "id": 4124,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 100,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 100,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4098,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4105,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4107,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4134,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4113,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4114,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4128,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4130,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 461,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4118,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4108,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4109,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4110,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4119,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4120,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4122,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 345,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4111,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4117,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4119,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4120,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4121,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4124,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4130,
+          "field": "instruction_opcode",
+          "id": 4129,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4132,
+          "field": "instruction_opcode",
+          "id": 4133,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4134,
+          "field": "instruction_opcode",
+          "id": 4132,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-ce9121c3467b71009fc4334e5ca4cdd0a07bea647fe64ff54d1845c3d7ded6af-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        1,
+        2,
+        13,
+        18,
+        23,
+        26,
+        28,
+        31,
+        32,
+        36,
+        42,
+        43,
+        67
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098,
+        4105,
+        4106,
+        4107,
+        4108,
+        4109,
+        4110,
+        4111,
+        4113,
+        4114,
+        4115,
+        4116,
+        4117,
+        4118,
+        4119,
+        4120,
+        4121,
+        4122,
+        4124,
+        4126,
+        4128,
+        4129,
+        4130,
+        4132,
+        4133,
+        4134
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4135,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4136,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4135,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4136,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-ce9121c3467b71009fc4334e5ca4cdd0a07bea647fe64ff54d1845c3d7ded6af-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [
+        2,
+        18,
+        67
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4135,
+        4136
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4097
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "28556fa9b279e51403215e7c80621777b3a471def79b9a1ea18c20d3e9857de9",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 2054691164,
+      "guid_hex": "7a78195c",
+      "label": "Snowball Controller",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 128,
+        "sub_index": 0,
+        "tree_table_id": 100,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4136
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4135
+        }
+      ],
+      "chunk_id": 16808,
+      "chunk_sha256": "dd0e463d6825d9766e6873083902bae498cba8f4b2a692901f221e2b369eac0d",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 138863896,
+      "guid_hex": "0846e518",
+      "label": "Score Inventory Worker",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 1,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 26,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "relationship",
+          "source_line": 252,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 43,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDropOnto",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDropOnto.cs",
+          "name": "drop_onto",
+          "source_line": 362,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 50,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeActionString",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeActionString.cs",
+          "name": "change_action_string",
+          "source_line": 411,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 67,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMInventoryOperations",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMInventoryOperations.cs",
+          "name": "inventory_operations",
+          "source_line": 448,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "f94f89c114666af9cafdc735e952437a68d198cb",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso_snowball_controller.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 169,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 469,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 145,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 397,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 793,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 637,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 13,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 205,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 49,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 145,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 457,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 241,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 73,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 73,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 109,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 289,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 241,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 61,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 85,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 193,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 85,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 121,
+      "id": 4117,
+      "kind": "BHAV",
+      "resource_ordinal": 33
+    },
+    {
+      "byte_len": 133,
+      "id": 4118,
+      "kind": "BHAV",
+      "resource_ordinal": 34
+    },
+    {
+      "byte_len": 145,
+      "id": 4119,
+      "kind": "BHAV",
+      "resource_ordinal": 35
+    },
+    {
+      "byte_len": 157,
+      "id": 4120,
+      "kind": "BHAV",
+      "resource_ordinal": 36
+    },
+    {
+      "byte_len": 133,
+      "id": 4122,
+      "kind": "BHAV",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 181,
+      "id": 4121,
+      "kind": "BHAV",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 61,
+      "id": 4123,
+      "kind": "BHAV",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 25,
+      "id": 4125,
+      "kind": "BHAV",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 25,
+      "id": 4126,
+      "kind": "BHAV",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 157,
+      "id": 4127,
+      "kind": "BHAV",
+      "resource_ordinal": 42
+    },
+    {
+      "byte_len": 85,
+      "id": 4128,
+      "kind": "BHAV",
+      "resource_ordinal": 43
+    },
+    {
+      "byte_len": 49,
+      "id": 4130,
+      "kind": "BHAV",
+      "resource_ordinal": 44
+    },
+    {
+      "byte_len": 145,
+      "id": 4129,
+      "kind": "BHAV",
+      "resource_ordinal": 45
+    },
+    {
+      "byte_len": 205,
+      "id": 4124,
+      "kind": "BHAV",
+      "resource_ordinal": 46
+    },
+    {
+      "byte_len": 145,
+      "id": 4132,
+      "kind": "BHAV",
+      "resource_ordinal": 47
+    },
+    {
+      "byte_len": 25,
+      "id": 4133,
+      "kind": "BHAV",
+      "resource_ordinal": 48
+    },
+    {
+      "byte_len": 73,
+      "id": 4134,
+      "kind": "BHAV",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 49,
+      "id": 4135,
+      "kind": "BHAV",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 97,
+      "id": 4131,
+      "kind": "BHAV",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 97,
+      "id": 4136,
+      "kind": "BHAV",
+      "resource_ordinal": 52
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 21,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 54
+    },
+    {
+      "byte_len": 17,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 55
+    },
+    {
+      "byte_len": 12,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 56
+    },
+    {
+      "byte_len": 12,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 57
+    },
+    {
+      "byte_len": 17,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 58
+    },
+    {
+      "byte_len": 17,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 59
+    },
+    {
+      "byte_len": 269,
+      "id": 100,
+      "kind": "TTAB",
+      "resource_ordinal": 60
+    },
+    {
+      "byte_len": 86,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 79
+    }
+  ],
+  "source_sha256": "ce9121c3467b71009fc4334e5ca4cdd0a07bea647fe64ff54d1845c3d7ded6af",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

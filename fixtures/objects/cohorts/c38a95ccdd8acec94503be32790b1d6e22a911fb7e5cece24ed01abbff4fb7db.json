@@ -1,0 +1,150 @@
+{
+  "behaviors": [],
+  "cohort_id": "sha256:c38a95ccdd8acec94503be32790b1d6e22a911fb7e5cece24ed01abbff4fb7db",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 128,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4104,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 62,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4120
+        },
+        {
+          "action_function": 4110,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 62,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4150
+        }
+      ],
+      "resource_ordinal": 0,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-c38a95ccdd8acec94503be32790b1d6e22a911fb7e5cece24ed01abbff4fb7db-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4104,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4110,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "test_function",
+          "id": 4120,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "test_function",
+          "id": 4150,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "missing_or_unsupported_private_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-c38a95ccdd8acec94503be32790b1d6e22a911fb7e5cece24ed01abbff4fb7db-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 8,
+      "is_user_category": false,
+      "patch_operations": 84,
+      "source_name": "clothingboothvac.iff",
+      "version": 1
+    }
+  ],
+  "primitive_registrations": [],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "6ed3e5dac8879f9c718cfaa5f34561f346b4789a",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/TSOPorts/clothingboothvac.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 269,
+      "id": 128,
+      "kind": "TTAB",
+      "resource_ordinal": 0
+    }
+  ],
+  "source_sha256": "c38a95ccdd8acec94503be32790b1d6e22a911fb7e5cece24ed01abbff4fb7db",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}
