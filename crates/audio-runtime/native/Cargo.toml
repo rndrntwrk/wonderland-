@@ -1,0 +1,19 @@
+[package]
+name = "wonderland-native-audio"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MPL-2.0"
+description = "Bounded worker-to-device callback bridge for Wonderland presentation audio"
+
+[workspace]
+
+[dependencies]
+wonderland-audio-runtime = { path = ".." }
+wonderland-render-core = { path = "../../render-core" }
+
+[profile.dev]
+overflow-checks = true
+
+[profile.release]
+overflow-checks = true

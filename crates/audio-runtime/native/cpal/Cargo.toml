@@ -1,0 +1,23 @@
+[package]
+name = "wonderland-native-audio-cpal"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MPL-2.0"
+description = "CPAL device callback for Wonderland native presentation audio"
+
+[workspace]
+
+[dependencies]
+cpal = { version = "=0.15.3", default-features = false }
+wonderland-native-audio = { path = ".." }
+
+[dev-dependencies]
+wonderland-audio-runtime = { path = "../.." }
+wonderland-render-core = { path = "../../../render-core" }
+
+[profile.dev]
+overflow-checks = true
+
+[profile.release]
+overflow-checks = true

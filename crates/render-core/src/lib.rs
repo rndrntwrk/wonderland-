@@ -2,6 +2,7 @@
 
 pub mod cache;
 mod data;
+pub mod derivatives;
 pub mod frame;
 pub mod math;
 pub mod reference;

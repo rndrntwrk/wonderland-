@@ -53,6 +53,17 @@ use fyrox::{
     window::WindowAttributes,
 };
 
+// Fyrox 1.0.1 resizes its render targets on WindowEvent::Resized, but its
+// GraphicsServer::set_frame_size does not resize the WASM canvas backing store.
+// Match the backing store to that already accepted physical renderer size.
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen(
+    inline_js = "export function sync_fyrox_canvas(width,height){const canvas=document.getElementById('engine-canvas');if(!canvas)throw new Error('Fyrox canvas is missing');if(canvas.width!==width)canvas.width=width;if(canvas.height!==height)canvas.height=height;}"
+)]
+extern "C" {
+    fn sync_fyrox_canvas(width: u32, height: u32);
+}
+
 #[derive(Default, Visit, Reflect)]
 #[reflect(non_cloneable)]
 struct Game {
@@ -177,6 +188,21 @@ impl Plugin for Game {
     fn before_rendering(&mut self, context: PluginContext) -> GameResult {
         self.render_visits += 1;
         if let GraphicsContext::Initialized(graphics) = context.graphics_context {
+            #[cfg(target_arch = "wasm32")]
+            {
+                let (width, height) = graphics.renderer.get_frame_size();
+                sync_fyrox_canvas(width, height);
+                let window_size = graphics.window.inner_size();
+                bridge::metrics(serde_json::json!({
+                    "engineViewport": {
+                        "rendererWidth": width,
+                        "rendererHeight": height,
+                        "windowWidth": window_size.width,
+                        "windowHeight": window_size.height,
+                        "windowScaleFactor": graphics.window.scale_factor()
+                    }
+                }));
+            }
             let stats = graphics.renderer.get_statistics();
             // Count only completed custom passes that issued actual fixture draw calls.
             self.observed_frames = self
@@ -388,5 +414,16 @@ mod tests {
             ResourceKind::Embedded,
         )
         .unwrap();
+    }
+    #[test]
+    fn embedded_only_fixture_registry_matches_fyrox_serialization() {
+        use fyrox::asset::registry::{RegistryContainer, RegistryContainerExt};
+        assert_eq!(
+            RegistryContainer::default()
+                .serialize_to_string()
+                .unwrap()
+                .trim(),
+            include_str!("../../web/data/resources.registry").trim()
+        );
     }
 }

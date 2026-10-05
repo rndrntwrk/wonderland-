@@ -34,6 +34,9 @@ pub fn prepare(state: &State) -> Result<Vec<Upload>, String> {
         if !draw.material.unlit {
             return Err("fixture comparison currently requires unlit mesh materials".into());
         }
+        if !draw.material.double_sided {
+            return Err("fixture comparison currently requires double-sided mesh materials".into());
+        }
         draw.mesh
             .validate(&limits)
             .map_err(|e| format!("{}: {e:?}", draw.name))?;
@@ -214,5 +217,15 @@ mod tests {
         let mut state = State::new(Config::default()).unwrap();
         state.scene.draws[0].material.color[0] = f32::NAN;
         assert!(prepare(&state).is_err());
+    }
+    #[test]
+    fn single_sided_material_is_rejected_before_an_upload_can_replace_the_scene() {
+        let mut state = State::new(Config::default()).unwrap();
+        assert!(prepare(&state).is_ok());
+        state.scene.draws[0].material.double_sided = false;
+        assert_eq!(
+            prepare(&state).err().as_deref(),
+            Some("fixture comparison currently requires double-sided mesh materials")
+        );
     }
 }

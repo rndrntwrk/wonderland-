@@ -31,6 +31,10 @@ physical-device runs or performance measurements.
 | Fyrox renderer statistics | [renderer/stats.rs, release source](https://github.com/FyroxEngine/Fyrox/blob/f916d01304d945271b6d7d70569c1333f563a34f/fyrox-impl/src/renderer/stats.rs) |
 | Playwright element screenshot bounds | [screenshotter.ts, v1.62.1](https://github.com/microsoft/playwright/blob/v1.62.1/packages/playwright-core/src/server/screenshotter.ts) |
 | Fyrox GL clear values | [framebuffer.rs, release source](https://github.com/FyroxEngine/Fyrox/blob/f916d01304d945271b6d7d70569c1333f563a34f/fyrox-graphics-gl/src/framebuffer.rs) |
+| Fyrox WASM canvas allocation and native-only resize | [server.rs, release source](https://github.com/FyroxEngine/Fyrox/blob/f916d01304d945271b6d7d70569c1333f563a34f/fyrox-graphics-gl/src/server.rs) |
+| Resolved winit physical canvas sizing | [resize_scaling.rs, v0.30.13](https://github.com/rust-windowing/winit/blob/v0.30.13/src/platform_impl/web/web_sys/resize_scaling.rs) |
+| Observed Chromium version's WebGPU software pixel-test configuration | [pixel_test_pages.py, 151.0.7922.34](https://github.com/chromium/chromium/blob/151.0.7922.34/content/test/gpu/gpu_tests/pixel_test_pages.py) |
+| Fyrox external-resource registry format and default path | [registry.rs, release source](https://github.com/FyroxEngine/Fyrox/blob/f916d01304d945271b6d7d70569c1333f563a34f/fyrox-resource/src/registry.rs) |
 
 The Fyrox commit above is the release-exact source pinned by the prior engine
 discovery report. API choices use that source, including typed scene handles,
@@ -43,8 +47,11 @@ Both adapters call wonderland-engine-fixture and upload the same immutable
 FixtureScene. Core matrices are column-major, column-vector and right-handed.
 The upload layer applies a model matrix once to each mesh's positions and its
 inverse transpose to normals. It preserves UVs, source vertex colors and triangle
-indices. Invalid geometry, images, material values or unsupported lit materials
+indices. Invalid geometry, images, material values, unsupported lit materials or
+single-sided materials
 are rejected before the adapter replaces the active fixture.
+Current fixture meshes are explicitly unlit and double-sided. Matched source
+winding and culling for single-sided production materials remain a separate gate.
 
 The fixture supplies CPU-skinned avatar geometry that preserves the original
 dual-local-position skinning semantics. An engine skeleton or animation clock
@@ -156,6 +163,22 @@ buffer, complete canvas area and strict 640 by 480 reference dimensions. It avoi
 an extra screenshot row caused by fractional typography/layout positions. The
 runner reports observed CSS, backing-store and PNG dimensions on failure.
 
+Fyrox 1.0.1 allocates its WASM canvas backing store once during graphics creation.
+Its later GraphicsServer::set_frame_size only resizes native surfaces. The adapter
+therefore matches the canvas backing dimensions to renderer.get_frame_size before
+each browser render, writing the attributes only when the size changes. The
+renderer still receives its physical dimensions through winit's ordinary resize
+events. Published metrics expose the renderer dimensions, window dimensions and
+window scale factor independently of the host's CSS/backing measurements.
+
+The resolved winit 0.30.13 uses ResizeObserver.devicePixelContentBoxSize where
+available. Browser DPR emulation can disagree with this physical pixel box, so
+the runner starts a separate Chromium process with --force-device-scale-factor
+for each DPR and checks a plain canvas's CSS and physical pixel boxes before
+loading the engine. This diagnostic creates no graphics context. A mismatch
+fails the density check rather than accepting a differently scaled image.
+Actual DPR/resize and resulting image parity still require the next CI run.
+
 The host emits bounded bootstrap records for module loading, WASM initialization,
 engine run, adapter request/result, device observation, canvas configuration and
 initial fixture publication. WebGPU device observation also occurs when the
@@ -170,3 +193,19 @@ and mapped-pixel diagnostic after both engine runs. That diagnostic cannot warm
 the engine's cold start, set its observed backend, or satisfy renderer parity.
 HTTP error responses are also recorded with their actual URLs instead of
 assuming that an unidentified browser 404 was a favicon.
+
+Checkpoint 5's process log isolated the WebGPU startup failure to Chromium's
+display integration: SharedImageBackingFactory could not allocate the WebGPU
+swapchain image, and the separate 4 by 4 diagnostic reproduced the same error
+without Bevy. The next runner configuration follows Chromium 151.0.7922.34's own
+VulkanSwiftShader pixel-test flags: Vulkan and SwiftShader are selected for the
+display compositor, ANGLE and WebGPU together, with a disabled Vulkan surface
+for the headless path. This is a requested software configuration; actual device
+observation, successful image creation and engine parity still have to pass.
+
+The URL-aware HTTP log identified Fyrox's remaining 404 as
+data/resources.registry. Fyrox's released loader expects a RON UUID-to-path map
+there. The host now ships an empty map because every resource in this fixture is
+embedded. A native regression compares that file with Fyrox's own serialization
+of an empty registry. External-resource integration must populate this map when
+it is introduced; the runner continues to fail unexpected HTTP errors.

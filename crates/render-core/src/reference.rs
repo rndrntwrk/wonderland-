@@ -1,6 +1,7 @@
 //! CPU reference rendering only; this module makes no GPU equivalence or timing claim.
 //! Pixels use top-left origin, pixel-center coverage, straight byte RGBA source-over,
-//! strict less-than depth and a top-left triangle fill rule. No gamma transfer is applied.
+//! strict less-than depth by default and a top-left triangle fill rule. Source
+//! passes can explicitly select less-or-equal depth. No gamma transfer is applied.
 use crate::*;
 use sha2::{Digest, Sha256};
 
@@ -27,6 +28,11 @@ impl Default for FragmentOptions {
         }
     }
 }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DepthComparison {
+    Less,
+    LessEqual,
+}
 #[derive(Debug, PartialEq, Eq)]
 pub enum ReferenceError {
     Validation(ValidationError),
@@ -48,6 +54,7 @@ pub struct ReferenceSurface {
     image: RgbaImage,
     depths: Vec<f32>,
     ids: Vec<Option<EntityRef>>,
+    depth_comparison: DepthComparison,
 }
 impl ReferenceSurface {
     pub fn new(width: u32, height: u32, limits: &RenderLimits) -> Result<Self, ReferenceError> {
@@ -60,7 +67,13 @@ impl ReferenceSurface {
             },
             depths: allocated(count, f32::INFINITY)?,
             ids: allocated(count, None)?,
+            depth_comparison: DepthComparison::Less,
         })
+    }
+    /// Select the exact pass comparison. LessEqual admits equal-depth later
+    /// draws; it introduces no epsilon and still rejects every farther value.
+    pub fn set_depth_comparison(&mut self, comparison: DepthComparison) {
+        self.depth_comparison = comparison;
     }
     pub fn image(&self) -> &RgbaImage {
         &self.image
@@ -103,7 +116,11 @@ impl ReferenceSurface {
         let Some(i) = self.index(x, y) else {
             return Ok(false);
         };
-        if rgba[3] <= options.alpha_cutoff || (options.depth_test && depth >= self.depths[i]) {
+        let occluded = match self.depth_comparison {
+            DepthComparison::Less => depth >= self.depths[i],
+            DepthComparison::LessEqual => depth > self.depths[i],
+        };
+        if rgba[3] <= options.alpha_cutoff || (options.depth_test && occluded) {
             return Ok(false);
         }
         self.image.pixels[i] = source_over(rgba, self.image.pixels[i]);

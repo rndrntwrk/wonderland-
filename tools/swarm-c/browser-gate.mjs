@@ -57,6 +57,7 @@ const server=createServer(async(req,res)=>{
   try{
     const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname),path=resolve(root,`.${name}`);
     if(name==='/favicon.ico'){res.writeHead(204);res.end();return;}
+    if(name==='/__pixel_geometry.html'){res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});res.end('<!doctype html><meta charset="utf-8"><canvas style="width:100px;height:80px"></canvas>');return;}
     if(name==='/__webgpu_diagnostic.html'){res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});res.end('<!doctype html><meta charset="utf-8"><canvas width="4" height="4"></canvas>');return;}
     if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403);res.end();return;}
     const file=(await stat(path)).isDirectory()?resolve(path,'index.html'):path;
@@ -178,13 +179,24 @@ try{
   report.referenceEvidence=manifest.evidence;
   const {chromium}=await import('playwright');
   const args=backend==='webgl2'?['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader']:
-    ['--enable-unsafe-webgpu','--use-webgpu-adapter=swiftshader'];
+    // Chromium 151's own VulkanSwiftShader pixel tests initialize both the
+    // display compositor and WebGPU on SwiftShader; WebGPU alone cannot create
+    // the shared swapchain image on this headless Linux runner.
+    ['--enable-features=Vulkan','--use-gl=angle','--use-angle=swiftshader','--use-vulkan=swiftshader',
+      '--use-webgpu-adapter=swiftshader','--disable-vulkan-surface','--enable-unsafe-webgpu'];
   report.browserArgs=args;
-  browserServer=await chromium.launchServer({channel:'chromium',headless:true,args,host:'127.0.0.1'});
-  browserServer.process().stderr?.on('data',recordBrowserProcess);
-  browser=await chromium.connect(browserServer.wsEndpoint());report.browserVersion=browser.version();
+  report.browserProcesses=[];
   for(const avatars of [32,64]){
     const dpr=avatars===32?1:2;
+    // Winit uses devicePixelContentBoxSize, which can differ from an emulated
+    // window.devicePixelRatio. Set the process scale too, then measure both.
+    if(browser)await browser.close();if(browserServer)await browserServer.close();
+    browser=null;browserServer=null;
+    const processArgs=[...args,`--force-device-scale-factor=${dpr}`];
+    browserServer=await chromium.launchServer({channel:'chromium',headless:true,args:processArgs,host:'127.0.0.1'});
+    browserServer.process().stderr?.on('data',recordBrowserProcess);
+    browser=await chromium.connect(browserServer.wsEndpoint());report.browserVersion=browser.version();
+    report.browserProcesses.push({avatars,dpr,args:processArgs,version:browser.version()});
     const context=await browser.newContext({viewport:{width:1400,height:1100},deviceScaleFactor:dpr});
     await context.tracing.start({screenshots:true,snapshots:true,sources:true});
     const page=await context.newPage();page.setDefaultTimeout(20000);
@@ -197,6 +209,18 @@ try{
     page.on('requestfailed',request=>report.requests.push({avatars,url:request.url(),error:request.failure()}));
     page.on('response',response=>{if(response.status()>=400){const item={avatars,url:response.url(),status:response.status()};report.requests.push(item);console.log('WONDERLAND_HTTP_ERROR '+JSON.stringify(item));}});
     try{
+      // This page creates no graphics context and cannot warm the engine.
+      await page.goto(new URL('/__pixel_geometry.html',base).href);
+      const pixelGeometry=await page.evaluate(()=>new Promise(resolveGeometry=>{
+        const canvas=document.querySelector('canvas'),observer=new ResizeObserver(entries=>{
+          const entry=entries[0],box=entry.devicePixelContentBoxSize?.[0];observer.disconnect();
+          resolveGeometry({dpr:devicePixelRatio,cssWidth:entry.contentRect.width,cssHeight:entry.contentRect.height,
+            physicalWidth:box?.inlineSize??null,physicalHeight:box?.blockSize??null});
+        });observer.observe(canvas,{box:'device-pixel-content-box'});
+      }));
+      check(`browser-pixel-density-${avatars}`,pixelGeometry.dpr===dpr&&pixelGeometry.physicalWidth===100*dpr&&pixelGeometry.physicalHeight===80*dpr,pixelGeometry);
+      assert.equal(pixelGeometry.physicalWidth,100*dpr,'Browser physical pixel content box must match the requested DPR');
+      assert.equal(pixelGeometry.physicalHeight,80*dpr,'Browser physical pixel content box must match the requested DPR');
       const url=`${base}?variant=${variant}&mode=hybrid2d&avatars=${avatars}&tick=30`;
       await page.goto(url,{waitUntil:'domcontentloaded'});const initial=await ready(page);
       check(`startup-${avatars}`,initial.actualBackend===backend&&initial.wasmMemoryShared===false&&initial.crossOriginIsolated===false,initial);

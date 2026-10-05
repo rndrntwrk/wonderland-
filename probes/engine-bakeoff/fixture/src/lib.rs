@@ -424,6 +424,10 @@ pub fn reference_frame(scene: &FixtureScene) -> Result<ReferenceFrame, FixtureEr
     let limits = RenderLimits::default();
     let mut color = ReferenceSurface::new(WIDTH, HEIGHT, &limits).map_err(problem)?;
     let mut picks = ReferenceSurface::new(WIDTH, HEIGHT, &limits).map_err(problem)?;
+    // Both source engine adapters admit later equal-depth fragments. Keep the
+    // CPU oracle's coplanar floor/terrain and city layers on that same policy.
+    color.set_depth_comparison(wonderland_render_core::reference::DepthComparison::LessEqual);
+    picks.set_depth_comparison(wonderland_render_core::reference::DepthComparison::LessEqual);
     color.clear([22, 29, 40, 255]);
     let vp = scene.camera.view_projection(WIDTH as f32 / HEIGHT as f32)?;
     for draw in &scene.draws {

@@ -5,6 +5,7 @@ pub mod city;
 pub mod environment;
 mod legacy_random;
 pub mod lot;
+pub mod objects;
 pub mod reconstruction;
 
 #[derive(Clone, Debug, PartialEq, Eq)]

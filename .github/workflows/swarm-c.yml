@@ -27,6 +27,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: swarm-c-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -78,8 +82,62 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
+          name: swarm-c-reference-evidence-${{ github.sha }}
+          path: |
+            tools/swarm-c/output/**/*.log
+            tools/swarm-c/output/**/*.json
+            tools/swarm-c/output/**/*.png
+          retention-days: 14
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
           name: swarm-c-reference-${{ github.sha }}
           path: tools/swarm-c/output/
+          retention-days: 14
+          if-no-files-found: warn
+
+  native-audio:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/swarm-c-views-audio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RUSTUP_TOOLCHAIN: '1.95.0'
+      CARGO_BUILD_JOBS: 2
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_INCREMENTAL: 0
+      CARGO_TARGET_DIR: ${{ github.workspace }}/native-audio-target
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install the isolated device compiler and ALSA development files
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal --component rustfmt
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y pkg-config libasound2-dev
+      - name: Compile the actual CPAL adapter
+        run: |
+          mkdir -p tools/swarm-c/output/native-audio
+          cargo --version
+          rustc -vV
+          task_manifest=crates/audio-runtime/native/cpal/Cargo.toml
+          if [[ ! -f crates/audio-runtime/native/cpal/Cargo.lock ]]; then
+            cargo generate-lockfile --manifest-path "$task_manifest"
+          fi
+          cargo fmt --manifest-path "$task_manifest" --check
+          cargo test --manifest-path "$task_manifest" --locked 2>&1 | tee tools/swarm-c/output/native-audio/build.log
+      - name: Exercise a real ALSA-null callback stream
+        run: |
+          bash crates/audio-runtime/native/cpal/run-alsa-null.sh 2>&1 | tee tools/swarm-c/output/native-audio/device-smoke.log
+      - name: Retain the native device resolution and evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: swarm-c-native-audio-evidence-${{ github.sha }}
+          path: |
+            crates/audio-runtime/native/cpal/Cargo.lock
+            tools/swarm-c/output/native-audio/
           retention-days: 14
           if-no-files-found: warn
 
