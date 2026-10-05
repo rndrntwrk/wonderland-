@@ -89,8 +89,8 @@ impl Material for SourceMaterial {
         ])?];
         descriptor.primitive.cull_mode = None;
         if let Some(depth) = descriptor.depth_stencil.as_mut() {
-            depth.depth_write_enabled = true;
-            depth.depth_compare = CompareFunction::GreaterEqual;
+            depth.depth_write_enabled = Some(true);
+            depth.depth_compare = Some(CompareFunction::GreaterEqual);
         }
         Ok(())
     }
@@ -325,7 +325,7 @@ fn update(
             .get(handle)
             .is_some_and(|m| m.parameters.flags.x != pass)
         {
-            if let Some(material) = materials.get_mut(handle) {
+            if let Some(mut material) = materials.get_mut(handle) {
                 material.parameters.flags.x = pass;
             }
         }

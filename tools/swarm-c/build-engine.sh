@@ -2,6 +2,7 @@
 set -euo pipefail
 task_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$task_root"
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$task_root/engine-target}"
 task_engine="${WONDERLAND_ENGINE:?Set WONDERLAND_ENGINE to bevy or fyrox}"
 task_backend="${WONDERLAND_BACKEND:?Set WONDERLAND_BACKEND to native, webgpu or webgl2}"
 case "$task_engine:$task_backend" in
@@ -52,6 +53,11 @@ PY
   wasm-bindgen "${CARGO_TARGET_DIR:-$task_root/engine-target}/wasm32-unknown-unknown/debug/${task_engine}_gate.wasm" --target web --out-dir "$task_pkg" --out-name engine
   mkdir -p probes/engine-bakeoff/web/audio
   cp crates/audio-runtime/browser/browser-audio.mjs probes/engine-bakeoff/web/audio/browser-audio.mjs
-  sha256sum "$task_pkg"/* > "$task_output/artifact-sha256.txt"
+  python3 - "$task_pkg" > "$task_output/artifact-sha256.txt" <<'PY'
+import hashlib, pathlib, sys
+for path in sorted(pathlib.Path(sys.argv[1]).rglob('*')):
+    if path.is_file():
+        print(hashlib.sha256(path.read_bytes()).hexdigest(), path)
+PY
 fi
 cargo +1.95.0 tree --manifest-path "$task_manifest" --locked > "$task_output/dependencies.txt"

@@ -87,7 +87,7 @@ jobs:
       - name: Provision native and software graphics dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y libasound2-dev libudev-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers libgl1-mesa-dri xvfb
+          sudo apt-get install --no-install-recommends -y libasound2-dev libudev-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev libxkbcommon-x11-dev libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers libgl1-mesa-dri xvfb
       - name: Build the actual engine and preserve its resolution
         run: bash tools/swarm-c/build-engine.sh
       - name: Exercise the native software renderer
