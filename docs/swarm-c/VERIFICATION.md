@@ -18,9 +18,110 @@ and formatting corrections were not part of that renderer-only checkpoint.
 The library correction batch resolved those failures and received the successful
 combined CI result recorded below. The later adapters received the expanded
 reference and native-device successes recorded below. The current published
-verification revision is `f6f78be1fef247f2db47e19f56d94054f0c9e88c`.
+verification revision is `d247ebb94d1d4de79247983b4f62fffb7e06427d`.
 
-## Reviewed browser follow-up after f6f78be
+## Reference and native execution at d247ebb
+
+[Reference job 111926068709](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926068709)
+completed successfully at `d247ebb94d1d4de79247983b4f62fffb7e06427d` in
+[run 37358255818](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818).
+All formatting gates and **377 Rust package tests** passed: core 73, iso 60,
+geometry 105, avatar 35, audio 59, fixture 16, native transport 25 and facade
+worker 4. Replay's empty test targets also passed. Actual Node execution passed
+19 audio, six host and six GPU-readback protocol tests, plus the PNG/ID comparator
+self-test. All 11 Python audio tests and all 32 unchanged-C# XA/UTK complete-WAV
+comparisons passed.
+
+All 18 complete native/WASM observation records matched exactly. The WASM
+SHA-256 is `1216468ac77c092d8b7b62ea5da9af6ec2ee2846a878b749202b25e54b9f29b4`.
+The hosted reference measured 1,506.966942 ms and 21,299,200 memory bytes; these
+are synthetic algorithm observations, not GPU performance measurements.
+
+The actual pinned-A probe executed 60 ticks with C absent and at 30/60/120 Hz.
+Every state hash and ordered event matched, with two genuine cues and zero
+duplicate cues in each sampled cadence. The
+[reference evidence summary](evidence/reference-d247ebb.json) retains exact
+package counts, source/runtime results, fixture-version identity and full records.
+
+All six version 2 scene/reference hash pairs match the independently reviewed
+local fixture output. They deliberately differ from version 1 because crowd
+placement and content identity changed; no old-image equivalence is claimed.
+The artifact's manifest records logical 640×480 and physical 1280×960 ID grids,
+without including the raw ID/depth buffers. The separate derivative worker again
+produced six PNGs and eight byte-identical repeat files, rejected five malformed
+requests and preserved an existing output directory. Its artifact hash remains
+`99796348fce39734e1e89f44e3c4eacf9a05e94fc58f26cc79fe3c19b3fc2800`.
+
+Both native engine jobs also completed successfully:
+[Bevy 111926069218, nine tests](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069218)
+and [Fyrox 111926069368, twelve tests](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069368).
+These are native software-renderer execution results. Native pixel parity and
+physical-GPU qualification remain separate.
+
+[Native-audio job 111926069292](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069292)
+passed all four configuration tests with the retained CPAL lock and executed the
+real OS ALSA-null stream. The device used 48,000 Hz stereo F32, a 1,024-frame
+buffer, a 2,048-frame ring and 256-frame mixing blocks. The smoke recorded 9,606
+callbacks, 18,432 copied frames, two completed voices and zero device errors.
+Live loop suspend/resume, live stop/reset and stale-session rejection all passed.
+Its 1,893,632 underrun frames came from the unpaced null device;
+`physical_output_verified` remains false. The
+[native-audio evidence](evidence/native-audio-d247ebb.json) records exact logs,
+hashes and the unchanged lock. This run does not qualify physical speakers,
+physical hot unplug, other platform backends or production-load latency.
+
+## Browser execution at d247ebb
+
+The [retained engine evidence](evidence/engines-d247ebb.json) records all five
+engine jobs, exact check results, native/browser reports, diagnostic results,
+artifact hashes and independent review provenance for this revision.
+
+| Browser job | Observed result at d247ebb |
+|---|---|
+| [Bevy WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069307) | Passed all six scenes with zero failures: color, exact physical-ID comparisons and the complete lifecycle gate. |
+| [Fyrox WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069294) | Passed all six scenes with zero failures: color, exact physical-ID comparisons and the complete lifecycle gate. |
+| [Bevy WebGPU](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069461) | Failed with 17 reported failures: 15 ordinary scene-image failures and two aggregate raw-readback diagnostic failures. All 16 ordinary lifecycle checks passed; the two added aggregate diagnostic entries failed. |
+
+Both WebGL2 reports record `software-browser-checks-passed` and
+`rendererQualified: false`. They close this revision's hosted software gate for
+both backends using fixture version 2; physical-device, complete-client and production-performance
+acceptance remain separate. Source LessEqual and the exact zero-ID
+criterion remain unchanged; these fixture results do not prove general
+coplanar production-scene parity.
+
+Each WebGL2 variant passed 38 ordinary checks and all 16 ordinary lifecycle
+checks, including 52,719 exact sampled ID centers and 15,167 ownerless occlusion
+centers across the six scenes.
+
+The WebGPU report contains 18 lifecycle/diagnostic entries: 16 passing ordinary
+lifecycle checks and two failed aggregate engine-output diagnostics. That list
+must not be reported as 18 passing lifecycle checks. The diagnostic distinguishes actual engine output, canvas snapshots and
+page presentation; its passing parts do not override the failed ordinary gate:
+
+| Observation | Actual result | Limit |
+|---|---|---|
+| Six direct engine-canvas ID snapshots | All six matched the physical CPU oracle: 52,719 sampled pixels, zero ID mismatches. | These are direct canvas PNGs, separate from page screenshots and raw mapped-texture copies. |
+| Raw GPU copies | 3 of 12 completed. Full2D/32 color passed every unchanged color limit, with RMS 2.8075; its ID copy matched 3,799 samples with zero mismatches. Full2D/64 color bytes were retained. | Nine copies timed out. The 64-avatar physical color copy had no matching physical color oracle, so no parity score is claimed for it. |
+| Independent 4×4 clear without Bevy | Mapped GPU bytes and direct canvas PNG were `[64,128,191,255]`; the page crop showed background `[153,68,47,255]`. | This reproduces a failure of the hosted browser's presentation path without the engine. It does not close the engine's incomplete copy diagnostic or ordinary scene gate. |
+
+The retained [direct canvas PNG](evidence/webgpu-d247ebb/clear-canvas.png),
+[page crop](evidence/webgpu-d247ebb/clear-crop.png) and
+[full-page PNG](evidence/webgpu-d247ebb/clear-page.png) make that minimal
+GPU/canvas-versus-presentation discrepancy independently inspectable.
+
+The independent clear provides stronger evidence than the earlier origin
+inference: correct GPU/canvas content can fail to appear in page presentation in
+this environment. The ordinary WebGPU image gate remains failed, and incomplete
+mapped copies remain visible as failures. The result is not promoted to complete
+WebGPU rendering, presentation, performance or physical-device acceptance.
+
+The nine generic readback deadlines do not identify whether acquisition, copy
+submission, error-scope settlement or mapping stalled. The concrete diagnostic
+follow-up is bounded per-stage progress capture for those operations. These
+reports alone do not establish a source defect or justify a larger timeout;
+the reviewed source remains at `d247ebb`.
+
+## Reviewed correction published at d247ebb
 
 The follow-up separates three issues without changing renderer shaders, source
 `LessEqual`, color tolerances or the zero-ID-mismatch criterion. Fixture version 2
@@ -31,10 +132,22 @@ workloads and dedicated coplanar-depth regression. The
 [version 1 counterexample](evidence/fixture-v1-coplanar.json) remains recorded;
 changing that input does not establish general coplanar GPU agreement.
 
+The [independent version 2 review](evidence/fixture-v2-review.json) built 448
+scenes, exercised all 60 phases across the six mode/count combinations, and
+checked 120,960 pairs of bounds. Minimum measured horizontal separation was
+1.002498627 world units, with a minimum lot margin of 0.125. Prefix identity,
+fixed placement across ticks/views, wrapped ticks, limits and repeat hashes
+passed. The local fixture suite passed 16 tests, including three new regressions;
+both existing coplanar regressions remain. Independent strictly-nearer ownerless
+geometry still occluded avatars and sprites in every tested mode/count case.
+This validates the synthetic input correction without removing occlusion from
+the workload or asserting arbitrary coplanar GPU rasterization parity.
+
 The host uses integral heading dimensions and relative layout offsets with
 `transform:none`, avoiding the fractional compositor translation implicated in
-the extra Fyrox edge values. Actual browser execution must establish whether
-this removes the observed ID blending.
+the extra Fyrox edge values. Together with fixture version 2, this revision
+passed both WebGL2 variants' unchanged exact-ID and color gates. That combined
+result does not separately attribute every prior discrepancy to one correction.
 
 WebGPU diagnostics retain the ordinary scene screenshots before adding
 `COPY_SRC` to the engine surface. They then record actual submitted-texture
@@ -44,8 +157,9 @@ reconfiguration and capture failures preserve the evidence already collected.
 The [independent protocol review](evidence/gpu-readback-protocol.json) passed 16
 local Node tests. These tests use mock GPU devices and actual host-function
 invocations; they do not prove GPU pixel or presentation parity. The affected
-checks require a fresh run of the published follow-up. The f6f78be failures below
-remain failed historical results.
+checks executed in the exact `d247ebb` run above. The passing WebGL2 results and
+partial WebGPU evidence do not overwrite the failed WebGPU gate. The f6f78be
+failures below remain failed historical results.
 
 ## Reference and native execution at f6f78be
 
@@ -110,18 +224,20 @@ check names, artifact hashes and screenshot provenance from this exact revision.
 | [Fyrox WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340404) | All six color cases, physical DPR/resize, lifecycle checks and Full3D physical-ID comparisons passed. | Full2D/64 had 5 and Hybrid2D/64 had 4 stable-interior ID mismatches at DPR 2. |
 | [Bevy WebGPU](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340515) | Capture geometry, lifecycle and the separate mapped-pixel device diagnostic passed. | The runner reported 15 image failures. Raw screenshots include DOM controls inside the measured canvas rectangle, so the extraction geometry check alone did not establish a clean rendering capture. |
 
-The WebGL2 results show that categorical IDs are now checked at their actual
-physical resolution; the remaining few mismatches must be diagnosed and fixed
-under the unchanged zero-mismatch rule. Independent review verified all twelve
+The `f6f78be` WebGL2 results checked categorical IDs at their actual physical
+resolution but retained the recorded few mismatches under the zero-mismatch
+rule. The later fixture/layout correction and its successful WebGL2 runs are
+recorded above. Independent review verified all twelve
 WebGPU image crops byte-for-byte against the retained full-page PNGs. It also
 observed identical color and pick images at DPR 1 and DOM controls inside the
 measured canvas region at DPR 2. Exact extraction is a validated measurement
 improvement; it does not establish correct canvas contents. The earlier claim
 that Chromium ignored the requested element origin is not proven: malformed
 contents within the correctly located canvas remain possible. The screenshots
-do not isolate the renderer's output. A direct engine-target readback is not yet available in
-this adapter. Establishing that independent output and closing image parity are
-remaining C implementation/verification work, not a provider or physical-device
+do not isolate the renderer's output. At `f6f78be`, direct engine-target readback
+was unavailable. The later `d247ebb` diagnostic implements the observation path;
+its actual result is recorded separately above. Closing image parity remains
+C implementation/verification work, not a provider or physical-device
 gate. No production engine is selected.
 
 ## Expanded reference CI passed at bc529fd4

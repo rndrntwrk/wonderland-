@@ -12,7 +12,21 @@ These notes describe released APIs and the adapter's conversion decisions. They
 do not substitute for compiler output, screenshots, exact ID-pixel comparisons,
 physical-device runs or performance measurements.
 
-At published commit `f6f78be1fef247f2db47e19f56d94054f0c9e88c`,
+The reviewed correction is published at
+`d247ebb94d1d4de79247983b4f62fffb7e06427d` and was exercised in
+[run 37358255818](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818).
+Its complete reference and both native engine jobs passed. Both Bevy and Fyrox
+WebGL2 passed all six color/physical-ID scenes and lifecycle checks, with no
+failures; both hosted software reports still set `rendererQualified: false`.
+Bevy WebGPU remains failed: six direct engine-canvas ID snapshots passed, but
+ordinary scene presentation failed and only three of twelve raw GPU copies
+completed. A minimal clear reproduced a page-presentation failure without Bevy.
+Fixture version 2, integral host layout and the diagnostic engine/canvas/page
+readback protocol are implemented and independently reviewed; partial diagnostic
+success does not establish full WebGPU acceptance.
+See [VERIFICATION.md](VERIFICATION.md) for the commit-specific outcomes.
+
+At the earlier commit `f6f78be1fef247f2db47e19f56d94054f0c9e88c`,
 [run 37353615543](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543)
 built all five engine variants. Both native software-runtime jobs passed,
 including nine Bevy tests and twelve Fyrox tests. All three browser jobs still
@@ -68,6 +82,19 @@ The fixture supplies CPU-skinned avatar geometry that preserves the original
 dual-local-position skinning semantics. An engine skeleton or animation clock
 does not replace those outputs. Explicit mode and tick commands build another
 fixture; neither rendering nor audio advances the authoritative simulation.
+
+Fixture version 2 places avatars using the maximum horizontal skinned footprint
+over the complete 60-phase animation cycle. A five-column, thirteen-row capacity
+keeps the 32/64 prefix and stable entity/placement identity inside the same lot
+and camera. The minimum measured gap is 1.002498627 world units, avoiding the
+unintended neighboring-arm interpenetration recorded in the
+[version 1 counterexample](evidence/fixture-v1-coplanar.json). The
+[independent version 2 review](evidence/fixture-v2-review.json) exercised 448
+scene builds and 120,960 bounds pairs, verified strictly-nearer ownerless
+occlusion of avatars and sprites, and retained both dedicated coplanar tests.
+This is a correction to the synthetic input, not a general coplanar GPU parity
+guarantee. Source depth equations, shader code, camera and comparison tolerances
+are unchanged by this fixture revision.
 
 The camera looks down the core's negative Z axis. Fyrox's scene camera uses a
 positive local Z look vector, so its node orientation is converted separately.
@@ -129,7 +156,8 @@ black ID and depth, so it occludes selectable entities behind it.
 
 Interactive selection currently calls the shared CPU reference and resolves a
 FrameStore pick ticket. This is labeled cpu-reference-generation-checked.
-Asynchronous engine ID-buffer readback remains pending. The browser gate separately
+Production game selection from asynchronous GPU ID-buffer readback remains
+unimplemented. The browser gate separately
 reads the actual GPU ID visualization screenshot and compares its stable interior
 bytes with the independent reference, including ownerless occlusion.
 
@@ -168,7 +196,12 @@ representative performance remain separate gates.
 ## Capture bounds and startup diagnostics
 
 Playwright 1.62.1 passes element bounds through enclosingIntRect before capture.
-The host translates its canvas container to integer document pixels. Recorded
+The current host uses integral heading dimensions and relative offsets with
+`transform:none` to place the canvas on integer document pixels. The earlier
+fractional compositor translation could blend categorical ID edge values. With
+integral layout and fixture version 2, both WebGL2 variants subsequently passed
+the unchanged exact-ID and color gates at `d247ebb`. Those combined results do
+not separately attribute every old discrepancy to one correction. Recorded
 checkpoint bc529fd4 screenshots included page header/control content where the
 fixture was expected. This did not prove that Chromium ignored the requested
 origin; the correctly located canvas could contain malformed contents. The
@@ -211,8 +244,10 @@ At that revision both WebGL2 variants passed all color cases, DPR/resize and
 lifecycle checks. Full3D physical-ID checks passed, but Full2D/64 and
 Hybrid2D/64 retained 3/3 mismatches for Bevy and 5/4 for Fyrox. The reference and
 captured IDs now share physical dimensions without categorical resampling.
-Those remaining differences require diagnosis against the actual shader/depth/
-coverage outputs; no exception to the zero stable-interior mismatch rule is made.
+Those differences motivated the fixture/layout investigation documented above.
+Both WebGL2 variants subsequently passed at `d247ebb` with fixture version 2;
+the version 1 failures remain recorded and no exception to the zero
+stable-interior mismatch rule is made.
 
 The host emits bounded bootstrap records for module loading, WASM initialization,
 engine run, adapter request/result, device observation, canvas configuration and
@@ -228,10 +263,48 @@ recorded 15 image failures. Independent review verified all twelve crops as exac
 byte extraction from the retained full-page PNGs, with identical DPR 1 color/pick
 images and page controls visible at DPR 2. Those checks establish extraction
 correctness, not the correctness of the canvas contents or a definitive origin/
-compositor root cause. Direct engine-target readback is not yet available, so
-the evidence does not isolate the engine's pixel output
-or establish its parity. Implementing that independent observation and resolving
-the failures remain C work.
+compositor root cause. Direct engine-target readback was unavailable in that
+revision, so its evidence does not isolate the engine's pixel output or establish
+parity. The later diagnostic below adds the observation path; actual outcomes
+remain separate from its protocol review.
+
+### Engine texture, canvas and page observations
+
+The `d247ebb` diagnostic preserves ordinary scene screenshots before enabling
+`COPY_SRC` on the engine's own configured surface. It observes actual submitted
+textures and produces three separate results: a mapped engine-texture copy, a
+direct canvas snapshot and browser page presentation. It retains scene/mode/pass
+identity, physical dimensions and evidence class for each observation. The
+independent 4×4-pixel device test remains separate and cannot stand in for a
+copy of the engine's scene.
+
+Copy validation errors reject the observation before mapped bytes are accepted
+as rendered evidence. Reconfiguration, timeouts and capture failures retain
+completed prior observations. The
+[independent protocol review](evidence/gpu-readback-protocol.json) passed 16
+local Node tests across mocks and actual host/retention function calls. These
+tests validate control flow and ownership, not GPU pixels.
+
+The actual `d247ebb` WebGPU job recorded 15 ordinary image failures and two
+aggregate readback failures. Its 16 ordinary lifecycle checks passed; the report's
+18-entry lifecycle/diagnostic list includes the two failed aggregate diagnostics.
+All six direct canvas ID snapshots matched the
+physical CPU oracle across 52,719 samples. Only three of twelve raw GPU copies
+completed: Full2D/32 color passed all unchanged limits and its IDs matched exactly, while
+Full2D/64 color bytes were retained without a physical color oracle. The other
+nine copies timed out, so this is incomplete raw engine-output evidence. Their
+generic deadlines do not distinguish surface acquisition, queued copy,
+error-scope settlement and mapping. Bounded progress capture at each of those
+stages is the next diagnostic change; no specific source fix or larger timeout
+is established by this run alone.
+
+The independent 4×4-pixel clear without Bevy produced `[64,128,191,255]` in
+both mapped GPU bytes and the direct canvas PNG. Its page crop instead showed
+the configured background `[153,68,47,255]`. This reproduces a hosted-browser
+presentation failure independently of the engine, beyond the earlier unproven
+origin inference. It does not turn the failed ordinary scene gate or timed-out
+copies into passing results. The diagnostic does not implement production
+asynchronous game picking or qualify physical devices.
 
 Checkpoint 4 reproduced WebGPU loss on the same device that configured the
 engine canvas, without an observed JavaScript GPUDevice.destroy call. The runner

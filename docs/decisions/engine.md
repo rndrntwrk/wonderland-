@@ -23,7 +23,32 @@ a cross-origin-isolation requirement.
 
 ## What the available comparison establishes
 
-The current published comparison is commit
+The reviewed follow-up is published at
+`d247ebb94d1d4de79247983b4f62fffb7e06427d`, exercised by
+[run 37358255818](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818).
+Its complete reference passed 377 Rust tests, including the 16-test fixture
+suite, and all 18 native/WASM records. Both native engine jobs and the locked
+CPAL/null-stream job also passed. Both Bevy and Fyrox WebGL2 passed all six
+color/physical-ID scenes and lifecycle checks with zero failures. Bevy WebGPU
+remains failed: its ordinary scene images failed and nine of twelve raw GPU
+copies timed out. All six direct engine-canvas ID snapshots passed, and a minimal
+clear reproduced a hosted-browser page-presentation failure without Bevy. Each
+outcome is recorded independently; these
+hosted-software passes do not select a production engine or qualify a device.
+
+This revision corrects the synthetic crowd's unintended physical overlap using
+its full animation footprint, preserves existing source/coplanar regressions,
+and removes fractional host transforms. It also adds a reviewed diagnostic that
+distinguishes engine-texture copies, direct canvas snapshots and page capture.
+The [fixture review](../swarm-c/evidence/fixture-v2-review.json) and
+[readback protocol review](../swarm-c/evidence/gpu-readback-protocol.json) establish
+their local source/ownership behavior. Actual browser evidence is recorded
+separately in the [verification ledger](../swarm-c/VERIFICATION.md).
+The candidate and backend policy remain unselected.
+
+### Previous comparison at f6f78be
+
+The previous published comparison was commit
 `f6f78be1fef247f2db47e19f56d94054f0c9e88c`, exercised by
 [run 37353615543](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543).
 Both native adapters and all three browser variants compiled. Both native
@@ -33,18 +58,18 @@ native/WASM records; locked CPAL tests and actual ALSA-null execution also passe
 These are separate evidence classes, recorded in the
 [verification ledger](../swarm-c/VERIFICATION.md).
 
-| Browser candidate | Current evidence at f6f78be | Selection consequence |
+| Browser candidate | Recorded evidence at f6f78be | Selection consequence |
 |---|---|---|
 | Bevy WebGL2 | All six colors, DPR/resize and lifecycle checks passed. Full2D/64 and Hybrid2D/64 retained 3 physical-ID mismatches each; Full3D ID comparisons passed. | Required exact-ID acceptance remains failed. |
 | Fyrox WebGL2 | All six colors, DPR/resize and lifecycle checks passed. Full2D/64 and Hybrid2D/64 retained 5 and 4 physical-ID mismatches respectively; Full3D ID comparisons passed. | Required exact-ID acceptance remains failed. |
 | Bevy WebGPU | Capture geometry, lifecycle and the separate mapped-pixel diagnostic passed. The runner recorded 15 image failures, with DOM content visible in the measured canvas region. | Clean engine pixel output has not been independently established; image acceptance remains failed. |
 
-All three browser jobs therefore remain failed. Independent review verified all
+All three browser jobs at that revision remain failed. Independent review verified all
 twelve WebGPU crops against the retained full-page PNGs byte-for-byte. Correct
 extraction does not prove correct canvas contents: identical DPR 1 color/pick
 images and page controls at DPR 2 remain unexplained. The earlier origin-error
-inference is unproven, and direct engine-target readback is not yet available to
-isolate the renderer's output. The remaining WebGL2 IDs require diagnosis at
+inference is unproven, and direct engine-target readback was not yet available to
+isolate the renderer's output. The WebGL2 IDs required diagnosis at
 their actual physical pixel grid. Neither a successful lifecycle check nor a
 small mismatch count permits a production choice. No color threshold or exact-ID
 requirement has been relaxed.
@@ -111,10 +136,16 @@ raw evidence.
 
 ## Follow-on implementation and selection record
 
-Resolve the exact-ID discrepancies in both WebGL2 adapters and establish a clean,
-independent observation of the WebGPU engine target. Then rerun the complete
-browser rendering and lifecycle gates with the committed engine/npm locks and
-unchanged acceptance thresholds. Complete C's lighting/material/picking/client
+The `d247ebb` run closes the prior fixture discrepancies for both WebGL2
+adapters, with all six version 2 scenes passing the unchanged color/exact-ID and
+lifecycle gates. It does not prove arbitrary coplanar production scenes.
+Add bounded per-stage progress to the WebGPU raw-copy diagnostic: the current
+deadlines do not identify acquisition, copy submission, validation settlement or
+mapping as the stalled stage. Use that evidence to complete the diagnostic and
+establish passing ordinary scene
+presentation in a supported environment, retaining the independently reproduced
+hosted-browser presentation failure. Use the committed engine/npm locks and unchanged
+acceptance thresholds. Complete C's lighting/material/picking/client
 composition, integrate real provider/content inputs, and run the physical-device
 matrix. These are concrete remaining implementation and acceptance conditions;
 the passed synthetic reference and OS null-audio results do not close them.

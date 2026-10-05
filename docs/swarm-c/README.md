@@ -10,23 +10,31 @@ The branch includes the presentation libraries, a normalized FSOm object adapter
 a CPU thumbnail/day/night facade worker with bounded scheduling, and a continuous
 native audio transport with a separate CPAL device binding. These are concrete
 code paths; complete client composition and acceptance still have separate gates.
-At published commit `f6f78be1fef247f2db47e19f56d94054f0c9e88c`, the expanded
-reference CI passed all 374 Rust package tests, including 13 shared-fixture tests,
-19 browser-audio and five host tests, 11 Python audio tests, 32 unchanged-source
-codec comparisons and all 18 exact native/WASM observations. The genuine pinned-A
-60-tick probe preserved every state hash and ordered event at 30/60/120 Hz.
-The [retained reference evidence](evidence/reference-f6f78be.json) records the
-exact outputs and source/runtime checks.
+The reviewed renderer/fixture follow-up is published at
+`d247ebb94d1d4de79247983b4f62fffb7e06427d`. Its complete reference CI and both
+native engine jobs passed. The reference job passed 377 Rust package tests,
+including 16 fixture tests, plus 19 Node audio, six host, six readback-protocol
+and 11 Python audio tests. All 32 unchanged-source codec comparisons matched
+complete WAV bytes. All 18 complete native/WASM observations matched, and
+the genuine pinned-A 60-tick probe preserved every state hash and ordered event
+at 30/60/120 Hz. The [retained reference evidence](evidence/reference-d247ebb.json)
+records the exact outputs and source/runtime checks.
 
-All five engine variants built, and both native software-renderer jobs passed
-at this commit, including nine Bevy and twelve Fyrox tests. All three browser
-jobs failed their image gates. Both WebGL2 variants passed all six color cases
-and lifecycle checks but retained a few exact-ID mismatches; WebGPU passed
-lifecycle and capture-geometry checks while its recorded images contained page
-controls and did not establish correct engine output.
-The separate native-audio job passed locked CPAL
-compilation, four configuration tests and the OS ALSA-null stream; its
-[retained evidence](evidence/native-audio-f6f78be.json) includes the actual callback
+Fixture version 2 uses the measured full-cycle avatar footprint to prevent
+unintended overlap in the synthetic crowd. It retains the same lot/camera,
+32/64 counts, depth laws and exact-ID criterion. Integral host layout and the
+new WebGPU engine/canvas/page readback diagnostic address the earlier measurement
+questions. Both Bevy and Fyrox WebGL2 passed all six color and physical-ID scenes
+plus the full lifecycle gate. Bevy WebGPU remains failed: a minimal test reproduced
+a browser presentation failure without Bevy, while all six direct engine-canvas
+ID snapshots passed. Its raw GPU copy diagnostic also remains incomplete. The
+retained [engine evidence](evidence/engines-d247ebb.json) distinguishes those
+results; the ledger preserves the three failed `f6f78be`
+browser jobs. Hosted software results do not qualify physical GPUs.
+
+The separate native-audio job passed locked CPAL compilation, four configuration
+tests and the OS ALSA-null stream; its
+[retained evidence](evidence/native-audio-d247ebb.json) includes the actual callback
 results. Browser parity, complete client composition, real-provider/content
 coverage and physical-device acceptance remain open. The commit-specific
 [verification ledger](VERIFICATION.md) retains the successful evidence and the
@@ -49,7 +57,7 @@ The five libraries, fixture/replay packages, native audio transport and facade
 worker have independent Rust 1.75 workspaces. Engine adapters and the isolated
 CPAL device CI use Rust 1.95.0; their dependencies do not enter the authoritative
 simulation graph. CPAL's actual ALSA-null execution passed in
-[job 111910340211](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340211).
+[job 111926069292](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818/job/111926069292).
 Use its retained dependency lock for subsequent locked runs. Physical speakers,
 device unplug/reopen and production-load qualification remain separate gates.
 

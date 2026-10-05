@@ -106,8 +106,8 @@ a transient 24-bit index into `idMap`; its paired game object ID and generation
 are the authoritative identity. Engine entity/node/asset handles stay private.
 
 **Selection currently uses the CPU reference and generation-checked tickets.**
-`setPass('pick')` is the actual engine shader ID visualization path, but asynchronous
-GPU ID readback remains pending. The browser gate reads the actual ID visualization
+`setPass('pick')` is the actual engine shader ID visualization path, but production
+selection from asynchronous GPU ID readback remains unimplemented. The browser gate reads the actual ID visualization
 screenshot and compares its stable interior bytes with the independent CPU reference.
 Bevy uses `CompositingSpace::Srgb`, and Fyrox draws in a custom LDR pass after tone
 mapping and FXAA. Both paths blend source-encoded, premultiplied colors in source
@@ -197,15 +197,20 @@ guard. The coordinated checkpoint `809ec200e186871970b2e4cabb06d7f6c08ecd9e`
 contains those compiler, system-library and packaging corrections. Its next CI
 run succeeded for both native jobs and all three WASM builds. Both WebGL2 browser
 runs then stopped at strict screenshot dimensions, while WebGPU readiness timed
-out. The source-space compositing, custom LDR, capture-alignment and bootstrap
-changes require a fresh engine/browser run. No renderer or physical-device
-qualification is implied.
+out. Later source-space compositing, custom LDR, capture-alignment and bootstrap
+changes and their actual outcomes are retained in the
+[verification ledger](../../docs/swarm-c/VERIFICATION.md). These historical
+results do not imply physical-device qualification.
 
 The gate calls alignForCapture(), measures the document and canvas together,
 and retains a full-page PNG before extracting the exact canvas rectangle with
 integer row copies. It checks document dimensions, canvas bounds and layout
-stability across the capture. This avoids the incorrect element-capture origin
-observed with Chromium's headless Vulkan compositor. Color captures remain
+stability across the capture. Independent review at `f6f78be` verified all twelve
+WebGPU crops as exact byte extraction from retained full-page PNGs. The captured
+content still contained page controls and identical color/pick images in some
+cases. That observation does not prove that Chromium ignored the requested
+origin: correctly located canvas contents could themselves be malformed.
+Color captures remain
 640 by 480 CSS pixels with unchanged error limits. ID captures use physical
 device pixels, match both the actual backing store and a separately rasterized
 640 by 480 or 1280 by 960 CPU reference, and never resample encoded IDs.
@@ -218,9 +223,31 @@ ran all three browser backends. Bevy and Fyrox WebGL2 passed all six color check
 both DPR/resize checks, and the lifecycle checks. Their remaining one and three
 ID mismatches respectively were in CSS-downsampled DPR2 captures. Bevy WebGPU
 reached readiness, completed lifecycle checks and passed the separate mapped-pixel
-diagnostic; its scene screenshots captured the page origin, so color/ID parity
-remains unverified. The corrected capture path still requires a new browser run.
-No physical-device or performance qualification follows from software graphics.
+diagnostic; its captured scene content included page controls where fixture
+output was expected. The root cause was not established, and those image failures
+remain recorded as failures.
+
+The reviewed correction is published at `d247ebb`. It uses fixture version 2's
+full-cycle avatar footprint to remove unintended neighboring-mesh overlap,
+integral host layout without compositor transforms, and a diagnostic that
+compares actual engine-texture copies, direct canvas snapshots and page capture.
+Ordinary scene screenshots are retained before enabling diagnostic `COPY_SRC`;
+validation errors, timeouts and partial failures cannot count as successful
+engine readbacks. Local protocol tests exercise mocks and actual host functions,
+so they do not establish GPU pixel parity by themselves.
+
+At that revision, the complete reference, both native engines and locked
+CPAL/ALSA-null jobs passed. Both Bevy and Fyrox WebGL2 passed all six version 2
+color/physical-ID scenes and lifecycle checks with zero failures and unchanged
+thresholds. Bevy WebGPU remains failed: all six direct canvas ID snapshots
+matched the oracle, but only three of twelve raw GPU copies completed and the
+ordinary scene captures failed. An independent minimal clear produced correct
+mapped/canvas pixels but page-background pixels in its screenshot, reproducing
+a hosted-browser presentation failure without Bevy. Those distinct observations
+do not convert the failed ordinary gate or timed-out copies into success.
+The prior counterexample and coplanar regressions remain; the fixture correction
+does not prove arbitrary coplanar production-scene agreement. No physical-device
+or performance qualification follows from hosted software graphics.
 
 Bootstrap events are available in the snapshot and emitted as
 WONDERLAND_BOOTSTRAP records. WONDERLAND_PHASE records identify capture and
