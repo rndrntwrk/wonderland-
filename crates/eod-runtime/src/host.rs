@@ -5,6 +5,7 @@
 //! trusted integrations; no client-provided actor or recipient is authoritative.
 
 use crate::{
+    games::SharedGame,
     persistence::{Binding, BindingStatus, WriteRecord, *},
     protocol::{self, PrivateBody},
     registry::{self, RuntimeStatus},
@@ -137,13 +138,28 @@ pub struct PluginConnectRequest {
 #[derive(Clone)]
 pub(crate) enum HandlerState {
     Timer(Timer),
-    DanceFloor { avatar_object: i16 },
+    DanceFloor {
+        avatar_object: i16,
+    },
     Signs(Signs),
     Scoreboard(Scoreboard),
     PermissionDoor(PermissionDoor),
+    GameParticipant {
+        game: InstanceId,
+        slot: u8,
+        avatar_object: i16,
+    },
 }
 
 impl HandlerState {
+    pub(crate) fn avatar_object(&self) -> Option<i16> {
+        match self {
+            Self::DanceFloor { avatar_object } | Self::GameParticipant { avatar_object, .. } => {
+                Some(*avatar_object)
+            }
+            _ => None,
+        }
+    }
     pub(crate) fn load(&mut self, bytes: Option<&[u8]>) -> Result<Actions, SourceError> {
         match self {
             Self::Signs(state) => state.load(bytes),
@@ -207,6 +223,7 @@ pub(crate) struct State {
     pub(crate) next_write: u64,
     pub(crate) instances: BTreeMap<InstanceId, Instance>,
     pub(crate) controllers: BTreeMap<InstanceId, DanceController>,
+    pub(crate) games: BTreeMap<InstanceId, SharedGame>,
     pub(crate) writes: BTreeMap<PluginWriteId, WriteRecord>,
     pub(crate) public: Vec<PublicVmEvent>,
     pub(crate) private: Vec<QueuedPrivate>,
@@ -247,6 +264,7 @@ impl NativeHost {
                 next_write: 1,
                 instances: BTreeMap::new(),
                 controllers: BTreeMap::new(),
+                games: BTreeMap::new(),
                 writes: BTreeMap::new(),
                 public: vec![],
                 private: vec![],
@@ -302,10 +320,12 @@ impl NativeHost {
                 if avatar_object <= 0 {
                     return Err(Error::InvalidIdentity);
                 }
-                if self.state.instances.values().any(|instance| {
-                    matches!(instance.handler,
-                    HandlerState::DanceFloor { avatar_object: other } if other == avatar_object)
-                }) {
+                if self
+                    .state
+                    .instances
+                    .values()
+                    .any(|instance| instance.handler.avatar_object() == Some(avatar_object))
+                {
                     return Err(Error::ParticipantAlreadyConnected);
                 }
                 (
@@ -405,6 +425,11 @@ impl NativeHost {
             .controllers
             .values()
             .any(|controller| controller.invoker == invoker)
+            || self
+                .state
+                .games
+                .values()
+                .any(|game| game.invoker == invoker)
         {
             return Err(Error::ParticipantAlreadyConnected);
         }
@@ -469,8 +494,9 @@ impl NativeHost {
         Ok(ticket)
     }
 
-    fn check_capacity(&self, timer: bool) -> Result<(), Error> {
-        let participants = self.state.instances.len() + self.state.controllers.len();
+    pub(crate) fn check_capacity(&self, timer: bool) -> Result<(), Error> {
+        let participants =
+            self.state.instances.len() + self.state.controllers.len() + self.state.games.len();
         if participants >= self.limits.max_participants {
             return Err(Error::ParticipantLimit);
         }
@@ -484,6 +510,7 @@ impl NativeHost {
                 .values()
                 .filter(|instance| matches!(instance.handler, HandlerState::Timer(_)))
                 .count()
+                + self.state.games.len()
                 >= self.limits.max_timers
         {
             return Err(Error::TimerLimit);
@@ -519,6 +546,11 @@ impl NativeHost {
                 .instances
                 .values()
                 .any(|instance| instance.participant.invoker == invoker)
+            || self
+                .state
+                .games
+                .values()
+                .any(|game| game.invoker == invoker)
         {
             return Err(Error::ParticipantAlreadyConnected);
         }
@@ -661,6 +693,11 @@ impl NativeHost {
                 "dance_show",
                 PrivateBody::Text(String::new()),
             ),
+            HandlerState::GameParticipant { .. } => {
+                next.instances.insert(instance_id, instance.clone());
+                crate::game_host::rebind_outputs(&mut next, self.identity, instance_id)?;
+                next.instances.remove(&instance_id);
+            }
             handler => {
                 let actions = match handler {
                     HandlerState::Signs(state) => state.rebind(),
@@ -741,8 +778,10 @@ impl NativeHost {
             .ok_or(Error::StaleSession)?;
         if message.event == "Timer_Close"
             || (message.plugin == registry::DANCE_FLOOR_PLUGIN && message.event == "close")
+            || (message.plugin == registry::PAPER_CHASE_PLUGIN && message.event == "close")
         {
             close_instance(&mut next, &instance, message.ticket);
+            crate::game_host::participant_left(&mut next, self.identity, &instance)?;
             self.commit(next)?;
             return Ok(DispatchOutcome::Closed);
         }
@@ -778,6 +817,18 @@ impl NativeHost {
                         avatar_object: *avatar_object,
                     });
                 }
+            }
+            HandlerState::GameParticipant { .. } => {
+                next.instances
+                    .insert(message.ticket.instance, instance.clone());
+                crate::game_host::receive_message(
+                    &mut next,
+                    self.identity,
+                    message.ticket.instance,
+                    message.event,
+                    message.payload.bytes(),
+                )?;
+                next.instances.remove(&message.ticket.instance);
             }
             handler => {
                 let mut actions =
@@ -865,6 +916,16 @@ impl NativeHost {
     pub fn disconnect_invoker(&mut self, invoker: InvokerId) -> Result<(), Error> {
         if let Some(id) = self
             .state
+            .games
+            .iter()
+            .find_map(|(id, game)| (game.invoker == invoker).then_some(*id))
+        {
+            let mut next = self.state.clone();
+            crate::game_host::shutdown(&mut next, self.identity, id)?;
+            return self.commit(next);
+        }
+        if let Some(id) = self
+            .state
             .controllers
             .iter()
             .find_map(|(id, controller)| (controller.invoker == invoker).then_some(*id))
@@ -904,7 +965,9 @@ impl NativeHost {
         });
         let ids: Vec<_> = next.instances.keys().copied().collect();
         for id in ids {
-            let mut instance = next.instances.remove(&id).ok_or(Error::StaleSession)?;
+            let Some(mut instance) = next.instances.remove(&id) else {
+                continue;
+            };
             let participant = &instance.participant;
             let ticket = SessionTicket {
                 host_scope: self.identity.scope,
@@ -921,6 +984,7 @@ impl NativeHost {
             });
             if next.tick >= deadline || revoked {
                 close_instance(&mut next, &instance, ticket);
+                crate::game_host::participant_left(&mut next, self.identity, &instance)?;
                 // Authentication revocation never keeps a UI payload queued for that transport.
                 if revoked {
                     next.private
@@ -936,7 +1000,7 @@ impl NativeHost {
                             let output = timer.tick(values);
                             push_outputs(&mut next, &instance, ticket, output);
                         }
-                        HandlerState::DanceFloor { .. } => {}
+                        HandlerState::DanceFloor { .. } | HandlerState::GameParticipant { .. } => {}
                         handler
                             if instance
                                 .persistence
@@ -957,6 +1021,7 @@ impl NativeHost {
                 next.instances.insert(id, instance);
             }
         }
+        crate::game_host::tick_games(&mut next, self.identity)?;
         self.commit(next)
     }
 
@@ -1000,6 +1065,7 @@ impl NativeHost {
             .remove(&ticket.instance)
             .ok_or(Error::StaleSession)?;
         close_instance(&mut next, &instance, ticket);
+        crate::game_host::participant_left(&mut next, self.identity, &instance)?;
         self.commit(next)
     }
 
@@ -1262,7 +1328,7 @@ impl NativeHost {
     }
 }
 
-fn authenticate(
+pub(crate) fn authenticate(
     authority: &impl ConnectionAuthority,
     connection: ConnectionId,
 ) -> Result<ActorId, Error> {
@@ -1305,6 +1371,18 @@ fn event_allowed(plugin: PluginId, event: &str, payload: WirePayload<'_>) -> boo
                 "close" | "set_code" | "set_state" | "set_fee" | "set_flags" | "try_code",
                 WirePayload::Text(_)
             )
+        ),
+        registry::PAPER_CHASE_PLUGIN => matches!(
+            (event, payload),
+            ("close" | "paperchase_chooseletter", WirePayload::Text(_))
+        ),
+        registry::PIZZA_MAKER_PLUGIN => matches!(
+            (event, payload),
+            ("close" | "ingredient", WirePayload::Text(_))
+        ),
+        registry::MAZE_PLUGIN => matches!(
+            (event, payload),
+            ("TSOMaze_Button_Click", WirePayload::Binary(_))
         ),
         _ => false,
     }
@@ -1386,7 +1464,7 @@ fn queue_persistence(
     Ok(())
 }
 
-fn push_private(
+pub(crate) fn push_private(
     state: &mut State,
     instance: &Instance,
     ticket: SessionTicket,
@@ -1429,7 +1507,7 @@ fn push_outputs(
     }
 }
 
-fn close_instance(state: &mut State, instance: &Instance, ticket: SessionTicket) {
+pub(crate) fn close_instance(state: &mut State, instance: &Instance, ticket: SessionTicket) {
     state
         .private
         .retain(|queued| queued.message.ticket != ticket);

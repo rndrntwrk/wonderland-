@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
   "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
-  "evidence_kind": "static-source-registration-census; synthetic source-derived native tests only",
+  "evidence_kind": "static-source-registration-census; source-derived native tests; separate existing-five original-handler component oracle",
   "server_registrations": 30,
   "ui_registrations": 28,
-  "source_translated_native_handlers": 5,
+  "source_translated_native_handlers": 8,
   "original_runtime_verified_handlers": 0,
   "production_provider_verified_handlers": 0,
   "entries": [
@@ -622,18 +622,16 @@
           "sha256": "9246d59b7dd4365ddd31972ab5f768d3d175123f1ddf8d1eb0b0a633f4ec4ab0"
         }
       },
-      "runtime_status": "unsupported-unverified",
-      "production_provider_verification": "unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "not-required-by-translated-handler",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-3-detached-game-and-seats",
       "remaining_leaf_ids": [
         "EOD-4A245A22-SOURCE-TRACE",
-        "EOD-4A245A22-RECOVERY",
-        "EOD-4A245A22-NATIVE",
-        "EOD-4A245A22-PROVIDER"
+        "EOD-4A245A22-RECOVERY"
       ],
-      "prerequisites": "maze RNG, two-role lobby, movement/timing and object-event traces"
+      "prerequisites": "original C# handler/UI traces separating two native RNG streams and named phase guards, authoritative VM adapter and private restart rehearsal"
     },
     {
       "id": 1247537323,
@@ -1026,18 +1024,16 @@
           "sha256": "449bcca532e2514cc7088d4761c318d9bbd528bec78f167dd52296fa2027845b"
         }
       },
-      "runtime_status": "unsupported-unverified",
-      "production_provider_verification": "unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "not-required-by-translated-handler",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-3-detached-game-and-seats",
       "remaining_leaf_ids": [
         "EOD-CA418206-SOURCE-TRACE",
-        "EOD-CA418206-RECOVERY",
-        "EOD-CA418206-NATIVE",
-        "EOD-CA418206-PROVIDER"
+        "EOD-CA418206-RECOVERY"
       ],
-      "prerequisites": "three-player lobby, private combination RNG, round timing and object-event traces"
+      "prerequisites": "original C# handler/UI traces separating native RNG policy, authoritative VM adapter and private restart rehearsal"
     },
     {
       "id": 3408402891,
@@ -1182,18 +1178,16 @@
           "sha256": "c13612d40e827ded07fe97b8a0e72792b99dbb670c6e218f8c5de6f3b7f10230"
         }
       },
-      "runtime_status": "unsupported-unverified",
-      "production_provider_verification": "unverified",
+      "runtime_status": "source-translated-native",
+      "production_provider_verification": "not-required-by-translated-handler",
       "original_runtime_verification": "unverified",
       "ui_runtime_verification": "unverified",
-      "recovery_policy": "abort-and-reconcile-reservations-through-provider-before-enabling",
+      "recovery_policy": "restore-private-format-3-detached-game-and-seats",
       "remaining_leaf_ids": [
         "EOD-EA47AE39-SOURCE-TRACE",
-        "EOD-EA47AE39-RECOVERY",
-        "EOD-EA47AE39-NATIVE",
-        "EOD-EA47AE39-PROVIDER"
+        "EOD-EA47AE39-RECOVERY"
       ],
-      "prerequisites": "four-player lobby, ingredient/oven state, timing and object-event traces"
+      "prerequisites": "original C# handler/UI traces separating native RNG policy, authoritative VM adapter and private restart rehearsal"
     },
     {
       "id": 3965048581,

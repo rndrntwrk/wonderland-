@@ -1,0 +1,2526 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "timer_raw_casts_and_bounds",
+      "plugin": "timer",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "timer",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,257,300,-1"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_State_Change",
+          "01"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_State_Change",
+          "01"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_Set",
+          "633bde"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_Set",
+          "-"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_Set",
+          "01"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_Set",
+          "643b"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_Set",
+          "633c"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_State_Change",
+          "02"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "02"
+        ],
+        [
+          "text",
+          "alice",
+          "Timer_Close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 1,
+          "channel": "ui",
+          "equals": [
+            [
+              "aa65fe9e",
+              "text",
+              "eod_enter",
+              "-"
+            ],
+            [
+              "aa65fe9e",
+              "binary",
+              "Timer_Show",
+              "02012cff"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 4,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "2",
+              "25403"
+            ]
+          ]
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 11,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "timer_stopped_refresh_fifth_tick",
+      "plugin": "timer",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "timer",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,8,9"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "01"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "00"
+        ],
+        [
+          "registers",
+          "alice",
+          "0,0,1,7"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "tick",
+          "3"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "Timer_Close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "0",
+              "-"
+            ]
+          ]
+        },
+        {
+          "step": 6,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 7,
+          "channel": "ui",
+          "equals": [
+            [
+              "aa65fe9e",
+              "text",
+              "Timer_Update",
+              "313a37"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 8,
+          "channel": "ui",
+          "equals": {}
+        }
+      ]
+    },
+    {
+      "name": "timer_stale_tock_requires_running_tick",
+      "plugin": "timer",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "timer",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,8,9"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "01"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "00"
+        ],
+        [
+          "tick",
+          "5"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "01"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "00"
+        ],
+        [
+          "registers",
+          "alice",
+          "0,0,1,7"
+        ],
+        [
+          "tick",
+          "6"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "01"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "00"
+        ],
+        [
+          "tick",
+          "5"
+        ],
+        [
+          "text",
+          "alice",
+          "Timer_Close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 8,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 8,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 12,
+          "channel": "ui",
+          "equals": [
+            [
+              "aa65fe9e",
+              "text",
+              "Timer_Update",
+              "313a37"
+            ]
+          ],
+          "recipient": "1001"
+        }
+      ]
+    },
+    {
+      "name": "timer_countdown_off_before_update",
+      "plugin": "timer",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "timer",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "1,0,0,1"
+        ],
+        [
+          "registers",
+          "alice",
+          "1,0,0,0"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "Timer_Close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 3,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 3,
+          "channel": "ui",
+          "equals": [
+            [
+              "aa65fe9e",
+              "binary",
+              "Timer_Off",
+              "00"
+            ],
+            [
+              "aa65fe9e",
+              "text",
+              "Timer_Update",
+              "303a30"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": {}
+        }
+      ]
+    },
+    {
+      "name": "timer_already_running_pause_skips_refresh",
+      "plugin": "timer",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "timer",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "1,0,1,2"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_IsRunning_Change",
+          "00"
+        ],
+        [
+          "tick",
+          "6"
+        ],
+        [
+          "text",
+          "alice",
+          "Timer_Close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 3,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 3,
+          "channel": "ui",
+          "equals": {}
+        }
+      ]
+    },
+    {
+      "name": "timer_stopwatch_zero_waits_for_mode_change",
+      "plugin": "timer",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "timer",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "1,1,0,0"
+        ],
+        [
+          "tick",
+          "2"
+        ],
+        [
+          "binary",
+          "alice",
+          "Timer_State_Change",
+          "00"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "Timer_Close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 2,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "aa65fe9e",
+              "binary",
+              "Timer_Off",
+              "00"
+            ],
+            [
+              "aa65fe9e",
+              "text",
+              "Timer_Update",
+              "303a30"
+            ]
+          ],
+          "recipient": "1001"
+        }
+      ]
+    },
+    {
+      "name": "dance_private_recipients_controller_and_departure",
+      "plugin": "dance",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "controller",
+          "floor",
+          "700",
+          "700"
+        ],
+        [
+          "connect",
+          "alice",
+          "dance",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "connect",
+          "bob",
+          "dance",
+          "700",
+          "0",
+          "102",
+          "1002",
+          "2002",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "31"
+        ],
+        [
+          "text",
+          "bob",
+          "press_button",
+          "323535"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "202b323520"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "32350000"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "323536"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "2d31"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "312c32303032"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "3235c2a0"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ],
+        [
+          "text",
+          "bob",
+          "press_button",
+          "37"
+        ],
+        [
+          "disconnect",
+          "floor"
+        ],
+        [
+          "text",
+          "bob",
+          "press_button",
+          "38"
+        ],
+        [
+          "text",
+          "bob",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 2,
+          "channel": "ui",
+          "equals": [
+            [
+              "4a5be8ab",
+              "text",
+              "eod_enter",
+              "-"
+            ],
+            [
+              "4a5be8ab",
+              "text",
+              "dance_show",
+              "-"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 4,
+          "channel": "vm",
+          "equals": [
+            [
+              "700",
+              "1",
+              "2001"
+            ]
+          ]
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "700",
+              "255",
+              "2002"
+            ]
+          ]
+        },
+        {
+          "step": 15,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 15,
+          "channel": "ui",
+          "equals": {}
+        }
+      ]
+    },
+    {
+      "name": "dance_no_controller_has_no_button_effect",
+      "plugin": "dance",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "dance",
+          "700",
+          "0",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "text",
+          "alice",
+          "press_button",
+          "35"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 2,
+          "channel": "vm",
+          "equals": []
+        }
+      ]
+    },
+    {
+      "name": "signs_roommate_defaults_write_preserves_flags",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "1",
+          "0",
+          "1,16,0,0"
+        ],
+        [
+          "tick",
+          "2"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f000568656c6c6f"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f0000"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 2,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 3,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "2a6356a0",
+              "text",
+              "signs_init",
+              "310a3136"
+            ],
+            [
+              "2a6356a0",
+              "binary",
+              "signs_show",
+              "0f0000"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "78",
+              "2a6356a0",
+              "0f000568656c6c6f"
+            ]
+          ]
+        },
+        {
+          "step": 6,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "0"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "signs_visitor_read_rejects_write",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "signs",
+          "78",
+          "050006736563726574"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "1,16,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f00076368616e676564"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "2a6356a0",
+              "text",
+              "signs_init",
+              "320a3136"
+            ],
+            [
+              "2a6356a0",
+              "binary",
+              "signs_show",
+              "050006736563726574"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": []
+        }
+      ]
+    },
+    {
+      "name": "signs_read_denial_keeps_write_mode_quirk",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "signs",
+          "78",
+          "200006736563726574"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,16,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f00046e657874"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ],
+        [
+          "connect",
+          "again",
+          "signs",
+          "700",
+          "78",
+          "102",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "1,16,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "again",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "2a6356a0",
+              "text",
+              "signs_init",
+              "310a3136"
+            ],
+            [
+              "2a6356a0",
+              "binary",
+              "signs_show",
+              "200000"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "78",
+              "2a6356a0",
+              "2000046e657874"
+            ]
+          ]
+        },
+        {
+          "step": 9,
+          "channel": "ui",
+          "equals": [
+            [
+              "2a6356a0",
+              "text",
+              "signs_init",
+              "310a3136"
+            ],
+            [
+              "2a6356a0",
+              "binary",
+              "signs_show",
+              "200000"
+            ]
+          ],
+          "recipient": "1001"
+        }
+      ]
+    },
+    {
+      "name": "signs_owner_utf16_and_trailing_bytes",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "3",
+          "1",
+          "3,3,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f000641f09f98807a"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "090001510708"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "-"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f0080"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f0000"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "78",
+              "2a6356a0",
+              "3f000541f09f9880"
+            ]
+          ]
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "78",
+              "2a6356a0",
+              "09000151"
+            ]
+          ]
+        },
+        {
+          "step": 6,
+          "channel": "provider",
+          "equals": []
+        },
+        {
+          "step": 7,
+          "channel": "vm",
+          "equals": []
+        }
+      ]
+    },
+    {
+      "name": "signs_owner_zero_limit_and_long_length_prefix",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "signs",
+          "78",
+          "0f00820178787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "3",
+          "1",
+          "4,0,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "binary",
+          "alice",
+          "set_message",
+          "3f00086e6f6e656d707479"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "0"
+            ]
+          ]
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "78",
+              "2a6356a0",
+              "3f0000"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoreboard_async_load_numeric_and_enum_parsing",
+      "plugin": "scoreboard",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "scoreboard",
+          "700",
+          "77",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "tick",
+          "2"
+        ],
+        [
+          "release"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "4c48532c39393939"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatescore",
+          "4c48532c3332373637"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatecolor",
+          "5248532c507572706c65"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatecolor",
+          "5248532c323535"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "3235352c34"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatecolor",
+          "3235352c526564"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "6c68732c34"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "4c48532c3332373638"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "4c48532c312c32"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatecolor",
+          "5248532c323536"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "c2a04c4853c2a02c202b32342000"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 1,
+          "channel": "ui",
+          "equals": [
+            [
+              "0949e698",
+              "text",
+              "eod_enter",
+              "-"
+            ],
+            [
+              "0949e698",
+              "text",
+              "scoreboard_show",
+              "-"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 2,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 3,
+          "channel": "ui",
+          "equals": [
+            [
+              "0949e698",
+              "binary",
+              "scoreboard_state",
+              "000100000000"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 4,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "999"
+            ]
+          ]
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "0"
+            ]
+          ]
+        },
+        {
+          "step": 6,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 7,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "4",
+              "255"
+            ]
+          ]
+        },
+        {
+          "step": 8,
+          "channel": "vm",
+          "equals": []
+        },
+        {
+          "step": 8,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "77",
+              "0949e698",
+              "00ff00000000"
+            ]
+          ]
+        },
+        {
+          "step": 9,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 14,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "24"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoreboard_loaded_extremes_wrap_and_tails",
+      "plugin": "scoreboard",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "scoreboard",
+          "77",
+          "ff07ff7f0080aabb"
+        ],
+        [
+          "connect",
+          "alice",
+          "scoreboard",
+          "700",
+          "77",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatescore",
+          "4c48532c31"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "5248532c2d31"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 3,
+          "channel": "ui",
+          "equals": [
+            [
+              "0949e698",
+              "binary",
+              "scoreboard_state",
+              "ff07ff7f0080"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 4,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "0"
+            ]
+          ]
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "77",
+              "0949e698",
+              "ff0700000000"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoreboard_saved_state_reopens",
+      "plugin": "scoreboard",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "scoreboard",
+          "700",
+          "77",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_setscore",
+          "5248532c3237"
+        ],
+        [
+          "text",
+          "alice",
+          "scoreboard_updatecolor",
+          "4c48532c477265656e"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ],
+        [
+          "connect",
+          "again",
+          "scoreboard",
+          "700",
+          "77",
+          "102",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "text",
+          "again",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 7,
+          "channel": "ui",
+          "equals": [
+            [
+              "0949e698",
+              "binary",
+              "scoreboard_state",
+              "030100001b00"
+            ]
+          ],
+          "recipient": "1001"
+        }
+      ]
+    },
+    {
+      "name": "door_editor_bounds_cache_and_reopen",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "31323334"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "3",
+          "1",
+          "0,200,1,20,252"
+        ],
+        [
+          "tick",
+          "2"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "set_code",
+          "202b3938373620"
+        ],
+        [
+          "text",
+          "alice",
+          "set_state",
+          "32"
+        ],
+        [
+          "text",
+          "alice",
+          "set_state",
+          "33"
+        ],
+        [
+          "text",
+          "alice",
+          "set_fee",
+          "323030"
+        ],
+        [
+          "text",
+          "alice",
+          "set_fee",
+          "323031"
+        ],
+        [
+          "text",
+          "alice",
+          "set_flags",
+          "3635353335"
+        ],
+        [
+          "text",
+          "alice",
+          "set_flags",
+          "2d31"
+        ],
+        [
+          "text",
+          "alice",
+          "set_code",
+          "31303030303030303030"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ],
+        [
+          "connect",
+          "again",
+          "door",
+          "700",
+          "79",
+          "102",
+          "1001",
+          "2001",
+          "3",
+          "1",
+          "0,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "again",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 3,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 5,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "300a3230300a310a32300a323532"
+            ],
+            [
+              "0a69f29f",
+              "text",
+              "door_code",
+              "31323334"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 6,
+          "channel": "ui",
+          "equals": {}
+        },
+        {
+          "step": 6,
+          "channel": "provider",
+          "equals": [
+            [
+              "save",
+              "79",
+              "0a69f29f",
+              "39383736"
+            ]
+          ]
+        },
+        {
+          "step": 11,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "4",
+              "252"
+            ]
+          ]
+        },
+        {
+          "step": 14,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "1",
+              "-"
+            ],
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        },
+        {
+          "step": 17,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "300a3230300a310a32300a323532"
+            ],
+            [
+              "0a69f29f",
+              "text",
+              "door_code",
+              "39383736"
+            ]
+          ],
+          "recipient": "1001"
+        }
+      ]
+    },
+    {
+      "name": "door_view_hides_code_and_ignores_edits",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "31323334"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "1,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "set_code",
+          "35363738"
+        ],
+        [
+          "text",
+          "alice",
+          "set_state",
+          "32"
+        ],
+        [
+          "text",
+          "alice",
+          "set_fee",
+          "313030"
+        ],
+        [
+          "text",
+          "alice",
+          "set_flags",
+          "30"
+        ],
+        [
+          "text",
+          "alice",
+          "try_code",
+          "31323334"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "310a3230300a310a32300a323532"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": []
+        },
+        {
+          "step": 10,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "door_code_input_matching",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "31323334"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "try_code",
+          "31323334"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "320a3230300a310a32300a323532"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "7",
+              "1"
+            ],
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "door_code_input_wrong",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "31323334"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "try_code",
+          "31323335"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "320a3230300a310a32300a323532"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "7",
+              "0"
+            ],
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "door_code_input_malformed",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "31323334"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "try_code",
+          "2d31"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "320a3230300a310a32300a323532"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "door_code_input_before_init_closes",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,200,1,20,252"
+        ],
+        [
+          "text",
+          "alice",
+          "try_code",
+          "30"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 2,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        },
+        {
+          "step": 2,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "eod_leave",
+              "-"
+            ]
+          ],
+          "recipient": "1001"
+        }
+      ]
+    },
+    {
+      "name": "door_corrupt_decimal_load_defaults_to_zero",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "ff3432"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "2,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "try_code",
+          "30"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 5,
+          "channel": "vm",
+          "equals": [
+            [
+              "101",
+              "7",
+              "1"
+            ],
+            [
+              "101",
+              "-1",
+              "-"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "door_uint32_persist_value_exceeds_edit_limit",
+      "plugin": "door",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "door",
+          "79",
+          "34323934393637323935"
+        ],
+        [
+          "connect",
+          "alice",
+          "door",
+          "700",
+          "79",
+          "101",
+          "1001",
+          "2001",
+          "3",
+          "1",
+          "0,200,1,20,252"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "text",
+          "alice",
+          "set_code",
+          "34323934393637323935"
+        ],
+        [
+          "text",
+          "alice",
+          "close",
+          "-"
+        ]
+      ],
+      "assertions": [
+        {
+          "step": 4,
+          "channel": "ui",
+          "equals": [
+            [
+              "0a69f29f",
+              "text",
+              "door_init",
+              "300a3230300a310a32300a323532"
+            ],
+            [
+              "0a69f29f",
+              "text",
+              "door_code",
+              "34323934393637323935"
+            ]
+          ],
+          "recipient": "1001"
+        },
+        {
+          "step": 5,
+          "channel": "provider",
+          "equals": []
+        }
+      ]
+    },
+    {
+      "name": "policy_signs_preinitialization_write",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,10,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "policy_binary",
+          "alice",
+          "set_message",
+          "3f000158"
+        ]
+      ],
+      "differences": {
+        "3": {
+          "source": {
+            "vm": [
+              [
+                "101",
+                "1",
+                "1"
+              ]
+            ],
+            "provider": [
+              [
+                "save",
+                "78",
+                "2a6356a0",
+                "3f000158"
+              ]
+            ]
+          },
+          "native": {
+            "errors": [
+              "PluginNotReady"
+            ]
+          }
+        }
+      },
+      "policy": "signs_preinitialization_permission_race_rejected"
+    },
+    {
+      "name": "policy_signs_invalid_utf8",
+      "plugin": "signs",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "connect",
+          "alice",
+          "signs",
+          "700",
+          "78",
+          "101",
+          "1001",
+          "2001",
+          "3",
+          "1",
+          "4,10,0,0"
+        ],
+        [
+          "release"
+        ],
+        [
+          "tick",
+          "1"
+        ],
+        [
+          "policy_binary",
+          "alice",
+          "set_message",
+          "3f0001ff"
+        ]
+      ],
+      "differences": {
+        "4": {
+          "source": {
+            "vm": [
+              [
+                "101",
+                "1",
+                "1"
+              ]
+            ],
+            "provider": [
+              [
+                "save",
+                "78",
+                "2a6356a0",
+                "3f0003efbfbd"
+              ]
+            ]
+          },
+          "native": {}
+        }
+      },
+      "policy": "signs_invalid_utf8_rejected_instead_of_replacement_decode"
+    },
+    {
+      "name": "policy_malformed_provider_record",
+      "plugin": "scoreboard",
+      "steps": [
+        [
+          "reset"
+        ],
+        [
+          "seed",
+          "scoreboard",
+          "77",
+          "00"
+        ],
+        [
+          "connect",
+          "alice",
+          "scoreboard",
+          "700",
+          "77",
+          "101",
+          "1001",
+          "2001",
+          "0",
+          "0",
+          "0,0,0,0"
+        ],
+        [
+          "policy_release"
+        ]
+      ],
+      "differences": {
+        "3": {
+          "source": {
+            "provider": [
+              [
+                "result",
+                "77",
+                "0949e698",
+                "1",
+                "00"
+              ]
+            ],
+            "errors": [
+              "EndOfStreamException"
+            ]
+          },
+          "native": {
+            "provider": [
+              [
+                "result",
+                "77",
+                "0949e698",
+                "1",
+                "00"
+              ]
+            ],
+            "errors": [
+              "InvalidPluginData"
+            ]
+          }
+        }
+      },
+      "policy": "malformed_provider_record_fails_closed"
+    }
+  ],
+  "policy_exclusions": [
+    {
+      "policy": "native_authentication_scope_epoch_sequences_limits",
+      "status": "outside_original_transport_projection",
+      "native_tests": "tests/adversarial.rs and tests/host_scope.rs"
+    },
+    {
+      "policy": "checkpoint_fencing_cas_idempotency_restart",
+      "status": "test_checkpoint_gate_only_no_durable_provider_or_vm_commit",
+      "native_tests": "tests/source_handlers.rs"
+    },
+    {
+      "policy": "signs_preinitialization_permission_race_rejected",
+      "status": "exact_difference_asserted"
+    },
+    {
+      "policy": "signs_invalid_utf8_rejected_instead_of_replacement_decode",
+      "status": "exact_difference_asserted"
+    },
+    {
+      "policy": "signs_split_surrogate_truncation_rejected_atomically",
+      "status": "source_partial_private_state_not_exposed_by_oracle",
+      "native_tests": "source_plugins::tests::signs_rejects_a_split_surrogate_without_mutating_session"
+    },
+    {
+      "policy": "malformed_provider_record_fails_closed",
+      "status": "exact_difference_asserted"
+    },
+    {
+      "policy": "persistent_session_exclusivity_and_overlapping_async_patches",
+      "status": "serialized_invocations_only"
+    },
+    {
+      "policy": "unknown_or_mismatched_payload_kind_and_unauthorized_owner_inputs",
+      "status": "outside_common_handler_input_domain"
+    }
+  ]
+}

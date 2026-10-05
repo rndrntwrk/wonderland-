@@ -6,6 +6,7 @@
 //! There is deliberately no generic checkpoint byte getter or Debug dump.
 
 use crate::{
+    games::{GameState, MAX_GAME_BYTES, SharedGame},
     host::{DanceController, HandlerState, Instance, Participant, State},
     persistence::{Binding, BindingStatus, WriteRecord, *},
     registry::{self, TIMER_PLUGIN},
@@ -94,6 +95,7 @@ impl NativeHost {
             revision,
         };
         if !self.state.controllers.is_empty()
+            || !self.state.games.is_empty()
             || !self.state.writes.is_empty()
             || self
                 .state
@@ -225,7 +227,8 @@ fn decode(
     expected: CheckpointStamp,
     limits: HostLimits,
 ) -> Result<NativeHost, Error> {
-    if bytes.get(..6) == Some(&b"EODP\x02\x00"[..]) {
+    if bytes.get(..6) == Some(&b"EODP\x02\x00"[..]) || bytes.get(..6) == Some(&b"EODP\x03\x00"[..])
+    {
         return decode_v2(bytes, identity, expected, limits);
     }
     let mut reader = Reader { bytes, position: 0 };
@@ -353,6 +356,7 @@ fn decode(
             next_write: 1,
             instances,
             controllers: BTreeMap::new(),
+            games: BTreeMap::new(),
             writes: BTreeMap::new(),
             public: vec![],
             private: vec![],
@@ -367,7 +371,8 @@ fn encode_v2(host: &NativeHost, stamp: CheckpointStamp) -> Result<Vec<u8>, Error
     let mut writer = Writer(Vec::new());
     check_write_size(0, HEADER_SIZE, limit)?;
     writer.0.extend_from_slice(b"EODP");
-    writer.u16(2);
+    let format = if host.state.games.is_empty() { 2 } else { 3 };
+    writer.u16(format);
     writer.u16(1);
     writer.u64(stamp.scope.0);
     writer.u64(stamp.epoch);
@@ -424,6 +429,26 @@ fn encode_v2(host: &NativeHost, stamp: CheckpointStamp) -> Result<Vec<u8>, Error
         writer.u32(controller.object);
         writer.u32(controller.invoker.0);
     }
+    if format == 3 {
+        check_write_size(writer.0.len(), 4, limit)?;
+        writer.u32(host.state.games.len() as u32);
+        for (id, game) in &host.state.games {
+            let payload = game.handler.save_private();
+            if payload.len() > MAX_GAME_BYTES {
+                return Err(Error::CheckpointTooLarge);
+            }
+            check_write_size(writer.0.len(), 58 + payload.len() + 12, limit)?;
+            writer.u64(id.0);
+            writer.u32(game.handler.plugin().0);
+            writer.u32(game.object);
+            writer.u32(game.invoker.0);
+            writer.u16(1);
+            for seat in game.seats {
+                writer.u64(seat.map_or(0, |id| id.0));
+            }
+            writer.blob(&payload);
+        }
+    }
     writer.u64(host.state.next_write);
     writer.u32(host.state.writes.len() as u32);
     for (id, record) in &host.state.writes {
@@ -466,6 +491,17 @@ fn encode_handler(handler: &HandlerState) -> Vec<u8> {
         HandlerState::Signs(state) => state.save_private(),
         HandlerState::Scoreboard(state) => state.save_private(),
         HandlerState::PermissionDoor(state) => state.save_private(),
+        HandlerState::GameParticipant {
+            game,
+            slot,
+            avatar_object,
+        } => {
+            let mut writer = Writer(Vec::with_capacity(11));
+            writer.u64(game.0);
+            writer.u8(*slot);
+            writer.i16(*avatar_object);
+            writer.0
+        }
     }
 }
 
@@ -510,6 +546,34 @@ fn decode_handler(plugin: PluginId, payload: &[u8]) -> Result<HandlerState, Erro
         registry::PERMISSION_DOOR_PLUGIN => HandlerState::PermissionDoor(
             PermissionDoor::restore_private(payload).map_err(|_| Error::InvalidCheckpoint)?,
         ),
+        registry::PAPER_CHASE_PLUGIN | registry::PIZZA_MAKER_PLUGIN | registry::MAZE_PLUGIN => {
+            let mut reader = Reader {
+                bytes: payload,
+                position: 0,
+            };
+            let game = InstanceId(reader.u64()?);
+            let slot = reader.u8()?;
+            let avatar_object = reader.i16()?;
+            let count = if plugin == registry::PAPER_CHASE_PLUGIN {
+                3
+            } else if plugin == registry::PIZZA_MAKER_PLUGIN {
+                4
+            } else {
+                2
+            };
+            if game.0 == 0
+                || slot >= count
+                || avatar_object <= 0
+                || reader.position != payload.len()
+            {
+                return Err(Error::InvalidCheckpoint);
+            }
+            HandlerState::GameParticipant {
+                game,
+                slot,
+                avatar_object,
+            }
+        }
         _ => return Err(Error::UnverifiedPlugin),
     })
 }
@@ -521,7 +585,11 @@ fn decode_v2(
     limits: HostLimits,
 ) -> Result<NativeHost, Error> {
     let mut reader = Reader { bytes, position: 0 };
-    if reader.take(4)? != b"EODP" || reader.u16()? != 2 {
+    if reader.take(4)? != b"EODP" {
+        return Err(Error::UnsupportedCheckpointVersion);
+    }
+    let format = reader.u16()?;
+    if !matches!(format, 2 | 3) {
         return Err(Error::UnsupportedCheckpointVersion);
     }
     if reader.u16()? != 1 {
@@ -575,7 +643,7 @@ fn decode_v2(
         if matches!(handler, HandlerState::Timer(_)) {
             timers += 1;
         }
-        if let HandlerState::DanceFloor { avatar_object } = handler
+        if let Some(avatar_object) = handler.avatar_object()
             && !avatars.insert(avatar_object)
         {
             return Err(Error::InvalidCheckpoint);
@@ -703,6 +771,99 @@ fn decode_v2(
             },
         );
     }
+    let group_count = if format == 3 {
+        reader.u32()? as usize
+    } else {
+        0
+    };
+    if (format == 3 && group_count == 0)
+        || group_count
+            > limits
+                .max_instances
+                .saturating_sub(count + controller_count)
+        || group_count
+            > limits
+                .max_participants
+                .saturating_sub(count + controller_count)
+        || group_count > limits.max_timers.saturating_sub(timers)
+    {
+        return Err(Error::InvalidCheckpoint);
+    }
+    let mut games = BTreeMap::new();
+    let mut game_objects = BTreeSet::new();
+    let mut game_seats = BTreeSet::new();
+    for _ in 0..group_count {
+        let id = InstanceId(reader.u64()?);
+        let plugin = PluginId(reader.u32()?);
+        let object = reader.u32()?;
+        let invoker = InvokerId(reader.u32()?);
+        if reader.u16()? != 1 {
+            return Err(Error::UnsupportedPluginSchema);
+        }
+        let mut seats = [None; 4];
+        for seat in &mut seats {
+            let value = reader.u64()?;
+            *seat = (value != 0).then_some(InstanceId(value));
+        }
+        let payload = reader.blob(MAX_GAME_BYTES)?;
+        let handler = GameState::restore_private(plugin, payload)?;
+        if id.0 == 0
+            || id.0 >= next_instance
+            || object == 0
+            || invoker.0 == 0
+            || instances.contains_key(&id)
+            || controllers.contains_key(&id)
+            || games.contains_key(&id)
+            || !invokers.insert(invoker)
+            || !game_objects.insert(object)
+            || seats[handler.seats()..].iter().any(Option::is_some)
+        {
+            return Err(Error::InvalidCheckpoint);
+        }
+        let mut roster = [0; 4];
+        for (slot, seat) in seats.iter().enumerate() {
+            if let Some(seat) = seat {
+                let instance = instances.get(seat).ok_or(Error::InvalidCheckpoint)?;
+                let HandlerState::GameParticipant {
+                    game,
+                    slot: recorded_slot,
+                    avatar_object,
+                } = instance.handler
+                else {
+                    return Err(Error::InvalidCheckpoint);
+                };
+                if game != id
+                    || usize::from(recorded_slot) != slot
+                    || instance.plugin != plugin
+                    || instance.object != object
+                    || !game_seats.insert(*seat)
+                {
+                    return Err(Error::InvalidCheckpoint);
+                }
+                roster[slot] = avatar_object;
+            }
+        }
+        if !handler.validate_roster(&roster) {
+            return Err(Error::InvalidCheckpoint);
+        }
+        games.insert(
+            id,
+            SharedGame {
+                object,
+                invoker,
+                attached: false,
+                seats,
+                handler,
+            },
+        );
+    }
+    for (id, instance) in &instances {
+        if matches!(instance.handler, HandlerState::GameParticipant { .. })
+            && !game_seats.contains(id)
+        {
+            return Err(Error::InvalidCheckpoint);
+        }
+    }
     let next_write = reader.u64()?;
     let write_count = reader.u32()? as usize;
     if next_write == 0
@@ -746,6 +907,7 @@ fn decode_v2(
             || actor.0 == 0
             || expected_revision == u64::MAX
             || controllers.contains_key(&instance)
+            || games.contains_key(&instance)
             || !matches!(
                 plugin,
                 registry::SIGNS_PLUGIN
@@ -841,6 +1003,7 @@ fn decode_v2(
         next_write,
         instances,
         controllers,
+        games,
         writes,
         public: vec![],
         private: vec![],

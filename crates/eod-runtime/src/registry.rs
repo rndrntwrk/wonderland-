@@ -10,6 +10,9 @@ pub const DANCE_FLOOR_PLUGIN: PluginId = PluginId(0x4A5BE8AB);
 pub const SIGNS_PLUGIN: PluginId = PluginId(0x2A6356A0);
 pub const SCOREBOARD_PLUGIN: PluginId = PluginId(0x0949E698);
 pub const PERMISSION_DOOR_PLUGIN: PluginId = PluginId(0x0A69F29F);
+pub const PAPER_CHASE_PLUGIN: PluginId = PluginId(0xCA418206);
+pub const PIZZA_MAKER_PLUGIN: PluginId = PluginId(0xEA47AE39);
+pub const MAZE_PLUGIN: PluginId = PluginId(0x4A245A22);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -17,7 +20,7 @@ pub enum RuntimeStatus { SourceTranslatedTimer, SourceTranslatedNative, Unsuppor
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RecoveryPolicy { RestorePrivateSchema1, RestorePrivateFormat2, ReconcilePrivateFormat2, AbortAndReconcileThroughProvider }
+pub enum RecoveryPolicy { RestorePrivateSchema1, RestorePrivateFormat2, ReconcilePrivateFormat2, RestorePrivateFormat3, AbortAndReconcileThroughProvider }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Registration {
@@ -179,8 +182,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UITwoPersonJobObjectMazeEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTwoPersonJobObjectMazePlugin.cs:9",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UITwoPersonJobObjectMazeEOD.cs:13"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::RestorePrivateFormat3,
         original_runtime_verified: false,
     },
     Registration {
@@ -279,8 +282,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UIPaperChaseEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPaperChasePlugin.cs:8",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UIPaperChaseEOD.cs:11"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::RestorePrivateFormat3,
         original_runtime_verified: false,
     },
     Registration {
@@ -319,8 +322,8 @@ pub static REGISTRATIONS: &[Registration] = &[
         ui_type: Some("UIPizzaMakerEOD"),
         server_anchor: "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPizzaMakerPlugin.cs:7",
         ui_anchor: Some("TSOClient/tso.client/UI/Panels/EODs/UIPizzaMakerEOD.cs:11"),
-        runtime: RuntimeStatus::UnsupportedUnverified,
-        recovery: RecoveryPolicy::AbortAndReconcileThroughProvider,
+        runtime: RuntimeStatus::SourceTranslatedNative,
+        recovery: RecoveryPolicy::RestorePrivateFormat3,
         original_runtime_verified: false,
     },
     Registration {
