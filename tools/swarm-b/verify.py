@@ -21,10 +21,25 @@ PACKAGES = [
     ("creator", "tools/creator/Cargo.toml", False),
     ("cooker", "tools/asset-cooker/Cargo.toml", False),
 ]
+SIM_REVISION = "8a0e251d19e222a0a6833d7408ca629f674e1729"
+ORIGINAL_SOURCE_FILES = (
+    "Other/tools/Iffinator/Iffinator/srcs.zip",
+    "TSOClient/tso.files/Formats/IFF/Chunks/SPR2.cs",
+    "TSOClient/tso.files/Formats/IFF/Chunks/SPR2FrameEncoder.cs",
+    "TSOClient/tso.files/FAR3/FAR3Archive.cs",
+    "TSOClient/tso.files/FAR3/Far3Entry.cs",
+    "TSOClient/tso.files/FAR3/FAR3Exception.cs",
+    "TSOClient/tso.files/FAR3/Decompresser.cs",
+)
+
+
+def rust_test_counts(text):
+    counts = re.findall(r"test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;", text)
+    return sum(int(c[0]) for c in counts), sum(int(c[2]) for c in counts)
 
 
 def source_digest():
-    """Bind the result to code, locks, authored fixtures and corpus metadata."""
+    """Bind code, locks, fixtures, metadata and the actual source-oracle inputs."""
     digest = hashlib.sha256()
     files = []
     for prefix in ("crates", "tools", "tests", "fixtures", "docs/compat"):
@@ -36,6 +51,12 @@ def source_digest():
                 if path.suffix == ".pyc" or path.is_symlink():
                     continue
                 files.append(path)
+    # The source oracles read these working-tree inputs, whereas the ordinary
+    # census reads immutable Git objects. Include original input additions,
+    # deletions and edits so a later change cannot retain an earlier PASS.
+    objects = ROOT / "TSOClient/FSO.Content.TSO/Content/Objects"
+    files.extend(path for path in objects.glob("*.iff") if path.is_file())
+    files.extend(ROOT / name for name in ORIGINAL_SOURCE_FILES if (ROOT / name).is_file())
     for path in sorted(files):
         name = path.relative_to(ROOT).as_posix().encode()
         data = path.read_bytes()
@@ -54,7 +75,9 @@ def main():
     parser.add_argument("--with-parity", action="store_true",
                         help="Execute the authored native/WASI probe using Node")
     parser.add_argument("--with-source-oracle", action="store_true",
-                        help="Compile/run the unchanged original FAR3 reader using Mono")
+                        help="Run original FAR3, indexed IFF and sprite source comparisons (Mono/C++)")
+    parser.add_argument("--with-runtime-bridge", action="store_true",
+                        help="Test the pinned Swarm A bridge and execute actual native/WASI source replay")
     args = parser.parse_args()
     logs = args.logs_dir or Path(tempfile.mkdtemp(prefix="wonderland-b-verification-"))
     logs = logs.resolve()
@@ -65,6 +88,8 @@ def main():
     env.update(CARGO_INCREMENTAL="0", CARGO_PROFILE_DEV_DEBUG="0",
                CARGO_PROFILE_TEST_DEBUG="0", PYTHONDONTWRITEBYTECODE="1",
                RUSTUP_TOOLCHAIN="1.90.0")
+    if os.path.isabs(args.cargo):
+        env["PATH"] = str(Path(args.cargo).parent) + os.pathsep + env.get("PATH", "")
     cargo = [args.cargo]
 
     def run(label, command, run_env=None, expected_failure=None):
@@ -75,11 +100,12 @@ def main():
         text = log.read_text(errors="replace")
         passed = (completed.returncode == 0) if expected_failure is None else (
             completed.returncode != 0 and expected_failure in text)
-        counts = re.findall(r"test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;", text)
+        passed_tests, ignored_tests = rust_test_counts(text)
+        python_counts = re.findall(r"Ran (\d+) tests? in ", text)
         result = {"gate": label, "command": command, "status": "pass" if passed else "fail",
                   "exit_code": completed.returncode, "log": log.name,
-                  "tests_passed": sum(int(c[0]) for c in counts),
-                  "tests_ignored": sum(int(c[2]) for c in counts)}
+                  "tests_passed": passed_tests, "tests_ignored": ignored_tests,
+                  "python_tests_passed": sum(map(int, python_counts)) if passed else 0}
         if expected_failure:
             result["expected_rejection"] = expected_failure
         results.append(result)
@@ -105,6 +131,20 @@ def main():
                 if browser_safe:
                     run(f"{name}-wasm32", cargo + ["check", "--locked", "--manifest-path", manifest,
                                                   "--lib", "--target", "wasm32-unknown-unknown"], package_env)
+                if name == "formats" and args.with_source_oracle:
+                    oracle_logs = logs / "indexed-iff"
+                    run("original-indexed-iff-reader", [sys.executable,
+                        "tools/swarm-b/indexed-iff-oracle.py", "--cargo", args.cargo,
+                        "--target-dir", build, "--logs-dir", str(oracle_logs)], package_env)
+                    # This source oracle explicitly runs the two corpus tests
+                    # omitted by the ordinary native suite. Count their real log.
+                    counts = rust_test_counts((oracle_logs / "bounded-rust-corpus-edits.log").read_text())
+                    results[-1].update(tests_passed=counts[0], tests_ignored=counts[1],
+                                       details="indexed-iff/indexed-iff-oracle.json")
+                    run("original-sprite-writer", [sys.executable,
+                        "tools/swarm-b/sprite-oracle.py", "--output", str(logs / "sprite-oracle.json")], package_env)
+                    run("original-sprite-reader", [sys.executable,
+                        "tools/swarm-b/sprite-reader-oracle.py", "--cargo", args.cargo], package_env)
                 if name == "eod":
                     run("eod-native-boundary", cargo + ["check", "--locked", "--manifest-path", manifest,
                                                        "--lib", "--target", "wasm32-unknown-unknown"],
@@ -139,6 +179,24 @@ def main():
                                               "--target-dir", build], parity_env)
         if args.with_source_oracle:
             run("original-far3-reader", [sys.executable, "tools/swarm-b/far3-oracle.py"])
+        if args.with_runtime_bridge:
+            run("runtime-assembly-path-tests", [sys.executable, "-m", "unittest", "discover",
+                "-s", "tests/integration/swarm_b_runtime", "-p", "test_*.py"])
+            with tempfile.TemporaryDirectory(prefix="wonderland-b-runtime-") as workspace:
+                assembly = Path(workspace) / "assembly"
+                build = Path(workspace) / "target"
+                runtime_env = dict(env, CARGO_TARGET_DIR=str(build))
+                runner = [sys.executable, "tools/swarm-b/runtime-bridge.py", "--cargo",
+                          args.cargo, str(assembly)]
+                run("runtime-bridge-tests", runner + ["test", "--locked", "--offline"], runtime_env)
+                run("runtime-bridge-fmt", runner + ["fmt", "--", "--check"], runtime_env)
+                run("runtime-bridge-clippy", runner + ["clippy", "--locked", "--offline",
+                    "--all-targets", "--no-deps", "--", "-D", "warnings"], runtime_env)
+                run("runtime-bridge-wasm32", runner + ["check", "--locked", "--offline",
+                    "--no-default-features", "--lib", "--target", "wasm32-unknown-unknown"], runtime_env)
+                run("runtime-source-native-wasi", [sys.executable,
+                    "tools/swarm-b/runtime-bridge-parity.py", "--assembly", str(assembly),
+                    "--cargo", args.cargo, "--target-dir", str(build)], runtime_env)
         if source_digest() != initial_digest:
             raise RuntimeError("verification inputs changed during the run; rerun on stable sources")
         status = "pass"
@@ -149,7 +207,15 @@ def main():
                "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
                "verification_inputs_sha256": initial_digest, "gates": results,
                "rust_tests_passed": sum(r["tests_passed"] for r in results),
-               "rust_tests_ignored": sum(r["tests_ignored"] for r in results)}
+               "rust_tests_ignored": sum(r["tests_ignored"] for r in results),
+               "python_tests_passed": sum(r["python_tests_passed"] for r in results),
+               "requested_optional_checks": {
+                   "authored_native_wasi_parity": args.with_parity,
+                   "original_source_comparisons": args.with_source_oracle,
+                   "pinned_runtime_bridge": args.with_runtime_bridge,
+               }}
+    if args.with_runtime_bridge:
+        summary["simulation_revision"] = SIM_REVISION
     (logs / "verification.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(f"Verification {status.upper()}; logs: {logs}")
     return 0 if status == "pass" else 1
