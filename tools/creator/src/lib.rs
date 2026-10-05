@@ -7,7 +7,11 @@ pub use hash::sha256;
 pub use workspace::Workspace;
 pub mod city;
 mod resources;
-pub use resources::{Edit, EditGuard, ResourceDocument};
+pub use resources::{
+    Edit, EditGuard, ResourceDocument, ResourceGuard, ResourceOperation, ResourceTransaction,
+};
+mod transaction;
+pub use transaction::{decode_hex, MAX_TRANSACTION_SPEC_BYTES};
 pub mod debug;
 pub use resources::{validate_cfg, CfgReport};
 pub fn default_limits() -> wonderland_legacy_formats::Limits {

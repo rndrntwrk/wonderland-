@@ -4,10 +4,14 @@
 use wonderland_creator::{
     city::{BmpMap, MapLayer},
     debug::{DebugSnapshot, IsolatedDebugProvider, UnsupportedDebugProvider},
-    default_limits, hex, json_string, sha256, Edit, ResourceDocument, TuningDocument, Workspace,
+    decode_hex, default_limits, hex, json_string, sha256, Edit, ResourceDocument, ResourceGuard,
+    ResourceOperation, ResourceTransaction, TuningDocument, Workspace, MAX_TRANSACTION_SPEC_BYTES,
     TOOL_INVENTORY,
 };
-use wonderland_legacy_formats::{iff::ChunkKey, ContainerFormat};
+use wonderland_legacy_formats::{
+    iff::{ChunkKey, IffChunk},
+    ContainerFormat,
+};
 const HELP: &str = r#"creator — bounded offline resource inspection and editing
 Usage: creator [--root DIRECTORY] COMMAND ARGUMENTS
 Paths are relative to the root. Parent traversal, absolute paths and symlinks are refused.
@@ -24,9 +28,17 @@ Paths are relative to the root. Parent traversal, absolute paths and symlinks ar
     string SET INDEX VALUE               exact language-set index, quoted text
     tuning INDEX U16                     BCON constant
     slot INDEX X Y Z                     finite SLOT offset; retain source version
+    palette INDEX R G B                  PALT RGB entry; channels are bytes, alpha stays opaque
     unknown PAYLOAD_FILE                 unknown resource replacement only
   VERSION is decimal, 0x-prefixed integer, or 'none' for BCON/unknown resources.
-  SHA is the input file SHA-256 from inspect. Each successful edit changes that guard.
+  SHA is the input file SHA-256 from inspect. Changed outputs have a new guard; no-ops retain it.
+  add INPUT OUTPUT KIND ID SHA FLAGS LABEL_HEX PAYLOAD_FILE
+  remove INPUT OUTPUT KIND ID SHA RESOURCE_SHA VERSION
+  set-metadata INPUT OUTPUT KIND ID SHA RESOURCE_SHA VERSION NEW_KIND NEW_ID FLAGS LABEL_HEX
+  transaction INPUT OUTPUT SPEC_JSON    atomic guarded operations from strict version 1 JSON
+  New commands require exact 128-digit LABEL_HEX; RESOURCE_SHA is the payload SHA-256.
+  Transactions bind all operations to one source SHA and explicit resource SHA/version guards.
+  JSON payload_file paths require payload_sha256; resource-map rsmp edits are writer-managed.
   otf-inspect INPUT                     external OTF tuning JSON
   otf-edit INPUT OUTPUT SHA TABLE_ID KEY_ID I32_VALUE
   container-list FORMAT INPUT           FORMAT: far1a, far1b, far3, dbpf
@@ -56,6 +68,15 @@ fn u16_arg(s: &str) -> Result<u16, String> {
 }
 fn u8_arg(s: &str) -> Result<u8, String> {
     u8::try_from(numeric(s)?).map_err(|_| "integer must fit u8".into())
+}
+fn version_arg(s: &str) -> Result<Option<u32>, String> {
+    if s == "none" {
+        Ok(None)
+    } else {
+        Ok(Some(
+            u32::try_from(numeric(s)?).map_err(|_| "version overflow")?,
+        ))
+    }
 }
 fn require(args: &[String], n: usize) -> Result<(), String> {
     if args.len() != n {
@@ -193,11 +214,7 @@ fn run() -> Result<(), String> {
             let key = key(&args[2], &args[3])?;
             let mut guard = doc.guard(key, &limits)?;
             guard.source_hash = args[4].to_ascii_lowercase();
-            guard.format_version = if args[5] == "none" {
-                None
-            } else {
-                Some(u32::try_from(numeric(&args[5])?).map_err(|_| "version overflow")?)
-            };
+            guard.format_version = version_arg(&args[5])?;
             let p = &args[7..];
             let edit = match args[6].as_str() {
                 "bhav-branch" => {
@@ -249,9 +266,16 @@ fn run() -> Result<(), String> {
                         offset,
                     }
                 }
+                "palette" => {
+                    require(p, 4)?;
+                    Edit::PaletteColor {
+                        index: usize_arg(&p[0])?,
+                        rgb: [u8_arg(&p[1])?, u8_arg(&p[2])?, u8_arg(&p[3])?],
+                    }
+                }
                 "unknown" => {
                     require(p, 1)?;
-                    Edit::UnknownBytes(ws.read(&p[0])?)
+                    Edit::UnknownBytes(ws.read_limited(&p[0], limits.max_resource_bytes)?)
                 }
                 _ => return Err("unknown edit operation".into()),
             };
@@ -259,6 +283,68 @@ fn run() -> Result<(), String> {
             let out = doc.export(&limits)?;
             guarded_publish(&ws, &args[0], &args[4], &args[1], &out)?;
             println!("wrote {} bytes; SHA-256 {}", out.len(), sha256(&out));
+        }
+        "add" | "remove" | "set-metadata" | "transaction" => {
+            require(
+                &args,
+                match command.as_str() {
+                    "add" => 8,
+                    "remove" => 7,
+                    "set-metadata" => 11,
+                    _ => 3,
+                },
+            )?;
+            let bytes = ws.read(&args[0])?;
+            let mut doc = ResourceDocument::import(&bytes, &limits)?;
+            let transaction = if command == "transaction" {
+                let spec = ws.read_limited(&args[2], MAX_TRANSACTION_SPEC_BYTES)?;
+                ResourceTransaction::from_json(&spec, &ws, &limits)?
+            } else {
+                check_hash(&args[4], &bytes)?;
+                let resource_key = key(&args[2], &args[3])?;
+                let operation = if command == "add" {
+                    ResourceOperation::Add {
+                        chunk: IffChunk {
+                            key: resource_key,
+                            flags: u16_arg(&args[5])?,
+                            label: decode_hex(&args[6], "resource label")?,
+                            data: ws.read_limited(&args[7], limits.max_resource_bytes)?,
+                        },
+                    }
+                } else {
+                    let expected = ResourceGuard {
+                        resource_hash: args[5].clone(),
+                        format_version: version_arg(&args[6])?,
+                    };
+                    if command == "remove" {
+                        ResourceOperation::Remove {
+                            key: resource_key,
+                            expected,
+                        }
+                    } else {
+                        ResourceOperation::SetMetadata {
+                            key: resource_key,
+                            expected,
+                            new_key: key(&args[7], &args[8])?,
+                            flags: u16_arg(&args[9])?,
+                            label: decode_hex(&args[10], "resource label")?,
+                        }
+                    }
+                };
+                ResourceTransaction {
+                    source_hash: args[4].clone(),
+                    operations: vec![operation],
+                }
+            };
+            doc.transact(&transaction, &limits)?;
+            let out = doc.export(&limits)?;
+            guarded_publish(&ws, &args[0], &transaction.source_hash, &args[1], &out)?;
+            println!(
+                "wrote {} bytes; {} operations; SHA-256 {}",
+                out.len(),
+                transaction.operations.len(),
+                sha256(&out)
+            );
         }
         "otf-inspect" => {
             require(&args, 1)?;

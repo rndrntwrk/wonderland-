@@ -90,6 +90,18 @@ impl ResourceDocument {
                     out.push_str(&format!(",\"slot_count\":{}", v.slots.len()));
                 }
             }
+            if c.key.kind == *b"PALT" {
+                if let Ok(v) = wonderland_legacy_formats::sprites::decode_palt(&c.data, limits) {
+                    out.push_str(",\"colors_rgb\":[");
+                    for (index, color) in v.colors.iter().enumerate() {
+                        if index > 0 {
+                            out.push(',');
+                        }
+                        out.push_str(&format!("[{},{},{}]", color[0], color[1], color[2]));
+                    }
+                    out.push(']');
+                }
+            }
             out.push('}');
             if out.len() > limits.max_total_decoded_bytes {
                 return Err("metadata output byte limit exceeded".into());
