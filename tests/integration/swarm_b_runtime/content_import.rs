@@ -162,7 +162,22 @@ fn missing_function_and_truncated_objf_reject_instead_of_dropping_entrypoints() 
         .unwrap()
         .data
         .pop();
-    assert!(import(&resolve(truncated)).unwrap_err().contains("OBJf"));
+    // OBJf is now a semantic source resource, so truncation is rejected at
+    // resolution before the runtime adapter is reached.
+    assert!(resolve_content(
+        &ResolveRequest::new("authored-layout.iff", truncated),
+        &Limits::default(),
+    )
+    .is_err());
+    let mut trailing = fixture();
+    trailing
+        .chunks
+        .iter_mut()
+        .find(|c| c.key.kind == *b"OBJf")
+        .unwrap()
+        .data
+        .push(0);
+    assert!(import(&resolve(trailing)).unwrap_err().contains("OBJf"));
 }
 
 #[test]

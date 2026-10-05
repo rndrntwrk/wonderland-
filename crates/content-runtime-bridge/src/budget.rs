@@ -23,6 +23,10 @@ pub(crate) struct ImportBudget {
 }
 
 impl ImportBudget {
+    pub(crate) fn used(&self) -> usize {
+        self.used
+    }
+
     pub(crate) fn new(limits: &Limits) -> Self {
         Self {
             limit: limits

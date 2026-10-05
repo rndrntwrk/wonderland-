@@ -2,6 +2,7 @@
 #![forbid(unsafe_code)]
 
 mod budget;
+mod cooked_json;
 
 pub use sim_core;
 
@@ -41,6 +42,9 @@ pub fn import_bhav(
 }
 
 pub mod content;
+pub mod cooked;
+pub mod cooked_metadata;
+pub mod cooked_replay;
 pub mod isolated;
 
 #[cfg(feature = "creator-debug")]
