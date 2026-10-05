@@ -20,6 +20,7 @@ PACKAGES = [
     ("eod", "crates/eod-runtime/Cargo.toml", False),
     ("creator", "tools/creator/Cargo.toml", False),
     ("cooker", "tools/asset-cooker/Cargo.toml", False),
+    ("creator-web", "tools/creator-web/Cargo.toml", False),
 ]
 SIM_REVISION = "8a0e251d19e222a0a6833d7408ca629f674e1729"
 ORIGINAL_SOURCE_FILES = (
@@ -49,6 +50,12 @@ ORIGINAL_SOURCE_FILES = (
     "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetEODEventCmd.cs",
     "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetEODMessageCmd.cs",
 )
+ORIGINAL_SOURCE_TREES = (
+    "TSOClient/tso.files",
+    "TSOClient/tso.vitaboy.model",
+    "TSOClient/tso.content",
+    "TSOClient/FSO.Content.TSO/Content/Avatar",
+)
 
 
 def rust_test_counts(text):
@@ -62,8 +69,11 @@ def source_digest():
     files = []
     for prefix in ("crates", "tools", "tests", "fixtures", "docs/compat"):
         for directory, children, names in os.walk(ROOT / prefix):
+            excluded = {"target", "__pycache__", ".pytest_cache", ".git"}
+            if Path(directory) == ROOT / "tools/creator-web":
+                excluded.update(("dist", "node_modules", "test-results"))
             children[:] = sorted(c for c in children if c not in
-                                 ("target", "__pycache__", ".pytest_cache", ".git"))
+                                 excluded)
             for name in sorted(names):
                 path = Path(directory) / name
                 if path.suffix == ".pyc" or path.is_symlink():
@@ -75,7 +85,24 @@ def source_digest():
     objects = ROOT / "TSOClient/FSO.Content.TSO/Content/Objects"
     files.extend(path for path in objects.glob("*.iff") if path.is_file())
     files.extend(ROOT / name for name in ORIGINAL_SOURCE_FILES if (ROOT / name).is_file())
-    for path in sorted(files):
+    for prefix in ORIGINAL_SOURCE_TREES:
+        files.extend(path for path in (ROOT / prefix).rglob("*") if path.is_file())
+    # Each new source oracle declares its precise original compiler/reference
+    # inputs. Bind target bytes as well as manifests, including symlink targets.
+    for manifest_path in (ROOT / "fixtures/eod").glob("*/sources.json"):
+        manifest = json.loads(manifest_path.read_text())
+        for entry in manifest.get("files", manifest.get("sources", [])):
+            relative = Path(entry["path"])
+            if relative.is_absolute() or ".." in relative.parts:
+                raise RuntimeError("source oracle input must stay within the checkout")
+            path = ROOT / relative
+            if path.is_file():
+                files.append(path)
+    for suffix in ("cs", "log"):
+        text_probe = ROOT / f"docs/swarm-b/format-evidence/legacy-text-source-probe.{suffix}"
+        if text_probe.is_file():
+            files.append(text_probe)
+    for path in sorted(set(files)):
         name = path.relative_to(ROOT).as_posix().encode()
         data = path.read_bytes()
         digest.update(len(name).to_bytes(8, "little"))
@@ -96,6 +123,10 @@ def main():
                         help="Run original FAR3, indexed IFF, sprite and EOD source comparisons (Mono/C++)")
     parser.add_argument("--with-runtime-bridge", action="store_true",
                         help="Test the pinned Swarm A bridge and execute native/WASI source and cooked-release replay")
+    parser.add_argument("--with-creator-web", action="store_true",
+                        help="Build the real Creator WASM editor and execute its browser file workflows")
+    parser.add_argument("--wasm-bindgen", default=os.environ.get("CREATOR_WASM_BINDGEN") or "wasm-bindgen",
+                        help="wasm-bindgen CLI matching the Creator web lockfile")
     args = parser.parse_args()
     logs = args.logs_dir or Path(tempfile.mkdtemp(prefix="wonderland-b-verification-"))
     logs = logs.resolve()
@@ -163,6 +194,13 @@ def main():
                         "tools/swarm-b/sprite-oracle.py", "--output", str(logs / "sprite-oracle.json")], package_env)
                     run("original-sprite-reader", [sys.executable,
                         "tools/swarm-b/sprite-reader-oracle.py", "--cargo", args.cargo], package_env)
+                    numeric_probe = str(Path(build) / "LegacyTextSourceProbe.exe")
+                    run("original-avatar-text-compile", ["mcs", "-out:" + numeric_probe,
+                        "TSOClient/tso.files/Utils/BCFReadProxy.cs",
+                        "docs/swarm-b/format-evidence/legacy-text-source-probe.cs"], package_env)
+                    numeric_output = run("original-avatar-text-reader", ["mono", numeric_probe], package_env)
+                    if numeric_output != (ROOT / "docs/swarm-b/format-evidence/legacy-text-source-probe.log").read_text():
+                        raise RuntimeError("original avatar text-reader output differs from the frozen vectors")
                 if name == "eod":
                     run("eod-native-boundary", cargo + ["check", "--locked", "--manifest-path", manifest,
                                                        "--lib", "--target", "wasm32-unknown-unknown"],
@@ -181,6 +219,11 @@ def main():
                                                    "native-boundary-tests.stdout").read_text())
                         results[-1].update(tests_passed=counts[0], tests_ignored=counts[1],
                                            details="eod-source-oracle/eod-source-oracle.json")
+                        for family in ("casino", "social", "service"):
+                            report = logs / f"eod-{family}-source.json"
+                            run(f"original-eod-{family}", [sys.executable,
+                                f"fixtures/eod/{family}/verify.py", "--report", str(report)], package_env)
+                            results[-1]["details"] = report.name
                 if name == "content":
                     with tempfile.TemporaryDirectory(prefix="wonderland-b-census-") as output:
                         generated = Path(output) / "corpus.json"
@@ -200,6 +243,22 @@ def main():
                         for filename in ["manifest.json"] + sorted(p.name for p in release.glob("*.wlp")):
                             if (release / filename).read_bytes() != (second / filename).read_bytes():
                                 raise RuntimeError(f"nondeterministic cooker output: {filename}")
+                if name == "creator-web" and args.with_creator_web:
+                    browser_env = dict(package_env, CREATOR_CARGO=args.cargo,
+                        CREATOR_WASM_BINDGEN=args.wasm_bindgen,
+                        CREATOR_WEB_TARGET_DIR=build,
+                        CREATOR_WEB_EVIDENCE_DIR=str(logs / "creator-browser"),
+                        CARGO_BUILD_JOBS="2")
+                    run("creator-browser-build", ["node", "tools/creator-web/scripts/build.mjs"], browser_env)
+                    run("creator-browser-clippy", cargo + ["clippy", "--locked", "--manifest-path", manifest,
+                        "--release", "--target", "wasm32-unknown-unknown", "--lib", "--no-deps",
+                        "--", "-D", "warnings"], browser_env)
+                    run("creator-browser-workflows", ["node", "tools/creator-web/tests/browser.mjs"], browser_env)
+                    report = json.loads((logs / "creator-browser/report.json").read_text())
+                    if report.get("status") != "passed" or any(check.get("status") != "passed" for check in report["checks"]):
+                        raise RuntimeError("Creator browser report did not pass")
+                    results[-1].update(browser_checks_passed=len(report["checks"]),
+                                       details="creator-browser/report.json")
         run("eod-census", [sys.executable, "tools/swarm-b/eod-census.py", "--check"])
         run("object-census", [sys.executable, "tools/swarm-b/object-census.py", "--check"])
         run("catalog-tests", [sys.executable, "-m", "unittest", "discover", "-s",
@@ -224,6 +283,11 @@ def main():
                 run("runtime-bridge-fmt", runner + ["fmt", "--", "--check"], runtime_env)
                 run("runtime-bridge-clippy", runner + ["clippy", "--locked", "--offline",
                     "--all-targets", "--no-deps", "--", "-D", "warnings"], runtime_env)
+                # Full native tests retain many linked executables. Their logs
+                # are final; release only this runner-owned cache before the
+                # independent portable builds to bound shared workspace usage.
+                if build.exists():
+                    shutil.rmtree(build)
                 run("runtime-bridge-wasm32", runner + ["check", "--locked", "--offline",
                     "--no-default-features", "--lib", "--target", "wasm32-unknown-unknown"], runtime_env)
                 run("runtime-source-native-wasi", [sys.executable,
@@ -231,6 +295,9 @@ def main():
                     "--cargo", args.cargo, "--target-dir", str(build)], runtime_env)
                 run("runtime-cooked-native-wasi", [sys.executable,
                     "tools/swarm-b/runtime-bridge-cooked-parity.py", "--assembly", str(assembly),
+                    "--cargo", args.cargo, "--target-dir", str(build)], runtime_env)
+                run("runtime-families-native-wasi", [sys.executable,
+                    "tools/swarm-b/runtime-source-families-parity.py", "--assembly", str(assembly),
                     "--cargo", args.cargo, "--target-dir", str(build)], runtime_env)
         if source_digest() != initial_digest:
             raise RuntimeError("verification inputs changed during the run; rerun on stable sources")
@@ -244,10 +311,12 @@ def main():
                "rust_tests_passed": sum(r["tests_passed"] for r in results),
                "rust_tests_ignored": sum(r["tests_ignored"] for r in results),
                "python_tests_passed": sum(r["python_tests_passed"] for r in results),
+               "browser_checks_passed": sum(r.get("browser_checks_passed", 0) for r in results),
                "requested_optional_checks": {
                    "authored_native_wasi_parity": args.with_parity,
                    "original_source_comparisons": args.with_source_oracle,
                    "pinned_runtime_bridge": args.with_runtime_bridge,
+                   "creator_browser_workflows": args.with_creator_web,
                }}
     if args.with_runtime_bridge:
         summary["simulation_revision"] = SIM_REVISION

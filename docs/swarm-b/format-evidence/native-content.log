@@ -1,0 +1,58 @@
+     Locking 10 packages to latest compatible versions
+      Adding adler2 v2.0.1
+      Adding bitflags v2.13.2
+      Adding crc32fast v1.5.2
+      Adding fdeflate v0.3.7
+      Adding flate2 v1.1.10
+      Adding miniz_oxide v0.8.9
+      Adding miniz_oxide v0.9.1
+      Adding png v0.18.1
+      Adding simd-adler32 v0.3.10
+      Adding zlib-rs v0.6.8
+   Compiling wonderland-legacy-formats v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/legacy-formats)
+   Compiling wonderland-content-ir v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/content-ir)
+    Finished `test` profile [unoptimized] target(s) in 7.18s
+     Running unittests src/lib.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/wonderland_content_ir-df659b181ab7ea53)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests ../../tools/swarm-b/content-census.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/content_census-54b43fabd48aca52)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/resolution.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/resolution-1c21f3ecc6c846c8)
+
+running 12 tests
+test bounds_apply_to_resources_patches_and_tuning ... ok
+test language_falls_back_by_whole_set_not_missing_index ... ok
+test compact_semantic_resources_share_one_retention_budget ... ok
+test routine_namespace_lookup_does_not_mask_missing_resources ... ok
+test patches_defer_id_swaps_remove_add_and_ignore_existing_additions ... ok
+test patch_rejection_is_transactional_and_add_markers_have_no_payload ... ok
+test tuning_upgrade_then_dynamic_private_then_semiglobal_and_global_base ... ok
+test tuning_missing_semiglobal_fallback_encoded_mode_quirk_and_float_bounds ... ok
+test effective_identity_binds_all_inputs_and_retains_unknown_chunks ... ok
+test supplied_user_order_suppresses_all_non_user_patches_for_exact_source_name ... ok
+test source_deferred_move_can_restore_a_later_removed_object ... ok
+test tuning_rewrite_replaces_archive_otf_and_duplicate_keys_are_last_wins ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/tuning_pack.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/tuning_pack-51458d04ed66018e)
+
+running 2 tests
+test tuning_pack_rejects_truncation_duplicate_keys_flags_and_preallocation_attacks ... ok
+test effective_tuning_pack_preserves_every_encoded_lookup_and_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests wonderland_content_ir
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

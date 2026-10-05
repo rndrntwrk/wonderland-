@@ -114,6 +114,21 @@ fn registry_is_exact_and_never_claims_original_runtime_verification() {
     );
     assert!(entries.windows(2).all(|pair| pair[0].id < pair[1].id));
     assert!(entries.iter().all(|entry| !entry.original_runtime_verified));
+    assert!(
+        entries
+            .iter()
+            .all(|entry| !entry.production_provider_verified)
+    );
+    assert!(
+        entries
+            .iter()
+            .all(|entry| entry.native_host_tested && entry.native_recovery_tested)
+    );
+    assert!(
+        entries
+            .iter()
+            .all(|entry| entry.runtime != registry::RuntimeStatus::UnsupportedUnverified)
+    );
     assert_eq!(
         registry::lookup(PluginId(0x6D113845)).unwrap().ui_type,
         None
@@ -136,17 +151,17 @@ fn registry_is_exact_and_never_claims_original_runtime_verification() {
 }
 
 #[test]
-fn all_unverified_registrations_and_unknown_ids_fail_closed() {
+fn translated_registrations_require_native_input_and_unknown_ids_fail_closed() {
     let mut host = host();
     let auth = authority();
     for registration in registry::REGISTRATIONS
         .iter()
-        .filter(|entry| entry.runtime == registry::RuntimeStatus::UnsupportedUnverified)
+        .filter(|entry| entry.runtime == registry::RuntimeStatus::SourceTranslatedNative)
     {
         let mut req = request(A, 100, [0, 0, 0, 0]);
         req.plugin = registration.id;
-        assert_eq!(host.connect(&auth, req), Err(Error::UnverifiedPlugin));
-        assert_eq!(
+        assert_eq!(host.connect(&auth, req), Err(Error::PluginInputRequired));
+        assert_ne!(
             registration.recovery,
             registry::RecoveryPolicy::AbortAndReconcileThroughProvider
         );
@@ -826,9 +841,9 @@ fn checkpoints_reject_schema_version_epochs_stamps_and_timeout_policy_drift() {
         (6, Error::UnsupportedPluginSchema),
     ] {
         store.bytes = original.clone();
-        // Cooperative checkpoints support format 3; schema 2 does not exist.
+        // Native-family checkpoints support format 4; schema 2 does not exist.
         store.bytes[offset..offset + 2]
-            .copy_from_slice(&(if offset == 4 { 4u16 } else { 2u16 }).to_le_bytes());
+            .copy_from_slice(&(if offset == 4 { 5u16 } else { 2u16 }).to_le_bytes());
         assert_eq!(
             NativeHost::restore_from(&mut store, identity(8), stamp, limits()).unwrap_err(),
             expected

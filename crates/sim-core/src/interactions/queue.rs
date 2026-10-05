@@ -328,6 +328,11 @@ impl ActionQueue {
     pub fn active_len(&self) -> usize {
         self.active_len
     }
+    /// Exactly the source active prefix, including suspended parent actions.
+    /// Future queue entries must not enter VM UseCount projections.
+    pub fn active_entries(&self) -> &[QueuedAction] {
+        &self.entries[..self.active_len]
+    }
     pub fn active(&self) -> Option<&QueuedAction> {
         self.active_len
             .checked_sub(1)

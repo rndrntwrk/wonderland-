@@ -236,6 +236,12 @@ pub enum PublicVmEvent {
         invoker: InvokerId,
         event: SourceObjectEvent,
     },
+    NativePlugin {
+        invoker: InvokerId,
+        plugin: PluginId,
+        code: i16,
+        args: Vec<i16>,
+    },
     CooperativeGame {
         invoker: InvokerId,
         event: crate::GameObjectEvent,
@@ -260,6 +266,12 @@ impl PublicVmEvent {
                 let (code, arguments) = event.source_event();
                 (*invoker, code, arguments)
             }
+            Self::NativePlugin {
+                invoker,
+                code,
+                args,
+                ..
+            } => (*invoker, *code, args.clone()),
             Self::CooperativeGame { invoker, event } => {
                 let (code, arguments) = event.source_event();
                 (*invoker, code, arguments)

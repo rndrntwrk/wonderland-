@@ -1,8 +1,8 @@
 # Creator: offline resource inspection and guarded transactions
 
-`wonderland-creator` is a standalone Rust library and CLI for inspecting local resources and making precise, reviewable edits. It consumes the real `wonderland-legacy-formats` IFF/container parsers, semantic resource APIs and palette/sprite codecs. It supports source-bound add, remove, metadata and typed-edit transactions, including source-backed resource-map rebuilding, plus [guarded SPR2 editing packages](creator-sprites.md) with exact index/alpha/depth planes and palette RGB. It does not implement a VM or a graphical Volcanic replacement.
+`wonderland-creator` is a standalone Rust library and CLI for inspecting local resources and making precise, reviewable edits. It consumes the real `wonderland-legacy-formats` IFF/container parsers, semantic resource APIs and palette/sprite codecs. It supports source-bound add, remove, metadata and typed-edit transactions, including source-backed resource-map rebuilding, plus [guarded SPR2 editing packages](creator-sprites.md) with exact index/alpha/depth planes and palette RGB. The added [authoring and interchange workflows](creator-authoring.md) cover upgrades, standalone avatar metadata, FSOm/OBJ/MTL/glTF/GLB, animation clips, effective patch views, city images and neighborhoods. The graphical companion is `tools/creator-web`; actual VM inspection is provided by the separate runtime bridge adapter.
 
-## Build and verify without external assets
+## Build and verify without an external installation
 
 Run from the repository root with Rust 1.90.0. The CLI regression uses Python 3's standard library to generate all input fixtures and validate its JSON output.
 
@@ -17,7 +17,7 @@ cargo run --locked --manifest-path tools/creator/Cargo.toml -- debug-capabilitie
 Add `--offline` after the dependencies are cached if the build must not access
 the package registry.
 
-The regressions execute import → inspect → edit/transaction → export → reopen through the actual compiled CLI. They check exact intended byte changes, add/remove/key/flags/label operations, opaque chunk retention, multi-operation commits, replay and resource-version/hash conflicts, late validation failures, strict JSON fields/types, bounded sidecar reads, path traversal and symlink rejection, indexed-map rebuilding and unsupported-map failure, typed palette RGB edits, FAR extraction, a real-size synthetic city BMP edit, and the explicit unsupported debugger result. Library tests additionally verify that a late candidate failure preserves both parsed state and exported bytes, explicit key swaps, allocation/count limits, and consecutive transactions using refreshed map state. No original assets are bundled or required.
+The regressions execute import → inspect → edit/transaction → export → reopen through the actual compiled CLI. They check exact intended byte changes, add/remove/key/flags/label operations, opaque chunk retention, multi-operation commits, replay and resource-version/hash conflicts, late validation failures, strict JSON fields/types, bounded sidecar reads, path traversal and symlink rejection, indexed-map rebuilding and unsupported-map failure, typed palette RGB edits, FAR extraction, a real-size synthetic city BMP edit, and the explicit unsupported debugger result. Library tests additionally verify that a late candidate failure preserves both parsed state and exported bytes, explicit key swaps, allocation/count limits, and consecutive transactions using refreshed map state. Extended authoring tests read the pinned repository's existing authored mesh, animation and upgrade files without modifying them; independent fixtures supply the other layouts. No external game installation is required.
 
 ## CLI workflow
 
@@ -209,7 +209,7 @@ Formats are `far1a`, `far1b`, `far3`, and `dbpf`, subject to the exact versions/
 
 ## City data maps
 
-City layers are semantic images. The source uses exact RGB palette values for terrain and forest type; elevation, forest density and roads use the red channel. This tool edits uncompressed Windows BMP with a 40-byte BITMAPINFOHEADER and 24- or 32-bit pixels. Other DIB layouts, indexed BMP, compression, PNG and ambiguous sizes/offsets are explicitly unsupported. Positive height means bottom-up storage; negative height means top-down. Both work.
+City layers are semantic images. The source uses exact RGB palette values for terrain and forest type; elevation, forest density and roads use the red channel. The original `city-inspect`, `city-edit` and `city-export-ppm` commands retain the exact envelope of uncompressed Windows BMP with a 40-byte BITMAPINFOHEADER and 24- or 32-bit pixels. Positive height means bottom-up storage; negative height means top-down. Both work. The new `city-image-*`, `city-convert`, `city-paint` and `city-road` paths add PNG, indexed/RLE BMP, brushes and reciprocal road authoring with normalized image envelopes; see [city authoring](creator-authoring.md#city-images-road-strokes-and-neighborhoods).
 
 ```sh
 creator --root ./private-work city-inspect terraintype.bmp
@@ -295,4 +295,4 @@ The implementation was read against source revision `4c6b3e8f5835b228723caea3c9f
 - `TSOClient/FSO.IDE/ResourceBrowser/ResourceEditors/UnknownResourceControl.cs` and `OTFResourceControl.cs`: opaque resource UI and OTF display scope.
 - `Other/tools/FarExtractor/FarExtractor/Form1.cs`, `Other/tools/XaToWav/XaToWav/Program.cs`, and `Other/tools/Mr. Shipper/Mr. Shipper/Program.cs`: archive, audio converter and asset shipping census.
 
-`docs/compat/tools.json` inventories all immediate `Other/tools` projects and Volcanic/City Painter. It records partial foundations separately from unsupported graphical/runtime behavior. This package does not claim completed W16 parity, effective content-catalog identity/rights resolution, upgrades authoring, patch-chain authoring, graphical previews, native tool compatibility, live VM stepping, spritesheet or mesh authoring, neighborhood/server edits, or original-runtime differential verification.
+`docs/compat/tools.json` inventories the immediate `Other/tools` projects and Volcanic/City Painter, with implemented workflows and explicit remaining provider/tool gaps. [Extended authoring](creator-authoring.md) records the added source semantics, command contracts and limitations. Whole-tick runtime inspection is distinct from unsupported instruction pause/break/trace. Full catalog identity resolution, live rendered placement, full skinned-avatar interchange, temporal elevation tools, indexed patch-chain application, neighborhood database publication and historical native-utility compatibility remain separate work; this package does not claim complete W16 parity.

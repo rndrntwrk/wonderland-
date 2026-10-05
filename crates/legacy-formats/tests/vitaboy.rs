@@ -254,6 +254,121 @@ fn mesh_rejects_bad_indices_bindings_counts_and_all_truncated_prefixes() {
 }
 
 #[test]
+fn standalone_authoring_preserves_independent_source_bytes() {
+    let limits = Limits::default();
+    let mesh_bytes = mesh();
+    assert_eq!(
+        encode_mesh(&decode_mesh(&mesh_bytes, &limits).unwrap(), &limits).unwrap(),
+        mesh_bytes
+    );
+    let animation_bytes = animation();
+    assert_eq!(
+        encode_animation(
+            &decode_animation(&animation_bytes, &limits).unwrap(),
+            &limits
+        )
+        .unwrap(),
+        animation_bytes
+    );
+    let skeleton_bytes = skeleton(&[("hand", "ROOT"), ("ROOT", "NULL")]);
+    assert_eq!(
+        encode_skeleton(&decode_skeleton(&skeleton_bytes, &limits).unwrap(), &limits).unwrap(),
+        skeleton_bytes
+    );
+}
+
+#[test]
+fn standalone_authoring_validates_references_derived_fields_and_flags() {
+    let limits = Limits::default();
+    let mut m = decode_mesh(&mesh(), &limits).unwrap();
+    m.faces[0][0] = 99;
+    assert!(encode_mesh(&m, &limits).is_err());
+    let mut m = decode_mesh(&mesh(), &limits).unwrap();
+    m.repeated_real_vertex_count = 2;
+    assert!(encode_mesh(&m, &limits).is_err());
+    let mut a = decode_animation(&animation(), &limits).unwrap();
+    a.num_frames += 1;
+    assert!(encode_animation(&a, &limits).is_err());
+    let mut a = decode_animation(&animation(), &limits).unwrap();
+    a.motions[0].time_properties_flag = 0;
+    assert!(encode_animation(&a, &limits).is_err());
+    let mut s = decode_skeleton(&skeleton(&[("ROOT", "NULL")]), &limits).unwrap();
+    s.bones[0].parent = Some(0);
+    assert!(encode_skeleton(&s, &limits).is_err());
+    let mut s = decode_skeleton(&skeleton(&[("ROOT", "NULL")]), &limits).unwrap();
+    s.bones[0].rotation[0] = F32Bits(f32::NAN.to_bits());
+    assert!(encode_skeleton(&s, &limits).is_err());
+}
+
+#[test]
+fn standalone_authoring_charges_retained_data_and_output_before_allocating() {
+    let m = decode_mesh(&mesh(), &Limits::default()).unwrap();
+    let limits = Limits {
+        max_total_decoded_bytes: mesh().len(),
+        ..Limits::default()
+    };
+    assert_eq!(
+        encode_mesh(&m, &limits).unwrap_err().kind,
+        ErrorKind::LimitExceeded
+    );
+    let limits = Limits {
+        max_resource_bytes: mesh().len() - 1,
+        ..Limits::default()
+    };
+    assert_eq!(
+        encode_mesh(&m, &limits).unwrap_err().kind,
+        ErrorKind::LimitExceeded
+    );
+    let limits = Limits {
+        max_vertices: 3,
+        ..Limits::default()
+    };
+    assert_eq!(
+        encode_mesh(&m, &limits).unwrap_err().kind,
+        ErrorKind::LimitExceeded
+    );
+}
+
+#[test]
+fn standalone_authoring_respects_explicit_source_coordinates() {
+    let limits = Limits::default();
+    let mut m = decode_mesh(&mesh(), &limits).unwrap();
+    for v in &mut m.vertices {
+        v.position = CoordinatePolicy::FreeSo.vector(v.position);
+        v.normal = CoordinatePolicy::FreeSo.vector(v.normal);
+    }
+    for v in &mut m.blend_vertices {
+        v.position = CoordinatePolicy::FreeSo.vector(v.position);
+        v.normal = CoordinatePolicy::FreeSo.vector(v.normal);
+    }
+    m.coordinate_policy = CoordinatePolicy::Source;
+    assert_eq!(encode_mesh(&m, &limits).unwrap(), mesh());
+}
+
+#[test]
+fn standalone_reference_authoring_retains_selectors_and_identifier_order() {
+    let limits = Limits::default();
+    let binding = [
+        0, 0, 0, 1, 1, b'b', 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 21, 0, 0, 0, 22, 0, 0, 0, 23,
+    ];
+    let mut b = decode_binding(&binding, &limits).unwrap();
+    assert_eq!(encode_binding(&b, &limits).unwrap(), binding);
+    b.mesh_selector = 8;
+    assert!(encode_binding(&b, &limits).is_err());
+    let appearance = [
+        0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 1, 0, 0, 0, 8, 0, 0, 0, 9,
+    ];
+    let a = decode_appearance(&appearance, &limits).unwrap();
+    assert_eq!(encode_appearance(&a, &limits).unwrap(), appearance);
+    let mut outfit = Vec::new();
+    for value in [1, 27, 1, 2, 3, 4, 5, 6, 7, 8] {
+        be(value, &mut outfit);
+    }
+    let o = decode_outfit(&outfit, &limits).unwrap();
+    assert_eq!(encode_outfit(&o, &limits).unwrap(), outfit);
+}
+
+#[test]
 fn animation_invalid_indices_and_float_policy_are_explicit() {
     for value in [1u32, u32::MAX] {
         let mut b = animation();

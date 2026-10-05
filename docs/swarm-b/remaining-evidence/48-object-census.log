@@ -1,0 +1,13 @@
+{
+  "check": true,
+  "denominator": {
+    "checked_in_source_paths": 745,
+    "decoded_object_rows": 1327,
+    "distinct_source_hashes": 730,
+    "full_installation_baseline_available": false,
+    "scope": "all IFF/PIFF source paths checked in at pinned git baseline; not the W00 full installation baseline",
+    "source_cohort_rows_without_decoded_object": 275,
+    "total_leaf_tickets": 1602
+  },
+  "verified_gameplay_rows": 0
+}

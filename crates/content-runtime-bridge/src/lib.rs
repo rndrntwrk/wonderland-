@@ -3,7 +3,9 @@
 
 mod budget;
 mod cooked_json;
+mod json_u64;
 
+pub use interaction_rules;
 pub use sim_core;
 
 pub const SIM_CORE_REVISION: &str = "8a0e251d19e222a0a6833d7408ca629f674e1729";
@@ -45,6 +47,8 @@ pub mod content;
 pub mod cooked;
 pub mod cooked_metadata;
 pub mod cooked_replay;
+pub mod inspection;
+pub mod interactions;
 pub mod isolated;
 
 #[cfg(feature = "creator-debug")]

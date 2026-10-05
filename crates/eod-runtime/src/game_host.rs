@@ -241,6 +241,10 @@ fn invoker_used(state: &State, invoker: InvokerId) -> bool {
             .values()
             .any(|controller| controller.invoker == invoker)
         || state.games.values().any(|game| game.invoker == invoker)
+        || state
+            .native_groups
+            .values()
+            .any(|game| game.invoker == invoker)
 }
 pub(crate) fn roster(state: &State, game: &SharedGame) -> Result<Roster, Error> {
     let mut roster = [0; 4];

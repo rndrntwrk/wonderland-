@@ -1,0 +1,109 @@
+{
+  "schema": "wonderland.creator-web.browser-verification.v1",
+  "browser": "141.0.7390.37",
+  "wasm_sha256": "4311c98a13468632e1009411f0ab28d16e43671b922d6d37f0d6135263eea087",
+  "input_sha256": "f4a543618c606e50e6eb56d0df723346cbc017440b81ec0876af461310d791e2",
+  "checks": [
+    {
+      "name": "native file chooser imports actual IFF bytes",
+      "status": "passed"
+    },
+    {
+      "name": "no-op export is byte-identical",
+      "status": "passed"
+    },
+    {
+      "name": "filter, typed tuning edit and exact binary export",
+      "status": "passed"
+    },
+    {
+      "name": "tab keyboard navigation and invalid branch atomicity",
+      "status": "passed"
+    },
+    {
+      "name": "guarded branch edit, history undo and redo",
+      "status": "passed"
+    },
+    {
+      "name": "UTF-8 text, emoji and markup stay literal",
+      "status": "passed"
+    },
+    {
+      "name": "palette and slot edits use the real typed codecs",
+      "status": "passed"
+    },
+    {
+      "name": "malformed and oversized imports preserve the active document",
+      "status": "passed"
+    },
+    {
+      "name": "reimport validates edited output and clears bounded history",
+      "status": "passed"
+    },
+    {
+      "name": "hostile labels are text and truncated raw previews cannot silently replace resources",
+      "status": "passed"
+    },
+    {
+      "name": "390px viewport retains usable resource and edit controls without page overflow",
+      "status": "passed"
+    },
+    {
+      "name": "metadata, resource addition and removal preserve exact unaffected bytes",
+      "status": "passed"
+    },
+    {
+      "name": "empty IFF can acquire its first valid resource",
+      "status": "passed"
+    },
+    {
+      "name": "source-bound sprite package export, edit, stale rejection and undo",
+      "status": "passed"
+    },
+    {
+      "name": "upgrade panel preserves no-op bytes and applies typed price changes",
+      "status": "passed"
+    },
+    {
+      "name": "neighborhood panel enforces identities and keeps source-order nearest ties",
+      "status": "passed"
+    },
+    {
+      "name": "asset panel edits real binary references without rounding 64-bit identities",
+      "status": "passed"
+    },
+    {
+      "name": "city painter modifies real 512px map pixels and rejects invalid categorical colors",
+      "status": "passed"
+    },
+    {
+      "name": "patch panel resolves ordered PIFF bytes, suppression and exact source names",
+      "status": "passed"
+    },
+    {
+      "name": "workbench navigation preserves independent documents, undo history and dirty state",
+      "status": "passed"
+    },
+    {
+      "name": "all workbench panels stay usable at 390px with keyboard focus and no page overflow",
+      "status": "passed"
+    },
+    {
+      "name": "advanced draft cannot silently apply to a replacement source revision",
+      "status": "failed",
+      "error": "old draft must be cleared or rejected, never rebound\n+ actual - expected\n... Skipped lines\n\n  Buffer(24) [Uint8Array] [\n    0,\n    0,\n    0,\n    1,\n...\n    0,\n+   1,\n-   2,\n    0,\n    0,\n    0,\n    8,\n    18,\n"
+    },
+    {
+      "name": "unchanged neighborhood form preserves absent optional source fields byte-for-byte",
+      "status": "failed",
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n+ Buffer(178) [Uint8Array] [\n- Buffer(161) [Uint8Array] [\n    91,\n    123,\n    34,\n-   71,\n-   85,\n-   73,\n    68,\n+   101,\n+   115,\n+   99,\n+   114,\n+   105,\n+   112,\n+   116,\n+   105,\n+   111,\n+   110,\n    34,\n    58,\n    34,\n-   97,\n    34,\n    44,\n    34,\n+   68,\n+   105,\n+   115,\n+   116,\n-   78,\n    97,\n+   110,\n+   99,\n-   109,\n    101,\n+   77,\n+   117,\n+   108,\n    34,\n    58,\n+   57,\n+   46,\n+   48,\n+   44,\n    34,\n+   70,\n+   117,\n+   116,\n+   117,\n-   71,\n-   97,\n    114,\n-   100,\n    101,\n-   110,\n    34,\n+   58,\n+   55,\n    44,\n    34,\n+   71,\n+   85,\n+   73,\n+   68,\n+   34,\n+   58,\n+   34,\n+   97,\n+   34,\n+   44,\n+   34,\n    76,\n    111,\n    99,\n    97,\n    116,\n...\n    34,\n+   78,\n+   97,\n+   109,\n+   101,\n+   34,\n+   58,\n+   34,\n+   71,\n+   97,\n+   114,\n+   100,\n+   101,\n+   110,\n+   34,\n+   125,\n+   44,\n+   123,\n+   34,\n    68,\n    105,\n    115,\n    116,\n    97,\n...\n    58,\n+   48,\n-   57,\n    46,\n    48,\n+   49,\n    44,\n    34,\n-   70,\n-   117,\n-   116,\n-   117,\n-   114,\n-   101,\n-   34,\n-   58,\n-   55,\n-   125,\n-   44,\n-   123,\n-   34,\n    71,\n    85,\n    73,\n    68,\n    34,\n...\n    34,\n-   78,\n-   97,\n-   109,\n-   101,\n-   34,\n-   58,\n-   34,\n-   72,\n-   97,\n-   114,\n-   98,\n-   111,\n-   114,\n-   34,\n-   44,\n-   34,\n    76,\n    111,\n    99,\n    97,\n    116,\n...\n    34,\n+   78,\n-   68,\n-   105,\n-   115,\n-   116,\n    97,\n+   109,\n-   110,\n-   99,\n    101,\n-   77,\n-   117,\n-   108,\n    34,\n    58,\n+   34,\n+   72,\n+   97,\n+   114,\n+   98,\n+   111,\n+   114,\n+   34,\n-   48,\n-   46,\n-   48,\n-   49,\n    125,\n    93\n  ]\n"
+    },
+    {
+      "name": "FSOm transform preserves element selection, recomputes bounds and roundtrips source-bound GLB",
+      "status": "failed",
+      "error": "nonzero element selection survives edit\n\n'0' !== '1'\n"
+    }
+  ],
+  "status": "failed",
+  "completed_at": "2026-10-05T20:36:48.040Z"
+}

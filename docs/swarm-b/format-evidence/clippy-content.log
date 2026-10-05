@@ -1,0 +1,6 @@
+    Checking zmij v1.0.23
+    Checking itoa v1.0.18
+    Checking wonderland-legacy-formats v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/legacy-formats)
+    Checking serde_json v1.0.151
+    Checking wonderland-content-ir v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/content-ir)
+    Finished `dev` profile [unoptimized] target(s) in 7.64s

@@ -1,0 +1,10 @@
+   Compiling wonderland-asset-cooker v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/tools/asset-cooker)
+    Finished `test` profile [unoptimized] target(s) in 2.26s
+     Running tests/format_authoring.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/format_authoring-38d7deedd0f9942a)
+
+running 2 tests
+test new_codecs_decode_actual_payloads_and_cannot_assert_simulation_readiness ... ok
+test source_formats_keep_explicit_codec_and_provenance_through_real_imports ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

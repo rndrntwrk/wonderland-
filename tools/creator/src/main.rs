@@ -1,6 +1,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 // If a copy of the MPL was not distributed with this file, obtain one at https://mozilla.org/MPL/2.0/.
 #![forbid(unsafe_code)]
+mod extended_cli;
 use wonderland_creator::{
     city::{BmpMap, MapLayer},
     debug::{DebugSnapshot, IsolatedDebugProvider, UnsupportedDebugProvider},
@@ -56,6 +57,33 @@ Paths are relative to the root. Parent traversal, absolute paths and symlinks ar
   city-validate INPUT LAYER              requires 512x512 and exact source palette
   city-edit INPUT OUTPUT SHA LAYER X Y R G B
   city-export-ppm INPUT OUTPUT           exact RGB P6 export; alpha is omitted
+  city-image-inspect INPUT              PNG/indexed/RLE BMP sample metadata
+  city-convert INPUT OUTPUT png|bmp     exact 8-bit samples; normalized image envelope
+  city-paint INPUT OUTPUT SHA LAYER X Y RADIUS R G B png|bmp
+  city-road INPUT OUTPUT SHA X Y LENGTH DIRECTION draw|erase png|bmp
+  upgrades-inspect INPUT                source-shaped upgrades.json metadata
+  upgrades-edit INPUT OUTPUT SHA EDITS_JSON
+  neighborhood-inspect INPUT           original neighborhood JSON
+  neighborhood-edit INPUT OUTPUT SHA EDITS_JSON
+  neighborhood-nearest INPUT X Y        source-order nearest origin index
+  asset-inspect KIND INPUT              Vitaboy model, exact IEEE754 f32 bits
+  asset-export KIND INPUT OUTPUT        exact unchanged standalone asset round trip
+  asset-edit KIND INPUT OUTPUT SHA EDITS_JSON
+  KIND: mesh, animation, skeleton, binding, appearance, outfit, purchasable-outfit,
+        collection, hand-group, fsom, nbhm
+  mesh-from-obj INPUT_OBJ OUTPUT_FSOM NAME
+  mesh-obj-export INPUT_FSOM OUTPUT_OBJ
+  mesh-mtl-export INPUT_FSOM OUTPUT_MTL
+  mesh-obj-import INPUT_FSOM OUTPUT_FSOM SHA INPUT_OBJ
+  mesh-gltf-export INPUT_FSOM OUTPUT gltf|glb
+  mesh-gltf-import INPUT_FSOM OUTPUT_FSOM SHA INPUT_GLTF_OR_GLB
+  animation-gltf-export INPUT_ANIM INPUT_SKEL OUTPUT gltf|glb
+  animation-gltf-import INPUT_ANIM INPUT_SKEL OUTPUT_ANIM ANIM_SHA SKEL_SHA INPUT_GLTF_OR_GLB
+  patch-inspect INPUT_IFF SOURCE_NAME PATCHES_JSON
+  patch-export INPUT_IFF OUTPUT_IFF SOURCE_NAME SHA PATCHES_JSON
+  PATCHES_JSON is an ordered array of {path:"patch.piff",is_user:false} objects.
+  EDITS_JSON is an array of {path:[field,index,...],remove:false,value:...} objects.
+  Array indices are canonical decimal strings; index equal to length appends.
   LAYER: terrain, elevation, forest-density, forest-type, road, vertex-color
   inventory                             source tools and precise disposition JSON
   debug-capabilities                    isolated provider status
@@ -185,6 +213,9 @@ fn run() -> Result<(), String> {
     let command = args.remove(0);
     let ws = Workspace::new(root)?;
     let limits = default_limits();
+    if let Some(result) = extended_cli::handle(&command, &args, &ws, &limits) {
+        return result;
+    }
     match command.as_str() {
         "inventory" => {
             require(&args, 0)?;

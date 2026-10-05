@@ -11,6 +11,24 @@ use crate::{reader::Reader, Error, ErrorKind, Limits, Result};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, mem::size_of};
 
+pub(crate) mod encode;
+pub use encode::{
+    encode_animation, encode_appearance, encode_binding, encode_mesh, encode_outfit,
+    encode_skeleton,
+};
+mod references;
+pub use references::{
+    decode_collection, decode_hand_group, decode_purchasable_outfit, encode_collection,
+    encode_hand_group, encode_purchasable_outfit, Collection, CollectionItem, HandGroup,
+    PurchasableOutfit,
+};
+mod legacy;
+pub use legacy::{
+    decode_bcf, decode_bmf, decode_cfp, encode_bcf, encode_bcf_text, encode_bmf, encode_bmf_text,
+    encode_cfp, Bcf, BcfAnimation, BcfAppearance, BcfBinding, BcfMotion, BcfSkeleton, CfpFrames,
+    LegacyEncoding, LegacyMesh, LegacyTextOutput, LegacyTextPolicy, SkippedBone,
+};
+
 /// IEEE-754 binary32 bits, serialized as an integer, including the sign of zero.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -577,16 +595,33 @@ pub fn decode_skeleton(bytes: &[u8], limits: &Limits) -> Result<Skeleton> {
         });
     }
     finish(&r)?;
+    let root = resolve_bone_hierarchy(&mut bones, &mut budget, r.position())?;
+    Ok(Skeleton {
+        version,
+        name,
+        bones,
+        root,
+        coordinate_policy: CoordinatePolicy::FreeSo,
+    })
+}
+
+fn resolve_bone_hierarchy(
+    bones: &mut [Bone],
+    budget: &mut DecodeBudget<'_>,
+    offset: usize,
+) -> Result<usize> {
+    let n = bones.len();
+    let limits = budget.limits;
     // Account for the temporary hierarchy map, parent/child edges, visit marks,
     // and iterative work list before constructing any of them.
     budget.reserve::<usize>(
         n.saturating_mul(8),
         limits.max_entries.saturating_mul(8),
-        r.position(),
+        offset,
         "skeleton hierarchy scratch",
     )?;
     let mut names = BTreeMap::new();
-    for bone in &bones {
+    for bone in bones.iter() {
         if bone.name.is_empty() || bone.name == "NULL" {
             return Err(invalid(0, "invalid bone name"));
         }
@@ -596,7 +631,7 @@ pub fn decode_skeleton(bytes: &[u8], limits: &Limits) -> Result<Skeleton> {
     }
     let mut parents = Vec::with_capacity(n);
     let mut root = None;
-    for bone in &bones {
+    for bone in bones.iter() {
         if bone.parent_name == "NULL" {
             if root.replace(bone.index).is_some() {
                 return Err(invalid(0, "multiple skeleton roots"));
@@ -632,13 +667,7 @@ pub fn decode_skeleton(bytes: &[u8], limits: &Limits) -> Result<Skeleton> {
     if seen.iter().any(|seen| !seen) {
         return Err(invalid(0, "disconnected or cyclic bone hierarchy"));
     }
-    Ok(Skeleton {
-        version,
-        name,
-        bones,
-        root,
-        coordinate_policy: CoordinatePolicy::FreeSo,
-    })
+    Ok(root)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "whole_file_and_pinned_git_bytes": "PASS",
+  "verified_original_files": 11,
+  "compiled_whole_files": [
+    "TSOClient/tso.simantics/NetPlay/EODs/Utils/AbstractPlayingCardsDeck.cs"
+  ],
+  "compiled_source_slices": [
+    {
+      "name": "blackjack_values",
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+      "start_byte": 1156,
+      "end_byte_exclusive": 1698,
+      "start_line": 36,
+      "end_line": 51,
+      "sha256": "7269fd7880d8769707ee3fc86908a4c383e02b72792b8f064a645e2b882f33ef"
+    },
+    {
+      "name": "blackjack_player_and_enums",
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+      "start_byte": 91444,
+      "end_byte_exclusive": 111143,
+      "start_line": 1783,
+      "end_line": 2274,
+      "sha256": "774cb130ea7567e84859be54f9f85187b70d5aab36f80319d1e175a9f9c0e6d1"
+    }
+  ],
+  "scaffolding": "Generated namespace/import/static-class containers and an empty opaque VMEODClient type used only by an unused stored identity field. No helper method body or value-table entry is modified; no VM or provider behavior is stubbed.",
+  "exact_repeated_runs": 2,
+  "literal_trace_lines": 35,
+  "trace_sha256": "004a4d28c1913dad4747c6a10ae6dd00d2b45e6555a871f12fb9301f1e146cc9",
+  "negative_controls_rejected": [
+    "circular_deck",
+    "soft17",
+    "ten_value_split",
+    "odd_natural",
+    "odd_insurance",
+    "double_push",
+    "split_settlement",
+    "split_aces"
+  ],
+  "result": "PASS",
+  "scope": "Executed unchanged original deck and byte-exact BlackjackPlayer/value-table/enums helpers, compared to literal expectations. Native host acceptance and poker combinatorial validation remain separate evidence.",
+  "not_qualified": [
+    "complete original handlers or graphical client",
+    "production VM/account provider integration",
+    "original versus native System.Random sequence equivalence",
+    "original HoldemHand evaluator, roulette or slots execution"
+  ]
+}

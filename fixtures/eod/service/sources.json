@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "sources": [
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/VMSerializable.cs",
+      "kind": "compile",
+      "sha256": "8fa17966e63e417bf72e7922e1a50ee108d0b5117ac3e549c35f2f4b280d9bd0",
+      "git_blob": "77cde4b3d75059a8c22ebbe2afae7897c99f9e2f"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Model/VMEODEvent.cs",
+      "kind": "compile",
+      "sha256": "3ad26ce223625fef23a002149842fa319d8d350784cfca90576583008f89901e",
+      "git_blob": "07efbbea05e9a6f1a54b36ca1648d89cd79af8e8"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHandler.cs",
+      "kind": "compile",
+      "sha256": "3fe214f3394ea37aba082dc4d75650e3ca535cf37b1f916765c4efe3753d3471",
+      "git_blob": "5aad5e23471a8e7386e1da0a85e5885eede9619f"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODLobby.cs",
+      "kind": "compile",
+      "sha256": "4b1ce377ffe2a7e64319a855e34c2a48d68ce88bab36b8f551d624fa4cc88984",
+      "git_blob": "73faeed79b05111933891f3b132df3b205ba5508"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Archetypes/VMBasicEOD.cs",
+      "kind": "compile",
+      "sha256": "7efeca9636e07ef26c8da1a3ba5b60fccbdfb3f257d4e244e84ce99d3d5090d9",
+      "git_blob": "5e1443c1d3f962a3d1612dd65829dd11a582a03e"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPropertySelectPlugin.cs",
+      "kind": "compile",
+      "sha256": "7cecc6e29b3c4919a7ca987862f89e6adb5393c3b8df04052ee72307f766749b",
+      "git_blob": "c63c9a69469b8cc0c8fc2d7735cfd606c5670efb"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBulletinPlugin.cs",
+      "kind": "compile",
+      "sha256": "fb9138029606f564e0180b94dd1307d297a9002cdb31351dffb4562395e87732",
+      "git_blob": "78ea6f2b764fff5166f0ad188ad1e150b3b4f53a"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs",
+      "kind": "compile",
+      "sha256": "84da0dd6b542f01be3f1fc7c5ecb7e8822b3139625e9801c7294e9e7474477f4",
+      "git_blob": "5538c4ffcce8aace44dd0637763e5281a2a49447"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameCompDrawACardPlugin.cs",
+      "kind": "compile",
+      "sha256": "497d13ce613a08f21a37f1f72b7d571641cf199b29e150c9a1355b19b9d03be1",
+      "git_blob": "f8721e730fd3aa8860de41b02a7255a85a1fcf3b"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODGameCompDrawACardData.cs",
+      "kind": "compile",
+      "sha256": "ca9bd347a830031f4d5c10d5eb4a29a01522cc9eeaa6c2f36bf74e1a5dd0f51f",
+      "git_blob": "0d28bf47aea8d6b60a399d8ccffbd309e23d9383"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODRackData.cs",
+      "kind": "compile",
+      "sha256": "71dae92b4d7a383796fa8f82c7c1cb2336d4c215bf5a76b6279b160431a1f758",
+      "git_blob": "f863f1931394ae0047194fae72563057692e6e0f"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODCooldownEventPlugin.cs",
+      "kind": "compile",
+      "sha256": "74af8fdffe55a83354c250c813e48bf5ca73c4f9b3ce6c8263445bedac735ebe",
+      "git_blob": "c9c0ceb469a55855ec43cea7da3d1909d1ec5030"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTrunkPlugin.cs",
+      "kind": "compile",
+      "sha256": "1501eb652541a80864166f2c54b1742e0a03554f1f07ed4ffb7dd16bf19553b6",
+      "git_blob": "91d4acd08d205a30cbbb14cb59c1b37568611d20"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs",
+      "kind": "compile",
+      "sha256": "40bed698f504c240ccba6f7eb7983a3038670f7fe97fd1693b5fc160ea62885d",
+      "git_blob": "53b9cff93fb9ef520bfe81fb5fa59b079cd384ba"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMAbstractEODRackPlugin.cs",
+      "kind": "inspection",
+      "sha256": "9514c9c60a301ceaf88b3e31b7cd3d1cea5c43da104dcada6dcb4eb436a025b3",
+      "git_blob": "f1c969fcfeb670f7cda08220f75259df0628349c"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs",
+      "kind": "inspection",
+      "sha256": "dcbbc8e4d7449783e6355f8f5e5e134e6eac8599456e76b564a42e3c907e886e",
+      "git_blob": "e2a8e9128937778e270a9aae2e345fafc1dabffb"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs",
+      "kind": "inspection",
+      "sha256": "d95f2b0df125ed473d2a46928468e8a9220442fd477de99986f75ebe9ab1bea4",
+      "git_blob": "70fd0b1ea570703dc5d1f02ac62af3d2c7d8c612"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDresserPlugin.cs",
+      "kind": "inspection",
+      "sha256": "fa888ba49262035dc25d13d31c4af327203a7986eb0787fa7c1344a4e2f74ad0",
+      "git_blob": "e930fc08441f0d7ead8e6b536396fa163558696e"
+    },
+    {
+      "path": "TSOClient/tso.simantics/Engine/TSOGlobalLink/Model/VMGLOutfit.cs",
+      "kind": "inspection",
+      "sha256": "bff44ecf6425975c156d1e47f1a8afaa36dd07901703a9d88c5d4ca24f4d374e",
+      "git_blob": "3932c20e4dc01d0515e73efda666d08afd828842"
+    },
+    {
+      "path": "TSOClient/tso.simantics/Engine/Scopes/VMSuitScope.cs",
+      "kind": "inspection",
+      "sha256": "8d94ad9e09f8876dedd64906b9e095c36a25415166666a08de27034012ce4f5b",
+      "git_blob": "a8f60792587defc1d008622e275c0b674c3bc230"
+    },
+    {
+      "path": "TSOClient/tso.common/Serialization/IoBufferUtils.cs",
+      "kind": "inspection",
+      "sha256": "e4938189468646d869c45613e214a0b778158f2f4a82a3b97977d758584177ff",
+      "git_blob": "4b7ab888ed72e3cd86d2c56cdc1a59f450c84493"
+    },
+    {
+      "path": "TSOClient/tso.common/Serialization/ModelSerializer.cs",
+      "kind": "inspection",
+      "sha256": "47ec2fd98b014058b4866276c2e2b771b1f921512a76b89018d03b9dbdc06929",
+      "git_blob": "68d32dc1a23b466fd59f8f0d970a414b3fdc7eb3"
+    }
+  ]
+}

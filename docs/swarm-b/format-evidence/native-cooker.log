@@ -1,0 +1,83 @@
+   Compiling wonderland-content-ir v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/content-ir)
+   Compiling wonderland-asset-cooker v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/tools/asset-cooker)
+    Finished `test` profile [unoptimized] target(s) in 6.80s
+     Running unittests src/lib.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/wonderland_asset_cooker-3492c4ec2c99635f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/wonderland_asset_cooker-5dc5159bb7089c7e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/cli-aa483b8730c2ef32)
+
+running 2 tests
+test failures_never_publish_and_inspect_exposes_override_ids ... ok
+test real_demo_reproducibility_verify_corruption_subset_plan_and_no_clobber ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/cooking.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/cooking-9ed854fc146e7fe6)
+
+running 4 tests
+test failed_closure_or_duplicate_resource_does_not_return_a_partial_release ... ok
+test audio_members_validate_pcm_frames_and_stay_out_of_simulation_readiness ... ok
+test pack_splitting_is_bounded_and_patch_or_tuning_changes_cache_identity ... ok
+test cooking_rebuilds_identically_and_readiness_excludes_unrelated_group ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/format_authoring.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/format_authoring-38d7deedd0f9942a)
+
+running 2 tests
+test new_codecs_decode_actual_payloads_and_cannot_assert_simulation_readiness ... ok
+test source_formats_keep_explicit_codec_and_provenance_through_real_imports ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/import.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/import-58c0d0f9012cec42)
+
+running 12 tests
+test fixture_preserves_unknown_and_validates_explicit_critical_closure ... ok
+test far3_and_dbpf_import_preserve_canonical_components_and_opaque_payload ... ok
+test explicit_tsbo_ttab_survives_real_import_and_codec_validation ... ok
+test import_obeys_exact_piff_source_user_precedence_patch_order_and_byte_provenance ... ok
+test duplicate_ids_unknown_overrides_missing_dependencies_and_malformed_critical_fail ... ok
+test rejects_unknown_spec_fields ... ok
+test actual_scopes_otf_rewrite_upgrade_dynamic_values_are_cooked_and_hashed ... ok
+test incomplete_cooked_pack_map_never_publishes_a_manifest ... ok
+test archive_import_keeps_full_id_and_never_turns_entry_names_into_paths ... ok
+test standalone_pcm_import_uses_actual_codec_and_refuses_critical_audio ... ok
+test nonregular_fifo_is_refused_without_opening ... ok
+test source_palette_and_drawing_edges_survive_empty_override_and_forced_pack_split ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/objf.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/objf-5e37b77ca4a06acf)
+
+running 1 test
+test original_layout_objf_survives_import_critical_packing_and_verified_loading ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/packs.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/packs-719c7cdb218df35a)
+
+running 5 tests
+test duplicate_ids_unsafe_ids_and_allocation_limits_rejected_before_pack_creation ... ok
+test repeat_build_is_deterministic_and_index_extracts_exact_resources ... ok
+test malicious_overlaps_counts_reserved_flags_and_payload_edits_fail_even_with_rehashed_outer_pack ... ok
+test verified_pack_is_checked_against_manifest_members_and_payload_hashes ... ok
+test rejects_wrong_hash_and_all_truncated_prefixes ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests wonderland_asset_cooker
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

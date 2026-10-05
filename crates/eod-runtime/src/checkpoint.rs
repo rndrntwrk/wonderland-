@@ -73,7 +73,8 @@ impl NativeHost {
         &mut self,
         store: &mut impl PrivateCheckpointStore,
     ) -> Result<CheckpointStamp, Error> {
-        if !self.state.public.is_empty()
+        if !self.state.native_commands.is_empty()
+            || !self.state.public.is_empty()
             || !self.state.private.is_empty()
             || self.state.instances.values().any(|instance| {
                 instance
@@ -94,7 +95,9 @@ impl NativeHost {
             epoch: self.identity.epoch,
             revision,
         };
-        if !self.state.controllers.is_empty()
+        if !self.state.native_groups.is_empty()
+            || !self.state.native_operations.is_empty()
+            || !self.state.controllers.is_empty()
             || !self.state.games.is_empty()
             || !self.state.writes.is_empty()
             || self
@@ -103,7 +106,12 @@ impl NativeHost {
                 .values()
                 .any(|instance| !matches!(instance.handler, HandlerState::Timer(_)))
         {
-            let bytes = encode_v2(self, stamp)?;
+            let bytes =
+                if self.state.native_groups.is_empty() && self.state.native_operations.is_empty() {
+                    encode_v2(self, stamp)?
+                } else {
+                    crate::native_checkpoint::encode(self, stamp)?
+                };
             store
                 .write_private(
                     PrivateCheckpointKey {
@@ -114,6 +122,9 @@ impl NativeHost {
                 )
                 .map_err(map_store_error)?;
             self.state.checkpoint_revision = revision;
+            for record in self.state.native_operations.values_mut() {
+                record.prepared = true;
+            }
             for record in self.state.writes.values_mut() {
                 record.prepared = true;
             }
@@ -221,12 +232,15 @@ fn map_store_error(error: StoreError) -> Error {
     }
 }
 
-fn decode(
+pub(crate) fn decode(
     bytes: &[u8],
     identity: HostIdentity,
     expected: CheckpointStamp,
     limits: HostLimits,
 ) -> Result<NativeHost, Error> {
+    if bytes.get(..6) == Some(&b"EODP\x04\x00"[..]) {
+        return crate::native_checkpoint::decode(bytes, identity, expected, limits);
+    }
     if bytes.get(..6) == Some(&b"EODP\x02\x00"[..]) || bytes.get(..6) == Some(&b"EODP\x03\x00"[..])
     {
         return decode_v2(bytes, identity, expected, limits);
@@ -357,6 +371,10 @@ fn decode(
             instances,
             controllers: BTreeMap::new(),
             games: BTreeMap::new(),
+            native_groups: BTreeMap::new(),
+            native_operations: BTreeMap::new(),
+            next_native_operation: 1,
+            native_commands: vec![],
             writes: BTreeMap::new(),
             public: vec![],
             private: vec![],
@@ -366,7 +384,7 @@ fn decode(
 
 // Format 2 stores per-handler schemas, native controller bindings and immutable
 // plugin-data intents. No connection IDs or public/private delivery queues occur.
-fn encode_v2(host: &NativeHost, stamp: CheckpointStamp) -> Result<Vec<u8>, Error> {
+pub(crate) fn encode_v2(host: &NativeHost, stamp: CheckpointStamp) -> Result<Vec<u8>, Error> {
     let limit = host.limits.max_checkpoint_bytes;
     let mut writer = Writer(Vec::new());
     check_write_size(0, HEADER_SIZE, limit)?;
@@ -491,6 +509,9 @@ fn encode_handler(handler: &HandlerState) -> Vec<u8> {
         HandlerState::Signs(state) => state.save_private(),
         HandlerState::Scoreboard(state) => state.save_private(),
         HandlerState::PermissionDoor(state) => state.save_private(),
+        HandlerState::NativeParticipant { .. } => {
+            unreachable!("native participants use private format4")
+        }
         HandlerState::GameParticipant {
             game,
             slot,
@@ -1004,6 +1025,10 @@ fn decode_v2(
         instances,
         controllers,
         games,
+        native_groups: BTreeMap::new(),
+        native_operations: BTreeMap::new(),
+        next_native_operation: 1,
+        native_commands: vec![],
         writes,
         public: vec![],
         private: vec![],
