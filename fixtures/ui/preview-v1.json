@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "revision": 1,
+  "city_name": "Quack's Creek",
+  "characters": [
+    {
+      "id": "maya",
+      "name": "Maya",
+      "availability": {
+        "status": "available"
+      },
+      "money": 1250,
+      "needs": {
+        "Energy": 72,
+        "Hunger": 61,
+        "Fun": 85,
+        "Social": 68,
+        "Hygiene": 90,
+        "Bladder": 54,
+        "Comfort": 78,
+        "Room": 82
+      }
+    },
+    {
+      "id": "jules",
+      "name": "Jules",
+      "availability": {
+        "status": "available"
+      },
+      "money": 1250,
+      "needs": {
+        "Energy": 72,
+        "Hunger": 61,
+        "Fun": 85,
+        "Social": 68,
+        "Hygiene": 90,
+        "Bladder": 54,
+        "Comfort": 78,
+        "Room": 82
+      }
+    },
+    {
+      "id": "nico",
+      "name": "Nico",
+      "availability": {
+        "status": "available"
+      },
+      "money": 1250,
+      "needs": {
+        "Energy": 72,
+        "Hunger": 61,
+        "Fun": 85,
+        "Social": 68,
+        "Hygiene": 90,
+        "Bladder": 54,
+        "Comfort": 78,
+        "Room": 82
+      }
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "availability": {
+        "status": "available"
+      },
+      "money": 1250,
+      "needs": {
+        "Energy": 72,
+        "Hunger": 61,
+        "Fun": 85,
+        "Social": 68,
+        "Hygiene": 90,
+        "Bladder": 54,
+        "Comfort": 78,
+        "Room": 82
+      }
+    },
+    {
+      "id": "leo",
+      "name": "Leo",
+      "availability": {
+        "status": "available"
+      },
+      "money": 1250,
+      "needs": {
+        "Energy": 72,
+        "Hunger": 61,
+        "Fun": 85,
+        "Social": 68,
+        "Hygiene": 90,
+        "Bladder": 54,
+        "Comfort": 78,
+        "Room": 82
+      }
+    }
+  ],
+  "places": [
+    {
+      "id": "harbor-cafe",
+      "name": "Harbor Café",
+      "population": 6,
+      "availability": {
+        "status": "available"
+      },
+      "anchor": {
+        "x": 0.515,
+        "y": 0.74
+      }
+    },
+    {
+      "id": "park",
+      "name": "Park",
+      "population": 8,
+      "availability": {
+        "status": "unavailable",
+        "reason": "This place has no preview scene yet."
+      },
+      "anchor": {
+        "x": 0.365,
+        "y": 0.59
+      }
+    },
+    {
+      "id": "arcade",
+      "name": "Arcade",
+      "population": 6,
+      "availability": {
+        "status": "unavailable",
+        "reason": "This place has no preview scene yet."
+      },
+      "anchor": {
+        "x": 0.705,
+        "y": 0.56
+      }
+    },
+    {
+      "id": "home",
+      "name": "Home",
+      "population": 1,
+      "availability": {
+        "status": "unavailable",
+        "reason": "This place has no preview scene yet."
+      },
+      "anchor": {
+        "x": 0.72,
+        "y": 0.8
+      }
+    }
+  ],
+  "objects": [
+    {
+      "target": {
+        "id": "coffee-machine",
+        "generation": 1
+      },
+      "revision": 1,
+      "place_id": "harbor-cafe",
+      "name": "Coffee machine",
+      "anchor": {
+        "x": 0.565,
+        "y": 0.555
+      },
+      "offers": [
+        {
+          "id": "make-coffee",
+          "label": "Make coffee",
+          "availability": {
+            "status": "available"
+          }
+        },
+        {
+          "id": "clean",
+          "label": "Clean",
+          "availability": {
+            "status": "unavailable",
+            "reason": "The coffee machine is already clean"
+          }
+        },
+        {
+          "id": "inspect",
+          "label": "Inspect",
+          "availability": {
+            "status": "available"
+          }
+        }
+      ]
+    }
+  ]
+}
