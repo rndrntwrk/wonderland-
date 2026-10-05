@@ -1,0 +1,29 @@
+[package]
+name = "wonderland-interactions-check"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.90"
+publish = false
+license = "MPL-2.0"
+
+# A test-only crate compiling the real module. Swarm F owns the shipping crate.
+[lib]
+path = "../../../crates/sim-core/src/interactions/mod.rs"
+
+[[test]]
+name = "source_contract"
+path = "../../../tests/interactions/source_contract.rs"
+
+[[test]]
+name = "query_and_intents"
+path = "../../../tests/interactions/query_and_intents.rs"
+
+[[test]]
+name = "queue_semantics"
+path = "../../../tests/interactions/queue_semantics.rs"
+
+[[test]]
+name = "module_integration_shape"
+path = "../../../tests/interactions/module_integration_shape.rs"
+
+[workspace]
