@@ -1,0 +1,145 @@
+{
+  "schema": "wonderland.tool-disposition.v1",
+  "scope": "Swarm B W16 offline creator foundations",
+  "source_revision": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "tools": [
+    {
+      "name": "Volcanic / FSO.IDE",
+      "source": "TSOClient/FSO.IDE/FSO.IDE.csproj",
+      "disposition": "partial-offline-foundation",
+      "implemented": [
+        "IFF resource inspection and JSON metadata",
+        "guarded BHAV branch and operand edits with CFG validation",
+        "STR#/CTSS/TTAs text edits",
+        "BCON constant edits",
+        "SLOT position edits",
+        "guarded external OTF constant edits preserving unrelated XML"
+      ],
+      "unsupported": [
+        "graphical resource browser",
+        "object placement and rendered preview",
+        "live VM step/debug",
+        "EOD editor",
+        "upgrade authoring",
+        "OBJD/TTAB authoring",
+        "mesh animation authoring"
+      ]
+    },
+    {
+      "name": "Iffinator",
+      "source": "Other/tools/Iffinator/Iffinator/Iffinator.csproj",
+      "disposition": "partial-offline-foundation",
+      "implemented": [
+        "bounded IFF import and exact untouched export",
+        "unknown chunk extraction and guarded replacement"
+      ],
+      "unsupported": [
+        "Flash UI",
+        "spritesheet visual editor",
+        "arbitrary new resources"
+      ]
+    },
+    {
+      "name": "FarExtractor",
+      "source": "Other/tools/FarExtractor/FarExtractor/Form1.cs",
+      "disposition": "partial-offline-foundation",
+      "implemented": [
+        "FAR1a/FAR1b/FAR3/DBPF inventory and explicitly named bounded extraction"
+      ],
+      "unsupported": [
+        "GUI",
+        "bulk extract using archive paths",
+        "archive writer"
+      ]
+    },
+    {
+      "name": "City Painter",
+      "source": "TSOClient/tso.client/Rendering/City/Plugins/MapPainterPlugin.cs",
+      "disposition": "partial-offline-foundation",
+      "implemented": [
+        "source palette validation",
+        "exact RGB24/RGBA32 uncompressed BMP pixel edits",
+        "P6 RGB PPM export"
+      ],
+      "unsupported": [
+        "PNG import/export",
+        "compressed or indexed BMP",
+        "road stroke reciprocity authoring",
+        "brushes",
+        "rendered city preview",
+        "neighbourhood database import"
+      ]
+    },
+    {
+      "name": "CityRenderer",
+      "source": "Other/tools/CityRenderer/CityRenderer/CityRenderer.csproj",
+      "disposition": "unsupported",
+      "implemented": [],
+      "unsupported": [
+        "original city capture and rendering"
+      ]
+    },
+    {
+      "name": "TSO MeshViewer",
+      "source": "Other/tools/TSO MeshViewer/XNAWinForms/XNAWinForms.csproj",
+      "disposition": "unsupported",
+      "implemented": [],
+      "unsupported": [
+        "interactive mesh viewing and authoring"
+      ]
+    },
+    {
+      "name": "XaToWav",
+      "source": "Other/tools/XaToWav/XaToWav/Program.cs",
+      "disposition": "not-ported-by-creator",
+      "implemented": [],
+      "unsupported": [
+        "XA/UTK to WAV conversion in creator CLI"
+      ]
+    },
+    {
+      "name": "Mr. Shipper",
+      "source": "Other/tools/Mr. Shipper/Mr. Shipper/Program.cs",
+      "disposition": "unsupported",
+      "implemented": [],
+      "unsupported": [
+        "Windows registry installation discovery",
+        "shipping proprietary assets"
+      ]
+    },
+    {
+      "name": "PDChat",
+      "source": "Other/tools/PDChat/PDChat/PDChat.csproj",
+      "disposition": "out-of-scope",
+      "implemented": [],
+      "unsupported": [
+        "legacy chat client"
+      ]
+    },
+    {
+      "name": "SimsLib",
+      "source": "Other/tools/SimsLib/SimsLib/SimsLib.csproj",
+      "disposition": "parser-foundation-in-legacy-formats",
+      "implemented": [
+        "creator consumes source-derived bounded legacy parser APIs"
+      ],
+      "unsupported": [
+        "full historical API replacement"
+      ]
+    },
+    {
+      "name": "libfar / FARDive",
+      "source": "Other/tools/libfar/FARDive",
+      "disposition": "not-ported-by-creator",
+      "implemented": [],
+      "unsupported": [
+        "historical native utility compatibility"
+      ]
+    }
+  ],
+  "debug_provider": {
+    "mode": "isolated snapshot adapter only",
+    "live_step_supported": false,
+    "provider_installed": false
+  }
+}
