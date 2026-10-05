@@ -1,0 +1,77 @@
+{
+  "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "files": [
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODHost.cs",
+      "sha256": "34dd29155f18edfae1388037c04ca118eb25fda84869c5be277ad5b062faf149"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+      "sha256": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHandler.cs",
+      "sha256": "3fe214f3394ea37aba082dc4d75650e3ca535cf37b1f916765c4efe3753d3471"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Model/VMEODEvent.cs",
+      "sha256": "3ad26ce223625fef23a002149842fa319d8d350784cfca90576583008f89901e"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Archetypes/VMBasicEOD.cs",
+      "sha256": "7efeca9636e07ef26c8da1a3ba5b60fccbdfb3f257d4e244e84ce99d3d5090d9"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODLobby.cs",
+      "sha256": "4b1ce377ffe2a7e64319a855e34c2a48d68ce88bab36b8f551d624fa4cc88984"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODPersist.cs",
+      "sha256": "76c7a93cae8c0489bd7395a66ee1e4816958bf19533489197e07a076e98dc696"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODSignsData.cs",
+      "sha256": "3e98ff7020ff35907ca32e68e7a1367e440a7997f96f4e8571ad0a260a61714a"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTimerPlugin.cs",
+      "sha256": "70231132461a85d594f986f0c99b60cc8a01a5473bf29ddba2e636b9993c34ee"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDanceFloorPlugin.cs",
+      "sha256": "40fdd6267c7f68a93b89224d6138566b69bb5213ebc32a752502a463dd449e9e"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSignsPlugin.cs",
+      "sha256": "51b26aededbe620d24fdbbeb54dbc690e3563f58981567b89ceb4af07952fd75"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODScoreboardPlugin.cs",
+      "sha256": "fb6a2f71cb147e3813a406d7ed615000629be092ccf25f3215754dd804f29101"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPermissionDoorPlugin.cs",
+      "sha256": "e9bcbe861ba445d766f5d597d4ab5687187592e1368eb5ffba5dad3bd5832ba5"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODStubPlugin.cs",
+      "sha256": "7375e5c8f8b11b75fb91d12d8c5f5df1f875bd996c691709a1ea679ad07c90aa"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/VMSerializable.cs",
+      "sha256": "8fa17966e63e417bf72e7922e1a50ee108d0b5117ac3e549c35f2f4b280d9bd0"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/VMNetCommandBodyAbstract.cs",
+      "sha256": "a44bd17c1e50c7cc7f667541804d748b05ede0f34020f8d042d0486b66b0b88f"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetEODEventCmd.cs",
+      "sha256": "d43d2b2e04d49e5549e1dcc3f02788453bbaef2727dc027beed9f251d7bcffa4"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetEODMessageCmd.cs",
+      "sha256": "dd142060d760bbf055a938bc67845fb51aa03ae2c59d7df76dacdde116ba2447"
+    }
+  ]
+}

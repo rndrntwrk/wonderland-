@@ -826,9 +826,9 @@ fn checkpoints_reject_schema_version_epochs_stamps_and_timeout_policy_drift() {
         (6, Error::UnsupportedPluginSchema),
     ] {
         store.bytes = original.clone();
-        // Generalized host checkpoints now support format 2; schema 2 does not exist.
+        // Cooperative checkpoints support format 3; schema 2 does not exist.
         store.bytes[offset..offset + 2]
-            .copy_from_slice(&(if offset == 4 { 3u16 } else { 2u16 }).to_le_bytes());
+            .copy_from_slice(&(if offset == 4 { 4u16 } else { 2u16 }).to_le_bytes());
         assert_eq!(
             NativeHost::restore_from(&mut store, identity(8), stamp, limits()).unwrap_err(),
             expected

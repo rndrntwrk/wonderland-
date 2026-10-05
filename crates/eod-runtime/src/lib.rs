@@ -9,6 +9,8 @@ compile_error!("authoritative private EOD state is native-only");
 
 mod checkpoint;
 pub mod effects;
+mod game_host;
+mod games;
 mod host;
 pub mod persistence;
 pub mod protocol;
@@ -19,6 +21,10 @@ mod timer;
 pub use checkpoint::{
     CheckpointKind, CheckpointStamp, PrivateCheckpointKey, PrivateCheckpointStore, PrivateRead,
     StoreError,
+};
+pub use games::{
+    GameControllerInput, GameControllerRequest, GameControllerTicket, GameObjectEvent,
+    GamePlayerInput, GamePlayerRequest, GameVmInput, MazeRole, PizzaTuning, PrivateSeed,
 };
 pub use host::{
     ConnectRequest, ConnectionAuthority, HostIdentity, HostLimits, NativeHost,

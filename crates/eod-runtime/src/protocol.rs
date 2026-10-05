@@ -236,6 +236,10 @@ pub enum PublicVmEvent {
         invoker: InvokerId,
         event: SourceObjectEvent,
     },
+    CooperativeGame {
+        invoker: InvokerId,
+        event: crate::GameObjectEvent,
+    },
 }
 
 impl PublicVmEvent {
@@ -253,6 +257,10 @@ impl PublicVmEvent {
                 avatar_object,
             } => (*controller, i16::from(*button), vec![*avatar_object]),
             Self::SourcePlugin { invoker, event } => {
+                let (code, arguments) = event.source_event();
+                (*invoker, code, arguments)
+            }
+            Self::CooperativeGame { invoker, event } => {
                 let (code, arguments) = event.source_event();
                 (*invoker, code, arguments)
             }
