@@ -6,6 +6,9 @@ use crate::vitaboy::{finite_le, invalid, unsupported, DecodeBudget, F32Bits};
 use crate::{reader::Reader, Error, ErrorKind, Limits, Result};
 use serde::{Deserialize, Serialize};
 
+mod encode;
+pub use encode::{encode_palt, encode_spr2, encode_spr2_with_palettes, EncodedSpr2, Spr2AlphaMode};
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Palette {
     pub version: u32,

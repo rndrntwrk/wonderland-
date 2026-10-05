@@ -3,6 +3,8 @@
 use crate::{reader::Reader, Error, ErrorKind, Limits, Result};
 use std::collections::BTreeSet;
 
+mod index;
+
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize, serde::Deserialize,
 )]
@@ -208,31 +210,82 @@ fn encoded_size(file: &IffFile, limits: &Limits) -> Result<usize> {
     Ok(size)
 }
 
-/// Encodes editable envelopes. Opaque `rsmp` indexing metadata requires the
-/// original-preserving [`IffDocument`] API and is never silently rewritten.
+/// Encodes envelopes without resource maps. Indexed edits require original
+/// offset evidence: use [`IffDocument`] or [`encode_rebuilding_index`].
 pub fn encode(file: &IffFile, limits: &Limits) -> Result<Vec<u8>> {
     let size = encoded_size(file, limits)?;
     if has_map(file) {
         return Err(Error::new(
             ErrorKind::UnsupportedVersion,
             60,
-            "rebuilding opaque IFF resource maps is unsupported",
+            "indexed IFF encoding requires the original source document",
         ));
     }
+    Ok(write_envelope(file, size, None))
+}
+
+/// Encodes an edited file against its exact source envelope. Untouched files,
+/// including unsupported maps, retain their original bytes. Changed indexed
+/// files require a complete, consistent version 0 or 1 resource map; its
+/// offsets, counts, names and sizes are rebuilt from the edited chunk list.
+///
+/// The source map chunk and header are writer-managed: callers may relocate
+/// the map but must retain their bytes until this call succeeds. Decode the
+/// returned bytes to establish the baseline for a subsequent edit. This API
+/// never repairs an inconsistent source map or silently drops indexing data.
+///
+/// `max_total_decoded_bytes` also bounds a conservative per-call workspace
+/// plan: source clone, output, rebuilt map, and collection storage. Both the
+/// supplied map payload and its replacement must satisfy resource limits, so
+/// a tight limit may reject a shrinking edit whose old map exceeds that limit.
+pub fn encode_rebuilding_index(
+    original_bytes: &[u8],
+    edited: &IffFile,
+    limits: &Limits,
+) -> Result<Vec<u8>> {
+    index::check_workspace(original_bytes, edited, limits)?;
+    encoded_size(edited, limits)?;
+    let original = decode(original_bytes, limits)?;
+    if original == *edited {
+        return Ok(original_bytes.to_vec());
+    }
+    if !has_map(&original) {
+        return encode(edited, limits);
+    }
+    let rebuilt = index::rebuild(&original, edited, limits)?;
+    Ok(write_envelope(
+        edited,
+        rebuilt.file_size,
+        Some((rebuilt.chunk_index, rebuilt.offset, &rebuilt.data)),
+    ))
+}
+
+fn write_envelope(
+    file: &IffFile,
+    size: usize,
+    replacement: Option<(usize, u32, &[u8])>,
+) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(size);
     bytes.extend_from_slice(&file.header);
-    for chunk in &file.chunks {
+    if let Some((_, offset, _)) = replacement {
+        bytes[60..64].copy_from_slice(&offset.to_be_bytes());
+    }
+    for (index, chunk) in file.chunks.iter().enumerate() {
+        let data = match replacement {
+            Some((map_index, _, data)) if index == map_index => data,
+            _ => &chunk.data,
+        };
         bytes.extend_from_slice(&chunk.key.kind);
-        bytes.extend_from_slice(&((chunk.data.len() + 76) as u32).to_be_bytes());
+        bytes.extend_from_slice(&((data.len() + 76) as u32).to_be_bytes());
         bytes.extend_from_slice(&chunk.key.id.to_be_bytes());
         bytes.extend_from_slice(&chunk.flags.to_be_bytes());
         bytes.extend_from_slice(&chunk.label);
-        bytes.extend_from_slice(&chunk.data);
+        bytes.extend_from_slice(data);
     }
-    Ok(bytes)
+    bytes
 }
 
-/// Preserves a source document for byte-exact passthrough of opaque map metadata.
+/// Preserves exact source bytes and rebuilds validated resource maps on edits.
 #[derive(Clone, Debug)]
 pub struct IffDocument {
     file: IffFile,
@@ -258,18 +311,14 @@ impl IffDocument {
     }
     pub fn encode(&self, limits: &Limits) -> Result<Vec<u8>> {
         encoded_size(&self.file, limits)?;
+        if self.matches_original()? {
+            limits.check_input(&self.original)?;
+            return Ok(self.original.clone());
+        }
         if !self.indexed {
             return encode(&self.file, limits);
         }
-        if !self.matches_original()? {
-            return Err(Error::new(
-                ErrorKind::UnsupportedVersion,
-                60,
-                "editing an indexed IFF requires rebuilding its resource map",
-            ));
-        }
-        limits.check_input(&self.original)?;
-        Ok(self.original.clone())
+        encode_rebuilding_index(&self.original, &self.file, limits)
     }
 
     fn matches_original(&self) -> Result<bool> {
