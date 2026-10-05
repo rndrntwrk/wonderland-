@@ -1,0 +1,15 @@
+[package]
+name = "wonderland-avatar-content"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.90"
+license = "MPL-2.0"
+description = "Bounded original Vitaboy content import and render bridge"
+
+[dependencies]
+wonderland-avatar-view = { path = "../avatar-view" }
+wonderland-render-core = { path = "../render-core" }
+wonderland-legacy-formats = { path = "../legacy-formats" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"

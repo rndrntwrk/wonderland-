@@ -1,5 +1,7 @@
 # Wonderland: action-focused browser UI, first integration slice
 
+> **Scope correction — 5 October 2026:** Approval of the visual direction did not authorize reducing game features or customization. The sample characters, locations and illustrated scenes below describe the prototype, not the complete redesigned game. The [feature-preservation scope](../../design/action-first/preservation-scope.md) governs continuation.
+
 ## Outcome and authority
 
 Implement the approved character grid, directly selectable city map, and object-anchored lot actions in Wonderland. The user approved the revised game screens and authorized starting work and opening pull requests. The target is `rndrntwrk/wonderland-`, a direct FreeSO fork. Its `master` baseline is `4c6b3e8f5835b228723caea3c9f683c62f244f73`.

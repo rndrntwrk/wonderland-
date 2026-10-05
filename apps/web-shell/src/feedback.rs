@@ -5,6 +5,7 @@ use wonderland_contracts::{RequestKind, UiError, UiEvent, UiRequest};
 #[derive(Debug, PartialEq, Eq)]
 pub enum ReplyFeedback {
     Announcement(&'static str),
+    TravelAnnouncement(String),
     Error(UiError),
     None,
 }
@@ -17,7 +18,9 @@ pub fn receive_reply(state: &mut ShellState, request: &UiRequest, event: UiEvent
             ReplyFeedback::Error(UiError::Rejected(reason.chars().take(256).collect()))
         }
         (UiEvent::Accepted { .. }, RequestKind::Travel { .. }) => {
-            ReplyFeedback::Announcement("Welcome to Harbor Café.")
+            ReplyFeedback::TravelAnnouncement(crate::authoring_adapter::travel_message(
+                state, request, false,
+            ))
         }
         (UiEvent::Accepted { .. }, RequestKind::Interaction { .. }) => {
             ReplyFeedback::Announcement("Action accepted and added to the queue.")

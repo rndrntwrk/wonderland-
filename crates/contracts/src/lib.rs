@@ -23,6 +23,8 @@ macro_rules! string_id {
 }
 string_id!(CharacterId, PlaceId, ObjectId, ActionId, OperationId);
 
+pub mod authoring;
+
 /// Stable object identity plus incarnation; never an engine entity index.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct EntityRef {
@@ -155,7 +157,7 @@ impl UiProjection {
             return Err(fail("Unsupported version or zero projection revision"));
         }
         if !text(&self.city_name, 128)
-            || self.characters.len() > 64
+            || self.characters.len() > authoring::MAX_PROFILE_RECORDS
             || self.places.len() > 128
             || self.objects.len() > 1024
         {

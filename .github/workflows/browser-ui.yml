@@ -44,3 +44,17 @@ jobs:
       - name: Build the actual WASM application
         working-directory: apps/web-shell
         run: trunk build --release --locked
+      - name: Upload the verified browser preview bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderland-browser-preview
+          path: apps/web-shell/dist/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: Report required formatting and dependency-lock changes
+        if: failure()
+        run: |
+          cargo fmt --all || true
+          cargo metadata --format-version 1 > /dev/null || true
+          git diff -- Cargo.lock crates apps/web-shell

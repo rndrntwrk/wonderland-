@@ -1,0 +1,1525 @@
+{
+  "version": 2,
+  "revision": 1,
+  "profiles": [
+    {
+      "character": {
+        "id": "maya",
+        "name": "Maya",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "home": {
+        "owner_id": "maya",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": [],
+        "instance_capacity": {
+          "kind": "unlimited"
+        },
+        "lot": {
+          "source": "fixture-room",
+          "revision": 1,
+          "bounds": {
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "width": 8,
+            "depth": 6
+          },
+          "levels": [
+            0
+          ],
+          "reserved": [
+            {
+              "cell": {
+                "x": 0,
+                "y": 0
+              },
+              "level": 0
+            }
+          ]
+        },
+        "build": {
+          "source": "fixture-build-capabilities",
+          "revision": 1,
+          "tools": [
+            {
+              "id": "hand",
+              "kind": "hand",
+              "label": "Hand",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "terrain",
+              "kind": "terrain",
+              "label": "Terrain",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "water",
+              "kind": "water",
+              "label": "Water",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "walls",
+              "kind": "walls",
+              "label": "Walls",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "wallpaper",
+              "kind": "wallpaper",
+              "label": "Wallpaper",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "stairs",
+              "kind": "stairs",
+              "label": "Stairs",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "fireplaces",
+              "kind": "fireplaces",
+              "label": "Fireplaces",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "plants",
+              "kind": "plants",
+              "label": "Plants",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "floors",
+              "kind": "floors",
+              "label": "Floors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "doors",
+              "kind": "doors",
+              "label": "Doors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "windows",
+              "kind": "windows",
+              "label": "Windows",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "roof",
+              "kind": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            }
+          ],
+          "view_modes": [
+            {
+              "mode": "walls_down",
+              "label": "Walls down",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "cutaway",
+              "label": "Cutaway",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "walls_up",
+              "label": "Walls up",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            }
+          ],
+          "preview": {
+            "status": "unavailable",
+            "reason": "Architecture preview is not connected"
+          },
+          "commit": {
+            "status": "unavailable",
+            "reason": "Architecture commit is not connected"
+          }
+        },
+        "grants": [
+          {
+            "actor_id": "maya",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "maya",
+              "object_owner_id": "maya",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "maya"
+            ]
+          }
+        ]
+      },
+      "description": "",
+      "shard_id": null,
+      "appearance": {
+        "head": null,
+        "body": null,
+        "skin_tone": null,
+        "gender": null,
+        "decorations": {}
+      },
+      "portrait": {
+        "source": "legacy-preview-artwork",
+        "identity": "maya",
+        "look_id": "maya-everyday",
+        "asset_path": "/assets/art/maya.png"
+      },
+      "wardrobe": {
+        "revision": 1,
+        "categories": [],
+        "outfits": []
+      }
+    },
+    {
+      "character": {
+        "id": "jules",
+        "name": "Jules",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "home": {
+        "owner_id": "jules",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": [],
+        "instance_capacity": {
+          "kind": "unlimited"
+        },
+        "lot": {
+          "source": "fixture-room",
+          "revision": 1,
+          "bounds": {
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "width": 8,
+            "depth": 6
+          },
+          "levels": [
+            0
+          ],
+          "reserved": [
+            {
+              "cell": {
+                "x": 0,
+                "y": 0
+              },
+              "level": 0
+            }
+          ]
+        },
+        "build": {
+          "source": "fixture-build-capabilities",
+          "revision": 1,
+          "tools": [
+            {
+              "id": "hand",
+              "kind": "hand",
+              "label": "Hand",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "terrain",
+              "kind": "terrain",
+              "label": "Terrain",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "water",
+              "kind": "water",
+              "label": "Water",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "walls",
+              "kind": "walls",
+              "label": "Walls",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "wallpaper",
+              "kind": "wallpaper",
+              "label": "Wallpaper",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "stairs",
+              "kind": "stairs",
+              "label": "Stairs",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "fireplaces",
+              "kind": "fireplaces",
+              "label": "Fireplaces",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "plants",
+              "kind": "plants",
+              "label": "Plants",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "floors",
+              "kind": "floors",
+              "label": "Floors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "doors",
+              "kind": "doors",
+              "label": "Doors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "windows",
+              "kind": "windows",
+              "label": "Windows",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "roof",
+              "kind": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            }
+          ],
+          "view_modes": [
+            {
+              "mode": "walls_down",
+              "label": "Walls down",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "cutaway",
+              "label": "Cutaway",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "walls_up",
+              "label": "Walls up",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            }
+          ],
+          "preview": {
+            "status": "unavailable",
+            "reason": "Architecture preview is not connected"
+          },
+          "commit": {
+            "status": "unavailable",
+            "reason": "Architecture commit is not connected"
+          }
+        },
+        "grants": [
+          {
+            "actor_id": "jules",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "jules",
+              "object_owner_id": "jules",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "jules"
+            ]
+          }
+        ]
+      },
+      "description": "",
+      "shard_id": null,
+      "appearance": {
+        "head": null,
+        "body": null,
+        "skin_tone": null,
+        "gender": null,
+        "decorations": {}
+      },
+      "portrait": {
+        "source": "legacy-preview-artwork",
+        "identity": "jules",
+        "look_id": "jules-everyday",
+        "asset_path": "/assets/art/jules.png"
+      },
+      "wardrobe": {
+        "revision": 1,
+        "categories": [],
+        "outfits": []
+      }
+    },
+    {
+      "character": {
+        "id": "nico",
+        "name": "Nico",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "home": {
+        "owner_id": "nico",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": [],
+        "instance_capacity": {
+          "kind": "unlimited"
+        },
+        "lot": {
+          "source": "fixture-room",
+          "revision": 1,
+          "bounds": {
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "width": 8,
+            "depth": 6
+          },
+          "levels": [
+            0
+          ],
+          "reserved": [
+            {
+              "cell": {
+                "x": 0,
+                "y": 0
+              },
+              "level": 0
+            }
+          ]
+        },
+        "build": {
+          "source": "fixture-build-capabilities",
+          "revision": 1,
+          "tools": [
+            {
+              "id": "hand",
+              "kind": "hand",
+              "label": "Hand",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "terrain",
+              "kind": "terrain",
+              "label": "Terrain",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "water",
+              "kind": "water",
+              "label": "Water",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "walls",
+              "kind": "walls",
+              "label": "Walls",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "wallpaper",
+              "kind": "wallpaper",
+              "label": "Wallpaper",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "stairs",
+              "kind": "stairs",
+              "label": "Stairs",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "fireplaces",
+              "kind": "fireplaces",
+              "label": "Fireplaces",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "plants",
+              "kind": "plants",
+              "label": "Plants",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "floors",
+              "kind": "floors",
+              "label": "Floors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "doors",
+              "kind": "doors",
+              "label": "Doors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "windows",
+              "kind": "windows",
+              "label": "Windows",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "roof",
+              "kind": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            }
+          ],
+          "view_modes": [
+            {
+              "mode": "walls_down",
+              "label": "Walls down",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "cutaway",
+              "label": "Cutaway",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "walls_up",
+              "label": "Walls up",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            }
+          ],
+          "preview": {
+            "status": "unavailable",
+            "reason": "Architecture preview is not connected"
+          },
+          "commit": {
+            "status": "unavailable",
+            "reason": "Architecture commit is not connected"
+          }
+        },
+        "grants": [
+          {
+            "actor_id": "nico",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "nico",
+              "object_owner_id": "nico",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "nico"
+            ]
+          }
+        ]
+      },
+      "description": "",
+      "shard_id": null,
+      "appearance": {
+        "head": null,
+        "body": null,
+        "skin_tone": null,
+        "gender": null,
+        "decorations": {}
+      },
+      "portrait": {
+        "source": "legacy-preview-artwork",
+        "identity": "nico",
+        "look_id": "nico-everyday",
+        "asset_path": "/assets/art/nico.png"
+      },
+      "wardrobe": {
+        "revision": 1,
+        "categories": [],
+        "outfits": []
+      }
+    },
+    {
+      "character": {
+        "id": "amara",
+        "name": "Amara",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "home": {
+        "owner_id": "amara",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": [],
+        "instance_capacity": {
+          "kind": "unlimited"
+        },
+        "lot": {
+          "source": "fixture-room",
+          "revision": 1,
+          "bounds": {
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "width": 8,
+            "depth": 6
+          },
+          "levels": [
+            0
+          ],
+          "reserved": [
+            {
+              "cell": {
+                "x": 0,
+                "y": 0
+              },
+              "level": 0
+            }
+          ]
+        },
+        "build": {
+          "source": "fixture-build-capabilities",
+          "revision": 1,
+          "tools": [
+            {
+              "id": "hand",
+              "kind": "hand",
+              "label": "Hand",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "terrain",
+              "kind": "terrain",
+              "label": "Terrain",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "water",
+              "kind": "water",
+              "label": "Water",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "walls",
+              "kind": "walls",
+              "label": "Walls",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "wallpaper",
+              "kind": "wallpaper",
+              "label": "Wallpaper",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "stairs",
+              "kind": "stairs",
+              "label": "Stairs",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "fireplaces",
+              "kind": "fireplaces",
+              "label": "Fireplaces",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "plants",
+              "kind": "plants",
+              "label": "Plants",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "floors",
+              "kind": "floors",
+              "label": "Floors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "doors",
+              "kind": "doors",
+              "label": "Doors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "windows",
+              "kind": "windows",
+              "label": "Windows",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "roof",
+              "kind": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            }
+          ],
+          "view_modes": [
+            {
+              "mode": "walls_down",
+              "label": "Walls down",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "cutaway",
+              "label": "Cutaway",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "walls_up",
+              "label": "Walls up",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            }
+          ],
+          "preview": {
+            "status": "unavailable",
+            "reason": "Architecture preview is not connected"
+          },
+          "commit": {
+            "status": "unavailable",
+            "reason": "Architecture commit is not connected"
+          }
+        },
+        "grants": [
+          {
+            "actor_id": "amara",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "amara",
+              "object_owner_id": "amara",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "amara"
+            ]
+          }
+        ]
+      },
+      "description": "",
+      "shard_id": null,
+      "appearance": {
+        "head": null,
+        "body": null,
+        "skin_tone": null,
+        "gender": null,
+        "decorations": {}
+      },
+      "portrait": {
+        "source": "legacy-preview-artwork",
+        "identity": "amara",
+        "look_id": "amara-everyday",
+        "asset_path": "/assets/art/amara.png"
+      },
+      "wardrobe": {
+        "revision": 1,
+        "categories": [],
+        "outfits": []
+      }
+    },
+    {
+      "character": {
+        "id": "leo",
+        "name": "Leo",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "home": {
+        "owner_id": "leo",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": [],
+        "instance_capacity": {
+          "kind": "unlimited"
+        },
+        "lot": {
+          "source": "fixture-room",
+          "revision": 1,
+          "bounds": {
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "width": 8,
+            "depth": 6
+          },
+          "levels": [
+            0
+          ],
+          "reserved": [
+            {
+              "cell": {
+                "x": 0,
+                "y": 0
+              },
+              "level": 0
+            }
+          ]
+        },
+        "build": {
+          "source": "fixture-build-capabilities",
+          "revision": 1,
+          "tools": [
+            {
+              "id": "hand",
+              "kind": "hand",
+              "label": "Hand",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "terrain",
+              "kind": "terrain",
+              "label": "Terrain",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "water",
+              "kind": "water",
+              "label": "Water",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "walls",
+              "kind": "walls",
+              "label": "Walls",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "wallpaper",
+              "kind": "wallpaper",
+              "label": "Wallpaper",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "stairs",
+              "kind": "stairs",
+              "label": "Stairs",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "fireplaces",
+              "kind": "fireplaces",
+              "label": "Fireplaces",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "plants",
+              "kind": "plants",
+              "label": "Plants",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "floors",
+              "kind": "floors",
+              "label": "Floors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "doors",
+              "kind": "doors",
+              "label": "Doors",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "windows",
+              "kind": "windows",
+              "label": "Windows",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            },
+            {
+              "id": "roof",
+              "kind": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the architecture service to use this build tool"
+              }
+            }
+          ],
+          "view_modes": [
+            {
+              "mode": "walls_down",
+              "label": "Walls down",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "cutaway",
+              "label": "Cutaway",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "walls_up",
+              "label": "Walls up",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            },
+            {
+              "mode": "roof",
+              "label": "Roof",
+              "availability": {
+                "status": "unavailable",
+                "reason": "Connect the world renderer to change the wall view"
+              }
+            }
+          ],
+          "preview": {
+            "status": "unavailable",
+            "reason": "Architecture preview is not connected"
+          },
+          "commit": {
+            "status": "unavailable",
+            "reason": "Architecture commit is not connected"
+          }
+        },
+        "grants": [
+          {
+            "actor_id": "leo",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "leo",
+              "object_owner_id": "leo",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "leo"
+            ]
+          }
+        ]
+      },
+      "description": "",
+      "shard_id": null,
+      "appearance": {
+        "head": null,
+        "body": null,
+        "skin_tone": null,
+        "gender": null,
+        "decorations": {}
+      },
+      "portrait": {
+        "source": "legacy-preview-artwork",
+        "identity": "leo",
+        "look_id": "leo-everyday",
+        "asset_path": "/assets/art/leo.png"
+      },
+      "wardrobe": {
+        "revision": 1,
+        "categories": [],
+        "outfits": []
+      }
+    }
+  ],
+  "catalog": [
+    {
+      "id": "armchair",
+      "name": "Harbor armchair",
+      "category": "living",
+      "price": 180,
+      "footprint": {
+        "width": 1,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      },
+      "source_key": "armchair",
+      "rotations": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "thumbnail": "/assets/authoring/armchair-front.png"
+    },
+    {
+      "id": "coffee-table",
+      "name": "Oak coffee table",
+      "category": "living",
+      "price": 120,
+      "footprint": {
+        "width": 2,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      },
+      "source_key": "coffee-table",
+      "rotations": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "thumbnail": "/assets/authoring/coffee-table-front.png"
+    },
+    {
+      "id": "floor-lamp",
+      "name": "Linen floor lamp",
+      "category": "lighting",
+      "price": 90,
+      "footprint": {
+        "width": 1,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      },
+      "source_key": "floor-lamp",
+      "rotations": [
+        "north"
+      ],
+      "thumbnail": "/assets/authoring/floor-lamp.png"
+    },
+    {
+      "id": "fern",
+      "name": "Potted fern",
+      "category": "decor",
+      "price": 45,
+      "footprint": {
+        "width": 1,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      },
+      "source_key": "fern",
+      "rotations": [
+        "north"
+      ],
+      "thumbnail": "/assets/authoring/fern.png"
+    },
+    {
+      "id": "bookcase",
+      "name": "Oak bookcase",
+      "category": "storage",
+      "price": 260,
+      "footprint": {
+        "width": 2,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      },
+      "source_key": "bookcase",
+      "rotations": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "thumbnail": "/assets/authoring/bookcase-front.png"
+    },
+    {
+      "id": "woven-rug",
+      "name": "Woven rug",
+      "category": "decor",
+      "price": 160,
+      "footprint": {
+        "width": 2,
+        "depth": 2
+      },
+      "availability": {
+        "status": "available"
+      },
+      "source_key": "woven-rug",
+      "rotations": [
+        "north"
+      ],
+      "thumbnail": "/assets/authoring/woven-rug.png"
+    }
+  ],
+  "account": {
+    "source": "fixture-simulation",
+    "revision": 1,
+    "account_id": null,
+    "shards": [],
+    "default_shard": null,
+    "creation": {
+      "status": "available"
+    },
+    "profile_capacity": {
+      "kind": "unlimited"
+    },
+    "fields": {
+      "minimum_name_characters": 1,
+      "maximum_name_characters": 32,
+      "name_alphabet": "unicode",
+      "maximum_description_characters": 499
+    }
+  },
+  "appearance_content": {
+    "source": "fixture-content-readiness",
+    "revision": 1,
+    "heads": [],
+    "bodies": [],
+    "skin_tones": [
+      {
+        "key": "light",
+        "label": "Light",
+        "thumbnail": null,
+        "availability": {
+          "status": "available"
+        },
+        "genders": [],
+        "skin_tones": []
+      },
+      {
+        "key": "medium",
+        "label": "Medium",
+        "thumbnail": null,
+        "availability": {
+          "status": "available"
+        },
+        "genders": [],
+        "skin_tones": []
+      },
+      {
+        "key": "dark",
+        "label": "Dark",
+        "thumbnail": null,
+        "availability": {
+          "status": "available"
+        },
+        "genders": [],
+        "skin_tones": []
+      }
+    ],
+    "genders": [
+      {
+        "key": "female",
+        "label": "Female",
+        "thumbnail": null,
+        "availability": {
+          "status": "available"
+        },
+        "genders": [],
+        "skin_tones": []
+      },
+      {
+        "key": "male",
+        "label": "Male",
+        "thumbnail": null,
+        "availability": {
+          "status": "available"
+        },
+        "genders": [],
+        "skin_tones": []
+      }
+    ],
+    "requirements": {
+      "head": false,
+      "body": false,
+      "skin_tone": false,
+      "gender": false
+    },
+    "rendering": {
+      "status": "unavailable",
+      "reason": "Original avatar resources and the game renderer are not connected"
+    }
+  },
+  "catalog_source": "fixture-catalog",
+  "catalog_revision": 1,
+  "catalog_categories": [
+    {
+      "id": "living",
+      "label": "Living"
+    },
+    {
+      "id": "lighting",
+      "label": "Lighting"
+    },
+    {
+      "id": "decor",
+      "label": "Decor"
+    },
+    {
+      "id": "storage",
+      "label": "Storage"
+    }
+  ],
+  "shared_homes": []
+}

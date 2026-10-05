@@ -5,7 +5,6 @@ use crate::{
         actions::ObjectActions,
         chrome::SceneHeader,
         hud::Hud,
-        portrait_path,
         queue::ActionQueue,
         scene::{CameraControls, WorldScene, use_camera},
     },
@@ -16,6 +15,7 @@ use wonderland_contracts::*;
 #[component]
 pub fn Lot() -> impl IntoView {
     let ui = expect_context::<Ui>();
+    let author = expect_context::<crate::authoring_bridge::AuthorUi>();
     let camera = use_camera();
     let selected = Memo::new(move |_| {
         ui.state.with(|state| {
@@ -31,7 +31,7 @@ pub fn Lot() -> impl IntoView {
         <section class="scene-screen lot-screen" aria-label="Harbor Café lot" on:keydown=move |event: web_sys::KeyboardEvent| { if event.key() == "Escape" && selected.get_untracked().is_some() { event.prevent_default(); ui.dismiss_object(); } }>
             <WorldScene camera=camera art="/assets/art/cafe-scene.png" description="Harbor Café interior and a patio overlooking the ocean" on_empty=Callback::new(move |_| { if selected.get_untracked().is_some() { ui.dismiss_object(); } })>
                 <div class="lot-character-ring" aria-hidden="true"></div>
-                <img class="lot-character" src=move || selected_character(ui).map(|character| portrait_path(character.id.as_ref())).unwrap_or_default() alt=move || selected_character(ui).map(|character| character.name).unwrap_or_default() draggable="false"/>
+                <img class="lot-character" src=move || selected_character(ui).map(|character| author.path(&character.id)).unwrap_or_default() alt=move || selected_character(ui).map(|character| character.name).unwrap_or_default() draggable="false"/>
                 <img class="lot-character-diamond" src="/assets/art/selection-diamond.png" alt=""/>
                 <For each=move || ui.state.with(|state| state.projection.objects.iter().filter(|object| matches!(&state.screen, Screen::Lot { place_id } if place_id == &object.place_id)).cloned().collect::<Vec<_>>()) key=|object| (object.target.id.clone(), object.target.generation) children=move |object| {
                     let target = object.target.clone(); let selected_target = target.clone(); let pressed_target = target.clone();

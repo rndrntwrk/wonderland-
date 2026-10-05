@@ -17,7 +17,7 @@ pub fn Icon(
 pub fn portrait_path(id: &str) -> String {
     match id {
         "maya" | "jules" | "nico" | "amara" | "leo" => format!("/assets/art/{id}.png"),
-        _ => "/assets/art/maya.png".into(),
+        _ => "/assets/icons/user.svg".into(),
     }
 }
 
@@ -27,3 +27,7 @@ pub fn availability_reason(availability: &wonderland_contracts::Availability) ->
         wonderland_contracts::Availability::Available => None,
     }
 }
+
+pub mod authoring;
+
+pub mod player_menu;
