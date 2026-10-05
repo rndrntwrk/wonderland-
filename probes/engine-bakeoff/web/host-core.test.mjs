@@ -1,6 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseConfig, ProbeController} from './host-core.mjs';
+import {parseConfig, ProbeController,alignCanvasLayout} from './host-core.mjs';
+
+test('capture alignment uses layout offsets without a compositor transform or cumulative movement',()=>{
+  const host={style:{transform:'translate(0px,0.0078125px)'}},canvas={width:1280,height:960,
+    getBoundingClientRect:()=>({x:164.25+parseFloat(host.style.left||0),y:324.9921875+parseFloat(host.style.top||0)})};
+  const scroll={x:0.5,y:20};
+  for(let i=0;i<3;i++){
+    alignCanvasLayout(host,canvas,scroll);const rect=canvas.getBoundingClientRect();
+    assert.equal(host.style.transform,'none');assert.equal(rect.x+scroll.x,165);assert.equal(rect.y+scroll.y,345);
+    assert.equal(canvas.width,1280);assert.equal(canvas.height,960);
+  }
+  assert.equal(host.style.top,'0.0078125px');
+});
 
 test('immutable fixture URL selection validates exact view and bounded counts',()=>{
   const c=parseConfig('?variant=fyrox-webgl2&mode=full3d&avatars=64&tick=45');

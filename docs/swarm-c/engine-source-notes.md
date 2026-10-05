@@ -12,6 +12,17 @@ These notes describe released APIs and the adapter's conversion decisions. They
 do not substitute for compiler output, screenshots, exact ID-pixel comparisons,
 physical-device runs or performance measurements.
 
+At published commit `f6f78be1fef247f2db47e19f56d94054f0c9e88c`,
+[run 37353615543](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543)
+built all five engine variants. Both native software-runtime jobs passed,
+including nine Bevy tests and twelve Fyrox tests. All three browser jobs still
+failed image acceptance. Both WebGL2 variants passed all six color comparisons,
+DPR/resize and lifecycle checks but retained a few exact-ID discrepancies in
+Full2D/Hybrid2D at 64 avatars/DPR 2. WebGPU passed measured capture geometry,
+lifecycle and its separate device diagnostic, while page content remained in
+the recorded canvas images. The complete commit-specific results and limits are
+in [VERIFICATION.md](VERIFICATION.md). No production engine is selected.
+
 ## Released source used
 
 | Area | Primary source |
@@ -157,9 +168,11 @@ representative performance remain separate gates.
 ## Capture bounds and startup diagnostics
 
 Playwright 1.62.1 passes element bounds through enclosingIntRect before capture.
-The host translates its canvas container to integer document pixels. Actual
-checkpoint bc529fd4 evidence also showed that Chromium's Vulkan element capture
-ignored its origin and included the page header. The runner now retains a full-page
+The host translates its canvas container to integer document pixels. Recorded
+checkpoint bc529fd4 screenshots included page header/control content where the
+fixture was expected. This did not prove that Chromium ignored the requested
+origin; the correctly located canvas could contain malformed contents. The
+runner now retains a full-page
 PNG and extracts the measured document-space rectangle with exact RGBA row copies.
 It checks the full PNG dimensions, integer CSS/device origins and extents, crop
 bounds, backing dimensions for IDs, and unchanged document/canvas geometry after
@@ -193,7 +206,13 @@ fails the density check rather than accepting a differently scaled image.
 Checkpoint bc529fd4 passed both DPR/backing resize checks on all three browser
 backends. Actual WebGL2 color comparisons passed in all six scenes per engine.
 The remaining encoded-ID errors were measured through CSS-downsampled DPR2 PNGs;
-the physical capture/reference correction requires a new actual run.
+the physical capture/reference correction subsequently ran at `f6f78be`.
+At that revision both WebGL2 variants passed all color cases, DPR/resize and
+lifecycle checks. Full3D physical-ID checks passed, but Full2D/64 and
+Hybrid2D/64 retained 3/3 mismatches for Bevy and 5/4 for Fyrox. The reference and
+captured IDs now share physical dimensions without categorical resampling.
+Those remaining differences require diagnosis against the actual shader/depth/
+coverage outputs; no exception to the zero stable-interior mismatch rule is made.
 
 The host emits bounded bootstrap records for module loading, WASM initialization,
 engine run, adapter request/result, device observation, canvas configuration and
@@ -202,7 +221,17 @@ engine configures its own GPU canvas. Null adapters and missing navigator.gpu
 become explicit startup failures. These diagnostic hooks do not claim that a
 previous timeout has been resolved. In checkpoint bc529fd4, WebGPU reached engine
 readiness, completed lifecycle checks and passed the independent mapped-pixel
-diagnostic. Its wrong-origin scene screenshots still prevented parity acceptance.
+diagnostic. Its malformed captured scene content still prevented parity acceptance.
+The `f6f78be` full-page screenshots passed the new crop/geometry checks, but DOM
+controls were visible inside the measured canvas region and the browser job
+recorded 15 image failures. Independent review verified all twelve crops as exact
+byte extraction from the retained full-page PNGs, with identical DPR 1 color/pick
+images and page controls visible at DPR 2. Those checks establish extraction
+correctness, not the correctness of the canvas contents or a definitive origin/
+compositor root cause. Direct engine-target readback is not yet available, so
+the evidence does not isolate the engine's pixel output
+or establish its parity. Implementing that independent observation and resolving
+the failures remain C work.
 
 Checkpoint 4 reproduced WebGPU loss on the same device that configured the
 engine canvas, without an observed JavaScript GPUDevice.destroy call. The runner
@@ -215,11 +244,13 @@ assuming that an unidentified browser 404 was a favicon.
 Checkpoint 5's process log isolated the WebGPU startup failure to Chromium's
 display integration: SharedImageBackingFactory could not allocate the WebGPU
 swapchain image, and the separate 4 by 4 diagnostic reproduced the same error
-without Bevy. The next runner configuration follows Chromium 151.0.7922.34's own
+without Bevy. The runner configuration follows Chromium 151.0.7922.34's own
 VulkanSwiftShader pixel-test flags: Vulkan and SwiftShader are selected for the
 display compositor, ANGLE and WebGPU together, with a disabled Vulkan surface
 for the headless path. Checkpoint bc529fd4 observed the actual WebGPU device and
-successful image creation. Engine color and ID parity await corrected captures.
+successful image creation, and `f6f78be` again passed the separate device
+diagnostic. These independent device checks do not satisfy the engine's failing
+color/ID capture gate.
 
 Phase records and an eight-minute per-phase watchdog bound otherwise unbounded
 page evaluation and graphics teardown without imposing a short total-run budget.

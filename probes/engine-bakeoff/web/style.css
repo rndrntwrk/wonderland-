@@ -1,6 +1,6 @@
 :root{font-family:system-ui,sans-serif;color:#dce6e8;background:#0e171c;color-scheme:dark;line-height:1.5}
 *{box-sizing:border-box}body{margin:0}main{max-width:1120px;padding:32px 24px 48px;margin:auto}
-.eyebrow{font-size:12px;letter-spacing:.14em;color:#69cabb;font-weight:700}h1{font-size:clamp(26px,4vw,38px);line-height:1.15;margin:.35em 0}header>p:last-child{color:#a5b9c0}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:#69cabb;font-weight:700}h1{font-size:clamp(26px,4vw,38px);line-height:44px;margin:12px 0}header>p:last-child{color:#a5b9c0}
 h2{font-size:16px;margin:0 0 12px}.toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:24px 0}
 label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#b1c3ca}input,select,textarea,button{font:inherit;font-size:14px;border:1px solid #405159;border-radius:6px;padding:9px 11px;background:#17262e;color:#edf4f6}
 button{cursor:pointer}button:hover{border-color:#80d2c7}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,canvas:focus-visible{outline:2px solid #8ce0d2;outline-offset:3px}

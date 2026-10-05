@@ -40,6 +40,7 @@ task_check task_verify_derivatives
 task_check "${task_cargo[@]}" run --manifest-path probes/engine-bakeoff/fixture/Cargo.toml --locked --bin reference -- tools/swarm-c/output/reference
 task_check node --test crates/audio-runtime/browser/*.test.mjs
 task_check node --test probes/engine-bakeoff/web/host-core.test.mjs
+task_check node --test probes/engine-bakeoff/web/gpu-readback.test.mjs
 task_check node tools/swarm-c/browser-gate.mjs --self-test
 if ((task_failures)); then
   printf '%s checks failed; all independent checks were attempted.\n' "$task_failures"

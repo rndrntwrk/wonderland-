@@ -101,7 +101,7 @@ Native device faults latch until the stream/controller is reopened. Reopen creat
 a new instance/session and requires rebinding current presentation assets/cues;
 old commands cannot revive the old stream. CPAL rejects unknown buffer bounds
 rather than assuming the transport can contain an arbitrary callback. Its real
-ALSA-null execution passed at `bc529fd4`; physical output, unplug/reopen and
+ALSA-null execution passed again with locked dependencies at `f6f78be`; physical output, unplug/reopen and
 platform/load qualification remain open in the [verification ledger](VERIFICATION.md).
 
 Cache byte counts distinguish encoded, decoded CPU, staging and GPU ownership.
@@ -126,12 +126,19 @@ city/neighborhood/lot UI with live admission. The CPU worker's explicit day/nigh
 inputs do not implement room-light/shadow generation. A fragment-state oracle does
 not implement a GPU pass, and an OS null-device stream does not qualify speakers.
 
-The expanded reference gate passed at `bc529fd4`, covering all 368 Rust package
+The expanded reference gate passed at `f6f78be`, covering all 374 Rust package
 tests, the new adapters, 18 exact native/WASM records, 32 original-source codec
-comparisons, reproducible derivative PNGs and the real pinned-A boundary probe.
-Both native engine jobs and the separate CPAL job passed there, including actual
-device compilation, four configuration tests and the ALSA-null stream. Browser
-corrections and the client/provider/physical gates remain separate. Keep both
+comparisons and the real pinned-A boundary probe. The shared fixture now has 13
+passing tests, including physical-resolution reference/capture regressions.
+Both native engine jobs and the separate locked CPAL job passed there, including
+actual device compilation, four configuration tests and the ALSA-null stream.
+The [reference evidence](evidence/reference-f6f78be.json) and
+[native-audio evidence](evidence/native-audio-f6f78be.json) retain exact results.
+All three browser variants still fail image acceptance: both WebGL2 variants
+retain a few physical-ID discrepancies in the 64-avatar Full2D/Hybrid2D scenes,
+and WebGPU images contain DOM content inside the measured canvas rectangle.
+Resolving those C renderer/capture checks and completing the client are internal
+work; provider/content and physical-device evidence remain separate gates. Keep both
 successful and failed evidence commit-specific.
 
 These items remain implementation responsibilities even when they also require

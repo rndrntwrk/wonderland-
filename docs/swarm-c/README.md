@@ -10,16 +10,24 @@ The branch includes the presentation libraries, a normalized FSOm object adapter
 a CPU thumbnail/day/night facade worker with bounded scheduling, and a continuous
 native audio transport with a separate CPAL device binding. These are concrete
 code paths; complete client composition and acceptance still have separate gates.
-At `bc529fd4`, the expanded reference CI passed all 368 Rust package tests,
+At published commit `f6f78be1fef247f2db47e19f56d94054f0c9e88c`, the expanded
+reference CI passed all 374 Rust package tests, including 13 shared-fixture tests,
 19 browser-audio and five host tests, 11 Python audio tests, 32 unchanged-source
 codec comparisons and all 18 exact native/WASM observations. The genuine pinned-A
 60-tick probe preserved every state hash and ordered event at 30/60/120 Hz.
-The six CI-produced derivative images match the independently reviewed artifact.
+The [retained reference evidence](evidence/reference-f6f78be.json) records the
+exact outputs and source/runtime checks.
 
-All five engine variants built and both native software-renderer jobs passed,
-including nine Bevy and twelve Fyrox tests. The separate native-audio job also
-passed actual CPAL compilation, four configuration tests and the OS ALSA-null
-stream. Browser parity, complete client composition, real-provider/content
+All five engine variants built, and both native software-renderer jobs passed
+at this commit, including nine Bevy and twelve Fyrox tests. All three browser
+jobs failed their image gates. Both WebGL2 variants passed all six color cases
+and lifecycle checks but retained a few exact-ID mismatches; WebGPU passed
+lifecycle and capture-geometry checks while its recorded images contained page
+controls and did not establish correct engine output.
+The separate native-audio job passed locked CPAL
+compilation, four configuration tests and the OS ALSA-null stream; its
+[retained evidence](evidence/native-audio-f6f78be.json) includes the actual callback
+results. Browser parity, complete client composition, real-provider/content
 coverage and physical-device acceptance remain open. The commit-specific
 [verification ledger](VERIFICATION.md) retains the successful evidence and the
 browser failures/corrections without extending a result to untested revisions.
@@ -41,7 +49,7 @@ The five libraries, fixture/replay packages, native audio transport and facade
 worker have independent Rust 1.75 workspaces. Engine adapters and the isolated
 CPAL device CI use Rust 1.95.0; their dependencies do not enter the authoritative
 simulation graph. CPAL's actual ALSA-null execution passed in
-[job 111899190176](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190176).
+[job 111910340211](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340211).
 Use its retained dependency lock for subsequent locked runs. Physical speakers,
 device unplug/reopen and production-load qualification remain separate gates.
 

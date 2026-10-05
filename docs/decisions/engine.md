@@ -23,6 +23,34 @@ a cross-origin-isolation requirement.
 
 ## What the available comparison establishes
 
+The current published comparison is commit
+`f6f78be1fef247f2db47e19f56d94054f0c9e88c`, exercised by
+[run 37353615543](https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543).
+Both native adapters and all three browser variants compiled. Both native
+software-renderer jobs passed, including nine Bevy tests and twelve Fyrox tests.
+The separate reference gate passed 374 Rust tests and all 18 complete
+native/WASM records; locked CPAL tests and actual ALSA-null execution also passed.
+These are separate evidence classes, recorded in the
+[verification ledger](../swarm-c/VERIFICATION.md).
+
+| Browser candidate | Current evidence at f6f78be | Selection consequence |
+|---|---|---|
+| Bevy WebGL2 | All six colors, DPR/resize and lifecycle checks passed. Full2D/64 and Hybrid2D/64 retained 3 physical-ID mismatches each; Full3D ID comparisons passed. | Required exact-ID acceptance remains failed. |
+| Fyrox WebGL2 | All six colors, DPR/resize and lifecycle checks passed. Full2D/64 and Hybrid2D/64 retained 5 and 4 physical-ID mismatches respectively; Full3D ID comparisons passed. | Required exact-ID acceptance remains failed. |
+| Bevy WebGPU | Capture geometry, lifecycle and the separate mapped-pixel diagnostic passed. The runner recorded 15 image failures, with DOM content visible in the measured canvas region. | Clean engine pixel output has not been independently established; image acceptance remains failed. |
+
+All three browser jobs therefore remain failed. Independent review verified all
+twelve WebGPU crops against the retained full-page PNGs byte-for-byte. Correct
+extraction does not prove correct canvas contents: identical DPR 1 color/pick
+images and page controls at DPR 2 remain unexplained. The earlier origin-error
+inference is unproven, and direct engine-target readback is not yet available to
+isolate the renderer's output. The remaining WebGL2 IDs require diagnosis at
+their actual physical pixel grid. Neither a successful lifecycle check nor a
+small mismatch count permits a production choice. No color threshold or exact-ID
+requirement has been relaxed.
+
+### Historical checkpoints
+
 At commit `809ec200e186871970b2e4cabb06d7f6c08ecd9e`,
 [CI run 37337020509](https://github.com/rndrntwrk/wonderland-/actions/runs/37337020509)
 built both native adapters and all three browser packages. Both native hosted
@@ -40,16 +68,23 @@ The renderer correction checkpoint `95c45b0bdc514669e616648d61258c33563adc5b`
 pins both generated Cargo locks and the npm lock, uses Bevy source-color sRGB
 compositing, and adds a Fyrox LDR pass after tone mapping. Both native jobs passed
 again in [run 37343212639](https://github.com/rndrntwrk/wonderland-/actions/runs/37343212639),
-including compilation and execution of the new Fyrox shaders. Browser capture
-alignment and device-loss diagnostics are included; their browser outcome must
-be recorded before claiming parity.
+including compilation and execution of the new Fyrox shaders. The ledger retains
+the later coplanar-depth correction, physical-DPR checks and malformed screenshot
+findings, including the validated extraction improvements. The current browser outcomes above supersede pending descriptions
+of those earlier checks without rewriting their recorded failures.
+
+### Workload and scope
 
 The fixture supplies the same CPU geometry, source-depth/alpha sprites, synthetic
 skinned avatar instances, camera and tick to both adapters. It has all three view
 modes and 32/64 workloads. GPU color and ID visualization are compared with the
 CPU reference. The interactive pick path remains a generation-checked CPU pick.
-Full advanced lighting, production content, day/night facade atlases and the
-live city client are outside this small fixture.
+Full advanced lighting, production content, day/night facade atlas integration
+and the live city client are outside this small fixture. The separate CPU
+derivative worker does produce normalized day/night PNG atlases, and the
+normalized FSOm adapter emits ordered multi-material/stencil commands. Their
+library/source tests do not implement the corresponding engine passes or
+complete world-view composition.
 
 The native run is bounded and reports successful scene state, errors and
 authoritative ticks advanced. Bevy render-schedule visits and Fyrox draw
@@ -76,10 +111,13 @@ raw evidence.
 
 ## Follow-on implementation and selection record
 
-Finish the current browser startup/capture/render checks with the committed
-engine/npm locks and rerun the [verification commands](../swarm-c/VERIFICATION.md)
-at the resulting commit. Add real content and provider composition, then run the
-physical-device matrix.
+Resolve the exact-ID discrepancies in both WebGL2 adapters and establish a clean,
+independent observation of the WebGPU engine target. Then rerun the complete
+browser rendering and lifecycle gates with the committed engine/npm locks and
+unchanged acceptance thresholds. Complete C's lighting/material/picking/client
+composition, integrate real provider/content inputs, and run the physical-device
+matrix. These are concrete remaining implementation and acceptance conditions;
+the passed synthetic reference and OS null-audio results do not close them.
 
 The eventual selection record should name the chosen engine and supported
 backend policy, link the exact builds/locks and captures, compare correctness,

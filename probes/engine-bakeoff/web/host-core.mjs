@@ -1,5 +1,12 @@
 const variants=new Set(['bevy-webgpu','bevy-webgl2','fyrox-webgl2']);
 const modes=new Set(['full2d','hybrid2d','full3d']);
+export function alignCanvasLayout(host,canvas,scroll={x:0,y:0}){
+  // Relative layout offsets move the layer's layout origin. A fractional CSS
+  // transform can resample already-rasterized encoded ID pixels.
+  host.style.transform='none';host.style.left='0px';host.style.top='0px';
+  const rect=canvas.getBoundingClientRect(),x=rect.x+scroll.x,y=rect.y+scroll.y;
+  host.style.left=`${Math.round(x)-x}px`;host.style.top=`${Math.round(y)-y}px`;
+}
 function integer(value,min,max,label){
   const n=Number(value);if(!Number.isSafeInteger(n)||n<min||n>max)throw new Error(`${label} must be an integer in ${min}..${max}`);return n;
 }

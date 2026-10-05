@@ -107,7 +107,7 @@ const server=createServer(async(req,res)=>{
     const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname),path=resolve(root,`.${name}`);
     if(name==='/favicon.ico'){res.writeHead(204);res.end();return;}
     if(name==='/__pixel_geometry.html'){res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});res.end('<!doctype html><meta charset="utf-8"><canvas style="width:100px;height:80px"></canvas>');return;}
-    if(name==='/__webgpu_diagnostic.html'){res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});res.end('<!doctype html><meta charset="utf-8"><canvas width="4" height="4"></canvas>');return;}
+    if(name==='/__webgpu_diagnostic.html'){res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});res.end('<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#99442f}canvas{position:absolute;left:37px;top:61px;width:4px;height:4px}</style><canvas width="4" height="4"></canvas>');return;}
     if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403);res.end();return;}
     const file=(await stat(path)).isDirectory()?resolve(path,'index.html'):path;
     res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream','Cache-Control':'no-store'});
@@ -177,8 +177,8 @@ async function captureCanvas(page,path,scale='css',expected={width:640,height:48
   const before=await measure(),viewport=before.viewport;
   const {bounds,factor,fullWidth,fullHeight}=capturePixelBounds(before,scale,expected);
   const fullPath=path.replace(/\.png$/,'-page.png');assert.notEqual(fullPath,path);
-  // Chromium's headless Vulkan compositor ignored the element screenshot origin.
-  // Keep the complete document capture and copy the exact document-space rectangle.
+  // Retain the complete document and verify its exact document-space canvas crop.
+  // Correct crop geometry does not certify the browser's composited canvas pixels.
   const whole=readPng(await page.screenshot({path:fullPath,fullPage:true,scale,style:'#engine-canvas { outline: none !important; }'}));
   assert.deepEqual(await measure(),before,'Canvas/document geometry changed during screenshot');
   assert.equal(whole.width,fullWidth,'Full-page screenshot width differs from measured document');
@@ -197,6 +197,44 @@ async function captureColor(page,path){
     await page.waitForTimeout(250);
   }while(Date.now()<deadline);
   return {bytes,image,capture:metadata,distinctColors:distinct.size};
+}
+async function directCanvasSnapshot(page,path){
+  try{
+    const url=await page.evaluate(()=>window.__wonderlandProbe.canvasSnapshot());
+    assert.ok(url.startsWith('data:image/png;base64,'));
+    const bytes=Buffer.from(url.slice('data:image/png;base64,'.length),'base64'),image=readPng(bytes),state=await snapshot(page);
+    assert.equal(image.width,state.viewport.width);assert.equal(image.height,state.viewport.height);await writeFile(path,bytes);
+    return {path,width:image.width,height:image.height,sha256:createHash('sha256').update(bytes).digest('hex'),evidence:'Canvas snapshot through HTMLCanvasElement.toDataURL; separate from screenshot and GPU mapped readback'};
+  }catch(error){return {error:String(error.stack||error),evidence:'Direct canvas snapshot unavailable'};}
+}
+async function diagnoseEngineOutput(page,avatars,dpr,manifest){
+  const results=[],diagnostic={evidence:'Diagnostic executed after all ordinary scene screenshots; adds COPY_SRC to the existing engine surface, without replacing its renderer',avatars,dpr,results,presentationQualified:false};
+  (report.engineOutputReadbacks??=[]).push(diagnostic);
+  for(const mode of ['full2d','hybrid2d','full3d'])for(const pass of ['color','pick']){
+    enterPhase(`engine-raw-readback-${mode}-${avatars}-${pass}`);
+    try{
+    const prior=await snapshot(page);await command(page,'setMode',mode);await command(page,'setPass',pass);
+    await renderedAfter(page,prior.gpuSubmissions+prior.glDrawCalls);
+    const expected=manifest.scenes.find(s=>s.mode===mode&&s.avatars===avatars),before=await snapshot(page);
+    const raw=await page.evaluate(()=>window.__wonderlandProbe.readGpuFrame()),{base64,...metadata}=raw;
+    assert.equal(raw.stamp.sceneHash,expected.fixtureHash);assert.equal(raw.stamp.mode,mode);assert.equal(raw.stamp.pass,pass);
+    assert.equal(raw.width,before.viewport.width);assert.equal(raw.height,before.viewport.height);
+    const image={width:raw.width,height:raw.height,pixels:Buffer.from(base64,'base64')};assert.equal(image.pixels.length,raw.width*raw.height*4);
+    const path=resolve(output,`${mode}-${avatars}-dpr${dpr}-${pass}-gpu-copy.png`),bytes=rgbaPng(image);await writeFile(path,bytes);
+    const result={...metadata,mode,pass,avatars,path,sha256:createHash('sha256').update(bytes).digest('hex'),presentationQualified:false};
+    if(pass==='pick'){
+      const references=expected.idReferences.filter(r=>r.width===raw.width&&r.height===raw.height);assert.equal(references.length,1);
+      const reference=references[0],ids=await readFile(resolve(root,'tools/swarm-c/output/reference',reference.ids)),depth=await readFile(resolve(root,'tools/swarm-c/output/reference',reference.depth));
+      result.idComparison=compareIds(image,ids,depth,before.idMap,reference);
+    }else if(dpr===1){
+      result.color=colorDifference(image,readPpm(await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ppm`))));
+    }else result.colorComparison='Physical DPR2 color oracle is not generated; retain raw pixels without resampling';
+    results.push({...result,readbackCompleted:true});
+    }catch(error){results.push({mode,pass,avatars,readbackCompleted:false,error:String(error.stack||error),presentationQualified:false});}
+  }
+  await command(page,'setPass','color');
+  if(results.some(result=>!result.readbackCompleted))throw new Error('One or more engine output reads failed; partial results retained in engineOutputReadbacks');
+  return diagnostic;
 }
 async function ready(page){
   try{
@@ -218,7 +256,7 @@ async function diagnoseWebGpu(){
   const context=await browser.newContext(),page=await context.newPage();let timer;
   try{
     await page.goto(new URL('/__webgpu_diagnostic.html',base).href);
-    return await Promise.race([
+    const result=await Promise.race([
       page.evaluate(async()=>{
         if(!navigator.gpu)return {passed:false,error:'navigator.gpu unavailable'};
         let device,loss=null;const errors=[];
@@ -241,11 +279,30 @@ async function diagnoseWebGpu(){
           }
           return {passed:!loss&&!errors.length&&pixels.every((v,i)=>Math.abs(v-expected[i])<=1),pixels,expected,loss,errors,framesRequested:3,adapter:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture},evidence:'separate WebGPU clear and mapped pixel readback; no engine qualification'};
         }catch(error){return {passed:false,error:String(error.stack||error),loss,errors};}
-        finally{device?.destroy();}
+        finally{window.__wonderlandDiagnosticDevice=device;}
       }),
       new Promise(resolveTimeout=>{timer=setTimeout(()=>resolveTimeout({passed:false,error:'WebGPU diagnostic timed out after 20 seconds'}),20000);})
     ]);
-  }finally{clearTimeout(timer);await context.close();}
+    if(result.passed){
+      const compare=image=>({width:image.width,height:image.height,passed:image.width===4&&image.height===4&&image.pixels.every((v,i)=>Math.abs(v-result.expected[i%4])<=1),firstPixel:Array.from(image.pixels.slice(0,4))});
+      try{
+        const canvasUrl=await page.evaluate(()=>document.querySelector('canvas').toDataURL('image/png'));
+        assert.ok(canvasUrl.startsWith('data:image/png;base64,'));
+        const directBytes=Buffer.from(canvasUrl.slice('data:image/png;base64,'.length),'base64'),direct=readPng(directBytes);
+        const directPath=resolve(output,'independent-webgpu-clear-canvas.png');await writeFile(directPath,directBytes);
+        result.canvasSnapshot={...compare(direct),path:directPath};
+      }catch(error){result.canvasSnapshot={passed:false,error:String(error.stack||error)};}
+      try{
+        const measurement=await page.evaluate(()=>{const r=document.querySelector('canvas').getBoundingClientRect(),e=document.documentElement;return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,documentWidth:Math.max(e.scrollWidth,e.clientWidth),documentHeight:Math.max(e.scrollHeight,e.clientHeight)};});
+        const pagePath=resolve(output,'independent-webgpu-clear-page.png'),whole=readPng(await page.screenshot({path:pagePath,fullPage:true,scale:'css'}));
+        assert.equal(whole.width,measurement.documentWidth);assert.equal(whole.height,measurement.documentHeight);
+        const crop=extractPixels(whole,measurement),cropPath=resolve(output,'independent-webgpu-clear-crop.png');await writeFile(cropPath,rgbaPng(crop));
+        result.presentation={...compare(crop),path:cropPath,pagePath,measurement};
+      }catch(error){result.presentation={passed:false,error:String(error.stack||error)};}
+      result.evidence='Separate WebGPU clear: mapped bytes, direct canvas snapshot and document presentation are recorded independently; no engine qualification';
+    }
+    return result;
+  }finally{clearTimeout(timer);await page.evaluate(()=>window.__wonderlandDiagnosticDevice?.destroy()).catch(()=>{});await context.close();}
 }
 
 try{
@@ -326,7 +383,8 @@ try{
         const depths=await readFile(resolve(root,'tools/swarm-c/output/reference',idReference.depth));
         const idComparison=compareIds(pickCapture.image,ids,depths,pickState.idMap,idReference);
         check(`gpu-id-parity-${mode}-${avatars}`,idComparison.checked>100&&idComparison.ownerlessOcclusionChecked>0&&idComparison.mismatched===0,idComparison);
-        const scene={mode,avatars,dpr,state:pickState,color,idComparison,idReference,captures:{color:capture.capture,pick:pickCapture.capture},colorScreenshot:`${prefix}-color.png`,idScreenshot:`${prefix}-pick.png`,
+        const directPick=backend==='webgpu'?await directCanvasSnapshot(page,resolve(output,`${prefix}-pick-canvas.png`)):null;
+        const scene={mode,avatars,dpr,state:pickState,color,idComparison,idReference,captures:{color:capture.capture,pick:pickCapture.capture},directCanvas:directPick,colorScreenshot:`${prefix}-color.png`,idScreenshot:`${prefix}-pick.png`,
           artifactSha256:{color:createHash('sha256').update(colorBytes).digest('hex'),pick:createHash('sha256').update(pickBytes).digest('hex')}};
         report.scenes.push(scene);
         const logicalIds=await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ids`));
@@ -337,6 +395,8 @@ try{
         }else check(`stable-selection-${mode}-${avatars}`,false,{reason:'CPU reference has no selectable stable interior'});
         await command(page,'setPass','color');
       }
+
+      if(backend==='webgpu')await step(`engine-output-readback-diagnostic-${avatars}`,async()=>diagnoseEngineOutput(page,avatars,dpr,manifest));
 
       await step(`DOM-focus-${avatars}`,async()=>{
         const before=await snapshot(page);

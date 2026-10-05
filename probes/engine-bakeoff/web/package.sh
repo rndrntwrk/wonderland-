@@ -25,7 +25,7 @@ if [[ "$task_actual" != "wasm-bindgen $task_version" ]]; then
   exit 2
 fi
 mkdir -p "$task_output/pkg/$task_variant" "$task_output/audio" "$task_output/data"
-cp "$task_here/index.html" "$task_here/style.css" "$task_here/host.mjs" "$task_here/host-core.mjs" "$task_output/"
+cp "$task_here/index.html" "$task_here/style.css" "$task_here/host.mjs" "$task_here/host-core.mjs" "$task_here/gpu-readback.mjs" "$task_output/"
 cp "$task_here/../../../crates/audio-runtime/browser/browser-audio.mjs" "$task_output/audio/"
 cp "$task_here/data/resources.registry" "$task_output/data/"
 wasm-bindgen "$task_wasm" --target web --out-dir "$task_output/pkg/$task_variant" --out-name engine

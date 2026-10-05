@@ -1,0 +1,23 @@
+{
+  "decision": "approved focused diagnostic/readback code",
+  "owner_mock_tests": 6,
+  "independent_protocol_tests": 6,
+  "independent_actual_host_hook_tests": 2,
+  "independent_actual_diagnostic_retention_tests": 2,
+  "total_tests_passed": 16,
+  "browser_self_test_passed": true,
+  "host_browser_syntax_passed": true,
+  "actual_gpu_pixel_parity": "pending actual CI",
+  "actual_presentation_parity": "pending actual CI",
+  "source_sha256": {
+    "probes/engine-bakeoff/web/gpu-readback.mjs": "19079f85327965845490083375c1681e2db378fe9c06ad2d41a784874f4861d2",
+    "probes/engine-bakeoff/web/gpu-readback.test.mjs": "a7919a9242822b43d059a49b4660010a17cd9051179ecb8a4bb9430894d7e83e",
+    "probes/engine-bakeoff/web/host.mjs": "41cbc816eb777011164e8e5862f9b740c4dd61fa911fc2aaccb77ccbd282b3d2",
+    "tools/swarm-c/browser-gate.mjs": "bf2e10fba166d98cea86ab7563469d273cde939a0dacfefa6d343d716b2eb366"
+  },
+  "host_gpu_hook_sha256": "e9e3abb4e3f00e99a38fe17c7294079e2e05a074b89e7aadd88743e7847cbcc7",
+  "scope_note": "Host CSS/layout alignment change is separately owned and not approved by this diagnostic review.",
+  "test_log_sha256": "1e93465f742606aa227b5b78c2dc1bbea3f613b3df05f131645d867dbb9eeaa9",
+  "review_date": "2026-10-05",
+  "evidence_class": "Local Node protocol tests and actual host-function invocation with mock GPU devices; not actual GPU execution"
+}

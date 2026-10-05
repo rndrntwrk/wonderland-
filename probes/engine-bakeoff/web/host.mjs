@@ -1,4 +1,5 @@
-import {parseConfig,ProbeController} from './host-core.mjs';
+import {parseConfig,ProbeController,alignCanvasLayout} from './host-core.mjs';
+import {EngineCanvasReadback} from './gpu-readback.mjs';
 
 const host=document.querySelector('#canvas-host');
 const statusNode=document.querySelector('#status');
@@ -23,6 +24,7 @@ function diagnostic(stage,detail={}){
   if(controller.status.bootstrap.length>48)controller.status.bootstrap.shift();
   console.info('WONDERLAND_BOOTSTRAP '+JSON.stringify(event));
 }
+const gpuReadback=new EngineCanvasReadback({diagnostic,stamp:()=>({sceneHash:controller.engine.sceneHash,mode:controller.engine.mode,pass:controller.engine.pass,lastCommand:controller.engine.lastCommand})});
 diagnostic('host-start',{variant:config.variant,secureContext:isSecureContext,hasNavigatorGpu:!!navigator.gpu,crossOriginIsolated:controller.status.crossOriginIsolated,dpr:devicePixelRatio});
 
 function fail(error){const reason=error?.stack||error?.message||String(error);controller.fail(reason);diagnostic('error',{reason:String(reason).slice(0,4000)});refresh();}
@@ -41,16 +43,13 @@ function snapshot(){
     memoryBytes:wasm?.memory?.buffer?.byteLength??null,elapsedMs:performance.now()-started,audio:audioSnapshot()};
 }
 function alignForCapture(){
-  // Playwright encloses element screenshots in integer document pixels. Move
-  // the entire host so fractional text/layout positions cannot add an image row.
-  // This changes neither the canvas size nor any pixels in its drawing buffer.
-  host.style.transform='none';
-  const rect=canvas.getBoundingClientRect(),x=rect.x+scrollX,y=rect.y+scrollY;
-  host.style.transform='translate('+(Math.round(x)-x)+'px,'+(Math.round(y)-y)+'px)';
+  alignCanvasLayout(host,canvas,{x:scrollX,y:scrollY});
   return snapshot().viewport;
 }
 const api={
   snapshot,alignForCapture,
+  readGpuFrame:()=>gpuReadback.read(),
+  canvasSnapshot:()=>canvas.toDataURL('image/png'),
   setMode:mode=>issue('setMode',{mode}),setTick:tick=>issue('setTick',{tick}),
   selectAt:(x,y)=>issue('selectAt',{x,y}),setPass:pass=>issue('setPass',{pass}),
   suspend:()=>issue('suspend'),resume:()=>issue('resume'),simulateLoss:()=>issue('simulateLoss'),
@@ -119,7 +118,7 @@ function observeGpuDevice(device,details={}){
     return originalDestroy();
   };
   const originalSubmit=device.queue.submit.bind(device.queue);
-  device.queue.submit=commands=>{const result=originalSubmit(commands);controller.submission('webgpu');return result;};
+  device.queue.submit=commands=>{const result=originalSubmit(commands);controller.submission('webgpu');gpuReadback.submitted(device,originalSubmit);return result;};
   device.addEventListener('uncapturederror',event=>fail(event.error));
   device.lost.then(info=>{
     diagnostic('webgpu-device-lost',{deviceId,reason:info.reason,message:info.message,active:device===gpuDevice});
@@ -133,8 +132,11 @@ function observeGpuContext(context,next){
   observedGpuContexts.add(context);
   diagnostic('webgpu-canvas-context-created');
   const configure=context.configure.bind(context);
+  const getCurrentTexture=context.getCurrentTexture.bind(context);
+  context.getCurrentTexture=()=>{const texture=getCurrentTexture();gpuReadback.acquired(context,texture);return texture;};
   context.configure=configuration=>{
     const result=configure(configuration);
+    gpuReadback.configured(context,next,configuration);
     observeGpuDevice(configuration.device,{observation:'engine canvas configure',format:configuration.format,alphaMode:configuration.alphaMode??null});
     diagnostic('webgpu-canvas-configured',{deviceId:gpuDeviceIds.get(configuration.device),format:configuration.format,viewFormats:Array.from(configuration.viewFormats||[]),usage:configuration.usage??null,colorSpace:configuration.colorSpace??null,width:next.width,height:next.height});
     return result;

@@ -14,9 +14,11 @@ use wonderland_render_core::{
 mod audio;
 pub use audio::audio_reference;
 
-pub const FIXTURE_VERSION: u32 = 1;
+pub const FIXTURE_VERSION: u32 = 2;
 pub const WIDTH: u32 = 640;
 pub const HEIGHT: u32 = 480;
+const CROWD_CAPACITY: usize = 64;
+const ANIMATION_PHASES: u64 = 60;
 /// Two live reference surfaces plus the returned color/depth/ID buffers. Mesh
 /// scratch is separately constrained by RenderLimits; dimensions are rejected
 /// before allocating any framebuffer storage.
@@ -116,7 +118,7 @@ pub fn representative_scene(
     tick: u64,
 ) -> Result<FixtureScene, FixtureError> {
     use wonderland_render_3d::lot::{self, BuildOptions, SurfaceKind};
-    if avatar_count > 64 || tick == u64::MAX {
+    if usize::from(avatar_count) > CROWD_CAPACITY || tick == u64::MAX {
         return Err(FixtureError("fixture actor/tick limit".into()));
     }
     let camera = CameraSpec {
@@ -165,30 +167,30 @@ pub fn representative_scene(
         material: material([1.; 4]),
     });
     let mut entities = Vec::new();
-    let rig = wonderland_avatar_view::fixtures::representative_rig();
-    let prepared = wonderland_avatar_view::fixtures::representative_mesh(&rig);
+    let (posed_mesh, placements) = posed_crowd(
+        tick,
+        Vec2::new(
+            f32::from(visual_lot.width) * lot::TILE_UNITS,
+            f32::from(visual_lot.height) * lot::TILE_UNITS,
+        ),
+    )?;
     for index in 0..avatar_count {
         let reference = EntityRef {
             object_id: 1000 + u32::from(index),
             generation: 1,
         };
-        let x = 0.45 + f32::from(index % 8) * 0.7;
-        let y = 0.45 + f32::from(index / 8) * 0.7;
+        let position = placements[usize::from(index)];
+        let x = position.x / lot::TILE_UNITS;
+        let y = position.y / lot::TILE_UNITS;
         let height = visual_lot.contact_height(x, y, 1).map_err(problem)?;
         let transform = Transform {
-            translation: Vec3::new(x * 3., height, y * 3.),
+            translation: Vec3::new(position.x, height, position.y),
             ..Transform::IDENTITY
         };
-        let mut pose = rig.bind_pose();
-        let angle = ((tick % 60) as f32 / 60. * std::f32::consts::TAU).sin() * 0.3;
-        pose.locals[1].rotation = Quat::from_axis_angle(Vec3::Z, angle)
-            .ok_or_else(|| FixtureError("pose angle".into()))?;
-        pose.rebuild(&rig).map_err(problem)?;
-        let mesh = prepared.skin(&pose, Mat4::IDENTITY).map_err(problem)?;
         draws.push(DrawMesh {
             name: format!("avatar-{index:02}"),
             owner: Some(reference),
-            mesh,
+            mesh: posed_mesh.clone(),
             model: transform.matrix(),
             material: material([0.32 + f32::from(index % 4) * 0.13, 0.43, 0.85, 1.]),
         });
@@ -201,7 +203,7 @@ pub fn representative_scene(
             epoch: 1,
             tick,
             architecture_revision: 1,
-            content: AssetKey(Sha256::digest(b"wonderland-c-synthetic-fixture-v1").into()),
+            content: AssetKey(Sha256::digest(b"wonderland-c-synthetic-fixture-v2").into()),
         },
         entities,
         selected: Some(EntityRef {
@@ -229,6 +231,91 @@ pub fn representative_scene(
     hasher.update(bincode::serialize(&scene).map_err(problem)?);
     scene.hash = hasher.finalize().into();
     Ok(scene)
+}
+
+/// Keep the synthetic crowd's actual horizontal geometry disjoint throughout
+/// its complete animation cycle. The old 0.7-tile grid interpenetrated adjacent
+/// arms on coincident planes; their separately tessellated GPU depths could
+/// disagree despite an unchanged source LessEqual policy. This input correction
+/// makes no claim of general CPU/GPU coplanar rasterization equivalence.
+fn posed_crowd(
+    tick: u64,
+    world_size: Vec2,
+) -> Result<(Mesh, [Vec2; CROWD_CAPACITY]), FixtureError> {
+    const MARGIN: f32 = 0.125;
+    const CLEARANCE: f32 = 0.125;
+    let rig = wonderland_avatar_view::fixtures::representative_rig();
+    let prepared = wonderland_avatar_view::fixtures::representative_mesh(&rig);
+    let mut low = Vec2::new(f32::INFINITY, f32::INFINITY);
+    let mut high = Vec2::new(f32::NEG_INFINITY, f32::NEG_INFINITY);
+    let mut active_mesh = None;
+    for phase in 0..ANIMATION_PHASES {
+        let mut pose = rig.bind_pose();
+        let angle = (phase as f32 / ANIMATION_PHASES as f32 * std::f32::consts::TAU).sin() * 0.3;
+        pose.locals[1].rotation = Quat::from_axis_angle(Vec3::Z, angle)
+            .ok_or_else(|| FixtureError("pose angle".into()))?;
+        pose.rebuild(&rig).map_err(problem)?;
+        let mesh = prepared.skin(&pose, Mat4::IDENTITY).map_err(problem)?;
+        for vertex in &mesh.vertices {
+            low.x = low.x.min(vertex.position.x);
+            low.y = low.y.min(vertex.position.z);
+            high.x = high.x.max(vertex.position.x);
+            high.y = high.y.max(vertex.position.z);
+        }
+        if phase == tick % ANIMATION_PHASES {
+            active_mesh = Some(mesh);
+        }
+    }
+    let footprint = high - low;
+    let available = world_size - Vec2::new(2. * MARGIN, 2. * MARGIN);
+    if !footprint.is_finite() || footprint.x <= 0. || footprint.y <= 0. {
+        return Err(FixtureError("crowd footprint".into()));
+    }
+    let columns = (((available.x + CLEARANCE) / (footprint.x + CLEARANCE)).floor() as usize)
+        .min(CROWD_CAPACITY);
+    if columns == 0 {
+        return Err(FixtureError("crowd does not fit lot width".into()));
+    }
+    let rows = (CROWD_CAPACITY + columns - 1) / columns;
+    let axis = |span: f32, size: f32, count: usize| -> Result<f32, FixtureError> {
+        let required = count as f32 * size + (count - 1) as f32 * CLEARANCE;
+        if span < required {
+            return Err(FixtureError("crowd does not fit lot bounds".into()));
+        }
+        Ok(if count == 1 {
+            0.
+        } else {
+            (span - size) / (count - 1) as f32
+        })
+    };
+    let stride = Vec2::new(
+        axis(available.x, footprint.x, columns)?,
+        axis(available.y, footprint.y, rows)?,
+    );
+    let origin = Vec2::new(
+        MARGIN - low.x
+            + if columns == 1 {
+                (available.x - footprint.x) * 0.5
+            } else {
+                0.
+            },
+        MARGIN - low.y
+            + if rows == 1 {
+                (available.y - footprint.y) * 0.5
+            } else {
+                0.
+            },
+    );
+    let placements = std::array::from_fn(|index| {
+        Vec2::new(
+            origin.x + (index % columns) as f32 * stride.x,
+            origin.y + (index / columns) as f32 * stride.y,
+        )
+    });
+    Ok((
+        active_mesh.ok_or_else(|| FixtureError("active crowd pose".into()))?,
+        placements,
+    ))
 }
 
 pub fn hash_hex(hash: [u8; 32]) -> String {
