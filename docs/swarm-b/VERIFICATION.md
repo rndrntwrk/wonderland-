@@ -1,4 +1,10 @@
-# Swarm B verification record
+# Swarm B initial verification record
+
+This is the historical result for the initial #1–#4 stack, before indexed IFF
+and sprite authoring, additional EOD handlers, creator transactions and the
+actual simulation bridge. See [CONTINUATION-VERIFICATION.md](CONTINUATION-VERIFICATION.md)
+for the current aggregate result. Counts and unsupported capabilities below
+describe that initial revision, not the completed continuation.
 
 The final assembled implementation passed **35 verification gates** on
 2026-10-05: **219 Rust tests, 8 Python catalog tests, formatting and strict
