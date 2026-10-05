@@ -70,8 +70,14 @@ fn independent_appearance_fields_and_description_survive_the_contract() {
         saved["profiles"][0]["appearance"]["body"],
         json!("00000000F3000000:0000000D")
     );
-    assert_eq!(saved["profiles"][0]["appearance"]["skin_tone"], json!("medium"));
-    assert_eq!(saved["profiles"][0]["appearance"]["gender"], json!("female"));
+    assert_eq!(
+        saved["profiles"][0]["appearance"]["skin_tone"],
+        json!("medium")
+    );
+    assert_eq!(
+        saved["profiles"][0]["appearance"]["gender"],
+        json!("female")
+    );
     assert_eq!(
         saved["profiles"][0]["description"],
         json!("A creator with separately selected parts.")
