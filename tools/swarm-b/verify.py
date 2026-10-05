@@ -30,6 +30,24 @@ ORIGINAL_SOURCE_FILES = (
     "TSOClient/tso.files/FAR3/Far3Entry.cs",
     "TSOClient/tso.files/FAR3/FAR3Exception.cs",
     "TSOClient/tso.files/FAR3/Decompresser.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/VMEODHost.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHandler.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Model/VMEODEvent.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Archetypes/VMBasicEOD.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODLobby.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODPersist.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODSignsData.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTimerPlugin.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDanceFloorPlugin.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSignsPlugin.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODScoreboardPlugin.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPermissionDoorPlugin.cs",
+    "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODStubPlugin.cs",
+    "TSOClient/tso.simantics/NetPlay/Model/VMSerializable.cs",
+    "TSOClient/tso.simantics/NetPlay/Model/VMNetCommandBodyAbstract.cs",
+    "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetEODEventCmd.cs",
+    "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetEODMessageCmd.cs",
 )
 
 
@@ -75,9 +93,9 @@ def main():
     parser.add_argument("--with-parity", action="store_true",
                         help="Execute the authored native/WASI probe using Node")
     parser.add_argument("--with-source-oracle", action="store_true",
-                        help="Run original FAR3, indexed IFF and sprite source comparisons (Mono/C++)")
+                        help="Run original FAR3, indexed IFF, sprite and EOD source comparisons (Mono/C++)")
     parser.add_argument("--with-runtime-bridge", action="store_true",
-                        help="Test the pinned Swarm A bridge and execute actual native/WASI source replay")
+                        help="Test the pinned Swarm A bridge and execute native/WASI source and cooked-release replay")
     args = parser.parse_args()
     logs = args.logs_dir or Path(tempfile.mkdtemp(prefix="wonderland-b-verification-"))
     logs = logs.resolve()
@@ -149,6 +167,20 @@ def main():
                     run("eod-native-boundary", cargo + ["check", "--locked", "--manifest-path", manifest,
                                                        "--lib", "--target", "wasm32-unknown-unknown"],
                         package_env, expected_failure="authoritative private EOD state is native-only")
+                    if args.with_source_oracle:
+                        run("eod-oracle-comparator-tests", [sys.executable, "-m", "unittest",
+                            "discover", "-s", "fixtures/eod/source-oracle", "-p", "test_*.py"],
+                            package_env)
+                        run("original-eod-handlers", [sys.executable,
+                            "tools/swarm-b/eod-source-oracle.py", "--cargo", args.cargo,
+                            "--target-dir", build, "--logs-dir", str(logs / "eod-source-oracle")],
+                            package_env)
+                        # Example unit tests are not run by the ordinary package
+                        # command. Count the oracle's actual boundary-test log.
+                        counts = rust_test_counts((logs / "eod-source-oracle" /
+                                                   "native-boundary-tests.stdout").read_text())
+                        results[-1].update(tests_passed=counts[0], tests_ignored=counts[1],
+                                           details="eod-source-oracle/eod-source-oracle.json")
                 if name == "content":
                     with tempfile.TemporaryDirectory(prefix="wonderland-b-census-") as output:
                         generated = Path(output) / "corpus.json"
@@ -196,6 +228,9 @@ def main():
                     "--no-default-features", "--lib", "--target", "wasm32-unknown-unknown"], runtime_env)
                 run("runtime-source-native-wasi", [sys.executable,
                     "tools/swarm-b/runtime-bridge-parity.py", "--assembly", str(assembly),
+                    "--cargo", args.cargo, "--target-dir", str(build)], runtime_env)
+                run("runtime-cooked-native-wasi", [sys.executable,
+                    "tools/swarm-b/runtime-bridge-cooked-parity.py", "--assembly", str(assembly),
                     "--cargo", args.cargo, "--target-dir", str(build)], runtime_env)
         if source_digest() != initial_digest:
             raise RuntimeError("verification inputs changed during the run; rerun on stable sources")

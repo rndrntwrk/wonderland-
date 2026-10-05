@@ -1,0 +1,226 @@
+timer_raw_casts_and_bounds	0	reset
+timer_raw_casts_and_bounds	1	connect	alice	timer	700	0	101	1001	2001	0	0	2,257,300,-1
+timer_raw_casts_and_bounds	2	binary	alice	Timer_State_Change	01
+timer_raw_casts_and_bounds	3	binary	alice	Timer_State_Change	01
+timer_raw_casts_and_bounds	4	binary	alice	Timer_Set	633bde
+timer_raw_casts_and_bounds	5	binary	alice	Timer_Set	-
+timer_raw_casts_and_bounds	6	binary	alice	Timer_Set	01
+timer_raw_casts_and_bounds	7	binary	alice	Timer_Set	643b
+timer_raw_casts_and_bounds	8	binary	alice	Timer_Set	633c
+timer_raw_casts_and_bounds	9	binary	alice	Timer_State_Change	02
+timer_raw_casts_and_bounds	10	binary	alice	Timer_IsRunning_Change	02
+timer_raw_casts_and_bounds	11	text	alice	Timer_Close	-
+timer_stopped_refresh_fifth_tick	0	reset
+timer_stopped_refresh_fifth_tick	1	connect	alice	timer	700	0	101	1001	2001	0	0	0,0,8,9
+timer_stopped_refresh_fifth_tick	2	binary	alice	Timer_IsRunning_Change	01
+timer_stopped_refresh_fifth_tick	3	binary	alice	Timer_IsRunning_Change	00
+timer_stopped_refresh_fifth_tick	4	registers	alice	0,0,1,7
+timer_stopped_refresh_fifth_tick	5	tick	1
+timer_stopped_refresh_fifth_tick	6	tick	3
+timer_stopped_refresh_fifth_tick	7	tick	1
+timer_stopped_refresh_fifth_tick	8	tick	1
+timer_stopped_refresh_fifth_tick	9	text	alice	Timer_Close	-
+timer_stale_tock_requires_running_tick	0	reset
+timer_stale_tock_requires_running_tick	1	connect	alice	timer	700	0	101	1001	2001	0	0	0,0,8,9
+timer_stale_tock_requires_running_tick	2	binary	alice	Timer_IsRunning_Change	01
+timer_stale_tock_requires_running_tick	3	binary	alice	Timer_IsRunning_Change	00
+timer_stale_tock_requires_running_tick	4	tick	5
+timer_stale_tock_requires_running_tick	5	binary	alice	Timer_IsRunning_Change	01
+timer_stale_tock_requires_running_tick	6	binary	alice	Timer_IsRunning_Change	00
+timer_stale_tock_requires_running_tick	7	registers	alice	0,0,1,7
+timer_stale_tock_requires_running_tick	8	tick	6
+timer_stale_tock_requires_running_tick	9	binary	alice	Timer_IsRunning_Change	01
+timer_stale_tock_requires_running_tick	10	tick	1
+timer_stale_tock_requires_running_tick	11	binary	alice	Timer_IsRunning_Change	00
+timer_stale_tock_requires_running_tick	12	tick	5
+timer_stale_tock_requires_running_tick	13	text	alice	Timer_Close	-
+timer_countdown_off_before_update	0	reset
+timer_countdown_off_before_update	1	connect	alice	timer	700	0	101	1001	2001	0	0	1,0,0,1
+timer_countdown_off_before_update	2	registers	alice	1,0,0,0
+timer_countdown_off_before_update	3	tick	1
+timer_countdown_off_before_update	4	tick	1
+timer_countdown_off_before_update	5	text	alice	Timer_Close	-
+timer_already_running_pause_skips_refresh	0	reset
+timer_already_running_pause_skips_refresh	1	connect	alice	timer	700	0	101	1001	2001	0	0	1,0,1,2
+timer_already_running_pause_skips_refresh	2	binary	alice	Timer_IsRunning_Change	00
+timer_already_running_pause_skips_refresh	3	tick	6
+timer_already_running_pause_skips_refresh	4	text	alice	Timer_Close	-
+timer_stopwatch_zero_waits_for_mode_change	0	reset
+timer_stopwatch_zero_waits_for_mode_change	1	connect	alice	timer	700	0	101	1001	2001	0	0	1,1,0,0
+timer_stopwatch_zero_waits_for_mode_change	2	tick	2
+timer_stopwatch_zero_waits_for_mode_change	3	binary	alice	Timer_State_Change	00
+timer_stopwatch_zero_waits_for_mode_change	4	tick	1
+timer_stopwatch_zero_waits_for_mode_change	5	text	alice	Timer_Close	-
+dance_private_recipients_controller_and_departure	0	reset
+dance_private_recipients_controller_and_departure	1	controller	floor	700	700
+dance_private_recipients_controller_and_departure	2	connect	alice	dance	700	0	101	1001	2001	0	0	0,0,0,0
+dance_private_recipients_controller_and_departure	3	connect	bob	dance	700	0	102	1002	2002	0	0	0,0,0,0
+dance_private_recipients_controller_and_departure	4	text	alice	press_button	31
+dance_private_recipients_controller_and_departure	5	text	bob	press_button	323535
+dance_private_recipients_controller_and_departure	6	text	alice	press_button	202b323520
+dance_private_recipients_controller_and_departure	7	text	alice	press_button	32350000
+dance_private_recipients_controller_and_departure	8	text	alice	press_button	323536
+dance_private_recipients_controller_and_departure	9	text	alice	press_button	2d31
+dance_private_recipients_controller_and_departure	10	text	alice	press_button	312c32303032
+dance_private_recipients_controller_and_departure	11	text	alice	press_button	3235c2a0
+dance_private_recipients_controller_and_departure	12	text	alice	close	-
+dance_private_recipients_controller_and_departure	13	text	bob	press_button	37
+dance_private_recipients_controller_and_departure	14	disconnect	floor
+dance_private_recipients_controller_and_departure	15	text	bob	press_button	38
+dance_private_recipients_controller_and_departure	16	text	bob	close	-
+dance_no_controller_has_no_button_effect	0	reset
+dance_no_controller_has_no_button_effect	1	connect	alice	dance	700	0	101	1001	2001	0	0	0,0,0,0
+dance_no_controller_has_no_button_effect	2	text	alice	press_button	35
+dance_no_controller_has_no_button_effect	3	text	alice	close	-
+signs_roommate_defaults_write_preserves_flags	0	reset
+signs_roommate_defaults_write_preserves_flags	1	connect	alice	signs	700	78	101	1001	2001	1	0	1,16,0,0
+signs_roommate_defaults_write_preserves_flags	2	tick	2
+signs_roommate_defaults_write_preserves_flags	3	release
+signs_roommate_defaults_write_preserves_flags	4	tick	1
+signs_roommate_defaults_write_preserves_flags	5	binary	alice	set_message	3f000568656c6c6f
+signs_roommate_defaults_write_preserves_flags	6	binary	alice	set_message	3f0000
+signs_roommate_defaults_write_preserves_flags	7	text	alice	close	-
+signs_visitor_read_rejects_write	0	reset
+signs_visitor_read_rejects_write	1	seed	signs	78	050006736563726574
+signs_visitor_read_rejects_write	2	connect	alice	signs	700	78	101	1001	2001	0	0	1,16,0,0
+signs_visitor_read_rejects_write	3	release
+signs_visitor_read_rejects_write	4	tick	1
+signs_visitor_read_rejects_write	5	binary	alice	set_message	3f00076368616e676564
+signs_visitor_read_rejects_write	6	text	alice	close	-
+signs_read_denial_keeps_write_mode_quirk	0	reset
+signs_read_denial_keeps_write_mode_quirk	1	seed	signs	78	200006736563726574
+signs_read_denial_keeps_write_mode_quirk	2	connect	alice	signs	700	78	101	1001	2001	0	0	2,16,0,0
+signs_read_denial_keeps_write_mode_quirk	3	release
+signs_read_denial_keeps_write_mode_quirk	4	tick	1
+signs_read_denial_keeps_write_mode_quirk	5	binary	alice	set_message	3f00046e657874
+signs_read_denial_keeps_write_mode_quirk	6	text	alice	close	-
+signs_read_denial_keeps_write_mode_quirk	7	connect	again	signs	700	78	102	1001	2001	0	0	1,16,0,0
+signs_read_denial_keeps_write_mode_quirk	8	release
+signs_read_denial_keeps_write_mode_quirk	9	tick	1
+signs_read_denial_keeps_write_mode_quirk	10	text	again	close	-
+signs_owner_utf16_and_trailing_bytes	0	reset
+signs_owner_utf16_and_trailing_bytes	1	connect	alice	signs	700	78	101	1001	2001	3	1	3,3,0,0
+signs_owner_utf16_and_trailing_bytes	2	release
+signs_owner_utf16_and_trailing_bytes	3	tick	1
+signs_owner_utf16_and_trailing_bytes	4	binary	alice	set_message	3f000641f09f98807a
+signs_owner_utf16_and_trailing_bytes	5	binary	alice	set_message	090001510708
+signs_owner_utf16_and_trailing_bytes	6	binary	alice	set_message	-
+signs_owner_utf16_and_trailing_bytes	7	binary	alice	set_message	3f0080
+signs_owner_utf16_and_trailing_bytes	8	binary	alice	set_message	3f0000
+signs_owner_utf16_and_trailing_bytes	9	text	alice	close	-
+signs_owner_zero_limit_and_long_length_prefix	0	reset
+signs_owner_zero_limit_and_long_length_prefix	1	seed	signs	78	0f00820178787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878
+signs_owner_zero_limit_and_long_length_prefix	2	connect	alice	signs	700	78	101	1001	2001	3	1	4,0,0,0
+signs_owner_zero_limit_and_long_length_prefix	3	release
+signs_owner_zero_limit_and_long_length_prefix	4	tick	1
+signs_owner_zero_limit_and_long_length_prefix	5	binary	alice	set_message	3f00086e6f6e656d707479
+signs_owner_zero_limit_and_long_length_prefix	6	text	alice	close	-
+scoreboard_async_load_numeric_and_enum_parsing	0	reset
+scoreboard_async_load_numeric_and_enum_parsing	1	connect	alice	scoreboard	700	77	101	1001	2001	0	0	0,0,0,0
+scoreboard_async_load_numeric_and_enum_parsing	2	tick	2
+scoreboard_async_load_numeric_and_enum_parsing	3	release
+scoreboard_async_load_numeric_and_enum_parsing	4	text	alice	scoreboard_setscore	4c48532c39393939
+scoreboard_async_load_numeric_and_enum_parsing	5	text	alice	scoreboard_updatescore	4c48532c3332373637
+scoreboard_async_load_numeric_and_enum_parsing	6	text	alice	scoreboard_updatecolor	5248532c507572706c65
+scoreboard_async_load_numeric_and_enum_parsing	7	text	alice	scoreboard_updatecolor	5248532c323535
+scoreboard_async_load_numeric_and_enum_parsing	8	text	alice	scoreboard_setscore	3235352c34
+scoreboard_async_load_numeric_and_enum_parsing	9	text	alice	scoreboard_updatecolor	3235352c526564
+scoreboard_async_load_numeric_and_enum_parsing	10	text	alice	scoreboard_setscore	6c68732c34
+scoreboard_async_load_numeric_and_enum_parsing	11	text	alice	scoreboard_setscore	4c48532c3332373638
+scoreboard_async_load_numeric_and_enum_parsing	12	text	alice	scoreboard_setscore	4c48532c312c32
+scoreboard_async_load_numeric_and_enum_parsing	13	text	alice	scoreboard_updatecolor	5248532c323536
+scoreboard_async_load_numeric_and_enum_parsing	14	text	alice	scoreboard_setscore	c2a04c4853c2a02c202b32342000
+scoreboard_async_load_numeric_and_enum_parsing	15	text	alice	close	-
+scoreboard_loaded_extremes_wrap_and_tails	0	reset
+scoreboard_loaded_extremes_wrap_and_tails	1	seed	scoreboard	77	ff07ff7f0080aabb
+scoreboard_loaded_extremes_wrap_and_tails	2	connect	alice	scoreboard	700	77	101	1001	2001	0	0	0,0,0,0
+scoreboard_loaded_extremes_wrap_and_tails	3	release
+scoreboard_loaded_extremes_wrap_and_tails	4	text	alice	scoreboard_updatescore	4c48532c31
+scoreboard_loaded_extremes_wrap_and_tails	5	text	alice	scoreboard_setscore	5248532c2d31
+scoreboard_loaded_extremes_wrap_and_tails	6	text	alice	close	-
+scoreboard_saved_state_reopens	0	reset
+scoreboard_saved_state_reopens	1	connect	alice	scoreboard	700	77	101	1001	2001	0	0	0,0,0,0
+scoreboard_saved_state_reopens	2	release
+scoreboard_saved_state_reopens	3	text	alice	scoreboard_setscore	5248532c3237
+scoreboard_saved_state_reopens	4	text	alice	scoreboard_updatecolor	4c48532c477265656e
+scoreboard_saved_state_reopens	5	text	alice	close	-
+scoreboard_saved_state_reopens	6	connect	again	scoreboard	700	77	102	1001	2001	0	0	0,0,0,0
+scoreboard_saved_state_reopens	7	release
+scoreboard_saved_state_reopens	8	text	again	close	-
+door_editor_bounds_cache_and_reopen	0	reset
+door_editor_bounds_cache_and_reopen	1	seed	door	79	31323334
+door_editor_bounds_cache_and_reopen	2	connect	alice	door	700	79	101	1001	2001	3	1	0,200,1,20,252
+door_editor_bounds_cache_and_reopen	3	tick	2
+door_editor_bounds_cache_and_reopen	4	release
+door_editor_bounds_cache_and_reopen	5	tick	1
+door_editor_bounds_cache_and_reopen	6	text	alice	set_code	202b3938373620
+door_editor_bounds_cache_and_reopen	7	text	alice	set_state	32
+door_editor_bounds_cache_and_reopen	8	text	alice	set_state	33
+door_editor_bounds_cache_and_reopen	9	text	alice	set_fee	323030
+door_editor_bounds_cache_and_reopen	10	text	alice	set_fee	323031
+door_editor_bounds_cache_and_reopen	11	text	alice	set_flags	3635353335
+door_editor_bounds_cache_and_reopen	12	text	alice	set_flags	2d31
+door_editor_bounds_cache_and_reopen	13	text	alice	set_code	31303030303030303030
+door_editor_bounds_cache_and_reopen	14	text	alice	close	-
+door_editor_bounds_cache_and_reopen	15	connect	again	door	700	79	102	1001	2001	3	1	0,200,1,20,252
+door_editor_bounds_cache_and_reopen	16	release
+door_editor_bounds_cache_and_reopen	17	tick	1
+door_editor_bounds_cache_and_reopen	18	text	again	close	-
+door_view_hides_code_and_ignores_edits	0	reset
+door_view_hides_code_and_ignores_edits	1	seed	door	79	31323334
+door_view_hides_code_and_ignores_edits	2	connect	alice	door	700	79	101	1001	2001	0	0	1,200,1,20,252
+door_view_hides_code_and_ignores_edits	3	release
+door_view_hides_code_and_ignores_edits	4	tick	1
+door_view_hides_code_and_ignores_edits	5	text	alice	set_code	35363738
+door_view_hides_code_and_ignores_edits	6	text	alice	set_state	32
+door_view_hides_code_and_ignores_edits	7	text	alice	set_fee	313030
+door_view_hides_code_and_ignores_edits	8	text	alice	set_flags	30
+door_view_hides_code_and_ignores_edits	9	text	alice	try_code	31323334
+door_view_hides_code_and_ignores_edits	10	text	alice	close	-
+door_code_input_matching	0	reset
+door_code_input_matching	1	seed	door	79	31323334
+door_code_input_matching	2	connect	alice	door	700	79	101	1001	2001	0	0	2,200,1,20,252
+door_code_input_matching	3	release
+door_code_input_matching	4	tick	1
+door_code_input_matching	5	text	alice	try_code	31323334
+door_code_input_wrong	0	reset
+door_code_input_wrong	1	seed	door	79	31323334
+door_code_input_wrong	2	connect	alice	door	700	79	101	1001	2001	0	0	2,200,1,20,252
+door_code_input_wrong	3	release
+door_code_input_wrong	4	tick	1
+door_code_input_wrong	5	text	alice	try_code	31323335
+door_code_input_malformed	0	reset
+door_code_input_malformed	1	seed	door	79	31323334
+door_code_input_malformed	2	connect	alice	door	700	79	101	1001	2001	0	0	2,200,1,20,252
+door_code_input_malformed	3	release
+door_code_input_malformed	4	tick	1
+door_code_input_malformed	5	text	alice	try_code	2d31
+door_code_input_before_init_closes	0	reset
+door_code_input_before_init_closes	1	connect	alice	door	700	79	101	1001	2001	0	0	2,200,1,20,252
+door_code_input_before_init_closes	2	text	alice	try_code	30
+door_corrupt_decimal_load_defaults_to_zero	0	reset
+door_corrupt_decimal_load_defaults_to_zero	1	seed	door	79	ff3432
+door_corrupt_decimal_load_defaults_to_zero	2	connect	alice	door	700	79	101	1001	2001	0	0	2,200,1,20,252
+door_corrupt_decimal_load_defaults_to_zero	3	release
+door_corrupt_decimal_load_defaults_to_zero	4	tick	1
+door_corrupt_decimal_load_defaults_to_zero	5	text	alice	try_code	30
+door_uint32_persist_value_exceeds_edit_limit	0	reset
+door_uint32_persist_value_exceeds_edit_limit	1	seed	door	79	34323934393637323935
+door_uint32_persist_value_exceeds_edit_limit	2	connect	alice	door	700	79	101	1001	2001	3	1	0,200,1,20,252
+door_uint32_persist_value_exceeds_edit_limit	3	release
+door_uint32_persist_value_exceeds_edit_limit	4	tick	1
+door_uint32_persist_value_exceeds_edit_limit	5	text	alice	set_code	34323934393637323935
+door_uint32_persist_value_exceeds_edit_limit	6	text	alice	close	-
+policy_signs_preinitialization_write	0	reset
+policy_signs_preinitialization_write	1	connect	alice	signs	700	78	101	1001	2001	0	0	0,10,0,0
+policy_signs_preinitialization_write	2	release
+policy_signs_preinitialization_write	3	policy_binary	alice	set_message	3f000158
+policy_signs_invalid_utf8	0	reset
+policy_signs_invalid_utf8	1	connect	alice	signs	700	78	101	1001	2001	3	1	4,10,0,0
+policy_signs_invalid_utf8	2	release
+policy_signs_invalid_utf8	3	tick	1
+policy_signs_invalid_utf8	4	policy_binary	alice	set_message	3f0001ff
+policy_malformed_provider_record	0	reset
+policy_malformed_provider_record	1	seed	scoreboard	77	00
+policy_malformed_provider_record	2	connect	alice	scoreboard	700	77	101	1001	2001	0	0	0,0,0,0
+policy_malformed_provider_record	3	policy_release

@@ -1,17 +1,28 @@
 # Swarm B — content, objects, and creator tools
 
 This branch provides a working Rust content pipeline, guarded offline creator
-transactions, indexed IFF and sprite authoring, five native EOD handlers, and
-an isolated bridge to Swarm A's actual simulation runtime. It also records every
-checked-in object and registered EOD in a reproducible coverage inventory.
+transactions and sprite editing, eight native EOD handlers, and source/cooked
+content bridges to Swarm A's actual simulation runtime. It also records every
+checked-in object and registered EOD in a reproducible coverage inventory, with
+source-selected OBJf lifecycle references.
 
 The source baseline is [`4c6b3e8f5835b228723caea3c9f683c62f244f73`](https://github.com/rndrntwrk/wonderland-/tree/4c6b3e8f5835b228723caea3c9f683c62f244f73).
 The assigned packages are W01, W06, and W16 from the supplied parallel rewrite
 plan. [IMPLEMENTATION.md](IMPLEMENTATION.md) records the initial ownership
-decisions; [CONTINUATION.md](CONTINUATION.md) records the next implementation.
-[CONTINUATION-VERIFICATION.md](CONTINUATION-VERIFICATION.md) is the current
-verification and review record. [VERIFICATION.md](VERIFICATION.md) preserves
-the initial stack's 35-gate result as a historical baseline.
+decisions; [CONTINUATION.md](CONTINUATION.md) records the following implementation.
+[BUILDOUT.md](BUILDOUT.md) and [BUILDOUT-DESIGN.md](BUILDOUT-DESIGN.md) describe the
+cooperative-game, sprite-workflow and cooked-runtime increment.
+[BUILDOUT-VERIFICATION.md](BUILDOUT-VERIFICATION.md) is the current verification
+and review record. The earlier [44-gate continuation](CONTINUATION-VERIFICATION.md)
+and [35-gate initial result](VERIFICATION.md) remain historical baselines.
+The complete buildout passes **47 gates, 439 Rust tests and 48 Python tests**.
+Draft PRs [#13](https://github.com/rndrntwrk/wonderland-/pull/13),
+[#14](https://github.com/rndrntwrk/wonderland-/pull/14),
+[#15](https://github.com/rndrntwrk/wonderland-/pull/15) and
+[#16](https://github.com/rndrntwrk/wonderland-/pull/16) contain the four reviewed
+feature increments; `swarm-b/buildout-verified` adds the final evidence and runner
+integration. Each published feature tree was fetched and checked against the
+reviewed local tree.
 
 Full Swarm B completion still requires integrated interaction scheduling,
 routing, presentation, transport, production persistence, and reference-runtime
@@ -38,10 +49,16 @@ packing and dependency selection. Its BHAV is not a playable object.
 
 [creator.md](creator.md) documents resource/container inspection, exact untouched
 round trips, SHA-256/version-guarded multi-operation transactions, typed palette
-and OTF tuning edits, and semantic BMP city-map editing. The separate
+and OTF tuning edits, and semantic BMP city-map editing. The dedicated
+[sprite workflow](creator-sprites.md) exports a source-bound editing package,
+edits indexed pixels and palettes, applies explicit alpha policy, and imports
+atomically through the original-aware IFF writer. The separate
 [runtime bridge](runtime-bridge.md) supplies bounded routine queries, isolated
 accepted-tick replay, watches, and frame-position inspection against a pinned
-real VM. It is not an instruction-step debugger or a running-lot editor.
+real VM. The [cooked-release workflow](cooked-runtime.md) prepares a binding,
+plans selected packs, verifies and loads them, and replays an explicit scenario
+without the original source files. Instruction stepping and a running-lot editor
+remain separate integration work.
 
 ```sh
 bash tools/swarm-b/verify.sh --with-parity --with-source-oracle --with-runtime-bridge
@@ -54,19 +71,22 @@ nonincremental compilation. It runs the native suites and lint checks, checks
 browser-safe code for `wasm32-unknown-unknown`, and runs the authored cooker
 workflow. The optional flags add native/WASI execution, original C#/C++ source
 comparisons, and the actual pinned runtime bridge. Setup and the scope of those
-checks are described in [CONTINUATION-VERIFICATION.md](CONTINUATION-VERIFICATION.md).
+checks are described in [BUILDOUT-VERIFICATION.md](BUILDOUT-VERIFICATION.md).
+The EOD comparison executes five unchanged original C# handlers; the cooked
+comparison executes the actual runtime from selected verified packs on both
+native and WASI targets.
 
 ## Components and integration surfaces
 
 | Component | Delivered behavior | Main consumer |
 | --- | --- | --- |
-| `crates/legacy-formats` | Bounded FAR1/FAR3/DBPF/IFF reads; original-aware resource-map rebuilding; PALT/SPR2 encoding; RefPack/QFS; semantic resources; rigs, animations, mesh and audio metadata | Cooker, creator, content resolver |
+| `crates/legacy-formats` | Bounded FAR1/FAR3/DBPF/IFF reads; original-aware resource-map rebuilding; PALT/SPR2 and OBJf encoding; RefPack/QFS; semantic resources; rigs, animations, mesh and audio metadata | Cooker, creator, content resolver |
 | `crates/content-ir` | Ordered PIFF application, namespaces, tuning and localization; effective identities; immutable manifests, packs, tuning packs and load plans | Simulation and browser loader |
 | `tools/asset-cooker` | Actual import → resolve → cook → verify; named scopes and tuning inputs; explicit codecs, provenance and demand groups | Build/import tooling |
 | `crates/sim-core/src/interactions` | Source-derived offers, permissions, detached UI queries, validated intents, queue/cancel/start transitions | Swarm A's real VM |
-| `crates/eod-runtime` | Native private host, scoped authenticated sessions, Timer/DanceFloor/Signs/Scoreboard/PermissionDoor, checkpointed persistence intents and recovery | Swarm E's lot/transport/storage providers |
-| `tools/creator` | Offline resource CLI, atomic guarded add/remove/edit/rekey transactions, typed palette/BHAV/BCON/string/SLOT/OTF edits and exact BMP pixel editing | Creators and migration tools |
-| `crates/content-runtime-bridge` | Validated source-to-`ContentSet` conversion, real bounded routine queries, isolated snapshot/accepted-tick replay and creator inspection | Swarm A simulation and Swarm F composition |
+| `crates/eod-runtime` | Native private host, eight handlers including three cooperative games, scoped sessions/controllers, checkpointed private state and persistence recovery | Swarm E's lot/transport/storage providers |
+| `tools/creator` | Offline resource CLI, atomic guarded add/remove/edit/rekey transactions, guarded SPR2 packages, typed palette/BHAV/BCON/string/SLOT/OTF edits and exact BMP pixel editing | Creators and migration tools |
+| `crates/content-runtime-bridge` | Validated source and hash-bound cooked-release conversion to actual `ContentSet`, real bounded queries, isolated snapshot/accepted-tick replay and creator inspection | Swarm A simulation and Swarm F composition |
 | `tools/swarm-b-check` | Test-only manifests and cross-target fixtures compiling the actual owned modules | Swarm F integration |
 | `tools/swarm-b/*census*` | Pinned source and registration inventories with concrete open leaves | Compatibility planning and qualification |
 
@@ -90,14 +110,14 @@ not infer those rights from a filename or repository location.
 | W01.1 | Explicit container variants, bounded extraction/decompression, unknown-preserving IFF envelopes, original-aware v0/v1 resource-map rebuilding; original C# FAR3 and historical C++ IFF comparisons | W00 contract adoption; broader installation corpus, ambiguous maps and excluded variants |
 | W01.2 | Source-cased PIFF matching and user suppression, deferred moves/removals/additions, namespace lookup, tuning precedence and localization, deterministic effective identities | Full frozen installation/patch manifest and original-runtime differential cases |
 | W01.3 | CPU sprite color/alpha/depth, bounded PALT and SPR2 1000/1001 authoring, source C# encoder/reader comparisons, DGRP/SLOT, Vitaboy and audio/HIT metadata | Renderer/pose evaluation, compressed audio playback/HIT execution, additional legacy formats and visual reference comparisons |
-| W01.4 | Working source import and resolver, immutable semantic/visual/audio/opaque packs, actual effective tuning, verified load closure and authored rebuild demo | Browser cache/network integration; complete dynamic BHAV/resource dependency declarations from the VM/content contract |
+| W01.4 | Working source import and resolver, immutable semantic/visual/audio/opaque packs, actual effective tuning, verified load closure, source-independent runtime binding and native/WASI cooked replay | Browser cache/network integration; complete dynamic BHAV/resource dependency declarations from the VM/content contract |
 | W06.1 | Source-derived interaction module and provider traits; detached query and in-tick modes; guarded intents; queue/cancellation behavior; separate actual-interpreter source routine and accepted-tick replay proof | Complete check-tree/queue adapter, advertisement and query-state mapping, scheduler/routing/reservations and production persistence |
 | W06.2 | Real chair/bed/appliance source descriptors and explicit scenario requirements | Content-driven walk/reserve/use/animate/need-change/exit with original traces and interrupted/concurrent cases |
-| W06.3 | Native Timer, DanceFloor, Signs, Scoreboard and PermissionDoor; private/public channels; scoped tickets; mixed checkpoints; immutable persistence intents and explicit lost-response reconciliation | Production transport, coherent VM/private checkpoint barrier, durable provider integration and original UI/runtime traces |
-| W06.4 | Complete checked-in object/source inventory and exact server/UI EOD registration census; per-entry open leaves | All enter/use/cancel/leave/save/reconnect scenarios; remaining 25 EOD implementations; W00's complete installation denominator |
+| W06.3 | Eight native handlers, including PaperChase/PizzaMaker/Maze; private/public channels and controller capabilities; format 1/2/3 recovery; immutable persistence intents; unchanged-C# component comparisons for five handlers | Production transport, coherent VM/private checkpoint barrier, durable provider integration and original UI/runtime traces |
+| W06.4 | Complete checked-in object/source inventory, exact source-selected OBJf lifecycle references, exact server/UI EOD registration census and per-entry open leaves | All enter/use/cancel/leave/save/reconnect scenarios; remaining 22 EOD implementations; W00's complete installation denominator |
 | W16.1 | Safe offline inspection/import/export, strict bounded transaction JSON, atomic guarded resource creation/removal/rekey/edit and indexed repacking | Graphical resource browser, effective catalog/patch view and production tool privilege integration |
 | W16.2 | BHAV branch/operand editing and CFG inspection; real isolated tick-step/query, bounded watches and frame-position inspection through the bridge | Instruction break/step/yield, actual executed trace and running-lot preview |
-| W16.3 | Strings, BCON, SLOT, palettes and exact OTF editing; bounded sprite encoding API; raw resource interchange and actual repacking | Graphical sprite editing, mesh/animation/upgrade authoring, OBJ/MTL/glTF/GLB workflows and contact/event authoring |
+| W16.3 | Strings, BCON, SLOT, palettes and exact OTF editing; guarded indexed sprite/palette CLI workflow with explicit alpha policy; raw interchange and actual repacking | Graphical sprite editing, mesh/animation/upgrade authoring, OBJ/MTL/glTF/GLB workflows and contact/event authoring |
 | W16.4 | Exact supported BMP city-map validation/editing and source tool disposition inventory | PNG/other map variants, graphical city/neighborhood editing, road reconstruction, server updates and optional-extension qualification |
 
 ## Source compatibility decisions
@@ -129,8 +149,10 @@ explicit indexed colors, source-supported alpha/depth combinations and preflight
 bounds. Exact alpha encoding is the default; source-style quantization is an
 explicit option that reports the number of changed alpha values.
 
-Behavior readers cover the supported source BHAV, OBJD, TTAB, BCON,
-STR#/CTSS/TTAs, GLOB, SLOT and PIFF layouts. TTAB's TSBO layout has an explicit
+Behavior readers cover the supported source BHAV, OBJD, OBJf, TTAB, BCON,
+STR#/CTSS/TTAs, GLOB, SLOT and PIFF layouts. [OBJf support](objf.md) preserves the
+source table header, entries and tails; runtime admission retains the actual
+simulation's narrower entry-count and representability limits. TTAB's TSBO layout has an explicit
 decoder/pack tag. Unknown positive string layouts and the old TTAB 2/3 cases
 remain explicit semantic exclusions; envelope preservation does not imply
 semantic support. XML OTF processing preserves untouched source bytes and
@@ -169,14 +191,26 @@ sender's authority. Scoped identities are checked for commands, private output,
 disconnect and rebind. Public object events and private UI/checkpoint data use
 distinct types with redacted private Debug output.
 
-Timer, DanceFloor, Signs, Scoreboard and PermissionDoor are native-enabled.
-The other 25 registrations remain explicitly unsupported, with source-specific
-implementation/recovery/provider leaves in [eod-coverage.md](eod-coverage.md).
-All 30 remain unverified against the original complete runtime and production
-providers. Checkpoint restore requires a newer host epoch and a trusted coherent
-VM/private stamp. Persistent handlers checkpoint immutable writes before
-dispatch and reconcile pending/provider state before rebind; the production
-provider must supply durable atomic deduplication and fencing.
+Timer, DanceFloor, Signs, Scoreboard, PermissionDoor, PaperChase, PizzaMaker and
+TwoPersonJobObjectMaze are native-enabled. The other 22 registrations remain
+explicitly unsupported, with source-specific implementation/recovery/provider
+leaves in [eod-coverage.md](eod-coverage.md). The [component oracle](eod-source-oracle.md)
+executes the five original C# handlers in controlled scenarios. All 30 still
+require qualification against the complete original application and production
+providers.
+
+The [cooperative host](cooperative-eod.md) keeps one bounded private group per
+game, advances it once per authoritative tick, and admits controller callbacks
+through a separate native capability. Its private checkpoint format 3 preserves
+hands, maps, phase and random streams while retaining formats 1/2. Restored games
+pause until the recorded controller and retained seats rebind. Invalid private
+state and failed output admission cannot partially advance a game.
+
+Checkpoint restore requires a newer host epoch and a trusted coherent VM/private
+stamp. Persistent handlers checkpoint immutable writes before dispatch and
+reconcile pending/provider state before rebind; the production provider must
+supply durable atomic deduplication and fencing. Native policy differences and
+private random behavior are explicit in the handler documentation.
 
 ## Corpus evidence
 
@@ -185,10 +219,12 @@ the pinned Git tree. Newly authored fixtures and later branch commits cannot
 silently expand that denominator. It includes 745 IFF/PIFF paths, five XML OTF
 files, and one `.otf` font explicitly excluded from object tuning.
 
-The census's capability notes describe its original read-only inventory pass.
-The later original-aware indexed writer is qualified separately in
-[indexed-iff-verification.json](indexed-iff-verification.json); the pinned input
-denominator and census bytes remain unchanged.
+The census retains the pinned source denominator and now includes all 471 OBJf
+tables and their 14,685 entries. Generated lifecycle dependencies distinguish
+OBJD selection from required OBJf tables and retain exact resource ordinals.
+Missing or ambiguous required tables remain unresolved. The original-aware
+indexed writer is qualified separately in
+[indexed-iff-verification.json](indexed-iff-verification.json).
 
 [object-matrix.json](../compat/object-matrix.json) and the normalized
 [cohort index](../../fixtures/objects/cohorts/index.json) preserve object-local

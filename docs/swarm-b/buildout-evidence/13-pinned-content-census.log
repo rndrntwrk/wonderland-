@@ -1,0 +1,56 @@
+    Finished `dev` profile [unoptimized] target(s) in 0.03s
+     Running `/tmp/wonderland-b-content-6sug1y2n/debug/content-census /workspace/scratch/378e4c36af7b/wonderland /tmp/wonderland-b-census-wy0ytg8n/corpus.json`
+{
+  "behaviors": 7200,
+  "bounded_retry_successes": {
+    "PIFF": 1
+  },
+  "excluded_font_files": 1,
+  "files": 751,
+  "iff_piff_files": 745,
+  "indexed_files": 198,
+  "indexed_passthrough_verified": 195,
+  "interaction_tables": 805,
+  "invalid_envelopes": 0,
+  "objects": 1327,
+  "opaque_counts": {
+    "BMP_": 2320,
+    "DGRP": 2460,
+    "FSOM": 1356,
+    "FSOR": 216,
+    "FWAV": 2800,
+    "MTEX": 593,
+    "PALT": 20627,
+    "POSI": 3,
+    "SPR#": 6,
+    "SPR2": 2758,
+    "TPRP": 739,
+    "TRCN": 51,
+    "TREE": 1996,
+    "XXXX": 24,
+    "rsmp": 198
+  },
+  "semantic_counts": {
+    "BCON": 638,
+    "BHAV": 7200,
+    "CTSS": 597,
+    "GLOB": 161,
+    "OBJD": 1327,
+    "OBJf": 471,
+    "OTF": 5,
+    "PIFF": 294,
+    "SLOT": 405,
+    "STR#": 1563,
+    "TTAB": 805,
+    "TTAs": 907
+  },
+  "semantic_failures": {
+    "PIFF": 1,
+    "STR#": 27,
+    "TTAB": 12
+  },
+  "strict_duplicate_envelopes": 3,
+  "strict_envelopes_accepted": 742,
+  "xml_otf_files": 5
+}
+metadata output: /tmp/wonderland-b-census-wy0ytg8n/corpus.json

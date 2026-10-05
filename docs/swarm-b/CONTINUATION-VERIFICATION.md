@@ -1,6 +1,10 @@
 # Swarm B continuation verification
 
-The complete frozen implementation passed **44 verification gates** on
+This is the historical continuation record. The later cooperative-game,
+sprite-workflow and cooked-runtime buildout is recorded in
+[BUILDOUT-VERIFICATION.md](BUILDOUT-VERIFICATION.md).
+
+The then-complete frozen implementation passed **44 verification gates** on
 2026-10-05: **347 Rust tests and 19 Python tests**, formatting, strict
 Clippy, portable library builds, source comparisons, deterministic cooking,
 and both authored and actual-runtime native/WASI execution. No gate failed.

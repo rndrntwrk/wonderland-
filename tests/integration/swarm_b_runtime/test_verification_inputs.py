@@ -1,5 +1,6 @@
 """Bind original source-oracle inputs to aggregate verification results."""
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -50,6 +51,32 @@ class VerificationInputTests(unittest.TestCase):
         self.assertNotEqual(before, added)
         path.unlink()
         self.assertEqual(before, VERIFIER.source_digest())
+
+    def test_every_executed_original_eod_dependency_changes_the_digest(self):
+        manifest = json.loads((ROOT / "fixtures/eod/source-oracle/sources.json").read_text())
+        for entry in manifest["files"]:
+            with self.subTest(source=entry["path"]):
+                path = self.root / entry["path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                before = VERIFIER.source_digest()
+                path.write_bytes(b"unchanged original EOD source input")
+                added = VERIFIER.source_digest()
+                self.assertNotEqual(before, added)
+                path.write_bytes(b"original source changed after comparison")
+                self.assertNotEqual(added, VERIFIER.source_digest())
+                path.unlink()
+                self.assertEqual(before, VERIFIER.source_digest())
+
+    def test_original_eod_symlink_target_bytes_are_bound(self):
+        manifest = json.loads((ROOT / "fixtures/eod/source-oracle/sources.json").read_text())
+        path = self.root / manifest["files"][0]["path"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        target = self.root / "synthetic-original-input.cs"
+        target.write_bytes(b"original bytes")
+        path.symlink_to(target)
+        before = VERIFIER.source_digest()
+        target.write_bytes(b"different bytes supplied to original compiler")
+        self.assertNotEqual(before, VERIFIER.source_digest())
 
 
 if __name__ == "__main__":
