@@ -62,6 +62,16 @@ impl Workspace {
         Ok(p)
     }
     pub fn read(&self, path: impl AsRef<Path>) -> Result<Vec<u8>, String> {
+        self.read_limited(path, self.max_file_bytes)
+    }
+    /// Apply a narrower limit before allocation, retaining the workspace ceiling
+    /// and the same path/type checks used for ordinary file reads.
+    pub fn read_limited(
+        &self,
+        path: impl AsRef<Path>,
+        max_bytes: usize,
+    ) -> Result<Vec<u8>, String> {
+        let max_bytes = max_bytes.min(self.max_file_bytes);
         let p = self.resolve(path.as_ref(), false)?;
         if !fs::symlink_metadata(&p)
             .map_err(|e| e.to_string())?
@@ -74,20 +84,19 @@ impl Workspace {
         if !m.is_file() {
             return Err("input must be a regular file".into());
         }
-        if m.len() > self.max_file_bytes as u64 {
+        if m.len() > max_bytes as u64 {
             return Err("input byte limit exceeded".into());
         }
-        let mut bytes = Vec::new();
-        let read_limit = u64::try_from(self.max_file_bytes)
-            .ok()
-            .and_then(|n| n.checked_add(1))
-            .ok_or("input byte limit overflow")?;
-        (&mut f)
-            .take(read_limit)
-            .read_to_end(&mut bytes)
-            .map_err(|e| e.to_string())?;
-        if bytes.len() > self.max_file_bytes {
-            return Err("input byte limit exceeded".into());
+        let length = usize::try_from(m.len()).map_err(|_| "input length overflow")?;
+        // Allocate only the checked metadata length. read_to_end can double a
+        // Vec's capacity beyond the caller's remaining allocation budget.
+        let mut bytes = vec![0; length];
+        f.read_exact(&mut bytes).map_err(|e| e.to_string())?;
+        // Detect growth without reserving another byte (and triggering geometric
+        // Vec growth). Truncation already fails read_exact; neither is published.
+        let mut extra = [0u8; 1];
+        if f.read(&mut extra).map_err(|e| e.to_string())? != 0 {
+            return Err("input changed size while reading".into());
         }
         Ok(bytes)
     }

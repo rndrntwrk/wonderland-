@@ -72,3 +72,71 @@ fn bounded_read_and_failed_output_preserve_existing_file() {
     assert_eq!(fs::read_dir(&tmp.0).unwrap().count(), 2);
     assert!(ws.read(tmp.0.join("out")).is_err());
 }
+
+#[test]
+fn transaction_sidecar_capacity_stays_inside_its_decoded_memory_budget() {
+    use wonderland_creator::{ResourceOperation, ResourceTransaction};
+    use wonderland_legacy_formats::Limits;
+    let tmp = Temp::new();
+    let ws = Workspace::new(&tmp.0).unwrap();
+    let payload = vec![42; 32_769];
+    fs::write(tmp.0.join("payload.bin"), &payload).unwrap();
+    let spec = serde_json::to_vec(&serde_json::json!({
+        "schema_version": 1,
+        "source_sha256": "0".repeat(64),
+        "operations": [{
+            "op": "add",
+            "key": { "kind_hex": "5a5a5a5a", "id": 9 },
+            "flags": 0,
+            "label_hex": "00".repeat(64),
+            "payload_file": "payload.bin",
+            "payload_sha256": sha256(&payload)
+        }]
+    }))
+    .unwrap();
+    let limits = Limits {
+        max_total_decoded_bytes: 40_000,
+        ..Limits::default()
+    };
+    let transaction = ResourceTransaction::from_json(&spec, &ws, &limits).unwrap();
+    match &transaction.operations[0] {
+        ResourceOperation::Add { chunk } => {
+            assert_eq!(chunk.data, payload);
+            assert!(
+                chunk.data.capacity() + spec.len() * 16 <= limits.max_total_decoded_bytes,
+                "sidecar allocation {} exceeds total budget {}",
+                chunk.data.capacity(),
+                limits.max_total_decoded_bytes
+            );
+        }
+        _ => panic!("expected one add operation"),
+    }
+}
+
+#[test]
+fn unknown_transaction_fields_are_rejected_before_their_values_are_read() {
+    use wonderland_creator::ResourceTransaction;
+    use wonderland_legacy_formats::Limits;
+    let tmp = Temp::new();
+    let ws = Workspace::new(&tmp.0).unwrap();
+    // A malformed, unterminated unknown-field value must never be traversed or
+    // buffered. This catches serde's internally tagged Content buffering, which
+    // would parse this array and report EOF instead of rejecting its field.
+    for prefix in [r#"{"extra":["#, r#"{"op":"edit","edit":{"extra":["#] {
+        let spec = format!(
+            r#"{{"schema_version":1,"source_sha256":"{}","operations":[{}{}"#,
+            "0".repeat(64),
+            prefix,
+            "0,".repeat(32_769),
+        );
+        let limits = Limits {
+            max_total_decoded_bytes: spec.len() * 16,
+            ..Limits::default()
+        };
+        let error = ResourceTransaction::from_json(spec.as_bytes(), &ws, &limits).unwrap_err();
+        assert!(
+            error.contains("unknown field"),
+            "unknown value was read: {error}"
+        );
+    }
+}
