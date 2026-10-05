@@ -258,6 +258,7 @@ fn probe(
     let mut errors = Vec::new();
     let mut piffs = Vec::new();
     let mut globals = Vec::new();
+    let mut function_tables = Vec::new();
     for (ordinal, chunk) in file.chunks.iter().enumerate() {
         let kind = String::from_utf8_lossy(&chunk.key.kind).into_owned();
         count(&mut resources, &kind);
@@ -299,6 +300,18 @@ fn probe(
         count(&mut semantics, &kind);
         count(&mut summary.semantic_counts, &kind);
         match decoded {
+            DecodedSemantic::Objf(table) => {
+                count(&mut versions, &format!("OBJf:{}", table.version));
+                function_tables.push(json!({
+                    "chunk_id": chunk.key.id, "resource_ordinal": ordinal,
+                    "version": table.version, "padding": table.padding,
+                    "trailing_bytes": table.trailing.len(),
+                    "entries": table.functions.iter().map(|entry| json!({
+                        "condition_function": entry.condition,
+                        "action_function": entry.action,
+                    })).collect::<Vec<_>>()
+                }));
+            }
             DecodedSemantic::Objd(obj) => {
                 summary.objects += 1;
                 count(&mut versions, &format!("OBJD:{}", obj.version));
@@ -385,6 +398,7 @@ fn probe(
     row.insert("piffs".into(), json!(piffs));
     row.insert("errors".into(), json!(errors));
     row.insert("globals".into(), json!(globals));
+    row.insert("function_tables".into(), json!(function_tables));
     row.insert("resources".into(), json!(file.chunks.iter().enumerate().map(|(ordinal,chunk)|json!({"kind":String::from_utf8_lossy(&chunk.key.kind),"id":chunk.key.id,"resource_ordinal":ordinal,"byte_len":chunk.data.len()})).collect::<Vec<_>>()));
     record
 }

@@ -820,6 +820,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-7a2eb22e4958dc12bce6b470a263e87ecfa0cd57019deafd3efb24270a41a145-OBJD-16809",
       "objd_chunk_id": 16809,
       "primitive_opcodes": [
@@ -901,15 +902,17 @@
     "entrypoints": [
       {
         "field": "BHAV_MainID",
-        "id": 4096
+        "id": 4096,
+        "origin": "OBJD"
       },
       {
         "field": "BHAV_Init",
-        "id": 4119
+        "id": 4119,
+        "origin": "OBJD"
       }
     ],
     "eod_registry_id": null,
-    "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+    "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
     "global_resource_names": [],
     "guid_hex": "46ea4345",
     "intentional_deviations": [],
@@ -1462,7 +1465,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",
