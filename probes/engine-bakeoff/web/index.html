@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wonderland · Swarm C engine comparison</title><link rel="stylesheet" href="./style.css">
+</head>
+<body><main>
+  <header><p class="eyebrow">WONDERLAND / SWARM C</p><h1>One scene. Three graphics paths.</h1>
+    <p>Synthetic architecture, source sprite depth, avatar poses and stable selection.</p></header>
+  <section class="toolbar" aria-label="Scene controls">
+    <label>Engine path<select id="variant"><option value="bevy-webgpu">Bevy · WebGPU</option><option value="bevy-webgl2">Bevy · WebGL2</option><option value="fyrox-webgl2">Fyrox · WebGL2</option></select></label>
+    <label>View<select id="mode"><option value="full2d">Full 2D</option><option value="hybrid2d">Hybrid 2D</option><option value="full3d">Full 3D</option></select></label>
+    <label>Frame stamp<input id="tick" type="number" min="0" step="1" value="30"></label>
+    <button id="apply-tick">Show pose</button><button id="pass">Show pick colors</button>
+    <button id="suspend">Suspend</button><button id="resume">Resume</button>
+    <button id="unlock-audio">Enable fixture audio</button><button id="start-audio">Play cue</button><button id="stop-audio">Stop cue</button>
+  </section>
+  <div class="layout">
+    <section aria-label="Rendered fixture"><div id="canvas-host"><canvas id="engine-canvas" tabindex="0" aria-label="Game view. Click to select; keys 1, 2 and 3 change view."></canvas></div><p id="selection" aria-live="polite">Selection: none</p></section>
+    <aside><h2>Run status</h2><p id="status" role="status">Loading selected engine…</p>
+      <dl><dt>Requested</dt><dd id="requested">—</dd><dt>Observed</dt><dd id="observed">Awaiting engine context</dd><dt>Scene hash</dt><dd id="hash">Awaiting fixture</dd></dl>
+      <details><summary>Runtime observations</summary><pre id="metrics"></pre></details>
+      <p class="note">Readiness means the fixture was uploaded. Image parity, GPU readback and physical-device qualification are separate recorded gates.</p>
+    </aside>
+  </div>
+  <section class="focus-controls" aria-label="DOM focus checks"><h2>Browser input checks</h2>
+    <label>Login name<input id="login-name" autocomplete="off" placeholder="Typing stays in this field"></label>
+    <label>Chat<input id="chat-input" autocomplete="off" placeholder="Type 1, 2 or 3 here"></label>
+    <label>Search<input id="search-input" type="search" placeholder="Search fixture notes"></label>
+    <label>Interaction note<textarea id="interaction-input" rows="2"></textarea></label>
+  </section><pre id="errors" role="alert" hidden></pre>
+</main><script type="module" src="./host.mjs"></script></body></html>

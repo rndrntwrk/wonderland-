@@ -1,0 +1,108 @@
+name: Swarm C presentation
+
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths:
+      - 'crates/render-core/**'
+      - 'crates/render-iso/**'
+      - 'crates/render-3d/**'
+      - 'crates/avatar-view/**'
+      - 'crates/audio-runtime/**'
+      - 'probes/engine-bakeoff/**'
+      - 'tools/swarm-c/**'
+      - '.github/workflows/swarm-c.yml'
+  pull_request:
+    paths:
+      - 'crates/render-core/**'
+      - 'crates/render-iso/**'
+      - 'crates/render-3d/**'
+      - 'crates/avatar-view/**'
+      - 'crates/audio-runtime/**'
+      - 'probes/engine-bakeoff/**'
+      - 'tools/swarm-c/**'
+      - '.github/workflows/swarm-c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-c-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reference:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/swarm-c-views-audio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install the isolated reference compiler
+        run: rustup toolchain install 1.75.0 --profile minimal --component rustfmt
+      - name: Verify presentation libraries
+        run: bash tools/swarm-c/verify.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-reference-${{ github.sha }}
+          path: tools/swarm-c/output/
+          retention-days: 14
+          if-no-files-found: warn
+
+  engine:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/swarm-c-views-audio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { engine: bevy, backend: native }
+          - { engine: bevy, backend: webgpu }
+          - { engine: bevy, backend: webgl2 }
+          - { engine: fyrox, backend: native }
+          - { engine: fyrox, backend: webgl2 }
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_PROFILE_RELEASE_DEBUG: 0
+      CARGO_INCREMENTAL: 0
+      CARGO_TARGET_DIR: ${{ github.workspace }}/engine-target
+      WONDERLAND_ENGINE: ${{ matrix.engine }}
+      WONDERLAND_BACKEND: ${{ matrix.backend }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install the isolated engine compiler
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          rustup target add wasm32-unknown-unknown --toolchain 1.95.0
+      - name: Provision native and software graphics dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libasound2-dev libudev-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers libgl1-mesa-dri xvfb
+      - name: Build the actual engine and preserve its resolution
+        run: bash tools/swarm-c/build-engine.sh
+      - name: Exercise the native software renderer
+        if: matrix.backend == 'native'
+        run: bash tools/swarm-c/run-native-engine.sh
+      - name: Exercise the browser software renderer
+        if: matrix.backend != 'native'
+        run: bash tools/swarm-c/run-browser-engine.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-${{ matrix.engine }}-${{ matrix.backend }}-${{ github.sha }}
+          path: |
+            tools/swarm-c/output/
+            probes/engine-bakeoff/${{ matrix.engine }}/Cargo.lock
+            probes/engine-bakeoff/web/pkg/
+          retention-days: 14
+          if-no-files-found: warn

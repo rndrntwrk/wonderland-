@@ -1,0 +1,12 @@
+[package]
+name = "wonderland-c-avatar-cooker"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MPL-2.0"
+[workspace]
+[dependencies]
+wonderland-avatar-view = { path = "../../../crates/avatar-view" }
+wonderland-render-core = { path = "../../../crates/render-core" }
+[profile.release]
+overflow-checks = true
