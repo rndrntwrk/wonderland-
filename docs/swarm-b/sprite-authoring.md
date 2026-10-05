@@ -50,7 +50,7 @@ Every frame is checked before output allocation. The writer checks frame and pal
 
 Transparent runs and skipped row spans larger than 8,191 are split into valid commands. A nontransparent row whose encoded byte count exceeds the format field is rejected; it cannot be split into another row without changing the image. This deliberately avoids the original writer's truncating cast on oversized inputs. The 9,000-row and 9,000-pixel transparent-run tests exercise those boundaries.
 
-To publish the resource, replace the guarded resource payload in a creator transaction and export through the original-aware IFF writer. [Indexed IFF rebuilding](indexed-iff.md) preserves the resource map when supported; [creator transactions](creator.md) provide source/resource guards and atomic filesystem publication. The sprite API itself performs no file writes.
+To edit and publish an existing sprite, use [Creator sprite packages](creator-sprites.md): export a strict guarded JSON package, edit exact pixel planes or palette RGB, and import it through the original-aware IFF writer. This dedicated workflow validates actual palette dependencies, preserves raw sprite bytes for no-ops and palette-only edits, and commits combined changes atomically. [Indexed IFF rebuilding](indexed-iff.md) preserves supported resource maps. The codec APIs themselves perform no file writes; generic raw-resource replacement is not a contextual sprite validator.
 
 ## Source and verification
 

@@ -181,6 +181,9 @@ impl ResourceDocument {
     pub fn file(&self) -> &IffFile {
         &self.file
     }
+    pub(crate) fn source_bytes(&self) -> &[u8] {
+        &self.source
+    }
     pub fn export(&self, limits: &Limits) -> Result<Vec<u8>, String> {
         limits
             .check_input(&self.source)
@@ -379,16 +382,89 @@ impl ResourceDocument {
                 candidate.chunks.push(chunk.clone());
             }
         }
+        self.commit_candidate(candidate, operation_bytes, limits)
+    }
+
+    /// Final publication shared by guarded typed workflows. Callers validate
+    /// their payloads and source guards before supplying a complete candidate.
+    pub(crate) fn commit_candidate(
+        &mut self,
+        candidate: IffFile,
+        retained: usize,
+        limits: &Limits,
+    ) -> Result<(), String> {
+        let mut envelope = 64usize;
+        for chunk in &candidate.chunks {
+            envelope = envelope
+                .checked_add(76)
+                .and_then(|n| n.checked_add(chunk.data.len()))
+                .ok_or("candidate IFF size overflow")?;
+        }
+        check_edit_budget(
+            envelope.max(self.source.len()),
+            candidate.chunks.len(),
+            retained,
+            limits,
+        )?;
         // Exact no-ops also work when the source's map is opaque/unsupported.
         if candidate == self.file {
             return Ok(());
         }
-        let bytes = iff::encode_rebuilding_index(&self.source, &candidate, limits)
+        // The legacy writer bounds its own source clone, map, output and
+        // collection workspace. Reserve the caller's live state first so those
+        // independently valid allocations cannot exceed the aggregate limit.
+        let mut resident = retained
+            .checked_add(self.source.capacity())
+            .ok_or("transaction retained allocation overflow")?;
+        for file in [&self.file, &candidate] {
+            resident = file
+                .chunks
+                .capacity()
+                .checked_mul(std::mem::size_of::<IffChunk>())
+                .and_then(|n| n.checked_add(resident))
+                .ok_or("transaction retained allocation overflow")?;
+            for chunk in &file.chunks {
+                resident = resident
+                    .checked_add(chunk.data.capacity())
+                    .ok_or("transaction retained allocation overflow")?;
+            }
+        }
+        let remaining = limits
+            .max_total_decoded_bytes
+            .checked_sub(resident)
+            .ok_or("creator transaction retained allocation limit exceeded")?;
+        let writer_limits = Limits {
+            max_total_decoded_bytes: remaining,
+            ..*limits
+        };
+        let bytes = iff::encode_rebuilding_index(&self.source, &candidate, &writer_limits)
             .map_err(|e| e.to_string())?;
-        check_edit_budget(bytes.len(), candidate.chunks.len(), operation_bytes, limits)?;
+        check_edit_budget(bytes.len(), candidate.chunks.len(), retained, limits)?;
         // Reopen before publication so future guards use the regenerated map and
         // header, never stale map bytes retained from an earlier transaction.
-        let file = iff::decode(&bytes, limits).map_err(|e| e.to_string())?;
+        // The decoder charges payload bytes; reserve Vec growth/minimum capacity
+        // and duplicate-key BTree nodes before allowing those payload allocations.
+        let count = candidate.chunks.len();
+        let slots = if count == 0 {
+            0
+        } else {
+            count
+                .checked_mul(2)
+                .ok_or("transaction reopen allocation overflow")?
+                .max(4)
+        };
+        let overhead = slots
+            .checked_mul(std::mem::size_of::<IffChunk>())
+            .and_then(|n| n.checked_add(count.checked_mul(256)?))
+            .and_then(|n| n.checked_add(bytes.capacity()))
+            .ok_or("transaction reopen allocation overflow")?;
+        let reopen_limits = Limits {
+            max_total_decoded_bytes: remaining
+                .checked_sub(overhead)
+                .ok_or("creator transaction reopen allocation limit exceeded")?,
+            ..*limits
+        };
+        let file = iff::decode(&bytes, &reopen_limits).map_err(|e| e.to_string())?;
         self.source = bytes;
         self.file = file;
         Ok(())
