@@ -66,14 +66,17 @@ pub fn placement_bounds(
     let id = match &draft.source {
         PlacementSource::Catalog(id) => id,
         PlacementSource::Move(id) | PlacementSource::Inventory(id) => {
-            &projection
-                .home(&draft.home_owner_id)?
-                .instance(id)?
-                .catalog_id
+            &projection.owned_instance(id)?.1.catalog_id
         }
     };
     let item = projection.catalog_item(id)?;
-    Some(furniture_bounds(id.as_ref(), item.footprint, draft.pose))
+    Some(
+        LotArtTransform::new(projection.home(&draft.home_owner_id)?.lot.bounds).furniture_bounds(
+            id.as_ref(),
+            item.footprint,
+            draft.pose,
+        ),
+    )
 }
 #[derive(Clone, Copy, Debug)]
 pub struct HomeCamera {
@@ -189,9 +192,12 @@ pub fn pick(camera: HomeCamera, screen: Point, bounds: LotBounds) -> Option<Grid
     let det = 86. * 38. + 94. * 42.;
     let x = (38. * dx + 94. * dy) / det;
     let y = (-42. * dx + 86. * dy) / det;
-    if !x.is_finite() || !y.is_finite()
-        || !(f64::from(bounds.origin.x)..f64::from(bounds.origin.x) + f64::from(bounds.width)).contains(&x)
-        || !(f64::from(bounds.origin.y)..f64::from(bounds.origin.y) + f64::from(bounds.depth)).contains(&y)
+    if !x.is_finite()
+        || !y.is_finite()
+        || !(f64::from(bounds.origin.x)..f64::from(bounds.origin.x) + f64::from(bounds.width))
+            .contains(&x)
+        || !(f64::from(bounds.origin.y)..f64::from(bounds.origin.y) + f64::from(bounds.depth))
+            .contains(&y)
     {
         None
     } else {
@@ -265,4 +271,123 @@ pub fn owned_action_position(camera: HomeCamera, ground: Point) -> Point {
         },
         20.,
     )
+}
+
+/// Scales source lot coordinates into the illustrated floor. This is only a
+/// presentation transform; occupancy and accepted placements use original cells.
+#[derive(Clone, Copy, Debug)]
+pub struct LotArtTransform {
+    pub bounds: LotBounds,
+}
+impl LotArtTransform {
+    pub fn new(bounds: LotBounds) -> Self {
+        Self { bounds }
+    }
+    pub fn scale_x(self) -> f64 {
+        8. / f64::from(self.bounds.width.max(1))
+    }
+    pub fn scale_y(self) -> f64 {
+        6. / f64::from(self.bounds.depth.max(1))
+    }
+    pub fn point(self, x: f64, y: f64) -> Point {
+        grid_point(
+            (x - f64::from(self.bounds.origin.x)) * self.scale_x(),
+            (y - f64::from(self.bounds.origin.y)) * self.scale_y(),
+        )
+    }
+    pub fn cell_center(self, cell: GridCell) -> Point {
+        self.point(f64::from(cell.x) + 0.5, f64::from(cell.y) + 0.5)
+    }
+    pub fn footprint_center(self, footprint: Footprint, pose: GridPose) -> Point {
+        let f = footprint.rotated(pose.direction);
+        self.point(
+            f64::from(pose.cell.x) + f64::from(f.width) / 2.,
+            f64::from(pose.cell.y) + f64::from(f.depth) / 2.,
+        )
+    }
+    pub fn footprint_points(self, footprint: Footprint, pose: GridPose) -> Vec<Point> {
+        let f = footprint.rotated(pose.direction);
+        let x = f64::from(pose.cell.x);
+        let y = f64::from(pose.cell.y);
+        vec![
+            self.point(x, y),
+            self.point(x + f64::from(f.width), y),
+            self.point(x + f64::from(f.width), y + f64::from(f.depth)),
+            self.point(x, y + f64::from(f.depth)),
+        ]
+    }
+    pub fn furniture_bounds(
+        self,
+        id: &str,
+        footprint: Footprint,
+        pose: GridPose,
+    ) -> FurnitureBounds {
+        let center = self.footprint_center(footprint, pose);
+        let sprite = sprite_layout(id, pose.direction);
+        let mut bounds = FurnitureBounds {
+            min: Point {
+                x: center.x - sprite.anchor.x,
+                y: center.y - sprite.anchor.y,
+            },
+            max: Point {
+                x: center.x - sprite.anchor.x + sprite.width,
+                y: center.y - sprite.anchor.y + sprite.height,
+            },
+        };
+        for p in self.footprint_points(footprint, pose) {
+            bounds.min.x = bounds.min.x.min(p.x);
+            bounds.min.y = bounds.min.y.min(p.y);
+            bounds.max.x = bounds.max.x.max(p.x);
+            bounds.max.y = bounds.max.y.max(p.y);
+        }
+        bounds
+    }
+    pub fn pick(self, camera: HomeCamera, screen: Point) -> Option<GridCell> {
+        let p = camera.inverse(screen);
+        let dx = p.x - FLOOR_ORIGIN.x;
+        let dy = p.y - FLOOR_ORIGIN.y;
+        let det = 86. * 38. + 94. * 42.;
+        let x = (38. * dx + 94. * dy) / det / self.scale_x();
+        let y = (-42. * dx + 86. * dy) / det / self.scale_y();
+        if !x.is_finite()
+            || !y.is_finite()
+            || !(0. ..f64::from(self.bounds.width)).contains(&x)
+            || !(0. ..f64::from(self.bounds.depth)).contains(&y)
+        {
+            return None;
+        }
+        let x = i32::from(self.bounds.origin.x) + x.floor() as i32;
+        let y = i32::from(self.bounds.origin.y) + y.floor() as i32;
+        Some(GridCell {
+            x: x.try_into().ok()?,
+            y: y.try_into().ok()?,
+        })
+    }
+    /// DOM affordances are omitted for dense lots; pointer picking and keyboard
+    /// placement still cover every source cell without a game-size restriction.
+    pub fn visible_cells(self, camera: HomeCamera, maximum: usize) -> Vec<GridCell> {
+        if usize::from(self.bounds.width) * usize::from(self.bounds.depth) > maximum {
+            return vec![];
+        }
+        (0..self.bounds.depth)
+            .flat_map(|dy| {
+                (0..self.bounds.width).filter_map(move |dx| {
+                    let cell = GridCell {
+                        x: (i32::from(self.bounds.origin.x) + i32::from(dx))
+                            .try_into()
+                            .ok()?,
+                        y: (i32::from(self.bounds.origin.y) + i32::from(dy))
+                            .try_into()
+                            .ok()?,
+                    };
+                    let p = camera.project(self.cell_center(cell));
+                    (p.x >= -100.
+                        && p.y >= -100.
+                        && p.x <= camera.viewport.width + 100.
+                        && p.y <= camera.viewport.height + 100.)
+                        .then_some(cell)
+                })
+            })
+            .collect()
+    }
 }

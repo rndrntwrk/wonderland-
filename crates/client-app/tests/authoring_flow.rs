@@ -8,14 +8,28 @@ fn with_wardrobe(mut projection: AuthoringProjection) -> AuthoringProjection {
         profile.appearance.head = Some("test:head-one".into());
         profile.appearance.body = Some("test:body-one".into());
         profile.wardrobe.categories = vec![WardrobeCategory {
-            id: "day".into(), label: "Day".into(), slot: AppearanceSlot::Body,
+            id: "day".into(),
+            label: "Day".into(),
+            slot: AppearanceSlot::Body,
         }];
-        profile.wardrobe.outfits = [("default", "test:body-one"), ("alternative", "test:body-two")].into_iter().map(|(label, content_key)| OwnedOutfit {
+        profile.wardrobe.outfits = [
+            ("default", "test:body-one"),
+            ("alternative", "test:body-two"),
+        ]
+        .into_iter()
+        .map(|(label, content_key)| OwnedOutfit {
             id: format!("test-{}-{label}", profile.character.id).into(),
-            content_key: content_key.into(), category_id: "day".into(), label: label.into(),
-            thumbnail: None, is_default: label == "default",
-            actions: vec![WardrobeActionOffer { action: WardrobeAction::Change, availability: Availability::Available }],
-        }).collect();
+            content_key: content_key.into(),
+            category_id: "day".into(),
+            label: label.into(),
+            thumbnail: None,
+            is_default: label == "default",
+            actions: vec![WardrobeActionOffer {
+                action: WardrobeAction::Change,
+                availability: Availability::Available,
+            }],
+        })
+        .collect();
     }
     projection
 }
@@ -126,37 +140,90 @@ fn creation_is_a_draft_until_a_matching_commit_returns_its_new_identity() {
 fn creation_preserves_independent_head_body_skin_gender_description_and_shard() {
     let mut projection = preview_authoring_projection();
     let option = |key: &str| AppearanceOption {
-        key: key.into(), label: key.into(), thumbnail: None, availability: Availability::Available,
-        genders: vec!["female".into()], skin_tones: vec!["medium".into()],
+        key: key.into(),
+        label: key.into(),
+        thumbnail: None,
+        availability: Availability::Available,
+        genders: vec!["female".into()],
+        skin_tones: vec!["medium".into()],
     };
-    projection.appearance_content.heads = vec![option("source-head-one"), option("source-head-two")];
-    projection.appearance_content.bodies = vec![option("source-body-one"), option("source-body-two")];
+    projection.appearance_content.heads =
+        vec![option("source-head-one"), option("source-head-two")];
+    projection.appearance_content.bodies =
+        vec![option("source-body-one"), option("source-body-two")];
     projection.appearance_content.requirements.head = true;
     projection.appearance_content.requirements.body = true;
-    projection.account.shards = vec![ShardOption { id: "city-7".into(), label: "City Seven".into(), availability: Availability::Available }];
+    projection.account.shards = vec![ShardOption {
+        id: "city-7".into(),
+        label: "City Seven".into(),
+        availability: Availability::Available,
+    }];
     projection.account.default_shard = Some("city-7".into());
     let mut provider = PreviewAuthoringProvider::new(projection.clone()).unwrap();
     let mut state = AuthoringState::new(projection);
     state.dispatch(AuthoringIntent::OpenCreate).unwrap();
-    state.dispatch(AuthoringIntent::UpdateName("New neighbor".into())).unwrap();
-    state.dispatch(AuthoringIntent::UpdateDescription("A carefully chosen appearance.".into())).unwrap();
-    state.dispatch(AuthoringIntent::SelectGender("female".into())).unwrap();
-    state.dispatch(AuthoringIntent::SelectSkinTone("medium".into())).unwrap();
-    state.dispatch(AuthoringIntent::SelectHead("source-head-one".into())).unwrap();
-    state.dispatch(AuthoringIntent::SelectBody("source-body-two".into())).unwrap();
-    state.dispatch(AuthoringIntent::SelectHead("source-head-two".into())).unwrap();
-    state.dispatch(AuthoringIntent::SelectGender("male".into())).unwrap();
-    assert!(matches!(state.draft_validity(), Err(AuthoringError::InvalidAppearance(_))));
-    assert!(matches!(state.draft(), Some(AuthoringDraft::Creation(draft)) if draft.appearance.body.as_ref().unwrap().as_ref() == "source-body-two"));
-    state.dispatch(AuthoringIntent::SelectGender("female".into())).unwrap();
-    let request = state.dispatch(AuthoringIntent::SubmitCreate).unwrap().remove(0);
+    state
+        .dispatch(AuthoringIntent::UpdateName("New neighbor".into()))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::UpdateDescription(
+            "A carefully chosen appearance.".into(),
+        ))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::SelectGender("female".into()))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::SelectSkinTone("medium".into()))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::SelectHead("source-head-one".into()))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::SelectBody("source-body-two".into()))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::SelectHead("source-head-two".into()))
+        .unwrap();
+    state
+        .dispatch(AuthoringIntent::SelectGender("male".into()))
+        .unwrap();
+    assert!(matches!(
+        state.draft_validity(),
+        Err(AuthoringError::InvalidAppearance(_))
+    ));
+    assert!(
+        matches!(state.draft(), Some(AuthoringDraft::Creation(draft)) if draft.appearance.body.as_ref().unwrap().as_ref() == "source-body-two")
+    );
+    state
+        .dispatch(AuthoringIntent::SelectGender("female".into()))
+        .unwrap();
+    let request = state
+        .dispatch(AuthoringIntent::SubmitCreate)
+        .unwrap()
+        .remove(0);
     assert_eq!(request.expected_sources.appearance, 1);
     state.receive(provider.handle(&request)).unwrap();
-    let created = state.projection().profile(state.selected_profile().unwrap()).unwrap();
-    assert_eq!(created.appearance.head.as_ref().unwrap().as_ref(), "source-head-two");
-    assert_eq!(created.appearance.body.as_ref().unwrap().as_ref(), "source-body-two");
-    assert_eq!(created.appearance.skin_tone.as_ref().unwrap().as_ref(), "medium");
-    assert_eq!(created.appearance.gender.as_ref().unwrap().as_ref(), "female");
+    let created = state
+        .projection()
+        .profile(state.selected_profile().unwrap())
+        .unwrap();
+    assert_eq!(
+        created.appearance.head.as_ref().unwrap().as_ref(),
+        "source-head-two"
+    );
+    assert_eq!(
+        created.appearance.body.as_ref().unwrap().as_ref(),
+        "source-body-two"
+    );
+    assert_eq!(
+        created.appearance.skin_tone.as_ref().unwrap().as_ref(),
+        "medium"
+    );
+    assert_eq!(
+        created.appearance.gender.as_ref().unwrap().as_ref(),
+        "female"
+    );
     assert_eq!(created.description, "A carefully chosen appearance.");
     assert_eq!(created.shard_id.as_ref().unwrap().as_ref(), "city-7");
     assert!(created.portrait.is_none());
@@ -207,7 +274,9 @@ fn supplied_capacity_is_enforced_without_invalidating_saved_overflow() {
         Err(AuthoringError::ProfileLimit)
     );
     let kind = AuthoringRequestKind::CreateProfile {
-        name: "Nine".into(), description: String::new(), shard_id: None,
+        name: "Nine".into(),
+        description: String::new(),
+        shard_id: None,
         appearance: before.appearance_content.default_selection(),
     };
     let request = AuthoringRequest {
@@ -236,17 +305,23 @@ fn outfit_cancel_preserves_appearance_and_save_changes_only_the_selected_profile
     let before = state.projection().clone();
     state.dispatch(AuthoringIntent::OpenOutfit).unwrap();
     state
-        .dispatch(AuthoringIntent::SelectOwnedOutfit("test-jules-alternative".into()))
+        .dispatch(AuthoringIntent::SelectOwnedOutfit(
+            "test-jules-alternative".into(),
+        ))
         .unwrap();
     state.dispatch(AuthoringIntent::Cancel).unwrap();
     assert_eq!(state.projection(), &before);
     state.dispatch(AuthoringIntent::OpenOutfit).unwrap();
     assert_eq!(
-        state.dispatch(AuthoringIntent::SelectOwnedOutfit("test-maya-alternative".into())),
+        state.dispatch(AuthoringIntent::SelectOwnedOutfit(
+            "test-maya-alternative".into()
+        )),
         Err(AuthoringError::UnknownOutfit)
     );
     state
-        .dispatch(AuthoringIntent::SelectOwnedOutfit("test-jules-alternative".into()))
+        .dispatch(AuthoringIntent::SelectOwnedOutfit(
+            "test-jules-alternative".into(),
+        ))
         .unwrap();
     assert_eq!(
         state.dispatch(AuthoringIntent::UpdateName("Someone else".into())),

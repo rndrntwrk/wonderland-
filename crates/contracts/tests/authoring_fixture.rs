@@ -6,7 +6,11 @@ fn fixture() -> AuthoringProjection {
 }
 
 fn pose(x: i16, y: i16, level: i16, direction: Direction) -> GridPose {
-    GridPose { cell: GridCell { x, y }, level, direction }
+    GridPose {
+        cell: GridCell { x, y },
+        level,
+        direction,
+    }
 }
 
 #[test]
@@ -23,16 +27,28 @@ fn fixture_round_trip_keeps_isolated_homes_and_illustrations_without_game_outfit
     }
     let encoded = serde_json::to_vec(&projection).unwrap();
     assert!(encoded.len() < MAX_AUTHORING_JSON_BYTES);
-    assert_eq!(serde_json::from_slice::<AuthoringProjection>(&encoded).unwrap(), projection);
+    assert_eq!(
+        serde_json::from_slice::<AuthoringProjection>(&encoded).unwrap(),
+        projection
+    );
 }
 
 #[test]
 fn names_preserve_unicode_while_account_field_rules_apply_only_to_new_requests() {
-    assert_eq!(normalize_profile_name("  Zoë 李 🐚  ").unwrap(), "Zoë 李 🐚");
-    assert_eq!(normalize_profile_name(&"🪷".repeat(32)).unwrap(), "🪷".repeat(32));
+    assert_eq!(
+        normalize_profile_name("  Zoë 李 🐚  ").unwrap(),
+        "Zoë 李 🐚"
+    );
+    assert_eq!(
+        normalize_profile_name(&"🪷".repeat(32)).unwrap(),
+        "🪷".repeat(32)
+    );
     assert_eq!(normalize_profile_name("e\u{301}").unwrap(), "e\u{301}");
     for name in ["", " \u{2003} ", "a\nb", "a\0b", "\nMaya", "Maya\t"] {
-        assert!(matches!(normalize_profile_name(name), Err(AuthoringError::InvalidName(_))));
+        assert!(matches!(
+            normalize_profile_name(name),
+            Err(AuthoringError::InvalidName(_))
+        ));
     }
     assert!(normalize_profile_name(&"🪷".repeat(33)).is_err());
     let mut projection = fixture();
@@ -41,9 +57,25 @@ fn names_preserve_unicode_while_account_field_rules_apply_only_to_new_requests()
     projection.account.fields.minimum_name_characters = 3;
     projection.account.fields.maximum_name_characters = 24;
     projection.validate().unwrap();
-    assert!(projection.account.fields.validate_fields("Zoë 李", "").is_err());
-    assert!(projection.account.fields.validate_fields("Maya", &"x".repeat(500)).is_err());
-    projection.account.fields.validate_fields("Maya", &"x".repeat(499)).unwrap();
+    assert!(
+        projection
+            .account
+            .fields
+            .validate_fields("Zoë 李", "")
+            .is_err()
+    );
+    assert!(
+        projection
+            .account
+            .fields
+            .validate_fields("Maya", &"x".repeat(500))
+            .is_err()
+    );
+    projection
+        .account
+        .fields
+        .validate_fields("Maya", &"x".repeat(499))
+        .unwrap();
 }
 
 #[test]
@@ -75,7 +107,9 @@ fn structural_validation_rejects_bad_ids_duplicates_permissions_negative_money_a
     p.profiles[0].character.needs.insert(Need::Energy, 101);
     cases.push(p);
     let mut p = original;
-    p.profiles[0].home.permissions.purchase = Availability::Unavailable { reason: String::new() };
+    p.profiles[0].home.permissions.purchase = Availability::Unavailable {
+        reason: String::new(),
+    };
     cases.push(p);
     for projection in cases {
         assert!(projection.validate().is_err());
@@ -85,7 +119,10 @@ fn structural_validation_rejects_bad_ids_duplicates_permissions_negative_money_a
 #[test]
 fn arbitrary_supplied_categories_rotation_and_prices_are_validated_by_structure() {
     let mut p = fixture();
-    p.catalog_categories.push(CatalogCategory { id: "source-musical".into(), label: "Musical instruments".into() });
+    p.catalog_categories.push(CatalogCategory {
+        id: "source-musical".into(),
+        label: "Musical instruments".into(),
+    });
     p.catalog[0].category = "source-musical".into();
     p.catalog[0].id = "source-piano".into();
     p.catalog[0].source_key = "00000000A0010000:00000001".into();
@@ -93,7 +130,10 @@ fn arbitrary_supplied_categories_rotation_and_prices_are_validated_by_structure(
     p.catalog[0].footprint = Footprint { width: 3, depth: 2 };
     p.catalog[0].rotations = vec![Direction::East, Direction::West];
     p.validate().unwrap();
-    assert_eq!(p.catalog[0].next_direction(Direction::East), Some(Direction::West));
+    assert_eq!(
+        p.catalog[0].next_direction(Direction::East),
+        Some(Direction::West)
+    );
     assert!(p.catalog[0].can_rotate());
     let good = p.clone();
     p.catalog[0].price = -1;
@@ -114,8 +154,18 @@ fn placement_validation_uses_supplied_bounds_reserved_cells_and_distinct_levels(
     let mut original = fixture();
     original.profiles[0].home.lot.levels = vec![0, 1];
     original.profiles[0].home.instances = vec![
-        OwnedInstance { id: "chair-1".into(), catalog_id: "armchair".into(), placement: Some(pose(1, 1, 0, Direction::North)) },
-        OwnedInstance { id: "chair-2".into(), catalog_id: "armchair".into(), placement: Some(pose(1, 1, 1, Direction::North)) },
+        OwnedInstance {
+            id: "chair-1".into(),
+            catalog_id: "armchair".into(),
+            owner_id: Some("maya".into()),
+            placement: Some(pose(1, 1, 0, Direction::North)),
+        },
+        OwnedInstance {
+            id: "chair-2".into(),
+            catalog_id: "armchair".into(),
+            owner_id: Some("maya".into()),
+            placement: Some(pose(1, 1, 1, Direction::North)),
+        },
     ];
     original.validate().unwrap();
     let mut p = original.clone();
@@ -144,15 +194,41 @@ fn placement_validation_uses_supplied_bounds_reserved_cells_and_distinct_levels(
 fn rotated_footprints_return_level_aware_cells_without_a_global_room_size() {
     let footprint = Footprint { width: 2, depth: 1 };
     let mut lot = fixture().profiles.remove(0).home.lot;
-    assert_eq!(footprint.rotated(Direction::East), Footprint { width: 1, depth: 2 });
     assert_eq!(
-        footprint.cells(pose(2, 3, 0, Direction::East), &lot).unwrap(),
-        [LotCell { cell: GridCell { x: 2, y: 3 }, level: 0 }, LotCell { cell: GridCell { x: 2, y: 4 }, level: 0 }]
+        footprint.rotated(Direction::East),
+        Footprint { width: 1, depth: 2 }
     );
-    assert_eq!(footprint.cells(pose(7, 5, 0, Direction::North), &lot), Err(AuthoringError::OutOfBounds));
+    assert_eq!(
+        footprint
+            .cells(pose(2, 3, 0, Direction::East), &lot)
+            .unwrap(),
+        [
+            LotCell {
+                cell: GridCell { x: 2, y: 3 },
+                level: 0
+            },
+            LotCell {
+                cell: GridCell { x: 2, y: 4 },
+                level: 0
+            }
+        ]
+    );
+    assert_eq!(
+        footprint.cells(pose(7, 5, 0, Direction::North), &lot),
+        Err(AuthoringError::OutOfBounds)
+    );
     lot.bounds.width = 64;
     lot.bounds.depth = 48;
     lot.levels.push(3);
-    assert_eq!(footprint.cells(pose(31, 42, 3, Direction::North), &lot).unwrap().len(), 2);
-    assert_eq!(footprint.cells(pose(0, 0, 0, Direction::North), &lot), Err(AuthoringError::EntranceReserved));
+    assert_eq!(
+        footprint
+            .cells(pose(31, 42, 3, Direction::North), &lot)
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(
+        footprint.cells(pose(0, 0, 0, Direction::North), &lot),
+        Err(AuthoringError::EntranceReserved)
+    );
 }

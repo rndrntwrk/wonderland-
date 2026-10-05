@@ -2,9 +2,15 @@ use wonderland_contracts::authoring::{Direction, Footprint, GridCell, GridPose, 
 use wonderland_web_shell::authoring_geometry::*;
 use wonderland_web_shell::geometry::{Point, Size};
 fn pick(camera: HomeCamera, screen: Point) -> Option<GridCell> {
-    wonderland_web_shell::authoring_geometry::pick(camera, screen, LotBounds {
-        origin: GridCell { x: 0, y: 0 }, width: 8, depth: 6,
-    })
+    wonderland_web_shell::authoring_geometry::pick(
+        camera,
+        screen,
+        LotBounds {
+            origin: GridCell { x: 0, y: 0 },
+            width: 8,
+            depth: 6,
+        },
+    )
 }
 #[test]
 fn affine_round_trips_with_pan_zoom_and_edges() {
@@ -118,8 +124,16 @@ fn mobile_edge_placements_and_rotations_reveal_actual_sprite_and_footprint() {
                     y: 6 - i16::try_from(f.depth).unwrap(),
                 },
             ] {
-                let pose = GridPose { cell, level: 0, direction };
-                assert!(item.footprint.cells(pose, &projection.profiles[0].home.lot).is_ok());
+                let pose = GridPose {
+                    cell,
+                    level: 0,
+                    direction,
+                };
+                assert!(
+                    item.footprint
+                        .cells(pose, &projection.profiles[0].home.lot)
+                        .is_ok()
+                );
                 let mut camera = HomeCamera::new(Size {
                     width: 390.,
                     height: 654.,
@@ -215,4 +229,73 @@ fn oversized_furniture_fits_by_zooming_out_or_centers_at_minimum_zoom() {
     tiny.reset();
     assert_eq!(tiny.pan, Point::default());
     assert_eq!(tiny.zoom, 1.);
+}
+
+#[test]
+fn source_lot_art_transform_round_trips_nonzero_origins_and_large_lots() {
+    let mut camera = HomeCamera::new(Size {
+        width: 1440.,
+        height: 760.,
+    });
+    camera.zoom_at(1.4, Point { x: 400., y: 300. });
+    camera.pan_by(Point { x: 40., y: -25. });
+    for bounds in [
+        LotBounds {
+            origin: GridCell { x: -17, y: 23 },
+            width: 24,
+            depth: 18,
+        },
+        LotBounds {
+            origin: GridCell { x: 100, y: -200 },
+            width: 512,
+            depth: 512,
+        },
+    ] {
+        let transform = LotArtTransform::new(bounds);
+        for cell in [
+            bounds.origin,
+            GridCell {
+                x: bounds.origin.x + 1,
+                y: bounds.origin.y + 1,
+            },
+            GridCell {
+                x: bounds.origin.x + bounds.width as i16 - 1,
+                y: bounds.origin.y + bounds.depth as i16 - 1,
+            },
+        ] {
+            assert_eq!(
+                transform.pick(camera, camera.project(transform.cell_center(cell))),
+                Some(cell)
+            );
+        }
+        assert_eq!(transform.pick(camera, Point { x: f64::NAN, y: 1. }), None);
+        assert_eq!(
+            transform.pick(
+                camera,
+                camera.project(
+                    transform.point(f64::from(bounds.origin.x) - 0.1, f64::from(bounds.origin.y))
+                )
+            ),
+            None
+        );
+    }
+}
+
+#[test]
+fn dense_lot_dom_budget_does_not_limit_pointer_picking() {
+    let camera = HomeCamera::new(Size {
+        width: 1440.,
+        height: 760.,
+    });
+    let t = LotArtTransform::new(LotBounds {
+        origin: GridCell { x: 0, y: 0 },
+        width: 512,
+        depth: 512,
+    });
+    assert!(t.visible_cells(camera, 4096).is_empty());
+    let cell = GridCell { x: 500, y: 500 };
+    assert_eq!(
+        t.pick(camera, camera.project(t.cell_center(cell))),
+        Some(cell)
+    );
 }

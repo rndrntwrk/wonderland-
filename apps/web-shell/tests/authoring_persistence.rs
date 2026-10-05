@@ -68,7 +68,9 @@ fn stale_session_preserves_newer_saved_profile_and_stays_temporary() {
     stale_state
         .dispatch(AuthoringIntent::SelectProfile("maya".into()))
         .unwrap();
-    stale_state.dispatch(AuthoringIntent::OpenHome("maya".into())).unwrap();
+    stale_state
+        .dispatch(AuthoringIntent::OpenHome("maya".into()))
+        .unwrap();
     stale_state
         .dispatch(AuthoringIntent::SelectCatalog("fern".into()))
         .unwrap();
@@ -146,7 +148,8 @@ fn comparison_uses_exact_observed_bytes_and_retry_detects_intervening_save() {
 
 #[test]
 fn v1_migration_keeps_all_profiles_money_possessions_and_portraits_without_outfit_fabrication() {
-    let mut value: serde_json::Value = serde_json::from_str(include_str!("../../../fixtures/ui/authoring-v1.json")).unwrap();
+    let mut value: serde_json::Value =
+        serde_json::from_str(include_str!("../../../fixtures/ui/authoring-v1.json")).unwrap();
     for index in 5..11 {
         let mut profile = value["profiles"][0].clone();
         profile["character"]["id"] = serde_json::json!(format!("legacy-{index}"));
@@ -156,9 +159,13 @@ fn v1_migration_keeps_all_profiles_money_possessions_and_portraits_without_outfi
     value["profiles"][0]["character"]["money"] = serde_json::json!(9_876_543);
     value["profiles"][0]["character"]["name"] = serde_json::json!("Zoë 李");
     value["profiles"][1]["look_id"] = serde_json::json!("jules-smart");
-    value["profiles"][0]["home"]["instances"] = serde_json::json!((0..80).map(|index| serde_json::json!({
-        "id": format!("old-owned-{index}"), "catalog_id": "fern", "placement": null
-    })).collect::<Vec<_>>());
+    value["profiles"][0]["home"]["instances"] = serde_json::json!(
+        (0..80)
+            .map(|index| serde_json::json!({
+                "id": format!("old-owned-{index}"), "catalog_id": "fern", "placement": null
+            }))
+            .collect::<Vec<_>>()
+    );
     let raw = serde_json::json!({"version": 1, "snapshot": value}).to_string();
     let migrated = decode_snapshot(&raw).unwrap();
     assert_eq!(migrated.version, AUTHORING_VERSION);
@@ -166,7 +173,10 @@ fn v1_migration_keeps_all_profiles_money_possessions_and_portraits_without_outfi
     assert_eq!(migrated.profiles[0].character.money, 9_876_543);
     assert_eq!(migrated.profiles[0].character.name, "Zoë 李");
     assert_eq!(migrated.profiles[0].home.instances.len(), 80);
-    assert_eq!(migrated.profiles[0].home.instances[79].id.as_ref(), "old-owned-79");
+    assert_eq!(
+        migrated.profiles[0].home.instances[79].id.as_ref(),
+        "old-owned-79"
+    );
     let portrait = migrated.profiles[1].portrait.as_ref().unwrap();
     assert_eq!(portrait.identity, "jules");
     assert_eq!(portrait.look_id, "jules-smart");
@@ -180,5 +190,8 @@ fn v1_migration_keeps_all_profiles_money_possessions_and_portraits_without_outfi
     let upgraded = encode_snapshot(&migrated).unwrap();
     assert_eq!(decode_snapshot(&upgraded).unwrap(), migrated);
     let mut session = SaveSession::new(Some(raw.clone()));
-    assert_eq!(session.compare_and_save(&upgraded, || Ok(Some(raw.clone())), |_| Ok(())), SaveOutcome::Saved);
+    assert_eq!(
+        session.compare_and_save(&upgraded, || Ok(Some(raw.clone())), |_| Ok(())),
+        SaveOutcome::Saved
+    );
 }

@@ -92,5 +92,40 @@ pub fn resume_preview_projection(mut projection: AuthoringProjection) -> Authori
             profile.home.build = fixture.profiles[0].home.build.clone();
         }
     }
+    // Published v2 fixture saves predate actor grants and explicit object
+    // ownership. Only the opted-in, known preview adapter may recover those
+    // historical owner-only facts; generic/live projections remain unknown.
+    if projection.account.source.as_ref() == "fixture-simulation" {
+        for profile in &mut projection.profiles {
+            let home = &mut profile.home;
+            if home.grants.is_empty()
+                && matches!(
+                    home.lot.source.as_ref(),
+                    "fixture-room" | "legacy-preview-grid"
+                )
+            {
+                let owner = home.owner_id.clone();
+                for instance in &mut home.instances {
+                    if instance.owner_id.is_none() {
+                        instance.owner_id = Some(owner.clone());
+                    }
+                }
+                home.grants = vec![LotGrant {
+                    actor_id: owner.clone(),
+                    purchase: Some(PurchaseGrant {
+                        availability: home.permissions.purchase.clone(),
+                        payer_id: owner.clone(),
+                        object_owner_id: owner.clone(),
+                        categories: None,
+                    }),
+                    arrange: home.permissions.arrange.clone(),
+                    build: Availability::Unavailable {
+                        reason: "The construction service has not been connected".into(),
+                    },
+                    inventory_owners: vec![owner],
+                }];
+            }
+        }
+    }
     projection
 }

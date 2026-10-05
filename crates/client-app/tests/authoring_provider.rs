@@ -137,11 +137,13 @@ fn permission_budget_entry_bounds_and_capacity_are_rechecked_at_the_provider_bou
             "entry" => placement.cell = GridCell { x: 0, y: 0 },
             "outside" => placement.cell = GridCell { x: 8, y: 2 },
             "capacity" => {
-                projection.profiles[0].home.instance_capacity = CapacityPolicy::Limited { maximum: 64 };
+                projection.profiles[0].home.instance_capacity =
+                    CapacityPolicy::Limited { maximum: 64 };
                 projection.profiles[0].home.instances = (0..64)
                     .map(|i| OwnedInstance {
                         id: format!("stored-{i}").into(),
                         catalog_id: "fern".into(),
+                        owner_id: Some("maya".into()),
                         placement: None,
                     })
                     .collect()
@@ -304,17 +306,19 @@ fn move_cancel_retains_placement_and_store_then_place_reuses_identity_without_ch
 }
 
 #[test]
-fn another_actor_cannot_spend_owner_money_or_move_store_or_place_their_instances() {
+fn an_ungranted_actor_cannot_spend_owner_money_or_move_store_or_place_their_instances() {
     let mut projection = preview_authoring_projection();
     projection.profiles[0].home.instances = vec![
         OwnedInstance {
             id: "stored".into(),
             catalog_id: "armchair".into(),
+            owner_id: Some("maya".into()),
             placement: None,
         },
         OwnedInstance {
             id: "placed".into(),
             catalog_id: "fern".into(),
+            owner_id: Some("maya".into()),
             placement: Some(pose(2, 2, Direction::North)),
         },
     ];
@@ -358,7 +362,7 @@ fn another_actor_cannot_spend_owner_money_or_move_store_or_place_their_instances
             pose: pose(1, 1, Direction::North),
         },
     );
-    assert_rejected_unchanged(&mut provider, &request, AuthoringError::UnknownInstance);
+    assert_rejected_unchanged(&mut provider, &request, AuthoringError::PermissionDenied);
 }
 
 #[test]
@@ -369,6 +373,7 @@ fn stored_instances_count_toward_capacity_but_can_be_placed_again_at_capacity() 
         .map(|i| OwnedInstance {
             id: format!("owned-{i}").into(),
             catalog_id: "fern".into(),
+            owner_id: Some("maya".into()),
             placement: None,
         })
         .collect();
@@ -406,6 +411,7 @@ fn invalid_source_states_unavailable_items_and_arrangement_permissions_do_not_mu
     projection.profiles[0].home.instances = vec![OwnedInstance {
         id: "stored".into(),
         catalog_id: "armchair".into(),
+        owner_id: Some("maya".into()),
         placement: None,
     }];
     let mut provider = PreviewAuthoringProvider::new(projection.clone()).unwrap();

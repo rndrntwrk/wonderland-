@@ -24,9 +24,15 @@ pub struct AppearanceOption {
 impl AppearanceOption {
     pub fn compatible(&self, selection: &AppearanceSelection) -> bool {
         (self.genders.is_empty()
-            || selection.gender.as_ref().is_some_and(|key| self.genders.contains(key)))
+            || selection
+                .gender
+                .as_ref()
+                .is_some_and(|key| self.genders.contains(key)))
             && (self.skin_tones.is_empty()
-                || selection.skin_tone.as_ref().is_some_and(|key| self.skin_tones.contains(key)))
+                || selection
+                    .skin_tone
+                    .as_ref()
+                    .is_some_and(|key| self.skin_tones.contains(key)))
     }
 }
 
@@ -54,48 +60,85 @@ pub struct AppearanceContent {
 impl AppearanceContent {
     pub fn default_selection(&self) -> AppearanceSelection {
         fn first(options: &[AppearanceOption]) -> Option<ContentKey> {
-            options.iter().find(|option| option.availability.is_available()).map(|option| option.key.clone())
+            options
+                .iter()
+                .find(|option| option.availability.is_available())
+                .map(|option| option.key.clone())
         }
         let mut selection = AppearanceSelection {
             gender: first(&self.genders),
             skin_tone: first(&self.skin_tones),
             ..AppearanceSelection::default()
         };
-        selection.head = self.heads.iter().find(|option| {
-            option.availability.is_available() && option.compatible(&selection)
-        }).map(|option| option.key.clone());
-        selection.body = self.bodies.iter().find(|option| {
-            option.availability.is_available() && option.compatible(&selection)
-        }).map(|option| option.key.clone());
+        selection.head = self
+            .heads
+            .iter()
+            .find(|option| option.availability.is_available() && option.compatible(&selection))
+            .map(|option| option.key.clone());
+        selection.body = self
+            .bodies
+            .iter()
+            .find(|option| option.availability.is_available() && option.compatible(&selection))
+            .map(|option| option.key.clone());
         selection
     }
 
     /// Creation rules apply to a submitted selection, not to saved appearance
     /// references whose content may currently be missing or unavailable.
-    pub fn validate_selection(&self, selection: &AppearanceSelection) -> Result<(), AuthoringError> {
+    pub fn validate_selection(
+        &self,
+        selection: &AppearanceSelection,
+    ) -> Result<(), AuthoringError> {
         for (selected, options, required, label) in [
             (&selection.head, &self.heads, self.requirements.head, "head"),
-            (&selection.body, &self.bodies, self.requirements.body, "body"),
-            (&selection.skin_tone, &self.skin_tones, self.requirements.skin_tone, "skin tone"),
-            (&selection.gender, &self.genders, self.requirements.gender, "gender"),
+            (
+                &selection.body,
+                &self.bodies,
+                self.requirements.body,
+                "body",
+            ),
+            (
+                &selection.skin_tone,
+                &self.skin_tones,
+                self.requirements.skin_tone,
+                "skin tone",
+            ),
+            (
+                &selection.gender,
+                &self.genders,
+                self.requirements.gender,
+                "gender",
+            ),
         ] {
             let Some(key) = selected else {
                 if required {
-                    return Err(AuthoringError::InvalidAppearance(format!("Choose a {label}")));
+                    return Err(AuthoringError::InvalidAppearance(format!(
+                        "Choose a {label}"
+                    )));
                 }
                 continue;
             };
-            let option = options.iter().find(|option| &option.key == key)
-                .ok_or_else(|| AuthoringError::InvalidAppearance(format!("The selected {label} is not in the supplied content")))?;
+            let option = options
+                .iter()
+                .find(|option| &option.key == key)
+                .ok_or_else(|| {
+                    AuthoringError::InvalidAppearance(format!(
+                        "The selected {label} is not in the supplied content"
+                    ))
+                })?;
             if let Availability::Unavailable { reason } = &option.availability {
                 return Err(AuthoringError::Unavailable(reason.clone()));
             }
             if !option.compatible(selection) {
-                return Err(AuthoringError::InvalidAppearance(format!("The selected {label} is incompatible with this gender or skin tone")));
+                return Err(AuthoringError::InvalidAppearance(format!(
+                    "The selected {label} is incompatible with this gender or skin tone"
+                )));
             }
         }
         if !selection.decorations.is_empty() {
-            return Err(AuthoringError::InvalidAppearance("Creation decorations must be supplied by an owned wardrobe".into()));
+            return Err(AuthoringError::InvalidAppearance(
+                "Creation decorations must be supplied by an owned wardrobe".into(),
+            ));
         }
         Ok(())
     }

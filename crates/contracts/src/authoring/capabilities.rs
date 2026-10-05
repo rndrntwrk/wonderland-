@@ -43,7 +43,9 @@ impl ProfileFieldPolicy {
             || count < usize::from(self.minimum_name_characters)
             || count > usize::from(self.maximum_name_characters)
             || (self.name_alphabet == NameAlphabet::AsciiLettersAndSpaces
-                && !name.bytes().all(|byte| byte.is_ascii_alphabetic() || byte == b' '))
+                && !name
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphabetic() || byte == b' '))
         {
             return Err(AuthoringError::InvalidName(format!(
                 "The account requires a name of {}–{} characters{}",
@@ -51,12 +53,16 @@ impl ProfileFieldPolicy {
                 self.maximum_name_characters,
                 if self.name_alphabet == NameAlphabet::AsciiLettersAndSpaces {
                     " using ASCII letters and spaces"
-                } else { "" }
+                } else {
+                    ""
+                }
             )));
         }
         if description.len() > MAX_DESCRIPTION_BYTES
             || description.chars().count() as u64 > u64::from(self.maximum_description_characters)
-            || description.chars().any(|character| character.is_control() && !matches!(character, '\n' | '\r' | '\t'))
+            || description
+                .chars()
+                .any(|character| character.is_control() && !matches!(character, '\n' | '\r' | '\t'))
         {
             return Err(AuthoringError::InvalidDescription(format!(
                 "Use a description of at most {} characters",
@@ -95,7 +101,7 @@ impl AccountCapabilities {
             Some(true) => Ok(()),
             Some(false) => Err(AuthoringError::ProfileLimit),
             None => Err(AuthoringError::Unavailable(
-                "The account service has not supplied character creation capacity".into()
+                "The account service has not supplied character creation capacity".into(),
             )),
         }
     }
@@ -104,10 +110,17 @@ impl AccountCapabilities {
         match selected {
             None if self.shards.is_empty() => Ok(()),
             Some(id) => match self.shards.iter().find(|shard| &shard.id == id) {
-                Some(ShardOption { availability: Availability::Available, .. }) => Ok(()),
-                Some(ShardOption { availability: Availability::Unavailable { reason }, .. }) =>
-                    Err(AuthoringError::Unavailable(reason.clone())),
-                None => Err(AuthoringError::Unavailable("Choose a supplied city or shard".into())),
+                Some(ShardOption {
+                    availability: Availability::Available,
+                    ..
+                }) => Ok(()),
+                Some(ShardOption {
+                    availability: Availability::Unavailable { reason },
+                    ..
+                }) => Err(AuthoringError::Unavailable(reason.clone())),
+                None => Err(AuthoringError::Unavailable(
+                    "Choose a supplied city or shard".into(),
+                )),
             },
             None => Err(AuthoringError::Unavailable("Choose a city or shard".into())),
         }
@@ -117,8 +130,18 @@ impl AccountCapabilities {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BuildToolKind {
-    Hand, Terrain, Water, Walls, Wallpaper, Stairs, Fireplaces,
-    Plants, Floors, Doors, Windows, Roof,
+    Hand,
+    Terrain,
+    Water,
+    Walls,
+    Wallpaper,
+    Stairs,
+    Fireplaces,
+    Plants,
+    Floors,
+    Doors,
+    Windows,
+    Roof,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -132,7 +155,10 @@ pub struct BuildTool {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum LotViewMode {
-    WallsDown, Cutaway, WallsUp, Roof,
+    WallsDown,
+    Cutaway,
+    WallsUp,
+    Roof,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -12,11 +12,14 @@ serde.workspace = true
 serde_json.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+wonderland-avatar-content.workspace = true
+wonderland-avatar-view.workspace = true
+wonderland-render-core.workspace = true
 leptos = { version = "=0.8.21", features = ["csr"] }
 wasm-bindgen = "0.2"
 js-sys = "=0.3.106"
 wasm-bindgen-futures = "=0.4.79"
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlDialogElement", "DomRect", "Location", "UrlSearchParams", "PointerEvent", "KeyboardEvent", "WheelEvent", "MediaQueryList", "Storage"] }
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlDialogElement", "DomRect", "Location", "UrlSearchParams", "PointerEvent", "KeyboardEvent", "WheelEvent", "MediaQueryList", "Storage", "HtmlCanvasElement", "HtmlInputElement", "File", "FileList", "Blob"] }
 console_error_panic_hook = "0.1"
 
 [lib]

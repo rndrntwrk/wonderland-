@@ -1,8 +1,11 @@
 use super::{AuthoringError, ContentSourceId};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 
 /// Allocation safety for a single rectangular occupancy query, not lot policy.
 pub const MAX_FOOTPRINT_CELLS: usize = 65_536;
+/// Whole-snapshot occupancy work and memory safety, independent of lot policy.
+pub const MAX_OCCUPANCY_CELLS: usize = 1_048_576;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct GridCell {
@@ -60,11 +63,29 @@ pub struct LotGeometry {
     pub reserved: Vec<LotCell>,
 }
 
+/// Reuses the lot's reserved-cell membership for every footprint query.
+/// Fields are private so callers cannot accidentally omit reserved cells.
+pub struct IndexedLotGeometry<'lot> {
+    lot: &'lot LotGeometry,
+    reserved: BTreeSet<LotCell>,
+}
+
 impl LotGeometry {
+    pub fn index(&self) -> Result<IndexedLotGeometry<'_>, AuthoringError> {
+        if self.reserved.len() > MAX_FOOTPRINT_CELLS {
+            return Err(AuthoringError::SafetyLimit);
+        }
+        Ok(IndexedLotGeometry {
+            lot: self,
+            reserved: self.reserved.iter().copied().collect(),
+        })
+    }
+
     pub fn contains(&self, cell: LotCell) -> bool {
         let dx = i32::from(cell.cell.x) - i32::from(self.bounds.origin.x);
         let dy = i32::from(cell.cell.y) - i32::from(self.bounds.origin.y);
-        dx >= 0 && dy >= 0
+        dx >= 0
+            && dy >= 0
             && dx < i32::from(self.bounds.width)
             && dy < i32::from(self.bounds.depth)
             && self.levels.contains(&cell.level)
@@ -91,7 +112,18 @@ impl Footprint {
     /// Rectangular occupancy in supplied lot coordinates and level. Canonical
     /// geometry and renderer picking still belong to the connected world adapter.
     pub fn cells(self, pose: GridPose, lot: &LotGeometry) -> Result<Vec<LotCell>, AuthoringError> {
-        let footprint = self.rotated(pose.direction);
+        lot.index()?.cells(self, pose)
+    }
+}
+
+impl IndexedLotGeometry<'_> {
+    pub fn cells(
+        &self,
+        footprint: Footprint,
+        pose: GridPose,
+    ) -> Result<Vec<LotCell>, AuthoringError> {
+        let lot = self.lot;
+        let footprint = footprint.rotated(pose.direction);
         if footprint.width == 0 || footprint.depth == 0 {
             return Err(AuthoringError::OutOfBounds);
         }
@@ -104,18 +136,27 @@ impl Footprint {
             x: end_x.try_into().map_err(|_| AuthoringError::OutOfBounds)?,
             y: end_y.try_into().map_err(|_| AuthoringError::OutOfBounds)?,
         };
-        if !lot.contains(LotCell { cell: pose.cell, level: pose.level })
-            || !lot.contains(LotCell { cell: last, level: pose.level })
-        {
+        if !lot.contains(LotCell {
+            cell: pose.cell,
+            level: pose.level,
+        }) || !lot.contains(LotCell {
+            cell: last,
+            level: pose.level,
+        }) {
             return Err(AuthoringError::OutOfBounds);
         }
         let cells: Vec<_> = (i32::from(pose.cell.y)..=end_y)
-            .flat_map(|y| (i32::from(pose.cell.x)..=end_x).map(move |x| LotCell {
-                cell: GridCell { x: x as i16, y: y as i16 },
-                level: pose.level,
-            }))
+            .flat_map(|y| {
+                (i32::from(pose.cell.x)..=end_x).map(move |x| LotCell {
+                    cell: GridCell {
+                        x: x as i16,
+                        y: y as i16,
+                    },
+                    level: pose.level,
+                })
+            })
             .collect();
-        if cells.iter().any(|cell| lot.reserved.contains(cell)) {
+        if cells.iter().any(|cell| self.reserved.contains(cell)) {
             return Err(AuthoringError::EntranceReserved);
         }
         Ok(cells)

@@ -40,10 +40,13 @@ pub fn migrate_v1_projection(json: &str) -> Result<AuthoringProjection, Authorin
     if json.len() > MAX_AUTHORING_JSON_BYTES {
         return Err(AuthoringError::SafetyLimit);
     }
-    let old: LegacyProjection = serde_json::from_str(json)
-        .map_err(|error| AuthoringError::InvalidProjection(format!("Saved v1 data could not be read: {error}")))?;
+    let old: LegacyProjection = serde_json::from_str(json).map_err(|error| {
+        AuthoringError::InvalidProjection(format!("Saved v1 data could not be read: {error}"))
+    })?;
     if old.version != 1 {
-        return Err(AuthoringError::InvalidProjection("Expected a v1 saved projection".into()));
+        return Err(AuthoringError::InvalidProjection(
+            "Expected a v1 saved projection".into(),
+        ));
     }
     let unavailable = Availability::Unavailable {
         reason: "The original game content and service have not been connected".into(),
@@ -74,67 +77,111 @@ pub fn migrate_v1_projection(json: &str) -> Result<AuthoringProjection, Authorin
         rendering: unavailable.clone(),
     };
     let mut categories = BTreeMap::new();
-    let catalog = old.catalog.into_iter().map(|item| {
-        categories.entry(item.category.clone()).or_insert_with(|| item.category.to_string());
-        // The old preview's artwork rules are converted once into metadata.
-        let rotations = if matches!(item.id.as_ref(), "armchair" | "coffee-table" | "bookcase") {
-            vec![Direction::North, Direction::East, Direction::South, Direction::West]
-        } else {
-            vec![Direction::North]
-        };
-        CatalogItem {
-            source_key: item.id.to_string().into(),
-            id: item.id,
-            name: item.name,
-            category: item.category,
-            price: item.price,
-            footprint: item.footprint,
-            rotations,
-            thumbnail: None,
-            availability: item.availability,
-        }
-    }).collect();
-    let profiles = old.profiles.into_iter().map(|profile| {
-        let asset_path = if profile.look_id == format!("{}-everyday", profile.identity) {
-            format!("/assets/art/{}.png", profile.identity)
-        } else {
-            format!("/assets/authoring/{}.png", profile.look_id)
-        };
-        AuthoringProfile {
-            character: profile.character,
-            description: String::new(),
-            shard_id: None,
-            appearance: AppearanceSelection::default(),
-            portrait: Some(PortraitReference {
-                source: "legacy-preview-artwork".into(),
-                identity: profile.identity,
-                look_id: profile.look_id,
-                asset_path,
-            }),
-            wardrobe: Wardrobe { revision: 1, categories: vec![], outfits: vec![] },
-            home: Home {
-                owner_id: profile.home.owner_id,
-                permissions: profile.home.permissions,
-                instance_capacity: CapacityPolicy::Unknown,
-                lot: LotGeometry {
-                    source: "legacy-preview-grid".into(),
-                    revision: old.revision,
-                    bounds: LotBounds { origin: GridCell { x: 0, y: 0 }, width: 8, depth: 6 },
-                    levels: vec![0],
-                    reserved: vec![LotCell { cell: GridCell { x: 0, y: 0 }, level: 0 }],
-                },
-                build: BuildCapabilities {
-                    source: "legacy-preview-migration".into(),
+    let catalog = old
+        .catalog
+        .into_iter()
+        .map(|item| {
+            categories
+                .entry(item.category.clone())
+                .or_insert_with(|| item.category.to_string());
+            // The old preview's artwork rules are converted once into metadata.
+            let rotations = if matches!(item.id.as_ref(), "armchair" | "coffee-table" | "bookcase")
+            {
+                vec![
+                    Direction::North,
+                    Direction::East,
+                    Direction::South,
+                    Direction::West,
+                ]
+            } else {
+                vec![Direction::North]
+            };
+            CatalogItem {
+                source_key: item.id.to_string().into(),
+                id: item.id,
+                name: item.name,
+                category: item.category,
+                price: item.price,
+                footprint: item.footprint,
+                rotations,
+                thumbnail: None,
+                availability: item.availability,
+            }
+        })
+        .collect();
+    let profiles = old
+        .profiles
+        .into_iter()
+        .map(|mut profile| {
+            let owner_id = profile.home.owner_id.clone();
+            for instance in &mut profile.home.instances {
+                instance.owner_id = Some(owner_id.clone());
+            }
+            let grants = vec![LotGrant {
+                actor_id: owner_id.clone(),
+                purchase: Some(PurchaseGrant {
+                    availability: profile.home.permissions.purchase.clone(),
+                    payer_id: owner_id.clone(),
+                    object_owner_id: owner_id.clone(),
+                    categories: None,
+                }),
+                arrange: profile.home.permissions.arrange.clone(),
+                build: unavailable.clone(),
+                inventory_owners: vec![owner_id],
+            }];
+            let asset_path = if profile.look_id == format!("{}-everyday", profile.identity) {
+                format!("/assets/art/{}.png", profile.identity)
+            } else {
+                format!("/assets/authoring/{}.png", profile.look_id)
+            };
+            AuthoringProfile {
+                character: profile.character,
+                description: String::new(),
+                shard_id: None,
+                appearance: AppearanceSelection::default(),
+                portrait: Some(PortraitReference {
+                    source: "legacy-preview-artwork".into(),
+                    identity: profile.identity,
+                    look_id: profile.look_id,
+                    asset_path,
+                }),
+                wardrobe: Wardrobe {
                     revision: 1,
-                    tools: vec![],
-                    view_modes: vec![],
-                    preview: unavailable.clone(),
-                    commit: unavailable.clone(),
+                    categories: vec![],
+                    outfits: vec![],
                 },
-                instances: profile.home.instances,
-            },
-        }
-    }).collect();
+                home: Home {
+                    owner_id: profile.home.owner_id,
+                    permissions: profile.home.permissions,
+                    grants,
+                    instance_capacity: CapacityPolicy::Unknown,
+                    lot: LotGeometry {
+                        source: "legacy-preview-grid".into(),
+                        revision: old.revision,
+                        bounds: LotBounds {
+                            origin: GridCell { x: 0, y: 0 },
+                            width: 8,
+                            depth: 6,
+                        },
+                        levels: vec![0],
+                        reserved: vec![LotCell {
+                            cell: GridCell { x: 0, y: 0 },
+                            level: 0,
+                        }],
+                    },
+                    build: BuildCapabilities {
+                        source: "legacy-preview-migration".into(),
+                        revision: 1,
+                        tools: vec![],
+                        view_modes: vec![],
+                        preview: unavailable.clone(),
+                        commit: unavailable.clone(),
+                    },
+                    instances: profile.home.instances,
+                },
+            }
+        })
+        .collect();
     let projection = AuthoringProjection {
         version: AUTHORING_VERSION,
         revision: old.revision,
@@ -142,8 +189,12 @@ pub fn migrate_v1_projection(json: &str) -> Result<AuthoringProjection, Authorin
         appearance_content,
         catalog_source: "legacy-preview-catalog".into(),
         catalog_revision: 1,
-        catalog_categories: categories.into_iter().map(|(id, label)| CatalogCategory { id, label }).collect(),
+        catalog_categories: categories
+            .into_iter()
+            .map(|(id, label)| CatalogCategory { id, label })
+            .collect(),
         profiles,
+        shared_homes: vec![],
         catalog,
     };
     projection.validate()?;

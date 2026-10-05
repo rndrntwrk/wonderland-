@@ -214,7 +214,30 @@
             "status": "unavailable",
             "reason": "Architecture commit is not connected"
           }
-        }
+        },
+        "grants": [
+          {
+            "actor_id": "maya",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "maya",
+              "object_owner_id": "maya",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "maya"
+            ]
+          }
+        ]
       },
       "description": "",
       "shard_id": null,
@@ -449,7 +472,30 @@
             "status": "unavailable",
             "reason": "Architecture commit is not connected"
           }
-        }
+        },
+        "grants": [
+          {
+            "actor_id": "jules",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "jules",
+              "object_owner_id": "jules",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "jules"
+            ]
+          }
+        ]
       },
       "description": "",
       "shard_id": null,
@@ -684,7 +730,30 @@
             "status": "unavailable",
             "reason": "Architecture commit is not connected"
           }
-        }
+        },
+        "grants": [
+          {
+            "actor_id": "nico",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "nico",
+              "object_owner_id": "nico",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "nico"
+            ]
+          }
+        ]
       },
       "description": "",
       "shard_id": null,
@@ -919,7 +988,30 @@
             "status": "unavailable",
             "reason": "Architecture commit is not connected"
           }
-        }
+        },
+        "grants": [
+          {
+            "actor_id": "amara",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "amara",
+              "object_owner_id": "amara",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "amara"
+            ]
+          }
+        ]
       },
       "description": "",
       "shard_id": null,
@@ -1154,7 +1246,30 @@
             "status": "unavailable",
             "reason": "Architecture commit is not connected"
           }
-        }
+        },
+        "grants": [
+          {
+            "actor_id": "leo",
+            "purchase": {
+              "availability": {
+                "status": "available"
+              },
+              "payer_id": "leo",
+              "object_owner_id": "leo",
+              "categories": null
+            },
+            "arrange": {
+              "status": "available"
+            },
+            "build": {
+              "status": "unavailable",
+              "reason": "The construction service has not been connected"
+            },
+            "inventory_owners": [
+              "leo"
+            ]
+          }
+        ]
       },
       "description": "",
       "shard_id": null,
@@ -1405,5 +1520,6 @@
       "id": "storage",
       "label": "Storage"
     }
-  ]
+  ],
+  "shared_homes": []
 }

@@ -138,6 +138,10 @@ pub enum AuthoringOutcome {
     },
     OutfitSaved {
         character_id: CharacterId,
+        /// Required when removing a category's default: a surviving owned
+        /// outfit in that same category selected by the accepting source.
+        #[serde(default)]
+        replacement_default: Option<OwnedOutfitId>,
     },
     Purchased {
         owner_id: CharacterId,
@@ -230,13 +234,19 @@ impl fmt::Display for AuthoringError {
             Self::SafetyLimit => f.write_str("This data exceeds the client resource safety limit"),
             Self::UnknownProfile => f.write_str("This profile is no longer available"),
             Self::UnknownCatalogItem => f.write_str("This item is not in the supplied catalog"),
-            Self::UnknownInstance => f.write_str("This item is not owned by the selected home"),
+            Self::UnknownInstance => {
+                f.write_str("This owned item is no longer in the supplied data")
+            }
             Self::NoSelection => f.write_str("Select a profile, room, or item first"),
             Self::WrongEditor => f.write_str("Open the matching editor first"),
             Self::Busy => f.write_str("Wait for the current change to finish"),
-            Self::PermissionDenied => f.write_str("Only this home's owner can change it"),
+            Self::PermissionDenied => f.write_str(
+                "The lot service has not granted this character permission for that change",
+            ),
             Self::InsufficientFunds => f.write_str("There is not enough money for this item"),
-            Self::ProfileLimit => f.write_str("The account has reached its supplied character creation capacity"),
+            Self::ProfileLimit => {
+                f.write_str("The account has reached its supplied character creation capacity")
+            }
             Self::InventoryLimit => {
                 f.write_str("The home has reached its supplied ownership capacity")
             }

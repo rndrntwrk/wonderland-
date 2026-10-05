@@ -28,10 +28,11 @@ pub fn decode_snapshot(json: &str) -> Result<AuthoringProjection, String> {
         version: u32,
         snapshot: serde_json::Value,
     }
-    let envelope: SavedEnvelope = serde_json::from_str(json)
-        .map_err(|_| "Saved preview could not be read.".to_string())?;
+    let envelope: SavedEnvelope =
+        serde_json::from_str(json).map_err(|_| "Saved preview could not be read.".to_string())?;
     let snapshot = match envelope.version {
-        1 => migrate_v1_projection(&envelope.snapshot.to_string()).map_err(|error| error.to_string())?,
+        1 => migrate_v1_projection(&envelope.snapshot.to_string())
+            .map_err(|error| error.to_string())?,
         2 => serde_json::from_value(envelope.snapshot)
             .map_err(|_| "Saved preview could not be read.".to_string())?,
         _ => return Err("Saved preview uses an unsupported version.".into()),

@@ -29,6 +29,7 @@ pub fn App() -> impl IntoView {
     provide_context(ui);
     let author = crate::authoring_bridge::AuthorUi::new(ui, value.as_deref());
     provide_context(author);
+    provide_context(crate::avatar_content::ContentUi::new());
     let character_editor = Memo::new(move |_| {
         author.state.with(|s| {
             matches!(
@@ -74,6 +75,7 @@ pub fn App() -> impl IntoView {
                 Screen::Lot { .. } => view! { <Lot/> }.into_any(),
             }}}
             <Show when=move || !author.storage_notice.get().is_empty()><p class="storage-notice" role="status">{move || author.storage_notice.get()}</p></Show>
+            <crate::components::player_menu::PlayerMenu/>
             <div class="top-tools">
                 <button class="chrome round unavailable" aria-label="Sound unavailable: preview has no audio" aria-disabled="true" title="Audio arrives with the game renderer" on:click=move |_| ui.explain("Audio arrives with the game renderer.")><Icon name="volume-off"/></button>
                 <button id="settings" class="chrome round" aria-label="Settings" on:click=move |_| ui.overlay.set(Overlay::Settings)><Icon name="settings"/></button>

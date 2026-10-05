@@ -29,3 +29,5 @@ pub fn availability_reason(availability: &wonderland_contracts::Availability) ->
 }
 
 pub mod authoring;
+
+pub mod player_menu;

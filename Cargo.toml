@@ -1,5 +1,13 @@
 [workspace]
-members = ["crates/contracts", "crates/client-app", "apps/web-shell"]
+members = [
+    "crates/contracts",
+    "crates/client-app",
+    "crates/render-core",
+    "crates/avatar-view",
+    "crates/legacy-formats",
+    "crates/avatar-content",
+    "apps/web-shell",
+]
 resolver = "3"
 
 [workspace.package]
@@ -12,3 +20,13 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 wonderland-contracts = { path = "crates/contracts" }
 wonderland-client-app = { path = "crates/client-app" }
+wonderland-render-core = { path = "crates/render-core" }
+wonderland-avatar-view = { path = "crates/avatar-view" }
+wonderland-legacy-formats = { path = "crates/legacy-formats" }
+wonderland-avatar-content = { path = "crates/avatar-content" }
+
+[profile.dev]
+overflow-checks = true
+
+[profile.release]
+overflow-checks = true

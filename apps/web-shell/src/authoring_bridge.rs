@@ -201,9 +201,10 @@ impl AuthorUi {
                                                 AuthoringOutcome::ProfileCreated {
                                                     character_id,
                                                 }
-                                                | AuthoringOutcome::OutfitSaved { character_id } => {
-                                                    focus_later(format!("avatar-{character_id}"))
-                                                }
+                                                | AuthoringOutcome::OutfitSaved {
+                                                    character_id,
+                                                    ..
+                                                } => focus_later(format!("avatar-{character_id}")),
                                                 AuthoringOutcome::Purchased {
                                                     instance_id, ..
                                                 }
@@ -247,11 +248,90 @@ impl AuthorUi {
             }
         }
     }
+    /// Install a new source bank only at a quiescent authoring boundary. Decoded
+    /// resources stay in ContentUi; only content identities enter the projection.
+    pub fn install_content(self, content: AppearanceContent) -> Result<(), AuthoringError> {
+        if self.busy() || !self.alive.get_value().load(Ordering::Acquire) {
+            return Err(AuthoringError::Busy);
+        }
+        let draft = self.state.with_untracked(|s| s.draft().cloned());
+        let mut projection = self.state.with_untracked(|s| s.projection().clone());
+        projection.revision = projection
+            .revision
+            .checked_add(1)
+            .ok_or(AuthoringError::StaleRevision)?;
+        projection.appearance_content = content;
+        projection.validate()?;
+        let mut result = Ok(());
+        self.provider
+            .update_value(|p| result = p.replace_projection(projection.clone()));
+        result?;
+        let mut result = Ok(());
+        self.state
+            .update(|s| result = s.receive(AuthoringEvent::ProjectionReplaced { projection }));
+        result?;
+        if let Some(AuthoringDraft::Creation(d)) = draft {
+            self.send(AuthoringIntent::OpenCreate);
+            self.send(AuthoringIntent::UpdateName(d.name));
+            self.send(AuthoringIntent::UpdateDescription(d.description));
+            let content = self
+                .state
+                .with_untracked(|s| s.projection().appearance_content.clone());
+            let retained = |old: Option<ContentKey>, options: &[AppearanceOption]| {
+                old.filter(|key| options.iter().any(|o| &o.key == key))
+            };
+            let mut selection = content.default_selection();
+            selection.gender = retained(d.appearance.gender, &content.genders).or(selection.gender);
+            selection.skin_tone =
+                retained(d.appearance.skin_tone, &content.skin_tones).or(selection.skin_tone);
+            selection.head = retained(d.appearance.head, &content.heads).or_else(|| {
+                content
+                    .heads
+                    .iter()
+                    .find(|o| o.availability.is_available() && o.compatible(&selection))
+                    .map(|o| o.key.clone())
+            });
+            selection.body = retained(d.appearance.body, &content.bodies).or_else(|| {
+                content
+                    .bodies
+                    .iter()
+                    .find(|o| o.availability.is_available() && o.compatible(&selection))
+                    .map(|o| o.key.clone())
+            });
+            if let Some(key) = selection.gender {
+                self.send(AuthoringIntent::SelectGender(key));
+            }
+            if let Some(key) = selection.skin_tone {
+                self.send(AuthoringIntent::SelectSkinTone(key));
+            }
+            if let Some(key) = selection.head {
+                self.send(AuthoringIntent::SelectHead(key));
+            }
+            if let Some(key) = selection.body {
+                self.send(AuthoringIntent::SelectBody(key));
+            }
+            if let Some(id) = d.shard_id {
+                self.send(AuthoringIntent::SelectShard(id));
+            }
+        } else if let Some(AuthoringDraft::Outfit(d)) = draft {
+            self.send(AuthoringIntent::OpenOutfit);
+            if let Some(id) = d.owned_outfit_id {
+                self.send(AuthoringIntent::SelectOwnedOutfit(id));
+            }
+            self.send(AuthoringIntent::SelectWardrobeAction(d.action));
+        }
+        Ok(())
+    }
     pub fn path(self, id: &CharacterId) -> String {
         self.state.with(|s| {
             s.projection()
                 .profile(id)
-                .and_then(|profile| profile.portrait.as_ref().map(|portrait| portrait.asset_path.clone()))
+                .and_then(|profile| {
+                    profile
+                        .portrait
+                        .as_ref()
+                        .map(|portrait| portrait.asset_path.clone())
+                })
                 .unwrap_or_else(|| crate::components::portrait_path(id.as_ref()))
         })
     }

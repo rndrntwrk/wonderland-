@@ -1,14 +1,19 @@
 use crate::{
     authoring_bridge::AuthorUi,
+    avatar_content::AvatarStage,
     bridge::{Ui, focus_later, selected_character},
     components::{Icon, availability_reason},
 };
 use leptos::prelude::*;
-use wonderland_contracts::{UiIntent, authoring::AuthoringIntent};
+use wonderland_contracts::{
+    UiIntent,
+    authoring::{AppearanceSelection, AuthoringIntent},
+};
 #[component]
 pub fn Avatars() -> impl IntoView {
     let ui = expect_context::<Ui>();
     let author = expect_context::<AuthorUi>();
+    let content = expect_context::<crate::avatar_content::ContentUi>();
     let page = RwSignal::new(0usize);
     Effect::new(move |_| {
         let selected = ui.state.with(|s| s.selected_character.clone());
@@ -34,9 +39,9 @@ pub fn Avatars() -> impl IntoView {
     }/>
     <button id="create-sim" class="avatar-card create-card" disabled=move ||author.state.with(|s|s.projection().creation_allowed().is_err()) title=move ||author.state.with(|s|s.projection().creation_allowed().err().map(|error|error.to_string()).unwrap_or_default()) on:click=move |_|{if let Some(c)=selected_character(ui){author.select(c.id);}author.send(AuthoringIntent::OpenCreate);focus_later("sim-name".into());}><span class="create-portrait"><Icon name="plus"/></span><span class="card-name">"Create a Sim"</span></button>
     </div>
-    <Show when=move ||ui.state.with(|s|s.projection.characters.len()>5)><nav class="profile-pages" aria-label="Character pages"><button class="chrome" disabled=move ||page.get()==0 on:click=move |_|{let p=page.get_untracked()-1;page.set(p);let id=ui.state.with_untracked(|s|s.projection.characters.get(p*5).map(|c|c.id.clone()));if let Some(id)=id{ui.send(UiIntent::SelectCharacter(id));}}>"Previous"</button><span>{move ||format!("{} / {}",page.get()+1,ui.state.with(|s|s.projection.characters.len().div_ceil(5)))}</span><button class="chrome" disabled=move ||ui.state.with(|s|(page.get()+1)*5>=s.projection.characters.len()) on:click=move |_|{let p=page.get_untracked()+1;page.set(p);let id=ui.state.with_untracked(|s|s.projection.characters.get(p*5).map(|c|c.id.clone()));if let Some(id)=id{ui.send(UiIntent::SelectCharacter(id));}}>"Next"</button></nav></Show>
+    <Show when=move ||ui.state.with(|s|s.projection.characters.len()>5)><nav class="profile-pages" aria-label="Character pages"><button class="chrome" disabled=move ||page.get()==0 on:click=move |_|{let p=page.get_untracked()-1;page.set(p);let id=ui.state.with_untracked(|s|s.projection.characters.get(p*5).map(|c|c.id.clone()));if let Some(id)=id{ui.send(UiIntent::SelectCharacter(id.clone()));author.select(id);}}>"Previous"</button><span>{move ||format!("{} / {}",page.get()+1,ui.state.with(|s|s.projection.characters.len().div_ceil(5)))}</span><button class="chrome" disabled=move ||ui.state.with(|s|(page.get()+1)*5>=s.projection.characters.len()) on:click=move |_|{let p=page.get_untracked()+1;page.set(p);let id=ui.state.with_untracked(|s|s.projection.characters.get(p*5).map(|c|c.id.clone()));if let Some(id)=id{ui.send(UiIntent::SelectCharacter(id.clone()));author.select(id);}}>"Next"</button></nav></Show>
     <Show when=move ||ui.state.with(|s|s.projection.characters.is_empty())><div class="empty-characters chrome"><h2>"No Sims available"</h2><p>"Your Sims couldn't be loaded."</p><button class="chrome primary" on:click=move |_|ui.retry_characters()>"Try again"</button></div></Show>
-    <div class="character-stage" aria-label="Character stage"><Show when=move ||selected_character(ui).is_some()><img class="stage-diamond" src="/assets/art/selection-diamond.png" alt=""/><img class="stage-character" src=move ||selected_character(ui).map(|c|author.path(&c.id)).unwrap_or_default() alt=move ||selected_character(ui).map(|c|c.name).unwrap_or_default() draggable="false"/></Show></div>
+    <div class="character-stage" aria-label="Character stage"><Show when=move ||selected_character(ui).is_some()><img class="stage-diamond" src="/assets/art/selection-diamond.png" alt=""/><Show when=move ||content.imported.get().is_some()&&author.state.with(|s|s.selected_profile().and_then(|id|s.projection().profile(id)).is_some_and(|p|p.appearance.head.is_some()||p.appearance.body.is_some())) fallback=move ||view!{<img class="stage-character" src=move ||selected_character(ui).map(|c|author.path(&c.id)).unwrap_or_default() alt=move ||selected_character(ui).map(|c|format!("{} — preserved illustrated portrait",c.name)).unwrap_or_default() draggable="false"/><span class="legacy-art-label">"Preserved illustrated portrait"</span>}><AvatarStage appearance=Signal::derive(move ||author.state.with(|s|s.selected_profile().and_then(|id|s.projection().profile(id)).map(|p|p.appearance.clone()).unwrap_or_else(AppearanceSelection::default)))/></Show></Show></div>
     <div class="avatar-actions"><Show when=move ||selected_character(ui).and_then(|c|availability_reason(&c.availability)).is_some()><div class="character-unavailable chrome"><p>{move ||selected_character(ui).and_then(|c|availability_reason(&c.availability)).unwrap_or_default()}</p><button class="chrome" on:click=move |_|ui.retry_characters()>"Try again"</button></div></Show><button class="chrome primary play-button" disabled=move ||!available() on:click=move |_|ui.send(UiIntent::Play)><Icon name="player-play"/>{move ||selected_character(ui).map(|c|format!("Play as {}",c.name)).unwrap_or("Choose a Sim".into())}</button><button class="chrome outfit-button" disabled=move ||!available() on:click=move |_|{if let Some(c)=selected_character(ui){author.select(c.id);author.send(AuthoringIntent::OpenOutfit);focus_later("save-character".into());}}><Icon name="hanger"/>"Change outfit"</button></div>
     </section>
     }
