@@ -1,10 +1,12 @@
 use super::transition::after_outcome;
-use std::collections::BTreeMap;
-use wonderland_contracts::OperationId;
+use super::preview_authoring_projection;
+use std::collections::{BTreeMap, BTreeSet};
+use wonderland_contracts::{Availability, Character, OperationId};
 use wonderland_contracts::authoring::*;
 
-/// Bounded replay receipts for a single disposable UI preview session.
+/// Disposable preview replay safety; neither value is a game/account limit.
 pub const MAX_PREVIEW_OPERATIONS: usize = 256;
+const MAX_PREVIEW_RECEIPT_BYTES: usize = 32 * 1024 * 1024;
 
 #[derive(Debug)]
 struct CachedReply {
@@ -12,29 +14,25 @@ struct CachedReply {
     event: AuthoringEvent,
 }
 
-/// Pure fixture/demo provider. It owns only a validated local preview snapshot.
-/// No network, timers, authentication, renderer, live money, or canonical placement.
+/// A local simulation adapter. It does not connect an account, spend live money,
+/// construct architecture, or claim that missing renderer assets are available.
 #[derive(Debug)]
 pub struct PreviewAuthoringProvider {
     projection: AuthoringProjection,
     replies: BTreeMap<OperationId, CachedReply>,
+    retained_bytes: usize,
 }
 
 impl PreviewAuthoringProvider {
     pub fn new(projection: AuthoringProjection) -> Result<Self, AuthoringError> {
         projection.validate()?;
-        Ok(Self {
-            projection,
-            replies: BTreeMap::new(),
-        })
+        Ok(Self { projection, replies: BTreeMap::new(), retained_bytes: 0 })
     }
 
     pub fn snapshot(&self) -> &AuthoringProjection {
         &self.projection
     }
 
-    /// Recheck against the provider snapshot. Exact repeats replay their receipt;
-    /// reusing an operation for another request is rejected without mutation.
     pub fn handle(&mut self, request: &AuthoringRequest) -> AuthoringEvent {
         if let Some(cached) = self.replies.get(&request.operation_id) {
             return if &cached.request == request {
@@ -49,119 +47,101 @@ impl PreviewAuthoringProvider {
         if self.replies.len() >= MAX_PREVIEW_OPERATIONS {
             return rejected(request, AuthoringError::OperationLimit);
         }
-        let result = self.commit(request);
-        let event = match result {
-            Ok((projection, outcome)) => {
-                self.projection = projection.clone();
-                AuthoringEvent::Committed {
-                    operation_id: request.operation_id.clone(),
-                    base_revision: request.base_revision,
-                    projection,
-                    outcome,
-                }
-            }
+        let event = match self.commit(request) {
+            Ok((projection, outcome)) => AuthoringEvent::Committed {
+                operation_id: request.operation_id.clone(),
+                base_revision: request.base_revision,
+                projection,
+                outcome,
+            },
             Err(error) => rejected(request, error),
         };
-        self.replies.insert(
-            request.operation_id.clone(),
-            CachedReply {
-                request: request.clone(),
-                event: event.clone(),
-            },
-        );
+        let bytes = serde_json::to_vec(&event).map(|value| value.len()).unwrap_or(usize::MAX);
+        let request_bytes = serde_json::to_vec(request).map(|value| value.len()).unwrap_or(usize::MAX);
+        let Some(retained_bytes) = self.retained_bytes.checked_add(bytes).and_then(|value| value.checked_add(request_bytes)) else {
+            return rejected(request, AuthoringError::OperationLimit);
+        };
+        if retained_bytes > MAX_PREVIEW_RECEIPT_BYTES {
+            return rejected(request, AuthoringError::OperationLimit);
+        }
+        if let AuthoringEvent::Committed { projection, .. } = &event {
+            self.projection = projection.clone();
+        }
+        self.retained_bytes = retained_bytes;
+        self.replies.insert(request.operation_id.clone(), CachedReply {
+            request: request.clone(),
+            event: event.clone(),
+        });
         event
     }
 
-    fn commit(
-        &self,
-        request: &AuthoringRequest,
-    ) -> Result<(AuthoringProjection, AuthoringOutcome), AuthoringError> {
-        if request.base_revision != self.projection.revision {
+    fn commit(&self, request: &AuthoringRequest) -> Result<(AuthoringProjection, AuthoringOutcome), AuthoringError> {
+        if request.base_revision != self.projection.revision
+            || request.expected_sources != self.projection.source_revisions(&request.kind)
+        {
             return Err(AuthoringError::StaleRevision);
         }
-        let revision = self
-            .projection
-            .revision
-            .checked_add(1)
-            .ok_or(AuthoringError::OperationLimit)?;
+        let revision = self.projection.revision.checked_add(1).ok_or(AuthoringError::OperationLimit)?;
         let outcome = match &request.kind {
             AuthoringRequestKind::CreateProfile { .. } => AuthoringOutcome::ProfileCreated {
-                character_id: self
-                    .unused_id("preview-profile", revision, |id| {
-                        self.projection
-                            .profiles
-                            .iter()
-                            .any(|profile| profile.character.id.as_ref() == id)
-                    })?
-                    .into(),
+                character_id: unused_id("preview-profile", revision, &self.projection.profiles.iter()
+                    .map(|profile| profile.character.id.as_ref()).collect())?.into(),
             },
             AuthoringRequestKind::SetOutfit { actor_id, .. } => AuthoringOutcome::OutfitSaved {
                 character_id: actor_id.clone(),
             },
-            AuthoringRequestKind::BuyAndPlace { home_owner_id, .. } => {
-                AuthoringOutcome::Purchased {
-                    owner_id: home_owner_id.clone(),
-                    instance_id: self
-                        .unused_id("preview-instance", revision, |id| {
-                            self.projection.profiles.iter().any(|profile| {
-                                profile
-                                    .home
-                                    .instances
-                                    .iter()
-                                    .any(|instance| instance.id.as_ref() == id)
-                            })
-                        })?
-                        .into(),
-                }
-            }
-            AuthoringRequestKind::MoveInstance {
-                home_owner_id,
-                instance_id,
-                ..
-            } => AuthoringOutcome::Moved {
+            AuthoringRequestKind::BuyAndPlace { home_owner_id, .. } => AuthoringOutcome::Purchased {
                 owner_id: home_owner_id.clone(),
-                instance_id: instance_id.clone(),
+                instance_id: unused_id("preview-instance", revision, &self.projection.profiles.iter()
+                    .flat_map(|profile| profile.home.instances.iter().map(|instance| instance.id.as_ref())).collect())?.into(),
             },
-            AuthoringRequestKind::StoreInstance {
-                home_owner_id,
-                instance_id,
-                ..
-            } => AuthoringOutcome::Stored {
-                owner_id: home_owner_id.clone(),
-                instance_id: instance_id.clone(),
+            AuthoringRequestKind::MoveInstance { home_owner_id, instance_id, .. } => AuthoringOutcome::Moved {
+                owner_id: home_owner_id.clone(), instance_id: instance_id.clone(),
             },
-            AuthoringRequestKind::PlaceOwned {
-                home_owner_id,
-                instance_id,
-                ..
-            } => AuthoringOutcome::Placed {
-                owner_id: home_owner_id.clone(),
-                instance_id: instance_id.clone(),
+            AuthoringRequestKind::StoreInstance { home_owner_id, instance_id, .. } => AuthoringOutcome::Stored {
+                owner_id: home_owner_id.clone(), instance_id: instance_id.clone(),
+            },
+            AuthoringRequestKind::PlaceOwned { home_owner_id, instance_id, .. } => AuthoringOutcome::Placed {
+                owner_id: home_owner_id.clone(), instance_id: instance_id.clone(),
             },
         };
-        let projection = after_outcome(&self.projection, &request.kind, &outcome, revision)?;
+        let created = match (&request.kind, &outcome) {
+            (AuthoringRequestKind::CreateProfile { name, description, shard_id, appearance },
+             AuthoringOutcome::ProfileCreated { character_id }) => {
+                let sample = preview_authoring_projection().profiles.remove(0);
+                Some(AuthoringProfile {
+                    character: Character {
+                        id: character_id.clone(),
+                        name: name.clone(),
+                        availability: Availability::Available,
+                        money: 1_250,
+                        needs: sample.character.needs,
+                    },
+                    description: description.clone(),
+                    shard_id: shard_id.clone(),
+                    appearance: appearance.clone(),
+                    portrait: None,
+                    wardrobe: Wardrobe { revision: 1, categories: vec![], outfits: vec![] },
+                    home: Home { owner_id: character_id.clone(), ..sample.home },
+                })
+            }
+            _ => None,
+        };
+        let projection = after_outcome(&self.projection, &request.kind, &outcome, revision, created.as_ref())?;
         Ok((projection, outcome))
     }
+}
 
-    fn unused_id(
-        &self,
-        prefix: &str,
-        start: u64,
-        used: impl Fn(&str) -> bool,
-    ) -> Result<String, AuthoringError> {
-        let mut sequence = start;
-        // A validated snapshot can contain at most this many distinct instances.
-        for _ in 0..=MAX_PROFILES * MAX_OWNED_INSTANCES {
-            let id = format!("{prefix}-{sequence}");
-            if !used(&id) {
-                return Ok(id);
-            }
-            sequence = sequence
-                .checked_add(1)
-                .ok_or(AuthoringError::OperationLimit)?;
+fn unused_id(prefix: &str, start: u64, used: &BTreeSet<&str>) -> Result<String, AuthoringError> {
+    let mut sequence = start;
+    for _ in 0..=used.len() {
+        let id = format!("{prefix}-{sequence}");
+        if !used.contains(id.as_str()) {
+            return Ok(id);
         }
-        Err(AuthoringError::OperationLimit)
+        sequence = sequence.checked_add(1).ok_or(AuthoringError::OperationLimit)?;
     }
+    Err(AuthoringError::OperationLimit)
 }
 
 fn rejected(request: &AuthoringRequest, error: AuthoringError) -> AuthoringEvent {
@@ -172,56 +152,41 @@ fn rejected(request: &AuthoringRequest, error: AuthoringError) -> AuthoringEvent
     }
 }
 
-/// Bound what is retained by the receipt cache even for a malformed caller.
+/// Bound everything retained by replay handling even for a malformed caller.
 fn request_bounds(request: &AuthoringRequest) -> Result<(), AuthoringError> {
     if !is_valid_authoring_id(request.operation_id.as_ref()) {
         return Err(AuthoringError::InvalidOperation);
     }
-    let ids: Vec<&str> = match &request.kind {
-        AuthoringRequestKind::CreateProfile { name, look_id, .. } => {
+    let mut ids = Vec::new();
+    match &request.kind {
+        AuthoringRequestKind::CreateProfile { name, description, shard_id, appearance } => {
             normalize_profile_name(name)?;
-            if name.len() > 128 {
-                return Err(AuthoringError::InvalidName(
-                    "Submit a trimmed name of at most 128 UTF-8 bytes".into(),
-                ));
+            if name.len() > 128 || description.len() > MAX_DESCRIPTION_BYTES || appearance.decorations.len() > 256 {
+                return Err(AuthoringError::SafetyLimit);
             }
-            vec![look_id.as_ref()]
+            if let Some(id) = shard_id {
+                ids.push(id.as_ref());
+            }
+            for key in [&appearance.head, &appearance.body, &appearance.skin_tone, &appearance.gender].into_iter().flatten() {
+                ids.push(key.as_ref());
+            }
+            for (category, key) in &appearance.decorations {
+                ids.push(category.as_ref());
+                ids.push(key.as_ref());
+            }
         }
-        AuthoringRequestKind::SetOutfit { actor_id, look_id } => {
-            vec![actor_id.as_ref(), look_id.as_ref()]
+        AuthoringRequestKind::SetOutfit { actor_id, owned_outfit_id, .. } => {
+            ids.extend([actor_id.as_ref(), owned_outfit_id.as_ref()]);
         }
-        AuthoringRequestKind::BuyAndPlace {
-            actor_id,
-            home_owner_id,
-            catalog_id,
-            ..
-        } => vec![
-            actor_id.as_ref(),
-            home_owner_id.as_ref(),
-            catalog_id.as_ref(),
-        ],
-        AuthoringRequestKind::MoveInstance {
-            actor_id,
-            home_owner_id,
-            instance_id,
-            ..
+        AuthoringRequestKind::BuyAndPlace { actor_id, home_owner_id, catalog_id, .. } => {
+            ids.extend([actor_id.as_ref(), home_owner_id.as_ref(), catalog_id.as_ref()]);
         }
-        | AuthoringRequestKind::StoreInstance {
-            actor_id,
-            home_owner_id,
-            instance_id,
+        AuthoringRequestKind::MoveInstance { actor_id, home_owner_id, instance_id, .. }
+        | AuthoringRequestKind::StoreInstance { actor_id, home_owner_id, instance_id }
+        | AuthoringRequestKind::PlaceOwned { actor_id, home_owner_id, instance_id, .. } => {
+            ids.extend([actor_id.as_ref(), home_owner_id.as_ref(), instance_id.as_ref()]);
         }
-        | AuthoringRequestKind::PlaceOwned {
-            actor_id,
-            home_owner_id,
-            instance_id,
-            ..
-        } => vec![
-            actor_id.as_ref(),
-            home_owner_id.as_ref(),
-            instance_id.as_ref(),
-        ],
-    };
+    }
     if ids.into_iter().any(|id| !is_valid_authoring_id(id)) {
         return Err(AuthoringError::InvalidOperation);
     }

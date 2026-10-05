@@ -3,8 +3,25 @@ use wonderland_client_app::{ShellState, preview_projection};
 use wonderland_contracts::authoring::*;
 use wonderland_contracts::{Availability, UiEvent, UiIntent};
 
+fn with_wardrobe(mut projection: AuthoringProjection) -> AuthoringProjection {
+    for profile in &mut projection.profiles {
+        profile.appearance.head = Some("test:head-one".into());
+        profile.appearance.body = Some("test:body-one".into());
+        profile.wardrobe.categories = vec![WardrobeCategory {
+            id: "day".into(), label: "Day".into(), slot: AppearanceSlot::Body,
+        }];
+        profile.wardrobe.outfits = [("default", "test:body-one"), ("alternative", "test:body-two")].into_iter().map(|(label, content_key)| OwnedOutfit {
+            id: format!("test-{}-{label}", profile.character.id).into(),
+            content_key: content_key.into(), category_id: "day".into(), label: label.into(),
+            thumbnail: None, is_default: label == "default",
+            actions: vec![WardrobeActionOffer { action: WardrobeAction::Change, availability: Availability::Available }],
+        }).collect();
+    }
+    projection
+}
+
 fn state_and_provider() -> (AuthoringState, PreviewAuthoringProvider) {
-    let projection = preview_authoring_projection();
+    let projection = with_wardrobe(preview_authoring_projection());
     (
         AuthoringState::new(projection.clone()),
         PreviewAuthoringProvider::new(projection).unwrap(),
@@ -106,35 +123,43 @@ fn creation_is_a_draft_until_a_matching_commit_returns_its_new_identity() {
 }
 
 #[test]
-fn creation_supports_all_fifteen_valid_identity_looks() {
-    for identity in VisualIdentity::ALL {
-        for style in LookStyle::ALL {
-            let (mut state, mut provider) = state_and_provider();
-            state.dispatch(AuthoringIntent::OpenCreate).unwrap();
-            state
-                .dispatch(AuthoringIntent::UpdateName("New neighbor".into()))
-                .unwrap();
-            state
-                .dispatch(AuthoringIntent::SelectIdentity(identity))
-                .unwrap();
-            state
-                .dispatch(AuthoringIntent::SelectLook(identity.look_id(style)))
-                .unwrap();
-            let request = state
-                .dispatch(AuthoringIntent::SubmitCreate)
-                .unwrap()
-                .remove(0);
-            state.receive(provider.handle(&request)).unwrap();
-            let created = state
-                .projection()
-                .profile(state.selected_profile().unwrap())
-                .unwrap();
-            assert_eq!(created.identity, identity);
-            assert_eq!(created.look_id, identity.look_id(style));
-            assert_eq!(created.character.money, 1_250);
-            assert!(created.home.instances.is_empty());
-        }
-    }
+fn creation_preserves_independent_head_body_skin_gender_description_and_shard() {
+    let mut projection = preview_authoring_projection();
+    let option = |key: &str| AppearanceOption {
+        key: key.into(), label: key.into(), thumbnail: None, availability: Availability::Available,
+        genders: vec!["female".into()], skin_tones: vec!["medium".into()],
+    };
+    projection.appearance_content.heads = vec![option("source-head-one"), option("source-head-two")];
+    projection.appearance_content.bodies = vec![option("source-body-one"), option("source-body-two")];
+    projection.appearance_content.requirements.head = true;
+    projection.appearance_content.requirements.body = true;
+    projection.account.shards = vec![ShardOption { id: "city-7".into(), label: "City Seven".into(), availability: Availability::Available }];
+    projection.account.default_shard = Some("city-7".into());
+    let mut provider = PreviewAuthoringProvider::new(projection.clone()).unwrap();
+    let mut state = AuthoringState::new(projection);
+    state.dispatch(AuthoringIntent::OpenCreate).unwrap();
+    state.dispatch(AuthoringIntent::UpdateName("New neighbor".into())).unwrap();
+    state.dispatch(AuthoringIntent::UpdateDescription("A carefully chosen appearance.".into())).unwrap();
+    state.dispatch(AuthoringIntent::SelectGender("female".into())).unwrap();
+    state.dispatch(AuthoringIntent::SelectSkinTone("medium".into())).unwrap();
+    state.dispatch(AuthoringIntent::SelectHead("source-head-one".into())).unwrap();
+    state.dispatch(AuthoringIntent::SelectBody("source-body-two".into())).unwrap();
+    state.dispatch(AuthoringIntent::SelectHead("source-head-two".into())).unwrap();
+    state.dispatch(AuthoringIntent::SelectGender("male".into())).unwrap();
+    assert!(matches!(state.draft_validity(), Err(AuthoringError::InvalidAppearance(_))));
+    assert!(matches!(state.draft(), Some(AuthoringDraft::Creation(draft)) if draft.appearance.body.as_ref().unwrap().as_ref() == "source-body-two"));
+    state.dispatch(AuthoringIntent::SelectGender("female".into())).unwrap();
+    let request = state.dispatch(AuthoringIntent::SubmitCreate).unwrap().remove(0);
+    assert_eq!(request.expected_sources.appearance, 1);
+    state.receive(provider.handle(&request)).unwrap();
+    let created = state.projection().profile(state.selected_profile().unwrap()).unwrap();
+    assert_eq!(created.appearance.head.as_ref().unwrap().as_ref(), "source-head-two");
+    assert_eq!(created.appearance.body.as_ref().unwrap().as_ref(), "source-body-two");
+    assert_eq!(created.appearance.skin_tone.as_ref().unwrap().as_ref(), "medium");
+    assert_eq!(created.appearance.gender.as_ref().unwrap().as_ref(), "female");
+    assert_eq!(created.description, "A carefully chosen appearance.");
+    assert_eq!(created.shard_id.as_ref().unwrap().as_ref(), "city-7");
+    assert!(created.portrait.is_none());
 }
 
 #[test]
@@ -166,8 +191,11 @@ fn raw_name_input_is_preserved_in_the_draft_and_invalid_names_cannot_submit() {
 }
 
 #[test]
-fn the_ninth_profile_is_refused_without_changing_the_eight_committed_profiles() {
-    let (mut state, mut provider) = state_and_provider();
+fn supplied_capacity_is_enforced_without_invalidating_saved_overflow() {
+    let mut projection = preview_authoring_projection();
+    projection.account.profile_capacity = CapacityPolicy::Limited { maximum: 8 };
+    let mut state = AuthoringState::new(projection.clone());
+    let mut provider = PreviewAuthoringProvider::new(projection).unwrap();
     for name in ["Six", "Seven", "Eight"] {
         let request = creation(&mut state, name);
         state.receive(provider.handle(&request)).unwrap();
@@ -178,14 +206,15 @@ fn the_ninth_profile_is_refused_without_changing_the_eight_committed_profiles() 
         state.dispatch(AuthoringIntent::OpenCreate),
         Err(AuthoringError::ProfileLimit)
     );
+    let kind = AuthoringRequestKind::CreateProfile {
+        name: "Nine".into(), description: String::new(), shard_id: None,
+        appearance: before.appearance_content.default_selection(),
+    };
     let request = AuthoringRequest {
         operation_id: "external-ninth".into(),
         base_revision: before.revision,
-        kind: AuthoringRequestKind::CreateProfile {
-            name: "Nine".into(),
-            identity: VisualIdentity::Maya,
-            look_id: "maya-smart".into(),
-        },
+        expected_sources: before.source_revisions(&kind),
+        kind,
     };
     assert!(matches!(
         provider.handle(&request),
@@ -207,17 +236,17 @@ fn outfit_cancel_preserves_appearance_and_save_changes_only_the_selected_profile
     let before = state.projection().clone();
     state.dispatch(AuthoringIntent::OpenOutfit).unwrap();
     state
-        .dispatch(AuthoringIntent::SelectLook("jules-active".into()))
+        .dispatch(AuthoringIntent::SelectOwnedOutfit("test-jules-alternative".into()))
         .unwrap();
     state.dispatch(AuthoringIntent::Cancel).unwrap();
     assert_eq!(state.projection(), &before);
     state.dispatch(AuthoringIntent::OpenOutfit).unwrap();
     assert_eq!(
-        state.dispatch(AuthoringIntent::SelectLook("maya-smart".into())),
-        Err(AuthoringError::InvalidLook)
+        state.dispatch(AuthoringIntent::SelectOwnedOutfit("test-maya-alternative".into())),
+        Err(AuthoringError::UnknownOutfit)
     );
     state
-        .dispatch(AuthoringIntent::SelectLook("jules-smart".into()))
+        .dispatch(AuthoringIntent::SelectOwnedOutfit("test-jules-alternative".into()))
         .unwrap();
     assert_eq!(
         state.dispatch(AuthoringIntent::UpdateName("Someone else".into())),
@@ -231,7 +260,8 @@ fn outfit_cancel_preserves_appearance_and_save_changes_only_the_selected_profile
     state.receive(provider.handle(&request)).unwrap();
     let mut expected = before;
     expected.revision += 1;
-    expected.profiles[1].look_id = "jules-smart".into();
+    expected.profiles[1].appearance.body = Some("test:body-two".into());
+    expected.profiles[1].wardrobe.revision += 1;
     assert_eq!(state.projection(), &expected);
     assert!(state.draft().is_none());
 }
@@ -310,20 +340,13 @@ fn an_old_duplicate_commit_cannot_close_a_new_editor_or_pending_operation() {
     let created = creation(&mut state, "Six");
     let old_event = provider.handle(&created);
     state.receive(old_event.clone()).unwrap();
-    state.dispatch(AuthoringIntent::OpenOutfit).unwrap();
-    state
-        .dispatch(AuthoringIntent::SelectLook("maya-smart".into()))
-        .unwrap();
-    let outfit = state
-        .dispatch(AuthoringIntent::SaveOutfit)
-        .unwrap()
-        .remove(0);
+    let outfit = creation(&mut state, "Seven");
     let draft = state.draft().cloned();
     state.receive(old_event).unwrap();
     assert_eq!(state.pending(), Some(&outfit));
     assert_eq!(state.draft(), draft.as_ref());
     state.receive(provider.handle(&outfit)).unwrap();
-    assert_eq!(state.projection().profiles.len(), 6);
+    assert_eq!(state.projection().profiles.len(), 7);
 }
 
 #[test]
@@ -373,7 +396,7 @@ fn invalid_or_old_replacement_does_not_cancel_current_work() {
     assert_eq!(state.pending(), Some(&request));
     assert_eq!(state.projection(), &original);
     let mut invalid = original;
-    invalid.version = 2;
+    invalid.version = AUTHORING_VERSION + 1;
     let mut invalid_state = AuthoringState::new(invalid);
     assert!(matches!(
         invalid_state.last_error(),

@@ -5,14 +5,16 @@ use crate::OperationId;
 pub struct CharacterDraft {
     /// Raw text is retained for ordinary Unicode/IME editing; submit normalizes it.
     pub name: String,
-    pub identity: VisualIdentity,
-    pub look_id: LookId,
+    pub description: String,
+    pub shard_id: Option<ShardId>,
+    pub appearance: AppearanceSelection,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OutfitDraft {
     pub character_id: CharacterId,
-    pub look_id: LookId,
+    pub owned_outfit_id: Option<OwnedOutfitId>,
+    pub action: WardrobeAction,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -45,8 +47,14 @@ pub enum AuthoringIntent {
     SelectProfile(CharacterId),
     OpenCreate,
     UpdateName(String),
-    SelectIdentity(VisualIdentity),
-    SelectLook(LookId),
+    UpdateDescription(String),
+    SelectShard(ShardId),
+    SelectHead(ContentKey),
+    SelectBody(ContentKey),
+    SelectSkinTone(ContentKey),
+    SelectGender(ContentKey),
+    SelectOwnedOutfit(OwnedOutfitId),
+    SelectWardrobeAction(WardrobeAction),
     SubmitCreate,
     OpenOutfit,
     SaveOutfit,
@@ -56,6 +64,7 @@ pub enum AuthoringIntent {
     BeginMove,
     BeginPlace(OwnedInstanceId),
     SetCell(GridCell),
+    SetLevel(i16),
     MoveCandidate { dx: i16, dy: i16 },
     RotateCandidate,
     ConfirmPlacement,
@@ -70,12 +79,14 @@ pub enum AuthoringIntent {
 pub enum AuthoringRequestKind {
     CreateProfile {
         name: String,
-        identity: VisualIdentity,
-        look_id: LookId,
+        description: String,
+        shard_id: Option<ShardId>,
+        appearance: AppearanceSelection,
     },
     SetOutfit {
         actor_id: CharacterId,
-        look_id: LookId,
+        owned_outfit_id: OwnedOutfitId,
+        action: WardrobeAction,
     },
     BuyAndPlace {
         actor_id: CharacterId,
@@ -103,9 +114,19 @@ pub enum AuthoringRequestKind {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AuthoringSourceRevisions {
+    pub account: u64,
+    pub appearance: u64,
+    pub catalog: u64,
+    pub wardrobe: Option<u64>,
+    pub lot: Option<u64>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthoringRequest {
     pub operation_id: OperationId,
     pub base_revision: u64,
+    pub expected_sources: AuthoringSourceRevisions,
     pub kind: AuthoringRequestKind,
 }
 
@@ -170,7 +191,10 @@ pub struct AuthoringCommit {
 pub enum AuthoringError {
     InvalidProjection(String),
     InvalidName(String),
-    InvalidLook,
+    InvalidDescription(String),
+    InvalidAppearance(String),
+    UnknownOutfit,
+    SafetyLimit,
     UnknownProfile,
     UnknownCatalogItem,
     UnknownInstance,
@@ -198,23 +222,26 @@ impl fmt::Display for AuthoringError {
         match self {
             Self::InvalidProjection(reason)
             | Self::InvalidName(reason)
+            | Self::InvalidDescription(reason)
+            | Self::InvalidAppearance(reason)
             | Self::Unavailable(reason)
             | Self::Rejected(reason) => reason.fmt(f),
-            Self::InvalidLook => f.write_str("Choose one of this character's three looks"),
+            Self::UnknownOutfit => f.write_str("Choose an outfit owned by this character"),
+            Self::SafetyLimit => f.write_str("This data exceeds the client resource safety limit"),
             Self::UnknownProfile => f.write_str("This profile is no longer available"),
-            Self::UnknownCatalogItem => f.write_str("This item is not in the preview catalog"),
+            Self::UnknownCatalogItem => f.write_str("This item is not in the supplied catalog"),
             Self::UnknownInstance => f.write_str("This item is not owned by the selected home"),
             Self::NoSelection => f.write_str("Select a profile, room, or item first"),
             Self::WrongEditor => f.write_str("Open the matching editor first"),
             Self::Busy => f.write_str("Wait for the current change to finish"),
             Self::PermissionDenied => f.write_str("Only this home's owner can change it"),
             Self::InsufficientFunds => f.write_str("There is not enough money for this item"),
-            Self::ProfileLimit => f.write_str("This preview supports up to eight profiles"),
+            Self::ProfileLimit => f.write_str("The account has reached its supplied character creation capacity"),
             Self::InventoryLimit => {
-                f.write_str("This home already owns 64 items, including stored items")
+                f.write_str("The home has reached its supplied ownership capacity")
             }
             Self::OutOfBounds => f.write_str("Place the whole item inside the room"),
-            Self::EntranceReserved => f.write_str("Keep the entrance at cell (0, 0) clear"),
+            Self::EntranceReserved => f.write_str("Keep the lot’s reserved cells clear"),
             Self::Occupied => f.write_str("Another item occupies these cells"),
             Self::WrongPlacementState => {
                 f.write_str("This item's stored or placed state has changed")

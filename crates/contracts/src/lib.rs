@@ -157,7 +157,7 @@ impl UiProjection {
             return Err(fail("Unsupported version or zero projection revision"));
         }
         if !text(&self.city_name, 128)
-            || self.characters.len() > 64
+            || self.characters.len() > authoring::MAX_PROFILE_RECORDS
             || self.places.len() > 128
             || self.objects.len() > 1024
         {

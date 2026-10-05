@@ -106,51 +106,35 @@ impl AuthoringState {
                 self.draft = None;
             }
             AuthoringIntent::OpenCreate => {
-                if self.projection.profiles.len() >= MAX_PROFILES {
-                    return Err(AuthoringError::ProfileLimit);
-                }
+                self.projection.creation_allowed()?;
                 self.draft = Some(AuthoringDraft::Creation(CharacterDraft {
                     name: String::new(),
-                    identity: VisualIdentity::Maya,
-                    look_id: "maya-everyday".into(),
+                    description: String::new(),
+                    shard_id: self.projection.account.default_shard.clone(),
+                    appearance: self.projection.appearance_content.default_selection(),
                 }));
             }
-            AuthoringIntent::UpdateName(name) => {
-                let Some(AuthoringDraft::Creation(draft)) = &mut self.draft else {
+            AuthoringIntent::UpdateName(name) => self.creation_draft_mut()?.name = name,
+            AuthoringIntent::UpdateDescription(description) => self.creation_draft_mut()?.description = description,
+            AuthoringIntent::SelectShard(shard_id) => self.creation_draft_mut()?.shard_id = Some(shard_id),
+            AuthoringIntent::SelectHead(key) => self.creation_draft_mut()?.appearance.head = Some(key),
+            AuthoringIntent::SelectBody(key) => self.creation_draft_mut()?.appearance.body = Some(key),
+            AuthoringIntent::SelectSkinTone(key) => self.creation_draft_mut()?.appearance.skin_tone = Some(key),
+            AuthoringIntent::SelectGender(key) => self.creation_draft_mut()?.appearance.gender = Some(key),
+            AuthoringIntent::SelectOwnedOutfit(owned_outfit_id) => {
+                let Some(AuthoringDraft::Outfit(draft)) = &mut self.draft else {
                     return Err(AuthoringError::WrongEditor);
                 };
-                draft.name = name;
+                let profile = self.projection.profile(&draft.character_id).ok_or(AuthoringError::UnknownProfile)?;
+                profile.wardrobe.outfit(&owned_outfit_id).ok_or(AuthoringError::UnknownOutfit)?;
+                draft.owned_outfit_id = Some(owned_outfit_id);
             }
-            AuthoringIntent::SelectIdentity(identity) => {
-                let Some(AuthoringDraft::Creation(draft)) = &mut self.draft else {
+            AuthoringIntent::SelectWardrobeAction(action) => {
+                let Some(AuthoringDraft::Outfit(draft)) = &mut self.draft else {
                     return Err(AuthoringError::WrongEditor);
                 };
-                let style = draft
-                    .look_id
-                    .style_for(draft.identity)
-                    .ok_or(AuthoringError::InvalidLook)?;
-                draft.identity = identity;
-                draft.look_id = identity.look_id(style);
+                draft.action = action;
             }
-            AuthoringIntent::SelectLook(look_id) => match &mut self.draft {
-                Some(AuthoringDraft::Creation(draft)) => {
-                    if look_id.style_for(draft.identity).is_none() {
-                        return Err(AuthoringError::InvalidLook);
-                    }
-                    draft.look_id = look_id;
-                }
-                Some(AuthoringDraft::Outfit(draft)) => {
-                    let profile = self
-                        .projection
-                        .profile(&draft.character_id)
-                        .ok_or(AuthoringError::UnknownProfile)?;
-                    if look_id.style_for(profile.identity).is_none() {
-                        return Err(AuthoringError::InvalidLook);
-                    }
-                    draft.look_id = look_id;
-                }
-                _ => return Err(AuthoringError::WrongEditor),
-            },
             AuthoringIntent::SubmitCreate => {
                 if !matches!(self.draft, Some(AuthoringDraft::Creation(_))) {
                     return Err(AuthoringError::WrongEditor);
@@ -161,7 +145,8 @@ impl AuthoringState {
                 let profile = self.selected_actor()?;
                 self.draft = Some(AuthoringDraft::Outfit(OutfitDraft {
                     character_id: profile.character.id.clone(),
-                    look_id: profile.look_id.clone(),
+                    owned_outfit_id: profile.wardrobe.outfits.first().map(|outfit| outfit.id.clone()),
+                    action: WardrobeAction::Change,
                 }));
             }
             AuthoringIntent::SaveOutfit => {
@@ -181,14 +166,15 @@ impl AuthoringState {
             }
             AuthoringIntent::SelectCatalog(catalog_id) => {
                 let (actor_id, home_owner_id) = self.home_context()?;
-                self.projection
-                    .catalog_item(&catalog_id)
+                let item = self.projection.catalog_item(&catalog_id)
                     .ok_or(AuthoringError::UnknownCatalogItem)?;
+                let home = self.projection.home(&home_owner_id).ok_or(AuthoringError::UnknownProfile)?;
+                let pose = default_pose(&home.lot, item.rotations[0]);
                 self.draft = Some(AuthoringDraft::Placement(PlacementDraft {
                     actor_id,
                     home_owner_id,
                     source: PlacementSource::Catalog(catalog_id),
-                    pose: default_pose(),
+                    pose,
                 }));
                 self.selected_instance = None;
             }
@@ -236,17 +222,21 @@ impl AuthoringState {
                 if instance.placement.is_some() {
                     return Err(AuthoringError::WrongPlacementState);
                 }
+                let item = self.projection.catalog_item(&instance.catalog_id).ok_or(AuthoringError::UnknownCatalogItem)?;
+                let home = self.projection.home(&home_owner_id).ok_or(AuthoringError::UnknownProfile)?;
+                let pose = default_pose(&home.lot, item.rotations[0]);
                 self.draft = Some(AuthoringDraft::Placement(PlacementDraft {
                     actor_id,
                     home_owner_id,
                     source: PlacementSource::Inventory(instance_id),
-                    pose: default_pose(),
+                    pose,
                 }));
                 self.selected_instance = None;
             }
             AuthoringIntent::SetCell(cell) => {
                 self.placement_draft_mut()?.pose.cell = cell;
             }
+            AuthoringIntent::SetLevel(level) => self.placement_draft_mut()?.pose.level = level,
             AuthoringIntent::MoveCandidate { dx, dy } => {
                 let draft = self.placement_draft_mut()?;
                 let x = draft
@@ -278,18 +268,13 @@ impl AuthoringState {
                             .catalog_id
                     }
                 };
-                if !self
-                    .projection
-                    .catalog_item(catalog_id)
-                    .ok_or(AuthoringError::UnknownCatalogItem)?
-                    .can_rotate()
-                {
-                    return Err(AuthoringError::Unavailable(
-                        "This item does not need rotation".into(),
-                    ));
+                let item = self.projection.catalog_item(catalog_id).ok_or(AuthoringError::UnknownCatalogItem)?;
+                if !item.can_rotate() {
+                    return Err(AuthoringError::Unavailable("This item has no additional supplied orientations".into()));
                 }
-                let draft = self.placement_draft_mut()?;
-                draft.pose.direction = draft.pose.direction.clockwise();
+                let direction = item.next_direction(draft.pose.direction)
+                    .ok_or_else(|| AuthoringError::Unavailable("The current orientation is not supplied".into()))?;
+                self.placement_draft_mut()?.pose.direction = direction;
             }
             AuthoringIntent::ConfirmPlacement => {
                 if !matches!(self.draft, Some(AuthoringDraft::Placement(_))) {
@@ -366,6 +351,10 @@ impl AuthoringState {
                     &request.kind,
                     &outcome,
                     projection.revision,
+                    match &outcome {
+                        AuthoringOutcome::ProfileCreated { character_id } => projection.profile(character_id),
+                        _ => None,
+                    },
                 )?;
                 if expected != projection {
                     return Err(AuthoringError::InvalidOutcome);
@@ -430,6 +419,13 @@ impl AuthoringState {
         Ok((actor_id, owner_id))
     }
 
+    fn creation_draft_mut(&mut self) -> Result<&mut CharacterDraft, AuthoringError> {
+        match &mut self.draft {
+            Some(AuthoringDraft::Creation(draft)) => Ok(draft),
+            _ => Err(AuthoringError::WrongEditor),
+        }
+    }
+
     fn placement_draft_mut(&mut self) -> Result<&mut PlacementDraft, AuthoringError> {
         match &mut self.draft {
             Some(AuthoringDraft::Placement(draft)) => Ok(draft),
@@ -441,12 +437,14 @@ impl AuthoringState {
         match &self.draft {
             Some(AuthoringDraft::Creation(draft)) => Ok(AuthoringRequestKind::CreateProfile {
                 name: normalize_profile_name(&draft.name)?,
-                identity: draft.identity,
-                look_id: draft.look_id.clone(),
+                description: draft.description.clone(),
+                shard_id: draft.shard_id.clone(),
+                appearance: draft.appearance.clone(),
             }),
             Some(AuthoringDraft::Outfit(draft)) => Ok(AuthoringRequestKind::SetOutfit {
                 actor_id: draft.character_id.clone(),
-                look_id: draft.look_id.clone(),
+                owned_outfit_id: draft.owned_outfit_id.clone().ok_or(AuthoringError::UnknownOutfit)?,
+                action: draft.action,
             }),
             Some(AuthoringDraft::Placement(draft)) => {
                 let actor_id = draft.actor_id.clone();
@@ -489,6 +487,7 @@ impl AuthoringState {
         let request = AuthoringRequest {
             operation_id: format!("authoring-{}", self.next_operation).into(),
             base_revision: self.projection.revision,
+            expected_sources: self.projection.source_revisions(&kind),
             kind,
         };
         self.next_operation = next_operation;
@@ -529,10 +528,14 @@ impl AuthoringState {
     }
 }
 
-fn default_pose() -> GridPose {
+fn default_pose(lot: &LotGeometry, direction: Direction) -> GridPose {
     GridPose {
-        cell: GridCell { x: 1, y: 1 },
-        direction: Direction::North,
+        cell: GridCell {
+            x: lot.bounds.origin.x + if lot.bounds.width > 1 { 1 } else { 0 },
+            y: lot.bounds.origin.y + if lot.bounds.depth > 1 { 1 } else { 0 },
+        },
+        level: lot.levels[0],
+        direction,
     }
 }
 
@@ -556,6 +559,8 @@ fn bounded_error(error: AuthoringError) -> AuthoringError {
             AuthoringError::InvalidProjection(reason(value))
         }
         AuthoringError::InvalidName(value) => AuthoringError::InvalidName(reason(value)),
+        AuthoringError::InvalidDescription(value) => AuthoringError::InvalidDescription(reason(value)),
+        AuthoringError::InvalidAppearance(value) => AuthoringError::InvalidAppearance(reason(value)),
         AuthoringError::Unavailable(value) => AuthoringError::Unavailable(reason(value)),
         AuthoringError::Rejected(value) => AuthoringError::Rejected(reason(value)),
         error => error,

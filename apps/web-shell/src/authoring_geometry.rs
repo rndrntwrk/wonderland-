@@ -182,14 +182,17 @@ impl HomeCamera {
         self.pan = Point::default();
     }
 }
-pub fn pick(camera: HomeCamera, screen: Point) -> Option<GridCell> {
+pub fn pick(camera: HomeCamera, screen: Point, bounds: LotBounds) -> Option<GridCell> {
     let p = camera.inverse(screen);
     let dx = p.x - FLOOR_ORIGIN.x;
     let dy = p.y - FLOOR_ORIGIN.y;
     let det = 86. * 38. + 94. * 42.;
     let x = (38. * dx + 94. * dy) / det;
     let y = (-42. * dx + 86. * dy) / det;
-    if !x.is_finite() || !y.is_finite() || !(0. ..8.).contains(&x) || !(0. ..6.).contains(&y) {
+    if !x.is_finite() || !y.is_finite()
+        || !(f64::from(bounds.origin.x)..f64::from(bounds.origin.x) + f64::from(bounds.width)).contains(&x)
+        || !(f64::from(bounds.origin.y)..f64::from(bounds.origin.y) + f64::from(bounds.depth)).contains(&y)
+    {
         None
     } else {
         Some(GridCell {

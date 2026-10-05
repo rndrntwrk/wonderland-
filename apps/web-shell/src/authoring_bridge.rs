@@ -41,7 +41,7 @@ impl AuthorUi {
             match persistence::load() {
                 Ok((saved, session)) => {
                     if let Some(saved) = saved {
-                        projection = saved;
+                        projection = resume_preview_projection(saved);
                     }
                     save_session = session;
                 }
@@ -251,18 +251,8 @@ impl AuthorUi {
         self.state.with(|s| {
             s.projection()
                 .profile(id)
-                .map(|p| look_path(p.identity, &p.look_id))
+                .and_then(|profile| profile.portrait.as_ref().map(|portrait| portrait.asset_path.clone()))
                 .unwrap_or_else(|| crate::components::portrait_path(id.as_ref()))
         })
-    }
-}
-pub fn look_path(identity: VisualIdentity, look: &LookId) -> String {
-    match look.style_for(identity).unwrap_or(LookStyle::Everyday) {
-        LookStyle::Everyday => format!("/assets/art/{}.png", identity.as_str()),
-        style => format!(
-            "/assets/authoring/{}-{}.png",
-            identity.as_str(),
-            style.as_str()
-        ),
     }
 }

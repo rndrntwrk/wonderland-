@@ -10,7 +10,7 @@ struct Envelope {
 pub fn encode_snapshot(snapshot: &AuthoringProjection) -> Result<String, String> {
     snapshot.validate().map_err(|e| e.to_string())?;
     let json = serde_json::to_string(&Envelope {
-        version: 1,
+        version: 2,
         snapshot: snapshot.clone(),
     })
     .map_err(|e| e.to_string())?;
@@ -23,13 +23,21 @@ pub fn decode_snapshot(json: &str) -> Result<AuthoringProjection, String> {
     if json.len() > MAX_AUTHORING_JSON_BYTES {
         return Err("Saved preview exceeds the size limit.".into());
     }
-    let envelope: Envelope =
-        serde_json::from_str(json).map_err(|_| "Saved preview could not be read.".to_string())?;
-    if envelope.version != 1 {
-        return Err("Saved preview uses an unsupported version.".into());
+    #[derive(Deserialize)]
+    struct SavedEnvelope {
+        version: u32,
+        snapshot: serde_json::Value,
     }
-    envelope.snapshot.validate().map_err(|e| e.to_string())?;
-    Ok(envelope.snapshot)
+    let envelope: SavedEnvelope = serde_json::from_str(json)
+        .map_err(|_| "Saved preview could not be read.".to_string())?;
+    let snapshot = match envelope.version {
+        1 => migrate_v1_projection(&envelope.snapshot.to_string()).map_err(|error| error.to_string())?,
+        2 => serde_json::from_value(envelope.snapshot)
+            .map_err(|_| "Saved preview could not be read.".to_string())?,
+        _ => return Err("Saved preview uses an unsupported version.".into()),
+    };
+    snapshot.validate().map_err(|error| error.to_string())?;
+    Ok(snapshot)
 }
 
 /// Per-load expectation of the exact localStorage envelope. Call compare_and_save only

@@ -1,14 +1,19 @@
-//! Versioned character and room authoring for the bounded UI preview.
+//! Versioned authoring data supplied by account, content and lot adapters.
 //!
-//! These presentation identities and cells are not account IDs, engine entity IDs,
-//! canonical lot coordinates, or authenticated rights. A live adapter must supply
-//! coordinated authoritative projections and independently authorize each command.
+//! Opaque content, ownership and operation identities remain distinct. These
+//! projections describe capabilities; a connected service must authorize requests.
 
+mod appearance;
+mod capabilities;
 mod geometry;
+mod legacy;
 mod messages;
 mod validation;
 
+pub use appearance::*;
+pub use capabilities::*;
 pub use geometry::*;
+pub use legacy::migrate_v1_projection;
 pub use messages::*;
 pub use validation::{is_valid_authoring_id, normalize_profile_name};
 
@@ -16,126 +21,49 @@ use crate::{Availability, Character, CharacterId};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-pub const AUTHORING_VERSION: u32 = 1;
-pub const MAX_PROFILES: usize = 8;
-pub const MAX_OWNED_INSTANCES: usize = 64;
-pub const PREVIEW_STARTING_BUDGET: i64 = 1_250;
-/// Cap both input and output bytes before parsing or saving local preview JSON.
-pub const MAX_AUTHORING_JSON_BYTES: usize = 256 * 1024;
+pub const AUTHORING_VERSION: u32 = 2;
+/// Resource-safety bounds, never game policy or account creation capacity.
+pub const MAX_PROFILE_RECORDS: usize = 1024;
+pub const MAX_CONTENT_RECORDS: usize = 65_536;
+pub const MAX_OWNED_RECORDS: usize = 65_536;
+pub const MAX_AUTHORING_JSON_BYTES: usize = 16 * 1024 * 1024;
+pub const MAX_DESCRIPTION_BYTES: usize = 16 * 1024;
 
-string_id!(LookId, CatalogId, OwnedInstanceId);
+string_id!(
+    ContentKey, ContentSourceId, AccountId, ShardId, CatalogId,
+    CatalogCategoryId, OwnedInstanceId, WardrobeCategoryId, OwnedOutfitId,
+    BuildToolId
+);
 
-/// Authored visual presets; several created profiles may share a preset.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum VisualIdentity {
-    Maya,
-    Jules,
-    Nico,
-    Amara,
-    Leo,
-}
-
-impl VisualIdentity {
-    pub const ALL: [Self; 5] = [Self::Maya, Self::Jules, Self::Nico, Self::Amara, Self::Leo];
-
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Maya => "maya",
-            Self::Jules => "jules",
-            Self::Nico => "nico",
-            Self::Amara => "amara",
-            Self::Leo => "leo",
-        }
-    }
-
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Maya => "Maya",
-            Self::Jules => "Jules",
-            Self::Nico => "Nico",
-            Self::Amara => "Amara",
-            Self::Leo => "Leo",
-        }
-    }
-
-    pub fn look_id(self, style: LookStyle) -> LookId {
-        format!("{}-{}", self.as_str(), style.as_str()).into()
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum LookStyle {
-    Everyday,
-    Smart,
-    Active,
-}
-
-impl LookStyle {
-    pub const ALL: [Self; 3] = [Self::Everyday, Self::Smart, Self::Active];
-
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Everyday => "everyday",
-            Self::Smart => "smart",
-            Self::Active => "active",
-        }
-    }
-
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Everyday => "Everyday",
-            Self::Smart => "Smart",
-            Self::Active => "Active",
-        }
-    }
-}
-
-impl LookId {
-    pub fn style_for(&self, identity: VisualIdentity) -> Option<LookStyle> {
-        LookStyle::ALL
-            .into_iter()
-            .find(|style| identity.look_id(*style) == *self)
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum CatalogCategory {
-    Living,
-    Lighting,
-    Decor,
-    Storage,
-}
-
-impl CatalogCategory {
-    pub const ALL: [Self; 4] = [Self::Living, Self::Lighting, Self::Decor, Self::Storage];
-
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Living => "Living",
-            Self::Lighting => "Lighting",
-            Self::Decor => "Decor",
-            Self::Storage => "Storage",
-        }
-    }
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CatalogCategory {
+    pub id: CatalogCategoryId,
+    pub label: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CatalogItem {
     pub id: CatalogId,
+    /// Original source key, independent from an owned instance's identity.
+    pub source_key: ContentKey,
     pub name: String,
-    pub category: CatalogCategory,
+    pub category: CatalogCategoryId,
     pub price: i64,
     pub footprint: Footprint,
+    /// Supplied allowed orientations, in the order used by the Rotate control.
+    pub rotations: Vec<Direction>,
+    pub thumbnail: Option<String>,
     pub availability: Availability,
 }
 
 impl CatalogItem {
-    /// Only these three objects have meaningful directional preview artwork.
     pub fn can_rotate(&self) -> bool {
-        matches!(self.id.as_ref(), "armchair" | "coffee-table" | "bookcase")
+        self.rotations.len() > 1
+    }
+
+    pub fn next_direction(&self, current: Direction) -> Option<Direction> {
+        let index = self.rotations.iter().position(|direction| *direction == current)?;
+        self.rotations.get((index + 1) % self.rotations.len()).copied()
     }
 }
 
@@ -143,7 +71,7 @@ impl CatalogItem {
 pub struct OwnedInstance {
     pub id: OwnedInstanceId,
     pub catalog_id: CatalogId,
-    /// `None` is owned inventory. Storing never discards this instance identity.
+    /// None is owned inventory. Storing never discards this identity.
     pub placement: Option<GridPose>,
 }
 
@@ -157,6 +85,9 @@ pub struct HomePermissions {
 pub struct Home {
     pub owner_id: CharacterId,
     pub permissions: HomePermissions,
+    pub instance_capacity: CapacityPolicy,
+    pub lot: LotGeometry,
+    pub build: BuildCapabilities,
     pub instances: Vec<OwnedInstance>,
 }
 
@@ -169,25 +100,33 @@ impl Home {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthoringProfile {
     pub character: Character,
-    pub identity: VisualIdentity,
-    pub look_id: LookId,
+    pub description: String,
+    pub shard_id: Option<ShardId>,
+    pub appearance: AppearanceSelection,
+    /// Preserved artwork only. This never supplies an outfit or renderer resource.
+    pub portrait: Option<PortraitReference>,
+    pub wardrobe: Wardrobe,
     pub home: Home,
 }
 
-/// Complete acknowledged data. Drafts, pending requests, and grants are excluded.
+/// Complete acknowledged data. Drafts, pending operations and decoded rendering
+/// resources are excluded. Revisions identify the source data used by requests.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthoringProjection {
     pub version: u32,
     pub revision: u64,
+    pub account: AccountCapabilities,
+    pub appearance_content: AppearanceContent,
+    pub catalog_source: ContentSourceId,
+    pub catalog_revision: u64,
+    pub catalog_categories: Vec<CatalogCategory>,
     pub profiles: Vec<AuthoringProfile>,
     pub catalog: Vec<CatalogItem>,
 }
 
 impl AuthoringProjection {
     pub fn profile(&self, id: &CharacterId) -> Option<&AuthoringProfile> {
-        self.profiles
-            .iter()
-            .find(|profile| &profile.character.id == id)
+        self.profiles.iter().find(|profile| &profile.character.id == id)
     }
 
     pub fn home(&self, owner_id: &CharacterId) -> Option<&Home> {
@@ -196,5 +135,33 @@ impl AuthoringProjection {
 
     pub fn catalog_item(&self, id: &CatalogId) -> Option<&CatalogItem> {
         self.catalog.iter().find(|item| &item.id == id)
+    }
+
+    pub fn creation_allowed(&self) -> Result<(), AuthoringError> {
+        self.account.ensure_creation(self.profiles.len())?;
+        if self.profiles.len() >= MAX_PROFILE_RECORDS {
+            return Err(AuthoringError::SafetyLimit);
+        }
+        Ok(())
+    }
+
+    pub fn source_revisions(&self, kind: &AuthoringRequestKind) -> AuthoringSourceRevisions {
+        let (wardrobe, lot) = match kind {
+            AuthoringRequestKind::SetOutfit { actor_id, .. } =>
+                (self.profile(actor_id).map(|profile| profile.wardrobe.revision), None),
+            AuthoringRequestKind::BuyAndPlace { home_owner_id, .. }
+            | AuthoringRequestKind::MoveInstance { home_owner_id, .. }
+            | AuthoringRequestKind::StoreInstance { home_owner_id, .. }
+            | AuthoringRequestKind::PlaceOwned { home_owner_id, .. } =>
+                (None, self.home(home_owner_id).map(|home| home.lot.revision)),
+            AuthoringRequestKind::CreateProfile { .. } => (None, None),
+        };
+        AuthoringSourceRevisions {
+            account: self.account.revision,
+            appearance: self.appearance_content.revision,
+            catalog: self.catalog_revision,
+            wardrobe,
+            lot,
+        }
     }
 }

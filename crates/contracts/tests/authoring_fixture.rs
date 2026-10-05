@@ -2,150 +2,56 @@ use wonderland_contracts::authoring::*;
 use wonderland_contracts::{Availability, Need};
 
 fn fixture() -> AuthoringProjection {
-    serde_json::from_str(include_str!("../../../fixtures/ui/authoring-v1.json")).unwrap()
+    serde_json::from_str(include_str!("../../../fixtures/ui/authoring-v2.json")).unwrap()
+}
+
+fn pose(x: i16, y: i16, level: i16, direction: Direction) -> GridPose {
+    GridPose { cell: GridCell { x, y }, level, direction }
 }
 
 #[test]
-fn authoring_fixture_round_trips_five_isolated_empty_homes_and_six_catalog_records() {
+fn fixture_round_trip_keeps_isolated_homes_and_illustrations_without_game_outfit_ids() {
     let projection = fixture();
     projection.validate().unwrap();
-    let expected = [
-        ("maya", "Maya", VisualIdentity::Maya),
-        ("jules", "Jules", VisualIdentity::Jules),
-        ("nico", "Nico", VisualIdentity::Nico),
-        ("amara", "Amara", VisualIdentity::Amara),
-        ("leo", "Leo", VisualIdentity::Leo),
-    ];
-    assert_eq!(projection.profiles.len(), 5);
-    for (profile, (id, name, identity)) in projection.profiles.iter().zip(expected) {
-        assert_eq!(profile.character.id.as_ref(), id);
-        assert_eq!(profile.character.name, name);
-        assert_eq!(profile.identity, identity);
-        assert_eq!(profile.look_id.as_ref(), format!("{id}-everyday"));
-        assert_eq!(profile.character.money, 1_250);
+    for profile in &projection.profiles {
         assert_eq!(profile.home.owner_id, profile.character.id);
         assert!(profile.home.instances.is_empty());
-        assert!(profile.home.permissions.purchase.is_available());
-        assert!(profile.home.permissions.arrange.is_available());
+        assert!(profile.appearance.head.is_none());
+        assert!(profile.appearance.body.is_none());
+        assert!(profile.wardrobe.outfits.is_empty());
+        assert!(profile.portrait.is_some());
     }
-    let records = projection
-        .catalog
-        .iter()
-        .map(|item| {
-            (
-                item.id.as_ref(),
-                item.name.as_str(),
-                item.category,
-                item.price,
-                item.footprint.width,
-                item.footprint.depth,
-            )
-        })
-        .collect::<Vec<_>>();
-    assert_eq!(
-        records,
-        [
-            (
-                "armchair",
-                "Harbor armchair",
-                CatalogCategory::Living,
-                180,
-                1,
-                1
-            ),
-            (
-                "coffee-table",
-                "Oak coffee table",
-                CatalogCategory::Living,
-                120,
-                2,
-                1
-            ),
-            (
-                "floor-lamp",
-                "Linen floor lamp",
-                CatalogCategory::Lighting,
-                90,
-                1,
-                1
-            ),
-            ("fern", "Potted fern", CatalogCategory::Decor, 45, 1, 1),
-            (
-                "bookcase",
-                "Oak bookcase",
-                CatalogCategory::Storage,
-                260,
-                2,
-                1
-            ),
-            ("woven-rug", "Woven rug", CatalogCategory::Decor, 160, 2, 2),
-        ]
-    );
     let encoded = serde_json::to_vec(&projection).unwrap();
     assert!(encoded.len() < MAX_AUTHORING_JSON_BYTES);
-    let decoded: AuthoringProjection = serde_json::from_slice(&encoded).unwrap();
-    assert_eq!(decoded, projection);
+    assert_eq!(serde_json::from_slice::<AuthoringProjection>(&encoded).unwrap(), projection);
 }
 
 #[test]
-fn every_visual_identity_accepts_its_three_looks_and_rejects_cross_identity_looks() {
-    for identity in VisualIdentity::ALL {
-        for style in LookStyle::ALL {
-            let mut projection = fixture();
-            projection.profiles[0].identity = identity;
-            projection.profiles[0].look_id = identity.look_id(style);
-            projection.validate().unwrap();
-            assert_eq!(
-                projection.profiles[0].look_id.style_for(identity),
-                Some(style)
-            );
-            let other = if identity == VisualIdentity::Maya {
-                VisualIdentity::Jules
-            } else {
-                VisualIdentity::Maya
-            };
-            projection.profiles[0].look_id = other.look_id(style);
-            assert!(projection.validate().is_err());
-        }
-    }
-    let mut projection = fixture();
-    projection.profiles[0].look_id = "maya-invented".into();
-    assert!(projection.validate().is_err());
-}
-
-#[test]
-fn names_trim_ordinary_unicode_but_enforce_scalar_byte_and_control_bounds() {
-    assert_eq!(
-        normalize_profile_name("  Zoë 李 🐚  ").unwrap(),
-        "Zoë 李 🐚"
-    );
-    assert_eq!(
-        normalize_profile_name(&"🪷".repeat(32)).unwrap(),
-        "🪷".repeat(32)
-    );
+fn names_preserve_unicode_while_account_field_rules_apply_only_to_new_requests() {
+    assert_eq!(normalize_profile_name("  Zoë 李 🐚  ").unwrap(), "Zoë 李 🐚");
+    assert_eq!(normalize_profile_name(&"🪷".repeat(32)).unwrap(), "🪷".repeat(32));
     assert_eq!(normalize_profile_name("e\u{301}").unwrap(), "e\u{301}");
     for name in ["", " \u{2003} ", "a\nb", "a\0b", "\nMaya", "Maya\t"] {
-        assert!(matches!(
-            normalize_profile_name(name),
-            Err(AuthoringError::InvalidName(_))
-        ));
+        assert!(matches!(normalize_profile_name(name), Err(AuthoringError::InvalidName(_))));
     }
-    assert!(normalize_profile_name(&"é".repeat(33)).is_err());
     assert!(normalize_profile_name(&"🪷".repeat(33)).is_err());
     let mut projection = fixture();
-    projection.profiles[0].character.name = " Maya ".into();
-    assert!(
-        projection.validate().is_err(),
-        "persisted names must already be trimmed"
-    );
+    projection.profiles[0].character.name = "Zoë 李".into();
+    projection.account.fields.name_alphabet = NameAlphabet::AsciiLettersAndSpaces;
+    projection.account.fields.minimum_name_characters = 3;
+    projection.account.fields.maximum_name_characters = 24;
+    projection.validate().unwrap();
+    assert!(projection.account.fields.validate_fields("Zoë 李", "").is_err());
+    assert!(projection.account.fields.validate_fields("Maya", &"x".repeat(500)).is_err());
+    projection.account.fields.validate_fields("Maya", &"x".repeat(499)).unwrap();
 }
 
 #[test]
-fn snapshot_validation_rejects_invalid_profile_identity_permissions_budget_and_needs() {
+fn structural_validation_rejects_bad_ids_duplicates_permissions_negative_money_and_needs() {
     let original = fixture();
     let mut cases = Vec::new();
     let mut p = original.clone();
-    p.version = 2;
+    p.version = AUTHORING_VERSION + 1;
     cases.push(p);
     let mut p = original.clone();
     p.revision = 0;
@@ -163,154 +69,90 @@ fn snapshot_validation_rejects_invalid_profile_identity_permissions_budget_and_n
     p.profiles[0].character.money = -1;
     cases.push(p);
     let mut p = original.clone();
-    p.profiles[0].character.money = 1_251;
-    cases.push(p);
-    let mut p = original.clone();
     p.profiles[0].character.needs.remove(&Need::Room);
     cases.push(p);
     let mut p = original.clone();
     p.profiles[0].character.needs.insert(Need::Energy, 101);
     cases.push(p);
-    let mut p = original.clone();
-    p.profiles[0].home.permissions.purchase = Availability::Unavailable {
-        reason: String::new(),
-    };
-    cases.push(p);
     let mut p = original;
-    for index in 0..4 {
-        let mut profile = p.profiles[0].clone();
-        profile.character.id = format!("extra-{index}").into();
-        profile.home.owner_id = profile.character.id.clone();
-        p.profiles.push(profile);
-    }
+    p.profiles[0].home.permissions.purchase = Availability::Unavailable { reason: String::new() };
     cases.push(p);
-    for p in cases {
-        assert!(p.validate().is_err());
+    for projection in cases {
+        assert!(projection.validate().is_err());
     }
 }
 
 #[test]
-fn authored_catalog_rejects_changed_prices_shapes_categories_and_unknown_records() {
-    let original = fixture();
-    let mut p = original.clone();
-    p.catalog[0].price = 1;
+fn arbitrary_supplied_categories_rotation_and_prices_are_validated_by_structure() {
+    let mut p = fixture();
+    p.catalog_categories.push(CatalogCategory { id: "source-musical".into(), label: "Musical instruments".into() });
+    p.catalog[0].category = "source-musical".into();
+    p.catalog[0].id = "source-piano".into();
+    p.catalog[0].source_key = "00000000A0010000:00000001".into();
+    p.catalog[0].price = 4500;
+    p.catalog[0].footprint = Footprint { width: 3, depth: 2 };
+    p.catalog[0].rotations = vec![Direction::East, Direction::West];
+    p.validate().unwrap();
+    assert_eq!(p.catalog[0].next_direction(Direction::East), Some(Direction::West));
+    assert!(p.catalog[0].can_rotate());
+    let good = p.clone();
+    p.catalog[0].price = -1;
     assert!(p.validate().is_err());
-    let mut p = original.clone();
-    p.catalog[0].footprint.width = 8;
+    let mut p = good.clone();
+    p.catalog[0].category = "missing".into();
     assert!(p.validate().is_err());
-    let mut p = original.clone();
-    p.catalog[0].category = CatalogCategory::Decor;
+    let mut p = good.clone();
+    p.catalog[0].rotations.push(Direction::East);
     assert!(p.validate().is_err());
-    let mut p = original.clone();
-    p.catalog[0].id = "unknown".into();
-    assert!(p.validate().is_err());
-    let mut p = original.clone();
+    let mut p = good;
     p.catalog.push(p.catalog[0].clone());
     assert!(p.validate().is_err());
-    let mut p = original;
-    p.catalog.clear();
-    p.validate().unwrap();
 }
 
 #[test]
-fn snapshot_rejects_duplicate_unknown_overlapping_entry_and_outside_instances() {
+fn placement_validation_uses_supplied_bounds_reserved_cells_and_distinct_levels() {
     let mut original = fixture();
-    original.profiles[0].home.instances.push(OwnedInstance {
-        id: "chair-1".into(),
-        catalog_id: "armchair".into(),
-        placement: Some(GridPose {
-            cell: GridCell { x: 1, y: 1 },
-            direction: Direction::North,
-        }),
-    });
+    original.profiles[0].home.lot.levels = vec![0, 1];
+    original.profiles[0].home.instances = vec![
+        OwnedInstance { id: "chair-1".into(), catalog_id: "armchair".into(), placement: Some(pose(1, 1, 0, Direction::North)) },
+        OwnedInstance { id: "chair-2".into(), catalog_id: "armchair".into(), placement: Some(pose(1, 1, 1, Direction::North)) },
+    ];
     original.validate().unwrap();
+    let mut p = original.clone();
+    p.profiles[0].home.instances[1].placement = Some(pose(1, 1, 0, Direction::North));
+    assert!(p.validate().is_err());
     let mut p = original.clone();
     p.profiles[1].home.instances = p.profiles[0].home.instances.clone();
     assert!(p.validate().is_err());
     let mut p = original.clone();
-    p.profiles[0].home.instances[0].catalog_id = "unknown".into();
+    p.profiles[0].home.instances[0].catalog_id = "missing".into();
     assert!(p.validate().is_err());
-    let mut p = original.clone();
-    p.profiles[0].home.instances[0].id = "bad id".into();
-    assert!(p.validate().is_err());
-    for cell in [
-        GridCell { x: 0, y: 0 },
-        GridCell { x: -1, y: 3 },
-        GridCell { x: 8, y: 1 },
-        GridCell { x: 1, y: 6 },
+    for candidate in [
+        pose(0, 0, 0, Direction::North),
+        pose(-1, 3, 0, Direction::North),
+        pose(8, 1, 0, Direction::North),
+        pose(1, 6, 0, Direction::North),
+        pose(1, 1, 7, Direction::North),
     ] {
         let mut p = original.clone();
-        p.profiles[0].home.instances[0]
-            .placement
-            .as_mut()
-            .unwrap()
-            .cell = cell;
+        p.profiles[0].home.instances[0].placement = Some(candidate);
         assert!(p.validate().is_err());
     }
-    let mut p = original.clone();
-    let mut duplicate_cell = p.profiles[0].home.instances[0].clone();
-    duplicate_cell.id = "chair-2".into();
-    p.profiles[0].home.instances.push(duplicate_cell);
-    assert!(p.validate().is_err());
-    let mut p = original;
-    p.profiles[0].home.instances = (0..65)
-        .map(|i| OwnedInstance {
-            id: format!("stored-{i}").into(),
-            catalog_id: "fern".into(),
-            placement: None,
-        })
-        .collect();
-    assert!(p.validate().is_err());
 }
 
 #[test]
-fn rotated_footprints_use_integer_cells_and_reserve_the_entrance() {
+fn rotated_footprints_return_level_aware_cells_without_a_global_room_size() {
     let footprint = Footprint { width: 2, depth: 1 };
+    let mut lot = fixture().profiles.remove(0).home.lot;
+    assert_eq!(footprint.rotated(Direction::East), Footprint { width: 1, depth: 2 });
     assert_eq!(
-        footprint.rotated(Direction::North),
-        Footprint { width: 2, depth: 1 }
+        footprint.cells(pose(2, 3, 0, Direction::East), &lot).unwrap(),
+        [LotCell { cell: GridCell { x: 2, y: 3 }, level: 0 }, LotCell { cell: GridCell { x: 2, y: 4 }, level: 0 }]
     );
-    assert_eq!(
-        footprint.rotated(Direction::East),
-        Footprint { width: 1, depth: 2 }
-    );
-    assert_eq!(
-        footprint.rotated(Direction::South),
-        Footprint { width: 2, depth: 1 }
-    );
-    assert_eq!(
-        footprint.rotated(Direction::West),
-        Footprint { width: 1, depth: 2 }
-    );
-    assert_eq!(
-        footprint
-            .cells(GridPose {
-                cell: GridCell { x: 2, y: 3 },
-                direction: Direction::East
-            })
-            .unwrap(),
-        [GridCell { x: 2, y: 3 }, GridCell { x: 2, y: 4 }]
-    );
-    assert_eq!(
-        footprint.cells(GridPose {
-            cell: GridCell { x: 7, y: 5 },
-            direction: Direction::North
-        }),
-        Err(AuthoringError::OutOfBounds)
-    );
-    assert_eq!(
-        footprint.cells(GridPose {
-            cell: GridCell { x: 0, y: 0 },
-            direction: Direction::North
-        }),
-        Err(AuthoringError::EntranceReserved)
-    );
-    assert_eq!(
-        Direction::North
-            .clockwise()
-            .clockwise()
-            .clockwise()
-            .clockwise(),
-        Direction::North
-    );
+    assert_eq!(footprint.cells(pose(7, 5, 0, Direction::North), &lot), Err(AuthoringError::OutOfBounds));
+    lot.bounds.width = 64;
+    lot.bounds.depth = 48;
+    lot.levels.push(3);
+    assert_eq!(footprint.cells(pose(31, 42, 3, Direction::North), &lot).unwrap().len(), 2);
+    assert_eq!(footprint.cells(pose(0, 0, 0, Direction::North), &lot), Err(AuthoringError::EntranceReserved));
 }

@@ -5,6 +5,7 @@ use wonderland_contracts::authoring::*;
 fn pose(x: i16, y: i16, direction: Direction) -> GridPose {
     GridPose {
         cell: GridCell { x, y },
+        level: 0,
         direction,
     }
 }
@@ -17,6 +18,7 @@ fn request(
     AuthoringRequest {
         operation_id: operation.into(),
         base_revision: projection.revision,
+        expected_sources: projection.source_revisions(&kind),
         kind,
     }
 }
@@ -135,6 +137,7 @@ fn permission_budget_entry_bounds_and_capacity_are_rechecked_at_the_provider_bou
             "entry" => placement.cell = GridCell { x: 0, y: 0 },
             "outside" => placement.cell = GridCell { x: 8, y: 2 },
             "capacity" => {
+                projection.profiles[0].home.instance_capacity = CapacityPolicy::Limited { maximum: 64 };
                 projection.profiles[0].home.instances = (0..64)
                     .map(|i| OwnedInstance {
                         id: format!("stored-{i}").into(),
@@ -361,6 +364,7 @@ fn another_actor_cannot_spend_owner_money_or_move_store_or_place_their_instances
 #[test]
 fn stored_instances_count_toward_capacity_but_can_be_placed_again_at_capacity() {
     let mut projection = preview_authoring_projection();
+    projection.profiles[0].home.instance_capacity = CapacityPolicy::Limited { maximum: 64 };
     projection.profiles[0].home.instances = (0..64)
         .map(|i| OwnedInstance {
             id: format!("owned-{i}").into(),

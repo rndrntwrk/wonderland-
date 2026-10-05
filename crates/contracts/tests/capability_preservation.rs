@@ -2,7 +2,7 @@ use serde_json::{Value, json};
 use wonderland_contracts::authoring::AuthoringProjection;
 
 fn fixture_value() -> Value {
-    serde_json::from_str(include_str!("../../../fixtures/ui/authoring-v1.json")).unwrap()
+    serde_json::from_str(include_str!("../../../fixtures/ui/authoring-v2.json")).unwrap()
 }
 
 #[test]

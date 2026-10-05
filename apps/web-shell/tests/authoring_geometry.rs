@@ -1,6 +1,11 @@
-use wonderland_contracts::authoring::{Direction, Footprint, GridCell, GridPose};
+use wonderland_contracts::authoring::{Direction, Footprint, GridCell, GridPose, LotBounds};
 use wonderland_web_shell::authoring_geometry::*;
 use wonderland_web_shell::geometry::{Point, Size};
+fn pick(camera: HomeCamera, screen: Point) -> Option<GridCell> {
+    wonderland_web_shell::authoring_geometry::pick(camera, screen, LotBounds {
+        origin: GridCell { x: 0, y: 0 }, width: 8, depth: 6,
+    })
+}
 #[test]
 fn affine_round_trips_with_pan_zoom_and_edges() {
     let mut camera = HomeCamera::new(Size {
@@ -39,6 +44,7 @@ fn rotated_extent_and_sprite_width_are_stable() {
     let f = Footprint { width: 2, depth: 1 };
     let pose = GridPose {
         cell: GridCell { x: 3, y: 2 },
+        level: 0,
         direction: Direction::East,
     };
     assert_eq!(f.rotated(pose.direction), Footprint { width: 1, depth: 2 });
@@ -100,20 +106,20 @@ fn mobile_edge_placements_and_rotations_reveal_actual_sprite_and_footprint() {
             for cell in [
                 GridCell {
                     x: 0,
-                    y: 6 - i16::from(f.depth),
+                    y: 6 - i16::try_from(f.depth).unwrap(),
                 },
                 GridCell {
-                    x: 8 - i16::from(f.width),
+                    x: 8 - i16::try_from(f.width).unwrap(),
                     y: 0,
                 },
                 GridCell { x: 1, y: 0 },
                 GridCell {
-                    x: 8 - i16::from(f.width),
-                    y: 6 - i16::from(f.depth),
+                    x: 8 - i16::try_from(f.width).unwrap(),
+                    y: 6 - i16::try_from(f.depth).unwrap(),
                 },
             ] {
-                let pose = GridPose { cell, direction };
-                assert!(item.footprint.cells(pose).is_ok());
+                let pose = GridPose { cell, level: 0, direction };
+                assert!(item.footprint.cells(pose, &projection.profiles[0].home.lot).is_ok());
                 let mut camera = HomeCamera::new(Size {
                     width: 390.,
                     height: 654.,
@@ -182,6 +188,7 @@ fn oversized_furniture_fits_by_zooming_out_or_centers_at_minimum_zoom() {
     let f = Footprint { width: 2, depth: 1 };
     let pose = GridPose {
         cell: GridCell { x: 0, y: 4 },
+        level: 0,
         direction: Direction::North,
     };
     let bounds = furniture_bounds("bookcase", f, pose);

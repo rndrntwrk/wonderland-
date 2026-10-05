@@ -1,7 +1,6 @@
-//! Shared rules for this bounded fixture and strict receipt delta validation.
+//! Shared request checks and strict receipt delta validation.
 //! These rules are not a simulation or a replacement for a live authority adapter.
 
-use super::preview_authoring_projection;
 use std::collections::BTreeSet;
 use wonderland_contracts::authoring::*;
 use wonderland_contracts::{Availability, CharacterId};
@@ -52,7 +51,10 @@ fn placement(
     pose: GridPose,
     ignore_instance: Option<&OwnedInstanceId>,
 ) -> Result<(), AuthoringError> {
-    let candidate: BTreeSet<_> = item.footprint.cells(pose)?.into_iter().collect();
+    if !item.rotations.contains(&pose.direction) {
+        return Err(AuthoringError::Unavailable("This item does not support the requested orientation".into()));
+    }
+    let candidate: BTreeSet<_> = item.footprint.cells(pose, &home.lot)?.into_iter().collect();
     for instance in &home.instances {
         if ignore_instance == Some(&instance.id) {
             continue;
@@ -63,7 +65,7 @@ fn placement(
                 .ok_or(AuthoringError::UnknownCatalogItem)?;
             if occupied_item
                 .footprint
-                .cells(placed)?
+                .cells(placed, &home.lot)?
                 .iter()
                 .any(|cell| candidate.contains(cell))
             {
@@ -82,25 +84,33 @@ pub(super) fn validate_kind(
     projection.validate()?;
     match kind {
         AuthoringRequestKind::CreateProfile {
-            name,
-            identity,
-            look_id,
+            name, description, shard_id, appearance,
         } => {
-            let normalized = normalize_profile_name(name)?;
-            if &normalized != name {
-                return Err(AuthoringError::InvalidName("Submit a trimmed name".into()));
-            }
-            if look_id.style_for(*identity).is_none() {
-                return Err(AuthoringError::InvalidLook);
-            }
-            if projection.profiles.len() >= MAX_PROFILES {
-                return Err(AuthoringError::ProfileLimit);
-            }
+            projection.creation_allowed()?;
+            projection.account.fields.validate_fields(name, description)?;
+            projection.account.validate_shard(shard_id)?;
+            projection.appearance_content.validate_selection(appearance)?;
         }
-        AuthoringRequestKind::SetOutfit { actor_id, look_id } => {
+        AuthoringRequestKind::SetOutfit { actor_id, owned_outfit_id, action } => {
             let profile = actor(projection, actor_id)?;
-            if look_id.style_for(profile.identity).is_none() {
-                return Err(AuthoringError::InvalidLook);
+            let outfit = profile.wardrobe.outfit(owned_outfit_id)
+                .ok_or(AuthoringError::UnknownOutfit)?;
+            let offer = outfit.actions.iter().find(|offer| offer.action == *action)
+                .ok_or_else(|| AuthoringError::Unavailable("This wardrobe action is not supplied".into()))?;
+            ensure_available(&offer.availability)?;
+            if *action == WardrobeAction::Change {
+                let category = profile.wardrobe.categories.iter().find(|category| category.id == outfit.category_id)
+                    .ok_or(AuthoringError::UnknownOutfit)?;
+                let options = match category.slot {
+                    AppearanceSlot::Head => &projection.appearance_content.heads,
+                    AppearanceSlot::Body => &projection.appearance_content.bodies,
+                    AppearanceSlot::Decoration => return Ok(()),
+                };
+                if options.iter().find(|option| option.key == outfit.content_key)
+                    .is_some_and(|option| !option.compatible(&profile.appearance))
+                {
+                    return Err(AuthoringError::InvalidAppearance("This owned outfit is incompatible with the current gender or skin tone".into()));
+                }
             }
         }
         AuthoringRequestKind::BuyAndPlace {
@@ -117,8 +127,13 @@ pub(super) fn validate_kind(
             if profile.character.money < item.price {
                 return Err(AuthoringError::InsufficientFunds);
             }
-            if profile.home.instances.len() >= MAX_OWNED_INSTANCES {
-                return Err(AuthoringError::InventoryLimit);
+            match profile.home.instance_capacity.allows_addition(profile.home.instances.len()) {
+                Some(true) => {},
+                Some(false) => return Err(AuthoringError::InventoryLimit),
+                None => return Err(AuthoringError::Unavailable("The lot service has not supplied ownership capacity".into())),
+            }
+            if projection.profiles.iter().map(|profile| profile.home.instances.len()).sum::<usize>() >= MAX_OWNED_RECORDS {
+                return Err(AuthoringError::SafetyLimit);
             }
             placement(projection, &profile.home, item, *pose, None)?;
         }
@@ -203,6 +218,7 @@ pub(super) fn after_outcome(
     kind: &AuthoringRequestKind,
     outcome: &AuthoringOutcome,
     revision: u64,
+    created_profile: Option<&AuthoringProfile>,
 ) -> Result<AuthoringProjection, AuthoringError> {
     validate_kind(projection, kind)?;
     if revision <= projection.revision {
@@ -212,33 +228,58 @@ pub(super) fn after_outcome(
     match (kind, outcome) {
         (
             AuthoringRequestKind::CreateProfile {
-                name,
-                identity,
-                look_id,
+                name, description, shard_id, appearance,
             },
             AuthoringOutcome::ProfileCreated { character_id },
         ) => {
-            if !is_valid_authoring_id(character_id.as_ref())
-                || projection.profile(character_id).is_some()
+            if !is_valid_authoring_id(character_id.as_ref()) || projection.profile(character_id).is_some() {
+                return Err(AuthoringError::InvalidOutcome);
+            }
+            let profile = created_profile.ok_or(AuthoringError::InvalidOutcome)?;
+            if profile.character.id != *character_id
+                || profile.character.name != *name
+                || profile.description != *description
+                || profile.shard_id != *shard_id
+                || profile.appearance != *appearance
+                || profile.home.owner_id != *character_id
+                || profile.portrait.is_some()
             {
                 return Err(AuthoringError::InvalidOutcome);
             }
-            let mut profile = preview_authoring_projection()
-                .profiles
-                .into_iter()
-                .find(|profile| profile.identity == *identity)
-                .ok_or(AuthoringError::InvalidLook)?;
-            profile.character.id = character_id.clone();
-            profile.character.name = name.clone();
-            profile.look_id = look_id.clone();
-            profile.home.owner_id = character_id.clone();
-            next.profiles.push(profile);
+            // Initial money, needs and lot data come from the accepting service.
+            // Only this new profile may differ; the complete delta is compared.
+            next.profiles.push(profile.clone());
         }
         (
-            AuthoringRequestKind::SetOutfit { actor_id, look_id },
+            AuthoringRequestKind::SetOutfit { actor_id, owned_outfit_id, action },
             AuthoringOutcome::OutfitSaved { character_id },
         ) if actor_id == character_id => {
-            profile_mut(&mut next, actor_id)?.look_id = look_id.clone();
+            let profile = profile_mut(&mut next, actor_id)?;
+            let outfit = profile.wardrobe.outfit(owned_outfit_id)
+                .ok_or(AuthoringError::UnknownOutfit)?.clone();
+            let category = profile.wardrobe.categories.iter().find(|category| category.id == outfit.category_id)
+                .ok_or(AuthoringError::UnknownOutfit)?.clone();
+            match action {
+                WardrobeAction::Change => match category.slot {
+                    AppearanceSlot::Head => profile.appearance.head = Some(outfit.content_key),
+                    AppearanceSlot::Body => profile.appearance.body = Some(outfit.content_key),
+                    AppearanceSlot::Decoration => {
+                        profile.appearance.decorations.insert(category.id, outfit.content_key);
+                    }
+                },
+                WardrobeAction::SetDefault => {
+                    for owned in &mut profile.wardrobe.outfits {
+                        if owned.category_id == outfit.category_id {
+                            owned.is_default = owned.id == *owned_outfit_id;
+                        }
+                    }
+                }
+                WardrobeAction::Delete => {
+                    profile.wardrobe.outfits.retain(|owned| &owned.id != owned_outfit_id);
+                }
+            }
+            profile.wardrobe.revision = profile.wardrobe.revision.checked_add(1)
+                .ok_or(AuthoringError::OperationLimit)?;
         }
         (
             AuthoringRequestKind::BuyAndPlace {
@@ -316,6 +357,17 @@ pub(super) fn after_outcome(
             instance_mut(&mut next, owner_id, instance_id)?.placement = None;
         }
         _ => return Err(AuthoringError::InvalidOutcome),
+    }
+    let changed_home = match outcome {
+        AuthoringOutcome::Purchased { owner_id, .. }
+        | AuthoringOutcome::Moved { owner_id, .. }
+        | AuthoringOutcome::Stored { owner_id, .. }
+        | AuthoringOutcome::Placed { owner_id, .. } => Some(owner_id),
+        _ => None,
+    };
+    if let Some(owner) = changed_home {
+        let home = &mut profile_mut(&mut next, owner)?.home;
+        home.lot.revision = home.lot.revision.checked_add(1).ok_or(AuthoringError::OperationLimit)?;
     }
     next.revision = revision;
     next.validate()?;
