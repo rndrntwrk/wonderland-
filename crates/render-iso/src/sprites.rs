@@ -204,10 +204,8 @@ impl PreparedSprite {
             }
             let u = (x as f32 + 0.5) / self.asset.physical_size[0] as f32;
             let v = (y as f32 + 0.5) / self.asset.physical_size[1] as f32;
-            let mx = ((u * m.physical_size[0] as f32).floor() as u32)
-                .min(m.physical_size[0] - 1);
-            let my = ((v * m.physical_size[1] as f32).floor() as u32)
-                .min(m.physical_size[1] - 1);
+            let mx = ((u * m.physical_size[0] as f32).floor() as u32).min(m.physical_size[0] - 1);
+            let my = ((v * m.physical_size[1] as f32).floor() as u32).min(m.physical_size[1] - 1);
             // Clamp at the uploaded texture boundary. Padding inside that
             // boundary stays transparent instead of repeating a logical edge.
             if mx >= m.rgba.width || my >= m.rgba.height {

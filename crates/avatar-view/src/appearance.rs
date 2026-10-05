@@ -277,7 +277,7 @@ impl AppearanceCatalog {
             }
         }
         Ok(AppearanceBundle {
-            rig_key: rig.key,
+            rig_key: rig.key(),
             skin: selection.skin,
             parts,
         })
@@ -289,21 +289,7 @@ impl AppearanceBundle {
             return Err(AvatarError::Limit("installed parts"));
         }
         for p in &self.parts {
-            if p.mesh.rig_key != self.rig_key
-                || p.mesh.indices.len() % 3 != 0
-                || p.mesh
-                    .indices
-                    .iter()
-                    .any(|i| *i as usize >= p.mesh.vertices.len())
-                || p.mesh.vertices.iter().any(|v| {
-                    !v.primary_position.is_finite()
-                        || !v.secondary_position.is_finite()
-                        || !v.primary_normal.is_finite()
-                        || !v.secondary_normal.is_finite()
-                        || !v.uv.is_finite()
-                        || !v.weight.is_finite()
-                })
-            {
+            if p.mesh.rig_key != self.rig_key || p.mesh.validate().is_err() {
                 return Err(AvatarError::Invalid("installed appearance"));
             }
         }

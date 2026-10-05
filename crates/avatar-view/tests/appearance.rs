@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use wonderland_avatar_view::*;
-use wonderland_render_core::{AssetKey, EntityRef};
+use wonderland_render_core::{math::Mat4, AssetKey, EntityRef};
 fn catalog() -> (Rig, AppearanceCatalog, FileKey) {
     let rig = fixtures::synthetic_rig();
     let mut c = AppearanceCatalog::default();
@@ -112,7 +112,7 @@ fn three_skins_hands_and_deduplicated_accessories_keep_resource_ids() {
         let bundle = c.compose(&rig, &s, AvatarLimits::default()).unwrap();
         assert_eq!(bundle.parts.len(), 5);
         assert_eq!(bundle.parts[0].mesh_resource.group_id, 42);
-        assert_eq!(bundle.parts[0].mesh.rig_key, rig.key);
+        assert_eq!(bundle.parts[0].mesh.rig_key, rig.key());
         assert_eq!(bundle.parts[0].mesh.vertices[0].primary_joint, 0);
         assert_eq!(bundle.skin, skin);
         assert_eq!(bundle.parts[0].appearance.file_id, 200 + skin as u32);
@@ -178,7 +178,7 @@ fn failed_and_late_outfits_do_not_partially_replace_live_resources() {
         .install(
             current,
             AppearanceBundle {
-                rig_key: rig.key,
+                rig_key: rig.key(),
                 skin: Skin::Light,
                 parts: vec![]
             }
@@ -240,4 +240,76 @@ fn normalized_hand_group_file_order_differs_from_gesture_enum() {
         117
     );
     assert!(HandGroup::from_source_refs(&refs[..17]).is_err());
+}
+
+#[test]
+fn out_of_palette_joints_cannot_replace_a_working_appearance() {
+    let (rig, c, id) = catalog();
+    let selection = AppearanceSelection {
+        body: Some(id),
+        left: Gesture::None,
+        right: Gesture::None,
+        ..AppearanceSelection::default()
+    };
+    let original = c
+        .compose(&rig, &selection, AvatarLimits::default())
+        .unwrap();
+    let shared = original.parts[0].mesh.clone();
+    let mut state = AppearanceState::new(EntityRef {
+        object_id: 1,
+        generation: 1,
+    });
+    let first = state.request().unwrap();
+    state.install(first, original.clone()).unwrap();
+    let pose = rig.bind_pose();
+    assert!(shared.skin(&pose, Mat4::IDENTITY).is_ok());
+
+    for secondary in [false, true] {
+        let mut malformed = original.clone();
+        let vertex = &mut Arc::make_mut(&mut malformed.parts[0].mesh).vertices[0];
+        // This index is below the configured maximum but outside this two-bone rig.
+        if secondary {
+            vertex.secondary_joint = 2;
+        } else {
+            vertex.primary_joint = 2;
+        }
+        let request = state.request().unwrap();
+        assert!(state.install(request, malformed).is_err());
+        let retained = &state.current().unwrap().parts[0].mesh;
+        assert!(Arc::ptr_eq(retained, &shared));
+        assert!(retained.skin(&pose, Mat4::IDENTITY).is_ok());
+        // A rejected candidate does not consume or invalidate the current request.
+        state.install(request, original.clone()).unwrap();
+    }
+}
+
+#[test]
+fn retagging_a_prepared_mesh_cannot_forge_its_rig_binding() {
+    let (rig, c, id) = catalog();
+    let selection = AppearanceSelection {
+        body: Some(id),
+        left: Gesture::None,
+        right: Gesture::None,
+        ..AppearanceSelection::default()
+    };
+    let original = c
+        .compose(&rig, &selection, AvatarLimits::default())
+        .unwrap();
+    let shared = original.parts[0].mesh.clone();
+    let mut state = AppearanceState::new(EntityRef {
+        object_id: 1,
+        generation: 1,
+    });
+    let first = state.request().unwrap();
+    state.install(first, original.clone()).unwrap();
+
+    let mut malformed = original;
+    let forged_key = AssetKey([99; 32]);
+    malformed.rig_key = forged_key;
+    Arc::make_mut(&mut malformed.parts[0].mesh).rig_key = forged_key;
+    let request = state.request().unwrap();
+    assert!(state.install(request, malformed).is_err());
+    let retained = &state.current().unwrap().parts[0].mesh;
+    assert!(Arc::ptr_eq(retained, &shared));
+    assert!(retained.skin(&rig.bind_pose(), Mat4::IDENTITY).is_ok());
 }

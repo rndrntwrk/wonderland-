@@ -62,6 +62,8 @@ pub struct VisualLot {
     pub grass: Vec<u8>,
     pub terrain_light: [f32; 4],
     pub terrain_dark: [f32; 4],
+    pub roof_average_color: [f32; 4],
+    pub roof_texture_scale: f32,
     /// Row-major tiles, then one-based levels.
     pub tiles: Vec<VisualTile>,
     pub roof: Option<RoofStyle>,
@@ -81,6 +83,8 @@ impl VisualLot {
             grass: vec![0; area],
             terrain_light: [0.4, 0.7, 0.25, 1.],
             terrain_dark: [0.45, 0.3, 0.15, 1.],
+            roof_average_color: [1.; 4],
+            roof_texture_scale: 1.,
             tiles: vec![VisualTile::default(); cells],
             roof: None,
         })
@@ -134,6 +138,13 @@ impl VisualLot {
             if !r.pitch.is_finite() || r.pitch < 0. || r.pitch > 4. {
                 return Err(Error::InvalidInput("roof pitch"));
             }
+        }
+        if self.roof_average_color.iter().any(|v| !v.is_finite())
+            || !self.roof_texture_scale.is_finite()
+            || self.roof_texture_scale <= 0.
+            || self.roof_texture_scale > 1_000_000.
+        {
+            return Err(Error::InvalidInput("roof texture appearance"));
         }
         Ok(())
     }
@@ -345,6 +356,45 @@ pub fn pool_neighbors(lot: &VisualLot, p: TileCoord) -> u8 {
         }
     }
     mask
+}
+pub fn effective_floor_pattern(
+    lot: &VisualLot,
+    p: TileCoord,
+    pattern: u16,
+    build_mode: bool,
+    legacy_pool_variant: bool,
+) -> Result<u16, Error> {
+    lot.validate()?;
+    let tile = &lot.tiles[lot
+        .tile_index(p)
+        .ok_or(Error::InvalidInput("floor pattern tile"))?];
+    if build_mode && pattern == 0 && p.level > 1 {
+        return Ok(if tile.supported { SUPPORTED_AIR } else { 0 });
+    }
+    if pattern < WATER || (pattern == POOL && !legacy_pool_variant) {
+        return Ok(pattern);
+    }
+    let mut selector = 0;
+    for (dx, dy, bit) in [(0, -1, 1), (-1, 0, 2), (0, 1, 4), (1, 0, 8)] {
+        let x = i32::from(p.x) + dx;
+        let y = i32::from(p.y) + dy;
+        if x <= 0
+            || y <= 0
+            || x >= i32::from(lot.width) - 1
+            || y >= i32::from(lot.height) - 1
+            || lot
+                .get(x, y, p.level)
+                .map(|t| t.floor == pattern)
+                .unwrap_or(false)
+        {
+            selector |= bit;
+        }
+    }
+    Ok(if pattern == POOL {
+        65520 + selector
+    } else {
+        65504 + selector
+    })
 }
 pub fn roofable(lot: &VisualLot, x: i32, y: i32, level: u8) -> bool {
     lot.validate().is_ok() && roofs::roofable(lot, x, y, level)
@@ -675,9 +725,14 @@ fn add_floor(
     } else {
         (SurfaceKind::Floor, 0.)
     };
+    let material = if id == WATER {
+        effective_floor_pattern(lot, p, id, false, false)?
+    } else {
+        id
+    };
     a.add(
         kind,
-        u32::from(id),
+        u32::from(material),
         0,
         Some(p),
         p.level,

@@ -551,20 +551,10 @@ fn framebuffer_cache_restore_matches_direct_sprites_at_fractional_zoom_and_negat
             let mut im = image(vec![Some(layer(1, 8, 8, DepthInput::Constant(128)))]);
             im.direction = 1u8.rotate_left(u32::from(rotation as u8) * 2);
             let images = [im];
-            let old = prepare_sprites(
-                &stored,
-                &instance(),
-                &images,
-                &PreparePolicy::default(),
-            )
-            .unwrap();
-            let direct = prepare_sprites(
-                &current,
-                &instance(),
-                &images,
-                &PreparePolicy::default(),
-            )
-            .unwrap();
+            let old =
+                prepare_sprites(&stored, &instance(), &images, &PreparePolicy::default()).unwrap();
+            let direct =
+                prepare_sprites(&current, &instance(), &images, &PreparePolicy::default()).unwrap();
             let stored_pixel = stored.sprite_screen_offset() * -1.;
             let current_pixel = current.sprite_screen_offset() * -1.;
             assert!(stored_pixel.x < 0. && current_pixel.x < 0.);
@@ -594,8 +584,14 @@ fn framebuffer_cache_restore_matches_direct_sprites_at_fractional_zoom_and_negat
                 .iter()
                 .zip(&direct.sprites[0].mesh.vertices)
             {
-                near(cached.position.x + restore.destination.x, current.position.x);
-                near(cached.position.y + restore.destination.y, current.position.y);
+                near(
+                    cached.position.x + restore.destination.x,
+                    current.position.x,
+                );
+                near(
+                    cached.position.y + restore.destination.y,
+                    current.position.y,
+                );
             }
             assert_eq!(restore.destination.width, 800.);
             assert_eq!(restore.destination.height, 600.);

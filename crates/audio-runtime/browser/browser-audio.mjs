@@ -64,7 +64,7 @@ export class BrowserAudio {
       if(this._generation!==null&&generation>this._generation)this.reset();
       if(this._voices.size+this._completed.length>=this._maxVoices)throw Error('voice budget exceeded');
       this._generation=generation;this._serial=serial;
-      const voice={id,key,asset:data.sample,gain:data.gain,pan:data.pan,group:data.group,looped:data.looped,seek,offset:0,paused:false,status:'queued',node:null,gainNode:null,panNode:null,startedAt:0,epoch:this._epoch};
+      const voice={id,key,asset:Array.isArray(data.sample)?data.sample.slice():data.sample,gain:data.gain,pan:data.pan,group:data.group,looped:data.looped,seek,offset:0,paused:false,status:'queued',node:null,gainNode:null,panNode:null,startedAt:0,epoch:this._epoch};
       this._voices.set(id,voice);this._queue.push(id);this._pump();this._flush();return;
     }
     if(!['Stop','Release','Pause','Resume','SetGainPan'].includes(kind))throw Error('unknown mixer intent');
@@ -74,10 +74,21 @@ export class BrowserAudio {
     if(kind==='Stop'||kind==='Release'){this._finish(voice,true);this._flush();this._pump();}
     else if(kind==='SetGainPan'){voice.gain=data.gain;voice.pan=data.pan;voice.gainNode?.gain.setValueAtTime(data.gain,this._context.currentTime);voice.panNode?.pan.setValueAtTime(data.pan,this._context.currentTime);}
     else if(kind==='Pause'){voice.paused=true;if(voice.node){this._savePhase(voice);this._releaseNodes(voice,true);voice.status='ready';}}
-    else if(kind==='Resume'){voice.paused=false;if(voice.status==='ready')this._start(voice);else{this._pump();this._flush();}}
+    else if(kind==='Resume'){
+      voice.paused=false;
+      if(voice.status==='ready'&&this.state==='running')this._start(voice);
+      else{if(voice.status==='ready'&&!this._queue.includes(voice.id))this._queue.push(voice.id);this._pump();this._flush();}
+    }
   }
   _error(error){this._errors=Math.min(Number.MAX_SAFE_INTEGER,this._errors+1);this._lastError=String(error?.message??error).slice(0,1024);}
   _needed(key,epoch){return epoch===this._epoch&&this.state!=='disposed'&&[...this._voices.values()].some(v=>v.key===key&&v.epoch===epoch);}
+  _ownsRequest(request){return !request.cancelled&&this._inflight.get(request.key)===request&&this._needed(request.key,request.epoch);}
+  _cancelRequest(request){
+    request.cancelled=true;
+    if(this._inflight.get(request.key)===request)this._inflight.delete(request.key);
+    request.controller.abort();
+    // Keep the unsettled request and PCM reservation charged until finally.
+  }
   _pump() {
     if(!this._context||this.state!=='running')return;
     for(const voice of this._voices.values()){
@@ -85,18 +96,18 @@ export class BrowserAudio {
       if(this._cache.has(voice.key)){voice.status='ready';continue;}
       if(this._inflight.has(voice.key)){voice.status='loading';continue;}
       if(this._requests.size>=this._maxDecodes)break;
-      const request={key:voice.key,epoch:this._epoch,controller:new AbortController(),promise:null,reserved:0};
+      const request={key:voice.key,epoch:this._epoch,controller:new AbortController(),promise:null,reserved:0,cancelled:false};
       this._inflight.set(voice.key,request);this._requests.add(request);voice.status='loading';
       request.promise=Promise.resolve().then(()=>this._load(voice.asset,{signal:request.controller.signal})).then(async resource=>{
-        if(!this._needed(request.key,request.epoch))return;
+        if(!this._ownsRequest(request))return;
         const buffer=await this._decode(resource,request);
-        if(!this._needed(request.key,request.epoch))return;
+        if(!this._ownsRequest(request))return;
         const bytes=buffer.length*buffer.numberOfChannels*4;
         this._validateBuffer(buffer);this._releaseReservation(request);this._evictFor(bytes);
         this._cache.set(request.key,{buffer,bytes});this._pcmBytes+=bytes;
         for(const v of this._voices.values())if(v.key===request.key&&v.epoch===request.epoch)v.status='ready';
       }).catch(error=>{
-        if(request.epoch===this._epoch&&this.state!=='disposed'){
+        if(this._ownsRequest(request)){
           this._error(error);
           for(const v of [...this._voices.values()])if(v.key===request.key)this._finish(v,true,true);
         }
@@ -160,7 +171,7 @@ export class BrowserAudio {
     if(this._voices.get(voice.id)!==voice)return;
     this._releaseNodes(voice,stop);this._voices.delete(voice.id);this._queue=this._queue.filter(id=>id!==voice.id);voice.status='finished';
     if(report){const [generation,serial]=voice.id.split(':');this._completed.push({id:voice.id,generation,serial});}
-    if(!this._needed(voice.key,voice.epoch))this._inflight.get(voice.key)?.controller.abort();
+    if(!this._needed(voice.key,voice.epoch)){const request=this._inflight.get(voice.key);if(request&&request.epoch===voice.epoch)this._cancelRequest(request);}
   }
   // Completed voices reserve capacity until drained, so no lifecycle event is
   // silently lost. These identities are presentation feedback, never A acks.
@@ -178,7 +189,7 @@ export class BrowserAudio {
   reset(){
     this._live();this._epoch++;
     for(const voice of [...this._voices.values()])this._finish(voice,true);
-    this._queue=[];this._completed=[];this._cache.clear();this._pcmBytes=0;this._inflight.clear();for(const request of this._requests)request.controller.abort();
+    this._queue=[];this._completed=[];this._cache.clear();this._pcmBytes=0;this._inflight.clear();for(const request of this._requests)this._cancelRequest(request);
     // Outstanding decoder reservations remain charged until those asynchronous
     // requests actually settle; reset storms cannot evade the decode budget.
   }

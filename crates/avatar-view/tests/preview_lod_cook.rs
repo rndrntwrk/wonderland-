@@ -12,7 +12,7 @@ fn bundle(rig: &Rig, mesh: Arc<PreparedMesh>) -> Arc<AppearanceBundle> {
         type_id: 3,
     };
     Arc::new(AppearanceBundle {
-        rig_key: rig.key,
+        rig_key: rig.key(),
         skin: Skin::Light,
         parts: vec![AppearancePart {
             role: PartRole::Body,

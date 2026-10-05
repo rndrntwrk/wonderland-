@@ -40,16 +40,33 @@ pub struct MeshResolver {
     entries: BTreeMap<[u8; 32], Entry>,
     lru: VecDeque<[u8; 32]>,
     ignored: BTreeSet<[u8; 32]>,
+    ignore_all_generated: bool,
     max_bytes: usize,
     max_entries: usize,
     bytes: usize,
 }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ResolverResidency {
+    pub mesh_bytes: usize,
+    pub entries: usize,
+    pub invalidation_records: usize,
+    pub all_generated_ignored: bool,
+}
 impl MeshResolver {
+    pub fn residency(&self) -> ResolverResidency {
+        ResolverResidency {
+            mesh_bytes: self.bytes,
+            entries: self.entries.len(),
+            invalidation_records: self.ignored.len(),
+            all_generated_ignored: self.ignore_all_generated,
+        }
+    }
     pub fn new(max_bytes: usize, max_entries: usize) -> Self {
         Self {
             entries: BTreeMap::new(),
             lru: VecDeque::new(),
             ignored: BTreeSet::new(),
+            ignore_all_generated: false,
             max_bytes,
             max_entries,
             bytes: 0,
@@ -61,7 +78,8 @@ impl MeshResolver {
         candidates: &Candidates,
         regenerate: impl FnOnce() -> Result<MeshCandidate, Error>,
     ) -> Result<ResolvedMesh, Error> {
-        let memory_key = effective_key(key, candidates, self.ignored.contains(&key.0));
+        let ignored = self.ignore_all_generated || self.ignored.contains(&key.0);
+        let memory_key = effective_key(key, candidates, ignored);
         if let Some(entry) = self.entries.get(&memory_key) {
             let out = ResolvedMesh {
                 candidate: entry.candidate.clone(),
@@ -84,7 +102,7 @@ impl MeshResolver {
             (ResolutionSource::Embedded, candidates.embedded.as_ref()),
             (
                 ResolutionSource::GeneratedCache,
-                if self.ignored.contains(&key.0) {
+                if ignored {
                     None
                 } else {
                     candidates.generated_cache.as_ref()
@@ -152,7 +170,14 @@ impl MeshResolver {
     }
     /// Like legacy ClearCache: authored/user/embedded sources remain eligible.
     pub fn clear_generated(&mut self, key: AssetKey) {
-        self.ignored.insert(key.0);
+        if !self.ignore_all_generated && !self.ignored.contains(&key.0) {
+            if self.ignored.len() >= self.max_entries {
+                self.ignored.clear();
+                self.ignore_all_generated = true;
+            } else {
+                self.ignored.insert(key.0);
+            }
+        }
         let removed: Vec<_> = self
             .entries
             .iter()

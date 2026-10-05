@@ -37,7 +37,9 @@ def run_bounded(argv,work,*,timeout=15,max_file_bytes=MAX_OUTPUT):
                 time.sleep(.01)
         except BaseException:
             stop(child);raise
-    out=stdout_path.read_bytes()[:65536];err=stderr_path.read_bytes()[:65536]
+    with stdout_path.open('rb') as stream:out=stream.read(65537)
+    with stderr_path.open('rb') as stream:err=stream.read(65537)
+    if len(out)>65536 or len(err)>65536:raise RuntimeError('audio process diagnostic budget exceeded')
     if child.returncode:raise RuntimeError(f'audio process failed ({child.returncode}): {err.decode(errors="replace")}')
     if stdout_path.stat().st_size>=max_file_bytes or stderr_path.stat().st_size>=max_file_bytes:raise RuntimeError('audio process output budget reached')
     return out.decode(errors='replace'),err.decode(errors='replace')
@@ -84,9 +86,12 @@ def cook(source,output,*,root,provenance,decoder,metadata=None,ffmpeg=None,timeo
             if frames*channels*2>max_output_bytes:raise ValueError('declared output budget exceeded')
         else:
             if ffmpeg is None:raise ValueError('unsupported input; MP3 requires explicit external codec')
-            # A local snapshot and file-only demuxing prohibit remote codec URLs.
+            if not (raw.startswith(b'ID3') or (len(raw)>=2 and raw[0]==255 and raw[1]&224==224)):
+                raise ValueError('external codec accepts MP3 bytes only')
+            # Force the MP3 demuxer. File-only protocols alone would still allow
+            # a playlist/container to reference other local files.
             version,_=run_bounded([ffmpeg,'-version'],work,timeout=min(timeout,5),max_file_bytes=max_output_bytes);external_version=version.splitlines()[0] if version else 'unknown'
-            run_bounded([ffmpeg,'-nostdin','-v','error','-protocol_whitelist','file,pipe','-i',snapshot,'-map','0:a:0','-vn','-threads','1','-map_metadata','-1','-c:a','pcm_s16le','-f','wav',cooked],work,timeout=timeout,max_file_bytes=max_output_bytes)
+            run_bounded([ffmpeg,'-nostdin','-v','error','-protocol_whitelist','file,pipe','-f','mp3','-i',snapshot,'-map','0:a:0','-vn','-threads','1','-map_metadata','-1','-c:a','pcm_s16le','-f','wav',cooked],work,timeout=timeout,max_file_bytes=max_output_bytes)
             channels,rate,width,frames,_=_wave(cooked,max_output_bytes);backend='external-ffmpeg';normalized=None
         if not cooked.exists():
             run_bounded([pathlib.Path(decoder).resolve(),encoding,str(rate),str(channels),str(width*8),str(frames),str(offset),str(length),payload,cooked],work,timeout=timeout,max_file_bytes=max_output_bytes)

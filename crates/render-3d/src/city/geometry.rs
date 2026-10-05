@@ -57,14 +57,19 @@ fn white_class(c: TerrainClass) -> [f32; 4] {
 }
 
 fn renderer_boundary(boundary: CityBoundary) -> bool {
-    matches!(boundary, CityBoundary::RendererDiamond | CityBoundary::RendererWithFade)
+    matches!(
+        boundary,
+        CityBoundary::RendererDiamond | CityBoundary::RendererWithFade
+    )
 }
 fn row_limits(y: i32) -> (i32, i32) {
     ((y - 306).abs(), if y < 205 { 307 + y } else { 717 - y })
 }
 fn validate_boundary(map: &CityMap, boundary: CityBoundary) -> Result<(), Error> {
     if !matches!(boundary, CityBoundary::Rectangle) && (map.width != 512 || map.height != 512) {
-        return Err(Error::InvalidInput("legacy city boundaries require 512x512 channels"));
+        return Err(Error::InvalidInput(
+            "legacy city boundaries require 512x512 channels",
+        ));
     }
     Ok(())
 }
@@ -109,14 +114,21 @@ fn mesh_tile(map: &CityMap, x: i32, y: i32, color: [f32; 4], boundary: CityBound
             let mut color = color;
             color[3] = opacity(xx, yy, boundary);
             Vertex {
-                position: Vec3::new(xx as f32, f32::from(map.pixel(sample, yy).elevation) / 12., yy as f32),
+                position: Vec3::new(
+                    xx as f32,
+                    f32::from(map.pixel(sample, yy).elevation) / 12.,
+                    yy as f32,
+                ),
                 normal: map.normal(sample, yy),
                 uv: Vec2::new(xx as f32 / 4., yy as f32 / 4.),
                 color,
             }
         })
         .collect();
-    Mesh { vertices, indices: vec![0, 1, 2, 0, 2, 3] }
+    Mesh {
+        vertices,
+        indices: vec![0, 1, 2, 0, 2, 3],
+    }
 }
 fn kind_order(k: CityPartKind) -> u8 {
     match k {
@@ -135,8 +147,12 @@ fn blend_kind(map: &CityMap, x: i32, y: i32, class: TerrainClass) -> Option<(Ter
         let xx = x + dx;
         let yy = y + dy;
         let c = terrain_class(map.pixel(xx, yy).terrain);
-        if xx < 0 || yy < 0 || xx >= i32::from(map.width) || yy >= i32::from(map.height)
-            || c == TerrainClass::Void || (c as u8) <= (class as u8)
+        if xx < 0
+            || yy < 0
+            || xx >= i32::from(map.width)
+            || yy >= i32::from(map.height)
+            || c == TerrainClass::Void
+            || (c as u8) <= (class as u8)
         {
             absence |= bit;
         } else if (c as u8) < (next as u8) {
@@ -153,12 +169,19 @@ fn push_part(
     kind: CityPartKind,
     mesh: Mesh,
 ) -> Result<(), Error> {
-    let vertices = used.0.checked_add(mesh.vertices.len()).ok_or(Error::BudgetExceeded("city vertices"))?;
-    let indices = used.1.checked_add(mesh.indices.len()).ok_or(Error::BudgetExceeded("city indices"))?;
+    let vertices = used
+        .0
+        .checked_add(mesh.vertices.len())
+        .ok_or(Error::BudgetExceeded("city vertices"))?;
+    let indices = used
+        .1
+        .checked_add(mesh.indices.len())
+        .ok_or(Error::BudgetExceeded("city indices"))?;
     if vertices > cap || vertices > 2_000_000 || indices > 6_000_000 {
         return Err(Error::BudgetExceeded("city geometry"));
     }
-    mesh.validate(&RenderLimits::default()).map_err(|_| Error::InvalidInput("city part mesh"))?;
+    mesh.validate(&RenderLimits::default())
+        .map_err(|_| Error::InvalidInput("city part mesh"))?;
     *used = (vertices, indices);
     parts.push(CityPart {
         tile,
@@ -180,7 +203,14 @@ fn add_layers(
     let (x, y) = (i32::from(tile.0), i32::from(tile.1));
     let pixel = semantic_pixel(map, x, y, boundary);
     let class = terrain_class(pixel.terrain);
-    push_part(parts, used, cap, tile, CityPartKind::Terrain(class), mesh.clone())?;
+    push_part(
+        parts,
+        used,
+        cap,
+        tile,
+        CityPartKind::Terrain(class),
+        mesh.clone(),
+    )?;
     if !layer_allowed(x, y, boundary) {
         return Ok(());
     }
@@ -193,7 +223,14 @@ fn add_layers(
         }
         // The primary UV remains the terrain coordinate. CityPart::mask_uv()
         // provides the separate, unmirrored 7x3 blend-mask channel.
-        push_part(parts, used, cap, tile, CityPartKind::Blend { class: next, mask }, blend)?;
+        push_part(
+            parts,
+            used,
+            cap,
+            tile,
+            CityPartKind::Blend { class: next, mask },
+            blend,
+        )?;
     }
     let (edge, corner) = road_atlas(pixel.road);
     for (kind, index) in [
@@ -234,20 +271,35 @@ pub fn build_city_parts(
                 continue;
             }
             let mesh = mesh_tile(map, xx, yy, white_class(class), boundary);
-            add_layers(&mut parts, &mut used, max_vertices, map, (x, y), boundary, mesh)?;
+            add_layers(
+                &mut parts,
+                &mut used,
+                max_vertices,
+                map,
+                (x, y),
+                boundary,
+                mesh,
+            )?;
         }
     }
     sort_parts(&mut parts);
     Ok(parts)
 }
 fn merge_parts(parts: Vec<CityPart>) -> Result<Mesh, Error> {
-    let mut result = Mesh { vertices: Vec::new(), indices: Vec::new() };
+    let mut result = Mesh {
+        vertices: Vec::new(),
+        indices: Vec::new(),
+    };
     for p in parts {
         let base = result.vertices.len() as u32;
-        result.indices.extend(p.mesh.indices.into_iter().map(|i| i + base));
+        result
+            .indices
+            .extend(p.mesh.indices.into_iter().map(|i| i + base));
         result.vertices.extend(p.mesh.vertices);
     }
-    result.validate(&RenderLimits::default()).map_err(|_| Error::InvalidInput("city mesh"))?;
+    result
+        .validate(&RenderLimits::default())
+        .map_err(|_| Error::InvalidInput("city mesh"))?;
     Ok(result)
 }
 pub fn build_city_mesh(map: &CityMap, boundary: CityBoundary) -> Result<Mesh, Error> {
@@ -289,7 +341,18 @@ fn height_cubic(
     top: f32,
     bottom: f32,
 ) -> f32 {
-    height_cubic_policy(map, x, y, u, v, left, right, top, bottom, CityBoundary::Rectangle)
+    height_cubic_policy(
+        map,
+        x,
+        y,
+        u,
+        v,
+        left,
+        right,
+        top,
+        bottom,
+        CityBoundary::Rectangle,
+    )
 }
 /// Build all detailed terrain, blend, road-edge, and road-corner layers. Mesh UV
 /// is the primary terrain/road coordinate; CityPart::mask_uv supplies one
@@ -304,7 +367,12 @@ pub fn build_near_patch_parts(
 ) -> Result<Vec<CityPart>, Error> {
     map.validate()?;
     validate_boundary(map, boundary)?;
-    if subdiv == 0 || subdiv > 8 || size.0 == 0 || size.1 == 0 || size.0 > 32 || size.1 > 32
+    if subdiv == 0
+        || subdiv > 8
+        || size.0 == 0
+        || size.1 == 0
+        || size.0 > 32
+        || size.1 > 32
         || u32::from(origin.0) + u32::from(size.0) > u32::from(map.width)
         || u32::from(origin.1) + u32::from(size.1) > u32::from(map.height)
     {
@@ -337,9 +405,12 @@ pub fn build_near_patch_parts(
                 for ix in 0..n {
                     let u = ix as f32 / f32::from(subdiv);
                     let v = iy as f32 / f32::from(subdiv);
-                    let h = height_cubic_policy(map, x, y, u, v, left, right, top, bottom, boundary);
+                    let h =
+                        height_cubic_policy(map, x, y, u, v, left, right, top, bottom, boundary);
                     let a = &coarse.vertices;
-                    let normal = a[0].normal.lerp(a[1].normal, u)
+                    let normal = a[0]
+                        .normal
+                        .lerp(a[1].normal, u)
                         .lerp(a[3].normal.lerp(a[2].normal, u), v);
                     let mut color = white_class(class);
                     if !layer_allowed(x, y, boundary) {
@@ -359,12 +430,24 @@ pub fn build_near_patch_parts(
                 for ix in 0..n - 1 {
                     let a = (iy * n + ix) as u32;
                     mesh.indices.extend([
-                        a, a + 1, a + n as u32,
-                        a + n as u32, a + 1, a + n as u32 + 1,
+                        a,
+                        a + 1,
+                        a + n as u32,
+                        a + n as u32,
+                        a + 1,
+                        a + n as u32 + 1,
                     ]);
                 }
             }
-            add_layers(&mut parts, &mut used, max_vertices, map, tile, boundary, mesh)?;
+            add_layers(
+                &mut parts,
+                &mut used,
+                max_vertices,
+                map,
+                tile,
+                boundary,
+                mesh,
+            )?;
         }
     }
     sort_parts(&mut parts);
@@ -384,7 +467,9 @@ pub fn build_near_patch(
     } else {
         CityBoundary::Rectangle
     };
-    merge_parts(build_near_patch_parts(map, origin, size, subdiv, boundary, 2_000_000)?)
+    merge_parts(build_near_patch_parts(
+        map, origin, size, subdiv, boundary, 2_000_000,
+    )?)
 }
 pub fn foliage_instances(map: &CityMap, x: u16, y: u16) -> Result<Vec<FoliageInstance>, Error> {
     map.validate()?;

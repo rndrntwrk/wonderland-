@@ -14,10 +14,18 @@ pub struct Pose {
     pub palette: Vec<Mat4>,
     pub rig_key: AssetKey,
 }
+/// Validated skeleton whose identity and bone layout cannot be retagged in place.
+///
+/// ```compile_fail,E0616
+/// use wonderland_avatar_view::fixtures;
+/// use wonderland_render_core::AssetKey;
+/// let mut rig = fixtures::representative_rig();
+/// rig.key = AssetKey([0; 32]);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Rig {
     source: Skeleton,
-    pub key: AssetKey,
+    key: AssetKey,
     traversal: Vec<usize>,
 }
 impl Rig {
@@ -129,6 +137,9 @@ impl Rig {
         };
         pose.rebuild(&rig)?;
         Ok(rig)
+    }
+    pub fn key(&self) -> AssetKey {
+        self.key
     }
     pub fn source(&self) -> &Skeleton {
         &self.source

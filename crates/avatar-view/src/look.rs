@@ -58,5 +58,5 @@ pub fn seek_weight(committed_frames: f32, fraction: f32, fading_out: bool) -> Re
     if !committed_frames.is_finite() || !fraction.is_finite() || !(0.0..1.0).contains(&fraction) {
         return Err(AvatarError::Invalid("seek fade"));
     }
-    Ok((committed_frames + if fading_out { -fraction } else { fraction }) / 15.0)
+    Ok(((committed_frames + if fading_out { -fraction } else { fraction }) / 15.0).min(1.0))
 }

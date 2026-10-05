@@ -76,7 +76,9 @@ pub enum CityBoundary {
     RendererDiamond,
     /// The active renderer's ten-tile side fade, clipped to the image rectangle.
     RendererWithFade,
-    ServerDiamond { padding: u16 },
+    ServerDiamond {
+        padding: u16,
+    },
     LegacyMapData,
 }
 pub fn in_bounds(x: i32, y: i32, policy: CityBoundary) -> bool {
@@ -208,17 +210,23 @@ impl CityPart {
         };
         let index = blend_atlas(mask);
         let offset = Vec2::new(f32::from(index % 7) / 7., f32::from(index / 7) / 3.);
-        Some(self.mesh.vertices.iter().map(|v| {
-            offset + Vec2::new(
-                (v.position.x - f32::from(self.tile.0)) / 7.,
-                (v.position.z - f32::from(self.tile.1)) / 3.,
-            )
-        }).collect())
+        Some(
+            self.mesh
+                .vertices
+                .iter()
+                .map(|v| {
+                    offset
+                        + Vec2::new(
+                            (v.position.x - f32::from(self.tile.0)) / 7.,
+                            (v.position.z - f32::from(self.tile.1)) / 3.,
+                        )
+                })
+                .collect(),
+        )
     }
 }
 pub use geometry::{
-    build_city_mesh, build_city_parts, build_near_patch, build_near_patch_parts,
-    foliage_instances,
+    build_city_mesh, build_city_parts, build_near_patch, build_near_patch_parts, foliage_instances,
 };
 pub fn lot_center_to_city(city: (u16, u16), lot: Vec2) -> Result<Vec2, Error> {
     if !lot.is_finite() {

@@ -250,14 +250,25 @@ fn quality_tiers_and_aa_follow_source_semantics_with_explicit_capability_limits(
 
 // Catches finite inputs overflowing into an admitted camera pose or damping result.
 #[test]
-fn extreme_camera_inputs_fail_atomically_without_nonfinite_outputs(){
-    let orbit=OrbitCamera{center:Vec2::new(f32::MAX,0.),..OrbitCamera::default()};
+fn extreme_camera_inputs_fail_atomically_without_nonfinite_outputs() {
+    let orbit = OrbitCamera {
+        center: Vec2::new(f32::MAX, 0.),
+        ..OrbitCamera::default()
+    };
     assert!(orbit.pose().is_err());
-    assert!(damp_height(f32::MAX,-f32::MAX,0.001).unwrap().is_finite());
-    let mut fp=FirstPersonCamera{position:Vec3::new(f32::MAX,0.,0.),velocity:Vec3::ZERO,yaw:0.,pitch_control:1.,fov_y:0.9,captured:true,focused:true};
-    let before=fp;
-    assert!(fp.advance(Vec3::new(f32::MAX,0.,0.),100.,None).is_err());
-    assert_eq!(fp,before);
+    assert!(damp_height(f32::MAX, -f32::MAX, 0.001).unwrap().is_finite());
+    let mut fp = FirstPersonCamera {
+        position: Vec3::new(f32::MAX, 0., 0.),
+        velocity: Vec3::ZERO,
+        yaw: 0.,
+        pitch_control: 1.,
+        fov_y: 0.9,
+        captured: true,
+        focused: true,
+    };
+    let before = fp;
+    assert!(fp.advance(Vec3::new(f32::MAX, 0., 0.), 100., None).is_err());
+    assert_eq!(fp, before);
 }
 
 #[test]
@@ -271,8 +282,12 @@ fn finite_camera_matrices_must_have_a_finite_product() {
         far: 800.,
         hide_head: None,
     };
-    assert!(Mat4::look_at_rh(pose.position, pose.target, pose.up).unwrap().is_finite());
-    assert!(Mat4::perspective_rh(pose.fov_y, 1., pose.near, pose.far).unwrap().is_finite());
+    assert!(Mat4::look_at_rh(pose.position, pose.target, pose.up)
+        .unwrap()
+        .is_finite());
+    assert!(Mat4::perspective_rh(pose.fov_y, 1., pose.near, pose.far)
+        .unwrap()
+        .is_finite());
     assert!(pose.view_projection(1.).is_err());
 }
 

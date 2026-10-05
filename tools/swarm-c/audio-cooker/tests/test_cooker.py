@@ -34,6 +34,16 @@ class CookerTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'deadline'):cooker.run_bounded([sys.executable,'-c','import time;time.sleep(10)'],root,timeout=.1,max_file_bytes=1024)
             self.assertLess(time.monotonic()-start,2)
             with self.assertRaises(RuntimeError):cooker.run_bounded([sys.executable,'-c','import sys;sys.stdout.write("x"*100000)'],root,timeout=2,max_file_bytes=1024)
+    def test_external_decoder_refuses_playlist_inputs_before_starting_a_process(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=pathlib.Path(d);src=root/'input.m3u8';out=root/'out.wav';src.write_bytes(b'#EXTM3U\\nfile:///outside/audio.wav\\n')
+            with self.assertRaisesRegex(ValueError,'MP3 bytes'):
+                cooker.cook(src,out,root=root,provenance='synthetic',decoder=DECODER,ffmpeg='/must/not/be/invoked')
+            self.assertFalse(out.exists())
+    def test_fast_exiting_child_cannot_bypass_diagnostic_budget(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(RuntimeError,'diagnostic'):
+                cooker.run_bounded([sys.executable,'-c','import sys;sys.stdout.write("x"*100000)'],pathlib.Path(d),timeout=2,max_file_bytes=1024*1024)
     @unittest.skipUnless(shutil.which('ffmpeg'),'installed external FFmpeg unavailable')
     def test_explicit_external_mp3_codec_decodes_real_synthetic_payload(self):
         with tempfile.TemporaryDirectory() as d:

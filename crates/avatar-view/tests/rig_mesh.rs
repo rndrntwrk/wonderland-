@@ -191,3 +191,13 @@ fn finite_source_whose_hierarchy_overflows_is_rejected_without_bind_pose_panic()
     source.bones[1].translation = bits3(Vec3::new(3.0e38, 0.0, 0.0));
     assert!(Rig::new(source, AssetKey([0; 32]), AvatarLimits::default()).is_err());
 }
+
+#[test]
+fn a_matching_rig_key_cannot_hide_the_wrong_actual_palette_length() {
+    let rig = fixtures::synthetic_rig();
+    let mesh = fixtures::synthetic_mesh(&rig);
+    let mut pose = rig.bind_pose();
+    assert!(mesh.skin(&pose, Mat4::IDENTITY).is_ok());
+    pose.palette.push(Mat4::IDENTITY);
+    assert!(mesh.skin(&pose, Mat4::IDENTITY).is_err());
+}

@@ -178,3 +178,49 @@ fn resolved_lookup_name_is_separate_from_animation_internal_name() {
     assert!(!clip.matches_projection(" Provider_Name.anim", 3, key));
     assert!(!clip.matches_projection("internal-name", 3, key));
 }
+
+#[test]
+fn a_clip_bound_to_a_larger_rig_cannot_partially_change_a_pose() {
+    let target = fixtures::synthetic_rig();
+    let incompatible = fixtures::representative_rig();
+    let foreign = clip(&incompatible, "foreign", 10.0, 20.0);
+    for carry in [false, true] {
+        let mut timeline = Timeline {
+            layers: vec![layer(clip(&target, "valid-first", 6.0, 8.0), 1.0)],
+            carry: None,
+        };
+        if carry {
+            timeline.carry = Some(CarryPose {
+                clip: foreign.clone(),
+                frame: 0.0,
+            });
+        } else {
+            timeline.layers.push(layer(foreign.clone(), 1.0));
+        }
+        let mut pose = target.bind_pose();
+        let before = pose.clone();
+        assert!(sample_timeline(&target, &mut pose, &timeline, 0.5).is_err());
+        assert_eq!(pose, before);
+    }
+}
+
+#[test]
+fn malformed_public_pose_storage_is_rejected_without_mutation() {
+    let rig = fixtures::synthetic_rig();
+    let timeline = Timeline {
+        layers: vec![layer(clip(&rig, "head", 6.0, 8.0), 1.0)],
+        carry: None,
+    };
+    for kind in 0..4 {
+        let mut pose = rig.bind_pose();
+        match kind {
+            0 => pose.locals.truncate(1),
+            1 => pose.locals.push(pose.locals[0]),
+            2 => pose.locals[0].rotation = Quat::new(0.0, 0.0, 0.0, 2.0),
+            _ => pose.rig_key = AssetKey([0; 32]),
+        }
+        let before = pose.clone();
+        assert!(sample_timeline(&rig, &mut pose, &timeline, 0.5).is_err());
+        assert_eq!(pose, before);
+    }
+}

@@ -17,15 +17,17 @@ pub enum AudioError {
     Io(String),
 }
 impl std::fmt::Display for AudioError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{self:?}") }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
 }
 impl std::error::Error for AudioError {}
 pub type Result<T> = std::result::Result<T, AudioError>;
-pub mod hit;
-pub mod runtime;
-pub mod codec;
 pub mod ambience;
+pub mod codec;
 pub mod fsc;
+pub mod hit;
+pub mod projection;
+pub mod runtime;
 pub mod station;
 pub mod system;
-pub mod projection;

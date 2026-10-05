@@ -178,11 +178,13 @@ pub(super) fn mesh(
         if normal == Vec3::ZERO {
             normal = Vec3::Y;
         }
-        let uv = |p: Vec3| match i {
-            0 => Vec2::new(p.x * 2. / 3., -p.z),
-            1 => Vec2::new(p.z * 2. / 3., p.x),
-            2 => Vec2::new(p.x * 2. / 3., p.z),
-            _ => Vec2::new(p.z * 2. / 3., -p.x),
+        let uv = |p: Vec3| {
+            (match i {
+                0 => Vec2::new(p.x * 2. / 3., -p.z),
+                1 => Vec2::new(p.z * 2. / 3., p.x),
+                2 => Vec2::new(p.x * 2. / 3., p.z),
+                _ => Vec2::new(p.z * 2. / 3., -p.x),
+            }) * lot.roof_texture_scale
         };
         let mut face = quad([l, r, mr, ml], normal, [uv(l), uv(r), uv(mr), uv(ml)], true);
         face.vertices[2].color = [1.25; 4];
@@ -254,7 +256,20 @@ pub(super) fn mesh(
     }
     a.add(SurfaceKind::Roof, style.material, 0, None, level, roof)?;
     if style.advanced {
-        a.add(SurfaceKind::RoofRim, style.material, 0, None, level, rim)?;
+        let tint = |mut mesh: Mesh| {
+            for v in &mut mesh.vertices {
+                v.color = lot.roof_average_color;
+            }
+            mesh
+        };
+        a.add(
+            SurfaceKind::RoofRim,
+            style.material,
+            0,
+            None,
+            level,
+            tint(rim),
+        )?;
         let down = Vec3::Y * -0.5;
         a.add(
             SurfaceKind::RoofUnderside,
@@ -262,7 +277,7 @@ pub(super) fn mesh(
             0,
             None,
             level,
-            quad(
+            tint(quad(
                 [
                     outer[3] + down,
                     outer[2] + down,
@@ -272,9 +287,16 @@ pub(super) fn mesh(
                 -Vec3::Y,
                 [Vec2::new(0., 0.73); 4],
                 true,
-            ),
+            )),
         )?;
-        a.add(SurfaceKind::RoofEdge, style.material, 0, None, level, edges)?;
+        a.add(
+            SurfaceKind::RoofEdge,
+            style.material,
+            0,
+            None,
+            level,
+            tint(edges),
+        )?;
     }
     Ok(())
 }

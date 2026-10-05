@@ -211,28 +211,35 @@ fn effective_content_and_all_derivation_choices_change_the_hash() {
     );
 }
 
-// Catches unresolved simplification being silently reported as legacy parity.
+// Catches replacing the configured QEM pass or its post-collapse UV projection
+// with an unavailable warning or the unsimplified pixel-grid mesh.
 #[test]
-fn simplification_is_an_explicit_unavailable_derivation_stage() {
+fn source_simplification_reduces_depth_geometry_and_reprojects_uvs() {
+    let mut s = sprite();
+    s.width = 32;
+    s.height = 32;
+    s.rgba = vec![[255, 128, 0, 255]; 1024];
+    s.depth = Some(vec![254; 1024]);
+    let full = reconstruct(&[s.clone()], &params(), 0, ReconstructionOptions::default()).unwrap();
     let out = reconstruct(
-        &[sprite()],
+        &[s.clone()],
         &ReconstructionParams::default(),
         0,
         ReconstructionOptions::default(),
     )
     .unwrap();
-    assert_eq!(
-        out.warnings,
-        [ReconstructionWarning::SimplifierUnavailable {
-            target_triangles: 0,
-            iterations: 125,
-            aggressiveness: 3.5
-        }]
-    );
+    assert_eq!(out.completed, 1);
+    assert_eq!(out.parts.len(), 1);
+    assert!(out.parts[0].mesh.indices.len() < full.parts[0].mesh.indices.len());
     out.parts[0]
         .mesh
         .validate(&RenderLimits::default())
         .unwrap();
+    for v in &out.parts[0].mesh.vertices {
+        let expected = reproject_uv(&s, v.position / 3.).unwrap();
+        assert!((v.uv.x - expected.x).abs() < 0.00001);
+        assert!((v.uv.y - expected.y).abs() < 0.00001);
+    }
     let mut bad = sprite();
     bad.depth = Some(vec![0; 3]);
     assert!(reconstruct(&[bad], &params(), 0, ReconstructionOptions::default()).is_err());
@@ -362,4 +369,124 @@ fn resolver_lru_bound_evicts_the_least_recently_used_mesh() {
         r.resolve(key(1), &c, || Ok(candidate(3.))).unwrap().source,
         ResolutionSource::Reconstructed
     );
+}
+
+// Catches averaging finite extreme bounds into a nonfinite contact translation.
+#[test]
+fn contact_translation_handles_extreme_bounds_without_overflow() {
+    let bounds = Aabb::new(Vec3::new(f32::MAX, 0., 0.), Vec3::new(f32::MAX, 1., 1.)).unwrap();
+    let offset = contact_translation(bounds, Vec3::ZERO).unwrap();
+    assert!(offset.is_finite());
+    assert_eq!(offset.x, -f32::MAX);
+}
+
+// Catches unbounded invalidation tombstones even when mesh residency is tiny.
+#[test]
+fn generated_cache_invalidations_are_bounded_and_conservative() {
+    let mut resolver = MeshResolver::new(300, 1);
+    resolver.clear_generated(key(1));
+    resolver.clear_generated(key(2));
+    let state = resolver.residency();
+    assert!(state.invalidation_records <= 1);
+    assert!(state.all_generated_ignored);
+    let mut candidates = Candidates::default();
+    let mut generated = candidate(1.);
+    generated.reconstruction_version = 2;
+    generated.cache_key = Some(key(3));
+    candidates.generated_cache = Some(generated);
+    assert_eq!(
+        resolver
+            .resolve(key(3), &candidates, || Ok(candidate(2.)))
+            .unwrap()
+            .source,
+        ResolutionSource::Reconstructed
+    );
+}
+
+// Catches losing the source material ordinal when a previous sprite has no depth.
+#[test]
+fn reconstruction_material_identity_retains_source_rotation_and_sprite_ordinal() {
+    let mut missing = sprite();
+    missing.depth = None;
+    let mut present = sprite();
+    present.sprite_id = 101;
+    present.source = key(7);
+    let out = reconstruct(
+        &[missing, present],
+        &params(),
+        0,
+        ReconstructionOptions::default(),
+    )
+    .unwrap();
+    assert_eq!(out.parts[0].texture_source, key(7));
+    assert_eq!(out.parts[0].pixel_sprite, 1);
+    assert_eq!(out.parts[0].rotation, 0);
+}
+
+#[test]
+fn inverse_uv_projection_matches_source_half_pixel_and_mirrored_branches() {
+    for rotation in 0..4 {
+        for flip in [false, true] {
+            let mut s = sprite();
+            s.rotation = rotation;
+            s.flip = flip;
+            s.sprite_offset = Vec2::new(3., -7.);
+            s.object_offset = Vec3::new(16., 32., 5.);
+            let p = project_pixel(&s, &params(), 1., 0., 100).unwrap();
+            let uv = reproject_uv(&s, p).unwrap();
+            let expected_u = if flip { 0.25 } else { 0.75 };
+            assert!(
+                (uv.x - expected_u).abs() < 0.00002,
+                "{rotation} {flip}: {uv:?}"
+            );
+            assert!((uv.y - 0.25).abs() < 0.00002, "{rotation} {flip}: {uv:?}");
+        }
+    }
+}
+
+#[test]
+fn contact_translation_uses_wide_intermediates_and_rejects_unrepresentable_results() {
+    let bounds = Aabb::new(
+        Vec3::new(f32::MAX, 0., f32::MAX),
+        Vec3::new(f32::MAX, 1., f32::MAX),
+    )
+    .unwrap();
+    assert_eq!(
+        contact_translation(bounds, Vec3::new(f32::MAX, 0., f32::MAX)).unwrap(),
+        Vec3::ZERO
+    );
+    assert!(contact_translation(bounds, Vec3::new(-f32::MAX, 0., -f32::MAX)).is_err());
+}
+
+#[test]
+fn reconstruction_preserves_texture_identity_and_ordinals_across_missing_depth() {
+    let mut missing = sprite();
+    missing.depth = None;
+    let mut second = sprite();
+    second.source = key(7);
+    second.sprite_id = 200;
+    let mut rotated = sprite();
+    rotated.rotation = 1;
+    let out = reconstruct(
+        &[missing, second, rotated],
+        &params(),
+        0,
+        ReconstructionOptions::default(),
+    )
+    .unwrap();
+    assert_eq!(out.completed, 3);
+    assert_eq!(out.parts[0].texture_source, key(7));
+    assert_eq!(out.parts[0].pixel_sprite, 1);
+    assert_eq!(out.parts[1].pixel_sprite, 0);
+}
+
+#[test]
+fn finite_extreme_depth_distances_do_not_compare_infinity_to_infinity() {
+    let points = [
+        Some(Vec3::new(-f32::MAX, 0., 0.)),
+        Some(Vec3::new(f32::MAX, 0., 0.)),
+        Some(Vec3::ZERO),
+        None,
+    ];
+    assert!(triangulate_quad(points, f32::MAX).unwrap().is_empty());
 }

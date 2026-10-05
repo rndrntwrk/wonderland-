@@ -77,3 +77,23 @@ test('decoder failures deliver a presentation completion and never resurrect a v
 test('pending gesture resume cannot change a disposed adapter back to running',async()=>{
   const {adapter,context}=make();const gate=deferred();context.resume=()=>gate.promise;const unlocking=adapter.unlockFromGesture();await adapter.dispose();gate.resolve();await assert.rejects(unlocking,/cancelled/);assert.equal(adapter.state,'disposed');assert.equal(context.closed,true);
 });
+
+test('voice resume during context suspension restarts after gesture recovery',async()=>{
+  const {adapter,context}=make();adapter.apply(start(1));await adapter.unlockFromGesture();await adapter.settled();
+  context.currentTime=0.25;adapter.apply({Pause:{voice:{generation:1,serial:1}}});await adapter.suspend();adapter.apply({Resume:{voice:{generation:1,serial:1}}});
+  assert.equal(context.starts.length,1);await adapter.resumeFromGesture();await adapter.settled();assert.equal(context.starts.length,2);assert.equal(context.starts[1].offset,0.25);await adapter.dispose();
+});
+test('replacement voice cannot inherit an aborted inflight request for the same key',async()=>{
+  let calls=0;const {adapter,context}=make({maxPendingDecodes:1,loadSample:async(key,{signal})=>{
+    calls++;if(calls===1)return new Promise((resolve,reject)=>signal.addEventListener('abort',()=>reject(Error('old request aborted')),{once:true}));
+    return {pcm:{sampleRate:4,channels:1,samples:new Int16Array([1,2,3,4])}};
+  }});
+  adapter.apply(start(1));await adapter.unlockFromGesture();await new Promise(setImmediate);
+  adapter.apply({Stop:{voice:{generation:1,serial:1}}});adapter.apply(start(2));assert.equal(adapter.snapshot().pendingDecodes,1);
+  await adapter.settled();assert.equal(calls,2);assert.equal(context.starts.length,1);assert.deepEqual(adapter.takeFinished(),[]);assert.equal(adapter.snapshot().lastError,null);await adapter.dispose();
+});
+test('admission snapshots the asset key before the caller reuses its byte array',async()=>{
+  const requested=[];const {adapter,context}=make({loadSample:async key=>{requested.push(key[0]);return {pcm:{sampleRate:4,channels:1,samples:new Int16Array([key[0]])}};}});
+  const intent=start(1);adapter.apply(intent);intent.Start.sample.fill(2);await adapter.unlockFromGesture();await adapter.settled();
+  assert.deepEqual(requested,[1]);assert.equal(context.starts[0].buffer.getChannelData(0)[0],1/32768);await adapter.dispose();
+});

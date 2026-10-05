@@ -200,22 +200,33 @@ fn city_inverse_rejects_finite_input_when_tile_output_overflows() {
 
 #[test]
 fn detailed_patch_uses_source_tr_bl_diagonal_and_preserves_every_material_layer() {
-    let mut map = CityMap { width: 3, height: 3, pixels: vec![pixel(); 9] };
+    let mut map = CityMap {
+        width: 3,
+        height: 3,
+        pixels: vec![pixel(); 9],
+    };
     map.pixels[0].elevation = 1;
     map.pixels[1].elevation = 8;
     map.pixels[3].elevation = 24;
     map.pixels[4].elevation = 2;
     map.pixels[0].road = 0x21;
     map.pixels[1].terrain = [255, 255, 0, 255];
-    let parts = build_near_patch_parts(&map, (0, 0), (1, 1), 4, CityBoundary::Rectangle, 1000).unwrap();
+    let parts =
+        build_near_patch_parts(&map, (0, 0), (1, 1), 4, CityBoundary::Rectangle, 1000).unwrap();
     assert_eq!(parts.len(), 4);
     for p in &parts {
         p.mesh.validate(&RenderLimits::default()).unwrap();
         assert_eq!((p.mesh.vertices.len(), p.mesh.indices.len()), (25, 96));
         assert_eq!(&p.mesh.indices[..6], &[0, 1, 5, 5, 1, 6]);
     }
-    let ground = parts.iter().find(|p| p.kind == CityPartKind::Terrain(TerrainClass::Grass)).unwrap();
-    let blend = parts.iter().find(|p| matches!(p.kind, CityPartKind::Blend { .. })).unwrap();
+    let ground = parts
+        .iter()
+        .find(|p| p.kind == CityPartKind::Terrain(TerrainClass::Grass))
+        .unwrap();
+    let blend = parts
+        .iter()
+        .find(|p| matches!(p.kind, CityPartKind::Blend { .. }))
+        .unwrap();
     assert_eq!(blend.mesh.vertices[6].uv, ground.mesh.vertices[6].uv);
     let mask = blend.mask_uv().unwrap();
     assert_eq!(mask.len(), 25);
@@ -223,7 +234,10 @@ fn detailed_patch_uses_source_tr_bl_diagonal_and_preserves_every_material_layer(
     close(mask[0].y, 1. / 3.);
     close(mask[6].x, 3.25 / 7.);
     close(mask[6].y, 1.25 / 3.);
-    let edge = parts.iter().find(|p| p.kind == CityPartKind::RoadEdge(5)).unwrap();
+    let edge = parts
+        .iter()
+        .find(|p| p.kind == CityPartKind::RoadEdge(5))
+        .unwrap();
     assert_eq!(edge.mesh.vertices[0].uv, Vec2::new(0.75, 0.));
     assert_eq!(edge.mesh.vertices[4].uv, Vec2::new(0.625, 0.));
     assert_eq!(edge.mesh.vertices[6].uv, Vec2::new(0.71875, 0.0625));
@@ -235,10 +249,17 @@ fn detailed_patch_uses_source_tr_bl_diagonal_and_preserves_every_material_layer(
 
 #[test]
 fn coarse_blend_keeps_terrain_uv_and_an_unmirrored_secondary_mask() {
-    let mut map = CityMap { width: 2, height: 2, pixels: vec![pixel(); 4] };
+    let mut map = CityMap {
+        width: 2,
+        height: 2,
+        pixels: vec![pixel(); 4],
+    };
     map.pixels[1].terrain = [255, 255, 0, 255];
     let parts = build_city_parts(&map, CityBoundary::Rectangle, 1000).unwrap();
-    let blend = parts.iter().find(|p| p.tile == (0, 0) && matches!(p.kind, CityPartKind::Blend { .. })).unwrap();
+    let blend = parts
+        .iter()
+        .find(|p| p.tile == (0, 0) && matches!(p.kind, CityPartKind::Blend { .. }))
+        .unwrap();
     assert_eq!(blend.mesh.vertices[0].uv, Vec2::ZERO);
     assert_eq!(blend.mesh.vertices[1].uv, Vec2::new(0.25, 0.));
     let mask = blend.mask_uv().unwrap();
@@ -249,13 +270,25 @@ fn coarse_blend_keeps_terrain_uv_and_an_unmirrored_secondary_mask() {
 
 #[test]
 fn canonical_city_fade_clamps_samples_and_excludes_edge_material_layers() {
-    let mut map = CityMap { width: 512, height: 512, pixels: vec![pixel(); 512 * 512] };
+    let mut map = CityMap {
+        width: 512,
+        height: 512,
+        pixels: vec![pixel(); 512 * 512],
+    };
     let y = 306usize;
     // Source row starts at zero; the next row starts at one.
     map.pixels[y * 512].elevation = 12;
     map.pixels[(y + 1) * 512 + 1].elevation = 24;
     map.pixels[y * 512].road = 0x21;
-    let patch = build_near_patch_parts(&map, (0, 306), (1, 1), 4, CityBoundary::RendererWithFade, 1000).unwrap();
+    let patch = build_near_patch_parts(
+        &map,
+        (0, 306),
+        (1, 1),
+        4,
+        CityBoundary::RendererWithFade,
+        1000,
+    )
+    .unwrap();
     assert_eq!(patch.len(), 1);
     let mesh = &patch[0].mesh;
     close(mesh.vertices[0].position.y, 1.);

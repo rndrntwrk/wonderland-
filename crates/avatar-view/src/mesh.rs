@@ -19,6 +19,8 @@ pub struct PreparedVertex {
     pub weight: f32,
     pub uv: Vec2,
 }
+/// Geometry remains editable, but its rig provenance is sealed by `prepare`.
+/// Admission revalidates edited data against the actual palette used to bind it.
 #[derive(Clone, Debug)]
 pub struct PreparedMesh {
     pub vertices: Vec<PreparedVertex>,
@@ -26,6 +28,8 @@ pub struct PreparedMesh {
     pub cache_key: AssetKey,
     pub rig_key: AssetKey,
     pub normal_policy: NormalPolicy,
+    prepared_rig_key: AssetKey,
+    palette_len: usize,
 }
 pub(crate) fn range(first: i32, count: i32, total: usize) -> Result<std::ops::Range<usize>> {
     if count < 0 {
@@ -181,31 +185,47 @@ impl PreparedMesh {
         let mut h = Sha256::new();
         h.update(b"C-avatar-dual-primary-normal-v1");
         h.update(resource.0);
-        h.update(rig.key.0);
+        h.update(rig.key().0);
         h.update(bincode::serialize(mesh).map_err(|_| AvatarError::Invalid("mesh encoding"))?);
         Ok(Self {
             vertices,
             indices,
             cache_key: AssetKey(h.finalize().into()),
-            rig_key: rig.key,
+            rig_key: rig.key(),
             normal_policy: NormalPolicy::SourcePrimary,
+            prepared_rig_key: rig.key(),
+            palette_len: rig.source().bones.len(),
         })
     }
-    pub fn skin(&self, pose: &Pose, world: Mat4) -> Result<Mesh> {
-        if self.vertices.is_empty()
+    pub(crate) fn validate(&self) -> Result<()> {
+        if self.rig_key != self.prepared_rig_key
+            || self.vertices.is_empty()
             || self.indices.len() % 3 != 0
             || self
                 .indices
                 .iter()
                 .any(|i| *i as usize >= self.vertices.len())
-            || self
-                .vertices
-                .iter()
-                .any(|v| !v.uv.is_finite() || !v.weight.is_finite())
+            || self.vertices.iter().any(|v| {
+                v.primary_joint >= self.palette_len
+                    || v.secondary_joint >= self.palette_len
+                    || !v.primary_position.is_finite()
+                    || !v.secondary_position.is_finite()
+                    || !v.primary_normal.is_finite()
+                    || !v.secondary_normal.is_finite()
+                    || !v.uv.is_finite()
+                    || !v.weight.is_finite()
+            })
         {
-            return Err(AvatarError::Invalid("prepared mesh indices/attributes"));
+            return Err(AvatarError::Invalid(
+                "prepared mesh indices/attributes/binding",
+            ));
         }
+        Ok(())
+    }
+    pub fn skin(&self, pose: &Pose, world: Mat4) -> Result<Mesh> {
+        self.validate()?;
         if pose.rig_key != self.rig_key
+            || pose.palette.len() != self.palette_len
             || !matrix_finite(world)
             || pose.palette.iter().any(|m| !matrix_finite(*m))
         {
@@ -262,9 +282,11 @@ impl PreparedMesh {
         clips: &[&Clip],
         world: Mat4,
     ) -> Result<Aabb> {
-        if self.rig_key != rig.key
+        self.validate()?;
+        if self.rig_key != rig.key()
+            || rig.source().bones.len() != self.palette_len
             || !matrix_finite(world)
-            || clips.iter().any(|c| c.rig_key != rig.key)
+            || clips.iter().any(|c| c.rig_key() != rig.key())
         {
             return Err(AvatarError::Invalid("envelope rig/world"));
         }

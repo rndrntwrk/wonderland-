@@ -211,7 +211,14 @@ fn facade_graphics_units_convert_once_to_one_city_tile() {
 
 #[test]
 fn obj_export_rejects_malformed_public_mesh_without_indexing_it() {
-    let mut f = bake_facade(&synthetic_lot(), &BuildOptions::default(), AssetKey([1; 32]), 1, 0.5).unwrap();
+    let mut f = bake_facade(
+        &synthetic_lot(),
+        &BuildOptions::default(),
+        AssetKey([1; 32]),
+        1,
+        0.5,
+    )
+    .unwrap();
     f.mesh.indices[0] = u32::MAX;
     assert!(to_obj(&f).is_err());
 }

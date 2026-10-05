@@ -150,7 +150,9 @@ impl OrbitCamera {
         let far = rotate_z(Vec3::new(1.30 * z, z, 0.), angle / 2.);
         let relative = rotate_y(near + far, self.yaw);
         let target = Vec3::new(self.center.x * 3., self.cam_height + 3., self.center.y * 3.);
-        if !target.is_finite()||!(target+relative).is_finite(){return Err(Error::InvalidInput("orbit camera overflow"));}
+        if !target.is_finite() || !(target + relative).is_finite() {
+            return Err(Error::InvalidInput("orbit camera overflow"));
+        }
         Ok(CameraPose {
             position: target + relative,
             target,
@@ -205,8 +207,8 @@ pub fn damp_height(current: f32, target: f32, seconds: f32) -> Result<f32, Error
     if !current.is_finite() || !target.is_finite() || !seconds.is_finite() || seconds < 0. {
         return Err(Error::InvalidInput("camera height/time"));
     }
-    let retention=0.8f64.powf(60.*f64::from(seconds));
-    Ok((f64::from(current)*retention+f64::from(target)*(1.-retention)) as f32)
+    let retention = 0.8f64.powf(60. * f64::from(seconds));
+    Ok((f64::from(current) * retention + f64::from(target) * (1. - retention)) as f32)
 }
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FirstPersonCamera {

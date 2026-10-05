@@ -88,7 +88,9 @@ pub fn bake_facade(
 /// Export original synthetic/authorized data, reorienting OBJ faces to their
 /// explicit normals because legacy terrain and roof draw winding differ.
 pub fn to_obj(facade: &Facade) -> Result<String, Error> {
-    facade.mesh.validate(&wonderland_render_core::RenderLimits::default())
+    facade
+        .mesh
+        .validate(&wonderland_render_core::RenderLimits::default())
         .map_err(|_| Error::InvalidInput("facade OBJ mesh"))?;
     let mut out=String::from("# Wonderland deterministic presentation facade v1\n# Geometry source winding normalized to explicit normals for OBJ export.\n");
     let _ = write!(out, "# identity ");

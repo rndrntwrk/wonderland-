@@ -3,11 +3,32 @@ use crate::normalized::{quat, vec3};
 use crate::*;
 use std::sync::Arc;
 use wonderland_render_core::{AssetKey, EntityRef};
+/// Animation channels and their resolved bone indices keep their construction identity.
+///
+/// ```compile_fail,E0616
+/// use wonderland_avatar_view::{fixtures, AvatarLimits, Clip};
+/// use wonderland_render_core::AssetKey;
+/// let rig = fixtures::representative_rig();
+/// let mut clip = Clip::new(&rig, fixtures::animation("head", 0.0, 1.0),
+///     AssetKey([1; 32]), AvatarLimits::default()).unwrap();
+/// clip.rig_key = AssetKey([0; 32]);
+/// ```
+///
+/// The source digest used to admit a projected animation is immutable as well.
+///
+/// ```compile_fail,E0616
+/// use wonderland_avatar_view::{fixtures, AvatarLimits, Clip};
+/// use wonderland_render_core::AssetKey;
+/// let rig = fixtures::synthetic_rig();
+/// let mut clip = Clip::new(&rig, fixtures::animation("head", 0.0, 1.0),
+///     AssetKey([1; 32]), AvatarLimits::default()).unwrap();
+/// clip.key = AssetKey([0; 32]);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Clip {
     source: Animation,
-    pub key: AssetKey,
-    pub rig_key: AssetKey,
+    key: AssetKey,
+    rig_key: AssetKey,
     motion_bones: Vec<Option<usize>>,
     resource: String,
 }
@@ -107,10 +128,16 @@ impl Clip {
         Ok(Self {
             source,
             key,
-            rig_key: rig.key,
+            rig_key: rig.key(),
             motion_bones,
             resource,
         })
+    }
+    pub fn key(&self) -> AssetKey {
+        self.key
+    }
+    pub fn rig_key(&self) -> AssetKey {
+        self.rig_key
     }
     pub fn source(&self) -> &Animation {
         &self.source
@@ -150,7 +177,10 @@ impl Clip {
             } else {
                 i + 1
             };
-            let local = &mut pose.locals[bone];
+            let local = pose
+                .locals
+                .get_mut(bone)
+                .ok_or(AvatarError::Invalid("clip bone index"))?;
             if motion.translation_flag == 1 {
                 let offset = motion.first_translation_index as usize;
                 let a = vec3(self.source.translations[offset + i]);
@@ -201,7 +231,7 @@ pub fn sample_timeline(
             || layer.current_frame.abs() > 16_000_000.0
             || !layer.speed.is_finite()
             || layer.speed.abs() > 1_000_000.0
-            || layer.clip.rig_key != rig.key
+            || layer.clip.rig_key != rig.key()
         {
             return Err(AvatarError::Invalid("timeline projection"));
         }

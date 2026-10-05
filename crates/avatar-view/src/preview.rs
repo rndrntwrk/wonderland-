@@ -45,7 +45,7 @@ fn surface_bytes(width: u32, height: u32) -> Result<usize> {
 }
 fn render_scene(scene: &mut Scene, generation: u64) -> Result<()> {
     scene.appearance.validate()?;
-    if scene.appearance.rig_key != scene.rig.key {
+    if scene.appearance.rig_key != scene.rig.key() {
         return Err(AvatarError::Invalid("preview rig"));
     }
     scene.pose.rebuild(&scene.rig)?;
@@ -73,7 +73,7 @@ fn render_scene(scene: &mut Scene, generation: u64) -> Result<()> {
         .map_err(|_| AvatarError::Limit("preview allocation"))?;
     let mut hash = Sha256::new();
     hash.update(b"C-avatar-reference-preview-v1");
-    hash.update(scene.rig.key.0);
+    hash.update(scene.rig.key().0);
     hash.update(generation.to_le_bytes());
     hash.update(scene.width.to_le_bytes());
     hash.update(scene.height.to_le_bytes());

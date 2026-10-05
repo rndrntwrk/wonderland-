@@ -96,3 +96,20 @@ fn look_clamps_and_antipodal_smoothing_is_stationary() {
     );
     assert!(head_seek(Mat4::from_scale(Vec3::ZERO), Vec3::Y, 0.0).is_err());
 }
+
+#[test]
+fn seek_fade_caps_full_weight_without_clamping_fade_out_below_zero() {
+    for (committed, fraction, fading_out, expected) in [
+        (15.0, 0.75, false, 1.0),
+        (30.0, 0.5, false, 1.0),
+        (15.0, 0.75, true, 0.95),
+        (7.0, 0.5, false, 0.5),
+        (0.0, 0.75, true, -0.05),
+    ] {
+        assert_eq!(
+            seek_weight(committed, fraction, fading_out).unwrap(),
+            expected,
+            "committed {committed}, fraction {fraction}, fading_out {fading_out}"
+        );
+    }
+}

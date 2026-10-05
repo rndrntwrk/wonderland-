@@ -3,6 +3,7 @@ use crate::Error;
 use sha2::{Digest, Sha256};
 use wonderland_render_core::{Aabb, AssetKey, Mesh, RenderLimits, Vec2, Vec3, Vertex};
 pub mod resolution;
+pub mod simplification;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ReconstructionParams {
@@ -88,6 +89,9 @@ pub struct ReconstructionSprite {
 }
 #[derive(Clone, Debug)]
 pub struct ReconstructedPart {
+    /// Effective source identity plus the source DGRP near-image sprite ordinal.
+    pub texture_source: AssetKey,
+    pub pixel_sprite: u16,
     pub sprite_id: u32,
     pub rotation: u8,
     pub group: u16,
@@ -96,10 +100,10 @@ pub struct ReconstructedPart {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub enum ReconstructionWarning {
-    SimplifierUnavailable {
+    SimplificationTargetNotReached {
         target_triangles: usize,
+        remaining_triangles: usize,
         iterations: u16,
-        aggressiveness: f32,
     },
 }
 #[derive(Clone, Debug)]
@@ -176,6 +180,40 @@ fn project_unchecked(
         -px * sy + rz * cy + s.object_offset.y / 16.,
     )
 }
+
+/// Reproject a simplified source-tile position to the source sprite texture.
+/// The source adds half a pixel after inverse projection, including its mirrored
+/// branch. Call before the optional graphics-unit conversion.
+pub fn reproject_uv(sprite: &ReconstructionSprite, position: Vec3) -> Result<Vec2, Error> {
+    validate_sprite(sprite, 16_777_216)?;
+    if !position.is_finite() {
+        return Err(Error::InvalidInput("reprojection position"));
+    }
+    let result = reproject_unchecked(sprite, position);
+    if !result.is_finite() {
+        return Err(Error::InvalidInput("reprojected UV"));
+    }
+    Ok(result)
+}
+fn reproject_unchecked(s: &ReconstructionSprite, position: Vec3) -> Vec2 {
+    let p = position
+        - Vec3::new(
+            s.object_offset.x / 16.,
+            s.object_offset.z / 5.,
+            s.object_offset.y / 16.,
+        );
+    let (sy, cy) = (std::f32::consts::FRAC_PI_4 * (1. + 2. * f32::from(s.rotation))).sin_cos();
+    let px = p.x * cy - p.z * sy;
+    let rz = p.x * sy + p.z * cy;
+    let (sx, cx) = (-std::f32::consts::PI / 6.).sin_cos();
+    let py = p.y * cx + rz * sx;
+    let scale = 1.43 / 128.;
+    let x = px / scale - s.sprite_offset.x;
+    let y = -py / scale - s.sprite_offset.y - 4. + s.height as f32;
+    let u = (x + 0.5) / s.width as f32;
+    Vec2::new(if s.flip { 1. - u } else { u }, (y + 0.5) / s.height as f32)
+}
+
 pub fn triangulate_quad(points: [Option<Vec3>; 4], limit: f32) -> Result<Vec<u8>, Error> {
     if !limit.is_finite() || limit < 0. || points.iter().flatten().any(|p| !p.is_finite()) {
         return Err(Error::InvalidInput("depth discontinuity input"));
@@ -186,7 +224,19 @@ pub fn triangulate_quad(points: [Option<Vec3>; 4], limit: f32) -> Result<Vec<u8>
         .filter_map(|(i, p)| p.map(|_| i as u8))
         .collect();
     let max = limit * limit;
-    let ok = |a: usize, b: usize| (points[a].unwrap() - points[b].unwrap()).length_squared() <= max;
+    let ok = |a: usize, b: usize| {
+        let p = points[a].unwrap();
+        let q = points[b].unwrap();
+        let distance = (p - q).length_squared();
+        if distance.is_finite() && max.is_finite() {
+            distance <= max
+        } else {
+            let dx = f64::from(p.x) - f64::from(q.x);
+            let dy = f64::from(p.y) - f64::from(q.y);
+            let dz = f64::from(p.z) - f64::from(q.z);
+            dx * dx + dy * dy + dz * dz <= f64::from(limit) * f64::from(limit)
+        }
+    };
     if ids.len() == 4 {
         if ok(0, 2) && ok(1, 3) {
             Ok(vec![0, 1, 2, 0, 2, 3])
@@ -227,10 +277,18 @@ pub fn reconstruct(
     };
     let mut total_vertices = 0;
     let mut total_indices = 0;
+    let mut pixel_ordinals = [0u32; 4];
     for s in sprites {
         if !selected.contains(&s.rotation) {
             continue;
         }
+        let ordinal = &mut pixel_ordinals[usize::from(s.rotation)];
+        // PixelSPR=65535 is reserved for an authored custom texture.
+        if *ordinal >= 65535 {
+            return Err(Error::BudgetExceeded("source sprite ordinals"));
+        }
+        let pixel_sprite = *ordinal as u16;
+        *ordinal += 1;
         out.completed += 1;
         let Some(depth) = &s.depth else {
             out.missing_depth.push(s.sprite_id);
@@ -294,16 +352,29 @@ pub fn reconstruct(
                 v.position = p;
             }
         }
-        if params.simplify {
-            out.warnings
-                .push(ReconstructionWarning::SimplifierUnavailable {
-                    target_triangles: indices.len() / 3 / 100,
-                    iterations: 125,
-                    aggressiveness: 3.5,
-                });
-        }
         if indices.is_empty() {
             continue;
+        }
+        if params.simplify {
+            let schedule = simplification::SimplificationOptions::source(indices.len() / 3);
+            let simplified = simplification::simplify_mesh(&Mesh { vertices, indices }, schedule)?;
+            if !simplified.target_reached {
+                out.warnings
+                    .push(ReconstructionWarning::SimplificationTargetNotReached {
+                        target_triangles: schedule.target_triangles,
+                        remaining_triangles: simplified.remaining_triangles,
+                        iterations: simplified.iterations_used,
+                    });
+            }
+            vertices = simplified.mesh.vertices;
+            indices = simplified.mesh.indices;
+            for v in &mut vertices {
+                v.uv = reproject_unchecked(s, v.position);
+                v.normal = Vec3::ZERO;
+            }
+            if indices.is_empty() {
+                continue;
+            }
         }
         for tri in indices.chunks_exact(3) {
             let a = vertices[tri[0] as usize].position;
@@ -349,6 +420,8 @@ pub fn reconstruct(
         total_vertices += mesh.vertices.len();
         total_indices += mesh.indices.len();
         out.parts.push(ReconstructedPart {
+            texture_source: s.source,
+            pixel_sprite,
             sprite_id: s.sprite_id,
             rotation: s.rotation,
             group: s.dynamic_index.map(|i| u16::from(i) + 1).unwrap_or(0),
@@ -367,7 +440,7 @@ pub fn derivation_key(
     patch: AssetKey,
 ) -> Result<AssetKey, Error> {
     let mut hash = Sha256::new();
-    hash.update(b"wonderland-depth-reconstruction-v1\0");
+    hash.update(b"wonderland-depth-reconstruction-v2\0");
     hash.update(base.0);
     hash.update(patch.0);
     hash.update(subindex.to_le_bytes());
@@ -522,9 +595,13 @@ pub fn contact_translation(bounds: Aabb, anchor: Vec3) -> Result<Vec3, Error> {
     if !anchor.is_finite() || Aabb::new(bounds.min, bounds.max).is_none() {
         return Err(Error::InvalidInput("contact bounds/anchor"));
     }
-    Ok(Vec3::new(
-        anchor.x - (bounds.min.x + bounds.max.x) / 2.,
-        anchor.y - bounds.min.y,
-        anchor.z - (bounds.min.z + bounds.max.z) / 2.,
-    ))
+    let result = Vec3::new(
+        (f64::from(anchor.x) - (f64::from(bounds.min.x) + f64::from(bounds.max.x)) / 2.) as f32,
+        (f64::from(anchor.y) - f64::from(bounds.min.y)) as f32,
+        (f64::from(anchor.z) - (f64::from(bounds.min.z) + f64::from(bounds.max.z)) / 2.) as f32,
+    );
+    if !result.is_finite() {
+        return Err(Error::InvalidInput("contact translation overflow"));
+    }
+    Ok(result)
 }

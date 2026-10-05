@@ -356,3 +356,151 @@ fn malformed_public_roof_query_is_total() {
     assert!(!roofable(&lot, 16, 16, 2));
     assert_eq!(lot.tile_index(p(0, 0, 1)), None);
 }
+
+// Catches missing water atlas derivation and accidentally enabling the April Fools pool path.
+#[test]
+fn water_and_optional_legacy_pool_variants_keep_exact_ids() {
+    let mut lot = VisualLot::flat(4, 4, 2).unwrap();
+    tile(&mut lot, 1, 1, 1).floor = WATER;
+    assert_eq!(
+        effective_floor_pattern(&lot, p(1, 1, 1), WATER, false, false).unwrap(),
+        65507
+    );
+    assert_eq!(
+        effective_floor_pattern(&lot, p(1, 1, 1), POOL, false, false).unwrap(),
+        65535
+    );
+    assert_eq!(
+        effective_floor_pattern(&lot, p(1, 1, 1), POOL, false, true).unwrap(),
+        65523
+    );
+    tile(&mut lot, 1, 1, 2).supported = true;
+    assert_eq!(
+        effective_floor_pattern(&lot, p(1, 1, 2), 0, true, false).unwrap(),
+        65503
+    );
+    assert_eq!(
+        effective_floor_pattern(&lot, p(1, 1, 1), 0, true, false).unwrap(),
+        0
+    );
+    let out = build_lot(&lot, &BuildOptions::default()).unwrap();
+    assert!(out
+        .parts
+        .iter()
+        .any(|p| p.kind == SurfaceKind::Water && p.material == 65507));
+}
+
+// Catches changing source overlapping rectangle growth into disjoint greedy packing.
+#[test]
+fn l_shaped_roof_rectangles_overlap_in_source_expand_order() {
+    let mut lot = VisualLot::flat(7, 7, 1).unwrap();
+    for (x, y) in [(2, 2), (3, 2), (2, 3)] {
+        tile(&mut lot, x, y, 1).indoors = true;
+    }
+    assert_eq!(
+        roof_rectangles(&lot, 2, 10000).unwrap(),
+        vec![
+            RoofRect {
+                x1: 24,
+                y1: 24,
+                x2: 72,
+                y2: 56
+            },
+            RoofRect {
+                x1: 24,
+                y1: 24,
+                x2: 56,
+                y2: 72
+            }
+        ]
+    );
+}
+
+// Catches roofs bridging a courtyard and diagonal exclusions on the receiving level.
+#[test]
+fn courtyard_and_diagonal_blockers_remain_open() {
+    let mut lot = VisualLot::flat(8, 8, 2).unwrap();
+    for y in 2..6 {
+        for x in 2..6 {
+            if x == 2 || x == 5 || y == 2 || y == 5 {
+                tile(&mut lot, x, y, 1).indoors = true;
+            }
+        }
+    }
+    assert!(!roofable(&lot, 64, 64, 2));
+    let rects = roof_rectangles(&lot, 2, 100000).unwrap();
+    assert!(!rects
+        .iter()
+        .any(|r| r.x1 < 68 && r.x2 > 68 && r.y1 < 68 && r.y2 > 68));
+    assert!(roofable(&lot, 32, 32, 2));
+    tile(&mut lot, 2, 2, 2).diagonal = Some(Diagonal::Horizontal);
+    assert!(!roofable(&lot, 32, 32, 2));
+}
+
+// Catches endpoint cut sampling being independent of the camera cut rotation.
+#[test]
+fn wall_endpoint_cuts_sample_each_source_rotation() {
+    let mut lot = VisualLot::flat(5, 5, 1).unwrap();
+    let w = &mut tile(&mut lot, 2, 2, 1).wall;
+    w.north = true;
+    w.styles[1] = 1;
+    w.object_styles[1] = 42;
+    w.patterns[1] = 8;
+    for rotation in 0..4 {
+        let mut cuts = vec![false; 25];
+        cuts[6] = true;
+        let mut options = BuildOptions::default();
+        options.cutaway = Some(Cutaway {
+            level: 1,
+            rotation,
+            tiles: cuts,
+        });
+        let output = build_lot(&lot, &options).unwrap();
+        let face = output
+            .parts
+            .iter()
+            .find(|p| p.kind == SurfaceKind::Wall && p.style == 42 && p.material == 8)
+            .unwrap();
+        close(
+            face.mesh.vertices[2].position.y,
+            if rotation == 0 { 1.062 } else { 8.85 },
+        );
+        close(face.mesh.vertices[3].position.y, 8.85);
+    }
+}
+
+// Catches hard-coding roof texture scale and losing the source rim average color.
+#[test]
+fn roof_content_appearance_is_an_explicit_visual_input() {
+    let mut lot = VisualLot::flat(6, 6, 1).unwrap();
+    tile(&mut lot, 2, 2, 1).indoors = true;
+    lot.roof = Some(RoofStyle {
+        material: 1,
+        pitch: 0.5,
+        advanced: true,
+    });
+    lot.roof_texture_scale = 0.2;
+    lot.roof_average_color = [0.2, 0.3, 0.4, 1.];
+    let output = build_lot(&lot, &BuildOptions::default()).unwrap();
+    let roof = output
+        .parts
+        .iter()
+        .find(|p| p.kind == SurfaceKind::Roof)
+        .unwrap();
+    close(roof.mesh.vertices[0].uv.x, 0.6);
+    close(roof.mesh.vertices[0].uv.y, -0.9);
+    for part in output.parts.iter().filter(|p| {
+        matches!(
+            p.kind,
+            SurfaceKind::RoofRim | SurfaceKind::RoofUnderside | SurfaceKind::RoofEdge
+        )
+    }) {
+        assert!(part
+            .mesh
+            .vertices
+            .iter()
+            .all(|v| v.color == [0.2, 0.3, 0.4, 1.]));
+    }
+    lot.roof_texture_scale = f32::NAN;
+    assert!(build_lot(&lot, &BuildOptions::default()).is_err());
+}

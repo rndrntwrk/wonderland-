@@ -200,11 +200,7 @@ fn rgb_surround_adjustment_preserves_the_unadjusted_floor_shadow_average() {
     for (actual, expected) in above_shadow.into_iter().zip([1., 0.5, 0.25, 1.]) {
         near(actual, expected);
     }
-    for invalid in [
-        [f32::NAN, 1., 1.],
-        [1., -0.1, 1.],
-        [1., 1., f32::INFINITY],
-    ] {
+    for invalid in [[f32::NAN, 1., 1.], [1., -0.1, 1.], [1., 1., f32::INFINITY]] {
         assert!(floor_light_color(intensity, minimum, invalid, 0.).is_err());
     }
 }
