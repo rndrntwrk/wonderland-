@@ -1,6 +1,49 @@
 // Bounded PNG decoder for Chromium's 8-bit RGB/RGBA screenshot output.
 // This is screenshot readback analysis, not an engine asynchronous ID-buffer API.
-import {inflateSync} from 'node:zlib';
+import {inflateSync,deflateSync} from 'node:zlib';
+
+function validateRgba(image){
+  const {width,height,pixels}=image;
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1||width>4096||height>4096||!(pixels instanceof Uint8Array)||pixels.length!==width*height*4)throw new Error('Invalid bounded RGBA image');
+}
+
+export function capturePixelBounds(measurement,scale,expected={width:640,height:480}){
+  const {viewport,dpr,documentWidth,documentHeight}=measurement;
+  if(!['css','device'].includes(scale)||![1,2].includes(dpr))throw new Error('Unsupported capture scale or DPR');
+  if(viewport.cssWidth!==expected.width||viewport.cssHeight!==expected.height)throw new Error('Canvas CSS dimensions differ from requested size');
+  if(![viewport.documentX,viewport.documentY,documentWidth,documentHeight].every(Number.isInteger))throw new Error('Document and canvas origin must align with CSS pixels');
+  const factor=scale==='css'?1:dpr;
+  const bounds={x:viewport.documentX*factor,y:viewport.documentY*factor,width:viewport.cssWidth*factor,height:viewport.cssHeight*factor};
+  if(!Object.values(bounds).every(Number.isInteger)||bounds.x<0||bounds.y<0||bounds.width<1||bounds.height<1||bounds.x+bounds.width>documentWidth*factor||bounds.y+bounds.height>documentHeight*factor)throw new Error('Canvas pixel rectangle exceeds document');
+  if(scale==='device'&&(bounds.width!==viewport.width||bounds.height!==viewport.height))throw new Error('ID capture must equal the actual canvas backing dimensions');
+  return {bounds,factor,fullWidth:documentWidth*factor,fullHeight:documentHeight*factor};
+}
+
+// Exact row copies preserve discrete ID bytes. Cropping must never resample.
+export function extractPixels(image,{x,y,width,height}){
+  validateRgba(image);
+  if(![x,y,width,height].every(Number.isInteger)||x<0||y<0||width<1||height<1||x+width>image.width||y+height>image.height)throw new Error('Invalid integer pixel extraction bounds');
+  const pixels=new Uint8Array(width*height*4);
+  for(let row=0;row<height;row++){
+    const start=((y+row)*image.width+x)*4;
+    pixels.set(image.pixels.subarray(start,start+width*4),row*width*4);
+  }
+  return {width,height,pixels};
+}
+
+export function rgbaPng(image){
+  validateRgba(image);
+  function chunk(type,data){
+    const name=Buffer.from(type),length=Buffer.alloc(4),crc=Buffer.alloc(4);length.writeUInt32BE(data.length);
+    let value=0xffffffff;
+    for(const byte of Buffer.concat([name,data])){value^=byte;for(let i=0;i<8;i++)value=(value>>>1)^((value&1)?0xedb88320:0);}
+    crc.writeUInt32BE((value^0xffffffff)>>>0);return Buffer.concat([length,name,data,crc]);
+  }
+  const header=Buffer.alloc(13);header.writeUInt32BE(image.width,0);header.writeUInt32BE(image.height,4);header[8]=8;header[9]=6;
+  const stride=image.width*4,rows=Buffer.alloc((stride+1)*image.height);
+  for(let y=0;y<image.height;y++)rows.set(image.pixels.subarray(y*stride,(y+1)*stride),y*(stride+1)+1);
+  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',header),chunk('IDAT',deflateSync(rows)),chunk('IEND',Buffer.alloc(0))]);
+}
 
 export function readPng(input){
   const bytes=Buffer.from(input);
@@ -57,24 +100,47 @@ export function colorDifference(gpu,cpu){
   return {meanAbsoluteByteError:absolute/n,rootMeanSquareByteError:Math.sqrt(squared/n),maximumByteError:maximum,channelFractionOver8:over8/n};
 }
 
-export function compareIds(gpu,ids,depths,idMap){
-  if(gpu.width!==640||gpu.height!==480||ids.length!==640*480*8||depths.length!==640*480*4)throw new Error('ID comparison dimensions differ');
-  const map=new Map(idMap.map(i=>[`${i.objectId}:${i.generation}`,i.index]));
-  const groups=new Map();let checked=0,mismatched=0,ownerlessOcclusionChecked=0;const examples=[];
-  const identity=(x,y)=>{const i=(y*640+x)*8;return `${ids.readUInt32LE(i)}:${ids.readUInt32LE(i+4)}`;};
+// Interaction remains in the immutable logical 640x480 fixture coordinate system.
+// Choose its test point independently of physical screenshot samples.
+export function logicalSelectionPoint(ids){
+  if(ids.length!==640*480*8)throw new Error('Logical selection ID dimensions differ');
+  const identity=(x,y)=>{const i=(y*640+x)*8;return [ids.readUInt32LE(i),ids.readUInt32LE(i+4)];};
   for(let y=3;y<477;y+=5)for(let x=3;x<637;x+=5){
+    const [object_id,generation]=identity(x,y);if(!object_id&&!generation)continue;
+    let interior=true;
+    for(let dy=-2;dy<=2&&interior;dy++)for(let dx=-2;dx<=2;dx++){
+      const other=identity(x+dx,y+dy);if(other[0]!==object_id||other[1]!==generation){interior=false;break;}
+    }
+    if(interior)return {x,y,object_id,generation};
+  }
+  return null;
+}
+
+export function compareIds(gpu,ids,depths,idMap,dimensions={width:640,height:480}){
+  const {width,height}=dimensions;
+  validateRgba(gpu);
+  if(!((width===640&&height===480)||(width===1280&&height===960))||gpu.width!==width||gpu.height!==height||ids.length!==width*height*8||depths.length!==width*height*4)throw new Error('ID comparison dimensions differ');
+  const map=new Map(),indices=new Set();
+  for(const item of idMap){
+    const {objectId,generation,index}=item,key=`${objectId}:${generation}`;
+    if(![objectId,generation].every(v=>Number.isInteger(v)&&v>=0&&v<=0xffffffff)||generation===0||!Number.isInteger(index)||index<1||index>0xffffff||map.has(key)||indices.has(index))throw new Error('GPU ID map must have unique valid identities and positive unique 24-bit indices');
+    map.set(key,index);indices.add(index);
+  }
+  const groups=new Map();let checked=0,mismatched=0,ownerlessOcclusionChecked=0;const examples=[];
+  const identity=(x,y)=>{const i=(y*width+x)*8;return `${ids.readUInt32LE(i)}:${ids.readUInt32LE(i+4)}`;};
+  for(let y=3,row=0;y<height-3;y+=5,row++)for(let x=3,column=0;x<width-3;x+=5,column++){
     const key=identity(x,y);let interior=true;
     for(let dy=-2;dy<=2&&interior;dy++)for(let dx=-2;dx<=2;dx++)if(identity(x+dx,y+dy)!==key){interior=false;break;}
     if(!interior)continue;
-    const depth=depths.readFloatLE((y*640+x)*4),zero=key==='0:0';
+    const depth=depths.readFloatLE((y*width+x)*4),zero=key==='0:0';
     // Zero IDs over geometry must still occlude. Pure background is sampled too, with fewer points.
-    if(zero&&(!Number.isFinite(depth)||depth>=1)&&(x+y)%25!==0)continue;
+    if(zero&&(!Number.isFinite(depth)||depth>=1)&&(column+row)%5!==0)continue;
     if(zero&&Number.isFinite(depth)&&depth<1)ownerlessOcclusionChecked++;
     const expected=zero?0:map.get(key);if(expected===undefined)throw new Error(`GPU ID map omitted stable object ${key}`);
-    const i=(y*640+x)*4,actual=gpu.pixels[i]|gpu.pixels[i+1]<<8|gpu.pixels[i+2]<<16;
+    const i=(y*width+x)*4,actual=gpu.pixels[i]|gpu.pixels[i+1]<<8|gpu.pixels[i+2]<<16;
     checked++;let group=groups.get(key);if(!group){group={identity:key,checked:0,mismatched:0,points:[]};groups.set(key,group);}group.checked++;
     if(group.points.length<3)group.points.push({x,y});
     if(actual!==expected){mismatched++;group.mismatched++;if(examples.length<24)examples.push({x,y,expected,actual,identity:key,rgba:Array.from(gpu.pixels.slice(i,i+4))});}
   }
-  return {method:'GPU canvas screenshot of ID visualization; 5x5 stable CPU interiors',checked,mismatched,ownerlessOcclusionChecked,groups:[...groups.values()],examples};
+  return {method:'GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors',width,height,checked,mismatched,ownerlessOcclusionChecked,groups:[...groups.values()],examples};
 }

@@ -157,11 +157,24 @@ representative performance remain separate gates.
 ## Capture bounds and startup diagnostics
 
 Playwright 1.62.1 passes element bounds through enclosingIntRect before capture.
-The host can therefore translate its entire canvas container to integer document
-pixels before the runner takes an engine screenshot. This preserves the renderer
-buffer, complete canvas area and strict 640 by 480 reference dimensions. It avoids
-an extra screenshot row caused by fractional typography/layout positions. The
-runner reports observed CSS, backing-store and PNG dimensions on failure.
+The host translates its canvas container to integer document pixels. Actual
+checkpoint bc529fd4 evidence also showed that Chromium's Vulkan element capture
+ignored its origin and included the page header. The runner now retains a full-page
+PNG and extracts the measured document-space rectangle with exact RGBA row copies.
+It checks the full PNG dimensions, integer CSS/device origins and extents, crop
+bounds, backing dimensions for IDs, and unchanged document/canvas geometry after
+capture. A screenshot at the wrong origin cannot establish renderer parity.
+
+Color comparison remains at 640 by 480 CSS pixels with the original limits.
+Discrete ID bytes use physical device pixels and a separately rerasterized CPU
+reference selected by exact width/height from the manifest's idReferences array.
+The supported grids are 640 by 480 and 1280 by 960. A fixed 5 by 5 physical CPU
+neighborhood defines stable samples, with zero permitted byte mismatches. CPU
+ownerless finite-depth pixels must occlude with ID zero; sparse pure-background
+samples are chosen by sample-grid ordinals. The earlier coordinate-modulo phase
+could never select background and is covered by a corrupt-background regression.
+GPU ID maps must have unique valid game identities and injective positive 24-bit
+indices. Interactive CPU selection uses an independent logical 640 by 480 point.
 
 Fyrox 1.0.1 allocates its WASM canvas backing store once during graphics creation.
 Its later GraphicsServer::set_frame_size only resizes native surfaces. The adapter
@@ -177,14 +190,19 @@ the runner starts a separate Chromium process with --force-device-scale-factor
 for each DPR and checks a plain canvas's CSS and physical pixel boxes before
 loading the engine. This diagnostic creates no graphics context. A mismatch
 fails the density check rather than accepting a differently scaled image.
-Actual DPR/resize and resulting image parity still require the next CI run.
+Checkpoint bc529fd4 passed both DPR/backing resize checks on all three browser
+backends. Actual WebGL2 color comparisons passed in all six scenes per engine.
+The remaining encoded-ID errors were measured through CSS-downsampled DPR2 PNGs;
+the physical capture/reference correction requires a new actual run.
 
 The host emits bounded bootstrap records for module loading, WASM initialization,
 engine run, adapter request/result, device observation, canvas configuration and
 initial fixture publication. WebGPU device observation also occurs when the
 engine configures its own GPU canvas. Null adapters and missing navigator.gpu
 become explicit startup failures. These diagnostic hooks do not claim that a
-previous timeout has been resolved; that requires the next actual browser run.
+previous timeout has been resolved. In checkpoint bc529fd4, WebGPU reached engine
+readiness, completed lifecycle checks and passed the independent mapped-pixel
+diagnostic. Its wrong-origin scene screenshots still prevented parity acceptance.
 
 Checkpoint 4 reproduced WebGPU loss on the same device that configured the
 engine canvas, without an observed JavaScript GPUDevice.destroy call. The runner
@@ -200,8 +218,14 @@ swapchain image, and the separate 4 by 4 diagnostic reproduced the same error
 without Bevy. The next runner configuration follows Chromium 151.0.7922.34's own
 VulkanSwiftShader pixel-test flags: Vulkan and SwiftShader are selected for the
 display compositor, ANGLE and WebGPU together, with a disabled Vulkan surface
-for the headless path. This is a requested software configuration; actual device
-observation, successful image creation and engine parity still have to pass.
+for the headless path. Checkpoint bc529fd4 observed the actual WebGPU device and
+successful image creation. Engine color and ID parity await corrected captures.
+
+Phase records and an eight-minute per-phase watchdog bound otherwise unbounded
+page evaluation and graphics teardown without imposing a short total-run budget.
+Expiration preserves reports, console and process diagnostics before terminating
+only the Chromium process launched by this runner. The completed Fyrox software
+browser run lasted about thirteen minutes, with all lifecycle checks passing.
 
 The URL-aware HTTP log identified Fyrox's remaining 404 as
 data/resources.registry. Fyrox's released loader expects a RON UUID-to-path map

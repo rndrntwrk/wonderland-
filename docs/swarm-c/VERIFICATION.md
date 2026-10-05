@@ -15,20 +15,194 @@ Its [reference job 111875220500](https://github.com/rndrntwrk/wonderland-/action
 repeated the native/WASM, source-codec/native-audio and pinned-A successes.
 The combined reference job still failed because the already-reviewed audio-test
 and formatting corrections were not part of that renderer-only checkpoint.
-The library correction batch below resolves those local failures and must receive
-its own combined CI result after publication.
+The library correction batch resolved those failures and received the successful
+combined CI result recorded below. The later adapters received the expanded
+reference and native-device successes recorded next.
+
+## Expanded reference CI passed at bc529fd4
+
+The [complete reference job 111899190511](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190511)
+passed at `bc529fd4c08be5473b2da549f0aa80cebe17a45f`, covering the new FSOm,
+derivative and native transport code. All formatting gates and 368 Rust package
+tests passed: core 73, iso 60, geometry 105, avatar 35, audio 59, fixture 7,
+native transport 25 and facade worker 4. Replay also built and its empty test
+targets passed. The 19 Node audio tests, five host tests and PNG/ID self-test passed.
+
+The independent PNG verifier regenerated six images with all eight output files
+identical across a request round trip. Its artifact hash matched the reviewed
+local/committed `99796348fce39734e1e89f44e3c4eacf9a05e94fc58f26cc79fe3c19b3fc2800`.
+Five malformed envelopes were rejected and existing output was preserved.
+
+All 18 actual native/WASM observation records matched exactly with zero host
+imports and ordinary non-shared memory. The WASM SHA256 was
+`9a18a9eee238a2875660b4d8defc4d7bd8bde476b256242a6afc2b42dcb98f29`.
+The hosted reference measured 1,226.03655 ms and 21,364,736 memory bytes; these
+are synthetic algorithm observations, not GPU performance measurements.
+
+All 32 unchanged-C# XA/UTK comparisons matched complete WAV bytes, and all 11
+Python/FFmpeg/FFplay tests passed. The actual pinned-A probe ran 60 ticks with C
+absent and at 30/60/120 Hz; every state hash and ordered event matched, with two
+genuine cues and zero duplicate cues per cadence. The
+[retained evidence summary](evidence/reference-bc529fd.json) includes the full
+18 records, exact hashes, package counts, source comparison and A probe evidence.
+
+All five engine variants also compiled at this commit. Both native jobs passed:
+[Bevy, nine tests](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190565)
+and [Fyrox, twelve tests](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190420).
+Native-device evidence is recorded separately below. Browser verification remains
+separate; successful reference/native jobs do not override a failed image gate.
+
+## Browser capture findings at bc529fd4
+
+The three browser jobs completed with failures in their screenshot comparisons:
+
+| Job | Passing execution | Remaining captured-image failure |
+|---|---|---|
+| [Bevy WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190578) | All six color cases, physical DPR/backing resize checks and every lifecycle check passed. | One ID mismatch in Full3D/64: a CSS-sized screenshot averaged categorical IDs from a 1280×960 backing buffer. |
+| [Fyrox WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190430) | All six colors, both DPR/backing resize checks and every lifecycle check passed; no failed requests. The software-browser step took about 13 minutes. | Each of the three 64-avatar scenes had one ID mismatch in the reduced screenshot. |
+| [Bevy WebGPU](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190626) | Startup, all lifecycle checks and the independent mapped-pixel device diagnostic passed; its exact pixel was `[64,128,191,255]`. | All six color/ID pairs failed because element screenshots contained the page origin/header instead of the canvas at the observed document position. |
+
+The next capture correction retains a full-page device-pixel screenshot and
+extracts the exact observed canvas rectangle. Encoded IDs are never resampled;
+they use a freshly rasterized reference at the measured physical backing size.
+Logical selection retains its separate 640×480 coordinate contract. Color
+downsampling and exact-ID comparison are explicit separate operations.
+
+The new fixture API and six physical-resolution regressions passed, bringing
+the local fixture suite to 13. All six logical scene/output hash pairs match
+actual CI7. A separate direct comparison of 18 retained pre-change local
+PPM/ID/depth files also matched byte for byte; those raw files were local output,
+not downloaded CI7 buffers. Independent capture review passed nine Node
+challenges, including production capture calls across sizes/DPRs, rejected
+geometry drift, exact byte extraction and a formerly unreachable background
+sampling case. Zero ID mismatches and the existing color thresholds remain
+required. Actual browser CI after this correction is still required.
+
+## Combined reference CI passed at c6a8fbb
+
+The [complete reference job 111885186958](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493/job/111885186958)
+passed at commit `c6a8fbb70af6cc76e9363913159ecdff49ff27a7`. Every package
+format/test step and all independent source/runtime probes succeeded. This closes
+the audio-test and formatting failures recorded below for earlier checkpoints.
+
+The run exercised core 46, iso 60, geometry 79, avatar 32 integration plus 3
+compile-fail tests, audio 59 and the 6 shared-fixture tests. Actual Node browser
+audio and host tests and the PNG/ID comparator self-test also passed.
+
+All 18 native/WASM observation records were exactly equal, with zero host imports
+and non-shared memory. The WASM artifact SHA256 was
+`ff54e4efc2954a62c6d8c04edea1bbbbc443ef0bd466f9ca0004aae082b1f41c`.
+Observed reference execution was 854.071 ms and 21,364,736 memory bytes. The
+32 unchanged-source codec comparisons, 11 Python tests and pinned-A 60-tick
+absent/30/60/120 Hz probe also passed, with two genuine cues per run and zero
+duplicates. These reference timings are unrelated to physical GPU performance.
+
+Both native engine jobs in the same run passed after all five engine variants
+compiled successfully. All three browser jobs failed; their completed results
+and the subsequent correction evidence are recorded below. Reference success
+does not imply browser parity.
+
+## Completed engine run at c6a8fbb
+
+All results in this table come from
+[run 37346178493](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493)
+at the exact `c6a8fbb` commit above.
+
+| Job | Result | Observed scope or failure |
+|---|---|---|
+| [Bevy native](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493/job/111885187390) | Passed | Build, 8 tests and native software-renderer execution. Physical-GPU and native pixel qualification remain open. |
+| [Fyrox native](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493/job/111885187356) | Passed | Build, 10 tests and actual LDR shader/draw execution; the recorded native scene submitted 182 draw calls and 10,552 triangles. |
+| [Bevy WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493/job/111885187228) | Built/packaged; browser gate failed | All six stable-interior GPU-ID comparisons had zero mismatches. The 32-avatar Full2D/Hybrid2D colors exceeded RMS 12; the other four color cases passed. DPR 2 resize sizing also failed. |
+| [Fyrox WebGL2](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493/job/111885187287) | Built/packaged; browser gate failed | All three DPR 1 ID cases passed, with the same coplanar color discrepancy in two modes. DPR 2 had a renderer/backing-size mismatch; resize and a missing `resources.registry` also failed. |
+| [Bevy WebGPU](https://github.com/rndrntwrk/wonderland-/actions/runs/37346178493/job/111885187352) | Built/packaged; browser gate failed | Device loss occurred before the second frame. A bare 4×4 WebGPU clear/readback also failed without Bevy; Chromium 151.0.7922.34 stderr identified SharedImage swapchain allocation failure. |
+
+### Coplanar reference correction and same-capture recomparison
+
+The captured GPU images showed a later coplanar ground floor while the CPU
+reference retained earlier terrain. The reference default used strict Less;
+both engines used the source LessEqual equivalent. The correction adds explicit
+`DepthComparison::LessEqual` for the shared fixture and derivative renderer while
+preserving strict Less as the core default. No epsilon or comparator tolerance
+changed. Two core policy regressions and the new fixture coplanar regression
+passed; the complete fixture suite passed 7 tests.
+
+Regenerating CPU references from the same scene hashes and comparing the actual
+run-6 GPU captures produced these results:
+
+| Captured images | Corrected comparison |
+|---|---|
+| Bevy WebGL2, all six mode/count cases | Color and stable-interior IDs passed at the unchanged thresholds. Full2D/Hybrid2D with 32 avatars improved from RMS 13.064/12.859 to 2.464/2.725. |
+| Fyrox WebGL2, all three DPR 1 cases | Color and stable-interior IDs passed. Full2D/Hybrid2D RMS became 2.138/2.550. |
+
+This is a local recomparison of retained actual GPU captures, not a fresh passing
+browser job. The new physical-DPR setup, Fyrox renderer/backing-size coordination,
+resource registry packaging and Chromium Vulkan/SwiftShader configuration need
+the next complete CI execution. Source and implementation choices are in
+[core notes](core-source-notes.md) and [engine notes](engine-source-notes.md).
+
+## Adapter extension batch: local tests and independent review
+
+These additions postdate `c6a8fbb` and passed the expanded reference CI at
+`bc529fd4` recorded above. The following local checks and independent reviews
+were completed on 2026-10-05; their additional source/review probes have the
+specific scope described in each row.
+
+| Scope | Executed evidence | Remaining gate |
+|---|---|---|
+| Normalized FSOm objects | 26 new tests; complete geometry suite 105 debug and 105 release tests. Eight independent object challenges passed. Unchanged C# normal generation matched twelve f32 bit patterns; source world/blend/depth states were executed. The reviewed no-depth-attachment lightmap regression passed after correction. [Source evidence](fsom-source-notes.md). | B archive/texture/provider integration, actual engine shader/stencil execution and authorized patched-content comparison. |
+| Derivatives and reference depth | Core 73 tests: original 46, 25 derivative regressions and 2 explicit depth-policy regressions. Worker 4 tests. Six independent lifecycle/decode/depth challenges passed; a coplanar case was reproduced failing before the correction and passing afterward. | Expanded reference CI and complete source/client preparation and GPU integration. |
+| Source wall equations | Original C# comparison covered 23 atlas rectangles, 368 matrix coefficients and 115 transformed wall points. Maximum discrepancy was 0.000040875 atlas pixels against a 0.001 tolerance. | Real-content and GPU raster/blend/filter comparison. |
+| Actual derivative PNGs | Six nonempty PNGs and three distinct day/night pairs; all eight output files were byte-identical on repeat. Five malformed requests failed gracefully and an existing output directory was preserved. Independent Pillow decoding checked all six PNGs, 4,982 bleed pixels and all used floor-cell borders. [Committed manifest](../../tools/swarm-c/facade-worker/fixtures/synthetic-verification.json). | Legacy lighting/shadows, source thumbnail centering/cropping, FSOF mesh/container/DXT5/consumer behavior and live city integration remain explicit algorithms. |
+| Derivative memory ownership | Independent 512-view challenge measured 439,104 bytes against a 448,832-byte reservation. The final fixture reserved 3,732,912 bytes and retained 1,607,144 bytes of artifact payload. | These are bounded synthetic owned-memory observations, not total process or GPU memory measurements. |
+| Continuous native audio transport | 25 debug and 25 release tests; 12 independent challenges passed. Allocation instrumentation observed zero allocation/deallocation in data-callback paths. Deterministic reset/suspend/fault races, completion backpressure, small-block/high-rate refill and minimum buffering were exercised. [Contract/tests](../../crates/audio-runtime/native/README.md). | The separate CPAL compilation/configuration/ALSA-null job passed at `bc529fd4`, as recorded below. Physical/platform/load qualification remains open. |
+
+The derivative artifact SHA-256 is
+`99796348fce39734e1e89f44e3c4eacf9a05e94fc58f26cc79fe3c19b3fc2800`.
+The committed manifest retains effective-input, PNG and decoded-RGBA hashes.
+Its 31,788,844 work units are an admission model, not an elapsed-time benchmark.
+No adapter review is recorded as physical-device or live-provider acceptance.
+
+## Actual native-audio CI passed at bc529fd4
+
+[Native-audio job 111899190176](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190176)
+passed at commit `bc529fd4c08be5473b2da549f0aa80cebe17a45f` in
+[run 37350305093](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093).
+The device workspace compiled against actual CPAL 0.15.3 and ALSA, all four
+configuration tests passed, the real ALSA-null stream smoke passed, and the job
+uploaded its logs and complete resolved dependency lock. Independent review
+approved the observed backend execution. The durable
+[native-audio evidence summary](evidence/native-audio-bc529fd.json) records the
+test names, reviewed source blobs, artifact hashes and exact smoke report.
+
+The default/null device negotiated 48,000 Hz stereo F32, a 1,024-frame fixed
+device buffer, a 2,048-frame ring and 256-frame mixing blocks. The smoke recorded
+10,663 callbacks, 18,432 copied frames, two completed voices and zero device
+errors. Loop suspend/resume, live stop/reset and stale-session rejection all
+passed. It reports `physical_output_verified: false`. Its 2,091,264 underrun
+frames came from an unpaced null device, which can consume faster than wall time;
+these checks establish native execution and lifecycle behavior, not physical
+latency or real-time performance.
+
+The retained [CPAL lock](../../crates/audio-runtime/native/cpal/Cargo.lock) is
+28,738 bytes with SHA-256
+`f76004178c0e2d06345d22db4e23fb76191b433d2aa55492ca347626a40ab693`.
+Subsequent verification uses that graph with `--locked`. Physical speakers,
+device unplug/reopen, platform configurations and production-load qualification
+remain open. Unknown device buffer ranges remain an explicitly rejected
+configuration. The expanded reference and both native engine jobs also passed at
+`bc529fd4`; browser verification has its own outcomes and remaining corrections.
 
 ## Reviewed library correction batch
 
-The following checks ran on the final correction files on 2026-10-05. They are
-local implementation/review evidence, not a green aggregate CI claim.
+The following local checks and independent reviews ran on the correction files
+on 2026-10-05 before the successful combined CI result above.
 
 | Scope | Fresh result | Independent review and limit |
 |---|---|---|
 | Geometry | 79 debug tests and 79 release tests passed | 8 independent regression cases passed. All 21 runs of the unchanged C# simplifier matched ordered triangle indices and every output position/UV f32 bit. Permanent intermediate-schedule and output bowl regressions caught the arithmetic drift before correction. |
 | Avatar | 32 integration tests and 3 compile-fail doctests passed | 6 independent regression/source-vector cases, cooker compilation and the genuine pinned-A probe passed after the identity getter migration. Retagging rig/clip construction identity is impossible through the public API; incompatible poses fail without partial mutation. |
 | Audio | 59 Rust tests, 19 actual Node tests and 11 Python tests passed | Reviewer reran 8 focused Rust/Node/Python checks covering all four lifecycle/transaction findings and both cooker fixes. All 32 unchanged-source XA/UTK vectors again produced identical complete WAV bytes. FFplay used a dummy device; no physical output proof. |
-| Formatting | Geometry, avatar, audio and iso formatting checks passed | The corrected `Stop { voice: second }` test now compiles. The combined package script still needs a passing run at the published correction commit. |
+| Formatting | Geometry, avatar, audio and iso formatting checks passed | The corrected `Stop { voice: second }` test now compiles. The combined package script subsequently passed at c6a8fbb. |
 
 The source notes and committed regressions record the original equations and
 specific fixes. Synthetic/source tests do not replace provider, device or complete
@@ -74,8 +248,9 @@ the dependency locks available:
 bash tools/swarm-c/verify.sh
 ```
 
-This attempts independent formatting and test checks for all five libraries and
-the fixture/replay packages, generates reference output, exercises the browser
+This attempts independent formatting and test checks for all five libraries,
+the fixture/replay packages, native audio transport and facade worker, generates
+reference output, exercises the browser
 audio and host-control tests, and runs the PNG/ID comparator self-test. A failure
 does not prevent the other independent checks from reporting. The combined
 command exits unsuccessfully if any check failed.
@@ -119,11 +294,57 @@ player tests, and runs the unchanged-source XA/UTK differential probe. It writes
 synthetic-vector hashes belong in that evidence; do not replace the original
 decoder with a rewritten expectation.
 
-Native tests use dummy output and buffered file playback. They prove process,
+The Python native-player tests use dummy output and buffered file playback. They prove process,
 deadline, pause/resume/stop and decoding behavior, not audible speaker output or
-a continuous low-latency callback backend. Browser unit tests use controlled
+a continuous low-latency callback backend. The new transport and CPAL checks below
+exercise separate implementations. Browser unit tests use controlled
 backend boundaries; actual AudioContext behavior is exercised separately by
 the engine/browser runner.
+
+### Continuous native transport and actual CPAL stream
+
+The pure transport has no new registry dependency and runs independently:
+
+```sh
+cargo test --locked --manifest-path crates/audio-runtime/native/Cargo.toml
+cargo test --locked --release --manifest-path crates/audio-runtime/native/Cargo.toml
+```
+
+The isolated CPAL workspace pins 0.15.3. Device-enabled CI uses Rust 1.95.0,
+`pkg-config` and `libasound2-dev`. Use the dependency lock retained from the
+successful device job above:
+
+```sh
+cargo test --locked --manifest-path crates/audio-runtime/native/cpal/Cargo.toml
+bash crates/audio-runtime/native/cpal/run-alsa-null.sh
+```
+
+The smoke uses real OS/CPAL callbacks routed through an isolated ALSA null
+configuration. It requires two one-shot completions, repeated live-loop copies,
+continued silent callback activity while suspended, resumed copies, live stop/reset,
+stale-session rejection and no device errors. Its result explicitly sets physical
+output false. Null output can consume faster than wall time, so callback/underrun
+counts do not establish physical latency or production scheduling performance.
+Full setup and platform limitations are in the [device guide](../../crates/audio-runtime/native/cpal/README.md).
+
+## Reproduce thumbnail and facade artifacts
+
+The [worker guide](../../tools/swarm-c/facade-worker/README.md) describes the
+normalized request protocol and all six image outputs. From a fresh output path:
+
+```sh
+cargo build --locked --manifest-path tools/swarm-c/facade-worker/Cargo.toml
+python3 tools/swarm-c/facade-worker/verify.py \
+  tools/swarm-c/facade-worker/target/debug/wonderland-facade-worker \
+  /tmp/swarm-c-facade-verification
+```
+
+When `CARGO_TARGET_DIR` is set, use its `debug/wonderland-facade-worker` instead.
+The destination must not already exist. The verifier independently checks PNG
+CRCs, zlib termination, dimensions and RGBA hashes, then repeat equality and
+malformed-request behavior. The source-controlled manifest records one actual
+fixture run; rerun after any change to source math, material handling, layout,
+identity, metadata or PNG encoding.
 
 ## Pinned A/C authority boundary
 

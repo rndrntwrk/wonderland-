@@ -36,6 +36,7 @@ verified byte for byte.
 | Reconstruction | `reconstruction::reconstruct`, `select_params`, `derivation_key` | Grouped source-sprite meshes, texture identities, contact bounds, and derivation diagnostics |
 | Simplification | `reconstruction::simplification::simplify_mesh` | A bounded source QEM edge-collapse result and target/work statistics |
 | Resolution | `reconstruction::resolution::MeshResolver` | Explicit override/cache/reconstruction precedence with bounded residency |
+| Normalized FSOm objects | `objects::PreparedFsom`, `ObjectMeshSlot` | Immutable multi-material groups/textures, ordered source draw contracts, bounded validation and generation-fenced replacement |
 | City | `city::build_city_parts`, `build_near_patch_parts` | Class, blend, road-edge, and road-corner parts; secondary mask UVs |
 | Facade | `city::facade::bake_facade`, `to_obj` | Content-addressed geometry, bounds, and validated OBJ text |
 | Cameras | `camera::OrbitCamera`, `CityCamera`, `FirstPersonCamera`, `direct_pose` | Source-coordinate camera poses with checked projection |
@@ -177,14 +178,42 @@ This is routing consistency around an independently validated core frame.
 `DirectoryProvenance::Fixture` is explicit, and no test claims live directory
 or admission acceptance.
 
+## Normalized FSOm object adapter
+
+[`objects.rs`](src/objects.rs) consumes a complete bounded `NormalizedFsom` from
+the content provider. It preserves source part order, resolved textures/UV scale,
+static group zero, both 64-bit dynamic banks, masks and effective content identity.
+Prepared meshes and identities are immutable. `ObjectMeshSlot` validates a
+replacement before installing it and rejects stale entity/session/reset/content
+completions without removing the current model.
+
+`PreparedFsom::scene` emits actual borrowed meshes/materials plus ordered shader,
+blend, culling, depth and two-sided stencil commands. Source world/lightmap
+transforms, normal/portal mask passes and the disabled-room exception remain
+explicit. The fragment-state oracle exercises those policies; engine integration
+must create the corresponding real GPU resources and passes.
+
+The source mappings, original C# normal/world/blend/depth comparisons, memory
+limits and exact B/engine boundaries are in
+[fsom-source-notes.md](../../docs/swarm-c/fsom-source-notes.md).
+
 ## Remaining integration work
 
 The crate accepts normalized data. It does not decode a complete FSOm archive
-with all material/group/depth-mask payloads, open the content provider, resolve
-external custom textures versus embedded MTEX, or produce legacy facade
-day/night texture atlases. `MeshCandidate` is a normalized single mesh plus
-mask kind; it is not the full archive schema. The explicit depth-pass planner
-still needs a physical engine depth/stencil implementation and acceptance run.
+with all material/group/depth-mask payloads, open the content provider, or resolve
+external custom textures versus embedded MTEX. B supplies those decoded and
+resolved values to the new normalized object adapter. `MeshCandidate` remains
+the reconstruction resolver's single-mesh representation; it does not replace
+the separate complete `NormalizedFsom` contract. Source depth/stencil/material
+commands still need engine execution and acceptance.
+
+The separate [CPU facade worker](../../tools/swarm-c/facade-worker/README.md)
+now produces actual day/night PNG atlases and thumbnails from explicit normalized
+mesh/material/light inputs, with bounded queue/lease lifetimes in render-core.
+Legacy room-light/shadow preparation, thumbnail centering/cropping, FSOF
+geometry/container/DXT5 output and consumer blend/filter equivalence remain
+distinct source algorithms; production city scheduling and GPU texture ownership
+also need integration.
 
 Real pool/tree/roof/floor/wall texture assets, source character/object content
 through the actual provider, two live directory destinations and admitted lot
@@ -197,8 +226,9 @@ are in [geometry-source-notes.md](../../docs/swarm-c/geometry-source-notes.md).
 
 ## Verification
 
-The current package passes 79 tests in release mode with overflow checks
-enabled and passes `cargo fmt -- --check`. An independent run also passed all
-79 debug tests, eight source-review regressions, and the 21 source QEM
-comparisons. These checks cover pure inputs and CPU outputs; they do not
+The extended package passes 105 tests in both debug and release, with release
+overflow checks enabled, and passes `cargo fmt -- --check`. This includes the
+original 79 tests and 26 new object tests. Independent reviews passed eight
+geometry regressions, the 21 source QEM comparisons and eight new object
+challenges. These checks cover pure inputs and CPU outputs; they do not
 constitute the remaining provider, live admission, or physical rendering gates.

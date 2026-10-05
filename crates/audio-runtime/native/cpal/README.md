@@ -8,18 +8,12 @@ explicit reopen. It does not generate PCM inside the data callback.
 ## Linux build and virtual-device gate
 
 Required runner packages: `pkg-config` and `libasound2-dev`, plus the normal Rust
-linker/build tools. The local offline cache does not contain CPAL, so the full
-device dependency graph and `Cargo.lock` must first be generated in the allowed
-CI environment. The transport's separate lock already supports local Rust 1.75
-tests. Use the engine runner's Rust 1.95 toolchain for the first device build;
-this does not claim that every newly resolved platform dependency supports 1.75.
+linker/build tools. Use Rust 1.95 and the complete device [Cargo.lock](Cargo.lock)
+retained from the successful CI run below. The transport's separate lock supports
+local Rust 1.75 tests without CPAL/ALSA development packages. The successful device
+build does not claim that every platform dependency supports Rust 1.75.
 
 ```sh
-# First enabled CI run: retain the resulting Cargo.lock as an artifact and
-# commit that exact graph before subsequent locked verification.
-cargo test --manifest-path crates/audio-runtime/native/cpal/Cargo.toml
-
-# Once Cargo.lock exists:
 cargo test --locked --manifest-path crates/audio-runtime/native/cpal/Cargo.toml
 bash crates/audio-runtime/native/cpal/run-alsa-null.sh
 cargo fmt --manifest-path crates/audio-runtime/native/cpal/Cargo.toml -- --check
@@ -44,6 +38,22 @@ The final stdout line is JSON; device details go to stderr. Every success report
 sets `physical_output_verified` to false. The ALSA null plugin can consume much
 faster than wall-clock playback, so its callback count and underrun count are
 functional execution evidence, not physical latency or real-time performance.
+
+The actual device build, all four configuration tests and this smoke passed at
+`bc529fd4c08be5473b2da549f0aa80cebe17a45f` in
+[native-audio job 111899190176](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190176).
+The default/null device negotiated 48,000 Hz stereo F32, a 1,024-frame fixed
+device buffer, a 2,048-frame ring and 256-frame mixing blocks. The smoke observed
+10,663 callbacks, 18,432 copied frames, two completed voices and zero device
+errors. Loop suspend/resume, live stop/reset and stale-session rejection all
+passed. Its 2,091,264 underrun frames reflect the unpaced null device and are not
+a physical-device performance result.
+
+The retained 28,738-byte lock has SHA-256
+`f76004178c0e2d06345d22db4e23fb76191b433d2aa55492ca347626a40ab693`.
+The job uploaded the lock, build log and device-smoke log as evidence. Physical
+speakers, unplug/reopen and production-load latency/underrun qualification remain
+open.
 
 To exercise the operating system's default output instead, run the example
 directly with no test `ALSA_CONFIG_PATH`. Its short synthetic fixture is quiet but

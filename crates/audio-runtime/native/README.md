@@ -10,12 +10,14 @@ operation, mutex acquisition or wait.
 `native/` is an independent Rust 1.75 workspace with no new registry dependency.
 Its generated `Cargo.lock` is checked in. `native/cpal/` is a separate device
 workspace pinned to CPAL **0.15.3**; this keeps unavailable platform libraries
-from preventing transport tests. The first device-enabled CI run must resolve
-and retain that workspace's complete dependency lock before subsequent locked
-device runs. The local environment has no cached CPAL crate, ALSA development
-headers, `pkg-config`, or physical audio device. Its existing `libasound.so.2`
-runtime library alone is insufficient to build CPAL. No device build or audible
-output is claimed from the local transport tests.
+from preventing transport tests. Actual device compilation, four configuration
+tests and the OS ALSA-null stream passed at
+`bc529fd4c08be5473b2da549f0aa80cebe17a45f` in
+[native-audio job 111899190176](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190176).
+The job retained the complete device dependency lock and logs; use that lock for
+subsequent `--locked` runs. The separate local transport tests still require no
+CPAL/ALSA development packages. Neither their success nor the null-device run
+proves audible output or physical-device performance.
 
 ## Integration
 
@@ -183,8 +185,10 @@ reset/suspend/fault races at callback commit. Its allocator instrumentation chec
 both allocation and deallocation across normal, underrun, stale, suspended,
 faulted and malformed-buffer paths.
 
-The [CPAL workspace instructions](cpal/README.md) describe the real ALSA-null
-stream smoke and its required development packages. That smoke is a virtual
-native-device execution gate. Physical output, hot unplug on physical hardware,
+The [CPAL workspace instructions](cpal/README.md) describe the passing real
+ALSA-null stream smoke and its required development packages. It exercised actual
+OS callbacks, one-shot and loop consumption, silent software suspension, resume,
+live stop/reset and stale-session rejection without a latched device error.
+Its physical-output flag remains false. Physical output, hot unplug on physical hardware,
 latency/underrun targets under production load, and platform configurations with
 unknown buffer ranges remain separate validation or implementation work.

@@ -201,8 +201,30 @@ out. The source-space compositing, custom LDR, capture-alignment and bootstrap
 changes require a fresh engine/browser run. No renderer or physical-device
 qualification is implied.
 
-Element screenshots require integer document-pixel bounds because Playwright
-rounds fractional rectangles outward. The gate calls alignForCapture(), checks
-the exact CSS drawable size and then checks the PNG is exactly 640 by 480. It does
-not repair mismatches by image resizing. Bootstrap events are available in the
-snapshot and emitted as WONDERLAND_BOOTSTRAP console records for startup diagnosis.
+The gate calls alignForCapture(), measures the document and canvas together,
+and retains a full-page PNG before extracting the exact canvas rectangle with
+integer row copies. It checks document dimensions, canvas bounds and layout
+stability across the capture. This avoids the incorrect element-capture origin
+observed with Chromium's headless Vulkan compositor. Color captures remain
+640 by 480 CSS pixels with unchanged error limits. ID captures use physical
+device pixels, match both the actual backing store and a separately rasterized
+640 by 480 or 1280 by 960 CPU reference, and never resample encoded IDs.
+The exact-zero ID gate samples fixed 5 by 5 physical CPU interiors, including
+ownerless occluders and a reachable sparse background grid. Interactive selection
+is separately checked at a stable logical 640 by 480 CPU point.
+
+Checkpoint bc529fd4 compiled all five variants, passed both native suites and
+ran all three browser backends. Bevy and Fyrox WebGL2 passed all six color checks,
+both DPR/resize checks, and the lifecycle checks. Their remaining one and three
+ID mismatches respectively were in CSS-downsampled DPR2 captures. Bevy WebGPU
+reached readiness, completed lifecycle checks and passed the separate mapped-pixel
+diagnostic; its scene screenshots captured the page origin, so color/ID parity
+remains unverified. The corrected capture path still requires a new browser run.
+No physical-device or performance qualification follows from software graphics.
+
+Bootstrap events are available in the snapshot and emitted as
+WONDERLAND_BOOTSTRAP records. WONDERLAND_PHASE records identify capture and
+lifecycle work. An eight-minute watchdog applies to each individual phase,
+preserving diagnostics and failing the run if an evaluation or graphics teardown
+never returns. It imposes no total-run limit; the observed Fyrox software-browser
+run took approximately thirteen minutes.

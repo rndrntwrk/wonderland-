@@ -2,12 +2,12 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile,stat} from 'node:fs/promises';
-import {createReadStream} from 'node:fs';
+import {createReadStream,writeFileSync} from 'node:fs';
 import {dirname,resolve,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {deflateSync} from 'node:zlib';
-import {readPng,readPpm,colorDifference,compareIds} from './read-png.mjs';
+import {readPng,readPpm,colorDifference,compareIds,capturePixelBounds,extractPixels,rgbaPng,logicalSelectionPoint} from './read-png.mjs';
 
 if(process.argv.includes('--self-test')){
   // Exercise all PNG row filters against hand-specified RGB pixels.
@@ -34,7 +34,56 @@ if(process.argv.includes('--self-test')){
   assert.equal(compareIds({width:640,height:480,pixels},ids,depths,[]).mismatched,0);
   pixels[(3*640+3)*4]=1;
   assert.equal(compareIds({width:640,height:480,pixels},ids,depths,[]).mismatched,1);
-  console.log('PASS: five PNG filters, malformed PNG rejection, exact ownerless ID occlusion and mismatch detection');
+  for(let y=0;y<480;y++)for(let x=0;x<640;x++){
+    const i=y*640+x;depths.writeFloatLE(x<320?0.5:Infinity,i*4);pixels[i*4]=x<320?0:99;
+  }
+  const background=compareIds({width:640,height:480,pixels},ids,depths,[]);
+  assert.ok(background.ownerlessOcclusionChecked>0&&background.mismatched>0,'Corrupt background IDs must fail even while ownerless geometry passes');
+  for(const map of [[{objectId:1,generation:1,index:0}],[{objectId:1,generation:0,index:1}],
+    [{objectId:1,generation:1,index:1},{objectId:2,generation:1,index:1}],
+    [{objectId:1,generation:1,index:1},{objectId:1,generation:1,index:2}],
+    [{objectId:1,generation:1,index:0x1000000}]])assert.throws(()=>compareIds({width:640,height:480,pixels},ids,depths,map));
+  assert.throws(()=>compareIds({width:640,height:480,pixels:pixels.subarray(4)},ids,depths,[]));
+  assert.throws(()=>compareIds({width:640,height:480,pixels},ids.subarray(8),depths,[]));
+  assert.throws(()=>compareIds({width:640,height:480,pixels},ids,depths.subarray(4),[]));
+  for(const [width,height] of [[640,480],[1280,960]]){
+    const physicalIds=Buffer.alloc(width*height*8),physicalDepths=Buffer.alloc(width*height*4),physicalPixels=new Uint8Array(width*height*4);
+    for(let i=0;i<width*height;i++){
+      physicalIds.writeUInt32LE(77,i*8);physicalIds.writeUInt32LE(9,i*8+4);physicalDepths.writeFloatLE(0.5,i*4);
+      physicalPixels.set([37,0,0,255],i*4);
+    }
+    const gpu={width,height,pixels:physicalPixels},map=[{objectId:77,generation:9,index:37}];
+    assert.equal(compareIds(gpu,physicalIds,physicalDepths,map,{width,height}).mismatched,0);
+    assert.throws(()=>compareIds(gpu,physicalIds,physicalDepths,[],{width,height}));
+    physicalPixels[(3*width+3)*4]=18;
+    assert.equal(compareIds(gpu,physicalIds,physicalDepths,map,{width,height}).mismatched,1,'Averaged ID bytes must never pass');
+    if(width===640)assert.deepEqual(logicalSelectionPoint(physicalIds),{x:3,y:3,object_id:77,generation:9});
+    else assert.throws(()=>compareIds(gpu,physicalIds,physicalDepths,map,{width:640,height:480}));
+  }
+  for(const dpr of [1,2]){
+    for(const expected of [{width:640,height:480},{width:400,height:300}]){
+      const measurement={dpr,documentWidth:1400,documentHeight:1100,viewport:{documentX:165,documentY:325,cssWidth:expected.width,cssHeight:expected.height,width:expected.width*dpr,height:expected.height*dpr}};
+      for(const scale of ['css','device']){
+        const factor=scale==='css'?1:dpr,result=capturePixelBounds(measurement,scale,expected);
+        assert.deepEqual(result.bounds,{x:165*factor,y:325*factor,width:expected.width*factor,height:expected.height*factor});
+        assert.equal(result.fullWidth,1400*factor);assert.equal(result.fullHeight,1100*factor);
+      }
+      assert.throws(()=>capturePixelBounds({...measurement,viewport:{...measurement.viewport,width:1}},'device',expected));
+      assert.throws(()=>capturePixelBounds({...measurement,viewport:{...measurement.viewport,documentX:165.5}},'device',expected));
+      assert.throws(()=>capturePixelBounds({...measurement,documentHeight:100},'css',expected));
+    }
+    const width=11*dpr,height=9*dpr,pagePixels=new Uint8Array(width*height*4);
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++)pagePixels.set([x*3,y*7,x+y,(x*y)%256],(y*width+x)*4);
+    const pageImage={width,height,pixels:pagePixels},bounds={x:3*dpr,y:2*dpr,width:5*dpr,height:4*dpr};
+    const cropped=extractPixels(readPng(rgbaPng(pageImage)),bounds),roundtrip=readPng(rgbaPng(cropped));
+    for(let y=0;y<bounds.height;y++)for(let x=0;x<bounds.width;x++){
+      const px=x+bounds.x,py=y+bounds.y;
+      assert.deepEqual(Array.from(roundtrip.pixels.subarray((y*bounds.width+x)*4,(y*bounds.width+x+1)*4)),[px*3,py*7,px+py,(px*py)%256]);
+    }
+    for(const invalid of [{...bounds,x:0.5},{...bounds,y:-1},{...bounds,width:width+1},{...bounds,height:0}])assert.throws(()=>extractPixels(pageImage,invalid));
+    assert.throws(()=>extractPixels({...pageImage,pixels:pagePixels.subarray(4)},bounds));
+  }
+  console.log('PASS: five PNG filters; exact nonzero-origin RGBA crops at DPR1/2; physical ID grids; corrupt background/ownerless IDs; dimensions and injective ID maps; independent logical selection');
   process.exit(0);
 }
 
@@ -51,7 +100,7 @@ const report={schemaVersion:1,variant,startedAt:new Date().toISOString(),status:
   checks:[],scenes:[],lifecycle:[],failures:[],console:[],requests:[]};
 const failure=(name,error)=>{const item={name,error:String(error?.stack||error)};report.failures.push(item);console.error(`FAIL ${name}: ${item.error}`);};
 function check(name,condition,detail){report.checks.push({name,passed:!!condition,detail});if(!condition)failure(name,JSON.stringify(detail));}
-async function step(name,fn){try{const detail=await fn();report.lifecycle.push({name,passed:true,detail});return detail;}catch(error){failure(name,error);report.lifecycle.push({name,passed:false,error:String(error)});return null;}}
+async function step(name,fn){enterPhase(name);try{const detail=await fn();report.lifecycle.push({name,passed:true,detail});return detail;}catch(error){failure(name,error);report.lifecycle.push({name,passed:false,error:String(error)});return null;}}
 const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.wasm':'application/wasm','.json':'application/json'};
 const server=createServer(async(req,res)=>{
   try{
@@ -69,6 +118,25 @@ await new Promise(resolveListen=>server.listen(0,'127.0.0.1',resolveListen));
 const base=`http://127.0.0.1:${server.address().port}/probes/engine-bakeoff/web/index.html`;
 let browser,browserServer;
 const browserProcessLog=[];let browserLogBytes=0,forwardedProcessLines=0;
+let phaseWatchdog;
+function enterPhase(name){
+  clearTimeout(phaseWatchdog);report.activePhase={name,startedAt:new Date().toISOString()};
+  console.log('WONDERLAND_PHASE '+JSON.stringify(report.activePhase));
+  // Page evaluation and graphics teardown can outlive Playwright's action
+  // timeout. Preserve evidence without requiring the blocked page to respond.
+  phaseWatchdog=setTimeout(()=>{
+    failure('phase-watchdog',`No phase completion within 8 minutes: ${name}`);
+    report.finishedAt=new Date().toISOString();report.status='failed';
+    report.watchdog={phase:report.activePhase,trace:'A blocked browser may not finalize its trace; completed PNGs and diagnostics are retained'};
+    try{
+      writeFileSync(resolve(output,'report.json'),JSON.stringify(report,null,2)+'\n');
+      writeFileSync(resolve(output,'console.json'),JSON.stringify(report.console,null,2)+'\n');
+      writeFileSync(resolve(output,'browser-process.log'),browserProcessLog.join(''));
+    }catch(error){console.error('WONDERLAND_WATCHDOG_WRITE_ERROR '+String(error));}
+    browserServer?.process().kill('SIGKILL');process.exit(1);
+  },8*60*1000);
+  phaseWatchdog.unref();
+}
 function recordBrowserProcess(chunk){
   const value=String(chunk);if(browserLogBytes<1024*1024){browserProcessLog.push(value.slice(0,1024*1024-browserLogBytes));browserLogBytes+=Buffer.byteLength(value);}
   for(const line of value.split('\n'))if(forwardedProcessLines<64&&/gpu|dawn|vulkan|device|validation/i.test(line)){
@@ -93,35 +161,42 @@ async function diagnosticSnapshot(page){
     new Promise(resolveTimeout=>{timer=setTimeout(()=>resolveTimeout({diagnosticError:'Snapshot timed out after 5 seconds'}),5000);})
   ]);}finally{clearTimeout(timer);}
 }
-async function captureCanvas(page,path,expected={width:640,height:480}){
+async function captureCanvas(page,path,scale='css',expected={width:640,height:480}){
+  enterPhase(`capture-${path.split(sep).at(-1)}`);
   await page.locator('#engine-canvas').scrollIntoViewIfNeeded();
-  const viewport=await page.evaluate(async()=>{
+  await page.evaluate(async()=>{
     await document.fonts.ready;
-    return window.__wonderlandProbe.alignForCapture();
+    window.__wonderlandProbe.alignForCapture();
   });
-  assert.equal(viewport.cssWidth,expected.width,'Canvas CSS width differs from the requested drawable size');
-  assert.equal(viewport.cssHeight,expected.height,'Canvas CSS height differs from the requested drawable size');
-  assert.ok(Math.abs(viewport.documentX-Math.round(viewport.documentX))<0.001,'Canvas document x must lie on an integer CSS pixel');
-  assert.ok(Math.abs(viewport.documentY-Math.round(viewport.documentY))<0.001,'Canvas document y must lie on an integer CSS pixel');
-  const bytes=await page.locator('#engine-canvas').screenshot({path,scale:'css',style:'#engine-canvas { outline: none !important; }'});
-  const image=readPng(bytes);
-  if(image.width!==expected.width||image.height!==expected.height){
-    console.error('WONDERLAND_CAPTURE_DIMENSIONS '+JSON.stringify({viewport,png:{width:image.width,height:image.height},expected}));
-    throw new Error('Canvas screenshot dimensions differ from the exact drawable size: '+image.width+'x'+image.height+' versus '+expected.width+'x'+expected.height);
-  }
-  return {bytes,image,viewport};
+  const measure=()=>page.evaluate(()=>{
+    const e=document.documentElement,b=document.body;
+    return {viewport:window.__wonderlandProbe.snapshot().viewport,dpr:devicePixelRatio,scrollX,scrollY,
+      documentWidth:Math.max(e.scrollWidth,e.offsetWidth,e.clientWidth,b.scrollWidth,b.offsetWidth),
+      documentHeight:Math.max(e.scrollHeight,e.offsetHeight,e.clientHeight,b.scrollHeight,b.offsetHeight)};
+  });
+  const before=await measure(),viewport=before.viewport;
+  const {bounds,factor,fullWidth,fullHeight}=capturePixelBounds(before,scale,expected);
+  const fullPath=path.replace(/\.png$/,'-page.png');assert.notEqual(fullPath,path);
+  // Chromium's headless Vulkan compositor ignored the element screenshot origin.
+  // Keep the complete document capture and copy the exact document-space rectangle.
+  const whole=readPng(await page.screenshot({path:fullPath,fullPage:true,scale,style:'#engine-canvas { outline: none !important; }'}));
+  assert.deepEqual(await measure(),before,'Canvas/document geometry changed during screenshot');
+  assert.equal(whole.width,fullWidth,'Full-page screenshot width differs from measured document');
+  assert.equal(whole.height,fullHeight,'Full-page screenshot height differs from measured document');
+  const image=extractPixels(whole,bounds),bytes=rgbaPng(image);await writeFile(path,bytes);
+  return {bytes,image,viewport,capture:{scale,factor,bounds,document:before,fullPage:fullPath,fullWidth:whole.width,fullHeight:whole.height}};
 }
 
 async function captureColor(page,path){
   const deadline=Date.now()+15000;
-  let bytes,image,distinct;
+  let bytes,image,distinct,metadata;
   do{
-    const capture=await captureCanvas(page,path);bytes=capture.bytes;image=capture.image;distinct=new Set();
+    const capture=await captureCanvas(page,path);bytes=capture.bytes;image=capture.image;metadata=capture.capture;distinct=new Set();
     for(let i=0;i<image.pixels.length;i+=4)distinct.add(image.pixels[i]|image.pixels[i+1]<<8|image.pixels[i+2]<<16);
     if(distinct.size>16)break;
     await page.waitForTimeout(250);
   }while(Date.now()<deadline);
-  return {bytes,image,distinctColors:distinct.size};
+  return {bytes,image,capture:metadata,distinctColors:distinct.size};
 }
 async function ready(page){
   try{
@@ -187,6 +262,7 @@ try{
   report.browserArgs=args;
   report.browserProcesses=[];
   for(const avatars of [32,64]){
+    enterPhase(`browser-launch-${avatars}`);
     const dpr=avatars===32?1:2;
     // Winit uses devicePixelContentBoxSize, which can differ from an emulated
     // window.devicePixelRatio. Set the process scale too, then measure both.
@@ -222,12 +298,14 @@ try{
       assert.equal(pixelGeometry.physicalWidth,100*dpr,'Browser physical pixel content box must match the requested DPR');
       assert.equal(pixelGeometry.physicalHeight,80*dpr,'Browser physical pixel content box must match the requested DPR');
       const url=`${base}?variant=${variant}&mode=hybrid2d&avatars=${avatars}&tick=30`;
+      enterPhase(`engine-startup-${avatars}`);
       await page.goto(url,{waitUntil:'domcontentloaded'});const initial=await ready(page);
       check(`startup-${avatars}`,initial.actualBackend===backend&&initial.wasmMemoryShared===false&&initial.crossOriginIsolated===false,initial);
       await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));
       await page.waitForTimeout(250);
       const box=await page.locator('#engine-canvas').boundingBox();assert.equal(Math.round(box.width),640);assert.equal(Math.round(box.height),480);
       for(const mode of ['full2d','hybrid2d','full3d']){
+        enterPhase(`scene-${mode}-${avatars}`);
         const expected=manifest.scenes.find(s=>s.mode===mode&&s.avatars===avatars);assert.ok(expected);
         const prior=await snapshot(page);await command(page,'setMode',mode);await command(page,'setPass','color');
         await renderedAfter(page,prior.gpuSubmissions+prior.glDrawCalls);
@@ -240,17 +318,21 @@ try{
         check(`nonempty-render-${mode}-${avatars}`,capture.distinctColors>16,{distinctColors:capture.distinctColors});
         check(`color-parity-${mode}-${avatars}`,color.meanAbsoluteByteError<=4&&color.rootMeanSquareByteError<=12&&color.channelFractionOver8<=0.03,color);
         await command(page,'setPass','pick');await renderedAfter(page,state.gpuSubmissions+state.glDrawCalls);
-        const pickState=await snapshot(page),pickCapture=await captureCanvas(page,pickPath),pickBytes=pickCapture.bytes;
-        const ids=await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ids`));
-        const depths=await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.depth`));
-        const idComparison=compareIds(readPng(pickBytes),ids,depths,pickState.idMap);
+        const pickState=await snapshot(page),pickCapture=await captureCanvas(page,pickPath,'device'),pickBytes=pickCapture.bytes;
+        const idReferences=expected.idReferences?.filter(reference=>reference.width===pickCapture.image.width&&reference.height===pickCapture.image.height);
+        assert.equal(idReferences?.length,1,'Exactly one rerasterized physical ID reference must match the observed backing dimensions');
+        const idReference=idReferences[0];
+        const ids=await readFile(resolve(root,'tools/swarm-c/output/reference',idReference.ids));
+        const depths=await readFile(resolve(root,'tools/swarm-c/output/reference',idReference.depth));
+        const idComparison=compareIds(pickCapture.image,ids,depths,pickState.idMap,idReference);
         check(`gpu-id-parity-${mode}-${avatars}`,idComparison.checked>100&&idComparison.ownerlessOcclusionChecked>0&&idComparison.mismatched===0,idComparison);
-        const scene={mode,avatars,dpr,state:pickState,color,idComparison,colorScreenshot:`${prefix}-color.png`,idScreenshot:`${prefix}-pick.png`,
+        const scene={mode,avatars,dpr,state:pickState,color,idComparison,idReference,captures:{color:capture.capture,pick:pickCapture.capture},colorScreenshot:`${prefix}-color.png`,idScreenshot:`${prefix}-pick.png`,
           artifactSha256:{color:createHash('sha256').update(colorBytes).digest('hex'),pick:createHash('sha256').update(pickBytes).digest('hex')}};
         report.scenes.push(scene);
-        const target=idComparison.groups.find(g=>g.identity!=='0:0'&&g.points.length);
+        const logicalIds=await readFile(resolve(root,`tools/swarm-c/output/reference/${mode}-${avatars}.ids`));
+        const target=logicalSelectionPoint(logicalIds);
         if(target){
-          const point=target.points[0],selected=await command(page,'selectAt',point.x,point.y),[object_id,generation]=target.identity.split(':').map(Number);
+          const {x,y,object_id,generation}=target,selected=await command(page,'selectAt',x,y);
           check(`stable-selection-${mode}-${avatars}`,selected.selection?.object_id===object_id&&selected.selection?.generation===generation,{expected:{object_id,generation},actual:selected.selection,source:selected.selectionSource});
         }else check(`stable-selection-${mode}-${avatars}`,false,{reason:'CPU reference has no selectable stable interior'});
         await command(page,'setPass','color');
@@ -278,7 +360,7 @@ try{
         assert.equal(after.devicePixelRatio,dpr);
         assert.ok(Math.abs(after.viewport.width-after.viewport.cssWidth*dpr)<=1,'Canvas backing width must track CSS width times actual DPR');
         assert.ok(Math.abs(after.viewport.height-after.viewport.cssHeight*dpr)<=1,'Canvas backing height must track CSS height times actual DPR');
-        await captureCanvas(page,resolve(output,`resize-${avatars}-dpr${dpr}.png`),{width:400,height:300});
+        await captureCanvas(page,resolve(output,`resize-${avatars}-dpr${dpr}.png`),'css',{width:400,height:300});
         await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));return {before:before.viewport,after:after.viewport,dpr};
       });
       await step(`presentation-suspend-${avatars}`,async()=>{
@@ -324,19 +406,22 @@ try{
         assert.equal(recovered.sceneHash,expected.fixtureHash);return {lost,recovered};
       });
     }catch(error){failure(`browser-context-${avatars}`,error);try{await page.screenshot({path:resolve(output,`failure-${avatars}.png`),fullPage:true});report.lifecycle.push({name:`failure-state-${avatars}`,state:await diagnosticSnapshot(page)});}catch{} }
-    finally{await context.tracing.stop({path:resolve(output,`trace-${avatars}.zip`)});await context.close();}
+    finally{enterPhase(`context-teardown-${avatars}`);await context.tracing.stop({path:resolve(output,`trace-${avatars}.zip`)});await context.close();}
   }
   if(backend==='webgpu'){
+    enterPhase('independent-webgpu-diagnostic');
     report.webgpuDiagnostic=await diagnoseWebGpu();
     console.log('WONDERLAND_WEBGPU_DIAGNOSTIC '+JSON.stringify(report.webgpuDiagnostic));
   }
 }catch(error){failure('runner',error);}
 finally{
+  enterPhase('runner-teardown');
   if(browser)await browser.close();if(browserServer)await browserServer.close();await new Promise(resolveClose=>server.close(resolveClose));
   report.finishedAt=new Date().toISOString();report.status=report.failures.length?'failed':'software-browser-checks-passed';
   await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)+'\n');
   await writeFile(resolve(output,'console.json'),JSON.stringify(report.console,null,2)+'\n');
   await writeFile(resolve(output,'browser-process.log'),browserProcessLog.join(''));
   console.log(JSON.stringify({variant,status:report.status,scenes:report.scenes.length,failures:report.failures.length,rendererQualified:false,report:resolve(output,'report.json')}));
+  clearTimeout(phaseWatchdog);
   process.exitCode=report.failures.length?1:0;
 }

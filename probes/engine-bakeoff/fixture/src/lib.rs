@@ -17,6 +17,10 @@ pub use audio::audio_reference;
 pub const FIXTURE_VERSION: u32 = 1;
 pub const WIDTH: u32 = 640;
 pub const HEIGHT: u32 = 480;
+/// Two live reference surfaces plus the returned color/depth/ID buffers. Mesh
+/// scratch is separately constrained by RenderLimits; dimensions are rejected
+/// before allocating any framebuffer storage.
+pub const MAX_REFERENCE_BUFFER_BYTES: u64 = 128 * 1024 * 1024;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FixtureScene {
@@ -421,15 +425,38 @@ pub struct ReferenceFrame {
 /// Separate color and selection passes preserve the source's distinct alpha
 /// thresholds. These results are CPU reference evidence, never GPU readbacks.
 pub fn reference_frame(scene: &FixtureScene) -> Result<ReferenceFrame, FixtureError> {
+    reference_frame_at_size(scene, WIDTH, HEIGHT)
+}
+
+/// Rerasterize the fixture at physical framebuffer dimensions. Mesh projection
+/// uses the requested aspect ratio; sprites retain their logical 640x480 layout
+/// and sample at the new physical pixel centers. This never resizes encoded IDs.
+/// Errors return no partial frame, and the borrowed scene is never modified.
+pub fn reference_frame_at_size(
+    scene: &FixtureScene,
+    width: u32,
+    height: u32,
+) -> Result<ReferenceFrame, FixtureError> {
     let limits = RenderLimits::default();
-    let mut color = ReferenceSurface::new(WIDTH, HEIGHT, &limits).map_err(problem)?;
-    let mut picks = ReferenceSurface::new(WIDTH, HEIGHT, &limits).map_err(problem)?;
+    let pixels = RgbaImage::checked_pixel_count(width, height, &limits).map_err(problem)?;
+    let bytes_per_pixel = 3
+        * (std::mem::size_of::<[u8; 4]>()
+            + std::mem::size_of::<f32>()
+            + std::mem::size_of::<Option<EntityRef>>());
+    if (pixels as u64)
+        .checked_mul(bytes_per_pixel as u64)
+        .map_or(true, |bytes| bytes > MAX_REFERENCE_BUFFER_BYTES)
+    {
+        return Err(FixtureError("reference framebuffer byte budget".into()));
+    }
+    let vp = scene.camera.view_projection(width as f32 / height as f32)?;
+    let mut color = ReferenceSurface::new(width, height, &limits).map_err(problem)?;
+    let mut picks = ReferenceSurface::new(width, height, &limits).map_err(problem)?;
     // Both source engine adapters admit later equal-depth fragments. Keep the
     // CPU oracle's coplanar floor/terrain and city layers on that same policy.
     color.set_depth_comparison(wonderland_render_core::reference::DepthComparison::LessEqual);
     picks.set_depth_comparison(wonderland_render_core::reference::DepthComparison::LessEqual);
     color.clear([22, 29, 40, 255]);
-    let vp = scene.camera.view_projection(WIDTH as f32 / HEIGHT as f32)?;
     for draw in &scene.draws {
         if !draw.material.unlit {
             return Err(FixtureError(
@@ -513,9 +540,23 @@ fn render_sprite(
     picks: &mut ReferenceSurface,
 ) -> Result<(), FixtureError> {
     use wonderland_render_iso::{shade_fragment, sprite_depth_fraction, AlphaPass, GammaMode};
-    let [left, top, width, height] = sprite.rect;
+    let output_width = color.image().width;
+    let output_height = color.image().height;
+    let scale_x = output_width as f32 / WIDTH as f32;
+    let scale_y = output_height as f32 / HEIGHT as f32;
+    let [left, top, width, height] = [
+        sprite.rect[0] * scale_x,
+        sprite.rect[1] * scale_y,
+        sprite.rect[2] * scale_x,
+        sprite.rect[3] * scale_y,
+    ];
     if ![left, top, width, height].iter().all(|v| v.is_finite()) || width <= 0. || height <= 0. {
         return Err(FixtureError("sprite rectangle".into()));
+    }
+    let right = left + width;
+    let bottom = top + height;
+    if !right.is_finite() || !bottom.is_finite() {
+        return Err(FixtureError("sprite rectangle extent".into()));
     }
     sprite
         .image
@@ -529,9 +570,8 @@ fn render_sprite(
     {
         return Err(FixtureError("sprite channels".into()));
     }
-    for y in top.floor().max(0.) as u32..(top + height).ceil().min(HEIGHT as f32).max(0.) as u32 {
-        for x in left.floor().max(0.) as u32..(left + width).ceil().min(WIDTH as f32).max(0.) as u32
-        {
+    for y in top.floor().max(0.) as u32..bottom.ceil().min(output_height as f32).max(0.) as u32 {
+        for x in left.floor().max(0.) as u32..right.ceil().min(output_width as f32).max(0.) as u32 {
             let u = (x as f32 + 0.5 - left) / width;
             let v = (y as f32 + 0.5 - top) / height;
             if !(0. ..1.).contains(&u) || !(0. ..1.).contains(&v) {

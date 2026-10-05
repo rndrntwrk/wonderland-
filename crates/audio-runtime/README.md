@@ -72,7 +72,7 @@ Advance retirement only after the accepted timeline is reconciled through that t
 
 Use `complete_voice` for backend voice completion/failure feedback and `take_faults` for bounded player diagnostics. Neither is an A acknowledgement. Completion queues in both backends retain capacity until the presentation host drains them, making a stalled consumer visible instead of dropping lifecycle events.
 
-## Native PCM and buffered playback
+## Native PCM and playback
 
 `pcm::NativeMixer::new(sample_rate, max_voices, max_pcm_bytes)` consumes the same ordered intents. Install decoded `PcmBuffer` values using `insert_sample(AssetKey, pcm)` before applying their Start intents. `render(frames)` returns interleaved **stereo PCM16** with an integer-phase zero-order hold resampler and linear pan attenuation.
 
@@ -90,6 +90,31 @@ player.dispose()
 ```
 
 This is **buffered-file playback**. `capabilities()` reports executable availability, POSIX pause/resume support, the selected SDL driver, `live_device_callback: false`, and `physical_output_verified: false`. No live low-latency device callback is implemented by this Python adapter. Tests use the explicitly silent SDL `dummy` driver and do not certify physical speakers.
+
+### Continuous native callback
+
+The separate [native transport](native/README.md) connects the actual `NativeMixer`
+to a bounded atomic stereo ring. A worker owns mixing, resampling, decoded PCM,
+commands and completion delivery. The data callback copies PCM16, F32 or U16
+without allocation, deallocation, decoding, locking or waiting. Its private
+session/instance tokens fence reset and reopen; cancellation and event backpressure
+retain their ownership until drained.
+
+The [CPAL 0.15.3 binding](native/cpal/README.md) selects explicit stereo
+rate/format/buffer bounds and owns the real native stream. It is isolated from
+this Rust 1.75 package and its transport tests. The transport passed 25 debug
+and 25 release tests plus 12 independent challenges. Device compilation, all four
+CPAL configuration tests and the actual OS ALSA-null smoke passed at `bc529fd4`
+in [native-audio job 111899190176](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190176).
+Use that job's retained dependency lock for subsequent locked runs. Physical
+output, unplug/reopen and production-load latency remain separate gates; unknown
+device-buffer ranges remain unsupported.
+
+Drain `Event::Command` to observe sample/mixer admission, and forward natural
+`Event::Finished` only to C's `complete_voice`. Native completion tracks the
+application callback's consumed frame boundary. It neither advances A nor proves
+that physical output has reached a speaker. The native guide gives the complete
+integration and lifecycle contract.
 
 ## Browser Web Audio adapter
 
@@ -160,5 +185,12 @@ AUDIO_DECODER=/absolute/path/to/audio-decode python3 -m unittest discover -s too
 ```
 
 For this checked-in revision the complete local results were **59 Rust tests, 19 Node tests, and 11 Python tests**, all passing with no skips. The Python suite used real external FFmpeg and FFplay with synthetic audio and a silent SDL device.
+
+The continuous transport has its own locked test commands in
+[native/README.md](native/README.md). Its passing local tests do not extend the
+older parent-package result to the separate CPAL dependency graph. That graph
+and the actual ALSA-null stream have their own successful `bc529fd4` job. The
+[Swarm C verification ledger](../../docs/swarm-c/VERIFICATION.md) tracks exact CI
+revisions and the remaining physical/platform/load gates.
 
 The [cooker README](../../tools/swarm-c/audio-cooker/README.md) gives the additional original C# comparison command. Its **32 cases** compare complete WAVE bytes (12 XA and 20 UTK), with retained hashes in [reference-evidence.json](../../tools/swarm-c/audio-cooker/reference-evidence.json). They do not establish real game payload reachability. Supported deployment targets still need real browser gesture/device qualification and authorized content fixtures.

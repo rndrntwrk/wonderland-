@@ -6,36 +6,44 @@ Bevy/Fyrox comparison. The implementation is additive to source baseline
 `4c6b3e8f5835b228723caea3c9f683c62f244f73` and is reviewed in
 [PR #12](https://github.com/rndrntwrk/wonderland-/pull/12).
 
-**The implementation and its acceptance evidence are separate.** Both engines
-have completed native software-renderer startup, and all three browser variants
-have compiled and packaged in the recorded CI run. Browser image parity,
-production provider integration, real-content coverage, and physical-device
-acceptance remain open. See the commit-specific [verification ledger](VERIFICATION.md)
-before treating a later revision as verified.
+The branch includes the presentation libraries, a normalized FSOm object adapter,
+a CPU thumbnail/day/night facade worker with bounded scheduling, and a continuous
+native audio transport with a separate CPAL device binding. These are concrete
+code paths; complete client composition and acceptance still have separate gates.
+At `bc529fd4`, the expanded reference CI passed all 368 Rust package tests,
+19 browser-audio and five host tests, 11 Python audio tests, 32 unchanged-source
+codec comparisons and all 18 exact native/WASM observations. The genuine pinned-A
+60-tick probe preserved every state hash and ordered event at 30/60/120 Hz.
+The six CI-produced derivative images match the independently reviewed artifact.
 
-Reference CI at commits `96066054` and `95c45b0` executed all 18 native/WASM
-comparison cases with exact equality, all 32 source XA/UTK differential vectors,
-and the pinned-A 60-tick authority-boundary probe. The reviewed library correction
-batch fixes the audio-test and formatting failures from those runs. Independent
-local reviews approved the final avatar, geometry and audio changes; the exact
-published batch still requires a combined CI pass. See the verification ledger
-for each check's scope and source evidence.
+All five engine variants built and both native software-renderer jobs passed,
+including nine Bevy and twelve Fyrox tests. The separate native-audio job also
+passed actual CPAL compilation, four configuration tests and the OS ALSA-null
+stream. Browser parity, complete client composition, real-provider/content
+coverage and physical-device acceptance remain open. The commit-specific
+[verification ledger](VERIFICATION.md) retains the successful evidence and the
+browser failures/corrections without extending a result to untested revisions.
 
 ## Code map
 
 | Location | Responsibility |
 |---|---|
-| [render-core](../../crates/render-core/) | Validated immutable frames, units/math, game identities, stale-pick rejection, bounded residency, CPU reference rasterization |
+| [render-core](../../crates/render-core/) | Validated immutable frames, units/math, game identities, stale-pick rejection, bounded residency, CPU reference rasterization, thumbnail/facade rendering and job lifetimes |
 | [render-iso](../../crates/render-iso/) | Source DGRP/projection/depth/alpha and lighting equations, batches, cutaways, view transitions, invalidation |
-| [render-3d](../../crates/render-3d/) | Lot architecture, depth reconstruction and override/cache resolution, city geometry/transition state, cameras/environment/quality policy |
+| [render-3d](../../crates/render-3d/) | Lot architecture, depth reconstruction and override/cache resolution, normalized multi-material FSOm objects and ordered draw contracts, city geometry/transition state, cameras/environment/quality policy |
 | [avatar-view](../../crates/avatar-view/) | Normalized rig/mesh admission, dual-position skinning, retained poses, appearance, attachments/contact/look, previews, cooking and LOD |
-| [audio-runtime](../../crates/audio-runtime/) | HIT execution/status census, causal cues, mixer intents, PCM/XA/UTK, FSC/stations/ambience, native/browser adapters |
+| [audio-runtime](../../crates/audio-runtime/) | HIT execution/status census, causal cues, mixer intents, PCM/XA/UTK, FSC/stations/ambience, browser playback and continuous native callback transport |
+| [facade-worker](../../tools/swarm-c/facade-worker/) | Bounded normalized request decoding, six PNG derivative outputs, complete reproduction metadata and independent repeat/PNG verification |
 | [engine-bakeoff](../../probes/engine-bakeoff/) | Shared synthetic scene/reference, native/WASM replay, Bevy and Fyrox adapters, browser host |
 | [verification tools](../../tools/swarm-c/) | Package, source-differential, A/C authority-boundary and actual engine/browser checks |
 
-The five libraries and the fixture/replay packages have independent Rust 1.75
-workspaces. Engine adapters use isolated Rust 1.95.0 workspaces; their dependencies
-do not enter the authoritative simulation graph.
+The five libraries, fixture/replay packages, native audio transport and facade
+worker have independent Rust 1.75 workspaces. Engine adapters and the isolated
+CPAL device CI use Rust 1.95.0; their dependencies do not enter the authoritative
+simulation graph. CPAL's actual ALSA-null execution passed in
+[job 111899190176](https://github.com/rndrntwrk/wonderland-/actions/runs/37350305093/job/111899190176).
+Use its retained dependency lock for subsequent locked runs. Physical speakers,
+device unplug/reopen and production-load qualification remain separate gates.
 
 ## Start here
 
@@ -45,6 +53,9 @@ do not enter the authoritative simulation graph.
   proof, unfinished code and acceptance conditions.
 - [HANDOFF.md](HANDOFF.md) identifies provider inputs, integration order and ownership.
 - [VERIFICATION.md](VERIFICATION.md) gives reproducible commands and the evidence ledger.
+- [FSOm source notes](fsom-source-notes.md), [derivative source notes](derivatives-source-notes.md)
+  and the [native callback guide](../../crates/audio-runtime/native/README.md)
+  describe the new adapters and their exact integration boundaries.
 - [Engine decision](../decisions/engine.md) records why engine selection remains pending.
 
 From a provisioned checkout:
@@ -55,10 +66,11 @@ bash tools/swarm-c/verify-native-wasm.sh
 bash tools/swarm-c/verify-audio.sh
 ```
 
-The first command tests the pure libraries, fixture/replay packages and lightweight
-JavaScript checks. The other commands need the matching WASM target and installed
-Mono/FFmpeg tools respectively. Engine and pinned-A checks have separate setup
-instructions in [VERIFICATION.md](VERIFICATION.md).
+The first command tests the pure libraries, fixture/replay packages, native audio
+transport, facade worker and lightweight JavaScript checks. The other commands
+need the matching WASM target and installed Mono/FFmpeg tools respectively.
+Actual CPAL, engine and pinned-A checks have separate setup instructions in
+[VERIFICATION.md](VERIFICATION.md).
 
 ## Invariants to preserve during integration
 

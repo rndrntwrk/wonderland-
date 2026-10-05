@@ -160,6 +160,15 @@ handle so the reset actually releases them. It does not secretly retain external
 GPU handles. Other resource shapes implement their reset outside this cache.
 Frame and cache device reset are explicit coordinated adapter operations.
 
+`derivatives::DerivativeQueue` adds a separate owner for actual thumbnail/facade
+work. It accounts for queued and running reservations, immutable installed
+artifacts and leased retired generations. Cancellation does not erase a running
+job's reservation; completion or dropping the owned job releases it. Reset hides
+installed data while a held lease keeps that exact generation resident and
+charged. The renderer, source atlas equations, bounded worker protocol and
+remaining source/client algorithms are documented in
+[derivatives-source-notes.md](derivatives-source-notes.md).
+
 ## CPU reference rasterization
 
 `reference::ReferenceSurface` owns an image, a depth buffer, and an
@@ -191,8 +200,22 @@ their converted per-pixel source depth. Normal/material lighting must be resolve
 by downstream modules into vertex or sprite colors; this path does not invent
 legacy shader lighting.
 
-Default fragments use strict less-than depth, write depth and ID, and reject
-alpha zero. A configurable byte alpha cutoff rejects alpha at or below the
+Default fragments use `DepthComparison::Less`, write depth and ID, and reject
+alpha zero. `ReferenceSurface::set_depth_comparison(DepthComparison::LessEqual)`
+explicitly admits equal-depth fragments in insertion order. The shared engine
+fixture and derivative renderer choose that source policy. The ordinary
+MonoGame `DepthStencilState.Default` uses LessEqual, as confirmed by the
+[FSOm source probe](fsom-source-notes.md); both engine adapters implement the
+equivalent rule, with reversed comparison for Bevy's reversed Z.
+
+The original strict reference retained green terrain over a later coplanar floor
+while both captured GPUs rendered the floor. Dedicated core and fixture
+regressions now cover both policies, including equal-depth ownerless ID clearing
+and rejection of the next farther f32 value. This change preserves the default,
+introduces no depth epsilon and does not widen image comparison tolerances.
+The actual same-capture recomparison is recorded in [VERIFICATION.md](VERIFICATION.md).
+
+A configurable byte alpha cutoff rejects alpha at or below the
 cutoff before writing any buffer. Source-over blending computes straight RGBA;
 there is no implicit gamma/sRGB transfer. Translucent ordering is the caller's
 draw order; callers can disable depth/ID writes for their explicit policy.
@@ -208,6 +231,10 @@ data, serialization, atomic admission, identity churn, stale picks, per-category
 LRU/pins/drop/reset, derivation identity, source-over/alpha/depth/IDs, shared
 triangle edges, clip-space mesh geometry, texture masks, perspective colors,
 and atomic malformed mesh/image rejection.
+
+The extended local core suite passed 73 tests: the original 46, two explicit
+depth-comparison regressions and 25 derivative tests. Separate independent source,
+lifecycle, memory and PNG evidence is linked in the verification ledger.
 
 All assets in tests are synthetic literals. No original game assets or source
 excerpts are distributed in the shipping crate. Native tests and CPU pixel
