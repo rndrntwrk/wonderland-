@@ -1,5 +1,24 @@
 # Swarm B buildout recovery handoff
 
+> **Historical record — recovery completed on 2026-10-05.**
+>
+> The saved checkout was recovered, every buildout review finding was resolved,
+> and the full fresh run passed **47 gates, 439 Rust tests and 48 Python tests**.
+> The implementation and evidence are published in draft PRs
+> [#13](https://github.com/rndrntwrk/wonderland-/pull/13),
+> [#14](https://github.com/rndrntwrk/wonderland-/pull/14),
+> [#15](https://github.com/rndrntwrk/wonderland-/pull/15),
+> [#16](https://github.com/rndrntwrk/wonderland-/pull/16) and
+> [#17](https://github.com/rndrntwrk/wonderland-/pull/17).
+>
+> Current branch: `swarm-b/buildout-verified`; current commit:
+> `3d6b04e0a600cb5f947145123cddf6cb2c75c5d7`.
+> See the [completed verification and handoff](https://github.com/rndrntwrk/wonderland-/blob/3d6b04e0a600cb5f947145123cddf6cb2c75c5d7/docs/swarm-b/BUILDOUT-VERIFICATION.md)
+> for the delivered scope and remaining integration work. The draft stack is
+> unmerged. This recovery branch still contains only the historical handoff;
+> the implementation is on the branches above. Everything below describes the
+> earlier outage and is retained for provenance.
+
 Recorded 2026-10-05 UTC after the execution service returned `409 environment_offline: Environment is not connected`.
 
 ## Status and authority
