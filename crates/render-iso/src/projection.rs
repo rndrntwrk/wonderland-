@@ -112,6 +112,8 @@ impl Projection {
             Rotation::BottomLeft => Vec2::new((-y + x) * 0.5, (y + x) * 0.5),
         }
     }
+    /// Final framebuffer pixel edges: top-left (0,0), precise zoom once about
+    /// the viewport center, and no legacy backend half-pixel translation.
     pub fn framebuffer_point(self, tile: Vec3) -> Vec2 {
         (self.project_tile(tile) - self.project_tile(self.center_tile)) * self.precise_zoom
             + self.viewport * 0.5
@@ -215,9 +217,15 @@ pub fn cache_grid_origin(pixel: Vec2, precise_zoom: f32) -> Result<Vec2> {
 }
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CacheRestorePlacement {
+    /// Final framebuffer placement; surface dimensions are already physical pixels.
     pub destination: crate::Rect,
     pub world_translation: Vec3,
 }
+/// Restore a surface rendered with the same zero-origin framebuffer convention
+/// as PreparedSprite.rect. Pixel origins are in unzoomed coordinates; size is
+/// the physical surface extent. Fractional translations are retained so a cached
+/// draw follows a direct draw at noninteger precise zoom. The source's -2 and
+/// complementary batch-projection +2 are absent together; apply no extra bias.
 pub fn cache_restore_placement(
     stored_pixel: Vec2,
     current_pixel: Vec2,
@@ -243,14 +251,14 @@ pub fn cache_restore_placement(
         || !delta.is_finite()
         || [offset.x, offset.y]
             .iter()
-            .any(|x| *x < i32::MIN as f32 + 2. || *x >= i32::MAX as f32)
+            .any(|x| *x < i32::MIN as f32 || *x >= i32::MAX as f32)
     {
         return Err(IsoError::Invalid("cache placement overflow"));
     }
     Ok(CacheRestorePlacement {
         destination: crate::Rect {
-            x: offset.x.trunc() - 2.,
-            y: offset.y.trunc(),
+            x: offset.x,
+            y: offset.y,
             width: size[0] as f32,
             height: size[1] as f32,
         },

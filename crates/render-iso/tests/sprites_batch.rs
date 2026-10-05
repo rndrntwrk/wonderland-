@@ -426,3 +426,179 @@ fn fragment_oracle_rejects_malformed_quad_without_panicking() {
         .fragment(0, 0, [1.; 3], AlphaPass::ColorDepth)
         .is_none());
 }
+
+#[test]
+fn world_offsets_are_baked_once_into_shader_anchors_in_compatible_batches() {
+    let projection = p();
+    let images = [image(vec![Some(layer(1, 8, 8, DepthInput::Constant(255)))])];
+    let mut instance = instance();
+    let policy = PreparePolicy {
+        wvp: Some(Mat4::IDENTITY),
+        ..PreparePolicy::default()
+    };
+    let first = prepare_sprites(&projection, &instance, &images, &policy).unwrap();
+    instance.reference.object_id = 2;
+    let offset = Vec3::new(0.25, 0.5, 0.3);
+    let second = prepare_sprites(
+        &projection,
+        &instance,
+        &images,
+        &PreparePolicy {
+            world_offset: offset,
+            ..policy
+        },
+    )
+    .unwrap();
+    let sprites = [first.sprites[0].clone(), second.sprites[0].clone()];
+    assert_eq!(sprites[0].world_anchor, Vec3::ZERO);
+    assert_eq!(sprites[1].world_anchor, offset);
+    let batches = make_batches(&sprites, 16).unwrap();
+    assert_eq!(batches.len(), 1);
+    assert_eq!(batches[0].sprite_indices, [0, 1]);
+    for (index, sprite) in sprites.iter().enumerate() {
+        let vertices = sprite.shader_vertices(index as u16 + 1).unwrap();
+        for vertex in vertices {
+            let [x, y, z] = vertex.world_anchor;
+            let emitted = DepthAnchors::new(
+                Vec3::new(x, y, z),
+                Vec3::ZERO,
+                projection.rotation,
+                Mat4::IDENTITY,
+            )
+            .unwrap();
+            for q in [0, 128, 153, 255] {
+                near(
+                    emitted.sample_byte(q),
+                    sprite.anchors.unwrap().sample_byte(q),
+                );
+            }
+        }
+    }
+    near(
+        sprites[0]
+            .fragment(0, 0, [1.; 3], AlphaPass::ColorDepth)
+            .unwrap()
+            .depth
+            .unwrap(),
+        0.15,
+    );
+    near(
+        sprites[1]
+            .fragment(0, 0, [1.; 3], AlphaPass::ColorDepth)
+            .unwrap()
+            .depth
+            .unwrap(),
+        0.45,
+    );
+}
+
+#[test]
+fn mask_physical_padding_stays_transparent_with_shared_and_mirrored_uvs() {
+    // The second mask has half the color texture's physical dimensions:
+    // its three logical columns cover six color texels, not three.
+    for (width, height, physical_size, covered_width, covered_height) in
+        [(5, 2, [8, 4], 5, 2), (3, 1, [4, 2], 6, 2)]
+    {
+        for flipped in [false, true] {
+            let mut l = layer(1, 8, 4, DepthInput::Constant(255));
+            l.flags = u32::from(flipped);
+            Arc::make_mut(l.asset.as_mut().unwrap()).mask = Some(MaskInput {
+                key: key(3),
+                rgba: RgbaImage {
+                    width,
+                    height,
+                    pixels: vec![[255; 4]; (width * height) as usize],
+                },
+                physical_size,
+            });
+            let object = prepare(vec![Some(l)]);
+            let sprite = &object.sprites[0];
+            for y in 0..4 {
+                for x in 0..8 {
+                    let source_x = if flipped { 7 - x } else { x };
+                    let covered = source_x < covered_width && y < covered_height;
+                    assert_eq!(
+                        sprite.fragment(x, y, [1.; 3], AlphaPass::Wall).is_some(),
+                        covered,
+                        "mask {width}x{height}, flip={flipped}, destination ({x},{y})"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn framebuffer_cache_restore_matches_direct_sprites_at_fractional_zoom_and_negative_scroll() {
+    for rotation in Rotation::ALL {
+        for precise_zoom in [1., 1.25, 1.3] {
+            let stored = Projection::new(
+                Zoom::Near,
+                rotation,
+                precise_zoom,
+                Vec3::ZERO,
+                Vec2::new(800., 600.),
+            )
+            .unwrap();
+            let current = Projection::new(
+                Zoom::Near,
+                rotation,
+                precise_zoom,
+                Vec3::new(1. / 64., 1. / 32., 0.),
+                stored.viewport,
+            )
+            .unwrap();
+            let mut im = image(vec![Some(layer(1, 8, 8, DepthInput::Constant(128)))]);
+            im.direction = 1u8.rotate_left(u32::from(rotation as u8) * 2);
+            let images = [im];
+            let old = prepare_sprites(
+                &stored,
+                &instance(),
+                &images,
+                &PreparePolicy::default(),
+            )
+            .unwrap();
+            let direct = prepare_sprites(
+                &current,
+                &instance(),
+                &images,
+                &PreparePolicy::default(),
+            )
+            .unwrap();
+            let stored_pixel = stored.sprite_screen_offset() * -1.;
+            let current_pixel = current.sprite_screen_offset() * -1.;
+            assert!(stored_pixel.x < 0. && current_pixel.x < 0.);
+            let restore = cache_restore_placement(
+                stored_pixel,
+                current_pixel,
+                stored.center_tile,
+                current.center_tile,
+                [800, 600],
+                precise_zoom,
+            )
+            .unwrap();
+            let identity = cache_restore_placement(
+                stored_pixel,
+                stored_pixel,
+                stored.center_tile,
+                stored.center_tile,
+                [800, 600],
+                precise_zoom,
+            )
+            .unwrap();
+            assert_eq!(identity.destination.x, 0.);
+            assert_eq!(identity.destination.y, 0.);
+            for (cached, current) in old.sprites[0]
+                .mesh
+                .vertices
+                .iter()
+                .zip(&direct.sprites[0].mesh.vertices)
+            {
+                near(cached.position.x + restore.destination.x, current.position.x);
+                near(cached.position.y + restore.destination.y, current.position.y);
+            }
+            assert_eq!(restore.destination.width, 800.);
+            assert_eq!(restore.destination.height, 600.);
+        }
+    }
+}

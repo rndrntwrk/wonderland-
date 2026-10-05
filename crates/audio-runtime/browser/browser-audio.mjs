@@ -28,16 +28,26 @@ export class BrowserAudio {
   constructor({contextFactory=()=>new (globalThis.AudioContext??globalThis.webkitAudioContext)(),loadSample,maxVoices=128,maxPendingDecodes=16,maxPcmBytes=64*1024*1024,maxEncodedBytes=4*1024*1024}={}) {
     if(typeof loadSample!=='function'||typeof contextFactory!=='function')throw Error('audio provider and context factory required');
     this._factory=contextFactory;this._load=loadSample;this._maxVoices=positive(maxVoices,'voice');this._maxDecodes=positive(maxPendingDecodes,'decode');this._maxPcm=positive(maxPcmBytes,'PCM');this._maxEncoded=positive(maxEncodedBytes,'encoded');
-    this.state='locked';this._context=null;this._epoch=0;this._voices=new Map();this._queue=[];this._cache=new Map();this._inflight=new Map();this._requests=new Set();this._pcmBytes=0;this._reserved=0;this._generation=null;this._serial=0n;this._lastError=null;this._errors=0;this._unlocking=false;this._change=()=>this._stateChanged();
+    this.state='locked';this._context=null;this._epoch=0;this._voices=new Map();this._queue=[];this._completed=[];this._cache=new Map();this._inflight=new Map();this._requests=new Set();this._pcmBytes=0;this._reserved=0;this._generation=null;this._serial=0n;this._lastError=null;this._errors=0;this._unlocking=false;this._change=()=>this._stateChanged();
   }
   _live(){if(this.state==='disposed')throw Error('audio adapter disposed');}
   async unlockFromGesture() {
     this._live();
     if(globalThis.navigator?.userActivation && !globalThis.navigator.userActivation.isActive)throw Error('audio unlock requires a user gesture');
-    if(!this._context){this._context=this._factory();if(!this._context||typeof this._context.resume!=='function')throw Error('Web Audio unavailable');this._context.addEventListener?.('statechange',this._change);}
     this._unlocking=true;
-    try {await this._context.resume();if(this._context.state!=='running')throw Error(`audio context ${this._context.state}`);this.state='running';this._pump();this._flush();}
-    catch(error){this._error(error);if(this.state!=='suspended'&&this.state!=='interrupted')this.state='locked';throw error;}
+    try {
+      if(this._context?.state==='closed'){this._context.removeEventListener?.('statechange',this._change);this._context=null;}
+      if(!this._context){
+        const context=this._factory();
+        if(!context||typeof context.resume!=='function')throw Error('Web Audio unavailable');
+        this._context=context;context.addEventListener?.('statechange',this._change);
+      }
+      const context=this._context;await context.resume();
+      if(this.state==='disposed'||this._context!==context)throw Error('audio unlock cancelled');
+      if(context.state!=='running')throw Error(`audio context ${context.state}`);
+      this.state='running';this._pump();this._flush();
+    }
+    catch(error){this._error(error);if(this.state!=='disposed'&&this.state!=='suspended'&&this.state!=='interrupted')this.state='locked';throw error;}
     finally{this._unlocking=false;}
   }
   async resumeFromGesture(){return this.unlockFromGesture();}
@@ -52,20 +62,21 @@ export class BrowserAudio {
       if(typeof data.looped!=='boolean'||!['Fx','Music','Vox','Ambience'].includes(data.group))throw Error('invalid voice parameters');
       if(this._generation!==null && (generation<this._generation||(generation===this._generation&&serial<=this._serial)))throw Error('stale or replayed voice identity');
       if(this._generation!==null&&generation>this._generation)this.reset();
-      if(this._voices.size>=this._maxVoices)throw Error('voice budget exceeded');
+      if(this._voices.size+this._completed.length>=this._maxVoices)throw Error('voice budget exceeded');
       this._generation=generation;this._serial=serial;
       const voice={id,key,asset:data.sample,gain:data.gain,pan:data.pan,group:data.group,looped:data.looped,seek,offset:0,paused:false,status:'queued',node:null,gainNode:null,panNode:null,startedAt:0,epoch:this._epoch};
       this._voices.set(id,voice);this._queue.push(id);this._pump();this._flush();return;
     }
     if(!['Stop','Release','Pause','Resume','SetGainPan'].includes(kind))throw Error('unknown mixer intent');
     if(kind==='SetGainPan')gainPan(data.gain,data.pan);
+    if(kind==='Stop'||kind==='Release')this._completed=this._completed.filter(v=>v.id!==id);
     const voice=this._voices.get(id);if(!voice)return;
     if(kind==='Stop'||kind==='Release'){this._finish(voice,true);this._flush();this._pump();}
     else if(kind==='SetGainPan'){voice.gain=data.gain;voice.pan=data.pan;voice.gainNode?.gain.setValueAtTime(data.gain,this._context.currentTime);voice.panNode?.pan.setValueAtTime(data.pan,this._context.currentTime);}
     else if(kind==='Pause'){voice.paused=true;if(voice.node){this._savePhase(voice);this._releaseNodes(voice,true);voice.status='ready';}}
     else if(kind==='Resume'){voice.paused=false;if(voice.status==='ready')this._start(voice);else{this._pump();this._flush();}}
   }
-  _error(error){this._errors++;this._lastError=String(error?.message??error).slice(0,1024);}
+  _error(error){this._errors=Math.min(Number.MAX_SAFE_INTEGER,this._errors+1);this._lastError=String(error?.message??error).slice(0,1024);}
   _needed(key,epoch){return epoch===this._epoch&&this.state!=='disposed'&&[...this._voices.values()].some(v=>v.key===key&&v.epoch===epoch);}
   _pump() {
     if(!this._context||this.state!=='running')return;
@@ -87,7 +98,7 @@ export class BrowserAudio {
       }).catch(error=>{
         if(request.epoch===this._epoch&&this.state!=='disposed'){
           this._error(error);
-          for(const v of [...this._voices.values()])if(v.key===request.key)this._finish(v,true);
+          for(const v of [...this._voices.values()])if(v.key===request.key)this._finish(v,true,true);
         }
       }).finally(()=>{
         this._releaseReservation(request);this._requests.delete(request);if(this._inflight.get(request.key)===request)this._inflight.delete(request.key);this._pump();this._flush();
@@ -98,8 +109,9 @@ export class BrowserAudio {
   _validateBuffer(buffer){if(!buffer||![1,2].includes(buffer.numberOfChannels)||!Number.isInteger(buffer.length)||buffer.length<1||!Number.isInteger(buffer.sampleRate)||buffer.sampleRate<1||buffer.sampleRate>384000||buffer.length*buffer.numberOfChannels*4>this._maxPcm)throw Error('invalid or oversized decoded PCM');}
   _evictFor(bytes){
     if(!Number.isSafeInteger(bytes)||bytes<1||bytes>this._maxPcm)throw Error('PCM memory budget exceeded');
-    for(const [key,value] of this._cache){if(this._pcmBytes+this._reserved+bytes<=this._maxPcm)break;if(![...this._voices.values()].some(v=>v.key===key)){this._cache.delete(key);this._pcmBytes-=value.bytes;}}
+    for(const [key,value] of this._cache){if(this._pcmBytes+this._reserved+bytes<=this._maxPcm&&this._cache.size<this._maxVoices*2)break;if(![...this._voices.values()].some(v=>v.key===key)){this._cache.delete(key);this._pcmBytes-=value.bytes;}}
     if(this._pcmBytes+this._reserved+bytes>this._maxPcm)throw Error('PCM memory budget exceeded');
+    if(this._cache.size>=this._maxVoices*2)throw Error('PCM cache entry budget exceeded');
   }
   _releaseReservation(request){if(request.reserved){this._reserved-=request.reserved;request.reserved=0;}}
   async _decode(resource,request){
@@ -129,12 +141,12 @@ export class BrowserAudio {
     try{
       const buffer=item.buffer;
       if(voice.seek!==null){let frame=voice.seek;if(voice.looped)frame%=BigInt(buffer.length);if(frame>=BigInt(buffer.length))throw Error('seek beyond sample');voice.offset=Number(frame)/buffer.sampleRate;voice.seek=null;}
-      if(voice.offset>=buffer.duration){if(voice.looped)voice.offset%=buffer.duration;else{this._finish(voice,false);return;}}
+      if(voice.offset>=buffer.duration){if(voice.looped)voice.offset%=buffer.duration;else{this._finish(voice,false,true);return;}}
       if(typeof this._context.createStereoPanner!=='function')throw Error('StereoPanner capability unavailable');
       const node=this._context.createBufferSource(),gain=this._context.createGain(),pan=this._context.createStereoPanner();voice.node=node;voice.gainNode=gain;voice.panNode=pan;
       node.buffer=buffer;node.loop=voice.looped;gain.gain.setValueAtTime(voice.gain,this._context.currentTime);pan.pan.setValueAtTime(voice.pan,this._context.currentTime);node.connect(gain);gain.connect(pan);pan.connect(this._context.destination);
-      node.onended=()=>{if(this._voices.get(voice.id)===voice&&voice.node===node)this._finish(voice,false);};voice.startedAt=this._context.currentTime;voice.status='playing';node.start(0,voice.offset);
-    }catch(error){this._error(error);this._finish(voice,true);}
+      node.onended=()=>{if(this._voices.get(voice.id)===voice&&voice.node===node)this._finish(voice,false,true);};voice.startedAt=this._context.currentTime;voice.status='playing';node.start(0,voice.offset);
+    }catch(error){this._error(error);this._finish(voice,true,true);}
   }
   _savePhase(voice){
     const buffer=this._cache.get(voice.key)?.buffer;if(!buffer)return;voice.offset+=Math.max(0,this._context.currentTime-voice.startedAt);if(voice.looped)voice.offset%=buffer.duration;else voice.offset=Math.min(voice.offset,buffer.duration);
@@ -144,25 +156,33 @@ export class BrowserAudio {
     if(nodes[0]){nodes[0].onended=null;if(stop)try{nodes[0].stop();}catch{}}
     for(const node of nodes)try{node?.disconnect();}catch{}
   }
-  _finish(voice,stop){this._releaseNodes(voice,stop);this._voices.delete(voice.id);this._queue=this._queue.filter(id=>id!==voice.id);voice.status='finished';if(!this._needed(voice.key,voice.epoch))this._inflight.get(voice.key)?.controller.abort();}
+  _finish(voice,stop,report=false){
+    if(this._voices.get(voice.id)!==voice)return;
+    this._releaseNodes(voice,stop);this._voices.delete(voice.id);this._queue=this._queue.filter(id=>id!==voice.id);voice.status='finished';
+    if(report){const [generation,serial]=voice.id.split(':');this._completed.push({id:voice.id,generation,serial});}
+    if(!this._needed(voice.key,voice.epoch))this._inflight.get(voice.key)?.controller.abort();
+  }
+  // Completed voices reserve capacity until drained, so no lifecycle event is
+  // silently lost. These identities are presentation feedback, never A acks.
+  takeFinished(){const completed=this._completed;this._completed=[];return completed.map(({generation,serial})=>({generation,serial}));}
   _stateChanged(){
     if(this.state==='disposed'||!this._context)return;
     const state=this._context.state;
     if(state==='interrupted'||state==='closed'){
       this.state='interrupted';
-      for(const voice of [...this._voices.values()]){if(!voice.looped){this._finish(voice,true);}else if(voice.node){this._savePhase(voice);this._releaseNodes(voice,true);voice.status='ready';if(!this._queue.includes(voice.id))this._queue.push(voice.id);}}
+      for(const voice of [...this._voices.values()]){if(!voice.looped){this._finish(voice,true,true);}else if(voice.node){this._savePhase(voice);this._releaseNodes(voice,true);voice.status='ready';if(!this._queue.includes(voice.id))this._queue.push(voice.id);}}
     }else if(state==='suspended'){this.state='suspended';}
     else if(state==='running'&&(this.state!=='interrupted'||this._unlocking)){this.state='running';this._pump();this._flush();}
   }
-  async suspend(){this._live();if(!this._context)return;await this._context.suspend();this.state='suspended';}
+  async suspend(){this._live();if(!this._context)return;const context=this._context;await context.suspend();if(this.state!=='disposed'&&this._context===context)this.state='suspended';}
   reset(){
     this._live();this._epoch++;
     for(const voice of [...this._voices.values()])this._finish(voice,true);
-    this._queue=[];this._cache.clear();this._pcmBytes=0;this._inflight.clear();for(const request of this._requests)request.controller.abort();
+    this._queue=[];this._completed=[];this._cache.clear();this._pcmBytes=0;this._inflight.clear();for(const request of this._requests)request.controller.abort();
     // Outstanding decoder reservations remain charged until those asynchronous
     // requests actually settle; reset storms cannot evade the decode budget.
   }
-  async dispose(){if(this.state==='disposed')return;this.reset();this.state='disposed';if(this._context){this._context.removeEventListener?.('statechange',this._change);await this._context.close();this._context=null;}}
+  async dispose(){if(this.state==='disposed')return;this.reset();this.state='disposed';if(this._context){this._context.removeEventListener?.('statechange',this._change);const context=this._context;try{await context.close();}finally{if(this._context===context)this._context=null;}}}
   async settled(){while(this._requests.size){await Promise.all([...this._requests].map(r=>r.promise));}this._flush();}
-  snapshot(){return {state:this.state,activeVoices:this._voices.size,queuedEntries:this._queue.length,pendingStarts:this._queue.filter(id=>this._voices.has(id)).length,pendingDecodes:this._requests.size,pcmBytes:this._pcmBytes,reservedPcmBytes:this._reserved,errors:this._errors,lastError:this._lastError};}
+  snapshot(){return {state:this.state,activeVoices:this._voices.size,queuedEntries:this._queue.length,completedVoices:this._completed.length,pendingStarts:this._queue.filter(id=>this._voices.has(id)).length,pendingDecodes:this._requests.size,cachedSamples:this._cache.size,pcmBytes:this._pcmBytes,reservedPcmBytes:this._reserved,errors:this._errors,lastError:this._lastError};}
 }

@@ -338,19 +338,28 @@ fn portal_depth_pass_order_and_dynamic_group_visibility_are_explicit() {
 
 // Catches unbounded quadratic counter correction on adversarial depth images.
 #[test]
-fn counter_correction_declares_a_work_limit_before_modifying_vertices(){
-    let mut p=vec![Vec3::new(0.39,0.,0.);5000];p.extend(vec![Vec3::new(0.8,0.,0.);5000]);
-    let pixels:Vec<_>=(0..10000).map(|i|(i,0)).collect();let before=p.clone();
-    assert!(matches!(counter_correct(&mut p,&pixels,0),Err(Error::BudgetExceeded(_))));
-    assert_eq!(p,before);
+fn counter_correction_declares_a_work_limit_before_modifying_vertices() {
+    let mut p = vec![Vec3::new(0.39, 0., 0.); 5000];
+    p.extend(vec![Vec3::new(0.8, 0., 0.); 5000]);
+    let pixels: Vec<_> = (0..10000).map(|i| (i, 0)).collect();
+    let before = p.clone();
+    assert!(matches!(
+        counter_correct(&mut p, &pixels, 0),
+        Err(Error::BudgetExceeded(_))
+    ));
+    assert_eq!(p, before);
 }
 
 // Catches cache eviction violating the byte ceiling or reusing removed identities.
 #[test]
-fn resolver_lru_bound_evicts_the_least_recently_used_mesh(){
-    let mut r=MeshResolver::new(300,1);let c=Candidates::default();
-    r.resolve(key(1),&c,||Ok(candidate(1.))).unwrap();
-    r.resolve(key(2),&c,||Ok(candidate(2.))).unwrap();
-    assert!(r.resident_bytes()<=300);
-    assert_eq!(r.resolve(key(1),&c,||Ok(candidate(3.))).unwrap().source,ResolutionSource::Reconstructed);
+fn resolver_lru_bound_evicts_the_least_recently_used_mesh() {
+    let mut r = MeshResolver::new(300, 1);
+    let c = Candidates::default();
+    r.resolve(key(1), &c, || Ok(candidate(1.))).unwrap();
+    r.resolve(key(2), &c, || Ok(candidate(2.))).unwrap();
+    assert!(r.resident_bytes() <= 300);
+    assert_eq!(
+        r.resolve(key(1), &c, || Ok(candidate(3.))).unwrap().source,
+        ResolutionSource::Reconstructed
+    );
 }

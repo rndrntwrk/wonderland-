@@ -1,5 +1,5 @@
 use wonderland_render_3d::{
-    camera::OrbitCamera, city::facade::*, city::transition::*, lot::*, Error,
+    camera::CityCamera, city::facade::*, city::transition::*, lot::*, Error,
 };
 use wonderland_render_core::{AssetKey, FrameStamp, Vec2};
 fn destination(id: u64, location: (u16, u16), lot: u64) -> Destination {
@@ -23,17 +23,19 @@ fn directory() -> DirectorySnapshot {
 }
 fn intent() -> CityIntent {
     CityIntent {
-        camera: OrbitCamera {
+        camera: CityCamera {
             center: Vec2::new(306.5, 205.5),
             yaw: 0.7,
             zoom: 7.,
-            ..OrbitCamera::default()
+            ..CityCamera::default()
         },
         selected: Some(DestinationId(101)),
     }
 }
 fn receipt(t: RequestTicket, lot: u64) -> AdmissionReceipt {
     AdmissionReceipt {
+        session_generation: t.session_generation,
+        request_serial: t.serial,
         destination: t.destination,
         directory_revision: t.directory_revision,
         destination_revision: t.destination_revision,
@@ -54,7 +56,7 @@ fn frame(lot: u64) -> FrameStamp {
 // Catches reusing a packed map coordinate as an ID and entering before a correct frame.
 #[test]
 fn two_live_ids_select_distinct_lots_and_require_the_accepted_first_frame() {
-    let mut t = CityLotTransition::new(directory(), intent()).unwrap();
+    let mut t = CityLotTransition::new(directory(), intent(), 1).unwrap();
     assert_eq!(t.provenance(), DirectoryProvenance::Fixture);
     let first = t.begin_enter(DestinationId(101)).unwrap();
     let second = t.begin_enter(DestinationId(202)).unwrap();
@@ -92,7 +94,7 @@ fn two_live_ids_select_distinct_lots_and_require_the_accepted_first_frame() {
 // Catches a stale directory/admission response overwriting a newer selection.
 #[test]
 fn directory_changes_cancel_pending_tickets_and_stale_updates_are_atomic() {
-    let mut t = CityLotTransition::new(directory(), intent()).unwrap();
+    let mut t = CityLotTransition::new(directory(), intent(), 1).unwrap();
     let ticket = t.begin_enter(DestinationId(101)).unwrap();
     let mut next = directory();
     next.revision = 11;
@@ -112,7 +114,7 @@ fn directory_changes_cancel_pending_tickets_and_stale_updates_are_atomic() {
 // Catches failed admission losing saved camera intent or admitting the wrong live target.
 #[test]
 fn rejected_wrong_or_unavailable_admissions_preserve_city_intent() {
-    let mut t = CityLotTransition::new(directory(), intent()).unwrap();
+    let mut t = CityLotTransition::new(directory(), intent(), 1).unwrap();
     let ticket = t.begin_enter(DestinationId(101)).unwrap();
     assert!(t.admit(ticket, receipt(ticket, 9002)).is_err());
     let back = t.reject(ticket).unwrap();
@@ -120,17 +122,17 @@ fn rejected_wrong_or_unavailable_admissions_preserve_city_intent() {
     assert_eq!(t.state(), TransitionState::City);
     let mut d = directory();
     d.destinations[1].available = false;
-    let mut t = CityLotTransition::new(d, intent()).unwrap();
+    let mut t = CityLotTransition::new(d, intent(), 1).unwrap();
     assert!(t.begin_enter(DestinationId(202)).is_err());
     let mut duplicate = directory();
     duplicate.destinations[1].id = DestinationId(101);
-    assert!(CityLotTransition::new(duplicate, intent()).is_err());
+    assert!(CityLotTransition::new(duplicate, intent(), 1).is_err());
 }
 
 // Catches stale first-frame epoch and returning through an obsolete pending ticket.
 #[test]
 fn leaving_during_load_invalidates_late_frame_completion() {
-    let mut t = CityLotTransition::new(directory(), intent()).unwrap();
+    let mut t = CityLotTransition::new(directory(), intent(), 1).unwrap();
     let ticket = t.begin_enter(DestinationId(101)).unwrap();
     t.admit(ticket, receipt(ticket, 9001)).unwrap();
     let mut stale = frame(9001);
@@ -148,8 +150,8 @@ fn facade_mesh_and_obj_are_deterministic_and_change_with_effective_inputs() {
     let a = bake_facade(&lot, &options, AssetKey([1; 32]), 3, 0.5).unwrap();
     let b = bake_facade(&lot, &options, AssetKey([1; 32]), 3, 0.5).unwrap();
     assert_eq!(a.identity, b.identity);
-    assert_eq!(to_obj(&a), to_obj(&b));
-    assert!(to_obj(&a).contains("\nf "));
+    assert_eq!(to_obj(&a).unwrap(), to_obj(&b).unwrap());
+    assert!(to_obj(&a).unwrap().contains("\nf "));
     assert!(a.bounds.max.x - a.bounds.min.x < 1.);
     assert!(!a.missing_assets.is_empty());
     assert_ne!(
@@ -177,4 +179,39 @@ fn facade_mesh_and_obj_are_deterministic_and_change_with_effective_inputs() {
             .unwrap()
             .identity
     );
+}
+
+// Regression: reconnecting recreates the presentation controller but must not
+// recreate the ticket namespace used by its previous transport session.
+#[test]
+fn recreated_transition_rejects_old_session_ticket_and_receipt() {
+    assert!(CityLotTransition::new(directory(), intent(), 0).is_err());
+    let mut previous = CityLotTransition::new(directory(), intent(), 41).unwrap();
+    let old = previous.begin_enter(DestinationId(101)).unwrap();
+    let old_receipt = receipt(old, 9001);
+    let mut current = CityLotTransition::new(directory(), intent(), 42).unwrap();
+    let fresh = current.begin_enter(DestinationId(101)).unwrap();
+    assert_eq!(old.serial, fresh.serial);
+    assert_ne!(old.session_generation, fresh.session_generation);
+    assert_eq!(current.admit(old, old_receipt), Err(Error::StaleTransition));
+    assert!(current.admit(fresh, old_receipt).is_err());
+    assert_eq!(current.state(), TransitionState::AwaitingAdmission(fresh));
+    current.admit(fresh, receipt(fresh, 9001)).unwrap();
+    assert!(current.present_first_frame(old, frame(9001)).is_err());
+    current.present_first_frame(fresh, frame(9001)).unwrap();
+}
+
+#[test]
+fn facade_graphics_units_convert_once_to_one_city_tile() {
+    let lot = VisualLot::flat(77, 77, 1).unwrap();
+    let f = bake_facade(&lot, &BuildOptions::default(), AssetKey([3; 32]), 1, 0.5).unwrap();
+    assert!((f.bounds.max.x - f.bounds.min.x - 1.).abs() < 0.00001);
+    assert!((f.bounds.max.z - f.bounds.min.z - 1.).abs() < 0.00001);
+}
+
+#[test]
+fn obj_export_rejects_malformed_public_mesh_without_indexing_it() {
+    let mut f = bake_facade(&synthetic_lot(), &BuildOptions::default(), AssetKey([1; 32]), 1, 0.5).unwrap();
+    f.mesh.indices[0] = u32::MAX;
+    assert!(to_obj(&f).is_err());
 }

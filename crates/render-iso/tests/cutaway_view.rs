@@ -244,3 +244,29 @@ fn source_rotation_and_zoom_easing_use_presentation_seconds() {
     );
     assert!(nearest_2d_rotation(f32::NAN).is_err());
 }
+
+#[test]
+fn source_yaw_boundaries_keep_double_precision_after_promoting_f32_input() {
+    use std::f32::consts::{FRAC_PI_2, PI, TAU};
+
+    // These f32 constants lie just above their exact mathematical boundaries.
+    // The source promotes them to double before PosMod/division and rounding.
+    for (boundary, below, at, above) in [
+        (FRAC_PI_2, Rotation::TopRight, Rotation::BottomRight, Rotation::BottomRight),
+        (PI, Rotation::BottomRight, Rotation::BottomLeft, Rotation::BottomLeft),
+        (3. * FRAC_PI_2, Rotation::BottomLeft, Rotation::TopLeft, Rotation::TopLeft),
+        (TAU, Rotation::TopLeft, Rotation::TopRight, Rotation::TopRight),
+    ] {
+        let bits = boundary.to_bits();
+        assert_eq!(nearest_2d_rotation(f32::from_bits(bits - 1)).unwrap(), below);
+        assert_eq!(nearest_2d_rotation(boundary).unwrap(), at);
+        assert_eq!(nearest_2d_rotation(f32::from_bits(bits + 1)).unwrap(), above);
+    }
+    assert_eq!(nearest_2d_rotation(0.).unwrap(), Rotation::TopLeft);
+    assert_eq!(nearest_2d_rotation(-0.).unwrap(), Rotation::TopLeft);
+    assert_eq!(nearest_2d_rotation(-0.0001).unwrap(), Rotation::TopLeft);
+    assert_eq!(nearest_2d_rotation(0.0001).unwrap(), Rotation::TopRight);
+    assert_eq!(nearest_2d_rotation(-FRAC_PI_2).unwrap(), Rotation::BottomLeft);
+    assert_eq!(nearest_2d_rotation(-PI).unwrap(), Rotation::BottomRight);
+    assert!(nearest_2d_rotation(f32::INFINITY).is_err());
+}

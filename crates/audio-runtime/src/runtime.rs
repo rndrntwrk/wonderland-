@@ -59,6 +59,9 @@ pub struct AudioRuntime {pub host:HitHost,pub bank:EventBank,sounds:Vec<SharedTh
 impl AudioRuntime {
     pub fn new(host:HitHost,bank:EventBank)->Self{Self{host,bank,sounds:vec![],active:BTreeMap::new(),next_thread:0,faults:vec![]}}
     pub fn play(&mut self,name:&str,owner:Option<EntityRef>)->Result<ThreadId>{
+        self.play_with_limit(name,owner,self.host.limits.threads)
+    }
+    pub(crate) fn play_with_limit(&mut self,name:&str,owner:Option<EntityRef>,max_active:usize)->Result<ThreadId>{
         validate_name(name)?;if owner.map_or(false,|o|o.generation==0){return Err(AudioError::Invalid("owner generation"));}
         let original=name.to_ascii_lowercase();
         if let Some(old)=self.active.get(&original).copied(){if let Some(sound)=self.sounds.iter_mut().find(|s|s.id==old){if !sound.thread.dead && sound.blocker.is_none() && !sound.thread.interruptable(){add_owner(sound,owner,self.host.limits.threads)?;return Ok(old);}}}
@@ -68,7 +71,7 @@ impl AudioRuntime {
         let old_index=old.and_then(|id|self.sounds.iter().position(|s|s.id==id));
         let blocker=old_index.and_then(|i|{let s=&self.sounds[i];s.blocker.or(if s.thread.interruptable(){Some(s.id)}else{None})});
         let replacing_waiter=old_index.filter(|&i|self.sounds[i].blocker.is_some());
-        if self.sounds.len()>=self.host.limits.threads && replacing_waiter.is_none(){return Err(AudioError::Limit("audio threads"));}
+        if self.sounds.len().saturating_sub(usize::from(replacing_waiter.is_some()))>=max_active{return Err(AudioError::Limit("audio threads"));}
         let mut thread=match event.kind {
             ResolvedKind::Hit{program,pc,track,fallback}=>{let mut t=HitThread::new(program,pc,&self.host.limits)?;if track!=0{t.set_track(track,fallback,&mut self.host)?;}t},
             ResolvedKind::Simple{track}=>HitThread::simple(track,&mut self.host)?,
@@ -83,19 +86,28 @@ impl AudioRuntime {
         self.active.insert(event.name,id);self.sounds.push(sound);Ok(id)
     }
     pub fn tick(&mut self)->Vec<MixerIntent>{
-        // Stable insertion order, with a later equal-volume nightclub event winning.
-        let best=self.sounds.iter().filter(|s|s.name.starts_with("nc_")&&!s.thread.dead).enumerate().max_by(|(ia,a),(ib,b)|a.thread.gain.total_cmp(&b.thread.gain).then(ia.cmp(ib))).and_then(|(_,s)|s.name.chars().last());
+        self.begin_tick();let ids:Vec<_>=self.sounds.iter().map(|s|s.id).collect();for id in ids{self.tick_thread(id);}self.host.drain_intents()
+    }
+    pub(crate) fn begin_tick(&mut self){
+        // Source compares the effective group-scaled volume. Later ties win.
+        let masters=self.host.masters;
+        let best=self.sounds.iter().filter(|s|s.name.starts_with("nc_")&&!s.thread.dead).enumerate().max_by(|(ia,a),(ib,b)|{
+            let av=a.thread.gain*masters[a.thread.group as usize];let bv=b.thread.gain*masters[b.thread.group as usize];
+            av.total_cmp(&bv).then(ia.cmp(ib))
+        }).and_then(|(_,s)|s.name.chars().last());
         if let Some(best)=best{for s in &mut self.sounds{if s.name.starts_with("nc_")&&s.name.chars().last()!=Some(best){let _=s.thread.set_gain_pan(0.0,s.thread.pan,&mut self.host);}}}
-        let mut i=0;
-        while i<self.sounds.len(){
-            let sound=&mut self.sounds[i];
-            if sound.blocker.is_some(){if !sound.thread.paused{match sound.thread.tick_number.checked_add(1){Some(n)=>sound.thread.tick_number=n,None=>sound.thread.dispose(&mut self.host)}}}
-            else if sound.ever_owned && sound.owners.is_empty(){sound.thread.dispose(&mut self.host);}
-            else if let Err(error)=sound.thread.tick(&mut self.host){if self.faults.len()<self.host.limits.threads{self.faults.push((sound.id,error));}}
-            sound.volume_set=false;
-            if sound.thread.dead{self.remove(i);}else{i+=1;}
-        }
-        self.host.drain_intents()
+    }
+    pub(crate) fn tick_thread(&mut self,id:ThreadId){
+        let Some(index)=self.sounds.iter().position(|s|s.id==id) else{return;};let sound=&mut self.sounds[index];
+        if sound.blocker.is_some(){if !sound.thread.paused{match sound.thread.tick_number.checked_add(1){Some(n)=>sound.thread.tick_number=n,None=>sound.thread.dispose(&mut self.host)}}}
+        else if sound.ever_owned && sound.owners.is_empty(){sound.thread.dispose(&mut self.host);}
+        else if let Err(error)=sound.thread.tick(&mut self.host){if self.faults.len()<self.host.limits.threads{self.faults.push((sound.id,error));}}
+        sound.volume_set=false;if sound.thread.dead{self.remove(index);}
+    }
+    pub fn stop_all(&mut self){while !self.sounds.is_empty(){self.remove(0);}}
+    pub fn set_master(&mut self,group:VolumeGroup,gain:f32)->Result<()>{
+        crate::pcm::validate_gain_pan(gain,0.0)?;self.host.masters[group as usize]=gain;
+        for sound in &mut self.sounds{if sound.thread.group==group{sound.thread.set_gain_pan(sound.thread.gain,sound.thread.pan,&mut self.host)?;}}Ok(())
     }
     fn remove(&mut self,index:usize){
         let mut old=self.sounds.remove(index);old.thread.dispose(&mut self.host);
@@ -118,6 +130,10 @@ impl AudioRuntime {
         let set:std::collections::BTreeSet<_>=owners.iter().copied().collect();if set.len()!=owners.len(){return Err(AudioError::Invalid("duplicate reconciled owner"));}
         for sound in &mut self.sounds{sound.owners.retain(|o|set.contains(o));}Ok(())
     }
+    pub(crate) fn is_owned_shared_event(&self,name:&str,owner:EntityRef)->bool{
+        self.active.get(name).and_then(|id|self.sounds.iter().find(|s|s.id==*id)).map_or(false,|s|!s.thread.dead&&s.blocker.is_none()&&!s.thread.interruptable()&&s.owners.contains(&owner))
+    }
+    pub fn event_thread(&self,name:&str)->Option<ThreadId>{let name=if name.eq_ignore_ascii_case("piano_play"){String::from("playpiano")}else{name.to_ascii_lowercase()};self.active.get(&name).copied()}
     pub fn active_count(&self)->usize{self.sounds.len()}
     pub fn complete_voice(&mut self,voice:VoiceId)->bool{self.sounds.iter_mut().any(|s|s.thread.complete_voice(voice))}
     pub fn take_faults(&mut self)->Vec<(ThreadId,AudioError)>{std::mem::take(&mut self.faults)}

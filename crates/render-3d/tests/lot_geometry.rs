@@ -350,8 +350,9 @@ fn malformed_lots_budgets_and_grass_offset_are_checked() {
 
 // Catches invalid high-level input overflowing one-based roof arithmetic.
 #[test]
-fn malformed_public_roof_query_is_total(){
-    let mut lot=VisualLot::flat(2,2,1).unwrap();lot.levels=u8::MAX;
-    assert!(!roofable(&lot,16,16,2));
-    assert_eq!(lot.tile_index(p(0,0,1)),None);
+fn malformed_public_roof_query_is_total() {
+    let mut lot = VisualLot::flat(2, 2, 1).unwrap();
+    lot.levels = u8::MAX;
+    assert!(!roofable(&lot, 16, 16, 2));
+    assert_eq!(lot.tile_index(p(0, 0, 1)), None);
 }

@@ -5,7 +5,7 @@ use crate::{
 };
 use sha2::{Digest, Sha256};
 use std::fmt::Write;
-use wonderland_render_core::{Aabb, AssetKey, Mesh};
+use wonderland_render_core::{Aabb, AssetKey, Mat4, Mesh, Vec3};
 pub struct Facade {
     pub mesh: Mesh,
     pub bounds: Aabb,
@@ -19,7 +19,10 @@ pub fn bake_facade(
     revision: u64,
     y_squish: f32,
 ) -> Result<Facade, Error> {
-    let transform = super::facade_transform((0, 0), [0; 4], y_squish)?;
+    // build_lot returns graphics units. The legacy facade helper takes tile units.
+    // Compose this conversion before the source rotation, squish, and city scale.
+    let transform = super::facade_transform((0, 0), [0; 4], y_squish)?
+        * Mat4::from_scale(Vec3::ONE / crate::lot::TILE_UNITS);
     let normal_transform = transform
         .inverse()
         .ok_or(Error::InvalidInput("facade scale"))?
@@ -30,11 +33,14 @@ pub fn bake_facade(
         indices: Vec::new(),
     };
     let mut h = Sha256::new();
-    h.update(b"wonderland-facade-v1\0");
+    h.update(b"wonderland-facade-v2\0");
     h.update(content.0);
     h.update(revision.to_le_bytes());
     h.update(y_squish.to_bits().to_le_bytes());
+    h.update((output.parts.len() as u64).to_le_bytes());
     for mut part in output.parts {
+        h.update((part.mesh.vertices.len() as u64).to_le_bytes());
+        h.update((part.mesh.indices.len() as u64).to_le_bytes());
         h.update([part.kind as u8, part.level]);
         h.update(part.material.to_le_bytes());
         h.update(part.style.to_le_bytes());
@@ -81,7 +87,9 @@ pub fn bake_facade(
 }
 /// Export original synthetic/authorized data, reorienting OBJ faces to their
 /// explicit normals because legacy terrain and roof draw winding differ.
-pub fn to_obj(facade: &Facade) -> String {
+pub fn to_obj(facade: &Facade) -> Result<String, Error> {
+    facade.mesh.validate(&wonderland_render_core::RenderLimits::default())
+        .map_err(|_| Error::InvalidInput("facade OBJ mesh"))?;
     let mut out=String::from("# Wonderland deterministic presentation facade v1\n# Geometry source winding normalized to explicit normals for OBJ export.\n");
     let _ = write!(out, "# identity ");
     for b in facade.identity.0 {
@@ -122,5 +130,5 @@ pub fn to_obj(facade: &Facade) -> String {
         let [a, b, c] = tri.map(|i| i + 1);
         let _ = writeln!(out, "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}");
     }
-    out
+    Ok(out)
 }

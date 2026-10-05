@@ -430,8 +430,14 @@ pub fn counter_correct(
     if positions.len() != pixels.len() || rotation > 3 || positions.iter().any(|p| !p.is_finite()) {
         return Err(Error::InvalidInput("counter correction"));
     }
-    let outside=positions.iter().filter(|p|p.x.abs()>0.4).count();
-    if outside.checked_mul(positions.len()).map(|work|work>20_000_000).unwrap_or(true){return Err(Error::BudgetExceeded("counter nearest-border comparisons"));}
+    let outside = positions.iter().filter(|p| p.x.abs() > 0.4).count();
+    if outside
+        .checked_mul(positions.len())
+        .map(|work| work > 20_000_000)
+        .unwrap_or(true)
+    {
+        return Err(Error::BudgetExceeded("counter nearest-border comparisons"));
+    }
     let original = positions.to_vec();
     let edge = 0.498 + 0.001 * f32::from(rotation % 2);
     for (i, p) in positions.iter_mut().enumerate() {

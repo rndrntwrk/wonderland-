@@ -17,9 +17,96 @@ impl CameraPose {
             .ok_or(Error::InvalidInput("camera view"))?;
         let projection = Mat4::perspective_rh(self.fov_y, aspect, self.near, self.far)
             .ok_or(Error::InvalidInput("camera projection"))?;
-        Ok(projection * view)
+        let result = projection * view;
+        if !result.is_finite() {
+            return Err(Error::InvalidInput("camera view-projection overflow"));
+        }
+        Ok(result)
     }
 }
+
+/// City controls follow CityCamera3D, in city coordinates (one map pixel = one
+/// world unit). OrbitCamera below is the separate lot-space camera.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CityCameraMode {
+    Orbit,
+    FirstPerson { height: f32 },
+}
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CityCamera {
+    pub yaw: f32,
+    pub pitch_control: f32,
+    pub zoom: f32,
+    pub target_zoom: f32,
+    pub center: Vec2,
+    pub cam_height: f32,
+    pub mode: CityCameraMode,
+}
+impl Default for CityCamera {
+    fn default() -> Self {
+        Self {
+            yaw: -3. * std::f32::consts::FRAC_PI_4,
+            pitch_control: 0.,
+            zoom: 3.7,
+            target_zoom: 0.25,
+            center: Vec2::new(184., 328.),
+            cam_height: 0.,
+            mode: CityCameraMode::Orbit,
+        }
+    }
+}
+impl CityCamera {
+    pub fn pose(self) -> Result<CameraPose, Error> {
+        if !self.yaw.is_finite()
+            || !self.pitch_control.is_finite()
+            || !self.zoom.is_finite()
+            || !self.target_zoom.is_finite()
+            || !self.center.is_finite()
+            || !self.cam_height.is_finite()
+        {
+            return Err(Error::InvalidInput("city camera"));
+        }
+        let pitch = self.pitch_control.clamp(0., std::f32::consts::PI);
+        let base = Vec3::new(self.center.x, self.cam_height + 0.5, self.center.y);
+        let (position, target) = match self.mode {
+            CityCameraMode::Orbit => {
+                let angle = (1. - pitch.cos()) * std::f32::consts::PI * 0.245;
+                let zoom = self.zoom.clamp(0., 100.);
+                let z = zoom * zoom;
+                let base_distance = if self.target_zoom > 2. {
+                    3.5 - (self.target_zoom - 2.) * 2.
+                } else {
+                    3.5
+                };
+                let near = rotate_z(Vec3::new(base_distance, 0., 0.), angle);
+                let far = rotate_z(Vec3::new(1.30 * z, z, 0.), angle / 2.);
+                (base + rotate_y(near + far, self.yaw), base)
+            }
+            CityCameraMode::FirstPerson { height } => {
+                if !height.is_finite() {
+                    return Err(Error::InvalidInput("city first-person height"));
+                }
+                let position = base + Vec3::Y * height;
+                let angle = (pitch - std::f32::consts::FRAC_PI_2) * 0.99;
+                let forward = rotate_y(rotate_z(Vec3::new(-10., 0., 0.), angle), self.yaw);
+                (position, position + forward)
+            }
+        };
+        if !position.is_finite() || !target.is_finite() {
+            return Err(Error::InvalidInput("city camera overflow"));
+        }
+        Ok(CameraPose {
+            position,
+            target,
+            up: Vec3::Y,
+            fov_y: std::f32::consts::FRAC_PI_4,
+            near: 0.25,
+            far: 800.,
+            hide_head: None,
+        })
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct OrbitCamera {
     pub yaw: f32,
@@ -278,6 +365,9 @@ pub fn sample_transition(
             projection.cols[c][r] =
                 from_projection.cols[c][r] * (1. - f) + to_projection.cols[c][r] * f;
         }
+    }
+    if !projection.is_finite() {
+        return Err(Error::InvalidInput("camera transition overflow"));
     }
     Ok(CameraSample {
         transform,

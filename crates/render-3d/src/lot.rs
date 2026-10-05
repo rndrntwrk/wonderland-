@@ -86,7 +86,7 @@ impl VisualLot {
         })
     }
     pub fn tile_index(&self, p: TileCoord) -> Option<usize> {
-        check_dimensions(self.width,self.height,self.levels).ok()?;
+        check_dimensions(self.width, self.height, self.levels).ok()?;
         if p.x >= self.width || p.y >= self.height || p.level == 0 || p.level > self.levels {
             return None;
         }
@@ -192,17 +192,13 @@ impl VisualLot {
     }
 }
 fn check_dimensions(width: u16, height: u16, levels: u8) -> Result<usize, Error> {
-    if width == 0
-        || height == 0
-        || width > 256
-        || height > 256
-        || levels == 0
-        || levels > 16
-    {
+    if width == 0 || height == 0 || width > 256 || height > 256 || levels == 0 || levels > 16 {
         return Err(Error::InvalidInput("lot dimensions"));
     }
-    let cells=usize::from(width)*usize::from(height)*usize::from(levels);
-    if cells>262144{return Err(Error::InvalidInput("lot tile count"));}
+    let cells = usize::from(width) * usize::from(height) * usize::from(levels);
+    if cells > 262144 {
+        return Err(Error::InvalidInput("lot tile count"));
+    }
     Ok(cells)
 }
 #[derive(Clone, Copy, Debug)]

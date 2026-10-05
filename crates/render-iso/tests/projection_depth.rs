@@ -185,7 +185,7 @@ fn advanced_lighting_reconstruction_preserves_clip_w_without_second_division() {
 }
 
 #[test]
-fn cached_surface_destination_retains_minus_two_x_and_world_delta() {
+fn cached_surface_destination_uses_framebuffer_delta_and_world_translation() {
     let s = cache_restore_placement(
         Vec2::new(-512., 0.),
         Vec2::new(-400.5, 0.5),
@@ -198,8 +198,8 @@ fn cached_surface_destination_retains_minus_two_x_and_world_delta() {
     assert_eq!(
         s.destination,
         Rect {
-            x: -113.,
-            y: 0.,
+            x: -111.5,
+            y: -0.5,
             width: 1312.,
             height: 1112.
         }

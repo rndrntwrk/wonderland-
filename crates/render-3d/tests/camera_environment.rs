@@ -259,3 +259,45 @@ fn extreme_camera_inputs_fail_atomically_without_nonfinite_outputs(){
     assert!(fp.advance(Vec3::new(f32::MAX,0.,0.),100.,None).is_err());
     assert_eq!(fp,before);
 }
+
+#[test]
+fn finite_camera_matrices_must_have_a_finite_product() {
+    let pose = CameraPose {
+        position: Vec3::new(1.0e38, 0., 0.),
+        target: Vec3::new(1.0e38, 0., -1.),
+        up: Vec3::Y,
+        fov_y: 0.1,
+        near: 1.,
+        far: 800.,
+        hide_head: None,
+    };
+    assert!(Mat4::look_at_rh(pose.position, pose.target, pose.up).unwrap().is_finite());
+    assert!(Mat4::perspective_rh(pose.fov_y, 1., pose.near, pose.far).unwrap().is_finite());
+    assert!(pose.view_projection(1.).is_err());
+}
+
+#[test]
+fn city_camera_uses_city_units_and_the_source_zoom_and_flight_formulas() {
+    let mut city = CityCamera {
+        yaw: 0.,
+        pitch_control: 0.,
+        zoom: 2.,
+        target_zoom: 2.5,
+        center: Vec2::new(306.5, 205.5),
+        cam_height: 4.,
+        mode: CityCameraMode::Orbit,
+    };
+    let p = city.pose().unwrap();
+    assert_eq!(p.target, Vec3::new(306.5, 4.5, 205.5));
+    close(p.position.x, 314.2);
+    close(p.position.y, 8.5);
+    close(p.near, 0.25);
+    assert!(p.view_projection(1.5).is_ok());
+    city.mode = CityCameraMode::FirstPerson { height: 3. };
+    city.pitch_control = std::f32::consts::FRAC_PI_2;
+    let p = city.pose().unwrap();
+    assert_eq!(p.position, Vec3::new(306.5, 7.5, 205.5));
+    assert_eq!(p.target, Vec3::new(296.5, 7.5, 205.5));
+    city.cam_height = f32::INFINITY;
+    assert!(city.pose().is_err());
+}

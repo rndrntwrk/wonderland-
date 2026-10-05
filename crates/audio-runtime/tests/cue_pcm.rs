@@ -43,3 +43,23 @@ fn native_bounds_and_voice_reuse_are_explicit() {
     assert_eq!(mixer.render(2).unwrap(),vec![0;4]);
     assert!(mixer.insert_sample(key,PcmBuffer{sample_rate:8,channels:1,samples:vec![0;3]}).is_err());
 }
+
+#[test]
+fn native_residency_release_and_voice_watermark_survive_reset(){
+    let key=AssetKey([9;32]);let voice=VoiceId{generation:1,serial:1};let pcm=PcmBuffer{sample_rate:8,channels:1,samples:vec![1000]};let mut mixer=NativeMixer::new(8,1,128).unwrap();
+    mixer.insert_sample(key,pcm.clone()).unwrap();mixer.apply(&start(voice,key,1.0,0.0,true)).unwrap();assert!(mixer.evict_sample(key).is_err());
+    mixer.apply(&MixerIntent::Stop{voice}).unwrap();assert!(mixer.apply(&start(voice,key,1.0,0.0,true)).is_err());mixer.evict_sample(key).unwrap();assert_eq!(mixer.resident_bytes(),0);
+    mixer.insert_sample(key,pcm.clone()).unwrap();mixer.reset();assert_eq!(mixer.resident_bytes(),0);mixer.insert_sample(key,pcm).unwrap();assert!(mixer.apply(&start(voice,key,1.0,0.0,true)).is_err());
+    let second=VoiceId{generation:2,serial:1};mixer.apply(&start(second,key,1.0,0.0,true)).unwrap();mixer.apply(&MixerIntent::Stop{voice}).unwrap();assert_eq!(mixer.active_voices(),1);
+    mixer.apply(&start(VoiceId{generation:3,serial:1},key,1.0,0.0,true)).unwrap();assert_eq!(mixer.active_voices(),1);mixer.apply(&MixerIntent::Stop{second}).unwrap();assert_eq!(mixer.active_voices(),1);
+}
+#[test]
+fn native_completion_queue_backpressures_starts_instead_of_losing_lifecycle_events(){
+    let key=AssetKey([9;32]);let mut mixer=NativeMixer::new(8,1,128).unwrap();mixer.insert_sample(key,PcmBuffer{sample_rate:8,channels:1,samples:vec![1000]}).unwrap();
+    let first=VoiceId{generation:1,serial:1};let second=VoiceId{generation:1,serial:2};mixer.apply(&start(first,key,1.0,0.0,false)).unwrap();mixer.render(1).unwrap();assert!(mixer.apply(&start(second,key,1.0,0.0,false)).is_err());assert_eq!(mixer.take_finished(),vec![first]);mixer.apply(&start(second,key,1.0,0.0,false)).unwrap();mixer.render(1).unwrap();assert_eq!(mixer.take_finished(),vec![second]);
+}
+#[test]
+fn native_tiny_sample_residency_has_an_entry_budget(){
+    let mut mixer=NativeMixer::new(8,1,128).unwrap();let pcm=PcmBuffer{sample_rate:8,channels:1,samples:vec![1]};
+    mixer.insert_sample(AssetKey([1;32]),pcm.clone()).unwrap();mixer.insert_sample(AssetKey([2;32]),pcm.clone()).unwrap();assert!(mixer.insert_sample(AssetKey([3;32]),pcm.clone()).is_err());assert!(mixer.evict_sample(AssetKey([1;32])).unwrap());mixer.insert_sample(AssetKey([3;32]),pcm).unwrap();
+}

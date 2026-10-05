@@ -45,7 +45,7 @@ pub const AMBIENCE:[AmbienceEntry;39]=[
 pub fn catalog()->Vec<AmbienceEntry>{AMBIENCE.to_vec()}
 #[derive(Clone,Copy,Debug,PartialEq,Eq)]
 pub enum AmbienceChange{Start(u8),Stop(u8)}
-#[derive(Debug,Default)]
+#[derive(Clone,Debug,Default)]
 pub struct AmbienceSelection {pub bits:u64}
 impl AmbienceSelection{
     pub fn set(&mut self,id:u8,enabled:bool)->Result<Vec<AmbienceChange>>{

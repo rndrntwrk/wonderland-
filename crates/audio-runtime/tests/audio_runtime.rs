@@ -43,3 +43,11 @@ fn provider_group_first_wins_hsm_and_entrypoint_and_piano_resolution(){
     let mut higher=base.clone();higher.kind=TsoGroup::NewMain;higher.hsm=Some(vec![("beep".into(),12),("beep".into(),30),("guid_tkd_beep".into(),99),("playpiano".into(),40)]);higher.events.push(EventRecord{name:"piano_play".into(),event_type:43,track_id:7});
     let h=HitHost::new(Arc::new(HitCatalog::default()),limits.clone(),1,1).unwrap();let bank=EventBank::new(vec![base.clone(),higher],&limits).unwrap();assert!(matches!(bank.resolve("BEEP",&h).unwrap().kind,ResolvedKind::Hit{pc:12,track:99,fallback:7,..}));let piano=bank.resolve("piano_play",&h).unwrap();assert_eq!(piano.name,"playpiano");assert!(matches!(piano.kind,ResolvedKind::Hit{pc:40,..}));let bank=EventBank::new(vec![base],&limits).unwrap();assert!(matches!(bank.resolve("beep",&h).unwrap().kind,ResolvedKind::Hit{pc:20,..}));
 }
+
+#[test]
+fn nightclub_winner_compares_effective_master_scaled_volume(){
+    let mut r=make(&["nc_drums_a","nc_bass_b"],vec![0x60,0,0x0b,8]);let a=r.play("nc_drums_a",Some(owner(1))).unwrap();let b=r.play("nc_bass_b",Some(owner(2))).unwrap();r.tick();
+    r.thread_mut(a).unwrap().group=VolumeGroup::Vox;r.thread_mut(b).unwrap().group=VolumeGroup::Fx;
+    r.submit_volume(a,owner(1),1.0,0.0,None).unwrap();r.submit_volume(b,owner(2),0.5,0.0,None).unwrap();r.set_master(VolumeGroup::Vox,0.2).unwrap();r.tick();
+    assert_eq!(r.thread(a).unwrap().gain,0.0);assert_eq!(r.thread(b).unwrap().gain,0.5);
+}

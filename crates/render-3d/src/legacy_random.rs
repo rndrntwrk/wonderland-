@@ -79,9 +79,12 @@ mod tests {
     }
     #[test]
     fn extreme_legacy_seeds_stay_bounded_with_overflow_checks() {
-        for seed in [i32::MIN,i32::MAX,161803399,-161803399] {
-            let mut random=LegacyRandom::new(seed);
-            for _ in 0..128 { let n=random.next(6); assert!((0..6).contains(&n)); }
+        for seed in [i32::MIN, i32::MAX, 161803399, -161803399] {
+            let mut random = LegacyRandom::new(seed);
+            for _ in 0..128 {
+                let n = random.next(6);
+                assert!((0..6).contains(&n));
+            }
         }
     }
 }

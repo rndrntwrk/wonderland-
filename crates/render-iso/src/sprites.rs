@@ -31,6 +31,7 @@ impl Rect {
 pub struct MaskInput {
     pub key: AssetKey,
     pub rgba: RgbaImage,
+    /// Upload extent. Texels outside `rgba` are transparent zero padding.
     pub physical_size: [u32; 2],
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -111,6 +112,8 @@ pub struct PreparePolicy {
     pub visible_level: i16,
     pub draw_oob: bool,
     pub wvp: Option<Mat4>,
+    /// Graphics-space offset baked into every emitted world anchor. Adapters
+    /// use zero additional WorldOffset when drawing these prepared vertices.
     pub world_offset: Vec3,
     pub gamma: GammaMode,
     pub layer: SpriteLayer,
@@ -141,9 +144,12 @@ pub struct PreparedSprite {
     pub visual_revision: u64,
     pub sprite_id: u32,
     pub frame_index: u32,
+    /// Final framebuffer pixel edges, with top-left (0,0) and precise zoom
+    /// already applied. No source backend half-pixel translation is pending.
     pub rect: Rect,
     pub local_rect: Rect,
     pub mesh: Mesh,
+    /// Resolved graphics-space anchor, including PreparePolicy.world_offset.
     pub world_anchor: Vec3,
     pub anchors: Option<DepthAnchors>,
     pub asset: Arc<SpriteAsset>,
@@ -198,11 +204,18 @@ impl PreparedSprite {
             }
             let u = (x as f32 + 0.5) / self.asset.physical_size[0] as f32;
             let v = (y as f32 + 0.5) / self.asset.physical_size[1] as f32;
-            let mx = (u * m.physical_size[0] as f32).floor() as u32;
-            let my = (v * m.physical_size[1] as f32).floor() as u32;
-            let index = (my.min(m.rgba.height - 1) as usize)
+            let mx = ((u * m.physical_size[0] as f32).floor() as u32)
+                .min(m.physical_size[0] - 1);
+            let my = ((v * m.physical_size[1] as f32).floor() as u32)
+                .min(m.physical_size[1] - 1);
+            // Clamp at the uploaded texture boundary. Padding inside that
+            // boundary stays transparent instead of repeating a logical edge.
+            if mx >= m.rgba.width || my >= m.rgba.height {
+                return Some(0);
+            }
+            let index = (my as usize)
                 .checked_mul(m.rgba.width as usize)?
-                .checked_add(mx.min(m.rgba.width - 1) as usize)?;
+                .checked_add(mx as usize)?;
             m.rgba.pixels.get(index).map(|p| p[3])
         });
         let room = if self.material.mode == RenderMode::NoDepth {
@@ -409,8 +422,9 @@ pub fn prepare_sprites(
             width: local_rect.width * projection.precise_zoom,
             height: local_rect.height * projection.precise_zoom,
         };
-        let world_anchor =
-            units::tile_to_graphics(instance.tile_position) + units::tile_to_graphics(local);
+        let world_anchor = units::tile_to_graphics(instance.tile_position)
+            + units::tile_to_graphics(local)
+            + policy.world_offset;
         let (depth, mode, anchors) = match &asset.depth {
             DepthInput::None => (DepthKey::None, RenderMode::NoDepth, None),
             DepthInput::Constant(q) => (
@@ -418,7 +432,7 @@ pub fn prepare_sprites(
                 RenderMode::ZSprite,
                 Some(DepthAnchors::new(
                     world_anchor,
-                    policy.world_offset,
+                    Vec3::ZERO,
                     projection.rotation,
                     wvp,
                 )?),
@@ -428,7 +442,7 @@ pub fn prepare_sprites(
                 RenderMode::ZSprite,
                 Some(DepthAnchors::new(
                     world_anchor,
-                    policy.world_offset,
+                    Vec3::ZERO,
                     projection.rotation,
                     wvp,
                 )?),

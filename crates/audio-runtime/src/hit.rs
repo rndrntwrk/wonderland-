@@ -187,7 +187,7 @@ pub enum ThreadStep {Halted,ExecutionEnded,Dead}
 struct Note {voice:VoiceId,active:bool,released:bool,start_tick:u64,end_tick:Option<u64>,duration_ticks:f64}
 #[derive(Debug)]
 pub struct HitThread {
-    pub pc:u32,pub wait_remain:i32,pub thread_dead:bool,pub dead:bool,pub looped:bool,pub has_set_loop:bool,pub loop_pointer:i64,pub zero:bool,pub sign:bool,pub patch:Option<u32>,pub objects:Vec<i32>,pub paused:bool,
+    pub pc:u32,pub wait_remain:i32,pub thread_dead:bool,pub dead:bool,pub looped:bool,pub loop_defined:bool,pub has_set_loop:bool,pub loop_pointer:i64,pub zero:bool,pub sign:bool,pub patch:Option<u32>,pub objects:Vec<i32>,pub paused:bool,
     program:Arc<HitProgram>,registers:[i32;16],locals:[i32;54],stack:Vec<u32>,hitlist:Option<u32>,notes:Vec<Note>,
     pub tick_number:u64,pub gain:f32,pub pan:f32,pub group:VolumeGroup,simple_pending:bool,simple:bool,
 }
@@ -195,7 +195,7 @@ impl HitThread {
     pub fn new(program:Arc<HitProgram>,pc:u32,limits:&HitLimits)->Result<Self>{
         if program.bytes.is_empty() || program.bytes.len()>limits.program_bytes || pc as usize>=program.bytes.len(){return Err(AudioError::Invalid("HIT entrypoint"));}
         let mut registers=[0;16];registers[1]=12;
-        Ok(Self{pc,wait_remain:-1,thread_dead:false,dead:false,looped:false,has_set_loop:false,loop_pointer:i64::from(pc),zero:false,sign:false,patch:None,objects:vec![0;29],paused:false,program,registers,locals:[0;54],stack:vec![],hitlist:None,notes:vec![],tick_number:0,gain:1.0,pan:0.0,group:VolumeGroup::Fx,simple_pending:false,simple:false})
+        Ok(Self{pc,wait_remain:-1,thread_dead:false,dead:false,looped:false,loop_defined:false,has_set_loop:false,loop_pointer:i64::from(pc),zero:false,sign:false,patch:None,objects:vec![0;29],paused:false,program,registers,locals:[0;54],stack:vec![],hitlist:None,notes:vec![],tick_number:0,gain:1.0,pan:0.0,group:VolumeGroup::Fx,simple_pending:false,simple:false})
     }
     pub fn simple(track:u32,host:&mut HitHost)->Result<Self>{
         let mut thread=Self::new(Arc::new(HitProgram::new(vec![8],&host.limits)?),0,&host.limits)?;
@@ -272,7 +272,7 @@ impl HitThread {
             let sound=if track.sound_id==0 && track.hitlist_id.unwrap_or(0)!=0 {
                 if let Some(sound)=host.selected_sound.get(&primary){*sound}else{let sound=self.choose(host)?;host.selected_sound.insert(primary,sound);sound}
             }else{track.sound_id};self.patch=Some(sound);
-            if let Some(looped)=track.looped{self.looped=looped;self.has_set_loop=looped;}
+            if let Some(looped)=track.looped{self.loop_defined=true;self.looped=looped;self.has_set_loop=looped;}
         }else{self.patch=Some(id);}Ok(())
     }
     fn choose(&mut self,host:&mut HitHost)->Result<u32>{

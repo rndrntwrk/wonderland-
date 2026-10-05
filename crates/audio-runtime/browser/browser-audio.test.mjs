@@ -55,3 +55,25 @@ test('locked start stop churn cannot accumulate retired queue entries',async()=>
 test('concurrent PCM conversions charge provisional memory before creating buffers',async()=>{
   const {adapter,context}=make({maxPcmBytes:16});adapter.applyAll([start(1,1),start(2,2)]);await adapter.unlockFromGesture();await adapter.settled();assert.equal(context.starts.length,1);assert.equal(adapter.snapshot().activeVoices,1);assert.equal(adapter.snapshot().pcmBytes,16);assert.equal(adapter.snapshot().reservedPcmBytes,0);assert.equal(context.buffersCreated,1);await adapter.dispose();
 });
+
+test('small decoded samples are bounded by both memory and cache entry count',async()=>{
+  const {adapter}=make({maxVoices:1,maxPcmBytes:4096});await adapter.unlockFromGesture();for(let serial=1;serial<=20;serial++){adapter.apply(start(serial,serial));await adapter.settled();adapter.apply({Release:{voice:{generation:1,serial}}});}assert.ok(adapter.snapshot().cachedSamples<=2);await adapter.dispose();
+});
+test('a closed context is replaced only on gesture and resumes retained loops once',async()=>{
+  const first=new Context(),second=new Context();let created=0;
+  const {adapter}=make({contextFactory:()=>++created===1?first:second});
+  adapter.applyAll([start(1,1,false),start(2,2,true)]);await adapter.unlockFromGesture();await adapter.settled();first.currentTime=0.25;await first.close();
+  assert.equal(created,1);assert.equal(adapter.state,'interrupted');assert.equal(adapter.snapshot().activeVoices,1);await adapter.resumeFromGesture();await adapter.settled();assert.equal(created,2);assert.equal(second.starts.length,1);assert.equal(second.starts[0].loop,true);assert.equal(second.starts[0].offset,0.25);assert.deepEqual(adapter.takeFinished(),[{generation:'1',serial:'1'}]);await adapter.dispose();
+});
+test('finished voice delivery reserves capacity until the presentation host drains it',async()=>{
+  const {adapter,context}=make({maxVoices:1});adapter.apply(start(1));await adapter.unlockFromGesture();await adapter.settled();context.starts[0].onended();
+  assert.equal(adapter.snapshot().activeVoices,0);assert.equal(adapter.snapshot().completedVoices,1);assert.throws(()=>adapter.apply(start(2)),/voice budget/);
+  assert.deepEqual(adapter.takeFinished(),[{generation:'1',serial:'1'}]);assert.deepEqual(adapter.takeFinished(),[]);adapter.apply(start(2));await adapter.settled();assert.equal(context.starts.length,2);await adapter.dispose();
+});
+test('decoder failures deliver a presentation completion and never resurrect a voice',async()=>{
+  const {adapter,context}=make({loadSample:async()=>({encoded:new Uint8Array(3).buffer,format:'mp3',decodedBytes:16})});
+  adapter.apply(start(1));await adapter.unlockFromGesture();await adapter.settled();assert.equal(context.starts.length,0);assert.deepEqual(adapter.takeFinished(),[{generation:'1',serial:'1'}]);assert.match(adapter.snapshot().lastError,/bad codec/);await adapter.dispose();
+});
+test('pending gesture resume cannot change a disposed adapter back to running',async()=>{
+  const {adapter,context}=make();const gate=deferred();context.resume=()=>gate.promise;const unlocking=adapter.unlockFromGesture();await adapter.dispose();gate.resolve();await assert.rejects(unlocking,/cancelled/);assert.equal(adapter.state,'disposed');assert.equal(context.closed,true);
+});

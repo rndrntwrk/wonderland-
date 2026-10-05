@@ -54,11 +54,11 @@ fn room_light_accumulation_scales_indoor_points_and_respects_window_cutoff() {
 }
 #[test]
 fn source_floor_shadow_factor_is_not_clamped() {
-    let lit = floor_light_color([0.5, 0.5, 0.5, 0.25], [0.1; 4], 1., 0.).unwrap();
+    let lit = floor_light_color([0.5, 0.5, 0.5, 0.25], [0.1; 4], [1.; 3], 0.).unwrap();
     near(lit[0], 0.2777778);
-    let extrapolated = floor_light_color([0.5, 0.5, 0.5, 1.], [0.1; 4], 1., 0.).unwrap();
+    let extrapolated = floor_light_color([0.5, 0.5, 0.5, 1.], [0.1; 4], [1.; 3], 0.).unwrap();
     near(extrapolated[0], 0.9444445);
-    let high = floor_light_color([0.5, 0.5, 0.5, 0.], [0.1; 4], 1., 1.).unwrap();
+    let high = floor_light_color([0.5, 0.5, 0.5, 0.], [0.1; 4], [1.; 3], 1.).unwrap();
     near(high[0], 0.5);
 }
 fn cluster(x: f32) -> LightCluster {
@@ -185,4 +185,26 @@ fn world_atlas_coordinates_keep_floor_slot_and_grass_offset_policy() {
         .unwrap();
     near(wall.x, -1. / 222.);
     near(wall.y, -1. / 148.);
+}
+
+#[test]
+fn rgb_surround_adjustment_preserves_the_unadjusted_floor_shadow_average() {
+    let intensity = [0.5, 0.5, 0.5, 0.25];
+    let minimum = [0.1, 0.1, 0.1, 1.];
+    let adjust = [2., 1., 0.5];
+    let partial = floor_light_color(intensity, minimum, adjust, 0.).unwrap();
+    for (actual, expected) in partial.into_iter().zip([0.5, 0.2777778, 0.16666667, 1.]) {
+        near(actual, expected);
+    }
+    let above_shadow = floor_light_color(intensity, minimum, adjust, 1.).unwrap();
+    for (actual, expected) in above_shadow.into_iter().zip([1., 0.5, 0.25, 1.]) {
+        near(actual, expected);
+    }
+    for invalid in [
+        [f32::NAN, 1., 1.],
+        [1., -0.1, 1.],
+        [1., 1., f32::INFINITY],
+    ] {
+        assert!(floor_light_color(intensity, minimum, invalid, 0.).is_err());
+    }
 }

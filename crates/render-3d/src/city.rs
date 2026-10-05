@@ -74,12 +74,22 @@ pub fn tree_count(density: u8) -> usize {
 pub enum CityBoundary {
     Rectangle,
     RendererDiamond,
+    /// The active renderer's ten-tile side fade, clipped to the image rectangle.
+    RendererWithFade,
     ServerDiamond { padding: u16 },
     LegacyMapData,
 }
 pub fn in_bounds(x: i32, y: i32, policy: CityBoundary) -> bool {
     match policy {
         CityBoundary::Rectangle => (0..512).contains(&x) && (0..512).contains(&y),
+        CityBoundary::RendererWithFade => {
+            if !(0..512).contains(&x) || !(0..512).contains(&y) {
+                return false;
+            }
+            let start = (y - 306).abs();
+            let end = if y < 205 { 307 + y } else { 717 - y };
+            x >= start - 10 && x < end + 10
+        }
         CityBoundary::LegacyMapData => x > 0 && x < 512 && (0..512).contains(&y),
         CityBoundary::RendererDiamond | CityBoundary::ServerDiamond { .. } => {
             let pad = if let CityBoundary::ServerDiamond { padding } = policy {
@@ -189,25 +199,54 @@ pub struct FoliageInstance {
     pub yaw: f32,
     pub scale: f32,
 }
-pub use geometry::{build_city_mesh, build_city_parts, build_near_patch, foliage_instances};
+impl CityPart {
+    /// Secondary blend-mask coordinates in vertex order. Terrain UVs stay in
+    /// Mesh::vertices.uv; this channel works for both coarse and detailed meshes.
+    pub fn mask_uv(&self) -> Option<Vec<Vec2>> {
+        let CityPartKind::Blend { mask, .. } = self.kind else {
+            return None;
+        };
+        let index = blend_atlas(mask);
+        let offset = Vec2::new(f32::from(index % 7) / 7., f32::from(index / 7) / 3.);
+        Some(self.mesh.vertices.iter().map(|v| {
+            offset + Vec2::new(
+                (v.position.x - f32::from(self.tile.0)) / 7.,
+                (v.position.z - f32::from(self.tile.1)) / 3.,
+            )
+        }).collect())
+    }
+}
+pub use geometry::{
+    build_city_mesh, build_city_parts, build_near_patch, build_near_patch_parts,
+    foliage_instances,
+};
 pub fn lot_center_to_city(city: (u16, u16), lot: Vec2) -> Result<Vec2, Error> {
     if !lot.is_finite() {
         return Err(Error::InvalidInput("lot camera center"));
     }
-    Ok(Vec2::new(
+    let result = Vec2::new(
         f32::from(city.0) + 1. - (lot.y - 2.) / 72.,
         f32::from(city.1) + (lot.x - 2.) / 72.,
-    ))
+    );
+    if !result.is_finite() {
+        return Err(Error::InvalidInput("lot-to-city coordinate overflow"));
+    }
+    Ok(result)
 }
 pub fn city_center_to_lot(city: (u16, u16), position: Vec2) -> Result<Vec2, Error> {
     if !position.is_finite() {
         return Err(Error::InvalidInput("city camera center"));
     }
-    Ok(Vec2::new(
+    let result = Vec2::new(
         (position.y - f32::from(city.1)) * 72. + 2.,
         (f32::from(city.0) + 1. - position.x) * 72. + 2.,
-    ))
+    );
+    if !result.is_finite() {
+        return Err(Error::InvalidInput("city-to-lot coordinate overflow"));
+    }
+    Ok(result)
 }
+/// Source tile-unit transform. Graphics-unit geometry must first be divided by 3.
 pub fn facade_transform(
     city: (u16, u16),
     corner_elevation: [u8; 4],

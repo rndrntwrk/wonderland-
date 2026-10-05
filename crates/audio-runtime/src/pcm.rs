@@ -24,16 +24,17 @@ struct Voice { pcm: Arc<PcmBuffer>, phase: u128, gain: f32, pan: f32, looped: bo
 pub struct NativeMixer {
     sample_rate: u32, max_voices: usize, max_pcm_bytes: usize,
     pcm_bytes: usize, samples: BTreeMap<AssetKey, Arc<PcmBuffer>>,
-    voices: BTreeMap<VoiceId, Voice>, finished: Vec<VoiceId>,
+    voices: BTreeMap<VoiceId, Voice>, finished: Vec<VoiceId>, watermark:Option<VoiceId>,
 }
 impl NativeMixer {
     pub fn new(sample_rate: u32, max_voices: usize, max_pcm_bytes: usize) -> Result<Self> {
         if sample_rate == 0 || sample_rate > 384_000 || max_voices == 0 || max_pcm_bytes < 2 { return Err(AudioError::Invalid("mixer limits")); }
-        Ok(Self { sample_rate, max_voices, max_pcm_bytes, pcm_bytes: 0, samples:BTreeMap::new(), voices:BTreeMap::new(), finished:Vec::new() })
+        Ok(Self { sample_rate, max_voices, max_pcm_bytes, pcm_bytes: 0, samples:BTreeMap::new(), voices:BTreeMap::new(), finished:Vec::new(), watermark:None })
     }
     pub fn insert_sample(&mut self, key: AssetKey, pcm: PcmBuffer) -> Result<()> {
         pcm.validate(self.max_pcm_bytes)?;
         if self.samples.contains_key(&key) { return Err(AudioError::Invalid("sample key already resident")); }
+        if self.samples.len()>=self.max_voices.saturating_mul(2){return Err(AudioError::Limit("PCM entries"));}
         let bytes=pcm.samples.len()*2;
         if bytes > self.max_pcm_bytes - self.pcm_bytes { return Err(AudioError::Limit("PCM residency")); }
         self.samples.insert(key,Arc::new(pcm)); self.pcm_bytes+=bytes; Ok(())
@@ -42,17 +43,22 @@ impl NativeMixer {
         match *intent {
             MixerIntent::Start { voice,sample,gain,pan,looped,seek_frame,.. } => {
                 validate_gain_pan(gain,pan)?;
+                if voice.generation==0||voice.serial==0{return Err(AudioError::Invalid("voice identity"));}
+                if self.watermark.map_or(false,|old|voice<=old){return Err(AudioError::Stale);}
+                let new_generation=self.watermark.map_or(false,|old|voice.generation>old.generation);
                 if self.voices.contains_key(&voice) { return Err(AudioError::Invalid("voice already active")); }
-                if self.voices.len() >= self.max_voices { return Err(AudioError::Limit("voices")); }
+                if !new_generation && self.voices.len()+self.finished.len() >= self.max_voices { return Err(AudioError::Limit("voices")); }
                 let pcm=self.samples.get(&sample).ok_or(AudioError::Missing("PCM sample"))?.clone();
                 let seek=if looped { seek_frame%pcm.frames() } else { seek_frame };
                 if seek >= pcm.frames() { return Err(AudioError::Invalid("seek frame")); }
+                if new_generation{self.voices.clear();self.finished.clear();}
+                self.watermark=Some(voice);
                 self.voices.insert(voice, Voice { pcm, phase:u128::from(seek)*u128::from(self.sample_rate),gain,pan,looped,paused:false });
             }
             MixerIntent::SetGainPan {voice,gain,pan} => { validate_gain_pan(gain,pan)?; if let Some(v)=self.voices.get_mut(&voice) { v.gain=gain; v.pan=pan; } }
             MixerIntent::Pause {voice} => { if let Some(v)=self.voices.get_mut(&voice) { v.paused=true; } }
             MixerIntent::Resume {voice} => { if let Some(v)=self.voices.get_mut(&voice) { v.paused=false; } }
-            MixerIntent::Stop {voice} | MixerIntent::Release {voice} => { self.voices.remove(&voice); }
+            MixerIntent::Stop {voice} | MixerIntent::Release {voice} => { self.voices.remove(&voice);self.finished.retain(|id|*id!=voice); }
         } Ok(())
     }
     pub fn render(&mut self, frames: usize) -> Result<Vec<i16>> {
@@ -77,12 +83,20 @@ impl NativeMixer {
             out[frame*2+1]=sum[1].round().clamp(-32768.0,32767.0) as i16;
         }
         let completed:Vec<_>=self.voices.iter().filter(|(_,v)| !v.looped && v.phase>=u128::from(v.pcm.frames())*u128::from(self.sample_rate)).map(|(id,_)|*id).collect();
-        for id in completed { self.voices.remove(&id); if self.finished.len()<self.max_voices {self.finished.push(id);} }
+        for id in completed { self.voices.remove(&id); self.finished.push(id); }
         Ok(out)
     }
     /// Presentation feedback only; no simulation acknowledgement is exposed.
     pub fn take_finished(&mut self) -> Vec<VoiceId> { std::mem::take(&mut self.finished) }
     pub fn active_voices(&self) -> usize { self.voices.len() }
+    pub fn resident_bytes(&self)->usize{self.pcm_bytes}
+    /// Active voices retain PCM ownership; eviction cannot hide that allocation.
+    pub fn evict_sample(&mut self,key:AssetKey)->Result<bool>{
+        if let Some(pcm)=self.samples.get(&key){if Arc::strong_count(pcm)>1{return Err(AudioError::Invalid("sample still playing"));}}
+        if let Some(pcm)=self.samples.remove(&key){self.pcm_bytes-=pcm.samples.len()*2;Ok(true)}else{Ok(false)}
+    }
+    /// Clears player/cache resources while retaining the accepted voice watermark.
+    pub fn reset(&mut self){self.voices.clear();self.finished.clear();self.samples.clear();self.pcm_bytes=0;}
 }
 pub fn validate_gain_pan(gain:f32,pan:f32)->Result<()> {
     if !gain.is_finite() || !(0.0..=1.0).contains(&gain) || !pan.is_finite() || !(-1.0..=1.0).contains(&pan) { return Err(AudioError::Invalid("gain or pan")); } Ok(())

@@ -1,5 +1,5 @@
 //! A directory/admission adapter boundary, not a directory or admission service.
-use crate::{camera::OrbitCamera, Error};
+use crate::{camera::CityCamera, Error};
 use std::collections::BTreeSet;
 use wonderland_render_core::FrameStamp;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -25,11 +25,13 @@ pub struct DirectorySnapshot {
 }
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CityIntent {
-    pub camera: OrbitCamera,
+    /// Saved controls use city coordinates, never lot graphics coordinates.
+    pub camera: CityCamera,
     pub selected: Option<DestinationId>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct RequestTicket {
+    pub session_generation: u64,
     pub serial: u64,
     pub destination: DestinationId,
     pub directory_revision: u64,
@@ -37,6 +39,9 @@ pub struct RequestTicket {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AdmissionReceipt {
+    /// Echo the originating presentation request, including its session namespace.
+    pub session_generation: u64,
+    pub request_serial: u64,
     pub destination: DestinationId,
     pub directory_revision: u64,
     pub destination_revision: u64,
@@ -62,6 +67,7 @@ pub struct CityLotTransition {
     intent: CityIntent,
     state: TransitionState,
     serial: u64,
+    session_generation: u64,
 }
 impl DirectorySnapshot {
     pub fn validate(&self) -> Result<(), Error> {
@@ -89,7 +95,18 @@ impl DirectorySnapshot {
     }
 }
 impl CityLotTransition {
-    pub fn new(directory: DirectorySnapshot, intent: CityIntent) -> Result<Self, Error> {
+    /// The transport/session owner must supply a nonzero generation that is never
+    /// reused across reconnects or recreation of this controller. A serial is only
+    /// unique within that generation; this object deliberately has no wall clock
+    /// or process-global counter.
+    pub fn new(
+        directory: DirectorySnapshot,
+        intent: CityIntent,
+        session_generation: u64,
+    ) -> Result<Self, Error> {
+        if session_generation == 0 {
+            return Err(Error::InvalidInput("transition session generation"));
+        }
         directory.validate()?;
         intent.camera.pose()?.view_projection(1.)?;
         if intent
@@ -104,6 +121,7 @@ impl CityLotTransition {
             intent,
             state: TransitionState::City,
             serial: 0,
+            session_generation,
         })
     }
     pub fn state(&self) -> TransitionState {
@@ -133,6 +151,7 @@ impl CityLotTransition {
             .checked_add(1)
             .ok_or(Error::BudgetExceeded("transition ticket sequence"))?;
         let ticket = RequestTicket {
+            session_generation: self.session_generation,
             serial,
             destination,
             directory_revision: self.directory.revision,
@@ -153,7 +172,9 @@ impl CityLotTransition {
             .directory
             .lookup(ticket.destination)
             .ok_or(Error::StaleTransition)?;
-        if receipt.destination != ticket.destination
+        if receipt.session_generation != ticket.session_generation
+            || receipt.request_serial != ticket.serial
+            || receipt.destination != ticket.destination
             || receipt.directory_revision != ticket.directory_revision
             || receipt.destination_revision != ticket.destination_revision
             || record.revision != ticket.destination_revision

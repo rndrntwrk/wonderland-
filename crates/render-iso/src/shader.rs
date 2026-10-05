@@ -4,8 +4,11 @@ use wonderland_render_core::AssetKey;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SpriteShaderVertex {
+    /// Final zero-origin framebuffer pixel edges; the adapter only maps to clip
+    /// space. Precise zoom and source backend pixel shifts must not be reapplied.
     pub position: [f32; 3],
     pub uv: [f32; 2],
+    /// Graphics-space anchor with the preparation world offset already baked in.
     pub world_anchor: [f32; 3],
     pub object_id_and_floor: [f32; 2],
     pub room: [f32; 2],

@@ -191,11 +191,20 @@ pub fn nearest_2d_rotation(yaw_radians: f32) -> Result<Rotation> {
     if !yaw_radians.is_finite() {
         return Err(IsoError::Invalid("camera yaw"));
     }
-    let r = round_even(
-        (yaw_radians.rem_euclid(std::f32::consts::TAU) / std::f32::consts::PI + 0.25) * 2.,
-    ) as usize
-        % 4;
-    Ok(Rotation::ALL[r])
+    // DirectionUtils.PosMod and Math.PI promote the source f32 yaw to double.
+    // Keep that precision through Math.Round's nearest-even boundary decision.
+    let yaw = f64::from(yaw_radians);
+    let tau = std::f64::consts::TAU;
+    let wrapped = (yaw % tau + tau) % tau;
+    let quarter_turns = (wrapped / std::f64::consts::PI + 0.25) * 2.;
+    let lower = quarter_turns.floor();
+    let fraction = quarter_turns - lower;
+    let rounded = if fraction > 0.5 || (fraction == 0.5 && lower % 2.0 != 0.0) {
+        lower + 1.
+    } else {
+        lower
+    };
+    Ok(Rotation::ALL[rounded as usize % 4])
 }
 pub fn rotation_offset(from_degrees: f32, elapsed_seconds: f32) -> Result<f32> {
     if !from_degrees.is_finite() || !elapsed_seconds.is_finite() || elapsed_seconds < 0. {

@@ -41,9 +41,40 @@ jobs:
         with:
           persist-credentials: false
       - name: Install the isolated reference compiler
-        run: rustup toolchain install 1.75.0 --profile minimal --component rustfmt
+        run: |
+          rustup toolchain install 1.75.0 --profile minimal --component rustfmt
+          rustup target add wasm32-unknown-unknown --toolchain 1.75.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install original-source and native audio tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y mono-mcs mono-runtime ffmpeg
       - name: Verify presentation libraries
         run: bash tools/swarm-c/verify.sh
+      - name: Compare actual native and ordinary WASM execution
+        if: always()
+        run: bash tools/swarm-c/verify-native-wasm.sh
+      - name: Compare codecs with original source and exercise native audio
+        if: always()
+        run: bash tools/swarm-c/verify-audio.sh
+      - name: Check out the pinned A provider for the authority boundary probe
+        if: always()
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: rndrntwrk/wonderland-
+          ref: 8a0e251d19e222a0a6833d7408ca629f674e1729
+          path: swarm-a-input
+          persist-credentials: false
+      - name: Verify presentation cannot alter A simulation or duplicate cues
+        if: always()
+        env:
+          RUSTUP_TOOLCHAIN: '1.75.0'
+          SWARM_A_PATH: ${{ github.workspace }}/swarm-a-input
+        run: |
+          cargo fetch --locked --manifest-path swarm-a-input/crates/sim-core/Cargo.toml
+          python3 tools/swarm-c/avatar-integration/run.py tools/swarm-c/output/avatar-a 2>&1 | tee tools/swarm-c/output/avatar-a.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -96,6 +127,23 @@ jobs:
       - name: Exercise the browser software renderer
         if: matrix.backend != 'native'
         run: bash tools/swarm-c/run-browser-engine.sh
+      - name: Print bounded runtime diagnostics
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, pathlib
+          for path in (pathlib.Path('probes/engine-bakeoff') / os.environ['WONDERLAND_ENGINE'] / 'Cargo.lock', pathlib.Path('tools/swarm-c/package-lock.json')):
+              if path.is_file():
+                  data = base64.b64encode(path.read_bytes()).decode('ascii')
+                  print('WONDERLAND_FILE_BEGIN ' + str(path))
+                  for offset in range(0, len(data), 12000):
+                      print('WONDERLAND_FILE_DATA ' + data[offset:offset + 12000])
+                  print('WONDERLAND_FILE_END ' + str(path))
+          for path in sorted(pathlib.Path('tools/swarm-c/output').rglob('*')):
+              if path.is_file() and path.name in ('report.json', 'console.json', 'native-report.json', 'native.log'):
+                  print('DIAGNOSTIC_FILE', path)
+                  print(path.read_text(errors='replace')[-60000:])
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

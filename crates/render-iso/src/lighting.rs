@@ -237,18 +237,19 @@ fn validate_point(p: PointSample) -> Result<()> {
     }
     Ok(())
 }
+/// Source floor/interpolated lighting. Compute shadow strength from the raw
+/// atlas intensity, then apply the independent RGB surround correction.
 pub fn floor_light_color(
     intensity: [f32; 4],
     minimum: [f32; 4],
-    lighting_adjust: f32,
+    lighting_adjust: [f32; 3],
     height_fade: f32,
 ) -> Result<[f32; 4]> {
     if intensity.iter().any(|x| !x.is_finite() || *x < 0.)
         || minimum
             .iter()
             .any(|x| !x.is_finite() || !(0. ..=1.).contains(x))
-        || !lighting_adjust.is_finite()
-        || lighting_adjust < 0.
+        || lighting_adjust.iter().any(|x| !x.is_finite() || *x < 0.)
         || !height_fade.is_finite()
         || !(0. ..=1.).contains(&height_fade)
     {
@@ -265,9 +266,9 @@ pub fn floor_light_color(
     };
     let fraction = (shadow - min_avg) * inverse;
     let target = [
-        intensity[0] * lighting_adjust,
-        intensity[1] * lighting_adjust,
-        intensity[2] * lighting_adjust,
+        intensity[0] * lighting_adjust[0],
+        intensity[1] * lighting_adjust[1],
+        intensity[2] * lighting_adjust[2],
         1.,
     ];
     let mut result = [0.; 4];
