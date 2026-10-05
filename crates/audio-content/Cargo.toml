@@ -1,0 +1,12 @@
+[package]
+name = "wonderland-audio-content"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+
+[dependencies]
+wonderland-audio-runtime = { path = "../audio-runtime" }
+wonderland-legacy-formats = { path = "../legacy-formats" }
+wonderland-render-core = { path = "../render-core" }
+sha2 = "=0.10.8"
+serde = { version = "1", features = ["derive"] }

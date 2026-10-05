@@ -7,9 +7,41 @@ use wonderland_avatar_content::{self as content, CollectionRole, ImportedContent
 use wonderland_contracts::{Availability, authoring::*};
 
 type SourceFiles = Arc<Vec<(String, Vec<u8>)>>;
+
+/// A content consumer supplies its own busy/revision guard. Connected accounts
+/// never need a preview provider to import or render original resources.
+#[derive(Clone, Copy)]
+pub struct ContentTarget {
+    pub busy: Signal<bool>,
+    pub state_revision: Signal<u64>,
+    pub content_revision: Signal<u64>,
+    pub install: Callback<AppearanceContent, Result<(), String>>,
+}
+
+impl ContentTarget {
+    fn preview(author: AuthorUi) -> Self {
+        Self {
+            busy: Signal::derive(move || author.busy()),
+            state_revision: Signal::derive(move || author.state.with(|s| s.projection().revision)),
+            content_revision: Signal::derive(move || {
+                author
+                    .state
+                    .with(|s| s.projection().appearance_content.revision)
+            }),
+            install: Callback::new(move |content| {
+                author.install_content(content).map_err(|e| e.to_string())
+            }),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct AvatarMotion(pub Signal<bool>);
+
 #[derive(Clone, Copy)]
 pub struct ContentUi {
     pub imported: RwSignal<Option<Arc<ImportedContent>>>,
+    pub choices: RwSignal<Option<AppearanceContent>>,
     files: StoredValue<SourceFiles>,
     generation: RwSignal<u64>,
     pub loading: RwSignal<bool>,
@@ -23,6 +55,7 @@ impl ContentUi {
     pub fn new() -> Self {
         let s = Self {
             imported: RwSignal::new(None),
+            choices: RwSignal::new(None),
             files: StoredValue::new(Arc::new(vec![])),
             generation: RwSignal::new(0),
             loading: RwSignal::new(false),
@@ -39,7 +72,7 @@ impl ContentUi {
         });
         s
     }
-    fn load(self, event: web_sys::Event, author: AuthorUi) {
+    fn load(self, event: web_sys::Event, target: ContentTarget) {
         let Some(input) = event
             .target()
             .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
@@ -49,7 +82,7 @@ impl ContentUi {
         let Some(files) = input.files() else {
             return;
         };
-        if author.busy() {
+        if target.busy.get_untracked() {
             self.notice
                 .set("Finish the pending save before loading content.".into());
             return;
@@ -71,7 +104,7 @@ impl ContentUi {
         let generation = self.generation.get_untracked().wrapping_add(1);
         self.generation.set(generation);
         self.loading.set(true);
-        let revision = author.state.with_untracked(|s| s.projection().revision);
+        let revision = target.state_revision.get_untracked();
         wasm_bindgen_futures::spawn_local(async move {
             let mut bytes = vec![];
             for file in selected {
@@ -107,8 +140,7 @@ impl ContentUi {
                 return;
             }
             self.loading.set(false);
-            if author.busy() || author.state.with_untracked(|s| s.projection().revision) != revision
-            {
+            if target.busy.get_untracked() || target.state_revision.get_untracked() != revision {
                 self.notice.set("The game changed during import. Select the files again after the pending operation finishes.".into());
                 return;
             }
@@ -157,8 +189,8 @@ impl ContentUi {
             ));
         });
     }
-    fn apply(self, author: AuthorUi) {
-        if self.loading.get_untracked() || author.busy() {
+    fn apply(self, target: ContentTarget) {
+        if self.loading.get_untracked() || target.busy.get_untracked() {
             return;
         }
         let files = self.files.get_value();
@@ -200,9 +232,7 @@ impl ContentUi {
             Ok(imported) => {
                 let metadata = metadata(
                     &imported,
-                    author.state.with_untracked(|s| {
-                        s.projection().appearance_content.revision.saturating_add(1)
-                    }),
+                    target.content_revision.get_untracked().saturating_add(1),
                 );
                 let heads = metadata
                     .heads
@@ -214,10 +244,11 @@ impl ContentUi {
                     .iter()
                     .filter(|o| o.availability.is_available())
                     .count();
-                match author.install_content(metadata) {
+                match target.install.run(metadata.clone()) {
                     Ok(()) => {
                         self.generation.update(|g| *g = g.wrapping_add(1));
                         self.imported.set(Some(Arc::new(imported)));
+                        self.choices.set(Some(metadata));
                         self.notice
                             .set(format!("{heads} heads · {bodies} bodies ready"));
                     }
@@ -379,7 +410,8 @@ fn metadata(imported: &ImportedContent, revision: u64) -> AppearanceContent {
 #[component]
 pub fn ContentLoader() -> impl IntoView {
     let content = expect_context::<ContentUi>();
-    let author = expect_context::<AuthorUi>();
+    let target = use_context::<ContentTarget>()
+        .unwrap_or_else(|| ContentTarget::preview(expect_context::<AuthorUi>()));
     let folder = NodeRef::<leptos::html::Input>::new();
     Effect::new(move |_| {
         if let Some(input) = folder.get() {
@@ -387,9 +419,9 @@ pub fn ContentLoader() -> impl IntoView {
         }
     });
     view! {<details class="content-loader game-content" open=move ||content.imported.get().is_none()><summary>"Game content"</summary>
-        <div class="content-load-actions"><label class="chrome load-files">"Load game files"<input type="file" multiple=true disabled=move ||author.busy() on:change=move |e|content.load(e,author)/></label><label class="chrome load-files">"Load folder"<input type="file" multiple=true node_ref=folder disabled=move ||author.busy() on:change=move |e|content.load(e,author)/></label></div>
+        <div class="content-load-actions"><label class="chrome load-files">"Load game files"<input type="file" multiple=true disabled=move ||target.busy.get() on:change=move |e|content.load(e,target)/></label><label class="chrome load-files">"Load folder"<input type="file" multiple=true node_ref=folder disabled=move ||target.busy.get() on:change=move |e|content.load(e,target)/></label></div>
         <details><summary>"Resource names and collection roles"</summary><label>"Skeleton"<input prop:value=move ||content.skeleton.get() on:input=move |e|content.skeleton.set(event_target_value(&e))/></label><label>"Head collections"<input list="source-collections" prop:value=move ||content.head.get() on:input=move |e|content.head.set(event_target_value(&e))/></label><label>"Body collections"<input list="source-collections" prop:value=move ||content.body.get() on:input=move |e|content.body.set(event_target_value(&e))/></label><datalist id="source-collections"><For each=move ||content.inventory.get() key=|n|n.clone() children=move |name|view!{<option value=name/>}/></datalist><Show when=move ||content.imported.with(|bank|bank.as_ref().is_some_and(|bank|!bank.issues.is_empty()))><details class="content-diagnostics"><summary>"Other resource diagnostics"</summary><For each=move ||content.imported.with(|bank|bank.as_ref().map(|bank|bank.issues.iter().take(20).map(ToString::to_string).collect::<Vec<_>>()).unwrap_or_default()) key=|issue|issue.clone() children=move |issue|view!{<p>{issue}</p>}/></details></Show><p>"Use exact archive names; separate multiple collections with commas.  Standalone numeric resources must retain their original 16-digit packed IDs."</p></details>
-        <button class="chrome" disabled=move ||author.busy()||content.loading.get() on:click=move |_|content.apply(author)>"Apply files"</button><p role="status">{move ||if content.loading.get(){"Reading original files…".into()}else{content.notice.get()}}</p>
+        <button class="chrome" disabled=move ||target.busy.get()||content.loading.get() on:click=move |_|content.apply(target)>"Apply files"</button><p role="status">{move ||if content.loading.get(){"Reading original files…".into()}else{content.notice.get()}}</p>
     </details>}
 }
 fn selection(imported: &ImportedContent, a: &AppearanceSelection) -> content::AppearanceSelection {
@@ -476,7 +508,10 @@ pub fn AvatarStage(
     #[prop(default = false)] thumbnail: bool,
 ) -> impl IntoView {
     let content = expect_context::<ContentUi>();
-    let ui = expect_context::<Ui>();
+    let reduced_motion = use_context::<AvatarMotion>()
+        .map(|m| m.0)
+        .or_else(|| use_context::<Ui>().map(|ui| Signal::derive(move || ui.reduced_motion.get())))
+        .unwrap_or_else(|| Signal::derive(|| false));
     let appearance = Memo::new(move |_| appearance.get());
     let canvas = NodeRef::<leptos::html::Canvas>::new();
     let message = RwSignal::new(String::new());
@@ -484,7 +519,7 @@ pub fn AvatarStage(
     Effect::new(move |_| {
         let selected = appearance.get();
         let imported = content.imported.get();
-        let reduced = ui.reduced_motion.get() || thumbnail;
+        let reduced = reduced_motion.get() || thumbnail;
         let Some(canvas) = canvas.get() else {
             return;
         };

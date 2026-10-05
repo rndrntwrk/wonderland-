@@ -8,6 +8,16 @@ license.workspace = true
 [dependencies]
 wonderland-contracts.workspace = true
 wonderland-client-app.workspace = true
+wonderland-game-services.workspace = true
+wonderland-player-authoring.workspace = true
+wonderland-vm-protocol.workspace = true
+wonderland-world-view.workspace = true
+wonderland-render-core.workspace = true
+wonderland-render-3d.workspace = true
+wonderland-audio-runtime.workspace = true
+wonderland-audio-content.workspace = true
+url = "2"
+sha2 = "=0.10.8"
 serde.workspace = true
 serde_json.workspace = true
 
@@ -15,11 +25,13 @@ serde_json.workspace = true
 wonderland-avatar-content.workspace = true
 wonderland-avatar-view.workspace = true
 wonderland-render-core.workspace = true
+wonderland-render-3d.workspace = true
+wonderland-world-view.workspace = true
 leptos = { version = "=0.8.21", features = ["csr"] }
 wasm-bindgen = "0.2"
 js-sys = "=0.3.106"
 wasm-bindgen-futures = "=0.4.79"
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlDialogElement", "DomRect", "Location", "UrlSearchParams", "PointerEvent", "KeyboardEvent", "WheelEvent", "MediaQueryList", "Storage", "HtmlCanvasElement", "HtmlInputElement", "File", "FileList", "Blob"] }
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlDialogElement", "DomRect", "Location", "UrlSearchParams", "PointerEvent", "KeyboardEvent", "WheelEvent", "MediaQueryList", "Storage", "HtmlCanvasElement", "CanvasRenderingContext2d", "ImageData", "HtmlInputElement", "File", "FileList", "Blob", "Request", "RequestInit", "RequestCredentials", "RequestRedirect", "RequestCache", "Url", "Headers", "Response", "WebSocket", "MessageEvent", "CloseEvent", "Event", "ErrorEvent", "HtmlTextAreaElement", "AbortController", "AbortSignal", "ReadableStream", "ReadableStreamDefaultReader"] }
 console_error_panic_hook = "0.1"
 
 [lib]

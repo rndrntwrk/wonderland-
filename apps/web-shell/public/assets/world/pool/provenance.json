@@ -1,0 +1,113 @@
+{
+  "source_revision": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "assets": [
+    {
+      "path": "pool_hq_0.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_0.obj",
+      "sha256": "eb4b8e32a34b42d3e3fa3059bd94e20edb6dae4bcf614760431302cd3bc2ec3e"
+    },
+    {
+      "path": "pool_hq_1.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_1.obj",
+      "sha256": "43ceeb0e1546b38ccdf451dc573f6d8c351ba332b9dfd88a914b34484b5be5cf"
+    },
+    {
+      "path": "pool_hq_10.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_10.obj",
+      "sha256": "b172372485b23ee8e82f3f37d5f659faa3d0153c260c30e554a1158bacee547a"
+    },
+    {
+      "path": "pool_hq_11.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_11.obj",
+      "sha256": "76f0ab0c66479cef831981d251b65dd19524f64d8e9fba3a129ee0df6e3e2109"
+    },
+    {
+      "path": "pool_hq_12.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_12.obj",
+      "sha256": "243f5424d69dd1b9a6a44ece6f4494b8d1490a7c21829dc546e01c150bf0dff1"
+    },
+    {
+      "path": "pool_hq_13.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_13.obj",
+      "sha256": "5fb8963b012181fa2a90dce30199fdf17b01f1a838ba72c11420906854079c0a"
+    },
+    {
+      "path": "pool_hq_14.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_14.obj",
+      "sha256": "39c442e2c90afd45aedf38fb8a9756b6e7ba21d7af905cf1813bf7b44f38201e"
+    },
+    {
+      "path": "pool_hq_15.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_15.obj",
+      "sha256": "fb12716383a25576367de38df3732e4e417eba318d76df1b7e310321dd2924aa"
+    },
+    {
+      "path": "pool_hq_2.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_2.obj",
+      "sha256": "ffc0b2939dcda642239cf5c5c4e134b5e6e7120508655d4bbb683822adeab7e3"
+    },
+    {
+      "path": "pool_hq_3.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_3.obj",
+      "sha256": "59bfeeabc1990c3a513d9ca42e9e755873a6a23050ebb322ff14893a128d0df6"
+    },
+    {
+      "path": "pool_hq_4.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_4.obj",
+      "sha256": "80d2fea31bf2307d480f66015083d1441690be984856cf59b8b8953425738693"
+    },
+    {
+      "path": "pool_hq_5.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_5.obj",
+      "sha256": "e6a3644b45ef892d58d1f0dc1062be2910639c5c4bdc144a39df16641d8b1b09"
+    },
+    {
+      "path": "pool_hq_6.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_6.obj",
+      "sha256": "d86ed06a2d130a72c3ecd4ac71c4cbd943eb593a6deaddb72af0646f769dc5af"
+    },
+    {
+      "path": "pool_hq_7.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_7.obj",
+      "sha256": "b9767100eb4c0fb849747d4489194946b1afa656306cec64cdb4e9c18222d9f3"
+    },
+    {
+      "path": "pool_hq_8.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_8.obj",
+      "sha256": "b23403e2f3388664d812d5de960ca069f6ea924f937bd5bbf47a9f1ded344102"
+    },
+    {
+      "path": "pool_hq_9.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool_hq_9.obj",
+      "sha256": "7a269fb53b4fc9b4ab7c2c387fd8855fc9a6460fe3c0a4e500c69c7c67540bd9"
+    },
+    {
+      "path": "poolcorner_hq_0.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/poolcorner_hq_0.obj",
+      "sha256": "2d50ed572604e57f8f518a9245199928ada5ff44a0f015f3e231ac85ee4db9ac"
+    },
+    {
+      "path": "poolcorner_hq_1.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/poolcorner_hq_1.obj",
+      "sha256": "e4ef5a85817b15ee666018c03e360cf0f36e01c3433994705286b8a72bda51a1"
+    },
+    {
+      "path": "poolcorner_hq_2.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/poolcorner_hq_2.obj",
+      "sha256": "3cd24afc1a97f9c73f8617d20450313b2169b1612ee14069c6a43abfd02fcb2b"
+    },
+    {
+      "path": "poolcorner_hq_3.obj",
+      "source": "TSOClient/tso.content/Content/3D/floor/poolcorner_hq_3.obj",
+      "sha256": "1d21b622047f267e95e176a48a95a4296d4dc09e809626b6dc1eb2dea209b207"
+    },
+    {
+      "path": "pool.png",
+      "source": "TSOClient/tso.content/Content/3D/floor/pool.png",
+      "sha256": "bdedae27a9115cefa772a6368884bf472cf3f3c8a9f0771fa5b290623e08625a",
+      "decoded": "pool.rgba",
+      "width": 512,
+      "height": 256
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+[package]
+name = "wonderland-game-runtime"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sim-core = { path = "../sim-core" }
+wonderland-content-ir = { path = "../content-ir" }
+wonderland-content-runtime-bridge = { path = "../content-runtime-bridge", default-features = false }
+wonderland-legacy-formats = { path = "../legacy-formats" }
+serde.workspace = true
+serde_json.workspace = true
+wonderland-world-view.workspace = true
+wonderland-render-core.workspace = true
+
+[dev-dependencies]
+sha2 = "0.10"

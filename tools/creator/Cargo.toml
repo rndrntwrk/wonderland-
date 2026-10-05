@@ -1,0 +1,43 @@
+[package]
+name = "wonderland-creator"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.90"
+license = "MPL-2.0"
+
+[lib]
+name = "wonderland_creator"
+
+[[bin]]
+name = "creator"
+path = "src/main.rs"
+
+[[test]]
+name = "workspace"
+path = "../../tests/tools/workspace.rs"
+
+[[test]]
+name = "city"
+path = "../../tests/tools/city.rs"
+
+[dependencies]
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+wonderland-legacy-formats = { path = "../../crates/legacy-formats" }
+
+[dev-dependencies]
+wonderland-asset-cooker = { path = "../asset-cooker" }
+wonderland-content-ir = { path = "../../crates/content-ir" }
+
+[[test]]
+name = "resources"
+path = "../../tests/tools/resources.rs"
+
+[[test]]
+name = "cli"
+path = "../../tests/tools/cli.rs"
+
+[[test]]
+name = "authoring"
+path = "../../tests/tools/authoring.rs"

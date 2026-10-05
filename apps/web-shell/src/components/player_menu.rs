@@ -27,3 +27,20 @@ pub fn PlayerMenu() -> impl IntoView {
         </section></Show></div>
     }
 }
+
+#[component]
+pub fn ConnectedPlayerMenu() -> impl IntoView {
+    use crate::{connected_adapter::state::Panel, connected_bridge::ConnectedUi};
+    let ui = expect_context::<ConnectedUi>();
+    let open = RwSignal::new(false);
+    view! {
+        <div class="player-menu connected-player-menu">
+            <button id="connected-menu" class="chrome round" aria-label="Player menu" aria-expanded=move ||open.get().to_string() on:click=move |_|open.update(|v|*v = !*v)><Icon name="users"/></button>
+            <Show when=move ||open.get()><section class="player-menu-panel chrome" aria-label="Player menu" on:keydown=move |event:web_sys::KeyboardEvent|if event.key()=="Escape" {open.set(false);crate::connected_bridge::focus("connected-menu");}>
+                <h2>{move ||ui.state.with(|s|s.active_entry().or_else(||s.selected_entry()).map(|e|e.name.clone()).unwrap_or_else(||"Your world".into()))}</h2>
+                <nav aria-label="Game surfaces">{[Panel::Profile,Panel::People,Panel::Bookmarks,Panel::Chat,Panel::Inbox,Panel::Property,Panel::Neighborhood,Panel::Wardrobe,Panel::Eods,Panel::Settings].into_iter().map(move |panel|view!{<button class="chrome" on:click=move |_|{ui.panel(panel);open.set(false);}>{panel.label()}</button>}).collect_view()}</nav>
+                <button class="chrome" on:click=move |_|{open.set(false);ui.logout();}>"Sign out"</button>
+            </section></Show>
+        </div>
+    }
+}
