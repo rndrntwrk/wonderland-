@@ -1,0 +1,12 @@
+[package]
+name = "wonderland-vm-protocol"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+[dev-dependencies]
+serde_json = "1"

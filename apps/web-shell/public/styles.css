@@ -2024,3 +2024,87 @@ button.chrome:active:not(:disabled) {
     height:16px
   }
 }
+.game-startup {
+  min-height:100dvh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  color:#203246;
+  background:radial-gradient(ellipse at 50% 15%,#e7f9ff 0%,#c2ddef 55%,#86acd0 100%);
+}
+.startup-card {
+  width:min(100%,480px);
+  padding:36px;
+  border-radius:24px;
+  background:rgba(250,253,255,.95);
+  box-shadow:0 24px 80px rgba(19,61,97,.2);
+  text-align:center;
+}
+.startup-card .eyebrow { font-size:13px; letter-spacing:.18em; font-weight:800; color:#1762a2; }
+.startup-card h1 { margin:20px 0 12px; font-size:30px; line-height:1.1; }
+.startup-card p { line-height:1.6; }
+.startup-card button { min-height:48px; margin-top:16px; padding:12px 26px; border-radius:24px; border:0; cursor:pointer; }
+.icon-mirror { transform:scaleX(-1); }
+.game-shell .top-tools>.player-menu { position:relative; inset:auto; }
+.source-audio-control { position:relative; }
+.source-audio-control [role="status"]:not(:empty) { position:absolute; top:70px; right:0; width:220px; padding:12px; border-radius:14px; background:#173f6b; color:white; }
+.game-shell.connected-shell>.connected-player-menu { right:180px; }
+.source-world-screen { position:absolute; inset:0; background:#b8d3e4; color:#203246; overflow:hidden; }
+.source-world-header { position:absolute; z-index:10; top:20px; left:20px; display:flex; align-items:center; gap:14px; padding:14px 18px; max-width:calc(100% - 410px); border-radius:24px; }
+.source-world-header .eyebrow { font-size:10px; font-weight:800; letter-spacing:.18em; color:#c6e4ff; }
+.source-world-header h1 { margin:3px 0; font-size:24px; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.source-world-header p { margin:0; font-size:12px; color:#d5eaff; }
+.source-open-lot { position:relative; display:inline-flex; align-items:center; gap:8px; padding:10px 15px; cursor:pointer; border-radius:18px; font-size:14px; }
+.source-open-lot input { position:absolute; width:1px; height:1px; opacity:0; }
+.source-open-lot:focus-within { outline:3px solid #1682d4; outline-offset:3px; }
+.source-world-tools { position:absolute; z-index:10; bottom:24px; left:50%; transform:translateX(-50%); padding:12px 16px; border-radius:26px; display:flex; gap:16px; align-items:center; max-width:calc(100% - 40px); flex-wrap:wrap; justify-content:center; }
+.source-control-group { display:flex; align-items:center; gap:7px; }
+.source-control-group>span { white-space:nowrap; padding:0 4px; font-weight:700; }
+.source-control-group>.chrome:not(.round) { padding:9px 12px; font-size:13px; border-radius:15px; white-space:nowrap; }
+.source-control-group [aria-pressed="true"] { background:#1765a5; color:white; }
+.source-world-inspector { position:absolute; z-index:9; left:20px; bottom:128px; width:240px; padding:20px; border-radius:22px; }
+.source-world-inspector p { font-size:13px; line-height:1.5; }
+.source-world-inspector button { border-radius:15px; padding:8px 12px; }
+.source-world-inspector .source-world-mode { margin:20px 0 0; font-size:11px; color:#c4dcf6; }
+.source-world-notice { position:absolute; z-index:10; left:50%; top:132px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 40px); padding:12px 18px; border-radius:18px; text-align:center; }
+.source-world-entry { padding:10px 16px; border-radius:24px; font-size:13px; }
+.source-world-screen .world-viewport { border-radius:0; }
+.source-world-screen .world-view-caption { top:auto; bottom:140px; left:auto; right:20px; flex-direction:column; align-items:flex-end; }
+.source-world-screen .world-resource-status { bottom:190px; }
+.source-world-screen .world-view-hint { bottom:7px; }
+.connected-world-queue { position:absolute; top:138px; left:20px; display:flex; gap:10px; max-width:calc(100% - 40px); overflow-x:auto; padding:2px 2px 12px; z-index:8; }
+.connected-world-action { flex:0 0 auto; position:relative; min-width:126px; max-width:185px; min-height:90px; padding:15px 38px 15px 15px; border-radius:20px; display:flex; flex-direction:column; gap:7px; }
+.connected-world-action>span { font-size:14px; font-weight:750; }
+.connected-world-action>small { font-size:11px; max-width:125px; }
+.connected-world-action>button { position:absolute; top:8px; right:7px; width:25px; height:25px; min-height:25px; }
+.connected-world-action>button .icon { width:15px; height:15px; }
+.connected-world-authoring,.connected-world-needs { position:absolute; z-index:20; right:20px; top:120px; bottom:150px; width:min(410px,calc(100% - 40px)); overflow-y:auto; border-radius:24px; padding:20px; }
+.connected-world-authoring>header,.connected-world-needs>header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+.connected-world-authoring h2,.connected-world-needs h2 { margin:0; font-size:22px; }
+.connected-world-needs { width:310px; bottom:auto; max-height:calc(100% - 260px); }
+.connected-source-needs { display:grid; gap:12px; margin:20px 0; }
+.connected-source-needs label { display:grid; grid-template-columns:82px 1fr; align-items:center; gap:10px; font-size:14px; }
+.connected-source-needs progress { width:100%; height:11px; accent-color:#77bd38; border:0; border-radius:8px; overflow:hidden; }
+.connected-source-needs progress::-webkit-progress-bar { background:#d4e4e4; border-radius:8px; }
+.connected-source-needs progress::-webkit-progress-value { background:#73b931; border-radius:8px; }
+.connected-world-needs>button { padding:10px 16px; border-radius:18px; }
+@media(max-width:760px) {
+  .game-shell.connected-shell>.connected-player-menu { right:120px; }
+  .game-shell .top-tools>.player-menu>.round { width:37px; height:37px; font-size:17px; }
+  .game-shell .top-tools>.player-menu .player-menu-panel { right:-88px; }
+  .source-world-header { top:90px; left:12px; max-width:calc(100% - 24px); padding:10px 12px; gap:9px; }
+  .source-world-header h1 { font-size:18px; max-width:150px; }
+  .source-open-lot { padding:9px; font-size:12px; }
+  .source-world-tools { bottom:16px; width:calc(100% - 24px); max-width:none; gap:8px; padding:10px; }
+  .source-control-group { gap:5px; }
+  .source-control-group>.chrome:not(.round) { font-size:11px; padding:7px 9px; }
+  .source-world-inspector { bottom:190px; left:12px; width:190px; padding:14px; }
+  .source-world-notice { top:185px; font-size:12px; }
+  .source-world-screen .world-view-caption { bottom:175px; right:12px; font-size:10px; }
+  .source-world-screen .world-resource-status { bottom:228px; left:auto; right:12px; max-width:210px; }
+  .connected-world-queue { top:183px; left:12px; max-width:calc(100% - 24px); }
+  .connected-world-action { min-height:76px; min-width:110px; padding:12px 32px 12px 12px; }
+  .connected-world-authoring,.connected-world-needs { inset:180px 12px 200px; width:auto; max-height:none; padding:16px; }
+  .connected-world .source-world-tools { gap:6px; bottom:20px; }
+  .connected-world .source-control-group { flex-wrap:wrap; justify-content:center; }
+}

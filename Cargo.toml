@@ -6,6 +6,20 @@ members = [
     "crates/avatar-view",
     "crates/legacy-formats",
     "crates/avatar-content",
+    "crates/render-3d",
+    "crates/world-view",
+    "crates/audio-runtime",
+    "crates/audio-content",
+    "crates/sim-core",
+    "crates/content-ir",
+    "crates/content-runtime-bridge",
+    "crates/game-runtime",
+    "crates/game-services",
+    "crates/player-authoring",
+    "crates/vm-protocol",
+    "services/browser-gateway",
+    "tools/creator",
+    "tools/asset-cooker",
     "apps/web-shell",
 ]
 resolver = "3"
@@ -24,9 +38,27 @@ wonderland-render-core = { path = "crates/render-core" }
 wonderland-avatar-view = { path = "crates/avatar-view" }
 wonderland-legacy-formats = { path = "crates/legacy-formats" }
 wonderland-avatar-content = { path = "crates/avatar-content" }
+wonderland-render-3d = { path = "crates/render-3d" }
+wonderland-world-view = { path = "crates/world-view" }
+wonderland-audio-runtime = { path = "crates/audio-runtime" }
+wonderland-audio-content = { path = "crates/audio-content" }
+sim-core = { path = "crates/sim-core" }
+wonderland-content-ir = { path = "crates/content-ir" }
+wonderland-content-runtime-bridge = { path = "crates/content-runtime-bridge", default-features = false }
+wonderland-game-runtime = { path = "crates/game-runtime" }
+wonderland-game-services = { path = "crates/game-services" }
+wonderland-player-authoring = { path = "crates/player-authoring" }
+wonderland-vm-protocol = { path = "crates/vm-protocol" }
 
 [profile.dev]
 overflow-checks = true
+debug = 0
+incremental = false
+
+[profile.test]
+overflow-checks = true
+debug = 0
+incremental = false
 
 [profile.release]
 overflow-checks = true

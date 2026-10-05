@@ -1,0 +1,10 @@
+[package]
+name = "wonderland-render-3d"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MPL-2.0"
+
+[dependencies]
+wonderland-render-core.workspace = true
+sha2 = "0.10.8"

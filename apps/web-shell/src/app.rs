@@ -11,6 +11,12 @@ use crate::{
 
 #[component]
 pub fn App() -> impl IntoView {
+    view! { <crate::startup_view::Startup/> }
+}
+
+#[component]
+pub fn PreviewApp() -> impl IntoView {
+    let source_world_open = RwSignal::new(false);
     let query = web_sys::window()
         .and_then(|w| w.location().search().ok())
         .unwrap_or_default();
@@ -68,16 +74,20 @@ pub fn App() -> impl IntoView {
 
     view! {
         <main class="game-shell" class:reduce-motion=move || ui.reduced_motion.get()>
+            <Show when=move || source_world_open.get()><crate::source_world_screen::SourceWorldScreen on_close=Callback::new(move |_| source_world_open.set(false))/></Show>
+            <Show when=move || !source_world_open.get()>
             {move || if character_editor.get() { view! { <Creator/> }.into_any() } else { match screen.get() {
                 Screen::CharacterSelection => view! { <Avatars/> }.into_any(),
                 Screen::City => view! { <City/> }.into_any(),
                 Screen::Lot { place_id } if place_id.as_ref() == "home" => view! { <HomeScreen/> }.into_any(),
                 Screen::Lot { .. } => view! { <Lot/> }.into_any(),
             }}}
+            </Show>
             <Show when=move || !author.storage_notice.get().is_empty()><p class="storage-notice" role="status">{move || author.storage_notice.get()}</p></Show>
-            <crate::components::player_menu::PlayerMenu/>
             <div class="top-tools">
-                <button class="chrome round unavailable" aria-label="Sound unavailable: preview has no audio" aria-disabled="true" title="Audio arrives with the game renderer" on:click=move |_| ui.explain("Audio arrives with the game renderer.")><Icon name="volume-off"/></button>
+                <button class="chrome source-world-entry" aria-pressed=move || source_world_open.get().to_string() on:click=move |_| source_world_open.update(|open| *open = !*open)>"Original lot"</button>
+                <crate::components::player_menu::PlayerMenu/>
+                <crate::audio_bridge::SourceAudioControls/>
                 <button id="settings" class="chrome round" aria-label="Settings" on:click=move |_| ui.overlay.set(Overlay::Settings)><Icon name="settings"/></button>
             </div>
             <span class="preview-label">"UI preview"</span>

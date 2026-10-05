@@ -1,0 +1,27 @@
+{
+  "source_revision": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source": "TSOClient/FSO.Content.TSO/Content/Blueprints/empty_lot_fso.xml",
+  "sha256": "b509c9e1bfac54ed5f96b59ae09436d194a3b9ddd44c9072a98012bae9d06172",
+  "source_counts": {
+    "width": 77,
+    "height": 77,
+    "initial_stories": 5,
+    "floors": 1269,
+    "walls": 0,
+    "pools": 0,
+    "objects": 18,
+    "placed_objects": 8,
+    "off_world_controllers": 10
+  },
+  "unresolved_placed_guids": [
+    "313D2F9A",
+    "39CCF441",
+    "81E6BEF9",
+    "A4258067",
+    "23BC2034",
+    "4E57C380",
+    "865A6812",
+    "D564C66B"
+  ],
+  "resource_audit": "No matching OBJD in 450 checked-in IFF files containing 1302 OBJD chunks. The 44 checked-in FSOm files cover other MeshReplace families; no GUID mapping for these eight objects was found."
+}

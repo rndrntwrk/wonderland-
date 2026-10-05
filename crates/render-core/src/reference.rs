@@ -1,6 +1,7 @@
 //! CPU reference rendering only; this module makes no GPU equivalence or timing claim.
 //! Pixels use top-left origin, pixel-center coverage, straight byte RGBA source-over,
-//! strict less-than depth and a top-left triangle fill rule. No gamma transfer is applied.
+//! strict less-than depth by default and a top-left triangle fill rule. Source
+//! object passes can opt into less-or-equal depth. No gamma transfer is applied.
 use crate::*;
 use sha2::{Digest, Sha256};
 
@@ -16,6 +17,11 @@ pub struct FragmentOptions {
     pub write_depth: bool,
     pub write_id: bool,
     pub alpha_cutoff: u8,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DepthComparison {
+    Less,
+    LessEqual,
 }
 impl Default for FragmentOptions {
     fn default() -> Self {
@@ -48,8 +54,12 @@ pub struct ReferenceSurface {
     image: RgbaImage,
     depths: Vec<f32>,
     ids: Vec<Option<EntityRef>>,
+    depth_comparison: DepthComparison,
 }
 impl ReferenceSurface {
+    pub fn set_depth_comparison(&mut self, comparison: DepthComparison) {
+        self.depth_comparison = comparison;
+    }
     pub fn new(width: u32, height: u32, limits: &RenderLimits) -> Result<Self, ReferenceError> {
         let count = RgbaImage::checked_pixel_count(width, height, limits)?;
         Ok(Self {
@@ -60,6 +70,7 @@ impl ReferenceSurface {
             },
             depths: allocated(count, f32::INFINITY)?,
             ids: allocated(count, None)?,
+            depth_comparison: DepthComparison::Less,
         })
     }
     pub fn image(&self) -> &RgbaImage {
@@ -103,7 +114,11 @@ impl ReferenceSurface {
         let Some(i) = self.index(x, y) else {
             return Ok(false);
         };
-        if rgba[3] <= options.alpha_cutoff || (options.depth_test && depth >= self.depths[i]) {
+        let depth_fails = match self.depth_comparison {
+            DepthComparison::Less => depth >= self.depths[i],
+            DepthComparison::LessEqual => depth > self.depths[i],
+        };
+        if rgba[3] <= options.alpha_cutoff || (options.depth_test && depth_fails) {
             return Ok(false);
         }
         self.image.pixels[i] = source_over(rgba, self.image.pixels[i]);
