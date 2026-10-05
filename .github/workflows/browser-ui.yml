@@ -1,0 +1,46 @@
+name: Browser UI
+
+on:
+  pull_request:
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - crates/**
+      - apps/web-shell/**
+      - fixtures/ui/**
+      - .github/workflows/browser-ui.yml
+  push:
+    branches: [master]
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - crates/**
+      - apps/web-shell/**
+      - fixtures/ui/**
+      - .github/workflows/browser-ui.yml
+
+permissions:
+  contents: read
+
+jobs:
+  rust-browser-shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+      - name: Formatting
+        run: cargo fmt --all -- --check
+      - name: Native contracts, reducer, and adapter tests
+        run: cargo test --workspace --locked
+      - name: Native clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Browser clippy
+        run: cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
+      - name: Install pinned Trunk
+        run: cargo install trunk --version 0.21.14 --locked
+      - name: Build the actual WASM application
+        working-directory: apps/web-shell
+        run: trunk build --release --locked

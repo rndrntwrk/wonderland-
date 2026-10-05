@@ -1,0 +1,11 @@
+{
+  "name": "wonderland-web-shell-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "cargo test --workspace"
+  },
+  "engines": { "node": ">=20" }
+}

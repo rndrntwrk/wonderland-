@@ -86,3 +86,8 @@ TSOClient/.vs/config/applicationhost.config
 *.nvuser
 
 TSOClient/Mario
+
+# Rust browser workspace artifacts
+/target/
+/apps/web-shell/dist/
+/apps/web-shell/.trunk/
