@@ -569,7 +569,142 @@
   "cohort_id": "sha256:52605bed832a8117bbf5828d1cd949ad45324a2712b97dc6084fd2b511869423",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [
+    {
+      "chunk_id": 16807,
+      "entries": [
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4097,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8201,
+          "condition_function": 8203
+        },
+        {
+          "action_function": 8198,
+          "condition_function": 8200
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 135,
+      "trailing_bytes": 0,
+      "version": 0
+    }
+  ],
   "global_resource_names": [
     {
       "chunk_id": 1,
@@ -828,6 +963,66 @@
           "scope": "semiglobal"
         },
         {
+          "chunk_id": 16807,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 135,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16807,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4097,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 135,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16807,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 8201,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 135,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 16807,
+          "field": "action_function",
+          "function_index": 29,
+          "id": 8198,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 135,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 16807,
+          "field": "condition_function",
+          "function_index": 28,
+          "id": 8203,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 135,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 16807,
+          "field": "condition_function",
+          "function_index": 29,
+          "id": 8200,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 135,
+          "scope": "semiglobal"
+        },
+        {
           "chunk_id": 4096,
           "field": "instruction_opcode",
           "id": 271,
@@ -1050,36 +1245,9 @@
           "origin": "BHAV",
           "resolution": "decoded_source_resource",
           "scope": "private"
-        },
-        {
-          "field": "BHAV_Clean",
-          "id": 8201,
-          "origin": "OBJD",
-          "resolution": "requires_semiglobal_provider",
-          "scope": "semiglobal"
-        },
-        {
-          "field": "BHAV_Init",
-          "id": 4096,
-          "origin": "OBJD",
-          "resolution": "decoded_source_resource",
-          "scope": "private"
-        },
-        {
-          "field": "BHAV_MainID",
-          "id": 4097,
-          "origin": "OBJD",
-          "resolution": "decoded_source_resource",
-          "scope": "private"
-        },
-        {
-          "field": "BHAV_Repair",
-          "id": 8199,
-          "origin": "OBJD",
-          "resolution": "requires_semiglobal_provider",
-          "scope": "semiglobal"
         }
       ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-52605bed832a8117bbf5828d1cd949ad45324a2712b97dc6084fd2b511869423-OBJD-16807",
       "objd_chunk_id": 16807,
       "primitive_opcodes": [
@@ -1358,7 +1526,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

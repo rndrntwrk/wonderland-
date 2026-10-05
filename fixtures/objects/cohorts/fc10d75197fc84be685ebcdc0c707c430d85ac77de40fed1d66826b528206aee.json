@@ -435,7 +435,807 @@
   "cohort_id": "sha256:fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [
+    {
+      "chunk_id": 16827,
+      "entries": [
+        {
+          "action_function": 4105,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4099,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 36,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16835,
+      "entries": [
+        {
+          "action_function": 4108,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4099,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 37,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16855,
+      "entries": [
+        {
+          "action_function": 4102,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4099,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 38,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16851,
+      "entries": [
+        {
+          "action_function": 4104,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4115,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4099,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 39,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16839,
+      "entries": [
+        {
+          "action_function": 4107,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4099,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 40,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16847,
+      "entries": [
+        {
+          "action_function": 4110,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4099,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 41,
+      "trailing_bytes": 0,
+      "version": 0
+    }
+  ],
   "global_resource_names": [],
   "interaction_tables": [
     {
@@ -569,6 +1369,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16820",
       "objd_chunk_id": 16820,
       "primitive_opcodes": [
@@ -597,52 +1398,580 @@
       ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16827,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4105,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 36,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16827,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 36,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16827,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4099,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 36,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16827",
       "objd_chunk_id": 16827,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        8,
+        11,
+        18,
+        23,
+        31,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4099,
+        4100,
+        4101,
+        4105
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16835,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4108,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 37,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16835,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 37,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16835,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4099,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 37,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4108,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16835",
       "objd_chunk_id": 16835,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        8,
+        11,
+        18,
+        23,
+        31,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4099,
+        4100,
+        4101,
+        4108
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16839,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4107,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 40,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16839,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 40,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16839,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4099,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 40,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16839",
       "objd_chunk_id": 16839,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        8,
+        11,
+        18,
+        23,
+        31,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4099,
+        4100,
+        4101,
+        4107
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16847,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4110,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 41,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16847,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 41,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16847,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4099,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 41,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16847",
       "objd_chunk_id": 16847,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        8,
+        11,
+        18,
+        23,
+        31,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4099,
+        4100,
+        4101,
+        4110
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16851,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4104,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 39,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16851,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 39,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16851,
+          "field": "action_function",
+          "function_index": 2,
+          "id": 4115,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 39,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16851,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4099,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 39,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16851",
       "objd_chunk_id": 16851,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        8,
+        11,
+        18,
+        23,
+        31,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4099,
+        4100,
+        4101,
+        4104,
+        4115
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16855,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4102,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 38,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16855,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 38,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16855,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4099,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 38,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-fc10d75197fc84be685ebcdc0c707c430d85ac77de40fed1d66826b528206aee-OBJD-16855",
       "objd_chunk_id": 16855,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        7,
+        8,
+        11,
+        18,
+        23,
+        31,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4099,
+        4100,
+        4101,
+        4102
+      ]
     }
   ],
   "objects": [
@@ -1137,7 +2466,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

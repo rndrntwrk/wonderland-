@@ -1102,7 +1102,275 @@
   "cohort_id": "sha256:903f441f46dbb37efa5bdb434af3431979193e1fbe7cbaa30aa493baa2b0424e",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [
+    {
+      "chunk_id": 16813,
+      "entries": [
+        {
+          "action_function": 4130,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4113,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4115,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4106,
+          "condition_function": 4108
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 8,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16814,
+      "entries": [
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4113,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4115,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4132,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4128,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4121,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4129,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4109,
+          "condition_function": 4101
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4117,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4106,
+          "condition_function": 4108
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 9,
+      "trailing_bytes": 0,
+      "version": 0
+    }
+  ],
   "global_resource_names": [],
   "interaction_tables": [
     {
@@ -1223,6 +1491,7 @@
           "scope": "global"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-903f441f46dbb37efa5bdb434af3431979193e1fbe7cbaa30aa493baa2b0424e-OBJD-16812",
       "objd_chunk_id": 16812,
       "primitive_opcodes": [
@@ -1249,20 +1518,783 @@
       ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4130,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 8,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4113,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 8,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 2,
+          "id": 4115,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 8,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4106,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 8,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "condition_function",
+          "function_index": 28,
+          "id": 4108,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 8,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 319,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4107,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4112,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 343,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4108,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4112,
+          "field": "instruction_opcode",
+          "id": 295,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4130,
+          "field": "instruction_opcode",
+          "id": 4131,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4131,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-903f441f46dbb37efa5bdb434af3431979193e1fbe7cbaa30aa493baa2b0424e-OBJD-16813",
       "objd_chunk_id": 16813,
-      "primitive_opcodes": [],
-      "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "primitive_opcodes": [
+        2,
+        6,
+        7,
+        20,
+        23,
+        27,
+        31,
+        41,
+        44
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4102,
+        4103,
+        4106,
+        4107,
+        4108,
+        4112,
+        4113,
+        4115,
+        4130,
+        4131
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4113,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 14,
+          "id": 4128,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 18,
+          "id": 4121,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 2,
+          "id": 4115,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 20,
+          "id": 4129,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 21,
+          "id": 4109,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 23,
+          "id": 4117,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 28,
+          "id": 4106,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "action_function",
+          "function_index": 9,
+          "id": 4132,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "condition_function",
+          "function_index": 21,
+          "id": 4101,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16814,
+          "field": "condition_function",
+          "function_index": 28,
+          "id": 4108,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 9,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4131,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4099,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 295,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 321,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 283,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 319,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4107,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4112,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 343,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4108,
+          "field": "instruction_opcode",
+          "id": 265,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 4098,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4112,
+          "field": "instruction_opcode",
+          "id": 295,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4116,
+          "field": "instruction_opcode",
+          "id": 273,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4118,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4119,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 273,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4119,
+          "field": "instruction_opcode",
+          "id": 272,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 284,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4097,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4111,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4114,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4122,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4121,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4121,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4121,
+          "field": "instruction_opcode",
+          "id": 4120,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4122,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4122,
+          "field": "instruction_opcode",
+          "id": 4123,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4122,
+          "field": "instruction_opcode",
+          "id": 4124,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4122,
+          "field": "instruction_opcode",
+          "id": 4125,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4123,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 282,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4128,
+          "field": "instruction_opcode",
+          "id": 4129,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4129,
+          "field": "instruction_opcode",
+          "id": 4118,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4129,
+          "field": "instruction_opcode",
+          "id": 4119,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4131,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4132,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-903f441f46dbb37efa5bdb434af3431979193e1fbe7cbaa30aa493baa2b0424e-OBJD-16814",
       "objd_chunk_id": 16814,
-      "primitive_opcodes": [],
-      "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "primitive_opcodes": [
+        2,
+        4,
+        6,
+        7,
+        15,
+        16,
+        20,
+        23,
+        27,
+        28,
+        31,
+        41,
+        43,
+        44,
+        45,
+        49
+      ],
+      "routing_opcodes": [
+        27,
+        45
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098,
+        4099,
+        4100,
+        4101,
+        4102,
+        4103,
+        4104,
+        4106,
+        4107,
+        4108,
+        4109,
+        4111,
+        4112,
+        4113,
+        4114,
+        4115,
+        4116,
+        4117,
+        4118,
+        4119,
+        4120,
+        4121,
+        4122,
+        4123,
+        4124,
+        4125,
+        4126,
+        4128,
+        4129,
+        4131,
+        4132
+      ]
     }
   ],
   "objects": [
@@ -1647,7 +2679,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

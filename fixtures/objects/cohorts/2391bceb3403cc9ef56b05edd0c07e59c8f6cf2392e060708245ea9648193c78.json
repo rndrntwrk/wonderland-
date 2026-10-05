@@ -127,7 +127,8 @@
   "cohort_id": "sha256:2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [],
   "global_resource_names": [],
   "interaction_tables": [
     {
@@ -230,6 +231,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20000",
       "objd_chunk_id": 20000,
       "primitive_opcodes": [
@@ -318,6 +320,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20001",
       "objd_chunk_id": 20001,
       "primitive_opcodes": [
@@ -381,6 +384,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20002",
       "objd_chunk_id": 20002,
       "primitive_opcodes": [
@@ -440,6 +444,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20003",
       "objd_chunk_id": 20003,
       "primitive_opcodes": [
@@ -499,6 +504,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20004",
       "objd_chunk_id": 20004,
       "primitive_opcodes": [
@@ -558,6 +564,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20005",
       "objd_chunk_id": 20005,
       "primitive_opcodes": [
@@ -617,6 +624,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20006",
       "objd_chunk_id": 20006,
       "primitive_opcodes": [
@@ -676,6 +684,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20007",
       "objd_chunk_id": 20007,
       "primitive_opcodes": [
@@ -735,6 +744,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20008",
       "objd_chunk_id": 20008,
       "primitive_opcodes": [
@@ -794,6 +804,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20009",
       "objd_chunk_id": 20009,
       "primitive_opcodes": [
@@ -861,6 +872,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20010",
       "objd_chunk_id": 20010,
       "primitive_opcodes": [
@@ -921,6 +933,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20011",
       "objd_chunk_id": 20011,
       "primitive_opcodes": [
@@ -980,6 +993,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20012",
       "objd_chunk_id": 20012,
       "primitive_opcodes": [
@@ -1039,6 +1053,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20013",
       "objd_chunk_id": 20013,
       "primitive_opcodes": [
@@ -1098,6 +1113,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20014",
       "objd_chunk_id": 20014,
       "primitive_opcodes": [
@@ -1157,6 +1173,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20015",
       "objd_chunk_id": 20015,
       "primitive_opcodes": [
@@ -1216,6 +1233,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20016",
       "objd_chunk_id": 20016,
       "primitive_opcodes": [
@@ -1275,6 +1293,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20017",
       "objd_chunk_id": 20017,
       "primitive_opcodes": [
@@ -1334,6 +1353,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20018",
       "objd_chunk_id": 20018,
       "primitive_opcodes": [
@@ -2473,7 +2493,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

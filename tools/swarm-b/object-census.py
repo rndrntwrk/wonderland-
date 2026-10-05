@@ -17,6 +17,8 @@ MAX_RESOURCES = 100000
 ANCHORS = {
     "primitive_registry": "TSOClient/tso.simantics/VMContext.cs",
     "object_definition": "TSOClient/tso.files/Formats/IFF/Chunks/OBJD.cs",
+    "function_table": "TSOClient/tso.files/Formats/IFF/Chunks/OBJf.cs",
+    "lifecycle_selection": "TSOClient/tso.simantics/Entities/VMEntity.cs",
     "behavior": "TSOClient/tso.files/Formats/IFF/Chunks/BHAV.cs",
     "interaction_table": "TSOClient/tso.files/Formats/IFF/Chunks/TTAB.cs",
     "routine_scope": "TSOClient/tso.simantics/Engine/VMStackFrame.cs",
@@ -26,7 +28,7 @@ ANCHORS = {
 }
 INTEGRATION_CHECKLIST = [
     {"provider": "content", "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."},
-    {"provider": "vm", "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."},
+    {"provider": "vm", "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."},
     {"provider": "interaction", "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."},
     {"provider": "routing", "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."},
     {"provider": "animation_renderer", "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."},
@@ -69,9 +71,12 @@ def validate_corpus(corpus):
         paths.add(path)
         if not re.fullmatch(r"[0-9a-f]{64}", source["source_sha256"]):
             raise ValueError(f"invalid source hash: {path}")
-        for field in ("objects", "behaviors", "interactions"):
+        for field in ("objects", "behaviors", "interactions", "function_tables", "resources"):
             if len(source.get(field, [])) > MAX_RESOURCES:
                 raise ValueError(f"census {field} count limit: {path}")
+        function_count = sum(len(table.get("entries", [])) for table in source.get("function_tables", []))
+        if function_count > MAX_RESOURCES:
+            raise ValueError(f"census OBJf entry count limit: {path}")
     return paths
 
 
@@ -124,12 +129,41 @@ def scope_for(identifier):
     return "global" if identifier < 4096 else "private" if identifier < 8192 else "semiglobal"
 
 
-def behavior_dependencies(source, obj, registry):
-    behaviors = {b["chunk_id"]: b for b in source.get("behaviors", [])}
+def lifecycle_references(source, obj):
+    """Select the source function table without substituting unused OBJD fields."""
     refs = []
+    uses_table = bool((obj or {}).get("raw_fields", {}).get("uses_fn_table"))
+    if obj is None or uses_table:
+        tables = [table for table in source.get("function_tables", [])
+                  if obj is None or table["chunk_id"] == obj["chunk_id"]]
+        if obj is not None:
+            # A malformed duplicate is absent from decoded tables but still
+            # makes the physical source key ambiguous. Select by raw identity
+            # cardinality as well as the successful decode and exact ordinal.
+            raw = [resource for resource in source.get("resources", [])
+                   if resource["kind"] == "OBJf" and resource["id"] == obj["chunk_id"]]
+            if (len(raw) != 1 or len(tables) != 1
+                    or raw[0].get("resource_ordinal") is None
+                    or raw[0].get("resource_ordinal") != tables[0].get("resource_ordinal")):
+                return refs, "Required OBJf is missing/unsupported or ambiguous; OBJD lifecycle fields are not substituted"
+        for table in tables:
+            for index, entry in enumerate(table.get("entries", [])):
+                for field in ("condition_function", "action_function"):
+                    if entry.get(field):
+                        refs.append({"origin": "OBJf", "chunk_id": table["chunk_id"],
+                            "resource_ordinal": table.get("resource_ordinal"),
+                            "function_index": index, "field": field, "id": entry[field]})
+        return refs, ("Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates"
+                      if obj is not None else "Source-only OBJf tables are inventoried without applying them to an object")
     for reference in (obj or {}).get("bhav_refs", []):
         if reference["id"]:
             refs.append({"origin": "OBJD", "field": reference["field"], "id": reference["id"]})
+    return refs, "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified"
+
+
+def behavior_dependencies(source, obj, registry):
+    behaviors = {b["chunk_id"]: b for b in source.get("behaviors", [])}
+    refs, _ = lifecycle_references(source, obj)
     table_id = (obj or {}).get("raw_fields", {}).get("tree_table_id", 0)
     tables = [table for table in source.get("interactions", []) if obj is None or table["chunk_id"] == table_id]
     for table in tables:
@@ -183,9 +217,14 @@ def build_inventory(corpus, registry):
         objects = source.get("objects", [])
         # Same bytes must yield identical metadata irrespective of alias path.
         for alias in aliases[1:]:
-            for field in ("objects", "behaviors", "interactions"):
+            for field in ("objects", "behaviors", "interactions", "function_tables"):
                 if alias.get(field, []) != source.get(field, []):
                     raise ValueError("inconsistent census for identical source hash")
+            def objf_identities(record):
+                return [(resource["id"], resource.get("resource_ordinal"))
+                        for resource in record.get("resources", []) if resource["kind"] == "OBJf"]
+            if objf_identities(alias) != objf_identities(source):
+                raise ValueError("inconsistent census OBJf identities for identical source hash")
         resource_ids = set()
         for obj in objects or [None]:
             identifier = obj["chunk_id"] if obj else None
@@ -204,7 +243,7 @@ def build_inventory(corpus, registry):
                    "global_resource_names": source.get("globals", []),
                    "patch_metadata": source.get("piffs", []),
                    "source_resource_index": [resource for resource in source.get("resources", []) if resource["kind"] in ("GLOB", "TTAB", "BHAV", "OBJf", "SLOT", "DGRP", "FSOM", "FSOR", "FWAV")],
-                   "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+                   "function_table_gate": lifecycle_references(source, obj)[1],
                    "decoded_private_bhav_closure": [identifier for identifier in reachable if scope_for(identifier) == "private"],
                    "decoded_source_bhav_dependency_ids": reachable, "primitive_dependencies": primitives,
                    "interaction_tables": tables,
@@ -237,12 +276,14 @@ def build_inventory(corpus, registry):
             "source_parse_errors": source.get("errors", []),
             "objects": source.get("objects", []), "behaviors": source.get("behaviors", []),
             "interaction_tables": source.get("interactions", []),
+            "function_tables": source.get("function_tables", []),
             "global_resource_names": source.get("globals", []), "patch_metadata": source.get("piffs", []),
             "source_resource_index": source_rows[0]["source_resource_index"],
             "primitive_registrations": [{"opcode": opcode, "registrations": registry.get(opcode, []),
                 "provider_status": "unverified", "tso_registration_status": "registered" if any(reg["variant"] in ("common", "tso") for reg in registry.get(opcode, [])) else "not_registered_in_tso_source"} for opcode in all_opcodes],
             "object_dependency_index": [{"leaf_id": row["leaf_id"], "objd_chunk_id": row["object_definition"]["chunk_id"] if row["object_definition"] else None,
                 "behavior_references": row["behavior_references"],
+                "function_table_gate": row["function_table_gate"],
                 "source_bhav_dependency_ids": row["decoded_source_bhav_dependency_ids"],
                 "primitive_opcodes": [dependency["opcode"] for dependency in row["primitive_dependencies"]],
                 "routing_opcodes": [dependency["opcode"] for dependency in row["routing_dependencies"]]}
@@ -250,7 +291,7 @@ def build_inventory(corpus, registry):
             "leaf_ids": [row["leaf_id"] for row in source_rows],
             "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
             "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity",
-            "function_table_gate": source_rows[0]["function_table_gate"],
+            "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
             "effective_identity_gate": source_rows[0]["effective_identity_gate"],
             "provider_integration_checklist": INTEGRATION_CHECKLIST,
             "original_asset_payload_included": False,
@@ -263,7 +304,7 @@ def build_inventory(corpus, registry):
             "objd_chunk_id": obj["chunk_id"] if obj else None, "objd_resource_ordinal": obj.get("resource_ordinal") if obj else None,
             "guid_hex": obj.get("guid_hex", f"{obj['guid']:08x}") if obj else None,
             "label": obj.get("label") if obj else None,
-            "entrypoints": obj.get("bhav_refs", []) if obj else [],
+            "entrypoints": lifecycle_references(grouped[row["source_sha256"]][0], obj)[0] if obj else [],
             "tree_table_id": obj.get("raw_fields", {}).get("tree_table_id") if obj else None,
             "slot_id": obj.get("raw_fields", {}).get("slot_id") if obj else None,
             "status": "unverified", "scenario_status_ref": "all_unverified", "ticket_template_ref": "catalog_parity"})
@@ -274,7 +315,7 @@ def build_inventory(corpus, registry):
                 "total_leaf_tickets": len(rows), "full_installation_baseline_available": False},
             "gameplay_acceptance": {"verified_rows": 0, "completion_percentage": None, "reason": "Inventory generation proves metadata coverage, not gameplay parity"},
             "eod_identity_gate": "VMInvokePlugin operands and dynamic plugin selection are not resolved by opcode histograms; no EOD ID is inferred",
-            "primitive_dependency_policy": "Object rows: exact opcode histograms in statically referenced private routines from OBJD/selected TTAB, following encoded private calls. Source-only cohorts: all decoded source BHAVs/TTABs are inventoried without applying them to a target. All instructions include potentially dead branches; this is a dependency upper bound, not execution reachability. Global/semiglobal, indirect and unresolved private calls remain gates; no operand semantic interpretation.",
+            "primitive_dependency_policy": "Object rows: exact opcode histograms in statically referenced private routines from selected OBJf or OBJD lifecycle fields and selected TTAB, following encoded private calls. Source-only cohorts: all decoded source BHAVs/TTABs/OBJf tables are inventoried without applying them to a target. All instructions include potentially dead branches; this is a dependency upper bound, not execution reachability. Missing/ambiguous OBJf, global/semiglobal, indirect and unresolved private calls remain gates; no operand semantic interpretation.",
             "provider_integration_checklist": INTEGRATION_CHECKLIST,
             "scenario_status_templates": {"all_unverified": {case: {"status": "unverified", "artifact": None, "original_trace": None} for case in SCENARIOS}},
             "ticket_templates": {"catalog_parity": {"packages": ["W06.2", "W06.4"], "accepted_contract_versions": None,
@@ -339,7 +380,7 @@ def descriptor_candidates(matrix, records):
                 interaction_tables=[table for table in record["interaction_tables"] if table["chunk_id"] == selected["tree_table_id"]],
                 primitive_registrations=[item for item in record["primitive_registrations"] if item["opcode"] in dependency["primitive_opcodes"]],
                 scenario_status=matrix["scenario_status_templates"]["all_unverified"],
-                function_table_gate=record["function_table_gate"], effective_identity_gate=record["effective_identity_gate"])
+                function_table_gate=dependency["function_table_gate"], effective_identity_gate=record["effective_identity_gate"])
         result[family] = {"schema_version": 1, "source_baseline": BASELINE, "family_requested": family,
             "selection_status": "source_descriptor_selected" if selected else "no_exact_label_and_path_candidate_available",
             "selection_evidence": "Decoded OBJD label and checked-in source path both match family keyword; does not establish gameplay behavior",

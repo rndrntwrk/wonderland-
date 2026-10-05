@@ -67,7 +67,8 @@
   "cohort_id": "sha256:452deaac47dd2bd6de3765dc60f7be049ae4662d9f3e669d2f99641e4cab171e",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [],
   "global_resource_names": [],
   "interaction_tables": [],
   "leaf_ids": [
@@ -109,6 +110,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "Source-only OBJf tables are inventoried without applying them to an object",
       "leaf_id": "OBJ-452deaac47dd2bd6de3765dc60f7be049ae4662d9f3e669d2f99641e4cab171e-SOURCE",
       "objd_chunk_id": null,
       "primitive_opcodes": [
@@ -221,7 +223,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

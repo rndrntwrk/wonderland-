@@ -60,7 +60,541 @@
   "cohort_id": "sha256:1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [
+    {
+      "chunk_id": 16809,
+      "entries": [
+        {
+          "action_function": 4105,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8194,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 36,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16810,
+      "entries": [
+        {
+          "action_function": 8193,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8194,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 37,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16811,
+      "entries": [
+        {
+          "action_function": 4105,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8194,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 38,
+      "trailing_bytes": 0,
+      "version": 0
+    },
+    {
+      "chunk_id": 16812,
+      "entries": [
+        {
+          "action_function": 8193,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8194,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 39,
+      "trailing_bytes": 0,
+      "version": 0
+    }
+  ],
   "global_resource_names": [
     {
       "chunk_id": 128,
@@ -164,6 +698,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16808",
       "objd_chunk_id": 16808,
       "primitive_opcodes": [
@@ -176,15 +711,72 @@
       ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16809,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4105,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 36,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16809,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 8194,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 36,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 8193,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16809",
       "objd_chunk_id": 16809,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        7
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4105
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16810,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 8193,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 37,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 16810,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 8194,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 37,
+          "scope": "semiglobal"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16810",
       "objd_chunk_id": 16810,
       "primitive_opcodes": [],
@@ -192,15 +784,72 @@
       "source_bhav_dependency_ids": []
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16811,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4105,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 38,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16811,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 8194,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 38,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 8193,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16811",
       "objd_chunk_id": 16811,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        7
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4105
+      ]
     },
     {
-      "behavior_references": [],
+      "behavior_references": [
+        {
+          "chunk_id": 16812,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 8193,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 39,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 16812,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 8194,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 39,
+          "scope": "semiglobal"
+        }
+      ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-1d9d8103167cd31f559a6e08907778fff58cfa0a1d86b31f85c59b72f7775ddb-OBJD-16812",
       "objd_chunk_id": 16812,
       "primitive_opcodes": [],
@@ -479,7 +1128,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

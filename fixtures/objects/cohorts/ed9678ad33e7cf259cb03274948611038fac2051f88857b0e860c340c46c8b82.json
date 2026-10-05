@@ -138,7 +138,142 @@
   "cohort_id": "sha256:ed9678ad33e7cf259cb03274948611038fac2051f88857b0e860c340c46c8b82",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [
+    {
+      "chunk_id": 16813,
+      "entries": [
+        {
+          "action_function": 4113,
+          "condition_function": 0
+        },
+        {
+          "action_function": 4096,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8201,
+          "condition_function": 0
+        },
+        {
+          "action_function": 8196,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        },
+        {
+          "action_function": 0,
+          "condition_function": 0
+        }
+      ],
+      "padding": 0,
+      "resource_ordinal": 54,
+      "trailing_bytes": 0,
+      "version": 0
+    }
+  ],
   "global_resource_names": [
     {
       "chunk_id": 128,
@@ -561,13 +696,143 @@
           "origin": "TTAB",
           "resolution": "missing_or_unsupported_private_resource",
           "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 0,
+          "id": 4113,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 54,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 1,
+          "id": 4096,
+          "origin": "OBJf",
+          "resolution": "decoded_source_resource",
+          "resource_ordinal": 54,
+          "scope": "private"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 11,
+          "id": 8201,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 54,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 16813,
+          "field": "action_function",
+          "function_index": 12,
+          "id": 8196,
+          "origin": "OBJf",
+          "resolution": "requires_semiglobal_provider",
+          "resource_ordinal": 54,
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 256,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 301,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4110,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 4133,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 8198,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 8200,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 8195,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4133,
+          "field": "instruction_opcode",
+          "id": 8199,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
         }
       ],
+      "function_table_gate": "Decoded OBJf condition/action references are structural evidence; execution and effective patch resolution remain gates",
       "leaf_id": "OBJ-ed9678ad33e7cf259cb03274948611038fac2051f88857b0e860c340c46c8b82-OBJD-16813",
       "objd_chunk_id": 16813,
-      "primitive_opcodes": [],
+      "primitive_opcodes": [
+        2,
+        8,
+        32
+      ],
       "routing_opcodes": [],
-      "source_bhav_dependency_ids": []
+      "source_bhav_dependency_ids": [
+        4096,
+        4110,
+        4113,
+        4133
+      ]
     }
   ],
   "objects": [
@@ -671,7 +936,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

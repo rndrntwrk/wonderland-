@@ -7,6 +7,9 @@
 use crate::{reader::Reader, Error, ErrorKind, Limits, Result};
 use serde::{Deserialize, Serialize};
 
+mod objf;
+pub use objf::{decode_objf, encode_objf, Objf, ObjfFunction};
+
 fn invalid(offset: usize, context: impl Into<String>) -> Error {
     Error::new(ErrorKind::InvalidData, offset, context)
 }
@@ -2400,6 +2403,7 @@ pub enum DecodedSemantic {
     Slot(SlotResource),
     Piff(Piff),
     Unknown { kind: [u8; 4] },
+    Objf(Objf),
 }
 
 impl DecodedSemantic {
@@ -2440,6 +2444,10 @@ impl DecodedSemantic {
             }
             Self::Objd(v) => {
                 vector(&mut bytes, &v.fields)?;
+                vector(&mut bytes, &v.trailing)?;
+            }
+            Self::Objf(v) => {
+                vector(&mut bytes, &v.functions)?;
                 vector(&mut bytes, &v.trailing)?;
             }
             Self::Bcon(v) => {
@@ -2500,6 +2508,7 @@ pub fn decode_semantic(chunk: &crate::iff::IffChunk, limits: &Limits) -> Result<
     match &chunk.key.kind {
         b"BHAV" => Ok(DecodedSemantic::Bhav(decode_bhav(data, limits)?)),
         b"OBJD" => Ok(DecodedSemantic::Objd(decode_objd(data, limits)?)),
+        b"OBJf" => Ok(DecodedSemantic::Objf(decode_objf(data, limits)?)),
         b"TTAB" => Ok(DecodedSemantic::Ttab(decode_ttab(data, limits)?)),
         b"BCON" => Ok(DecodedSemantic::Bcon(decode_bcon(data, limits)?)),
         b"STR#" | b"TTAs" | b"CTSS" => Ok(DecodedSemantic::Strings(decode_strings(data, limits)?)),

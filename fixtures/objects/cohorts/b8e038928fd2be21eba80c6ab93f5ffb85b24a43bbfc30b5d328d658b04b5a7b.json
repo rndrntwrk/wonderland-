@@ -48,7 +48,8 @@
   "cohort_id": "sha256:b8e038928fd2be21eba80c6ab93f5ffb85b24a43bbfc30b5d328d658b04b5a7b",
   "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
   "envelope_status": "accepted",
-  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "function_table_gate": "Per-object OBJf selection and unresolved tables are recorded in object_dependency_index; source references do not establish execution",
+  "function_tables": [],
   "global_resource_names": [],
   "interaction_tables": [],
   "leaf_ids": [
@@ -90,6 +91,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-b8e038928fd2be21eba80c6ab93f5ffb85b24a43bbfc30b5d328d658b04b5a7b-OBJD-16807",
       "objd_chunk_id": 16807,
       "primitive_opcodes": [
@@ -134,6 +136,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-b8e038928fd2be21eba80c6ab93f5ffb85b24a43bbfc30b5d328d658b04b5a7b-OBJD-16808",
       "objd_chunk_id": 16808,
       "primitive_opcodes": [
@@ -178,6 +181,7 @@
           "scope": "private"
         }
       ],
+      "function_table_gate": "OBJD lifecycle fields selected because UsesFnTable is zero; execution remains unverified",
       "leaf_id": "OBJ-b8e038928fd2be21eba80c6ab93f5ffb85b24a43bbfc30b5d328d658b04b5a7b-OBJD-16809",
       "objd_chunk_id": 16809,
       "primitive_opcodes": [
@@ -374,7 +378,7 @@
     },
     {
       "provider": "vm",
-      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+      "requires": "Load actual OBJD/OBJf/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
     },
     {
       "provider": "interaction",

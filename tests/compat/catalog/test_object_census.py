@@ -30,6 +30,105 @@ def corpus():
 
 
 class InventoryTests(unittest.TestCase):
+    def test_objf_lifecycle_replaces_objd_fields_and_selects_matching_table(self):
+        source = corpus()["files"][0]
+        obj = source["objects"][0]
+        obj["raw_fields"]["uses_fn_table"] = 1
+        source["function_tables"] = [
+            {"chunk_id": 4096, "resource_ordinal": 1, "entries": [
+                {"condition_function": 8194, "action_function": 4100},
+                {"condition_function": 0, "action_function": 0}]},
+            {"chunk_id": 4097, "resource_ordinal": 2, "entries": [
+                {"condition_function": 8195, "action_function": 4101}]},
+        ]
+        source["resources"] = [{"kind": "OBJf", "id": 4096, "resource_ordinal": 1},
+            {"kind": "OBJf", "id": 4097, "resource_ordinal": 2}]
+        source["behaviors"].append({"chunk_id": 4100,
+            "opcode_counts": [{"opcode": 27, "count": 1}], "direct_calls": []})
+        refs, primitives, reachable, _ = census.behavior_dependencies(source, obj, {})
+        lifecycle = [ref for ref in refs if ref["origin"] in ("OBJD", "OBJf")]
+        self.assertEqual({(ref["id"], ref["field"]) for ref in lifecycle},
+            {(8194, "condition_function"), (4100, "action_function")})
+        self.assertTrue(all(ref["origin"] == "OBJf" and ref["chunk_id"] == 4096 for ref in lifecycle))
+        self.assertEqual(reachable, [4097, 4100])
+        self.assertEqual([entry["opcode"] for entry in primitives], [27, 45])
+
+    def test_missing_or_ambiguous_objf_never_falls_back_to_objd_entrypoints(self):
+        source = corpus()["files"][0]
+        obj = source["objects"][0]
+        obj["raw_fields"]["uses_fn_table"] = 1
+        for tables in ([], [
+            {"chunk_id": 4096, "entries": [{"condition_function": 0, "action_function": 4100}]},
+            {"chunk_id": 4096, "entries": [{"condition_function": 0, "action_function": 4101}]},
+        ]):
+            source["function_tables"] = tables
+            refs, _, _, _ = census.behavior_dependencies(source, obj, {})
+            self.assertFalse(any(ref["origin"] in ("OBJD", "OBJf") for ref in refs))
+        obj["raw_fields"]["uses_fn_table"] = 0
+        refs, _, _, _ = census.behavior_dependencies(source, obj, {})
+        self.assertEqual([(ref["field"], ref["id"]) for ref in refs if ref["origin"] == "OBJD"],
+            [("BHAV_MainID", 4097)])
+
+    def test_objf_inventory_bounds_and_alias_consistency(self):
+        data = corpus()
+        data["files"][0]["function_tables"] = [
+            {"chunk_id": 4096, "entries": [{"condition_function": 0, "action_function": 4097}]}]
+        alias = copy.deepcopy(data["files"][0])
+        alias["path"] = "alias.iff"
+        alias["function_tables"][0]["entries"][0]["action_function"] = 4100
+        data["files"].append(alias)
+        with self.assertRaisesRegex(ValueError, "inconsistent census"):
+            census.build_inventory(data, {})
+        data["files"].pop()
+        with patch.object(census, "MAX_RESOURCES", 2):
+            data["files"][0]["function_tables"] *= 3
+            with self.assertRaisesRegex(ValueError, "function_tables count"):
+                census.build_inventory(data, {})
+            data["files"][0]["function_tables"] = data["files"][0]["function_tables"][:1]
+            data["files"][0]["function_tables"][0]["entries"] *= 3
+            with self.assertRaisesRegex(ValueError, "OBJf entry count"):
+                census.build_inventory(data, {})
+
+    def test_malformed_duplicate_objf_stays_unresolved_in_either_source_order(self):
+        source = corpus()["files"][0]
+        obj = source["objects"][0]
+        obj["raw_fields"]["uses_fn_table"] = 1
+        source["resources"] = [{"kind": "OBJf", "id": 4096, "resource_ordinal": 1},
+            {"kind": "OBJf", "id": 4096, "resource_ordinal": 2}]
+        source["duplicate_keys"] = [{"kind": "OBJf", "id": 4096, "count": 2}]
+        source["behaviors"].append({"chunk_id": 4100,
+            "opcode_counts": [{"opcode": 27, "count": 1}], "direct_calls": []})
+        for valid_ordinal, bad_ordinal in ((1, 2), (2, 1)):
+            source["function_tables"] = [{"chunk_id": 4096, "resource_ordinal": valid_ordinal,
+                "entries": [{"condition_function": 0, "action_function": 4100}]}]
+            source["errors"] = [{"kind": "OBJf", "chunk_id": 4096, "resource_ordinal": bad_ordinal}]
+            refs, primitives, _, _ = census.behavior_dependencies(source, obj, {})
+            self.assertFalse(any(ref["origin"] in ("OBJf", "OBJD") for ref in refs))
+            self.assertNotIn(27, [item["opcode"] for item in primitives])
+
+    def test_source_only_objf_references_keep_each_duplicate_resource_ordinal(self):
+        source = corpus()["files"][0]
+        source["function_tables"] = [{"chunk_id": 4096, "resource_ordinal": ordinal,
+            "entries": [{"condition_function": 0, "action_function": 4100}]}
+            for ordinal in (1, 2)]
+        refs, _, _, _ = census.behavior_dependencies(source, None, {})
+        origins = [ref.get("resource_ordinal") for ref in refs if ref["origin"] == "OBJf"]
+        self.assertEqual(origins, [1, 2])
+
+    def test_aliases_cannot_disagree_on_raw_objf_ambiguity(self):
+        data = corpus()
+        source = data["files"][0]
+        source["objects"][0]["raw_fields"]["uses_fn_table"] = 1
+        source["resources"] = [{"kind": "OBJf", "id": 4096, "resource_ordinal": 1}]
+        source["function_tables"] = [{"chunk_id": 4096, "resource_ordinal": 1,
+            "entries": [{"condition_function": 0, "action_function": 4100}]}]
+        alias = copy.deepcopy(source)
+        alias["path"] = "alias.iff"
+        alias["resources"].append({"kind": "OBJf", "id": 4096, "resource_ordinal": 2})
+        data["files"].append(alias)
+        with self.assertRaisesRegex(ValueError, "inconsistent census"):
+            census.build_inventory(data, {})
+
     def test_deterministic_complete_inventory_and_aliases(self):
         data = corpus()
         duplicate = copy.deepcopy(data["files"][0])
