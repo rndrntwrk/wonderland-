@@ -1,5 +1,7 @@
 # Character and Home UI Implementation Plan
 
+> **Scope correction — 5 October 2026:** This completed plan records a limited prototype. Its hard-coded identities, looks, profile slots, catalog and room bounds are not production requirements approved by the user. Future work must follow the [feature-preservation scope](../../design/action-first/preservation-scope.md) and bring the original capabilities across.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add an action-focused character creator, wardrobe, and directly editable Home scene to the existing Wonderland browser UI.

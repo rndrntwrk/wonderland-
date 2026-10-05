@@ -1,5 +1,7 @@
 # Wonderland: character and home authoring UI
 
+> **Scope correction — 5 October 2026:** The five identities, three looks, eight profiles, six-item catalog and furniture-only Build below are assistant-chosen prototype restrictions. They are not user-approved game requirements. The user requires modernization with feature preservation. See [preservation scope](../../design/action-first/preservation-scope.md); the runtime gaps described there still need correction.
+
 ## Outcome and authority
 
 Continue the user's approved action-focused redesign and their instruction to proceed with implementation and PRs. This is the next W11 increment after PR #5: a character-stage creator, visual wardrobe, and a distinct Home scene with catalog selection, placement previews, room arrangement, and owned inventory. The game world and characters remain the main controls.

@@ -1,5 +1,7 @@
 # Authoring preview contract v1
 
+> **Scope correction — 5 October 2026:** This document describes the existing limited preview protocol. Fixed identity/look membership, exact catalog records and preview capacity/geometry limits must not be adopted as production game policy. See [preservation scope](../design/action-first/preservation-scope.md) for verified missing capabilities and required contract generalization.
+
 This surface adds character creation, whole-look wardrobe changes, and per-profile room arrangement to the UI preview. It preserves the original `UiProjection`, `UiIntent`, `UiRequest`, `UiEvent`, and `ShellState` APIs. The new data lives in `wonderland_contracts::authoring`; the pure reducer, fixture, and explicitly named demo provider live in `wonderland_client_app::authoring`.
 
 The provider is fixture/demo infrastructure. It does not create accounts, authenticate actors, spend server money, drive simulation, or assign canonical lot coordinates. Presentation IDs, asset keys, and simulation entity IDs remain separate. A live integration must supply coordinated authoritative projections and rights; this preview's exact-delta rules and fixed catalog/budget are not a production economy or placement implementation.

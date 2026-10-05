@@ -1,5 +1,7 @@
 # Wonderland character and Home UI — design and browser verification
 
+> **Scope correction — 5 October 2026:** The passing tests and browser checks below verify a limited prototype. They do not establish preservation of the original game's full features. The user rejected treating the fixed identities and other preview restrictions as product decisions; see [preservation scope](docs/design/action-first/preservation-scope.md).
+
 ## Result
 
 This increment extends the approved game interface with a visual character creator, wardrobe, a separate Home, a furniture catalog, direct placement, room arrangement, and owned inventory. It is stacked on the original character/map/café UI in PR #5. The original report is preserved in [initial-ui-qa.md](docs/design/action-first/initial-ui-qa.md).

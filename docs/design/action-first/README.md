@@ -1,5 +1,7 @@
 # Action-focused Wonderland interface
 
+> **Feature preservation:** These references establish presentation and direct actions. They do not approve reducing the game to the prototype's fixed identities, catalog or Build tools. See [scope correction and verified gaps](preservation-scope.md).
+
 These are the three design references approved by the project owner on 5 October 2026. They establish the visual direction and player actions. They are design illustrations, not screenshots of a running 3D engine.
 
 ## Choose a character
