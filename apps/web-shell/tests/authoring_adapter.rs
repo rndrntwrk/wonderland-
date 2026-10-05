@@ -122,3 +122,95 @@ fn travel_copy_follows_requested_destination() {
         );
     }
 }
+
+#[test]
+fn character_failure_retry_recovers_home_through_shell_receive() {
+    use wonderland_contracts::{Availability, Screen, UiEvent, UiIntent};
+    use wonderland_web_shell::fixture::{Scenario, projection};
+    for scenario in [Scenario::EmptyCharacters, Scenario::UnavailableCharacters] {
+        let mut shell = wonderland_client_app::ShellState::new(projection(scenario));
+        if scenario == Scenario::EmptyCharacters {
+            assert!(shell.projection.characters.is_empty());
+        } else {
+            assert!(
+                shell
+                    .projection
+                    .characters
+                    .iter()
+                    .all(|c| !matches!(c.availability, Availability::Available))
+            );
+        }
+        let recovered =
+            recovered_characters(&shell.projection, &preview_authoring_projection()).unwrap();
+        shell
+            .receive(UiEvent::ProjectionUpdated {
+                projection: recovered,
+            })
+            .unwrap();
+        assert!(
+            shell
+                .projection
+                .places
+                .iter()
+                .find(|p| p.id.as_ref() == "home")
+                .unwrap()
+                .availability
+                .is_available()
+        );
+        shell
+            .dispatch(UiIntent::SelectCharacter("maya".into()))
+            .unwrap();
+        shell.dispatch(UiIntent::Play).unwrap();
+        shell
+            .dispatch(UiIntent::SelectPlace("home".into()))
+            .unwrap();
+        let request = shell.dispatch(UiIntent::Visit).unwrap().remove(0);
+        shell
+            .receive(wonderland_web_shell::fixture::reply(&request, false))
+            .unwrap();
+        assert_eq!(
+            shell.screen,
+            Screen::Lot {
+                place_id: "home".into()
+            }
+        );
+    }
+}
+
+#[test]
+fn home_rejection_copy_and_retry_follow_home_request() {
+    use wonderland_contracts::{Screen, UiEvent, UiIntent};
+    let mut shell =
+        wonderland_client_app::ShellState::new(wonderland_client_app::preview_projection());
+    shell
+        .receive(UiEvent::ProjectionUpdated {
+            projection: wonderland_client_app::authoring::preview_project_authoring_to_ui(
+                &shell.projection,
+                &preview_authoring_projection(),
+            )
+            .unwrap(),
+        })
+        .unwrap();
+    shell
+        .dispatch(UiIntent::SelectCharacter("maya".into()))
+        .unwrap();
+    shell.dispatch(UiIntent::Play).unwrap();
+    shell
+        .dispatch(UiIntent::SelectPlace("home".into()))
+        .unwrap();
+    let request = shell.dispatch(UiIntent::Visit).unwrap().remove(0);
+    let rejected = wonderland_web_shell::fixture::reply(&request, true);
+    assert!(matches!(&rejected, UiEvent::Rejected { reason, .. } if !reason.contains("Harbor")));
+    shell.receive(rejected).unwrap();
+    assert_eq!(shell.screen, Screen::City);
+    let retry = shell.dispatch(UiIntent::Visit).unwrap().remove(0);
+    shell
+        .receive(wonderland_web_shell::fixture::reply(&retry, false))
+        .unwrap();
+    assert_eq!(
+        shell.screen,
+        Screen::Lot {
+            place_id: "home".into()
+        }
+    );
+}

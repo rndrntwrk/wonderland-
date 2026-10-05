@@ -84,3 +84,12 @@ pub fn travel_message(
         format!("Welcome to {name}.")
     }
 }
+
+/// Recover both character failure fixtures into the same authoring-compatible
+/// shell projection used for initial load and accepted authoring receipts.
+pub fn recovered_characters(
+    current: &wonderland_contracts::UiProjection,
+    authoring: &AuthoringProjection,
+) -> Result<wonderland_contracts::UiProjection, AuthoringError> {
+    wonderland_client_app::authoring::preview_project_authoring_to_ui(current, authoring)
+}

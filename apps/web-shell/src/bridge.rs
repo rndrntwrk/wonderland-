@@ -25,6 +25,7 @@ pub enum Overlay {
 pub struct Ui {
     pub state: RwSignal<ShellState>,
     pub announcement: RwSignal<String>,
+    feedback_generation: RwSignal<u64>,
     pub notice: RwSignal<Option<String>>,
     pub overlay: RwSignal<Overlay>,
     pub reduced_motion: RwSignal<bool>,
@@ -50,6 +51,7 @@ impl Ui {
         let ui = Self {
             state: RwSignal::new(state),
             announcement: RwSignal::new(String::new()),
+            feedback_generation: RwSignal::new(0),
             notice: RwSignal::new(None),
             overlay: RwSignal::new(Overlay::None),
             reduced_motion: RwSignal::new(reduced),
@@ -68,6 +70,8 @@ impl Ui {
     }
 
     pub fn send(self, intent: UiIntent) {
+        self.feedback_generation
+            .update(|generation| *generation += 1);
         self.notice.set(None);
         let before = self.state.with_untracked(|state| state.screen.clone());
         let mut requests = Ok(Vec::new());
@@ -100,7 +104,7 @@ impl Ui {
             RequestKind::Interaction { .. } => "Action requested. Waiting for a reply…".into(),
             RequestKind::Cancellation { .. } => "Cancelling action…".into(),
         };
-        self.announcement.set(pending_message);
+        self.announce(pending_message);
         let id = request.operation_id.clone();
         let callback_id = id.clone();
         let timer = set_timeout_with_handle(
@@ -127,8 +131,8 @@ impl Ui {
                 });
                 match feedback {
                     ReplyFeedback::Error(error) => self.explain(error.to_string()),
-                    ReplyFeedback::Announcement(message) => self.announcement.set(message.into()),
-                    ReplyFeedback::TravelAnnouncement(message) => self.announcement.set(message),
+                    ReplyFeedback::Announcement(message) => self.announce(message),
+                    ReplyFeedback::TravelAnnouncement(message) => self.announce(message),
                     ReplyFeedback::None => {}
                 }
                 if before != self.state.with_untracked(|state| state.screen.clone()) {
@@ -171,17 +175,37 @@ impl Ui {
         });
     }
 
+    pub fn feedback_generation(self) -> u64 {
+        self.feedback_generation.get_untracked()
+    }
+
+    pub fn announce(self, message: impl Into<String>) {
+        self.feedback_generation
+            .update(|generation| *generation += 1);
+        self.announcement.set(message.into());
+    }
+
     pub fn explain(self, reason: impl Into<String>) {
         let reason = reason.into();
-        self.announcement.set(reason.clone());
+        self.announce(reason.clone());
         self.notice.set(Some(reason));
     }
 
     pub fn retry_characters(self) {
-        let mut projection = fixture::projection(Scenario::Accept);
-        projection.revision = self
+        let author = expect_context::<crate::authoring_bridge::AuthorUi>();
+        let snapshot = author
             .state
-            .with_untracked(|state| state.projection.revision + 1);
+            .with_untracked(|state| state.projection().clone());
+        let projection = self.state.with_untracked(|state| {
+            crate::authoring_adapter::recovered_characters(&state.projection, &snapshot)
+        });
+        let projection = match projection {
+            Ok(projection) => projection,
+            Err(error) => {
+                self.explain(error.to_string());
+                return;
+            }
+        };
         self.state.update(|state| {
             let _ = state.receive(UiEvent::ProjectionUpdated { projection });
         });

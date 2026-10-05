@@ -10,7 +10,7 @@ use leptos::{
 };
 use std::{
     sync::{
-        Arc,
+        Arc, Mutex,
         atomic::{AtomicBool, Ordering},
     },
     time::Duration,
@@ -27,6 +27,8 @@ pub struct AuthorUi {
     reject_once: RwSignal<bool>,
     reject_fixture: bool,
     pub writable: RwSignal<bool>,
+    persistence: StoredValue<Arc<Mutex<persistence::SaveSession>>>,
+    persisting: RwSignal<bool>,
     pub storage_notice: RwSignal<String>,
     pub scenario: bool,
 }
@@ -34,16 +36,19 @@ impl AuthorUi {
     pub fn new(ui: Ui, fixture: Option<&str>) -> Self {
         let scenario = fixture.is_some();
         let mut projection = preview_authoring_projection();
-        let mut writable = !scenario;
-        let mut storage_notice = String::new();
+        let mut save_session = persistence::SaveSession::temporary("");
         if !scenario {
             match persistence::load() {
-                Ok(Some(saved)) => projection = saved,
-                Ok(None) => {}
+                Ok((saved, session)) => {
+                    if let Some(saved) = saved {
+                        projection = saved;
+                    }
+                    save_session = session;
+                }
                 Err(error) => {
-                    writable = false;
-                    storage_notice =
-                        format!("{error} Temporary preview; existing data is preserved.");
+                    save_session = persistence::SaveSession::temporary(format!(
+                        "{error} Temporary preview; existing data is preserved."
+                    ));
                 }
             }
         }
@@ -87,8 +92,10 @@ impl AuthorUi {
             alive: StoredValue::new(Arc::new(AtomicBool::new(true))),
             reject_once: RwSignal::new(false),
             reject_fixture: fixture == Some("reject-authoring"),
-            writable: RwSignal::new(writable),
-            storage_notice: RwSignal::new(storage_notice),
+            writable: RwSignal::new(save_session.writable()),
+            storage_notice: RwSignal::new(save_session.notice().into()),
+            persistence: StoredValue::new(Arc::new(Mutex::new(save_session))),
+            persisting: RwSignal::new(false),
             scenario,
         };
         let alive = author.alive.get_value();
@@ -101,13 +108,17 @@ impl AuthorUi {
         author
     }
     pub fn busy(self) -> bool {
-        self.state.with(|s| s.pending().is_some())
+        self.persisting.get() || self.state.with(|s| s.pending().is_some())
     }
     pub fn select(self, id: CharacterId) {
         self.send(AuthoringIntent::SelectProfile(id));
     }
     pub fn send(self, intent: AuthoringIntent) {
         let ui = expect_context::<Ui>();
+        if self.persisting.get_untracked() {
+            ui.explain("Finishing the local save. Please try again in a moment.");
+            return;
+        }
         let mut requests = Ok(Vec::new());
         self.state.update(|s| requests = s.dispatch(intent));
         match requests {
@@ -115,7 +126,7 @@ impl AuthorUi {
             Ok(requests) => {
                 for request in requests {
                     ui.notice.set(None);
-                    ui.announcement.set("Saving preview change…".into());
+                    ui.announce("Saving preview change…");
                     let reject = self.reject_fixture && !self.reject_once.get_untracked();
                     if reject {
                         self.reject_once.set(true);
@@ -159,12 +170,33 @@ impl AuthorUi {
                                                 .state
                                                 .with_untracked(|s| s.selected_profile().cloned());
                                             if let Some(id)=selected && ui.state.with_untracked(|s|s.screen==wonderland_contracts::Screen::CharacterSelection) {ui.send(UiIntent::SelectCharacter(id));}
-                                            if self.writable.get_untracked()
-                                                && let Err(error) = persistence::save(&snapshot)
-                                            {
-                                                self.storage_notice.set(error);
-                                            }
-                                            ui.announcement.set("Preview change saved.".into());
+                                            self.persisting.set(true);
+                                            let session = self.persistence.get_value();
+                                            let active = self.alive.get_value();
+                                            // Capture the current feedback; navigation or later errors
+                                            // must not be replaced by an older persistence completion.
+                                            let feedback_generation = ui.feedback_generation();
+                                            wasm_bindgen_futures::spawn_local(async move {
+                                                let outcome = persistence::save(
+                                                    session.clone(),
+                                                    snapshot,
+                                                    active.clone(),
+                                                )
+                                                .await;
+                                                if !active.load(Ordering::Acquire) {
+                                                    return;
+                                                }
+                                                self.persisting.set(false);
+                                                let session = session.lock().expect("save session");
+                                                self.writable.set(session.writable());
+                                                self.storage_notice.set(session.notice().into());
+                                                if outcome != persistence::SaveOutcome::Cancelled
+                                                    && ui.feedback_generation()
+                                                        == feedback_generation
+                                                {
+                                                    ui.announce(outcome.announcement());
+                                                }
+                                            });
                                             match commit.outcome {
                                                 AuthoringOutcome::ProfileCreated {
                                                     character_id,

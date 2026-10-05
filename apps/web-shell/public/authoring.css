@@ -10,3 +10,6 @@
 @media(max-width:700px){.home-owned-actions{gap:5px;padding:7px}.home-owned-actions button{padding:9px 12px;font-size:12px}}
 .home-owned-actions{width:330px}.home-owned-actions button{flex:1;padding-left:7px;padding-right:7px}
 @media(max-width:700px){.home-screen .camera-controls{top:145px;flex-direction:row}}
+
+/* Keep semantic ground picks and their labels above standing furniture. */
+.home-object-pick{z-index:1280}.home-object-pick:hover,.home-object-pick:focus-visible,.home-object-pick[aria-pressed=true]{z-index:1285}

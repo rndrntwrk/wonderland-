@@ -32,7 +32,7 @@ pub fn reply(request: &UiRequest, reject: bool) -> UiEvent {
     let projection_revision = request.projection_revision;
     if reject {
         let reason = match request.kind {
-            RequestKind::Travel { .. } => "Harbor Café is busy. Try visiting again.",
+            RequestKind::Travel { .. } => "Your destination is busy. Try visiting again.",
             RequestKind::Interaction { .. } => "The coffee machine is busy. Try again.",
             RequestKind::Cancellation { .. } => "Couldn't cancel yet. Please try again.",
         };
