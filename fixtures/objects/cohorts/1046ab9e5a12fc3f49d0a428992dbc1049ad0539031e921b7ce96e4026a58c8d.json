@@ -1,0 +1,2088 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        8298
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "init npc",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 6
+        },
+        {
+          "count": 1,
+          "opcode": 8298
+        }
+      ],
+      "resource_ordinal": 10,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 4,
+      "chunk_id": 4097,
+      "direct_calls": [
+        280,
+        4112,
+        4117
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "main npc",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 17
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4112
+        },
+        {
+          "count": 1,
+          "opcode": 4117
+        }
+      ],
+      "resource_ordinal": 11,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 12,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4099,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 13,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [
+        260,
+        272,
+        273,
+        281,
+        287,
+        405
+      ],
+      "instruction_count": 49,
+      "kind": 0,
+      "label": "Interaction - Use",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 6
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 22
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 3,
+          "opcode": 29
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 6,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 272
+        },
+        {
+          "count": 1,
+          "opcode": 273
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 3,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 405
+        }
+      ],
+      "resource_ordinal": 14,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "allow npc intersection",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 15,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 2,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "CT - Do Destination Menu",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 13
+        }
+      ],
+      "resource_ordinal": 16,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "CT - Destination Menu",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 50
+        }
+      ],
+      "resource_ordinal": 17,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [
+        287,
+        4107
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "Interaction - Drive Here",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 48
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 4107
+        }
+      ],
+      "resource_ordinal": 18,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Interaction - Idle",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [
+        280,
+        4107
+      ],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "Interaction - Return to Base",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 48
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4107
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4107,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Helper - Enter Car Interaction",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [
+        280,
+        281,
+        287,
+        4107,
+        4110
+      ],
+      "instruction_count": 28,
+      "kind": 0,
+      "label": "Interaction - Wander",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 6,
+          "opcode": 23
+        },
+        {
+          "count": 2,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 45
+        },
+        {
+          "count": 2,
+          "opcode": 48
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 4107
+        },
+        {
+          "count": 1,
+          "opcode": 4110
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [
+        4111
+      ],
+      "instruction_count": 14,
+      "kind": 0,
+      "label": "Helper - Find Random Nearby Door",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 4111
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4111,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Helper - Is Stack Object A Door In My Room?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 11
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4112,
+      "direct_calls": [],
+      "instruction_count": 21,
+      "kind": 0,
+      "label": "Helper - Give Car Suit",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 11,
+          "opcode": 6
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        256
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "load",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 256
+        }
+      ],
+      "resource_ordinal": 26,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4114,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Set Permissions",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 27,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "Interaction - Set Permissions TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 6,
+          "opcode": 50
+        }
+      ],
+      "resource_ordinal": 28,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4116,
+      "direct_calls": [
+        288
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Interaction - Use TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 1
+        },
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 288
+        }
+      ],
+      "resource_ordinal": 29,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4117,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Helper - Max Motives",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 30,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:1046ab9e5a12fc3f49d0a428992dbc1049ad0539031e921b7ce96e4026a58c8d",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [
+    {
+      "chunk_id": 1,
+      "name": "PersonGlobals",
+      "resource_ordinal": 31
+    }
+  ],
+  "interaction_tables": [
+    {
+      "chunk_id": 100,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4100,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4116
+        },
+        {
+          "action_function": 4114,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 2,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4115
+        }
+      ],
+      "resource_ordinal": 53,
+      "version": 10
+    },
+    {
+      "chunk_id": 101,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4105,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 265
+        },
+        {
+          "action_function": 4104,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 265
+        },
+        {
+          "action_function": 4109,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 265
+        },
+        {
+          "action_function": 4106,
+          "autonomy_threshold": 0,
+          "flags": 1024,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 265
+        }
+      ],
+      "resource_ordinal": 54,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-1046ab9e5a12fc3f49d0a428992dbc1049ad0539031e921b7ce96e4026a58c8d-OBJD-16807",
+    "OBJ-1046ab9e5a12fc3f49d0a428992dbc1049ad0539031e921b7ce96e4026a58c8d-OBJD-16808"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 100,
+          "field": "action_function",
+          "id": 4100,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 100,
+          "field": "action_function",
+          "id": 4114,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 100,
+          "field": "test_function",
+          "id": 4115,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 100,
+          "field": "test_function",
+          "id": 4116,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4099,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 260,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 272,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 273,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 405,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 256,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4116,
+          "field": "instruction_opcode",
+          "id": 288,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 4101,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4113,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4099,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-1046ab9e5a12fc3f49d0a428992dbc1049ad0539031e921b7ce96e4026a58c8d-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        13,
+        18,
+        22,
+        23,
+        26,
+        27,
+        29,
+        32,
+        36,
+        42,
+        44,
+        50
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4098,
+        4099,
+        4100,
+        4101,
+        4113,
+        4114,
+        4115,
+        4116
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 101,
+          "field": "action_function",
+          "id": 4104,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 101,
+          "field": "action_function",
+          "id": 4105,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 101,
+          "field": "action_function",
+          "id": 4106,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 101,
+          "field": "action_function",
+          "id": 4109,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 101,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 101,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 101,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 101,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 8298,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4112,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4117,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 4107,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4107,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 4107,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4109,
+          "field": "instruction_opcode",
+          "id": 4110,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 4111,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-1046ab9e5a12fc3f49d0a428992dbc1049ad0539031e921b7ce96e4026a58c8d-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [
+        2,
+        6,
+        8,
+        11,
+        13,
+        17,
+        18,
+        23,
+        26,
+        27,
+        31,
+        32,
+        45,
+        48
+      ],
+      "routing_opcodes": [
+        27,
+        45
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4104,
+        4105,
+        4106,
+        4107,
+        4109,
+        4110,
+        4111,
+        4112,
+        4117
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4099
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 4101
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4098
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4113
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "14aebe68efe5ea9602be9e59fc7f9013adbbc31bbb6584de8c8fc657c5820483",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1943930206,
+      "guid_hex": "73de055e",
+      "label": "RC Car",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 128,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 11,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 10,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 100,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4097
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        }
+      ],
+      "chunk_id": 16808,
+      "chunk_sha256": "965ceaf72c2be32273a1a9aadce7827a585d1946947c61688e1f38a9bea0ad28",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1700603440,
+      "guid_hex": "655d2630",
+      "label": "NPC RC Car",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 200,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 2,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 101,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 1,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 6,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeSuitOrAccessory",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeSuitOrAccessory.cs",
+          "name": "change_suit_or_accessory",
+          "source_line": 126,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 11,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGetDistanceTo",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGetDistanceTo.cs",
+          "name": "get_distance_to",
+          "source_line": 156,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 17,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMIdleForInput",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMIdleForInput.cs",
+          "name": "idle_for_input",
+          "source_line": 198,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 22,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMLookTowards",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMLookTowards.cs",
+          "name": "look_towards",
+          "source_line": 230,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 26,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "relationship",
+          "source_line": 252,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 29,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetMotiveChange",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetMotiveChange.cs",
+          "name": "set_motive_deltas",
+          "source_line": 273,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 45,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRoutingSlot",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRoutingSlot.cs",
+          "name": "goto_routing_slot",
+          "source_line": 376,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 48,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMStopAllSounds",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMStopAllSounds.cs",
+          "name": "stop_all_sounds",
+          "source_line": 397,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 50,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeActionString",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeActionString.cs",
+          "name": "change_action_string",
+          "source_line": 411,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "005bd2f3da73aaa3ffd8bf0cc0f44ad39d779234",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso_rc_car.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 97,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 157,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 61,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 25,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 601,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 25,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 73,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 61,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 157,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 73,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 169,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 37,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 349,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 181,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 61,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 265,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 49,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 37,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 169,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 109,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 97,
+      "id": 4117,
+      "kind": "BHAV",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 14,
+      "id": 1,
+      "kind": "GLOB",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 269,
+      "id": 100,
+      "kind": "TTAB",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 533,
+      "id": 101,
+      "kind": "TTAB",
+      "resource_ordinal": 54
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 187
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 188
+    },
+    {
+      "byte_len": 534,
+      "id": 102,
+      "kind": "DGRP",
+      "resource_ordinal": 189
+    },
+    {
+      "byte_len": 534,
+      "id": 103,
+      "kind": "DGRP",
+      "resource_ordinal": 190
+    },
+    {
+      "byte_len": 534,
+      "id": 104,
+      "kind": "DGRP",
+      "resource_ordinal": 191
+    },
+    {
+      "byte_len": 534,
+      "id": 105,
+      "kind": "DGRP",
+      "resource_ordinal": 192
+    },
+    {
+      "byte_len": 534,
+      "id": 106,
+      "kind": "DGRP",
+      "resource_ordinal": 193
+    },
+    {
+      "byte_len": 534,
+      "id": 107,
+      "kind": "DGRP",
+      "resource_ordinal": 194
+    },
+    {
+      "byte_len": 534,
+      "id": 108,
+      "kind": "DGRP",
+      "resource_ordinal": 195
+    },
+    {
+      "byte_len": 534,
+      "id": 109,
+      "kind": "DGRP",
+      "resource_ordinal": 196
+    },
+    {
+      "byte_len": 150,
+      "id": 110,
+      "kind": "DGRP",
+      "resource_ordinal": 197
+    },
+    {
+      "byte_len": 15,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 198
+    },
+    {
+      "byte_len": 20,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 199
+    },
+    {
+      "byte_len": 13,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 200
+    },
+    {
+      "byte_len": 12,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 201
+    },
+    {
+      "byte_len": 20,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 202
+    },
+    {
+      "byte_len": 17,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 203
+    },
+    {
+      "byte_len": 21,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 204
+    },
+    {
+      "byte_len": 20,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 205
+    },
+    {
+      "byte_len": 20,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 206
+    },
+    {
+      "byte_len": 18,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 207
+    },
+    {
+      "byte_len": 16,
+      "id": 11,
+      "kind": "FWAV",
+      "resource_ordinal": 208
+    },
+    {
+      "byte_len": 16,
+      "id": 12,
+      "kind": "FWAV",
+      "resource_ordinal": 209
+    },
+    {
+      "byte_len": 19,
+      "id": 13,
+      "kind": "FWAV",
+      "resource_ordinal": 210
+    },
+    {
+      "byte_len": 20,
+      "id": 14,
+      "kind": "FWAV",
+      "resource_ordinal": 211
+    },
+    {
+      "byte_len": 24,
+      "id": 15,
+      "kind": "FWAV",
+      "resource_ordinal": 212
+    },
+    {
+      "byte_len": 16,
+      "id": 16,
+      "kind": "FWAV",
+      "resource_ordinal": 213
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 215
+    },
+    {
+      "byte_len": 22096,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 216
+    },
+    {
+      "byte_len": 22097,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 217
+    },
+    {
+      "byte_len": 22045,
+      "id": 102,
+      "kind": "FSOM",
+      "resource_ordinal": 218
+    },
+    {
+      "byte_len": 22043,
+      "id": 103,
+      "kind": "FSOM",
+      "resource_ordinal": 219
+    },
+    {
+      "byte_len": 22029,
+      "id": 104,
+      "kind": "FSOM",
+      "resource_ordinal": 220
+    },
+    {
+      "byte_len": 22030,
+      "id": 105,
+      "kind": "FSOM",
+      "resource_ordinal": 221
+    },
+    {
+      "byte_len": 22092,
+      "id": 106,
+      "kind": "FSOM",
+      "resource_ordinal": 222
+    },
+    {
+      "byte_len": 22094,
+      "id": 107,
+      "kind": "FSOM",
+      "resource_ordinal": 223
+    },
+    {
+      "byte_len": 22120,
+      "id": 108,
+      "kind": "FSOM",
+      "resource_ordinal": 224
+    },
+    {
+      "byte_len": 22071,
+      "id": 109,
+      "kind": "FSOM",
+      "resource_ordinal": 225
+    }
+  ],
+  "source_sha256": "1046ab9e5a12fc3f49d0a428992dbc1049ad0539031e921b7ce96e4026a58c8d",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

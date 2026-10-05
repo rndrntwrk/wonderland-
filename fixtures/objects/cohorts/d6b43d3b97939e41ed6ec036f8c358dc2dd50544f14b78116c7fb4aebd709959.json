@@ -1,0 +1,563 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        4096
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Repairman Repair",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 38
+        },
+        {
+          "count": 1,
+          "opcode": 4096
+        }
+      ],
+      "resource_ordinal": 383,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        440
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Repairman Repair TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 440
+        }
+      ],
+      "resource_ordinal": 384,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Helper - PushRepairOnRepairman",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 385,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [
+    {
+      "chunk_id": 128,
+      "name": "blackjacksemiglobal",
+      "resource_ordinal": 382
+    }
+  ],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959-OBJD-16807",
+    "OBJ-d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959-OBJD-16808",
+    "OBJ-d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959-OBJD-16809"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    },
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959-OBJD-16809",
+      "objd_chunk_id": 16809,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16808,
+      "chunk_sha256": "746c07f4acacb8c0bc7684f695285f511ce0e7a6d9b735b7b4ecadc6bf682549",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1324306696,
+      "guid_hex": "4eef5108",
+      "label": "Casino Hold'em - A",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 200,
+        "function_flags": 15,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 16,
+        "num_dynamic_sprites": 12,
+        "num_graphics": 2,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 128,
+        "sub_index": 256,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 350,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16809,
+      "chunk_sha256": "70521de9de213fd6b4f5ca53359a6dae562d7ac1491514977298beb6a3277dbf",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 2985251286,
+      "guid_hex": "b1ef51d6",
+      "label": "Casino Hold'em - B",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 300,
+        "function_flags": 15,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 20,
+        "num_dynamic_sprites": 11,
+        "num_graphics": 2,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 129,
+        "sub_index": 0,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 351,
+      "version": 142
+    },
+    {
+      "bhav_refs": [],
+      "chunk_id": 16807,
+      "chunk_sha256": "a701f7e48774b00d0c5391be20310ec1c57d0e5619aee04ce3853c7e4f3026d2",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 938430872,
+      "guid_hex": "37ef5198",
+      "label": "Casino Hold'em",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 1,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 64,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 1,
+        "num_attributes": 16,
+        "num_dynamic_sprites": 1,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 8,
+        "slot_id": 128,
+        "sub_index": -1,
+        "tree_table_id": 129,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 352,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 38,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogGlobalStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogGlobalStrings.cs",
+          "name": "dialog_global",
+          "source_line": 327,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "d5544481822ad74467097de212ce4dda3c64eec5",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso_casino_holdem.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 140,
+      "id": 16807,
+      "kind": "OBJf",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 140,
+      "id": 16808,
+      "kind": "OBJf",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 140,
+      "id": 16809,
+      "kind": "OBJf",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 21,
+      "id": 0,
+      "kind": "FWAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 23,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 23,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 21,
+      "id": 11,
+      "kind": "FWAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 22,
+      "id": 12,
+      "kind": "FWAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 21,
+      "id": 13,
+      "kind": "FWAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 22,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 24,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 25,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 25,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 22,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 23,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 22,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 24,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 26,
+      "id": 999,
+      "kind": "FWAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 16,
+      "id": 14,
+      "kind": "FWAV",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 856,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 353
+    },
+    {
+      "byte_len": 856,
+      "id": 129,
+      "kind": "SLOT",
+      "resource_ordinal": 354
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 355
+    },
+    {
+      "byte_len": 534,
+      "id": 201,
+      "kind": "DGRP",
+      "resource_ordinal": 356
+    },
+    {
+      "byte_len": 4758,
+      "id": 200,
+      "kind": "DGRP",
+      "resource_ordinal": 357
+    },
+    {
+      "byte_len": 4950,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 358
+    },
+    {
+      "byte_len": 20,
+      "id": 128,
+      "kind": "GLOB",
+      "resource_ordinal": 382
+    },
+    {
+      "byte_len": 37,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 383
+    },
+    {
+      "byte_len": 37,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 384
+    },
+    {
+      "byte_len": 61,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 385
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 387
+    },
+    {
+      "byte_len": 86813,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 391
+    },
+    {
+      "byte_len": 86863,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 392
+    },
+    {
+      "byte_len": 20847,
+      "id": 200,
+      "kind": "FSOM",
+      "resource_ordinal": 393
+    },
+    {
+      "byte_len": 20806,
+      "id": 201,
+      "kind": "FSOM",
+      "resource_ordinal": 394
+    }
+  ],
+  "source_sha256": "d6b43d3b97939e41ed6ec036f8c358dc2dd50544f14b78116c7fb4aebd709959",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

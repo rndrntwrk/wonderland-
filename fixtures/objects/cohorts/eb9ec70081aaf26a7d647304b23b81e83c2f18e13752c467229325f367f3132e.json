@@ -1,0 +1,764 @@
+{
+  "behaviors": [
+    {
+      "args": 1,
+      "chunk_id": 4098,
+      "direct_calls": [
+        285
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "View TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 285
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 2,
+      "version": 32770
+    },
+    {
+      "args": 4,
+      "chunk_id": 4096,
+      "direct_calls": [
+        280,
+        4105,
+        4106
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 3,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        },
+        {
+          "count": 2,
+          "opcode": 4106
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 25,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [
+        271,
+        4105
+      ],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "init Tree",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 16,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [
+        4105
+      ],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "adjust value",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 13,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 4105
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 8,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [],
+      "instruction_count": 14,
+      "kind": 0,
+      "label": "set room impact",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 7
+        },
+        {
+          "count": 4,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 7,
+      "version": 32770
+    },
+    {
+      "args": 1,
+      "chunk_id": 4100,
+      "direct_calls": [],
+      "instruction_count": 22,
+      "kind": 0,
+      "label": "react",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 11,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 32
+        },
+        {
+          "count": 4,
+          "opcode": 44
+        }
+      ],
+      "resource_ordinal": 26,
+      "tree_version": 9,
+      "version": 32770
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        272,
+        273,
+        4100
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "View",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 45
+        },
+        {
+          "count": 1,
+          "opcode": 272
+        },
+        {
+          "count": 2,
+          "opcode": 273
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        }
+      ],
+      "resource_ordinal": 27,
+      "tree_version": 3,
+      "version": 32770
+    }
+  ],
+  "cohort_id": "sha256:eb9ec70081aaf26a7d647304b23b81e83c2f18e13752c467229325f367f3132e",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 129,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 1,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4098
+        }
+      ],
+      "resource_ordinal": 11,
+      "version": 9
+    },
+    {
+      "chunk_id": 132,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 1,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4098
+        }
+      ],
+      "resource_ordinal": 12,
+      "version": 9
+    },
+    {
+      "chunk_id": 130,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 1,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4098
+        }
+      ],
+      "resource_ordinal": 13,
+      "version": 9
+    },
+    {
+      "chunk_id": 131,
+      "compression_code": 1,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 50,
+          "flags": 1,
+          "flags2": 30,
+          "joining_index": -1,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 4098
+        }
+      ],
+      "resource_ordinal": 14,
+      "version": 9
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-eb9ec70081aaf26a7d647304b23b81e83c2f18e13752c467229325f367f3132e-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 130,
+          "field": "action_function",
+          "id": 4097,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 130,
+          "field": "test_function",
+          "id": 4098,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 272,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 273,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 285,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        }
+      ],
+      "leaf_id": "OBJ-eb9ec70081aaf26a7d647304b23b81e83c2f18e13752c467229325f367f3132e-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        2,
+        23,
+        27,
+        31,
+        32,
+        44,
+        45
+      ],
+      "routing_opcodes": [
+        27,
+        45
+      ],
+      "source_bhav_dependency_ids": [
+        4097,
+        4098,
+        4100
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16807,
+      "chunk_sha256": "5787aab2e8e75ddc704e6c9d2b8a430b19e0258d94bb9079da0c49dd168e618f",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 3119137576,
+      "guid_hex": "b9ea4328",
+      "label": "Elgardian Plant",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 32,
+        "function_subsort": 8,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 4,
+        "rating_skill_flags": 0,
+        "room_flags": 255,
+        "slot_id": 128,
+        "sub_index": 0,
+        "tree_table_id": 130,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 47,
+      "version": 138
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 45,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRoutingSlot",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRoutingSlot.cs",
+          "name": "goto_routing_slot",
+          "source_line": 376,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "c1832283c327baf59f24d78a2ceac17a1fdf85dd",
+  "source_parse_errors": [
+    {
+      "chunk_id": 257,
+      "error": {
+        "context": "STR/TTAs 512",
+        "kind": "UnsupportedVersion",
+        "offset": 0
+      },
+      "kind": "STR#",
+      "resource_ordinal": 40
+    }
+  ],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/k8elgplant.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 25,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 25,
+      "id": 132,
+      "kind": "TTAB",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 25,
+      "id": 130,
+      "kind": "TTAB",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 25,
+      "id": 131,
+      "kind": "TTAB",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 14,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 18,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 16,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 17,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 12,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 14,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 48,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 156,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 192,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 216,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 180,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 276,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 96,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 140,
+      "id": 16807,
+      "kind": "OBJf",
+      "resource_ordinal": 45
+    },
+    {
+      "byte_len": 86,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 48
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 49
+    }
+  ],
+  "source_sha256": "eb9ec70081aaf26a7d647304b23b81e83c2f18e13752c467229325f367f3132e",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

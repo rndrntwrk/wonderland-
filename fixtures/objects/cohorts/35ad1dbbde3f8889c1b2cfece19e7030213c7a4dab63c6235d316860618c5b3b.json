@@ -1,0 +1,90 @@
+{
+  "behaviors": [],
+  "cohort_id": "sha256:35ad1dbbde3f8889c1b2cfece19e7030213c7a4dab63c6235d316860618c5b3b",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-35ad1dbbde3f8889c1b2cfece19e7030213c7a4dab63c6235d316860618c5b3b-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-35ad1dbbde3f8889c1b2cfece19e7030213c7a4dab63c6235d316860618c5b3b-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 0,
+      "is_user_category": false,
+      "patch_operations": 0,
+      "source_name": "roulette.iff",
+      "version": 1
+    }
+  ],
+  "primitive_registrations": [],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "7ca544038928927c6656d6b38bc8257740c49f13",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/roulette.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 16,
+      "id": 13,
+      "kind": "FWAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 13,
+      "id": 14,
+      "kind": "FWAV",
+      "resource_ordinal": 1
+    }
+  ],
+  "source_sha256": "35ad1dbbde3f8889c1b2cfece19e7030213c7a4dab63c6235d316860618c5b3b",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

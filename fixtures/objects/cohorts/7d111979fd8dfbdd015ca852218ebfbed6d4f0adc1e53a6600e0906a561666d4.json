@@ -1,0 +1,862 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 8400,
+      "direct_calls": [
+        8322,
+        8323,
+        8402,
+        8405
+      ],
+      "instruction_count": 14,
+      "kind": 0,
+      "label": "FSO - Interaction - Call Pizza",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 6,
+          "opcode": 39
+        },
+        {
+          "count": 1,
+          "opcode": 8322
+        },
+        {
+          "count": 1,
+          "opcode": 8323
+        },
+        {
+          "count": 1,
+          "opcode": 8402
+        },
+        {
+          "count": 2,
+          "opcode": 8405
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8401,
+      "direct_calls": [
+        8402,
+        8404
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "FSO - Interaction - Call Pizza TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 8402
+        },
+        {
+          "count": 1,
+          "opcode": 8404
+        }
+      ],
+      "resource_ordinal": 1,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8403,
+      "direct_calls": [
+        8402,
+        8404
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "FSO - Interaction - Call Roulette Pizza TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 8402
+        },
+        {
+          "count": 1,
+          "opcode": 8404
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8402,
+      "direct_calls": [],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "FSO - Helper - Is April Fools",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8404,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "FSO - Helper - Is Pizza Man Present",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 4,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 8405,
+      "direct_calls": [],
+      "instruction_count": 14,
+      "kind": 0,
+      "label": "FSO - Helper - Create Pizza Man",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 24
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 3,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 5,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8406,
+      "direct_calls": [
+        8408
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "FSO - Interaction - Go Somewhere TEST",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 50
+        },
+        {
+          "count": 1,
+          "opcode": 8408
+        }
+      ],
+      "resource_ordinal": 6,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8407,
+      "direct_calls": [
+        281,
+        8322,
+        8323,
+        8406
+      ],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "FSO - Interaction - Go Somewhere",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 39
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 1,
+          "opcode": 8322
+        },
+        {
+          "count": 1,
+          "opcode": 8323
+        },
+        {
+          "count": 1,
+          "opcode": 8406
+        }
+      ],
+      "resource_ordinal": 7,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8408,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "FSO - Helper - Destination ID from Temp0/1",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 8,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8409,
+      "direct_calls": [
+        280,
+        287,
+        8322,
+        8323,
+        8410
+      ],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "FSO - Interaction - Sus Call",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 39
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 8322
+        },
+        {
+          "count": 1,
+          "opcode": 8323
+        },
+        {
+          "count": 1,
+          "opcode": 8410
+        }
+      ],
+      "resource_ordinal": 9,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 8410,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "FSO - Interaction - Sus Call TEST",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 10,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:7d111979fd8dfbdd015ca852218ebfbed6d4f0adc1e53a6600e0906a561666d4",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-7d111979fd8dfbdd015ca852218ebfbed6d4f0adc1e53a6600e0906a561666d4-SOURCE"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 8400,
+          "field": "BHAV",
+          "id": 8400,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8400,
+          "field": "instruction_opcode",
+          "id": 8322,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8400,
+          "field": "instruction_opcode",
+          "id": 8323,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8400,
+          "field": "instruction_opcode",
+          "id": 8402,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8400,
+          "field": "instruction_opcode",
+          "id": 8405,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8401,
+          "field": "BHAV",
+          "id": 8401,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8401,
+          "field": "instruction_opcode",
+          "id": 8402,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8401,
+          "field": "instruction_opcode",
+          "id": 8404,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8402,
+          "field": "BHAV",
+          "id": 8402,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8403,
+          "field": "BHAV",
+          "id": 8403,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8403,
+          "field": "instruction_opcode",
+          "id": 8402,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8403,
+          "field": "instruction_opcode",
+          "id": 8404,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8404,
+          "field": "BHAV",
+          "id": 8404,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8405,
+          "field": "BHAV",
+          "id": 8405,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8406,
+          "field": "BHAV",
+          "id": 8406,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8406,
+          "field": "instruction_opcode",
+          "id": 8408,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8407,
+          "field": "BHAV",
+          "id": 8407,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8407,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 8407,
+          "field": "instruction_opcode",
+          "id": 8322,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8407,
+          "field": "instruction_opcode",
+          "id": 8323,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8407,
+          "field": "instruction_opcode",
+          "id": 8406,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8408,
+          "field": "BHAV",
+          "id": 8408,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8409,
+          "field": "BHAV",
+          "id": 8409,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8409,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 8409,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 8409,
+          "field": "instruction_opcode",
+          "id": 8322,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8409,
+          "field": "instruction_opcode",
+          "id": 8323,
+          "origin": "BHAV",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8409,
+          "field": "instruction_opcode",
+          "id": 8410,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 8410,
+          "field": "BHAV",
+          "id": 8410,
+          "origin": "source_resource_index",
+          "resolution": "decoded_source_resource_not_applied_to_target",
+          "scope": "semiglobal"
+        }
+      ],
+      "leaf_id": "OBJ-7d111979fd8dfbdd015ca852218ebfbed6d4f0adc1e53a6600e0906a561666d4-SOURCE",
+      "objd_chunk_id": null,
+      "primitive_opcodes": [
+        1,
+        2,
+        8,
+        24,
+        31,
+        39,
+        42,
+        50
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        8400,
+        8401,
+        8402,
+        8403,
+        8404,
+        8405,
+        8406,
+        8407,
+        8408,
+        8409,
+        8410
+      ]
+    }
+  ],
+  "objects": [],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 26,
+      "is_user_category": false,
+      "patch_operations": 55,
+      "source_name": "phoneglobals.iff",
+      "version": 2
+    }
+  ],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 24,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "old_relationship",
+          "source_line": 244,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 39,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogSemiGlobalStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogSemiGlobalStrings.cs",
+          "name": "dialog_semiglobal",
+          "source_line": 334,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 50,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeActionString",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeActionString.cs",
+          "name": "change_action_string",
+          "source_line": 411,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "1cf212f88d80acc9f93583ff10bfd0d82adb90ba",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/Pizza/phoneglobals.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 181,
+      "id": 8400,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 37,
+      "id": 8401,
+      "kind": "BHAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 37,
+      "id": 8403,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 157,
+      "id": 8402,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 61,
+      "id": 8404,
+      "kind": "BHAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 181,
+      "id": 8405,
+      "kind": "BHAV",
+      "resource_ordinal": 5
+    },
+    {
+      "byte_len": 133,
+      "id": 8406,
+      "kind": "BHAV",
+      "resource_ordinal": 6
+    },
+    {
+      "byte_len": 193,
+      "id": 8407,
+      "kind": "BHAV",
+      "resource_ordinal": 7
+    },
+    {
+      "byte_len": 61,
+      "id": 8408,
+      "kind": "BHAV",
+      "resource_ordinal": 8
+    },
+    {
+      "byte_len": 169,
+      "id": 8409,
+      "kind": "BHAV",
+      "resource_ordinal": 9
+    },
+    {
+      "byte_len": 73,
+      "id": 8410,
+      "kind": "BHAV",
+      "resource_ordinal": 10
+    }
+  ],
+  "source_sha256": "7d111979fd8dfbdd015ca852218ebfbed6d4f0adc1e53a6600e0906a561666d4",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

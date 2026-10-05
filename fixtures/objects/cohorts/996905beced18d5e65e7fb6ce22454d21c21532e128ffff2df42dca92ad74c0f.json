@@ -1,0 +1,6485 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "init common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 10,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "main common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 11,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        4100
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Edit Riddle",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        }
+      ],
+      "resource_ordinal": 12,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4100,
+      "direct_calls": [
+        4099,
+        4101
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Stack Obj Riddle Edit",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 4099
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        }
+      ],
+      "resource_ordinal": 13,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4099,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Helper - Set Stack Obj Riddle Txt",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 14,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [
+        4104
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Helper - Begin Stack Obj Riddle Ans",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        }
+      ],
+      "resource_ordinal": 15,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Display Riddle",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 16,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 0,
+      "kind": 0,
+      "label": "Helper - Can Set Current Object",
+      "locals": 0,
+      "opcode_counts": [],
+      "resource_ordinal": 17,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4104,
+      "direct_calls": [
+        287
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Try Set Current Object to Arg",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        }
+      ],
+      "resource_ordinal": 18,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - Do Object Menu",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "CT - Object Menu",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [
+        4137
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "CT - Destination Menu",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 4137
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [
+        4138
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "CT - Do Destination Menu",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 4138
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [
+        345,
+        475
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Menu - Riddle Object Menu",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 50
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 475
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4111,
+      "direct_calls": [
+        345,
+        475,
+        4109
+      ],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "CT - Object Selection",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 32
+        },
+        {
+          "count": 3,
+          "opcode": 50
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 2,
+          "opcode": 475
+        },
+        {
+          "count": 1,
+          "opcode": 4109
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [
+        4112,
+        4138,
+        4166
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "CT - Do Object Selection",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 4112
+        },
+        {
+          "count": 1,
+          "opcode": 4138
+        },
+        {
+          "count": 1,
+          "opcode": 4166
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4112,
+      "direct_calls": [
+        287,
+        345,
+        475,
+        4185
+      ],
+      "instruction_count": 18,
+      "kind": 0,
+      "label": "Menu - Riddle Answer as Selected",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 475
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        }
+      ],
+      "resource_ordinal": 26,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 16,
+      "kind": 0,
+      "label": "init controller",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 27,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4114,
+      "direct_calls": [
+        280,
+        4115
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "main controller",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 28,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [
+        4116,
+        4117
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Helper - Controller Tick",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4116
+        },
+        {
+          "count": 1,
+          "opcode": 4117
+        }
+      ],
+      "resource_ordinal": 29,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4116,
+      "direct_calls": [
+        280,
+        4118,
+        4131,
+        4195
+      ],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "Helper - Controller Inactive Tick",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4118
+        },
+        {
+          "count": 1,
+          "opcode": 4131
+        },
+        {
+          "count": 2,
+          "opcode": 4195
+        }
+      ],
+      "resource_ordinal": 30,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4117,
+      "direct_calls": [
+        4143,
+        4145,
+        4153,
+        4161,
+        4162,
+        4182
+      ],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "Helper - Controller Active Tick",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 4143
+        },
+        {
+          "count": 2,
+          "opcode": 4145
+        },
+        {
+          "count": 1,
+          "opcode": 4153
+        },
+        {
+          "count": 1,
+          "opcode": 4161
+        },
+        {
+          "count": 1,
+          "opcode": 4162
+        },
+        {
+          "count": 1,
+          "opcode": 4182
+        }
+      ],
+      "resource_ordinal": 31,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4118,
+      "direct_calls": [
+        260,
+        4133,
+        4134,
+        4141,
+        4144,
+        4173
+      ],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "Helper - Start Game",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 4134
+        },
+        {
+          "count": 1,
+          "opcode": 4141
+        },
+        {
+          "count": 1,
+          "opcode": 4144
+        },
+        {
+          "count": 1,
+          "opcode": 4173
+        }
+      ],
+      "resource_ordinal": 32,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4119,
+      "direct_calls": [],
+      "instruction_count": 23,
+      "kind": 0,
+      "label": "Interaction - Manage Sections TEST",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 7,
+          "opcode": 50
+        }
+      ],
+      "resource_ordinal": 33,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4120,
+      "direct_calls": [
+        4121,
+        4123,
+        4128,
+        4129,
+        4130,
+        4178,
+        4185
+      ],
+      "instruction_count": 30,
+      "kind": 0,
+      "label": "Interaction - Manage Sections",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 4121
+        },
+        {
+          "count": 1,
+          "opcode": 4123
+        },
+        {
+          "count": 1,
+          "opcode": 4128
+        },
+        {
+          "count": 1,
+          "opcode": 4129
+        },
+        {
+          "count": 1,
+          "opcode": 4130
+        },
+        {
+          "count": 2,
+          "opcode": 4178
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        }
+      ],
+      "resource_ordinal": 34,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4121,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Helper - Get Section With Index in T0",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 35,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4122,
+      "direct_calls": [
+        4185,
+        4192
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Interaction - Add Section",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        },
+        {
+          "count": 1,
+          "opcode": 4192
+        }
+      ],
+      "resource_ordinal": 36,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4123,
+      "direct_calls": [
+        4101,
+        4191
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Helper - Create Riddle for Section",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 3,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        },
+        {
+          "count": 1,
+          "opcode": 4191
+        }
+      ],
+      "resource_ordinal": 37,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4124,
+      "direct_calls": [
+        4126
+      ],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "Interaction - Manage Riddles TEST",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 14,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 4,
+          "opcode": 50
+        },
+        {
+          "count": 1,
+          "opcode": 4126
+        }
+      ],
+      "resource_ordinal": 38,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4125,
+      "direct_calls": [
+        280,
+        287,
+        4100,
+        4127,
+        4185
+      ],
+      "instruction_count": 21,
+      "kind": 0,
+      "label": "Interaction - Manage Riddles",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        },
+        {
+          "count": 1,
+          "opcode": 4127
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        }
+      ],
+      "resource_ordinal": 39,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4126,
+      "direct_calls": [
+        287
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Helper - Is Section Valid",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        }
+      ],
+      "resource_ordinal": 40,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4127,
+      "direct_calls": [
+        4126
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Helper - Get Riddle With Index in T0",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4126
+        }
+      ],
+      "resource_ordinal": 41,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4128,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Count Riddles for Section",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 42,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4129,
+      "direct_calls": [],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Delete Section",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 43,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4130,
+      "direct_calls": [
+        4104,
+        4193
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "Helper - Begin Create Room Marker",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        },
+        {
+          "count": 1,
+          "opcode": 4193
+        }
+      ],
+      "resource_ordinal": 44,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4131,
+      "direct_calls": [
+        4132,
+        4141
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "Helper - Count Players in Start Room",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4132
+        },
+        {
+          "count": 1,
+          "opcode": 4141
+        }
+      ],
+      "resource_ordinal": 45,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4132,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Helper - Is Person valid for Escape",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 46,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4133,
+      "direct_calls": [
+        4126,
+        4136
+      ],
+      "instruction_count": 22,
+      "kind": 0,
+      "label": "Helper - Close all section Game Doors",
+      "locals": 5,
+      "opcode_counts": [
+        {
+          "count": 17,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4126
+        },
+        {
+          "count": 1,
+          "opcode": 4136
+        }
+      ],
+      "resource_ordinal": 47,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 2,
+      "chunk_id": 4134,
+      "direct_calls": [
+        4135,
+        4136
+      ],
+      "instruction_count": 18,
+      "kind": 0,
+      "label": "Helper - Open doors between 2 sections",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 11,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 4135
+        },
+        {
+          "count": 1,
+          "opcode": 4136
+        }
+      ],
+      "resource_ordinal": 48,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 2,
+      "chunk_id": 4135,
+      "direct_calls": [],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Find Section For Tile",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 49,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4136,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Set Game Door State",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        }
+      ],
+      "resource_ordinal": 50,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4137,
+      "direct_calls": [
+        475
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Menu - Room Destination Menu",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 50
+        },
+        {
+          "count": 1,
+          "opcode": 475
+        }
+      ],
+      "resource_ordinal": 51,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4138,
+      "direct_calls": [
+        287
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "Menu - Room Destination Action",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 16
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        }
+      ],
+      "resource_ordinal": 52,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4139,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "CT - Snap to Param 0",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 46
+        }
+      ],
+      "resource_ordinal": 53,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4140,
+      "direct_calls": [
+        4104,
+        4141,
+        4185
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "Interaction - Set Start Room",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        },
+        {
+          "count": 1,
+          "opcode": 4141
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        }
+      ],
+      "resource_ordinal": 54,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4141,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Get Starting Room",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 55,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4142,
+      "direct_calls": [
+        4133,
+        4134,
+        4185
+      ],
+      "instruction_count": 12,
+      "kind": 0,
+      "label": "Helper - Reset for Game Start",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 4134
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        }
+      ],
+      "resource_ordinal": 56,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4143,
+      "direct_calls": [
+        4126,
+        4128,
+        4133,
+        4134,
+        4146,
+        4154,
+        4163
+      ],
+      "instruction_count": 26,
+      "kind": 0,
+      "label": "Helper - Start Section",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 14,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4126
+        },
+        {
+          "count": 1,
+          "opcode": 4128
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 4134
+        },
+        {
+          "count": 1,
+          "opcode": 4146
+        },
+        {
+          "count": 1,
+          "opcode": 4154
+        },
+        {
+          "count": 1,
+          "opcode": 4163
+        }
+      ],
+      "resource_ordinal": 57,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4144,
+      "direct_calls": [
+        4132,
+        4141,
+        4146
+      ],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "Helper - Initialize Players",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4132
+        },
+        {
+          "count": 1,
+          "opcode": 4141
+        },
+        {
+          "count": 1,
+          "opcode": 4146
+        }
+      ],
+      "resource_ordinal": 58,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4145,
+      "direct_calls": [
+        4133,
+        4134,
+        4142,
+        4155,
+        4159,
+        4160,
+        4180
+      ],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "Helper - Move to Next Section",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 4134
+        },
+        {
+          "count": 2,
+          "opcode": 4142
+        },
+        {
+          "count": 1,
+          "opcode": 4155
+        },
+        {
+          "count": 1,
+          "opcode": 4159
+        },
+        {
+          "count": 1,
+          "opcode": 4160
+        },
+        {
+          "count": 2,
+          "opcode": 4180
+        }
+      ],
+      "resource_ordinal": 59,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4146,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Helper - Boot player in stack obj",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 4,
+          "opcode": 26
+        }
+      ],
+      "resource_ordinal": 60,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4147,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "main hole",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 61,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4148,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Helper - Reset all Cage Lockouts",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 62,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4149,
+      "direct_calls": [],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "Helper - Random Cage in Temp 0",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 63,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4150,
+      "direct_calls": [
+        4148,
+        4149
+      ],
+      "instruction_count": 22,
+      "kind": 0,
+      "label": "Helper - Teleport to Cage or Mailbox",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 16
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 4,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 4148
+        },
+        {
+          "count": 1,
+          "opcode": 4149
+        }
+      ],
+      "resource_ordinal": 64,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4151,
+      "direct_calls": [
+        382,
+        4150
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Interaction - Failure",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 42
+        },
+        {
+          "count": 2,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 382
+        },
+        {
+          "count": 1,
+          "opcode": 4150
+        }
+      ],
+      "resource_ordinal": 65,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4152,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Learn to Use",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 66,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4153,
+      "direct_calls": [
+        280,
+        4180
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "Helper - Advance Game Timer",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4180
+        }
+      ],
+      "resource_ordinal": 67,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4154,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Helper - Riddle N for Section in T0",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 68,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4155,
+      "direct_calls": [
+        287,
+        4146
+      ],
+      "instruction_count": 31,
+      "kind": 0,
+      "label": "Helper - Determine Losers and Notify",
+      "locals": 5,
+      "opcode_counts": [
+        {
+          "count": 18,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 13
+        },
+        {
+          "count": 4,
+          "opcode": 26
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 4146
+        }
+      ],
+      "resource_ordinal": 69,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4156,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Notify Timeout",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 70,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4157,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Notify Wrong",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 71,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4158,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Notify Correct",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 72,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4159,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Helper - Count Active Players",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 73,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4160,
+      "direct_calls": [
+        4126
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Helper - Get Next Section",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 4126
+        }
+      ],
+      "resource_ordinal": 74,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4162,
+      "direct_calls": [],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Helper - Players all answered?",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 75,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4163,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Is Player in Section",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 76,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4161,
+      "direct_calls": [
+        4163
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Helper - Players all in Target Section?",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4163
+        }
+      ],
+      "resource_ordinal": 77,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4164,
+      "direct_calls": [
+        4121
+      ],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "Interaction - Set Section Next",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 16,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        },
+        {
+          "count": 2,
+          "opcode": 4121
+        }
+      ],
+      "resource_ordinal": 78,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4165,
+      "direct_calls": [],
+      "instruction_count": 27,
+      "kind": 0,
+      "label": "Interaction - Set Section Next TEST",
+      "locals": 6,
+      "opcode_counts": [
+        {
+          "count": 22,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 3,
+          "opcode": 50
+        }
+      ],
+      "resource_ordinal": 79,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4166,
+      "direct_calls": [
+        345,
+        475,
+        4169
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "Menu - Select Answer Action",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 475
+        },
+        {
+          "count": 1,
+          "opcode": 4169
+        }
+      ],
+      "resource_ordinal": 80,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4167,
+      "direct_calls": [
+        281,
+        287,
+        345,
+        382
+      ],
+      "instruction_count": 27,
+      "kind": 0,
+      "label": "Interaction - Make Guess",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 11,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 11
+        },
+        {
+          "count": 1,
+          "opcode": 22
+        },
+        {
+          "count": 3,
+          "opcode": 26
+        },
+        {
+          "count": 3,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 45
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 2,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 382
+        }
+      ],
+      "resource_ordinal": 81,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4168,
+      "direct_calls": [
+        4118
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Start Game",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 4118
+        }
+      ],
+      "resource_ordinal": 82,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4169,
+      "direct_calls": [
+        287
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Interaction - Show Hint Controller",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        }
+      ],
+      "resource_ordinal": 83,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4170,
+      "direct_calls": [
+        382,
+        4171
+      ],
+      "instruction_count": 16,
+      "kind": 0,
+      "label": "Interaction - Escaped!",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        },
+        {
+          "count": 4,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 382
+        },
+        {
+          "count": 1,
+          "opcode": 4171
+        }
+      ],
+      "resource_ordinal": 84,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4171,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Add x Candy",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 67
+        }
+      ],
+      "resource_ordinal": 85,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4172,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Interaction - Notify Boot",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 86,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4173,
+      "direct_calls": [
+        4126,
+        4146
+      ],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "Helper - Boot sims in any section",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 13
+        },
+        {
+          "count": 2,
+          "opcode": 26
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 4126
+        },
+        {
+          "count": 1,
+          "opcode": 4146
+        }
+      ],
+      "resource_ordinal": 87,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4174,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Interaction - Notify Start",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 88,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4175,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Interaction - Set Candy Prize",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 89,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4176,
+      "direct_calls": [
+        4185
+      ],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "Interaction - Manage",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 12,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 36
+        },
+        {
+          "count": 1,
+          "opcode": 4185
+        }
+      ],
+      "resource_ordinal": 90,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4177,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Interaction - Manage TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 50
+        }
+      ],
+      "resource_ordinal": 91,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4178,
+      "direct_calls": [],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Helper - Set Section Room Visibility",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 92,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4179,
+      "direct_calls": [
+        4142
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "load controller",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4142
+        }
+      ],
+      "resource_ordinal": 93,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4180,
+      "direct_calls": [],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Play sound from Section",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 94,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4181,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "load common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 95,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4182,
+      "direct_calls": [
+        260,
+        4142,
+        4173
+      ],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Fatal Error",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4142
+        },
+        {
+          "count": 1,
+          "opcode": 4173
+        }
+      ],
+      "resource_ordinal": 96,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4183,
+      "direct_calls": [
+        287,
+        345,
+        475
+      ],
+      "instruction_count": 28,
+      "kind": 0,
+      "label": "Helper - Is there any error?",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 475
+        }
+      ],
+      "resource_ordinal": 97,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4184,
+      "direct_calls": [
+        287,
+        345,
+        475
+      ],
+      "instruction_count": 33,
+      "kind": 0,
+      "label": "Helper - Show Errors",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 4,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 5,
+          "opcode": 36
+        },
+        {
+          "count": 2,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 345
+        },
+        {
+          "count": 1,
+          "opcode": 475
+        }
+      ],
+      "resource_ordinal": 98,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4185,
+      "direct_calls": [
+        260,
+        4183
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Set state sprite",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4183
+        }
+      ],
+      "resource_ordinal": 99,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4186,
+      "direct_calls": [
+        260,
+        4183,
+        4184
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Interaction - Check Error",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 4183
+        },
+        {
+          "count": 1,
+          "opcode": 4184
+        }
+      ],
+      "resource_ordinal": 100,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4187,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "Helper - Notify Deletion Check",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 31
+        },
+        {
+          "count": 2,
+          "opcode": 49
+        }
+      ],
+      "resource_ordinal": 101,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4188,
+      "direct_calls": [
+        280,
+        287,
+        4129
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "main section",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        },
+        {
+          "count": 1,
+          "opcode": 4129
+        }
+      ],
+      "resource_ordinal": 102,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4189,
+      "direct_calls": [
+        280,
+        287
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "main riddle",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        }
+      ],
+      "resource_ordinal": 103,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4190,
+      "direct_calls": [
+        280,
+        287
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "main room",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 32
+        },
+        {
+          "count": 2,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 287
+        }
+      ],
+      "resource_ordinal": 104,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4191,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - At riddle limit?",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 105,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4192,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - At section limit?",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 106,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4193,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - At room limit?",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 107,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4194,
+      "direct_calls": [
+        4183
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Interaction - Start Game TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4183
+        }
+      ],
+      "resource_ordinal": 108,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4195,
+      "direct_calls": [
+        260,
+        280,
+        4183
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "Helper - Autostart BSOD?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 260
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4183
+        }
+      ],
+      "resource_ordinal": 109,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 128,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4098,
+          "autonomy_threshold": 0,
+          "flags": 1,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 0
+        },
+        {
+          "action_function": 4102,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 0
+        }
+      ],
+      "resource_ordinal": 277,
+      "version": 10
+    },
+    {
+      "chunk_id": 129,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4152,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 0,
+          "test_function": 0
+        },
+        {
+          "action_function": 4120,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4119
+        },
+        {
+          "action_function": 4122,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 0
+        },
+        {
+          "action_function": 4125,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4124
+        },
+        {
+          "action_function": 4140,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 4,
+          "test_function": 0
+        },
+        {
+          "action_function": 4142,
+          "autonomy_threshold": 0,
+          "flags": 128,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 5,
+          "test_function": 0
+        },
+        {
+          "action_function": 4151,
+          "autonomy_threshold": 0,
+          "flags": 1024,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 6,
+          "test_function": 265
+        },
+        {
+          "action_function": 4156,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 7,
+          "test_function": 265
+        },
+        {
+          "action_function": 4157,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 8,
+          "test_function": 265
+        },
+        {
+          "action_function": 4158,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 9,
+          "test_function": 265
+        },
+        {
+          "action_function": 4164,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 10,
+          "test_function": 4165
+        },
+        {
+          "action_function": 4167,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 11,
+          "test_function": 265
+        },
+        {
+          "action_function": 4168,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 12,
+          "test_function": 4194
+        },
+        {
+          "action_function": 4169,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 13,
+          "test_function": 265
+        },
+        {
+          "action_function": 4170,
+          "autonomy_threshold": 0,
+          "flags": 1024,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 14,
+          "test_function": 265
+        },
+        {
+          "action_function": 4172,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 15,
+          "test_function": 265
+        },
+        {
+          "action_function": 4174,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 16,
+          "test_function": 265
+        },
+        {
+          "action_function": 4175,
+          "autonomy_threshold": 0,
+          "flags": 128,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 17,
+          "test_function": 0
+        },
+        {
+          "action_function": 4176,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 18,
+          "test_function": 4177
+        },
+        {
+          "action_function": 4186,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 19,
+          "test_function": 4183
+        }
+      ],
+      "resource_ordinal": 278,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16807",
+    "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16808",
+    "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16809",
+    "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16811",
+    "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16812"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4098,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 128,
+          "field": "action_function",
+          "id": 4102,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4099,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4189,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4189,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4189,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        2,
+        18,
+        32,
+        36
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4098,
+        4099,
+        4100,
+        4101,
+        4102,
+        4104,
+        4181,
+        4189
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4188,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4188,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4188,
+          "field": "instruction_opcode",
+          "id": 4129,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4188,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [
+        2,
+        18,
+        31,
+        32
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4129,
+        4181,
+        4188
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4120,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4122,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4125,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4140,
+          "interaction_index": 4,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4142,
+          "interaction_index": 5,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4151,
+          "interaction_index": 6,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4152,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4156,
+          "interaction_index": 7,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4157,
+          "interaction_index": 8,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4158,
+          "interaction_index": 9,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4164,
+          "interaction_index": 10,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4167,
+          "interaction_index": 11,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4168,
+          "interaction_index": 12,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4169,
+          "interaction_index": 13,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4170,
+          "interaction_index": 14,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4172,
+          "interaction_index": 15,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4174,
+          "interaction_index": 16,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4175,
+          "interaction_index": 17,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4176,
+          "interaction_index": 18,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "action_function",
+          "id": 4186,
+          "interaction_index": 19,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 11,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 13,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 14,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 15,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 16,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 6,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 7,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 8,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 265,
+          "interaction_index": 9,
+          "origin": "TTAB",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4119,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4124,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4165,
+          "interaction_index": 10,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4177,
+          "interaction_index": 18,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4183,
+          "interaction_index": 19,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 129,
+          "field": "test_function",
+          "id": 4194,
+          "interaction_index": 12,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4099,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4100,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4115,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4115,
+          "field": "instruction_opcode",
+          "id": 4117,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4116,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4116,
+          "field": "instruction_opcode",
+          "id": 4118,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4116,
+          "field": "instruction_opcode",
+          "id": 4131,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4116,
+          "field": "instruction_opcode",
+          "id": 4195,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4143,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4145,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4153,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4161,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4162,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4117,
+          "field": "instruction_opcode",
+          "id": 4182,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 260,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 4133,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 4134,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 4141,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 4144,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4118,
+          "field": "instruction_opcode",
+          "id": 4173,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4121,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4123,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4128,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4129,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4130,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4178,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4120,
+          "field": "instruction_opcode",
+          "id": 4185,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4122,
+          "field": "instruction_opcode",
+          "id": 4185,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4122,
+          "field": "instruction_opcode",
+          "id": 4192,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4123,
+          "field": "instruction_opcode",
+          "id": 4101,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4123,
+          "field": "instruction_opcode",
+          "id": 4191,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4124,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 4100,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 4127,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4125,
+          "field": "instruction_opcode",
+          "id": 4185,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4126,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4127,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4130,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4130,
+          "field": "instruction_opcode",
+          "id": 4193,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4131,
+          "field": "instruction_opcode",
+          "id": 4132,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4131,
+          "field": "instruction_opcode",
+          "id": 4141,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4133,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4133,
+          "field": "instruction_opcode",
+          "id": 4136,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4134,
+          "field": "instruction_opcode",
+          "id": 4135,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4134,
+          "field": "instruction_opcode",
+          "id": 4136,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4140,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4140,
+          "field": "instruction_opcode",
+          "id": 4141,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4140,
+          "field": "instruction_opcode",
+          "id": 4185,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4142,
+          "field": "instruction_opcode",
+          "id": 4133,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4142,
+          "field": "instruction_opcode",
+          "id": 4134,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4142,
+          "field": "instruction_opcode",
+          "id": 4185,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4128,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4133,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4134,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4146,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4154,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4143,
+          "field": "instruction_opcode",
+          "id": 4163,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4144,
+          "field": "instruction_opcode",
+          "id": 4132,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4144,
+          "field": "instruction_opcode",
+          "id": 4141,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4144,
+          "field": "instruction_opcode",
+          "id": 4146,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4133,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4134,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4142,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4155,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4159,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4160,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4145,
+          "field": "instruction_opcode",
+          "id": 4180,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4150,
+          "field": "instruction_opcode",
+          "id": 4148,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4150,
+          "field": "instruction_opcode",
+          "id": 4149,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4151,
+          "field": "instruction_opcode",
+          "id": 382,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4151,
+          "field": "instruction_opcode",
+          "id": 4150,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4153,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4153,
+          "field": "instruction_opcode",
+          "id": 4180,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4155,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4155,
+          "field": "instruction_opcode",
+          "id": 4146,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4160,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4161,
+          "field": "instruction_opcode",
+          "id": 4163,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4164,
+          "field": "instruction_opcode",
+          "id": 4121,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4167,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4167,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4167,
+          "field": "instruction_opcode",
+          "id": 345,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4167,
+          "field": "instruction_opcode",
+          "id": 382,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4168,
+          "field": "instruction_opcode",
+          "id": 4118,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4169,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4170,
+          "field": "instruction_opcode",
+          "id": 382,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4170,
+          "field": "instruction_opcode",
+          "id": 4171,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4173,
+          "field": "instruction_opcode",
+          "id": 4126,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4173,
+          "field": "instruction_opcode",
+          "id": 4146,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4176,
+          "field": "instruction_opcode",
+          "id": 4185,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4179,
+          "field": "instruction_opcode",
+          "id": 4142,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4182,
+          "field": "instruction_opcode",
+          "id": 260,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4182,
+          "field": "instruction_opcode",
+          "id": 4142,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4182,
+          "field": "instruction_opcode",
+          "id": 4173,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4183,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4183,
+          "field": "instruction_opcode",
+          "id": 345,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4183,
+          "field": "instruction_opcode",
+          "id": 475,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4184,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4184,
+          "field": "instruction_opcode",
+          "id": 345,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4184,
+          "field": "instruction_opcode",
+          "id": 475,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4185,
+          "field": "instruction_opcode",
+          "id": 260,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4185,
+          "field": "instruction_opcode",
+          "id": 4183,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4186,
+          "field": "instruction_opcode",
+          "id": 260,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4186,
+          "field": "instruction_opcode",
+          "id": 4183,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4186,
+          "field": "instruction_opcode",
+          "id": 4184,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4194,
+          "field": "instruction_opcode",
+          "id": 4183,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4195,
+          "field": "instruction_opcode",
+          "id": 260,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4195,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4195,
+          "field": "instruction_opcode",
+          "id": 4183,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4113,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4179,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4114,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_UserPickup",
+          "id": 4187,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16809",
+      "objd_chunk_id": 16809,
+      "primitive_opcodes": [
+        1,
+        2,
+        7,
+        8,
+        11,
+        13,
+        16,
+        18,
+        22,
+        23,
+        26,
+        28,
+        31,
+        32,
+        36,
+        42,
+        44,
+        45,
+        49,
+        50,
+        67
+      ],
+      "routing_opcodes": [
+        45
+      ],
+      "source_bhav_dependency_ids": [
+        4099,
+        4100,
+        4101,
+        4104,
+        4113,
+        4114,
+        4115,
+        4116,
+        4117,
+        4118,
+        4119,
+        4120,
+        4121,
+        4122,
+        4123,
+        4124,
+        4125,
+        4126,
+        4127,
+        4128,
+        4129,
+        4130,
+        4131,
+        4132,
+        4133,
+        4134,
+        4135,
+        4136,
+        4140,
+        4141,
+        4142,
+        4143,
+        4144,
+        4145,
+        4146,
+        4148,
+        4149,
+        4150,
+        4151,
+        4152,
+        4153,
+        4154,
+        4155,
+        4156,
+        4157,
+        4158,
+        4159,
+        4160,
+        4161,
+        4162,
+        4163,
+        4164,
+        4165,
+        4167,
+        4168,
+        4169,
+        4170,
+        4171,
+        4172,
+        4173,
+        4174,
+        4175,
+        4176,
+        4177,
+        4178,
+        4179,
+        4180,
+        4182,
+        4183,
+        4184,
+        4185,
+        4186,
+        4187,
+        4191,
+        4192,
+        4193,
+        4194,
+        4195
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4190,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4190,
+          "field": "instruction_opcode",
+          "id": 287,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4190,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16811",
+      "objd_chunk_id": 16811,
+      "primitive_opcodes": [
+        2,
+        18,
+        32
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4181,
+        4190
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4147,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4147,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f-OBJD-16812",
+      "objd_chunk_id": 16812,
+      "primitive_opcodes": [
+        2,
+        18
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4147,
+        4181
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4189
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "59949778bd2296a0c849910e12c0485413591168d198ec02a77b0709a9354b70",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 276800028,
+      "guid_hex": "107fa21c",
+      "label": "FSO Escape Room - Riddle",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 100,
+        "sub_index": 0,
+        "tree_table_id": 128,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4188
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181
+        }
+      ],
+      "chunk_id": 16808,
+      "chunk_sha256": "60559ced8289b5465e217f13539515f33d8d9982275d96a751088a6549640507",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 974401270,
+      "guid_hex": "3a142ef6",
+      "label": "FSO Escape Room - Section",
+      "raw_fields": {
+        "base_graphic_id": 0,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 100,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 1,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4114
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4113
+        },
+        {
+          "field": "BHAV_UserPickup",
+          "id": 4187
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4179
+        }
+      ],
+      "chunk_id": 16809,
+      "chunk_sha256": "38930cf6efae06a0d0781f74ea1a26cf9485b35b31d1ddeb53911d836b51770b",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 891980494,
+      "guid_hex": "352a8ace",
+      "label": "FSO Escape Room - Controller",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 4,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 100,
+        "sub_index": 0,
+        "tree_table_id": 129,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 2,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4190
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181
+        }
+      ],
+      "chunk_id": 16811,
+      "chunk_sha256": "228a062127ea6fbceee89e74645f7e749668587156f57cb28e60b9bc7ed6eb86",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 511671569,
+      "guid_hex": "1e7f7d11",
+      "label": "FSO Escape Room - Room Marker",
+      "raw_fields": {
+        "base_graphic_id": 300,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 100,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 3,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4147
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4181
+        }
+      ],
+      "chunk_id": 16812,
+      "chunk_sha256": "f17ceb8863223f1495c95b9674e1cff66b18238a65514c8a388420a62148d4d2",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1505994420,
+      "guid_hex": "59c3a6b4",
+      "label": "FSO Escape Room - Death Hole",
+      "raw_fields": {
+        "base_graphic_id": 400,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 4,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 11,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGetDistanceTo",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGetDistanceTo.cs",
+          "name": "get_distance_to",
+          "source_line": 156,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 13,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPushInteraction",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPushInteraction.cs",
+          "name": "push_interaction",
+          "source_line": 170,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 16,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMFindLocationFor",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMFindLocationFor.cs",
+          "name": "find_location_for",
+          "source_line": 191,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 22,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMLookTowards",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMLookTowards.cs",
+          "name": "look_towards",
+          "source_line": 230,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 26,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "relationship",
+          "source_line": 252,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 45,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRoutingSlot",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRoutingSlot.cs",
+          "name": "goto_routing_slot",
+          "source_line": 376,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 46,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSnap",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSnap.cs",
+          "name": "snap",
+          "source_line": 383,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 49,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMNotifyOutOfIdle",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMNotifyOutOfIdle.cs",
+          "name": "stackobj_notify_out_of_idle",
+          "source_line": 404,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 50,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeActionString",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeActionString.cs",
+          "name": "change_action_string",
+          "source_line": 411,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 67,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMInventoryOperations",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMInventoryOperations.cs",
+          "name": "inventory_operations",
+          "source_line": 448,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "5e0695f310073001984aabafb307f464990ac9e6",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso_escape_room.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 121,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 25,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 37,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 73,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 25,
+      "id": 4099,
+      "kind": "BHAV",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 49,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 25,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 13,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 73,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 25,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 25,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 37,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 37,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 73,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 253,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 85,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 229,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 205,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 37,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 49,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 217,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 169,
+      "id": 4117,
+      "kind": "BHAV",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 253,
+      "id": 4118,
+      "kind": "BHAV",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 289,
+      "id": 4119,
+      "kind": "BHAV",
+      "resource_ordinal": 33
+    },
+    {
+      "byte_len": 373,
+      "id": 4120,
+      "kind": "BHAV",
+      "resource_ordinal": 34
+    },
+    {
+      "byte_len": 97,
+      "id": 4121,
+      "kind": "BHAV",
+      "resource_ordinal": 35
+    },
+    {
+      "byte_len": 121,
+      "id": 4122,
+      "kind": "BHAV",
+      "resource_ordinal": 36
+    },
+    {
+      "byte_len": 121,
+      "id": 4123,
+      "kind": "BHAV",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 253,
+      "id": 4124,
+      "kind": "BHAV",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 265,
+      "id": 4125,
+      "kind": "BHAV",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 37,
+      "id": 4126,
+      "kind": "BHAV",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 121,
+      "id": 4127,
+      "kind": "BHAV",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 85,
+      "id": 4128,
+      "kind": "BHAV",
+      "resource_ordinal": 42
+    },
+    {
+      "byte_len": 145,
+      "id": 4129,
+      "kind": "BHAV",
+      "resource_ordinal": 43
+    },
+    {
+      "byte_len": 133,
+      "id": 4130,
+      "kind": "BHAV",
+      "resource_ordinal": 44
+    },
+    {
+      "byte_len": 133,
+      "id": 4131,
+      "kind": "BHAV",
+      "resource_ordinal": 45
+    },
+    {
+      "byte_len": 37,
+      "id": 4132,
+      "kind": "BHAV",
+      "resource_ordinal": 46
+    },
+    {
+      "byte_len": 277,
+      "id": 4133,
+      "kind": "BHAV",
+      "resource_ordinal": 47
+    },
+    {
+      "byte_len": 229,
+      "id": 4134,
+      "kind": "BHAV",
+      "resource_ordinal": 48
+    },
+    {
+      "byte_len": 145,
+      "id": 4135,
+      "kind": "BHAV",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 73,
+      "id": 4136,
+      "kind": "BHAV",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 109,
+      "id": 4137,
+      "kind": "BHAV",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 157,
+      "id": 4138,
+      "kind": "BHAV",
+      "resource_ordinal": 52
+    },
+    {
+      "byte_len": 37,
+      "id": 4139,
+      "kind": "BHAV",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 157,
+      "id": 4140,
+      "kind": "BHAV",
+      "resource_ordinal": 54
+    },
+    {
+      "byte_len": 85,
+      "id": 4141,
+      "kind": "BHAV",
+      "resource_ordinal": 55
+    },
+    {
+      "byte_len": 157,
+      "id": 4142,
+      "kind": "BHAV",
+      "resource_ordinal": 56
+    },
+    {
+      "byte_len": 325,
+      "id": 4143,
+      "kind": "BHAV",
+      "resource_ordinal": 57
+    },
+    {
+      "byte_len": 217,
+      "id": 4144,
+      "kind": "BHAV",
+      "resource_ordinal": 58
+    },
+    {
+      "byte_len": 217,
+      "id": 4145,
+      "kind": "BHAV",
+      "resource_ordinal": 59
+    },
+    {
+      "byte_len": 109,
+      "id": 4146,
+      "kind": "BHAV",
+      "resource_ordinal": 60
+    },
+    {
+      "byte_len": 49,
+      "id": 4147,
+      "kind": "BHAV",
+      "resource_ordinal": 61
+    },
+    {
+      "byte_len": 49,
+      "id": 4148,
+      "kind": "BHAV",
+      "resource_ordinal": 62
+    },
+    {
+      "byte_len": 169,
+      "id": 4149,
+      "kind": "BHAV",
+      "resource_ordinal": 63
+    },
+    {
+      "byte_len": 277,
+      "id": 4150,
+      "kind": "BHAV",
+      "resource_ordinal": 64
+    },
+    {
+      "byte_len": 109,
+      "id": 4151,
+      "kind": "BHAV",
+      "resource_ordinal": 65
+    },
+    {
+      "byte_len": 25,
+      "id": 4152,
+      "kind": "BHAV",
+      "resource_ordinal": 66
+    },
+    {
+      "byte_len": 133,
+      "id": 4153,
+      "kind": "BHAV",
+      "resource_ordinal": 67
+    },
+    {
+      "byte_len": 109,
+      "id": 4154,
+      "kind": "BHAV",
+      "resource_ordinal": 68
+    },
+    {
+      "byte_len": 385,
+      "id": 4155,
+      "kind": "BHAV",
+      "resource_ordinal": 69
+    },
+    {
+      "byte_len": 25,
+      "id": 4156,
+      "kind": "BHAV",
+      "resource_ordinal": 70
+    },
+    {
+      "byte_len": 25,
+      "id": 4157,
+      "kind": "BHAV",
+      "resource_ordinal": 71
+    },
+    {
+      "byte_len": 37,
+      "id": 4158,
+      "kind": "BHAV",
+      "resource_ordinal": 72
+    },
+    {
+      "byte_len": 109,
+      "id": 4159,
+      "kind": "BHAV",
+      "resource_ordinal": 73
+    },
+    {
+      "byte_len": 97,
+      "id": 4160,
+      "kind": "BHAV",
+      "resource_ordinal": 74
+    },
+    {
+      "byte_len": 97,
+      "id": 4162,
+      "kind": "BHAV",
+      "resource_ordinal": 75
+    },
+    {
+      "byte_len": 73,
+      "id": 4163,
+      "kind": "BHAV",
+      "resource_ordinal": 76
+    },
+    {
+      "byte_len": 109,
+      "id": 4161,
+      "kind": "BHAV",
+      "resource_ordinal": 77
+    },
+    {
+      "byte_len": 253,
+      "id": 4164,
+      "kind": "BHAV",
+      "resource_ordinal": 78
+    },
+    {
+      "byte_len": 337,
+      "id": 4165,
+      "kind": "BHAV",
+      "resource_ordinal": 79
+    },
+    {
+      "byte_len": 121,
+      "id": 4166,
+      "kind": "BHAV",
+      "resource_ordinal": 80
+    },
+    {
+      "byte_len": 337,
+      "id": 4167,
+      "kind": "BHAV",
+      "resource_ordinal": 81
+    },
+    {
+      "byte_len": 25,
+      "id": 4168,
+      "kind": "BHAV",
+      "resource_ordinal": 82
+    },
+    {
+      "byte_len": 85,
+      "id": 4169,
+      "kind": "BHAV",
+      "resource_ordinal": 83
+    },
+    {
+      "byte_len": 205,
+      "id": 4170,
+      "kind": "BHAV",
+      "resource_ordinal": 84
+    },
+    {
+      "byte_len": 85,
+      "id": 4171,
+      "kind": "BHAV",
+      "resource_ordinal": 85
+    },
+    {
+      "byte_len": 25,
+      "id": 4172,
+      "kind": "BHAV",
+      "resource_ordinal": 86
+    },
+    {
+      "byte_len": 253,
+      "id": 4173,
+      "kind": "BHAV",
+      "resource_ordinal": 87
+    },
+    {
+      "byte_len": 49,
+      "id": 4174,
+      "kind": "BHAV",
+      "resource_ordinal": 88
+    },
+    {
+      "byte_len": 61,
+      "id": 4175,
+      "kind": "BHAV",
+      "resource_ordinal": 89
+    },
+    {
+      "byte_len": 217,
+      "id": 4176,
+      "kind": "BHAV",
+      "resource_ordinal": 90
+    },
+    {
+      "byte_len": 109,
+      "id": 4177,
+      "kind": "BHAV",
+      "resource_ordinal": 91
+    },
+    {
+      "byte_len": 109,
+      "id": 4178,
+      "kind": "BHAV",
+      "resource_ordinal": 92
+    },
+    {
+      "byte_len": 37,
+      "id": 4179,
+      "kind": "BHAV",
+      "resource_ordinal": 93
+    },
+    {
+      "byte_len": 145,
+      "id": 4180,
+      "kind": "BHAV",
+      "resource_ordinal": 94
+    },
+    {
+      "byte_len": 25,
+      "id": 4181,
+      "kind": "BHAV",
+      "resource_ordinal": 95
+    },
+    {
+      "byte_len": 145,
+      "id": 4182,
+      "kind": "BHAV",
+      "resource_ordinal": 96
+    },
+    {
+      "byte_len": 349,
+      "id": 4183,
+      "kind": "BHAV",
+      "resource_ordinal": 97
+    },
+    {
+      "byte_len": 409,
+      "id": 4184,
+      "kind": "BHAV",
+      "resource_ordinal": 98
+    },
+    {
+      "byte_len": 85,
+      "id": 4185,
+      "kind": "BHAV",
+      "resource_ordinal": 99
+    },
+    {
+      "byte_len": 61,
+      "id": 4186,
+      "kind": "BHAV",
+      "resource_ordinal": 100
+    },
+    {
+      "byte_len": 85,
+      "id": 4187,
+      "kind": "BHAV",
+      "resource_ordinal": 101
+    },
+    {
+      "byte_len": 97,
+      "id": 4188,
+      "kind": "BHAV",
+      "resource_ordinal": 102
+    },
+    {
+      "byte_len": 97,
+      "id": 4189,
+      "kind": "BHAV",
+      "resource_ordinal": 103
+    },
+    {
+      "byte_len": 109,
+      "id": 4190,
+      "kind": "BHAV",
+      "resource_ordinal": 104
+    },
+    {
+      "byte_len": 73,
+      "id": 4191,
+      "kind": "BHAV",
+      "resource_ordinal": 105
+    },
+    {
+      "byte_len": 73,
+      "id": 4192,
+      "kind": "BHAV",
+      "resource_ordinal": 106
+    },
+    {
+      "byte_len": 73,
+      "id": 4193,
+      "kind": "BHAV",
+      "resource_ordinal": 107
+    },
+    {
+      "byte_len": 37,
+      "id": 4194,
+      "kind": "BHAV",
+      "resource_ordinal": 108
+    },
+    {
+      "byte_len": 97,
+      "id": 4195,
+      "kind": "BHAV",
+      "resource_ordinal": 109
+    },
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 270
+    },
+    {
+      "byte_len": 534,
+      "id": 200,
+      "kind": "DGRP",
+      "resource_ordinal": 271
+    },
+    {
+      "byte_len": 534,
+      "id": 300,
+      "kind": "DGRP",
+      "resource_ordinal": 272
+    },
+    {
+      "byte_len": 534,
+      "id": 400,
+      "kind": "DGRP",
+      "resource_ordinal": 273
+    },
+    {
+      "byte_len": 534,
+      "id": 201,
+      "kind": "DGRP",
+      "resource_ordinal": 274
+    },
+    {
+      "byte_len": 534,
+      "id": 202,
+      "kind": "DGRP",
+      "resource_ordinal": 275
+    },
+    {
+      "byte_len": 534,
+      "id": 203,
+      "kind": "DGRP",
+      "resource_ordinal": 276
+    },
+    {
+      "byte_len": 269,
+      "id": 128,
+      "kind": "TTAB",
+      "resource_ordinal": 277
+    },
+    {
+      "byte_len": 2645,
+      "id": 129,
+      "kind": "TTAB",
+      "resource_ordinal": 278
+    },
+    {
+      "byte_len": 86,
+      "id": 100,
+      "kind": "SLOT",
+      "resource_ordinal": 332
+    },
+    {
+      "byte_len": 13,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 333
+    },
+    {
+      "byte_len": 17,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 334
+    },
+    {
+      "byte_len": 15,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 335
+    },
+    {
+      "byte_len": 12,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 336
+    },
+    {
+      "byte_len": 21,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 337
+    },
+    {
+      "byte_len": 19,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 338
+    },
+    {
+      "byte_len": 16,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 339
+    },
+    {
+      "byte_len": 19,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 340
+    },
+    {
+      "byte_len": 17,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 341
+    },
+    {
+      "byte_len": 10,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 342
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 344
+    },
+    {
+      "byte_len": 6424,
+      "id": 200,
+      "kind": "FSOM",
+      "resource_ordinal": 347
+    },
+    {
+      "byte_len": 6424,
+      "id": 201,
+      "kind": "FSOM",
+      "resource_ordinal": 348
+    },
+    {
+      "byte_len": 6426,
+      "id": 202,
+      "kind": "FSOM",
+      "resource_ordinal": 349
+    },
+    {
+      "byte_len": 6424,
+      "id": 203,
+      "kind": "FSOM",
+      "resource_ordinal": 350
+    }
+  ],
+  "source_sha256": "996905beced18d5e65e7fb6ce22454d21c21532e128ffff2df42dca92ad74c0f",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

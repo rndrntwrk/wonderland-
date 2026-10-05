@@ -1,0 +1,2548 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 5096,
+      "direct_calls": [
+        271,
+        427
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Deco - Init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        },
+        {
+          "count": 1,
+          "opcode": 427
+        }
+      ],
+      "resource_ordinal": 0,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 5097,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Deco - Main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 1,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 5098,
+      "direct_calls": [
+        5096
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Deco - Init Limo - 0",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 5096
+        }
+      ],
+      "resource_ordinal": 2,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 5099,
+      "direct_calls": [
+        5096
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Deco - Init Limo Route",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 5096
+        }
+      ],
+      "resource_ordinal": 3,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 5100,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "FSO - Interaction - Key Management Limo TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 4,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 131,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 8401,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 2,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 5100
+        }
+      ],
+      "resource_ordinal": 26,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20000",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20001",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20002",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20003",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20004",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20005",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20006",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20007",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20008",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20009",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20010",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20011",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20012",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20013",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20014",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20015",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20016",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20017",
+    "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20018"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 131,
+          "field": "action_function",
+          "id": 8401,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 131,
+          "field": "test_function",
+          "id": 5100,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20000",
+      "objd_chunk_id": 20000,
+      "primitive_opcodes": [
+        2,
+        28,
+        31
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097,
+        5100
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 131,
+          "field": "action_function",
+          "id": 8401,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "chunk_id": 131,
+          "field": "test_function",
+          "id": 5100,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5098,
+          "field": "instruction_opcode",
+          "id": 5096,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20001",
+      "objd_chunk_id": 20001,
+      "primitive_opcodes": [
+        2,
+        28,
+        31
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097,
+        5098,
+        5100
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20002",
+      "objd_chunk_id": 20002,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20003",
+      "objd_chunk_id": 20003,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20004",
+      "objd_chunk_id": 20004,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20005",
+      "objd_chunk_id": 20005,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20006",
+      "objd_chunk_id": 20006,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20007",
+      "objd_chunk_id": 20007,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20008",
+      "objd_chunk_id": 20008,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20009",
+      "objd_chunk_id": 20009,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5099,
+          "field": "instruction_opcode",
+          "id": 5096,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5099,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20010",
+      "objd_chunk_id": 20010,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097,
+        5099
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20011",
+      "objd_chunk_id": 20011,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20012",
+      "objd_chunk_id": 20012,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20013",
+      "objd_chunk_id": 20013,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20014",
+      "objd_chunk_id": 20014,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20015",
+      "objd_chunk_id": 20015,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20016",
+      "objd_chunk_id": 20016,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20017",
+      "objd_chunk_id": 20017,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5096,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 5097,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206,
+          "origin": "OBJD",
+          "resolution": "requires_semiglobal_provider",
+          "scope": "semiglobal"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 5097,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78-OBJD-20018",
+      "objd_chunk_id": 20018,
+      "primitive_opcodes": [
+        2
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        5096,
+        5097
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20000,
+      "chunk_sha256": "ddbb47c53fadbf31648750e1006ae3f4a1cec6385d52b23dfc36828487f498b3",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 44660447,
+      "guid_hex": "02a976df",
+      "label": "Limo - MASTER",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2001,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1701,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": -1,
+        "tree_table_id": 131,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 5,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5098
+        }
+      ],
+      "chunk_id": 20001,
+      "chunk_sha256": "c51f41f1aa3b5e68afd79ccf1e2731836d3a339b3ab0a6d958edb6e4d53ca127",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1969753901,
+      "guid_hex": "75680f2d",
+      "label": "Limo - 0",
+      "raw_fields": {
+        "base_graphic_id": 1800,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 100,
+        "sub_index": 0,
+        "tree_table_id": 131,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 6,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20002,
+      "chunk_sha256": "0afc05f32d58a93c1ec26d2efc7dfdd3e08552f43693c098c487bd0e50cacc91",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1866851316,
+      "guid_hex": "6f45e3f4",
+      "label": "Limo - 256",
+      "raw_fields": {
+        "base_graphic_id": 1700,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 256,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 7,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20003,
+      "chunk_sha256": "d1e17f675399fd6ff04108956a02b2a83052a18c87e035244b03a55f1bd04138",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1037865219,
+      "guid_hex": "3ddc9103",
+      "label": "Limo - 512",
+      "raw_fields": {
+        "base_graphic_id": 1600,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 512,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 8,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20004,
+      "chunk_sha256": "3fb5f6483f593baf708749f6524ed556d72b45ac7cabd409094bdda5a3d7665a",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1667968966,
+      "guid_hex": "636b2fc6",
+      "label": "Limo - 1",
+      "raw_fields": {
+        "base_graphic_id": 300,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 1,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 9,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20005,
+      "chunk_sha256": "2c249ad0cb769158f8baf2aeff3ba934f2f5971db77998f426c2c180fdf81418",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1639941460,
+      "guid_hex": "61bf8554",
+      "label": "Limo - 257",
+      "raw_fields": {
+        "base_graphic_id": 200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 257,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 10,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20006,
+      "chunk_sha256": "299579f1f4eae08263d31b1eb1f3e26b2a2c9efa7e1ccd1fa2fb741ccc68d518",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1387120604,
+      "guid_hex": "52adc7dc",
+      "label": "Limo - 513",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 513,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 11,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20007,
+      "chunk_sha256": "c2f95da2d33b2fabbf9b6d526fb7e59f35268f9d8dcc6b335e544c83bcbb5a91",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1359093098,
+      "guid_hex": "51021d6a",
+      "label": "Limo - 2",
+      "raw_fields": {
+        "base_graphic_id": 600,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 2,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 12,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20008,
+      "chunk_sha256": "40bf24d9d6e07ab3ed13932da19377e776aed3ead3c5b5ef95016bb66ce3fa43",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 799512880,
+      "guid_hex": "2fa79930",
+      "label": "Limo - 258",
+      "raw_fields": {
+        "base_graphic_id": 500,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 258,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 13,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20009,
+      "chunk_sha256": "a5d72217bc655e6e5a8e711688fb9b1326ddcdb8164918864d1829255cf70f22",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1183718591,
+      "guid_hex": "468e1cbf",
+      "label": "Limo - 514",
+      "raw_fields": {
+        "base_graphic_id": 400,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 514,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 14,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5099
+        }
+      ],
+      "chunk_id": 20010,
+      "chunk_sha256": "ad9b149a6475ed121d16d92ef64e99014bcfcbab4ceb0a80a1d1e42d6b04bb8e",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1649890314,
+      "guid_hex": "6257540a",
+      "label": "Limo - 3",
+      "raw_fields": {
+        "base_graphic_id": 900,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 3,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 15,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20011,
+      "chunk_sha256": "8adefa660b2d86ca80b18e1139286dd06a622622502152d4fd0376e8f2885cbc",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1523647999,
+      "guid_hex": "5ad105ff",
+      "label": "Limo - 259",
+      "raw_fields": {
+        "base_graphic_id": 800,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 259,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 16,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20012,
+      "chunk_sha256": "20cda8a161a7d6de6c498d9e17c46ce7914c006db4502d946e6400474e2f3be5",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1338779402,
+      "guid_hex": "4fcc270a",
+      "label": "Limo - 515",
+      "raw_fields": {
+        "base_graphic_id": 700,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 515,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 17,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20013,
+      "chunk_sha256": "b2b898a0140d63192e25eb0748da1fd461b7f662741bbafdf4fe76fe6b7e0852",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 345861281,
+      "guid_hex": "149d6ca1",
+      "label": "Limo - 4",
+      "raw_fields": {
+        "base_graphic_id": 1200,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 4,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 18,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20014,
+      "chunk_sha256": "35355491762c6269e04bbfab914d0f460ec68f81968a15af84fc2dd04cbe2309",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1207849311,
+      "guid_hex": "47fe515f",
+      "label": "Limo - 260",
+      "raw_fields": {
+        "base_graphic_id": 1100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 260,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 19,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20015,
+      "chunk_sha256": "b198ec8cae28e36f7a9030720068145fe31fbb23d1f9315d48a6c57b715642f0",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 2025224812,
+      "guid_hex": "78b67a6c",
+      "label": "Limo - 516",
+      "raw_fields": {
+        "base_graphic_id": 1000,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 516,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 20,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20016,
+      "chunk_sha256": "eb03bbcc04d1a0ad8cef5d52e9efab9ac506b9f61762f0bac4ece9815c12d012",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1347831486,
+      "guid_hex": "505646be",
+      "label": "Limo - 5",
+      "raw_fields": {
+        "base_graphic_id": 1500,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 5,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 21,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20017,
+      "chunk_sha256": "0bd1dc0a485249914956929269d7ca3083c87513f76e6e0307e0314f58571e73",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1732037197,
+      "guid_hex": "673cca4d",
+      "label": "Limo - 261",
+      "raw_fields": {
+        "base_graphic_id": 1400,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 261,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 22,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 5097
+        },
+        {
+          "field": "BHAV_AllowIntersectionID",
+          "id": 8206
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 5096
+        }
+      ],
+      "chunk_id": 20018,
+      "chunk_sha256": "54d450f32f6c793f54ef61c98e697e5f1c951d0ccd6247706ef8cc149f648d12",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 102260622,
+      "guid_hex": "06185f8e",
+      "label": "Limo - 517",
+      "raw_fields": {
+        "base_graphic_id": 1300,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 3,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 0,
+        "num_type_attributes": 0,
+        "object_type": 0,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 517,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 23,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [
+    {
+      "chunk_id": 256,
+      "entries": 29,
+      "is_user_category": false,
+      "patch_operations": 2,
+      "source_name": "carlimo.iff",
+      "version": 2
+    }
+  ],
+  "primitive_registrations": [
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "PIFF envelope",
+  "source_git_blob": "ba6e717b1a899e687a9b5d500a4ac4045412b94f",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Patch/Event/carlimo.piff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 49,
+      "id": 5096,
+      "kind": "BHAV",
+      "resource_ordinal": 0
+    },
+    {
+      "byte_len": 25,
+      "id": 5097,
+      "kind": "BHAV",
+      "resource_ordinal": 1
+    },
+    {
+      "byte_len": 49,
+      "id": 5098,
+      "kind": "BHAV",
+      "resource_ordinal": 2
+    },
+    {
+      "byte_len": 37,
+      "id": 5099,
+      "kind": "BHAV",
+      "resource_ordinal": 3
+    },
+    {
+      "byte_len": 73,
+      "id": 5100,
+      "kind": "BHAV",
+      "resource_ordinal": 4
+    },
+    {
+      "byte_len": 137,
+      "id": 131,
+      "kind": "TTAB",
+      "resource_ordinal": 26
+    }
+  ],
+  "source_sha256": "2391bceb3403cc9ef56b05edd0c07e59c8f6cf2392e060708245ea9648193c78",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "status": "pass",
+  "toolchain": "1.90.0",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "verification_inputs_sha256": "72093b406ebd1d67b160b529758cfa045aa0f2631a25c2defbe904f9fa00d189",
+  "rust_tests_passed": 219,
+  "rust_tests_ignored": 1,
+  "verified_date": "2026-10-05",
+  "gates": [
+    {
+      "gate": "toolchain",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "formats-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 64,
+      "tests_ignored": 1
+    },
+    {
+      "gate": "formats-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "formats-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "formats-wasm32",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "content-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 14,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "content-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "content-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "content-wasm32",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "pinned-content-census",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "manifest-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 7,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "manifest-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "manifest-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "interactions-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 55,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "interactions-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "interactions-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "interactions-wasm32",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "eod-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 37,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "eod-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "eod-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "eod-native-boundary",
+      "status": "pass",
+      "exit_code": 101,
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "expected_rejection": "authoritative private EOD state is native-only"
+    },
+    {
+      "gate": "creator-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 19,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "creator-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "creator-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "cooker-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 23,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "cooker-fmt",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "cooker-clippy",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "cooker-demo",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "cooker-rebuild",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "cooker-verify",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "eod-census",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "object-census",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "catalog-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "native-wasm-execution",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    },
+    {
+      "gate": "original-far3-reader",
+      "status": "pass",
+      "exit_code": 0,
+      "tests_passed": 0,
+      "tests_ignored": 0
+    }
+  ],
+  "python_catalog_tests_passed": 8,
+  "rust_compile_fail_doctests": 3,
+  "native_wasm": {
+    "target": "wasm32-wasip1",
+    "runtime": "Node 24.19.0 WASI",
+    "canonical_json_bytes": 17150,
+    "sha256": "42fe83da0cace7c343fd3736713893014187bc593cecb8694b8948c25ce15782",
+    "negative_comparator_exit": 1
+  },
+  "demo_manifest_sha256": "5ea34ee7ebda50e70f6adb77d14c82d08161ecd8442e58858a2f5ec2b6b24b66",
+  "scope": "Component and authored-fixture verification; no full VM, gameplay, renderer, browser, replay or original-runtime parity claim.",
+  "content_census_sha256": "bd2305362328df467aa0c27449dab7dd44eaef21dad5a1da76f29da0ec353c76",
+  "census_serialization": {
+    "format": "compact JSON with trailing newline",
+    "bytes": 7488686,
+    "parsed_records_equal_to_formatted_output": true
+  }
+}

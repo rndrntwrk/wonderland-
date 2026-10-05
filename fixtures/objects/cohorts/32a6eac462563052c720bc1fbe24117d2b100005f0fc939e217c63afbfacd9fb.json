@@ -1,0 +1,2977 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [
+        271,
+        277,
+        427,
+        4115
+      ],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "init",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        },
+        {
+          "count": 1,
+          "opcode": 277
+        },
+        {
+          "count": 1,
+          "opcode": 427
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 8,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 1,
+      "kind": 22,
+      "label": "main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 9,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4097,
+      "direct_calls": [
+        278,
+        279,
+        281,
+        377,
+        4102,
+        4103,
+        4104,
+        4110,
+        4115
+      ],
+      "instruction_count": 31,
+      "kind": 0,
+      "label": "Interaction: Sunbathe",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 8,
+          "opcode": 2
+        },
+        {
+          "count": 2,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 8,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 278
+        },
+        {
+          "count": 1,
+          "opcode": 279
+        },
+        {
+          "count": 2,
+          "opcode": 281
+        },
+        {
+          "count": 1,
+          "opcode": 377
+        },
+        {
+          "count": 1,
+          "opcode": 4102
+        },
+        {
+          "count": 2,
+          "opcode": 4103
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        },
+        {
+          "count": 2,
+          "opcode": 4110
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 10,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        4115
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "load",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 11,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [
+        279
+      ],
+      "instruction_count": 9,
+      "kind": 0,
+      "label": "get up",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 3,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 279
+        }
+      ],
+      "resource_ordinal": 12,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [
+        278,
+        279,
+        377,
+        4097,
+        4104,
+        4115
+      ],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Interaction: Sleep",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 278
+        },
+        {
+          "count": 1,
+          "opcode": 279
+        },
+        {
+          "count": 1,
+          "opcode": 377
+        },
+        {
+          "count": 1,
+          "opcode": 4097
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 13,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 21,
+      "kind": 0,
+      "label": "check and change needs",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 14,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 4,
+          "opcode": 23
+        },
+        {
+          "count": 2,
+          "opcode": 41
+        }
+      ],
+      "resource_ordinal": 14,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [
+        4105
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "init top tile",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        }
+      ],
+      "resource_ordinal": 15,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [
+        4115
+      ],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "Am I available?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 16,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [
+        4115
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Am I allowed to sleep?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 17,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [
+        4115
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Interaccion: Fall Asleep",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 18,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4110,
+      "direct_calls": [
+        474,
+        4116
+      ],
+      "instruction_count": 52,
+      "kind": 0,
+      "label": "Dream",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 26,
+          "opcode": 2
+        },
+        {
+          "count": 5,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 26
+        },
+        {
+          "count": 6,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 11,
+          "opcode": 41
+        },
+        {
+          "count": 1,
+          "opcode": 474
+        },
+        {
+          "count": 1,
+          "opcode": 4116
+        }
+      ],
+      "resource_ordinal": 19,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4111,
+      "direct_calls": [
+        4115
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Interaction: Wake Up",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 20,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4112,
+      "direct_calls": [
+        4115
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Am I allowed to wake up?",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 21,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4113,
+      "direct_calls": [
+        277,
+        4115
+      ],
+      "instruction_count": 8,
+      "kind": 0,
+      "label": "Interaction: Change Colour",
+      "locals": 3,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 277
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 22,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4114,
+      "direct_calls": [
+        323,
+        4115
+      ],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "Interaction: Change Colour TEST",
+      "locals": 4,
+      "opcode_counts": [
+        {
+          "count": 7,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 50
+        },
+        {
+          "count": 1,
+          "opcode": 323
+        },
+        {
+          "count": 1,
+          "opcode": 4115
+        }
+      ],
+      "resource_ordinal": 23,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "Helper - Get Middle Tile in Temp 0",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 24,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4116,
+      "direct_calls": [],
+      "instruction_count": 11,
+      "kind": 0,
+      "label": "Helper - Find Last Object ID in Temp 0",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        }
+      ],
+      "resource_ordinal": 25,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [
+    {
+      "chunk_id": 1,
+      "compression_code": 0,
+      "entries": [
+        {
+          "action_function": 4097,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 2,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4101,
+          "autonomy_threshold": 0,
+          "flags": 0,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 1,
+          "test_function": 4104
+        },
+        {
+          "action_function": 4108,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 3,
+          "test_function": 4107
+        },
+        {
+          "action_function": 4111,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 30,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 4,
+          "test_function": 4112
+        },
+        {
+          "action_function": 4113,
+          "autonomy_threshold": 0,
+          "flags": 4,
+          "flags2": 6,
+          "joining_index": 0,
+          "motive_count": 16,
+          "string_index": 5,
+          "test_function": 4114
+        }
+      ],
+      "resource_ordinal": 86,
+      "version": 10
+    }
+  ],
+  "leaf_ids": [
+    "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16807",
+    "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16808",
+    "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16809",
+    "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16810"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4097,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4101,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4108,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4111,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4113,
+          "interaction_index": 4,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4104,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4104,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4107,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4112,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4114,
+          "interaction_index": 4,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 278,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 279,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 377,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4110,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4098,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 278,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 279,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 377,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4097,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 279,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4108,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 474,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4111,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4112,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 323,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4105,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4098,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [
+        1,
+        2,
+        7,
+        8,
+        23,
+        26,
+        27,
+        31,
+        32,
+        41,
+        44,
+        50
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4098,
+        4101,
+        4102,
+        4103,
+        4104,
+        4105,
+        4107,
+        4108,
+        4110,
+        4111,
+        4112,
+        4113,
+        4114,
+        4115,
+        4116
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4106,
+          "field": "instruction_opcode",
+          "id": 4105,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4106,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16808",
+      "objd_chunk_id": 16808,
+      "primitive_opcodes": [
+        2,
+        8,
+        31,
+        32
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4105,
+        4106,
+        4115
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4097,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4101,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4108,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4111,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "action_function",
+          "id": 4113,
+          "interaction_index": 4,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4104,
+          "interaction_index": 0,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4104,
+          "interaction_index": 1,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4107,
+          "interaction_index": 2,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4112,
+          "interaction_index": 3,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 1,
+          "field": "test_function",
+          "id": 4114,
+          "interaction_index": 4,
+          "origin": "TTAB",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 278,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 279,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 281,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 377,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4102,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4103,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4110,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4097,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 278,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 279,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 377,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4097,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4104,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4101,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4102,
+          "field": "instruction_opcode",
+          "id": 279,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4104,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4107,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4108,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 4116,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4110,
+          "field": "instruction_opcode",
+          "id": 474,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4111,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4112,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4113,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 323,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4114,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4105,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16809",
+      "objd_chunk_id": 16809,
+      "primitive_opcodes": [
+        1,
+        2,
+        8,
+        23,
+        26,
+        27,
+        31,
+        32,
+        41,
+        44,
+        50
+      ],
+      "routing_opcodes": [
+        27
+      ],
+      "source_bhav_dependency_ids": [
+        4096,
+        4097,
+        4101,
+        4102,
+        4103,
+        4104,
+        4105,
+        4107,
+        4108,
+        4110,
+        4111,
+        4112,
+        4113,
+        4114,
+        4115,
+        4116
+      ]
+    },
+    {
+      "behavior_references": [
+        {
+          "chunk_id": 4096,
+          "field": "instruction_opcode",
+          "id": 280,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 271,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 277,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 4115,
+          "origin": "BHAV",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "chunk_id": 4105,
+          "field": "instruction_opcode",
+          "id": 427,
+          "origin": "BHAV",
+          "resolution": "requires_global_provider",
+          "scope": "global"
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4105,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        },
+        {
+          "field": "BHAV_MainID",
+          "id": 4096,
+          "origin": "OBJD",
+          "resolution": "decoded_source_resource",
+          "scope": "private"
+        }
+      ],
+      "leaf_id": "OBJ-32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb-OBJD-16810",
+      "objd_chunk_id": 16810,
+      "primitive_opcodes": [
+        2,
+        8,
+        31,
+        32
+      ],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": [
+        4096,
+        4105,
+        4115
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4105
+        },
+        {
+          "field": "BHAV_Load",
+          "id": 4098
+        }
+      ],
+      "chunk_id": 16807,
+      "chunk_sha256": "271c52c8b151493bb0f06c249657de3aa997af2c21aa82a01f8a11190705de59",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 318103998,
+      "guid_hex": "12f5e1be",
+      "label": "Sunbathing Towel",
+      "raw_fields": {
+        "base_graphic_id": 400,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 200,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 1,
+        "num_graphics": 1,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": -1,
+        "tree_table_id": 1,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 0,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4106
+        }
+      ],
+      "chunk_id": 16808,
+      "chunk_sha256": "30e1e650879f54fa72d9e2646db7d3fb83f2a5d3b4878deaee51691a3cadb93e",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 1070034928,
+      "guid_hex": "3fc76ff0",
+      "label": "sun_towel_top",
+      "raw_fields": {
+        "base_graphic_id": 400,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 1,
+        "num_graphics": 20,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 0,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 1,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4105
+        }
+      ],
+      "chunk_id": 16809,
+      "chunk_sha256": "973a2ca900a5ba797d749d1c956c346448d37fe285ee3446fed977cb703f62fb",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 65842437,
+      "guid_hex": "03ecad05",
+      "label": "sun_towel_middle",
+      "raw_fields": {
+        "base_graphic_id": 420,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 20,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 1,
+        "tree_table_id": 1,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 2,
+      "version": 142
+    },
+    {
+      "bhav_refs": [
+        {
+          "field": "BHAV_MainID",
+          "id": 4096
+        },
+        {
+          "field": "BHAV_Init",
+          "id": 4105
+        }
+      ],
+      "chunk_id": 16810,
+      "chunk_sha256": "4fbb7d75b22fe85893a2bfbdc7040775927a824d511b37514620a1ffb8d32b67",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 159705696,
+      "guid_hex": "0984ea60",
+      "label": "sun_towel_bottom",
+      "raw_fields": {
+        "base_graphic_id": 440,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 0,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 0,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 2,
+        "num_attributes": 0,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 20,
+        "num_type_attributes": 0,
+        "object_type": 4,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 0,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 0,
+        "slot_id": 0,
+        "sub_index": 2,
+        "tree_table_id": 0,
+        "uses_fn_table": 0
+      },
+      "resource_ordinal": 3,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 26,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRelationship",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+          "name": "relationship",
+          "source_line": 252,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 41,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetBalloonHeadline",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetBalloonHeadline.cs",
+          "name": "set_balloon_headline",
+          "source_line": 348,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 50,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeActionString",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeActionString.cs",
+          "name": "change_action_string",
+          "source_line": 411,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "c6381a4600d400adb2fa674aa0be345f7dc71f38",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/sunbathing_towel.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 193,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 8
+    },
+    {
+      "byte_len": 25,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 9
+    },
+    {
+      "byte_len": 385,
+      "id": 4097,
+      "kind": "BHAV",
+      "resource_ordinal": 10
+    },
+    {
+      "byte_len": 61,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 11
+    },
+    {
+      "byte_len": 121,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 12
+    },
+    {
+      "byte_len": 145,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 13
+    },
+    {
+      "byte_len": 265,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 14
+    },
+    {
+      "byte_len": 37,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 15
+    },
+    {
+      "byte_len": 49,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 16
+    },
+    {
+      "byte_len": 61,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 17
+    },
+    {
+      "byte_len": 61,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 18
+    },
+    {
+      "byte_len": 637,
+      "id": 4110,
+      "kind": "BHAV",
+      "resource_ordinal": 19
+    },
+    {
+      "byte_len": 73,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 20
+    },
+    {
+      "byte_len": 61,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 21
+    },
+    {
+      "byte_len": 109,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 22
+    },
+    {
+      "byte_len": 133,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 23
+    },
+    {
+      "byte_len": 73,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 24
+    },
+    {
+      "byte_len": 145,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 25
+    },
+    {
+      "byte_len": 534,
+      "id": 400,
+      "kind": "DGRP",
+      "resource_ordinal": 26
+    },
+    {
+      "byte_len": 534,
+      "id": 401,
+      "kind": "DGRP",
+      "resource_ordinal": 27
+    },
+    {
+      "byte_len": 534,
+      "id": 402,
+      "kind": "DGRP",
+      "resource_ordinal": 28
+    },
+    {
+      "byte_len": 534,
+      "id": 403,
+      "kind": "DGRP",
+      "resource_ordinal": 29
+    },
+    {
+      "byte_len": 534,
+      "id": 415,
+      "kind": "DGRP",
+      "resource_ordinal": 30
+    },
+    {
+      "byte_len": 534,
+      "id": 414,
+      "kind": "DGRP",
+      "resource_ordinal": 31
+    },
+    {
+      "byte_len": 534,
+      "id": 413,
+      "kind": "DGRP",
+      "resource_ordinal": 32
+    },
+    {
+      "byte_len": 534,
+      "id": 412,
+      "kind": "DGRP",
+      "resource_ordinal": 33
+    },
+    {
+      "byte_len": 534,
+      "id": 411,
+      "kind": "DGRP",
+      "resource_ordinal": 34
+    },
+    {
+      "byte_len": 534,
+      "id": 410,
+      "kind": "DGRP",
+      "resource_ordinal": 35
+    },
+    {
+      "byte_len": 534,
+      "id": 409,
+      "kind": "DGRP",
+      "resource_ordinal": 36
+    },
+    {
+      "byte_len": 534,
+      "id": 408,
+      "kind": "DGRP",
+      "resource_ordinal": 37
+    },
+    {
+      "byte_len": 534,
+      "id": 407,
+      "kind": "DGRP",
+      "resource_ordinal": 38
+    },
+    {
+      "byte_len": 534,
+      "id": 406,
+      "kind": "DGRP",
+      "resource_ordinal": 39
+    },
+    {
+      "byte_len": 534,
+      "id": 404,
+      "kind": "DGRP",
+      "resource_ordinal": 40
+    },
+    {
+      "byte_len": 534,
+      "id": 405,
+      "kind": "DGRP",
+      "resource_ordinal": 41
+    },
+    {
+      "byte_len": 534,
+      "id": 416,
+      "kind": "DGRP",
+      "resource_ordinal": 42
+    },
+    {
+      "byte_len": 534,
+      "id": 417,
+      "kind": "DGRP",
+      "resource_ordinal": 43
+    },
+    {
+      "byte_len": 534,
+      "id": 418,
+      "kind": "DGRP",
+      "resource_ordinal": 44
+    },
+    {
+      "byte_len": 534,
+      "id": 435,
+      "kind": "DGRP",
+      "resource_ordinal": 45
+    },
+    {
+      "byte_len": 534,
+      "id": 434,
+      "kind": "DGRP",
+      "resource_ordinal": 46
+    },
+    {
+      "byte_len": 534,
+      "id": 433,
+      "kind": "DGRP",
+      "resource_ordinal": 47
+    },
+    {
+      "byte_len": 534,
+      "id": 432,
+      "kind": "DGRP",
+      "resource_ordinal": 48
+    },
+    {
+      "byte_len": 534,
+      "id": 431,
+      "kind": "DGRP",
+      "resource_ordinal": 49
+    },
+    {
+      "byte_len": 534,
+      "id": 430,
+      "kind": "DGRP",
+      "resource_ordinal": 50
+    },
+    {
+      "byte_len": 534,
+      "id": 429,
+      "kind": "DGRP",
+      "resource_ordinal": 51
+    },
+    {
+      "byte_len": 534,
+      "id": 428,
+      "kind": "DGRP",
+      "resource_ordinal": 52
+    },
+    {
+      "byte_len": 534,
+      "id": 427,
+      "kind": "DGRP",
+      "resource_ordinal": 53
+    },
+    {
+      "byte_len": 534,
+      "id": 426,
+      "kind": "DGRP",
+      "resource_ordinal": 54
+    },
+    {
+      "byte_len": 534,
+      "id": 425,
+      "kind": "DGRP",
+      "resource_ordinal": 55
+    },
+    {
+      "byte_len": 534,
+      "id": 424,
+      "kind": "DGRP",
+      "resource_ordinal": 56
+    },
+    {
+      "byte_len": 534,
+      "id": 423,
+      "kind": "DGRP",
+      "resource_ordinal": 57
+    },
+    {
+      "byte_len": 534,
+      "id": 422,
+      "kind": "DGRP",
+      "resource_ordinal": 58
+    },
+    {
+      "byte_len": 534,
+      "id": 421,
+      "kind": "DGRP",
+      "resource_ordinal": 59
+    },
+    {
+      "byte_len": 534,
+      "id": 419,
+      "kind": "DGRP",
+      "resource_ordinal": 60
+    },
+    {
+      "byte_len": 534,
+      "id": 420,
+      "kind": "DGRP",
+      "resource_ordinal": 61
+    },
+    {
+      "byte_len": 534,
+      "id": 456,
+      "kind": "DGRP",
+      "resource_ordinal": 62
+    },
+    {
+      "byte_len": 534,
+      "id": 457,
+      "kind": "DGRP",
+      "resource_ordinal": 63
+    },
+    {
+      "byte_len": 534,
+      "id": 458,
+      "kind": "DGRP",
+      "resource_ordinal": 64
+    },
+    {
+      "byte_len": 534,
+      "id": 459,
+      "kind": "DGRP",
+      "resource_ordinal": 65
+    },
+    {
+      "byte_len": 534,
+      "id": 436,
+      "kind": "DGRP",
+      "resource_ordinal": 66
+    },
+    {
+      "byte_len": 534,
+      "id": 437,
+      "kind": "DGRP",
+      "resource_ordinal": 67
+    },
+    {
+      "byte_len": 534,
+      "id": 438,
+      "kind": "DGRP",
+      "resource_ordinal": 68
+    },
+    {
+      "byte_len": 534,
+      "id": 455,
+      "kind": "DGRP",
+      "resource_ordinal": 69
+    },
+    {
+      "byte_len": 534,
+      "id": 454,
+      "kind": "DGRP",
+      "resource_ordinal": 70
+    },
+    {
+      "byte_len": 534,
+      "id": 453,
+      "kind": "DGRP",
+      "resource_ordinal": 71
+    },
+    {
+      "byte_len": 534,
+      "id": 452,
+      "kind": "DGRP",
+      "resource_ordinal": 72
+    },
+    {
+      "byte_len": 534,
+      "id": 451,
+      "kind": "DGRP",
+      "resource_ordinal": 73
+    },
+    {
+      "byte_len": 534,
+      "id": 450,
+      "kind": "DGRP",
+      "resource_ordinal": 74
+    },
+    {
+      "byte_len": 534,
+      "id": 449,
+      "kind": "DGRP",
+      "resource_ordinal": 75
+    },
+    {
+      "byte_len": 534,
+      "id": 448,
+      "kind": "DGRP",
+      "resource_ordinal": 76
+    },
+    {
+      "byte_len": 534,
+      "id": 447,
+      "kind": "DGRP",
+      "resource_ordinal": 77
+    },
+    {
+      "byte_len": 534,
+      "id": 446,
+      "kind": "DGRP",
+      "resource_ordinal": 78
+    },
+    {
+      "byte_len": 534,
+      "id": 445,
+      "kind": "DGRP",
+      "resource_ordinal": 79
+    },
+    {
+      "byte_len": 534,
+      "id": 444,
+      "kind": "DGRP",
+      "resource_ordinal": 80
+    },
+    {
+      "byte_len": 534,
+      "id": 443,
+      "kind": "DGRP",
+      "resource_ordinal": 81
+    },
+    {
+      "byte_len": 534,
+      "id": 442,
+      "kind": "DGRP",
+      "resource_ordinal": 82
+    },
+    {
+      "byte_len": 534,
+      "id": 441,
+      "kind": "DGRP",
+      "resource_ordinal": 83
+    },
+    {
+      "byte_len": 534,
+      "id": 439,
+      "kind": "DGRP",
+      "resource_ordinal": 84
+    },
+    {
+      "byte_len": 534,
+      "id": 440,
+      "kind": "DGRP",
+      "resource_ordinal": 85
+    },
+    {
+      "byte_len": 665,
+      "id": 1,
+      "kind": "TTAB",
+      "resource_ordinal": 86
+    },
+    {
+      "byte_len": 14,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 88
+    },
+    {
+      "byte_len": 16,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 89
+    },
+    {
+      "byte_len": 16,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 90
+    },
+    {
+      "byte_len": 19,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 91
+    },
+    {
+      "byte_len": 13,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 92
+    },
+    {
+      "byte_len": 15,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 93
+    },
+    {
+      "byte_len": 11,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 94
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 95
+    },
+    {
+      "byte_len": 13338,
+      "id": 0,
+      "kind": "FSOM",
+      "resource_ordinal": 98
+    },
+    {
+      "byte_len": 55,
+      "id": 402,
+      "kind": "FSOM",
+      "resource_ordinal": 99
+    },
+    {
+      "byte_len": 55,
+      "id": 403,
+      "kind": "FSOM",
+      "resource_ordinal": 100
+    },
+    {
+      "byte_len": 55,
+      "id": 400,
+      "kind": "FSOM",
+      "resource_ordinal": 101
+    },
+    {
+      "byte_len": 55,
+      "id": 401,
+      "kind": "FSOM",
+      "resource_ordinal": 102
+    },
+    {
+      "byte_len": 55,
+      "id": 407,
+      "kind": "FSOM",
+      "resource_ordinal": 103
+    },
+    {
+      "byte_len": 55,
+      "id": 408,
+      "kind": "FSOM",
+      "resource_ordinal": 104
+    },
+    {
+      "byte_len": 55,
+      "id": 409,
+      "kind": "FSOM",
+      "resource_ordinal": 105
+    },
+    {
+      "byte_len": 55,
+      "id": 416,
+      "kind": "FSOM",
+      "resource_ordinal": 106
+    },
+    {
+      "byte_len": 55,
+      "id": 417,
+      "kind": "FSOM",
+      "resource_ordinal": 107
+    },
+    {
+      "byte_len": 55,
+      "id": 418,
+      "kind": "FSOM",
+      "resource_ordinal": 108
+    },
+    {
+      "byte_len": 55,
+      "id": 419,
+      "kind": "FSOM",
+      "resource_ordinal": 109
+    },
+    {
+      "byte_len": 11770,
+      "id": 420,
+      "kind": "FSOM",
+      "resource_ordinal": 110
+    },
+    {
+      "byte_len": 11773,
+      "id": 421,
+      "kind": "FSOM",
+      "resource_ordinal": 111
+    },
+    {
+      "byte_len": 11770,
+      "id": 422,
+      "kind": "FSOM",
+      "resource_ordinal": 112
+    },
+    {
+      "byte_len": 11769,
+      "id": 423,
+      "kind": "FSOM",
+      "resource_ordinal": 113
+    },
+    {
+      "byte_len": 11769,
+      "id": 424,
+      "kind": "FSOM",
+      "resource_ordinal": 114
+    },
+    {
+      "byte_len": 11766,
+      "id": 425,
+      "kind": "FSOM",
+      "resource_ordinal": 115
+    },
+    {
+      "byte_len": 11770,
+      "id": 426,
+      "kind": "FSOM",
+      "resource_ordinal": 116
+    },
+    {
+      "byte_len": 11767,
+      "id": 427,
+      "kind": "FSOM",
+      "resource_ordinal": 117
+    },
+    {
+      "byte_len": 11762,
+      "id": 428,
+      "kind": "FSOM",
+      "resource_ordinal": 118
+    },
+    {
+      "byte_len": 11756,
+      "id": 429,
+      "kind": "FSOM",
+      "resource_ordinal": 119
+    },
+    {
+      "byte_len": 11760,
+      "id": 430,
+      "kind": "FSOM",
+      "resource_ordinal": 120
+    },
+    {
+      "byte_len": 11759,
+      "id": 431,
+      "kind": "FSOM",
+      "resource_ordinal": 121
+    },
+    {
+      "byte_len": 55,
+      "id": 404,
+      "kind": "FSOM",
+      "resource_ordinal": 122
+    },
+    {
+      "byte_len": 55,
+      "id": 405,
+      "kind": "FSOM",
+      "resource_ordinal": 123
+    },
+    {
+      "byte_len": 55,
+      "id": 406,
+      "kind": "FSOM",
+      "resource_ordinal": 124
+    },
+    {
+      "byte_len": 55,
+      "id": 410,
+      "kind": "FSOM",
+      "resource_ordinal": 125
+    },
+    {
+      "byte_len": 55,
+      "id": 411,
+      "kind": "FSOM",
+      "resource_ordinal": 126
+    },
+    {
+      "byte_len": 55,
+      "id": 412,
+      "kind": "FSOM",
+      "resource_ordinal": 127
+    },
+    {
+      "byte_len": 55,
+      "id": 413,
+      "kind": "FSOM",
+      "resource_ordinal": 128
+    },
+    {
+      "byte_len": 55,
+      "id": 414,
+      "kind": "FSOM",
+      "resource_ordinal": 129
+    },
+    {
+      "byte_len": 55,
+      "id": 415,
+      "kind": "FSOM",
+      "resource_ordinal": 130
+    },
+    {
+      "byte_len": 11758,
+      "id": 432,
+      "kind": "FSOM",
+      "resource_ordinal": 131
+    },
+    {
+      "byte_len": 11757,
+      "id": 433,
+      "kind": "FSOM",
+      "resource_ordinal": 132
+    },
+    {
+      "byte_len": 11759,
+      "id": 434,
+      "kind": "FSOM",
+      "resource_ordinal": 133
+    },
+    {
+      "byte_len": 11757,
+      "id": 435,
+      "kind": "FSOM",
+      "resource_ordinal": 134
+    },
+    {
+      "byte_len": 11772,
+      "id": 436,
+      "kind": "FSOM",
+      "resource_ordinal": 135
+    },
+    {
+      "byte_len": 11770,
+      "id": 437,
+      "kind": "FSOM",
+      "resource_ordinal": 136
+    },
+    {
+      "byte_len": 11758,
+      "id": 438,
+      "kind": "FSOM",
+      "resource_ordinal": 137
+    },
+    {
+      "byte_len": 11752,
+      "id": 439,
+      "kind": "FSOM",
+      "resource_ordinal": 138
+    },
+    {
+      "byte_len": 55,
+      "id": 440,
+      "kind": "FSOM",
+      "resource_ordinal": 139
+    },
+    {
+      "byte_len": 55,
+      "id": 441,
+      "kind": "FSOM",
+      "resource_ordinal": 140
+    },
+    {
+      "byte_len": 55,
+      "id": 442,
+      "kind": "FSOM",
+      "resource_ordinal": 141
+    },
+    {
+      "byte_len": 55,
+      "id": 443,
+      "kind": "FSOM",
+      "resource_ordinal": 142
+    },
+    {
+      "byte_len": 55,
+      "id": 444,
+      "kind": "FSOM",
+      "resource_ordinal": 143
+    },
+    {
+      "byte_len": 55,
+      "id": 445,
+      "kind": "FSOM",
+      "resource_ordinal": 144
+    },
+    {
+      "byte_len": 55,
+      "id": 446,
+      "kind": "FSOM",
+      "resource_ordinal": 145
+    },
+    {
+      "byte_len": 55,
+      "id": 447,
+      "kind": "FSOM",
+      "resource_ordinal": 146
+    },
+    {
+      "byte_len": 55,
+      "id": 459,
+      "kind": "FSOM",
+      "resource_ordinal": 147
+    },
+    {
+      "byte_len": 55,
+      "id": 458,
+      "kind": "FSOM",
+      "resource_ordinal": 148
+    },
+    {
+      "byte_len": 55,
+      "id": 457,
+      "kind": "FSOM",
+      "resource_ordinal": 149
+    },
+    {
+      "byte_len": 55,
+      "id": 456,
+      "kind": "FSOM",
+      "resource_ordinal": 150
+    },
+    {
+      "byte_len": 55,
+      "id": 455,
+      "kind": "FSOM",
+      "resource_ordinal": 151
+    },
+    {
+      "byte_len": 55,
+      "id": 454,
+      "kind": "FSOM",
+      "resource_ordinal": 152
+    },
+    {
+      "byte_len": 55,
+      "id": 453,
+      "kind": "FSOM",
+      "resource_ordinal": 153
+    },
+    {
+      "byte_len": 55,
+      "id": 452,
+      "kind": "FSOM",
+      "resource_ordinal": 154
+    },
+    {
+      "byte_len": 55,
+      "id": 451,
+      "kind": "FSOM",
+      "resource_ordinal": 155
+    },
+    {
+      "byte_len": 55,
+      "id": 450,
+      "kind": "FSOM",
+      "resource_ordinal": 156
+    },
+    {
+      "byte_len": 55,
+      "id": 449,
+      "kind": "FSOM",
+      "resource_ordinal": 157
+    },
+    {
+      "byte_len": 55,
+      "id": 448,
+      "kind": "FSOM",
+      "resource_ordinal": 158
+    }
+  ],
+  "source_sha256": "32a6eac462563052c720bc1fbe24117d2b100005f0fc939e217c63afbfacd9fb",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}

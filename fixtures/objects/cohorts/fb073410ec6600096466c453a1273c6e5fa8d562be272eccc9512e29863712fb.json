@@ -1,0 +1,1703 @@
+{
+  "behaviors": [
+    {
+      "args": 0,
+      "chunk_id": 4107,
+      "direct_calls": [
+        302
+      ],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "Clean",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 302
+        }
+      ],
+      "resource_ordinal": 123,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 4,
+      "chunk_id": 4116,
+      "direct_calls": [],
+      "instruction_count": 0,
+      "kind": 0,
+      "label": "start fire",
+      "locals": 0,
+      "opcode_counts": [],
+      "resource_ordinal": 124,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4103,
+      "direct_calls": [],
+      "instruction_count": 3,
+      "kind": 0,
+      "label": "update function scores",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 125,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4104,
+      "direct_calls": [
+        283
+      ],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "tweak wait in line",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 283
+        }
+      ],
+      "resource_ordinal": 126,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4121,
+      "direct_calls": [
+        4098
+      ],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "init expensive",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        }
+      ],
+      "resource_ordinal": 127,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4135,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Cheat TEST",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 128,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4134,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "Force Fire",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 42
+        }
+      ],
+      "resource_ordinal": 129,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4102,
+      "direct_calls": [],
+      "instruction_count": 1,
+      "kind": 0,
+      "label": "tweak cook finished",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 130,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4113,
+      "direct_calls": [
+        4119
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "Go to Main",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 4119
+        }
+      ],
+      "resource_ordinal": 131,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 2,
+      "chunk_id": 4100,
+      "direct_calls": [],
+      "instruction_count": 10,
+      "kind": 0,
+      "label": "tweak cook begin",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 132,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4101,
+      "direct_calls": [
+        282,
+        4105
+      ],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "tweak cook inc",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        },
+        {
+          "count": 1,
+          "opcode": 282
+        },
+        {
+          "count": 1,
+          "opcode": 4105
+        }
+      ],
+      "resource_ordinal": 133,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4105,
+      "direct_calls": [],
+      "instruction_count": 20,
+      "kind": 0,
+      "label": "signal cook progress",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 19,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        }
+      ],
+      "resource_ordinal": 134,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4106,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "signal cook finished",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 5,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        }
+      ],
+      "resource_ordinal": 135,
+      "tree_version": 3,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4137,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "show situation info",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        }
+      ],
+      "resource_ordinal": 136,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4118,
+      "direct_calls": [],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "do processing",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        }
+      ],
+      "resource_ordinal": 137,
+      "tree_version": 18,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4119,
+      "direct_calls": [
+        280,
+        4118,
+        4141,
+        4142
+      ],
+      "instruction_count": 7,
+      "kind": 0,
+      "label": "main",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        },
+        {
+          "count": 1,
+          "opcode": 4118
+        },
+        {
+          "count": 2,
+          "opcode": 4141
+        },
+        {
+          "count": 1,
+          "opcode": 4142
+        }
+      ],
+      "resource_ordinal": 138,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4108,
+      "direct_calls": [],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "tweak should start fire",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 15,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 36
+        }
+      ],
+      "resource_ordinal": 139,
+      "tree_version": 5,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4109,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "get food for cook",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 6,
+          "opcode": 2
+        }
+      ],
+      "resource_ordinal": 140,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4131,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "put food in pot",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        }
+      ],
+      "resource_ordinal": 141,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4133,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "cook test",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 31
+        },
+        {
+          "count": 1,
+          "opcode": 32
+        }
+      ],
+      "resource_ordinal": 142,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4120,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "force slot object to same direction",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 4,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 7
+        }
+      ],
+      "resource_ordinal": 143,
+      "tree_version": 1,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4115,
+      "direct_calls": [],
+      "instruction_count": 5,
+      "kind": 0,
+      "label": "grab contained object",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4
+        },
+        {
+          "count": 1,
+          "opcode": 47
+        }
+      ],
+      "resource_ordinal": 144,
+      "tree_version": 4,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4112,
+      "direct_calls": [
+        4103,
+        4104,
+        4124
+      ],
+      "instruction_count": 17,
+      "kind": 0,
+      "label": "cook function",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 11,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 3,
+          "opcode": 4103
+        },
+        {
+          "count": 1,
+          "opcode": 4104
+        },
+        {
+          "count": 1,
+          "opcode": 4124
+        }
+      ],
+      "resource_ordinal": 145,
+      "tree_version": 5,
+      "version": 32771
+    },
+    {
+      "args": 4,
+      "chunk_id": 4114,
+      "direct_calls": [
+        272,
+        273
+      ],
+      "instruction_count": 15,
+      "kind": 0,
+      "label": "pickup function",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 9,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4
+        },
+        {
+          "count": 1,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 1,
+          "opcode": 272
+        },
+        {
+          "count": 2,
+          "opcode": 273
+        }
+      ],
+      "resource_ordinal": 146,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4098,
+      "direct_calls": [
+        271
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "init common",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 3,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 271
+        }
+      ],
+      "resource_ordinal": 147,
+      "tree_version": 7,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4142,
+      "direct_calls": [
+        280
+      ],
+      "instruction_count": 4,
+      "kind": 0,
+      "label": "anim delay",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 1,
+          "opcode": 280
+        }
+      ],
+      "resource_ordinal": 148,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4143,
+      "direct_calls": [],
+      "instruction_count": 6,
+      "kind": 0,
+      "label": "anim - add food to pot",
+      "locals": 2,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 8
+        },
+        {
+          "count": 3,
+          "opcode": 44
+        }
+      ],
+      "resource_ordinal": 149,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 2,
+      "chunk_id": 4124,
+      "direct_calls": [
+        284,
+        4108,
+        4109,
+        4111,
+        4115,
+        4120,
+        4133,
+        4143,
+        4144
+      ],
+      "instruction_count": 51,
+      "kind": 0,
+      "label": "cook core",
+      "locals": 5,
+      "opcode_counts": [
+        {
+          "count": 23,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 9
+        },
+        {
+          "count": 1,
+          "opcode": 18
+        },
+        {
+          "count": 2,
+          "opcode": 27
+        },
+        {
+          "count": 1,
+          "opcode": 28
+        },
+        {
+          "count": 1,
+          "opcode": 43
+        },
+        {
+          "count": 6,
+          "opcode": 44
+        },
+        {
+          "count": 4,
+          "opcode": 48
+        },
+        {
+          "count": 1,
+          "opcode": 284
+        },
+        {
+          "count": 1,
+          "opcode": 4108
+        },
+        {
+          "count": 1,
+          "opcode": 4109
+        },
+        {
+          "count": 1,
+          "opcode": 4111
+        },
+        {
+          "count": 2,
+          "opcode": 4115
+        },
+        {
+          "count": 1,
+          "opcode": 4120
+        },
+        {
+          "count": 1,
+          "opcode": 4133
+        },
+        {
+          "count": 1,
+          "opcode": 4143
+        },
+        {
+          "count": 3,
+          "opcode": 4144
+        }
+      ],
+      "resource_ordinal": 150,
+      "tree_version": 40,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4111,
+      "direct_calls": [
+        281,
+        4100,
+        4101,
+        4102,
+        4106
+      ],
+      "instruction_count": 16,
+      "kind": 0,
+      "label": "cook loop",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 2,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 6
+        },
+        {
+          "count": 3,
+          "opcode": 23
+        },
+        {
+          "count": 1,
+          "opcode": 44
+        },
+        {
+          "count": 2,
+          "opcode": 48
+        },
+        {
+          "count": 1,
+          "opcode": 281
+        },
+        {
+          "count": 1,
+          "opcode": 4100
+        },
+        {
+          "count": 1,
+          "opcode": 4101
+        },
+        {
+          "count": 1,
+          "opcode": 4102
+        },
+        {
+          "count": 1,
+          "opcode": 4106
+        }
+      ],
+      "resource_ordinal": 151,
+      "tree_version": 16,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4096,
+      "direct_calls": [
+        4098
+      ],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "init - cauldron",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 1
+        },
+        {
+          "count": 11,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 4098
+        }
+      ],
+      "resource_ordinal": 152,
+      "tree_version": 2,
+      "version": 32771
+    },
+    {
+      "args": 0,
+      "chunk_id": 4141,
+      "direct_calls": [],
+      "instruction_count": 13,
+      "kind": 0,
+      "label": "do fire graphics and lighting",
+      "locals": 1,
+      "opcode_counts": [
+        {
+          "count": 10,
+          "opcode": 2
+        },
+        {
+          "count": 3,
+          "opcode": 7
+        }
+      ],
+      "resource_ordinal": 153,
+      "tree_version": 0,
+      "version": 32771
+    },
+    {
+      "args": 1,
+      "chunk_id": 4144,
+      "direct_calls": [],
+      "instruction_count": 2,
+      "kind": 0,
+      "label": "turn Stack Object's fire off/on",
+      "locals": 0,
+      "opcode_counts": [
+        {
+          "count": 1,
+          "opcode": 2
+        },
+        {
+          "count": 1,
+          "opcode": 49
+        }
+      ],
+      "resource_ordinal": 154,
+      "tree_version": 0,
+      "version": 32771
+    }
+  ],
+  "cohort_id": "sha256:fb073410ec6600096466c453a1273c6e5fa8d562be272eccc9512e29863712fb",
+  "effective_identity_gate": "W00 installation manifest and W01.2 ordered patch/tuning/variant resolution absent; source identity is not effective identity",
+  "envelope_status": "accepted",
+  "function_table_gate": "OBJf entries are opaque in this census; OBJD UsesFnTable and OBJf presence do not resolve lifecycle functions",
+  "global_resource_names": [],
+  "interaction_tables": [],
+  "leaf_ids": [
+    "OBJ-fb073410ec6600096466c453a1273c6e5fa8d562be272eccc9512e29863712fb-OBJD-16807"
+  ],
+  "object_dependency_index": [
+    {
+      "behavior_references": [],
+      "leaf_id": "OBJ-fb073410ec6600096466c453a1273c6e5fa8d562be272eccc9512e29863712fb-OBJD-16807",
+      "objd_chunk_id": 16807,
+      "primitive_opcodes": [],
+      "routing_opcodes": [],
+      "source_bhav_dependency_ids": []
+    }
+  ],
+  "objects": [
+    {
+      "bhav_refs": [],
+      "chunk_id": 16807,
+      "chunk_sha256": "79a8bf5f9370e62a5b0ae0ab7fd0c3c72a1328fa1fe506009179a22974c2703b",
+      "effective_content_id": null,
+      "family": "unknown",
+      "family_evidence": null,
+      "guid": 82792764,
+      "guid_hex": "04ef513c",
+      "label": "Stove - animated - cauldron",
+      "raw_fields": {
+        "base_graphic_id": 100,
+        "bit_field_1": 0,
+        "body_string_id": 0,
+        "catalog_strings_id": 2000,
+        "chair_entry_flags": 0,
+        "dynamic_sprite_base_id": 0,
+        "function_flags": 4,
+        "function_subsort": 0,
+        "global": 0,
+        "master_id": 0,
+        "num_attributes": 12,
+        "num_dynamic_sprites": 0,
+        "num_graphics": 4,
+        "num_type_attributes": 0,
+        "object_type": 7,
+        "rating_bladder": 0,
+        "rating_comfort": 0,
+        "rating_energy": 0,
+        "rating_fun": 0,
+        "rating_hunger": 5,
+        "rating_hygiene": 0,
+        "rating_room": 0,
+        "rating_skill_flags": 0,
+        "room_flags": 1,
+        "slot_id": 128,
+        "sub_index": 0,
+        "tree_table_id": 65535,
+        "uses_fn_table": 1
+      },
+      "resource_ordinal": 83,
+      "version": 142
+    }
+  ],
+  "original_asset_payload_included": false,
+  "patch_metadata": [],
+  "primitive_registrations": [
+    {
+      "opcode": 1,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGenericTS1Call",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTS1Call.cs",
+          "name": "generic_sims_call",
+          "source_line": 464,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "ts1"
+        },
+        {
+          "handler": "VMGenericTSOCall",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+          "name": "generic_sims_online_call",
+          "source_line": 502,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "tso"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 2,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMExpression",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+          "name": "expression",
+          "source_line": 103,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 4,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGrab",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGrab.cs",
+          "name": "grab",
+          "source_line": 112,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 6,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMChangeSuitOrAccessory",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMChangeSuitOrAccessory.cs",
+          "name": "change_suit_or_accessory",
+          "source_line": 126,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 7,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRefresh",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRefresh.cs",
+          "name": "refresh",
+          "source_line": 133,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 8,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRandomNumber",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRandomNumber.cs",
+          "name": "random_number",
+          "source_line": 140,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 9,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMBurn",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMBurn.cs",
+          "name": "burn",
+          "source_line": 147,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 18,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRemoveObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRemoveObjectInstance.cs",
+          "name": "remove_object_instance",
+          "source_line": 205,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 23,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMPlaySound",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMPlaySound.cs",
+          "name": "play_sound",
+          "source_line": 237,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 27,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMGotoRelativePosition",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMGotoRelativePosition.cs",
+          "name": "goto_relative",
+          "source_line": 259,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 28,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMRunTreeByName",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMRunTreeByName.cs",
+          "name": "run_tree_by_name",
+          "source_line": 266,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 31,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMSetToNext",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMSetToNext.cs",
+          "name": "set_to_next",
+          "source_line": 288,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 32,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMTestObjectType",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMTestObjectType.cs",
+          "name": "test_object_type",
+          "source_line": 295,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 36,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDialogPrivateStrings",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDialogPrivateStrings.cs",
+          "name": "dialog_private",
+          "source_line": 313,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 42,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMCreateObjectInstance",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMCreateObjectInstance.cs",
+          "name": "create_object_instance",
+          "source_line": 355,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 43,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMDropOnto",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMDropOnto.cs",
+          "name": "drop_onto",
+          "source_line": 362,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 44,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMAnimateSim",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMAnimateSim.cs",
+          "name": "animate",
+          "source_line": 369,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 47,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMReach",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMReach.cs",
+          "name": "reach",
+          "source_line": 390,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 48,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMStopAllSounds",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMStopAllSounds.cs",
+          "name": "stop_all_sounds",
+          "source_line": 397,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    },
+    {
+      "opcode": 49,
+      "provider_status": "unverified",
+      "registrations": [
+        {
+          "handler": "VMNotifyOutOfIdle",
+          "handler_source_path": "TSOClient/tso.simantics/Primitives/VMNotifyOutOfIdle.cs",
+          "name": "stackobj_notify_out_of_idle",
+          "source_line": 404,
+          "source_path": "TSOClient/tso.simantics/VMContext.cs",
+          "variant": "common"
+        }
+      ],
+      "tso_registration_status": "registered"
+    }
+  ],
+  "provider_integration_checklist": [
+    {
+      "provider": "content",
+      "requires": "Freeze W00 installation manifest, localization, tuning, variants and explicit ordered PIFF list; resolve through W01.2; bind effective_content_id and critical readiness closure."
+    },
+    {
+      "provider": "vm",
+      "requires": "Load actual OBJD/TTAB/BHAV resources; supply global/private/semiglobal lookup, frame execution, scheduler and source opcode handlers. Resolve listed resource references; do not substitute per-object gameplay."
+    },
+    {
+      "provider": "interaction",
+      "requires": "Use real W06.1 offer/query/intent/queue adapters with authoritative identity, revision and cancellation checks; isolate UI queries from VM RNG/state."
+    },
+    {
+      "provider": "routing",
+      "requires": "W04.3 reservation/slot/portal provider must execute real route requests and interruption/failure continuations. Opcode presence does not establish a runtime route or selected slot."
+    },
+    {
+      "provider": "animation_renderer",
+      "requires": "W05.2/W01.3/W07-W09 providers must load actual sprites/rigs/animations, preserve xevt timing and expose all declared view modes; record visual evidence separately."
+    },
+    {
+      "provider": "snapshot_reconnect",
+      "requires": "W02.4/SL.9 and W13.4/W15.3 providers must checkpoint and restore actual suspended route/animation/effect continuations using matching content hashes and accepted tick tail."
+    },
+    {
+      "provider": "original_oracle",
+      "requires": "W00.3/W00.4 must capture controlled original-runtime traces for all six scenarios, concurrency and interrupted/failed use; compare actual native/WASM execution, not descriptor generation."
+    }
+  ],
+  "schema_version": 1,
+  "shared_scenario_status_ref": "docs/compat/object-matrix.json#scenario_status_templates/all_unverified",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_format": "IFF envelope",
+  "source_git_blob": "0da11878e30cdc331e03896ba81cde26b13bcf30",
+  "source_parse_errors": [],
+  "source_paths": [
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso-autumn-witchcauldron.iff"
+  ],
+  "source_resource_index": [
+    {
+      "byte_len": 534,
+      "id": 100,
+      "kind": "DGRP",
+      "resource_ordinal": 76
+    },
+    {
+      "byte_len": 534,
+      "id": 101,
+      "kind": "DGRP",
+      "resource_ordinal": 77
+    },
+    {
+      "byte_len": 534,
+      "id": 102,
+      "kind": "DGRP",
+      "resource_ordinal": 78
+    },
+    {
+      "byte_len": 534,
+      "id": 103,
+      "kind": "DGRP",
+      "resource_ordinal": 79
+    },
+    {
+      "byte_len": 156,
+      "id": 128,
+      "kind": "SLOT",
+      "resource_ordinal": 80
+    },
+    {
+      "byte_len": 156,
+      "id": 129,
+      "kind": "SLOT",
+      "resource_ordinal": 81
+    },
+    {
+      "byte_len": 156,
+      "id": 130,
+      "kind": "SLOT",
+      "resource_ordinal": 82
+    },
+    {
+      "byte_len": 13,
+      "id": 1,
+      "kind": "FWAV",
+      "resource_ordinal": 85
+    },
+    {
+      "byte_len": 16,
+      "id": 2,
+      "kind": "FWAV",
+      "resource_ordinal": 86
+    },
+    {
+      "byte_len": 16,
+      "id": 3,
+      "kind": "FWAV",
+      "resource_ordinal": 87
+    },
+    {
+      "byte_len": 12,
+      "id": 4,
+      "kind": "FWAV",
+      "resource_ordinal": 88
+    },
+    {
+      "byte_len": 16,
+      "id": 5,
+      "kind": "FWAV",
+      "resource_ordinal": 89
+    },
+    {
+      "byte_len": 16,
+      "id": 6,
+      "kind": "FWAV",
+      "resource_ordinal": 90
+    },
+    {
+      "byte_len": 17,
+      "id": 7,
+      "kind": "FWAV",
+      "resource_ordinal": 91
+    },
+    {
+      "byte_len": 10,
+      "id": 8,
+      "kind": "FWAV",
+      "resource_ordinal": 92
+    },
+    {
+      "byte_len": 22,
+      "id": 9,
+      "kind": "FWAV",
+      "resource_ordinal": 93
+    },
+    {
+      "byte_len": 10,
+      "id": 10,
+      "kind": "FWAV",
+      "resource_ordinal": 94
+    },
+    {
+      "byte_len": 13,
+      "id": 11,
+      "kind": "FWAV",
+      "resource_ordinal": 95
+    },
+    {
+      "byte_len": 10,
+      "id": 12,
+      "kind": "FWAV",
+      "resource_ordinal": 96
+    },
+    {
+      "byte_len": 19,
+      "id": 13,
+      "kind": "FWAV",
+      "resource_ordinal": 97
+    },
+    {
+      "byte_len": 25,
+      "id": 14,
+      "kind": "FWAV",
+      "resource_ordinal": 98
+    },
+    {
+      "byte_len": 15,
+      "id": 15,
+      "kind": "FWAV",
+      "resource_ordinal": 99
+    },
+    {
+      "byte_len": 17,
+      "id": 16,
+      "kind": "FWAV",
+      "resource_ordinal": 100
+    },
+    {
+      "byte_len": 20,
+      "id": 17,
+      "kind": "FWAV",
+      "resource_ordinal": 101
+    },
+    {
+      "byte_len": 20,
+      "id": 18,
+      "kind": "FWAV",
+      "resource_ordinal": 102
+    },
+    {
+      "byte_len": 19,
+      "id": 19,
+      "kind": "FWAV",
+      "resource_ordinal": 103
+    },
+    {
+      "byte_len": 17,
+      "id": 23,
+      "kind": "FWAV",
+      "resource_ordinal": 104
+    },
+    {
+      "byte_len": 15,
+      "id": 24,
+      "kind": "FWAV",
+      "resource_ordinal": 105
+    },
+    {
+      "byte_len": 25,
+      "id": 25,
+      "kind": "FWAV",
+      "resource_ordinal": 106
+    },
+    {
+      "byte_len": 16,
+      "id": 26,
+      "kind": "FWAV",
+      "resource_ordinal": 107
+    },
+    {
+      "byte_len": 37,
+      "id": 4107,
+      "kind": "BHAV",
+      "resource_ordinal": 123
+    },
+    {
+      "byte_len": 13,
+      "id": 4116,
+      "kind": "BHAV",
+      "resource_ordinal": 124
+    },
+    {
+      "byte_len": 49,
+      "id": 4103,
+      "kind": "BHAV",
+      "resource_ordinal": 125
+    },
+    {
+      "byte_len": 25,
+      "id": 4104,
+      "kind": "BHAV",
+      "resource_ordinal": 126
+    },
+    {
+      "byte_len": 73,
+      "id": 4121,
+      "kind": "BHAV",
+      "resource_ordinal": 127
+    },
+    {
+      "byte_len": 25,
+      "id": 4135,
+      "kind": "BHAV",
+      "resource_ordinal": 128
+    },
+    {
+      "byte_len": 25,
+      "id": 4134,
+      "kind": "BHAV",
+      "resource_ordinal": 129
+    },
+    {
+      "byte_len": 25,
+      "id": 4102,
+      "kind": "BHAV",
+      "resource_ordinal": 130
+    },
+    {
+      "byte_len": 61,
+      "id": 4113,
+      "kind": "BHAV",
+      "resource_ordinal": 131
+    },
+    {
+      "byte_len": 133,
+      "id": 4100,
+      "kind": "BHAV",
+      "resource_ordinal": 132
+    },
+    {
+      "byte_len": 85,
+      "id": 4101,
+      "kind": "BHAV",
+      "resource_ordinal": 133
+    },
+    {
+      "byte_len": 253,
+      "id": 4105,
+      "kind": "BHAV",
+      "resource_ordinal": 134
+    },
+    {
+      "byte_len": 85,
+      "id": 4106,
+      "kind": "BHAV",
+      "resource_ordinal": 135
+    },
+    {
+      "byte_len": 37,
+      "id": 4137,
+      "kind": "BHAV",
+      "resource_ordinal": 136
+    },
+    {
+      "byte_len": 61,
+      "id": 4118,
+      "kind": "BHAV",
+      "resource_ordinal": 137
+    },
+    {
+      "byte_len": 97,
+      "id": 4119,
+      "kind": "BHAV",
+      "resource_ordinal": 138
+    },
+    {
+      "byte_len": 217,
+      "id": 4108,
+      "kind": "BHAV",
+      "resource_ordinal": 139
+    },
+    {
+      "byte_len": 85,
+      "id": 4109,
+      "kind": "BHAV",
+      "resource_ordinal": 140
+    },
+    {
+      "byte_len": 37,
+      "id": 4131,
+      "kind": "BHAV",
+      "resource_ordinal": 141
+    },
+    {
+      "byte_len": 73,
+      "id": 4133,
+      "kind": "BHAV",
+      "resource_ordinal": 142
+    },
+    {
+      "byte_len": 73,
+      "id": 4120,
+      "kind": "BHAV",
+      "resource_ordinal": 143
+    },
+    {
+      "byte_len": 73,
+      "id": 4115,
+      "kind": "BHAV",
+      "resource_ordinal": 144
+    },
+    {
+      "byte_len": 217,
+      "id": 4112,
+      "kind": "BHAV",
+      "resource_ordinal": 145
+    },
+    {
+      "byte_len": 193,
+      "id": 4114,
+      "kind": "BHAV",
+      "resource_ordinal": 146
+    },
+    {
+      "byte_len": 61,
+      "id": 4098,
+      "kind": "BHAV",
+      "resource_ordinal": 147
+    },
+    {
+      "byte_len": 61,
+      "id": 4142,
+      "kind": "BHAV",
+      "resource_ordinal": 148
+    },
+    {
+      "byte_len": 85,
+      "id": 4143,
+      "kind": "BHAV",
+      "resource_ordinal": 149
+    },
+    {
+      "byte_len": 625,
+      "id": 4124,
+      "kind": "BHAV",
+      "resource_ordinal": 150
+    },
+    {
+      "byte_len": 205,
+      "id": 4111,
+      "kind": "BHAV",
+      "resource_ordinal": 151
+    },
+    {
+      "byte_len": 169,
+      "id": 4096,
+      "kind": "BHAV",
+      "resource_ordinal": 152
+    },
+    {
+      "byte_len": 169,
+      "id": 4141,
+      "kind": "BHAV",
+      "resource_ordinal": 153
+    },
+    {
+      "byte_len": 37,
+      "id": 4144,
+      "kind": "BHAV",
+      "resource_ordinal": 154
+    },
+    {
+      "byte_len": 140,
+      "id": 16807,
+      "kind": "OBJf",
+      "resource_ordinal": 163
+    },
+    {
+      "byte_len": 20,
+      "id": 1,
+      "kind": "FSOR",
+      "resource_ordinal": 164
+    },
+    {
+      "byte_len": 22337,
+      "id": 100,
+      "kind": "FSOM",
+      "resource_ordinal": 168
+    },
+    {
+      "byte_len": 24697,
+      "id": 101,
+      "kind": "FSOM",
+      "resource_ordinal": 169
+    },
+    {
+      "byte_len": 24698,
+      "id": 102,
+      "kind": "FSOM",
+      "resource_ordinal": 170
+    },
+    {
+      "byte_len": 24694,
+      "id": 103,
+      "kind": "FSOM",
+      "resource_ordinal": 171
+    }
+  ],
+  "source_sha256": "fb073410ec6600096466c453a1273c6e5fa8d562be272eccc9512e29863712fb",
+  "ticket_template_ref": "docs/compat/object-matrix.json#ticket_templates/catalog_parity"
+}
