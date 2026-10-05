@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "fixture_only": true,
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "tuning_version": "aa96701f216ffebc6514d80cf8a491eaa3ff56926360f7eeced842fb5e594dfa",
+  "sources": [
+    {
+      "id": "fixture",
+      "path": "authored.iff",
+      "format": "iff",
+      "source_name": "Authored.iff",
+      "pack_group": "demo",
+      "provenance": {
+        "origin": "authored",
+        "license": "CC0-1.0",
+        "redistribution": "allowed"
+      },
+      "patches": [],
+      "semiglobal": null,
+      "global": null,
+      "tuning": {
+        "otf": null,
+        "otf_rewrite": null,
+        "upgrades": [],
+        "dynamic_private": [],
+        "dynamic_semiglobal": []
+      },
+      "resolver_variant": "",
+      "locale_selection": {
+        "requested": 0,
+        "default_language": 1
+      }
+    }
+  ],
+  "overrides": [
+    {
+      "id": "fixture/chunk-42484156-1000",
+      "dependencies": [
+        "fixture/chunk-42434f4e-1000",
+        "fixture/resolved-tuning"
+      ],
+      "simulation_critical": true,
+      "locale": null,
+      "variants": []
+    },
+    {
+      "id": "fixture/chunk-42434f4e-1000",
+      "dependencies": [],
+      "simulation_critical": true,
+      "locale": null,
+      "variants": []
+    },
+    {
+      "id": "fixture/resolved-tuning",
+      "dependencies": [
+        "fixture/chunk-42434f4e-1000"
+      ],
+      "simulation_critical": true,
+      "locale": null,
+      "variants": []
+    }
+  ]
+}
