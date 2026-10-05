@@ -117,28 +117,48 @@ fn parse_watch(watch: &Watch) -> Result<StateWatch, String> {
     let field = if watch.field == "stop" {
         WatchField::Stop
     } else {
-        let (kind, index) = watch.field.split_once('/').ok_or(
-            "unknown watch field; use attribute/N, object-data/N, temp/N, temp-xl/N, or stop",
-        )?;
-        if index.is_empty()
-            || index.len() > 5
-            || !index.bytes().all(|byte| byte.is_ascii_digit())
-            || (index.len() > 1 && index.starts_with('0'))
-        {
-            return Err("invalid watch index; use canonical unsigned decimal u16 spelling".into());
+        let (kind, rest) = watch.field.split_once('/').ok_or("unknown watch field")?;
+        if kind == "local" || kind == "arg" {
+            let (depth, index) = rest
+                .split_once('/')
+                .ok_or("frame watch requires depth/index")?;
+            let depth = parse_index(depth)?;
+            let index = parse_index(index)?;
+            return Ok(StateWatch {
+                entity,
+                field: if kind == "local" {
+                    WatchField::Local { depth, index }
+                } else {
+                    WatchField::Argument { depth, index }
+                },
+            });
         }
-        let index = index
-            .parse::<u16>()
-            .map_err(|_| "invalid watch index: exceeds u16")?;
+        let index = parse_index(rest)?;
         match kind {
             "attribute" => WatchField::Attribute(index),
             "object-data" => WatchField::ObjectData(index),
             "temp" => WatchField::Temp(index),
             "temp-xl" => WatchField::TempXl(index),
+            "person-data" => WatchField::PersonData(index),
+            "motive" => WatchField::Motive(index),
+            "global" => WatchField::Global(index),
             _ => return Err("unknown watch field".into()),
         }
     };
     Ok(StateWatch { entity, field })
+}
+
+fn parse_index(index: &str) -> Result<u16, String> {
+    if index.is_empty()
+        || index.len() > 5
+        || !index.bytes().all(|byte| byte.is_ascii_digit())
+        || (index.len() > 1 && index.starts_with('0'))
+    {
+        return Err("invalid watch index; use canonical unsigned decimal u16 spelling".into());
+    }
+    index
+        .parse::<u16>()
+        .map_err(|_| "invalid watch index: exceeds u16".into())
 }
 
 impl SimDebugProvider {

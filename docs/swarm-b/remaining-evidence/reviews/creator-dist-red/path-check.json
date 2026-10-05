@@ -1,0 +1,10 @@
+{
+  "phase": "red",
+  "cwd": "/workspace/scratch/378e4c36af7b/wonderland",
+  "configured_relative_dist": "../../../creator-dist-path-review/configured-dist",
+  "configured_dist": "/workspace/scratch/378e4c36af7b/creator-dist-path-review/configured-dist",
+  "artifact_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "exit_code": 1,
+  "failure": "Error: ENOENT: no such file or directory, open '/workspace/scratch/378e4c36af7b/wonderland/tools/creator-web/dist/pkg/wonderland_creator_web_bg.wasm'",
+  "default_restored": true
+}

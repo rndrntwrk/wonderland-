@@ -3,7 +3,8 @@
 `wonderland-content-runtime-bridge` connects Swarm B's resolved content to the
 actual Swarm A `sim-core` library. It imports a defined subset of source resources,
 runs isolated behavior queries, restores validated snapshots, reads typed watches,
-and replays whole accepted ticks. No substitute interpreter or runtime provider is
+replays whole accepted ticks, projects real interaction facts and active queue
+users, and executes a proved read-only check subset. No substitute interpreter is
 used.
 
 The simulation source is pinned to
@@ -13,6 +14,13 @@ resource mappings and execution fixture is the repository baseline
 Swarm A's tracked source. Its sibling `sim-core` path dependency matches the
 eventual integrated repository; until that sibling is merged, the assembly runner
 below supplies the exact Git-pinned subtree in a separate scratch directory.
+
+The temporary `interaction_rules` dependency is the existing
+`wonderland-interactions-check` package at `tools/swarm-b-check/interactions`.
+Its library path points directly to the authoritative B-owned
+`crates/sim-core/src/interactions/mod.rs`. The assembly links that package as one
+explicit allowed B source path; it does not copy B code into the pinned A export.
+Swarm F can replace this package boundary when composing the two owned modules.
 
 ## Build and reproduce
 
@@ -152,8 +160,12 @@ state copy; the captured snapshot and live runtime remain unchanged. The result
 is A's stop value, temporary registers, extended temporary registers, instruction
 count, and diagnostics.
 
-`watch(StateWatch)` reads typed attributes, ObjectData, temps, extended temps, or
-the thread stop value. Generation and register-bank bounds are checked.
+`watch(StateWatch)` reads typed attributes, ObjectData, temps, extended temps,
+locals or arguments at a specified stored frame depth, person data, motives,
+globals, or the thread stop value. Generation and register-bank bounds are
+checked. Depth zero is the oldest stored frame; the final depth is the current
+frame. Person data, motive and global watches use A's actual memory reader,
+including source-computed fields such as global clock values.
 `frame_positions()` reports the **currently stored** frame depth, routine,
 instruction pointer and optional opcode. Those positions do not establish which
 instructions executed previously.
@@ -172,8 +184,9 @@ creator; creator does not depend on the bridge.
 
 The creator interface's u64 identity packs `generation << 16 | positive ObjectID`;
 `creator_entity(EntityRef)` performs that encoding. `inspect` accepts at most
-4096 watches. Fields use `attribute/N`, `object-data/N`, `temp/N`, `temp-xl/N`, or
-`stop`, with at most 17 ASCII bytes and a canonical unsigned decimal u16 index.
+4096 watches. Fields use `attribute/N`, `object-data/N`, `temp/N`, `temp-xl/N`,
+`local/DEPTH/N`, `arg/DEPTH/N`, `person-data/N`, `motive/N`, `global/N`, or `stop`,
+with at most 17 ASCII bytes and canonical unsigned decimal u16 depth/indexes.
 All fields and identities are validated before snapshot restoration or result
 string cloning. The wrapper's tick must equal the decoded snapshot's tick.
 The provider's `MAX_INSPECTION_OUTPUT_BYTES` is 1 MiB for the complete report,
@@ -189,15 +202,144 @@ instruction pause/resume are also unavailable. In particular, A converts its
 dispatch instruction-limit exhaustion into a real fault; the bridge preserves
 that fault instead of presenting it as a debugger pause.
 
+The current `tools/creator-web` application binds the real Creator IFF and sprite
+codecs. It does **not** bind `SimDebugProvider` or hold a live `SimRuntime`. The
+standalone B checkout also has no A root crate manifest; composing that graphical
+runtime dependency requires the pinned A assembly or the eventual integrated
+tree. The provider and inspection APIs are ready for such a host to supply an
+authenticated runtime, actual immutable content, snapshots and accepted inputs.
+An uploaded JSON report can be displayed as a report; it does not establish a
+live VM or instruction debugger. Graphical runtime selection, watch controls,
+accepted-tick playback and the entity inspection consumer remain unwired. Real
+instruction break/step/trace additionally needs the A operation documented below.
+
+### Bounded stored-state inspection
+
+`inspection::inspect_entity_json(&SimRuntime, EntityRef, max_bytes)` emits the
+`wonderland.runtime-entity-inspection.v1` schema after checking the live entity
+generation. Its borrowed view includes lot/epoch/tick/content identity, object
+memory and containment, actual active queue users and advertisements, stored
+frame context/locals/arguments, registers, action strings, diagnostics and actual
+route continuations. Advertisement maps use ordered records so tuple keys remain
+valid JSON. Route entries carry the real continuation/route IDs, phase, target,
+position, callback token and whether completion resumes a VM frame.
+`slot_state` contains the actual physical slot definitions and live reservation
+and occupant records involving the entity. An owner view includes all users of
+its slots; an actor view includes that actor's records on other owners' slots.
+
+The browser wire types are explicit:
+
+| Values | JSON representation |
+|---|---|
+| Every u64, including nested continuation/request IDs, lot, epoch, tick, revision, reservation operation/sequence and expiry | Canonical decimal **string**, including zero |
+| u32 GUID/generation, u16 indices, i16 registers, i32 extended temps and smaller integers | JSON number |
+| Optional state | `null` when absent; an empty collection remains an empty array |
+| Enum state | A's serde enum shape; nested u64 payloads receive the same string conversion |
+
+A borrowing serializer applies the u64 rule recursively without constructing an
+intermediate JSON value tree. Native `usize` values serialized through u64 (for
+example a fault's bank length) follow that string rule as well. Clients can use
+`BigInt(decimalString)` for arithmetic; they must not coerce identifiers through
+JavaScript `Number`. Regressions cover `9007199254740993`, `18446744073709551615`,
+actual reservation tokens, nested waiting IDs and exact one-byte output limits.
+
+The complete JSON report has a caller limit capped at 1 MiB. A nonallocating
+serialization pass admits all bytes, including escaped fault and action-string
+text, before a fixed-capacity output vector is allocated. An undersized limit
+fails instead of truncating. The caller supplies its authenticated debugging or
+preview capability; this pure API does not grant access or include private EOD
+host state. Stored positions remain distinct from executed instruction history.
+
+## Interaction content, query and queue adapters
+
+`interactions::RuntimeCatalog::from_imported` accepts trusted in-process import
+reports and explicitly supplied global interaction bindings. It checks actual A
+routine namespaces, object/code-owner identity, duplicate TTA indices, label and
+definition bounds, then binds the catalog to A's actual content/tuning descriptor.
+Global rows belong to their `code_owner` target GUID: the same raw global TTAB
+must be resolved for each target owner that uses it. One object's private call
+context is never applied to another object. An empty global input explicitly
+selects no global entries. Absent and empty local tables remain distinct.
+
+`RuntimeInteractionWorld` implements B's real `WorldProvider` against a borrowed,
+validated A runtime and catalog. It projects live generations and revisions,
+actual avatar species/age/permissions/carrying/ghost facts, source TS1 visitor
+state, disabled flags, the multipart base object's Broken flag, hidden and
+out-of-world state, the target's raw Occupied flag, RNG and registers. The service owner supplies
+an `InteractionAuthority` implementation for authenticated principal operations
+and TSO ownership, including the donated-object mayor rewrite. Missing ownership
+fails the TSO snapshot instead of treating an unknown owner as a permission.
+
+The integrating authority also supplies a monotonically advanced nonzero world
+revision. It must change for every query-visible state or access-policy update,
+including changes between ticks. A borrowed runtime/authority view remains fixed
+during a query. The adapter checks the fully serialized snapshot size before
+capture; its provider-state budget is capped at 8 MiB and preserves actual A
+snapshot validation. UI offer queries use a detached copy and cannot mutate the
+live simulation.
+
+`ReadOnlyChecks` implements `CheckTreeProvider` for a statically certified subset.
+It traverses **every instruction** in the complete direct-call closure, including
+currently unreachable branches, with a cap of 512 routines and 131,072
+instructions. It admits Expression comparison operators 0, 1, 2, 8, 14, 15 and 16,
+Test Object Type, and resolved direct calls. Writes, random draws, advertisements,
+action-string mutations, indirect calls, unknown primitives and unresolved
+dependencies fail before execution. A's real interpreter then runs the proved
+check with the actual caller/callee/stack-object/code-owner context, four source
+arguments and the shared query instruction allowance. Return values and actual
+instruction counts determine B's offers; empty mutation output follows from the
+proof, rather than assumed defaults. This subset works for UI and tick-owned
+queries because it cannot alter the omitted world/RNG/output state.
+
+The root check routine is resolved using its declared binding owner; the check
+frame retains the action's CodeOwner, and every nested direct call resolves in
+that action context. They can differ in the public WorldProvider contract, so the
+proof and interpreter preserve both identities. RuntimeCatalog checks the actual
+source target/action binding; another WorldProvider must establish its own
+authoritative effective-content bindings before supplying definitions.
+
+For intent validation, the adapter maps B's detached `target_occupied = false`
+onto only the target's ObjectData word 8, bit 5, matching
+`VMNetInteractionCmd.Verify:48–51`. Other flags, queued users, UseCount and other
+avatars' using frames remain intact. Ordinary UI checks carry the captured raw
+flag. All changes stay in the detached candidate; validation does not clear the
+live object's flag or advance a tick.
+
+`project_active_queues` reads the complete authoritative B `ActionQueue` set. It
+uses only each queue's protected active prefix, including suspended parents;
+future entries do not count. It checks live actor/target generations, avatar
+ownership and matching dialect, rejects duplicate queue owners, and deduplicates
+multiple active uses by one avatar. Missing queues clear prior usage projections.
+The resulting actual A `SetInteractionProjection` commands preserve existing
+advertisements and make source ObjectData UseCount reads see the queue users.
+
+Preparation is bounded to 8 MiB, 32,767 queues and 131,072 active entries, as well
+as A's accepted command limit. `PreparedProjection::into_tick` rejects any change
+to the canonical runtime state since preparation and places projection commands
+before the supplied trusted tail. A's real `step` validates and commits the whole
+transaction. Queue objects and command tails are authoritative integration inputs;
+the adapter does not deserialize client claims or authenticate them itself.
+The scheduler prepares this projection from the complete queue state for that
+accepted tick. Its runtime-state binding cannot detect a queue-only mutation;
+the scheduler must preserve that queue revision through acceptance and associate
+later queue changes with a subsequent preparation.
+
 ### Interfaces still awaiting integration
 
-The interaction report is a content sidecar, not a complete queue or check-tree
-provider. A's public query result does not return all state needed by B's
-`CheckTreeProvider`, such as advertisement/action-string output and the query's
-mutated state. Its private runtime host also supplies no public seam for the full
-B queue adapter. Neither trait is implemented with invented values. Routing,
-animation, dialogs, EOD completion, authority decisions and durable service
-providers still require their actual owners and integration interfaces.
+The full mutable check operation remains unavailable: A's public query result
+omits the candidate state, RNG, action strings and advertisement dictionary.
+The queue projection also does not push or complete real action frames. A's
+public StartBehavior command cannot preserve the required parent action frame,
+ActionTree flag and special-result semantics. Break/step/trace needs an actual
+instruction-suspension capability in the core. The exact checked anchors and
+minimal extension contracts are recorded in
+[runtime-extension-contract.md](runtime-extension-contract.md).
+
+Complete object paths additionally need their actual global/semi resources,
+normalized routes/slots, multipart topology, animation content and service
+providers. Existing real routing, slot, memory and tick APIs remain usable;
+their existence does not establish that missing source dependencies have been
+supplied or that queue execution has been integrated.
 
 ## Source execution probe and portability
 
@@ -256,6 +398,87 @@ interaction inheritance, scope isolation, mutable semantic-cache rejection,
 admission limits, stale generations, malformed snapshots and watch requests,
 and the real dispatch-limit fault. The checked-in beach-ball chair is a negative
 fixture: it correctly fails when its effective semiglobal has not been supplied.
+
+### Chair, bed and appliance source-family execution
+
+The `source-families` example evaluates every representable private BHAV in the
+three selected original IFFs. The algorithm is identical for all objects: both
+object-self and avatar-to-object contexts, in both actual VM dialects, an isolated
+synchronous query, and one real accepted StartBehavior tick restored from a
+snapshot. It retains source routine hashes, declarations, unsupported imports,
+unresolved call sites, query results, real stored frames, memory, events and final
+hashes. Each accepted/rejected transaction is compared between authority and
+replica, including failure atomicity and snapshot round trips.
+
+| Family | Original IFF | Selected OBJD / GUID |
+|---|---|---|
+| Chair | `Chair_fso_Bouncy_Beach_Ball.iff` | 16807 / `0462db31` |
+| Bed | `k8capbedts.iff` | 16831 / `f8ea4345` |
+| Appliance | `k8oblfridgehd.iff` | 16809 / `46ea4345` |
+
+The executable verifies the exact pinned file SHA-256 before decoding. The
+fixture supplies one source object and one authored avatar in an empty lot,
+zeroed source-sized attributes, private BCON/STR resources, default geometry and
+an authored avatar that explicitly permits floor/terrain movement, plus neutral
+TSO motive tuning. It disables lifecycle/autonomy setup and
+does not fill in absent globals, semiglobals, animation metadata, routing-slot
+normalization or multipart topology. This is a diagnostic execution harness,
+separate from the strict content importer, which still rejects incomplete
+effective scopes. The report keeps `complete_gameplay: false` for every family.
+
+Focused source assertions cover the chair's original Room Impact helper, the
+bed's original sleep-begin/sleep-end motive writes, the appliance's original
+random-bias check and exact RNG progression, and the missing global 280 reached
+from each object's main routine. The complete report exposes failures beyond
+those focused cases rather than replacing the unresolved behavior.
+
+```sh
+python3 tools/swarm-b/runtime-bridge.py --cargo /root/.cargo/bin/cargo \
+  /tmp/wonderland-runtime-assembly run --locked --offline --no-default-features \
+  --example source-families -- /absolute/path/to/wonderland
+
+python3 tools/swarm-b/runtime-source-families-parity.py \
+  --assembly /tmp/wonderland-runtime-assembly \
+  --cargo /root/.cargo/bin/cargo \
+  --report /tmp/source-family-execution.json \
+  --inventory /tmp/source-family-outcomes.json
+```
+
+The family parity driver verifies all six source/dialect rows, all original
+private routine/context pairs, literal helper outcomes, the unresolved main
+call, query isolation, failure atomicity, final snapshots and exact native/WASI
+JSON equality. It rejects changed source identity and accepted-state hashes.
+The optional full report is written only after the comparison succeeds; stdout
+contains a smaller summary and the full report's SHA-256.
+
+The verified native/WASI run contains 144 distinct original private routines and
+576 routine/context/dialect cases. Its 1,318,573-byte complete report has SHA-256
+`fe480079aaffc1c167feb0ae5438e324b9bdebd3ac51ed4e101141b421b3e2be`.
+The checked [source-family results](runtime-source-family-results.json) retain
+each source/routine hash, all unresolved call sites and primitive requirements,
+every query/accepted outcome, instruction counts and accepted state hashes.
+The optional executable report adds the full stored memory, frames and events.
+
+| Family / dialect | Cases | Return true | Return false | Completed error | Faulted | Waiting | Sleeping |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Chair / TS1 | 42 | 8 | 8 | 20 | 4 | 2 | 0 |
+| Chair / TSO | 42 | 8 | 8 | 20 | 4 | 2 | 0 |
+| Bed / TS1 | 144 | 40 | 11 | 49 | 40 | 2 | 2 |
+| Bed / TSO | 144 | 40 | 11 | 49 | 40 | 2 | 2 |
+| Appliance / TS1 | 102 | 26 | 20 | 26 | 15 | 15 | 0 |
+| Appliance / TSO | 102 | 26 | 18 | 24 | 7 | 27 | 0 |
+
+These are actual end-of-tick stop states. Return true is a routine result within
+the explicitly incomplete harness. Completed errors, missing entities,
+avatar-only host faults and unfinished requests remain visible. The appliance's
+STR# 300 is rejected as source format 512; its raw bytes and SHA-256 remain in the
+original IFF and its rejection is recorded, with no invented empty string table.
+Every object's main routine reaches the absent global 280. The static unresolved
+call-site counts are 23 for the chair, 28 for the bed and 37 for the appliance.
+
+These tick observations do not certify a complete select/walk/reserve/use/animate/
+needs/cancel gameplay path. The unresolved source and runtime contracts remain
+visible in the report and extension document.
 
 ## Source anchors
 

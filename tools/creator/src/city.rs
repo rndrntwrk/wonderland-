@@ -1,7 +1,12 @@
 // This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 // If a copy of the MPL was not distributed with this file, obtain one at https://mozilla.org/MPL/2.0/.
 //! Byte-preserving editing of the explicitly supported Windows BITMAPINFOHEADER format.
-#[derive(Clone, Copy, Debug)]
+mod image;
+mod neighborhood;
+pub use image::CityImage;
+pub use neighborhood::NeighborhoodDocument;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MapLayer {
     Terrain,
     Elevation,

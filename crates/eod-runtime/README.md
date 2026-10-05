@@ -4,13 +4,21 @@
 WebAssembly and forbids unsafe code. It contains no VM, renderer, transport,
 authentication service, database or encryption provider.
 
-Five registered server handlers are translated from C# and dispatched through
-`NativeHost`: Timer (`0xAA65FE9E`), DanceFloor (`0x4A5BE8AB`), Signs (`0x2A6356A0`),
-Scoreboard (`0x0949E698`) and PermissionDoor (`0x0A69F29F`). All original-runtime,
-UI-runtime and production-provider verification remains unverified. The other
-25 registrations return `UnverifiedPlugin`; unknown IDs return
-`UnregisteredPlugin`. There is no fallback stub.
+All thirty registered server handlers are translated from C# and dispatched
+through `NativeHost`: the original five, three cooperative games, four casino
+games, eight social handlers and ten service/clothing/trade handlers. Native host
+behavior and private recovery are tested separately from bounded original C#
+component/helper oracles. Complete original-runtime, UI-runtime and production
+provider qualification remains open. Unknown IDs return `UnregisteredPlugin`;
+handlers needing trusted typed invocation cannot use the timer-only entry.
+There is no fallback stub.
 
+The [native family boundary](../../docs/swarm-b/eod-native-boundary.md) describes
+`connect_native`, authenticated `join_native`, epoch-fenced callbacks,
+checkpoint-prepared external operations and private format 4. Family contracts
+are documented for [casino](../../docs/swarm-b/eod-casino.md),
+[social](../../docs/swarm-b/eod-social.md), and
+[services](../../docs/swarm-b/eod-services.md).
 See [generated coverage](../../docs/swarm-b/eod-coverage.md) and the
 [registration census](../../fixtures/eod/registration-census.json) for source
 anchors, exact server/UI pairings, source quirks, recovery policies and open
@@ -23,7 +31,9 @@ leaves.
    from the transport, never from UI data.
 2. The trusted VM calls existing `connect` with `ConnectRequest` for Timer, or
    `connect_plugin` with `PluginConnectRequest` and typed `PluginInput` for the
-   other handlers. Signs ownership/roommate status, Door Edit authorization,
+   earlier simple handlers, and `connect_native`/`join_native` with typed family
+   inputs for casino/social/service handlers. Cooperative games retain their
+   `connect_game_controller`/`join_game` interface. Signs ownership/roommate status, Door Edit authorization,
    modes, avatar ObjectID and persistent-object ID come from the VM invocation.
    They cannot be changed by inbound frames. The old timer-only entry reports
    `PluginInputRequired` for translated plugins needing this additional data.
@@ -39,7 +49,9 @@ leaves.
    authentication secrets.
 5. Drain `take_public_events()` into the synchronized VM adapter. Its typed
    variants expose exact source event code/temp arguments through
-   `source_event()`. Connect/disconnect are `-2`/`-1`. Only
+   `source_event()`. Apply typed native-family commands from
+   `take_native_commands()` at the same accepted VM barrier. Connect/disconnect
+   are `-2`/`-1`. Only
    `take_private(authority, connection, ticket)` retrieves that recipient's UI
    outputs; private payloads cannot convert to public events and redact Debug.
 6. Call `tick` once per authoritative 30 Hz tick. Only Timer consumes current
@@ -103,8 +115,9 @@ integrity-protected, atomic storage and an authoritative latest
 Draining an event does not itself prove the VM applied it: the VM and EOD
 checkpoints must share an actual commit barrier.
 
-Timer-only snapshots retain format/schema 1. Mixed snapshots use format 2 and
-per-handler schema 1. Format 2 stores loading/initialization/source state,
+Timer-only snapshots retain format/schema 1. Earlier mixed snapshots use format
+2; cooperative game snapshots use format 3; native-family snapshots use format
+4 with an exact legacy inner record. Per-handler schemas remain 1. Format 2 stores loading/initialization/source state,
 participant identities, native controllers, persistence bindings and immutable
 write intents. Parsers bound lengths before allocations and check identities,
 uniqueness, schemas, counters, deadlines, canonical intent bytes and relevant
@@ -158,27 +171,32 @@ UTF-8. The parser borrows the input after enforcing the full frame bound.
 The earlier unscoped draft and extra sender/recipient/Verified fields are
 rejected. Every implemented handler has its own event/kind allowlist.
 
-## Other durable effects remain unimplemented
+## Native family effects and remaining production integrations
 
-`effects::EffectOutbox` remains a separate foundation for future fund,
-inventory, settlement and refund providers. The plugin-data journal does not
-implement those operations. The 25 unsupported registrations retain their
-abort/reconcile integration gates. There is no casino, escrow, inventory,
-production storage or refund implementation in this crate.
+The new `NativeProvider` boundary carries typed atomic purchases, stock/debit,
+clothing mutations, cooldown reservations, whole-offer trade, casino transfers,
+revisioned data/name storage and bounded read snapshots. The actual handlers
+retain unresolved operations, refunds and private continuations across departure
+and restore. `effects::EffectOutbox` remains a separate general foundation; it
+is not the native-family journal. The production ledger, inventory service,
+durable provider, private checkpoint store and VM adapter remain unimplemented
+outside their declared native integration contracts.
 
 ## Validation and evidence
 
 ```sh
-CARGO_TARGET_DIR=/workspace/scratch/378e4c36af7b/swarm-b-eod-next-target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 /root/.cargo/bin/cargo test --manifest-path crates/eod-runtime/Cargo.toml --offline
+CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 /root/.cargo/bin/cargo test --manifest-path crates/eod-runtime/Cargo.toml --offline
 python3 tools/swarm-b/eod-census.py --check
 /root/.cargo/bin/cargo fmt --manifest-path crates/eod-runtime/Cargo.toml --check
-CARGO_TARGET_DIR=/workspace/scratch/378e4c36af7b/swarm-b-eod-next-target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 /root/.cargo/bin/cargo clippy --manifest-path crates/eod-runtime/Cargo.toml --offline --all-targets -- -D warnings
+CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 /root/.cargo/bin/cargo clippy --manifest-path crates/eod-runtime/Cargo.toml --offline --all-targets -- -D warnings
 ```
 
-Tests use hand-derived C# expectations and native host/provider models. A local
-Mono probe verifies selected .NET numeric/encoding behavior. Neither those tests
-nor the probe execute the FreeSO application or UI runtime, establish a working
-durable service, validate object content, or measure 30 Hz performance.
+Tests use source-derived expectations and actual native host/provider boundary
+adapters. Separate original C# existing-five, social and service component
+oracles and a bounded casino helper oracle execute pinned source under their
+documented boundaries. They do not execute the complete FreeSO application/UI,
+establish a production durable provider, validate object content or measure
+30 Hz performance.
 
 ## License and attribution
 

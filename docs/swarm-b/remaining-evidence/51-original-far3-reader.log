@@ -1,0 +1,7 @@
+TSOClient/tso.files/FAR3/FAR3Archive.cs(38,34): warning CS0168: The variable `ex' is declared but never used
+TSOClient/tso.files/FAR3/FAR3Archive.cs(149,13): warning CS0162: Unreachable code detected
+TSOClient/tso.files/FAR3/Decompresser.cs(300,26): warning CS0219: The variable `Reader' is assigned but its value is never used
+TSOClient/tso.files/FAR3/FAR3Archive.cs(16,24): warning CS0414: The private field `FSO.Files.FAR3.FAR3Archive.m_ArchivePath' is assigned but its value is never used
+TSOClient/tso.files/FAR3/FAR3Archive.cs(20,22): warning CS0414: The private field `FSO.Files.FAR3.FAR3Archive.m_ManifestOffset' is assigned but its value is never used
+Compilation succeeded - 5 warning(s)
+Pinned C# FAR3 reader: 73-byte authored vector -> abcdefg PASS

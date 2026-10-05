@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 //! Real source imports through bounded archive readers and the ordered content resolver.
+pub mod obj;
 use crate::{
     fs_io::read_import,
     manifest::{CookLimits, PreparedResource},
@@ -476,6 +477,50 @@ impl Importer<'_> {
                     sprites::decode_spr(&chunk.data, palette, &self.limits.legacy).map_err(err)?;
                     kind = ResourceKind::Visual;
                 }
+                b"FSOM" => {
+                    let mesh =
+                        legacy::reconstruction::decode_fsom(&chunk.data, &self.limits.legacy)
+                            .map_err(err)?;
+                    let drawing = file
+                        .chunks
+                        .iter()
+                        .find(|c| c.key.kind == *b"DGRP" && c.key.id == chunk.key.id)
+                        .ok_or_else(|| err("FSOM requires its same-ID source DGRP"))?;
+                    let group =
+                        sprites::decode_dgrp(&drawing.data, &self.limits.legacy).map_err(err)?;
+                    dependencies.insert(chunk_id(prefix, drawing));
+                    for geometry in mesh.groups.iter().flatten().chain(mesh.depth_mask.iter()) {
+                        match geometry.texture_reference() {
+                            legacy::reconstruction::FsomTextureReference::CustomTexture { id } => {
+                                let texture=file.chunks.iter().find(|c|c.key.kind==*b"MTEX"&&c.key.id==id)
+                                    .ok_or_else(||err(format!("FSOM custom texture {id} requires an explicit same-IFF MTEX; external replacement textures are not discovered")))?;
+                                dependencies.insert(chunk_id(prefix, texture));
+                            }
+                            legacy::reconstruction::FsomTextureReference::Sprite {
+                                index,
+                                rotation,
+                            } => {
+                                let sprite=group.image(1,3,u32::from(rotation)).and_then(|image|image.sprites.get(index as usize))
+                                    .ok_or_else(||err(format!("FSOM sprite rotation {rotation}, index {index} has no exact source DGRP image")))?;
+                                let candidates = sprite_chunks
+                                    .get(&sprite.sprite_id)
+                                    .map(Vec::as_slice)
+                                    .unwrap_or(&[]);
+                                if candidates.len() != 1 {
+                                    return Err(err(
+                                        "FSOM texture needs one unambiguous SPR#/SPR2 resource",
+                                    ));
+                                }
+                                dependencies.insert(chunk_id(prefix, candidates[0]));
+                            }
+                        }
+                    }
+                    kind = ResourceKind::Visual;
+                }
+                b"MTEX" if chunk.data.starts_with(b"\x89PNG\r\n\x1a\n") => {
+                    legacy::textures::decode_png(&chunk.data, &self.limits.legacy).map_err(err)?;
+                    kind = ResourceKind::Visual;
+                }
                 _ => {}
             }
             let id = chunk_id(prefix, chunk);
@@ -549,6 +594,23 @@ impl Importer<'_> {
                 (ResourceKind::Visual, ResourceCodec::VitaboyAppearance)
             }
             SourceFormat::VitaboyOutfit => (ResourceKind::Visual, ResourceCodec::VitaboyOutfit),
+            SourceFormat::VitaboyPurchasableOutfit => (
+                ResourceKind::Visual,
+                ResourceCodec::VitaboyPurchasableOutfit,
+            ),
+            SourceFormat::VitaboyHandGroup => {
+                (ResourceKind::Visual, ResourceCodec::VitaboyHandGroup)
+            }
+            SourceFormat::VitaboyCollection => {
+                (ResourceKind::Visual, ResourceCodec::VitaboyCollection)
+            }
+            SourceFormat::Fsom => (ResourceKind::Visual, ResourceCodec::Fsom),
+            SourceFormat::Nbhm => (ResourceKind::Visual, ResourceCodec::Nbhm),
+            SourceFormat::PngTexture => (ResourceKind::Visual, ResourceCodec::PngTexture),
+            SourceFormat::VitaboyBcf => (ResourceKind::Visual, ResourceCodec::VitaboyBcf),
+            SourceFormat::VitaboyCmx => (ResourceKind::Visual, ResourceCodec::VitaboyCmx),
+            SourceFormat::VitaboyBmf => (ResourceKind::Visual, ResourceCodec::VitaboyBmf),
+            SourceFormat::VitaboySkn => (ResourceKind::Visual, ResourceCodec::VitaboySkn),
             SourceFormat::PcmWave => (ResourceKind::Audio, ResourceCodec::PcmWave),
             SourceFormat::XaMetadata => (ResourceKind::Audio, ResourceCodec::XaMetadata),
             SourceFormat::UtkMetadata => (ResourceKind::Audio, ResourceCodec::UtkMetadata),
@@ -604,7 +666,29 @@ pub fn import_spec(
     limits: &CookLimits,
 ) -> ManifestResult<ImportedContent> {
     spec.validate(limits)?;
-    let mut importer = Importer {spec,root,limits,read_total:0,decoded_total:0,output:ImportedContent {resources:Vec::new(),report:ImportReport {schema_version:1,fixture_only:false,sources:Vec::new(),resources:Vec::new(),input_hashes:BTreeMap::new(),limitations:vec!["Dynamic BHAV references are not automatically discovered; simulation dependency completeness is the caller's explicit accepted contract.".into(),"Opaque entries and PIFF descriptors are preserved but never tick-ready; no nested archive expansion, gameplay execution, mesh conversion or renderer is supplied.".into(),"Indexed IFF resource-map edits are unsupported by the content resolver and fail explicitly.".into()]}}};
+    let mut importer = Importer {
+        spec,
+        root,
+        limits,
+        read_total: 0,
+        decoded_total: 0,
+        output: ImportedContent {
+            resources: Vec::new(),
+            report: ImportReport {
+                schema_version: 1,
+                fixture_only: false,
+                sources: Vec::new(),
+                resources: Vec::new(),
+                input_hashes: BTreeMap::new(),
+                limitations: vec![
+                    "Dynamic BHAV references are not automatically discovered; simulation dependency completeness is the caller's explicit accepted contract.".into(),
+                    "Opaque entries and PIFF descriptors are preserved but never tick-ready; import performs no nested archive expansion, gameplay execution, automatic mesh conversion or rendering.".into(),
+                    "Indexed IFF resource-map edits are unsupported by the content resolver and fail explicitly.".into(),
+                    "FSOM import supplies no external replacement texture provider: same-IFF MTEX is the explicit custom-texture fallback, and separate PNG sources do not register renderer replacement precedence.".into(),
+                ],
+            },
+        },
+    };
     for source in &spec.sources {
         let bytes = importer.read(&source.path)?;
         let hash = Digest::of(&bytes);

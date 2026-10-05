@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "compiled_original_sources": 16,
+  "inspected_original_sources": 6,
+  "original_mono_game_reference": "TSOClient/tso.client/Monogame/MacOS/MonoGame.Framework.dll",
+  "unchanged_source_hashes": "PASS",
+  "exact_repeated_runs": 2,
+  "trace_sha256": "9bb8d1f387947be047ed0ee813877d876494cdd4a8059ecd0c3bb64d5163d4ab",
+  "negative_controls_rejected": [
+    "combat_graph",
+    "last_piece_stall",
+    "payout",
+    "freshness",
+    "raster",
+    "buzzer_window"
+  ],
+  "result": "PASS",
+  "scope": "Original C# handler semantics with boundary adapters; native integration is tested separately through NativeHost."
+}

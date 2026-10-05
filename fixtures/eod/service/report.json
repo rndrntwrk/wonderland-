@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "compiled_original_sources": 14,
+  "inspected_original_sources": 8,
+  "unchanged_source_hashes": "PASS",
+  "exact_repeated_runs": 2,
+  "trace_sha256": "3b3b804ccac4c3609e7fdbb068599372a1aa58800f4e4a3e217425e002eeaedf",
+  "negative_controls_rejected": [
+    "property_sign_extension",
+    "animation_latest",
+    "newspaper_float",
+    "draw_frequency_255",
+    "cooldown_account_category",
+    "trunk_halloween_fallback",
+    "trade_acceptance_delay",
+    "source_property_bug"
+  ],
+  "result": "PASS",
+  "scope": "Original C# service component semantics with authored VM/content/provider boundaries; real native host recovery/admission is tested separately. No production provider or complete original-application equivalence claim."
+}

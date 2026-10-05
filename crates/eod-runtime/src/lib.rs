@@ -12,7 +12,11 @@ pub mod effects;
 mod game_host;
 mod games;
 mod host;
+mod native_checkpoint;
+mod native_host;
+pub mod native_provider;
 pub mod persistence;
+pub mod plugins;
 pub mod protocol;
 pub mod registry;
 mod source_plugins;
@@ -30,6 +34,11 @@ pub use host::{
     ConnectRequest, ConnectionAuthority, HostIdentity, HostLimits, NativeHost,
     PluginConnectRequest, PluginInput, RegisterSource,
 };
+pub use native_host::{
+    NativeControllerTicket, NativeCreateRequest, NativeJoinRequest, NativeVmCommand,
+};
+pub use plugins::common::{Member, MemberInput};
+pub use plugins::{NativeCommand, NativePluginInput, NativeVmInput, OutfitScope};
 pub use protocol::{
     ActorId, ClientMessage, ConnectionId, DispatchOutcome, Error, HostScopeId, InstanceAddress,
     InstanceId, InvokerId, PluginId, PrivateUiMessage, PublicVmEvent, SessionTicket, UiBody,

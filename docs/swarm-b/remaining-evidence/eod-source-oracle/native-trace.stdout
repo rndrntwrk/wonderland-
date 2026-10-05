@@ -1,0 +1,738 @@
+BEGIN	timer_raw_casts_and_bounds	0
+END	timer_raw_casts_and_bounds	0
+BEGIN	timer_raw_casts_and_bounds	1
+VM	101	-2	-
+UI	1001	aa65fe9e	text	eod_enter	-
+UI	1001	aa65fe9e	binary	Timer_Show	02012cff
+END	timer_raw_casts_and_bounds	1
+BEGIN	timer_raw_casts_and_bounds	2
+VM	101	1	-
+END	timer_raw_casts_and_bounds	2
+BEGIN	timer_raw_casts_and_bounds	3
+END	timer_raw_casts_and_bounds	3
+BEGIN	timer_raw_casts_and_bounds	4
+VM	101	2	25403
+END	timer_raw_casts_and_bounds	4
+BEGIN	timer_raw_casts_and_bounds	5
+END	timer_raw_casts_and_bounds	5
+BEGIN	timer_raw_casts_and_bounds	6
+END	timer_raw_casts_and_bounds	6
+BEGIN	timer_raw_casts_and_bounds	7
+END	timer_raw_casts_and_bounds	7
+BEGIN	timer_raw_casts_and_bounds	8
+END	timer_raw_casts_and_bounds	8
+BEGIN	timer_raw_casts_and_bounds	9
+END	timer_raw_casts_and_bounds	9
+BEGIN	timer_raw_casts_and_bounds	10
+END	timer_raw_casts_and_bounds	10
+BEGIN	timer_raw_casts_and_bounds	11
+VM	101	-1	-
+UI	1001	aa65fe9e	text	eod_leave	-
+END	timer_raw_casts_and_bounds	11
+BEGIN	timer_stopped_refresh_fifth_tick	0
+END	timer_stopped_refresh_fifth_tick	0
+BEGIN	timer_stopped_refresh_fifth_tick	1
+VM	101	-2	-
+UI	1001	aa65fe9e	text	eod_enter	-
+UI	1001	aa65fe9e	binary	Timer_Show	00000809
+END	timer_stopped_refresh_fifth_tick	1
+BEGIN	timer_stopped_refresh_fifth_tick	2
+VM	101	3	-
+END	timer_stopped_refresh_fifth_tick	2
+BEGIN	timer_stopped_refresh_fifth_tick	3
+VM	101	4	-
+END	timer_stopped_refresh_fifth_tick	3
+BEGIN	timer_stopped_refresh_fifth_tick	4
+END	timer_stopped_refresh_fifth_tick	4
+BEGIN	timer_stopped_refresh_fifth_tick	5
+VM	101	0	-
+END	timer_stopped_refresh_fifth_tick	5
+BEGIN	timer_stopped_refresh_fifth_tick	6
+END	timer_stopped_refresh_fifth_tick	6
+BEGIN	timer_stopped_refresh_fifth_tick	7
+UI	1001	aa65fe9e	text	Timer_Update	313a37
+END	timer_stopped_refresh_fifth_tick	7
+BEGIN	timer_stopped_refresh_fifth_tick	8
+END	timer_stopped_refresh_fifth_tick	8
+BEGIN	timer_stopped_refresh_fifth_tick	9
+VM	101	-1	-
+UI	1001	aa65fe9e	text	eod_leave	-
+END	timer_stopped_refresh_fifth_tick	9
+BEGIN	timer_stale_tock_requires_running_tick	0
+END	timer_stale_tock_requires_running_tick	0
+BEGIN	timer_stale_tock_requires_running_tick	1
+VM	101	-2	-
+UI	1001	aa65fe9e	text	eod_enter	-
+UI	1001	aa65fe9e	binary	Timer_Show	00000809
+END	timer_stale_tock_requires_running_tick	1
+BEGIN	timer_stale_tock_requires_running_tick	2
+VM	101	3	-
+END	timer_stale_tock_requires_running_tick	2
+BEGIN	timer_stale_tock_requires_running_tick	3
+VM	101	4	-
+END	timer_stale_tock_requires_running_tick	3
+BEGIN	timer_stale_tock_requires_running_tick	4
+VM	101	0	-
+UI	1001	aa65fe9e	text	Timer_Update	383a39
+END	timer_stale_tock_requires_running_tick	4
+BEGIN	timer_stale_tock_requires_running_tick	5
+VM	101	3	-
+END	timer_stale_tock_requires_running_tick	5
+BEGIN	timer_stale_tock_requires_running_tick	6
+VM	101	4	-
+END	timer_stale_tock_requires_running_tick	6
+BEGIN	timer_stale_tock_requires_running_tick	7
+END	timer_stale_tock_requires_running_tick	7
+BEGIN	timer_stale_tock_requires_running_tick	8
+END	timer_stale_tock_requires_running_tick	8
+BEGIN	timer_stale_tock_requires_running_tick	9
+VM	101	3	-
+END	timer_stale_tock_requires_running_tick	9
+BEGIN	timer_stale_tock_requires_running_tick	10
+END	timer_stale_tock_requires_running_tick	10
+BEGIN	timer_stale_tock_requires_running_tick	11
+VM	101	4	-
+END	timer_stale_tock_requires_running_tick	11
+BEGIN	timer_stale_tock_requires_running_tick	12
+VM	101	0	-
+UI	1001	aa65fe9e	text	Timer_Update	313a37
+END	timer_stale_tock_requires_running_tick	12
+BEGIN	timer_stale_tock_requires_running_tick	13
+VM	101	-1	-
+UI	1001	aa65fe9e	text	eod_leave	-
+END	timer_stale_tock_requires_running_tick	13
+BEGIN	timer_countdown_off_before_update	0
+END	timer_countdown_off_before_update	0
+BEGIN	timer_countdown_off_before_update	1
+VM	101	-2	-
+UI	1001	aa65fe9e	text	eod_enter	-
+UI	1001	aa65fe9e	binary	Timer_Show	01000001
+END	timer_countdown_off_before_update	1
+BEGIN	timer_countdown_off_before_update	2
+END	timer_countdown_off_before_update	2
+BEGIN	timer_countdown_off_before_update	3
+UI	1001	aa65fe9e	binary	Timer_Off	00
+UI	1001	aa65fe9e	text	Timer_Update	303a30
+END	timer_countdown_off_before_update	3
+BEGIN	timer_countdown_off_before_update	4
+END	timer_countdown_off_before_update	4
+BEGIN	timer_countdown_off_before_update	5
+VM	101	-1	-
+UI	1001	aa65fe9e	text	eod_leave	-
+END	timer_countdown_off_before_update	5
+BEGIN	timer_already_running_pause_skips_refresh	0
+END	timer_already_running_pause_skips_refresh	0
+BEGIN	timer_already_running_pause_skips_refresh	1
+VM	101	-2	-
+UI	1001	aa65fe9e	text	eod_enter	-
+UI	1001	aa65fe9e	binary	Timer_Show	01000102
+END	timer_already_running_pause_skips_refresh	1
+BEGIN	timer_already_running_pause_skips_refresh	2
+VM	101	4	-
+END	timer_already_running_pause_skips_refresh	2
+BEGIN	timer_already_running_pause_skips_refresh	3
+END	timer_already_running_pause_skips_refresh	3
+BEGIN	timer_already_running_pause_skips_refresh	4
+VM	101	-1	-
+UI	1001	aa65fe9e	text	eod_leave	-
+END	timer_already_running_pause_skips_refresh	4
+BEGIN	timer_stopwatch_zero_waits_for_mode_change	0
+END	timer_stopwatch_zero_waits_for_mode_change	0
+BEGIN	timer_stopwatch_zero_waits_for_mode_change	1
+VM	101	-2	-
+UI	1001	aa65fe9e	text	eod_enter	-
+UI	1001	aa65fe9e	binary	Timer_Show	01010000
+END	timer_stopwatch_zero_waits_for_mode_change	1
+BEGIN	timer_stopwatch_zero_waits_for_mode_change	2
+END	timer_stopwatch_zero_waits_for_mode_change	2
+BEGIN	timer_stopwatch_zero_waits_for_mode_change	3
+VM	101	1	-
+END	timer_stopwatch_zero_waits_for_mode_change	3
+BEGIN	timer_stopwatch_zero_waits_for_mode_change	4
+UI	1001	aa65fe9e	binary	Timer_Off	00
+UI	1001	aa65fe9e	text	Timer_Update	303a30
+END	timer_stopwatch_zero_waits_for_mode_change	4
+BEGIN	timer_stopwatch_zero_waits_for_mode_change	5
+VM	101	-1	-
+UI	1001	aa65fe9e	text	eod_leave	-
+END	timer_stopwatch_zero_waits_for_mode_change	5
+BEGIN	dance_private_recipients_controller_and_departure	0
+END	dance_private_recipients_controller_and_departure	0
+BEGIN	dance_private_recipients_controller_and_departure	1
+VM	700	-2	-
+END	dance_private_recipients_controller_and_departure	1
+BEGIN	dance_private_recipients_controller_and_departure	2
+VM	101	-2	-
+UI	1001	4a5be8ab	text	eod_enter	-
+UI	1001	4a5be8ab	text	dance_show	-
+END	dance_private_recipients_controller_and_departure	2
+BEGIN	dance_private_recipients_controller_and_departure	3
+VM	102	-2	-
+UI	1002	4a5be8ab	text	eod_enter	-
+UI	1002	4a5be8ab	text	dance_show	-
+END	dance_private_recipients_controller_and_departure	3
+BEGIN	dance_private_recipients_controller_and_departure	4
+VM	700	1	2001
+END	dance_private_recipients_controller_and_departure	4
+BEGIN	dance_private_recipients_controller_and_departure	5
+VM	700	255	2002
+END	dance_private_recipients_controller_and_departure	5
+BEGIN	dance_private_recipients_controller_and_departure	6
+VM	700	25	2001
+END	dance_private_recipients_controller_and_departure	6
+BEGIN	dance_private_recipients_controller_and_departure	7
+VM	700	25	2001
+END	dance_private_recipients_controller_and_departure	7
+BEGIN	dance_private_recipients_controller_and_departure	8
+END	dance_private_recipients_controller_and_departure	8
+BEGIN	dance_private_recipients_controller_and_departure	9
+END	dance_private_recipients_controller_and_departure	9
+BEGIN	dance_private_recipients_controller_and_departure	10
+END	dance_private_recipients_controller_and_departure	10
+BEGIN	dance_private_recipients_controller_and_departure	11
+END	dance_private_recipients_controller_and_departure	11
+BEGIN	dance_private_recipients_controller_and_departure	12
+VM	101	-1	-
+UI	1001	4a5be8ab	text	eod_leave	-
+END	dance_private_recipients_controller_and_departure	12
+BEGIN	dance_private_recipients_controller_and_departure	13
+VM	700	7	2002
+END	dance_private_recipients_controller_and_departure	13
+BEGIN	dance_private_recipients_controller_and_departure	14
+VM	700	-1	-
+END	dance_private_recipients_controller_and_departure	14
+BEGIN	dance_private_recipients_controller_and_departure	15
+END	dance_private_recipients_controller_and_departure	15
+BEGIN	dance_private_recipients_controller_and_departure	16
+VM	102	-1	-
+UI	1002	4a5be8ab	text	eod_leave	-
+END	dance_private_recipients_controller_and_departure	16
+BEGIN	dance_no_controller_has_no_button_effect	0
+END	dance_no_controller_has_no_button_effect	0
+BEGIN	dance_no_controller_has_no_button_effect	1
+VM	101	-2	-
+UI	1001	4a5be8ab	text	eod_enter	-
+UI	1001	4a5be8ab	text	dance_show	-
+END	dance_no_controller_has_no_button_effect	1
+BEGIN	dance_no_controller_has_no_button_effect	2
+END	dance_no_controller_has_no_button_effect	2
+BEGIN	dance_no_controller_has_no_button_effect	3
+VM	101	-1	-
+UI	1001	4a5be8ab	text	eod_leave	-
+END	dance_no_controller_has_no_button_effect	3
+BEGIN	signs_roommate_defaults_write_preserves_flags	0
+END	signs_roommate_defaults_write_preserves_flags	0
+BEGIN	signs_roommate_defaults_write_preserves_flags	1
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	signs_roommate_defaults_write_preserves_flags	1
+BEGIN	signs_roommate_defaults_write_preserves_flags	2
+END	signs_roommate_defaults_write_preserves_flags	2
+BEGIN	signs_roommate_defaults_write_preserves_flags	3
+PROVIDER	result	78	2a6356a0	0	-
+END	signs_roommate_defaults_write_preserves_flags	3
+BEGIN	signs_roommate_defaults_write_preserves_flags	4
+UI	1001	2a6356a0	text	signs_init	310a3136
+UI	1001	2a6356a0	binary	signs_show	0f0000
+END	signs_roommate_defaults_write_preserves_flags	4
+BEGIN	signs_roommate_defaults_write_preserves_flags	5
+VM	101	1	1
+PROVIDER	save	78	2a6356a0	0f000568656c6c6f
+END	signs_roommate_defaults_write_preserves_flags	5
+BEGIN	signs_roommate_defaults_write_preserves_flags	6
+VM	101	1	0
+PROVIDER	save	78	2a6356a0	0f0000
+END	signs_roommate_defaults_write_preserves_flags	6
+BEGIN	signs_roommate_defaults_write_preserves_flags	7
+VM	101	-1	-
+UI	1001	2a6356a0	text	eod_leave	-
+END	signs_roommate_defaults_write_preserves_flags	7
+BEGIN	signs_visitor_read_rejects_write	0
+END	signs_visitor_read_rejects_write	0
+BEGIN	signs_visitor_read_rejects_write	1
+END	signs_visitor_read_rejects_write	1
+BEGIN	signs_visitor_read_rejects_write	2
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	signs_visitor_read_rejects_write	2
+BEGIN	signs_visitor_read_rejects_write	3
+PROVIDER	result	78	2a6356a0	1	050006736563726574
+END	signs_visitor_read_rejects_write	3
+BEGIN	signs_visitor_read_rejects_write	4
+UI	1001	2a6356a0	text	signs_init	320a3136
+UI	1001	2a6356a0	binary	signs_show	050006736563726574
+END	signs_visitor_read_rejects_write	4
+BEGIN	signs_visitor_read_rejects_write	5
+END	signs_visitor_read_rejects_write	5
+BEGIN	signs_visitor_read_rejects_write	6
+VM	101	-1	-
+UI	1001	2a6356a0	text	eod_leave	-
+END	signs_visitor_read_rejects_write	6
+BEGIN	signs_read_denial_keeps_write_mode_quirk	0
+END	signs_read_denial_keeps_write_mode_quirk	0
+BEGIN	signs_read_denial_keeps_write_mode_quirk	1
+END	signs_read_denial_keeps_write_mode_quirk	1
+BEGIN	signs_read_denial_keeps_write_mode_quirk	2
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	signs_read_denial_keeps_write_mode_quirk	2
+BEGIN	signs_read_denial_keeps_write_mode_quirk	3
+PROVIDER	result	78	2a6356a0	1	200006736563726574
+END	signs_read_denial_keeps_write_mode_quirk	3
+BEGIN	signs_read_denial_keeps_write_mode_quirk	4
+UI	1001	2a6356a0	text	signs_init	310a3136
+UI	1001	2a6356a0	binary	signs_show	200000
+END	signs_read_denial_keeps_write_mode_quirk	4
+BEGIN	signs_read_denial_keeps_write_mode_quirk	5
+VM	101	1	1
+PROVIDER	save	78	2a6356a0	2000046e657874
+END	signs_read_denial_keeps_write_mode_quirk	5
+BEGIN	signs_read_denial_keeps_write_mode_quirk	6
+VM	101	-1	-
+UI	1001	2a6356a0	text	eod_leave	-
+END	signs_read_denial_keeps_write_mode_quirk	6
+BEGIN	signs_read_denial_keeps_write_mode_quirk	7
+VM	102	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	signs_read_denial_keeps_write_mode_quirk	7
+BEGIN	signs_read_denial_keeps_write_mode_quirk	8
+PROVIDER	result	78	2a6356a0	1	2000046e657874
+END	signs_read_denial_keeps_write_mode_quirk	8
+BEGIN	signs_read_denial_keeps_write_mode_quirk	9
+UI	1001	2a6356a0	text	signs_init	310a3136
+UI	1001	2a6356a0	binary	signs_show	200000
+END	signs_read_denial_keeps_write_mode_quirk	9
+BEGIN	signs_read_denial_keeps_write_mode_quirk	10
+VM	102	-1	-
+UI	1001	2a6356a0	text	eod_leave	-
+END	signs_read_denial_keeps_write_mode_quirk	10
+BEGIN	signs_owner_utf16_and_trailing_bytes	0
+END	signs_owner_utf16_and_trailing_bytes	0
+BEGIN	signs_owner_utf16_and_trailing_bytes	1
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	signs_owner_utf16_and_trailing_bytes	1
+BEGIN	signs_owner_utf16_and_trailing_bytes	2
+PROVIDER	result	78	2a6356a0	0	-
+END	signs_owner_utf16_and_trailing_bytes	2
+BEGIN	signs_owner_utf16_and_trailing_bytes	3
+UI	1001	2a6356a0	text	signs_init	330a33
+UI	1001	2a6356a0	binary	signs_show	0f0000
+END	signs_owner_utf16_and_trailing_bytes	3
+BEGIN	signs_owner_utf16_and_trailing_bytes	4
+VM	101	1	1
+PROVIDER	save	78	2a6356a0	3f000541f09f9880
+END	signs_owner_utf16_and_trailing_bytes	4
+BEGIN	signs_owner_utf16_and_trailing_bytes	5
+VM	101	1	1
+PROVIDER	save	78	2a6356a0	09000151
+END	signs_owner_utf16_and_trailing_bytes	5
+BEGIN	signs_owner_utf16_and_trailing_bytes	6
+END	signs_owner_utf16_and_trailing_bytes	6
+BEGIN	signs_owner_utf16_and_trailing_bytes	7
+END	signs_owner_utf16_and_trailing_bytes	7
+BEGIN	signs_owner_utf16_and_trailing_bytes	8
+VM	101	1	0
+PROVIDER	save	78	2a6356a0	3f0000
+END	signs_owner_utf16_and_trailing_bytes	8
+BEGIN	signs_owner_utf16_and_trailing_bytes	9
+VM	101	-1	-
+UI	1001	2a6356a0	text	eod_leave	-
+END	signs_owner_utf16_and_trailing_bytes	9
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	0
+END	signs_owner_zero_limit_and_long_length_prefix	0
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	1
+END	signs_owner_zero_limit_and_long_length_prefix	1
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	2
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	signs_owner_zero_limit_and_long_length_prefix	2
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	3
+PROVIDER	result	78	2a6356a0	1	0f00820178787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878
+END	signs_owner_zero_limit_and_long_length_prefix	3
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	4
+UI	1001	2a6356a0	text	signs_init	340a30
+UI	1001	2a6356a0	binary	signs_show	0f00820178787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878
+END	signs_owner_zero_limit_and_long_length_prefix	4
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	5
+VM	101	1	0
+PROVIDER	save	78	2a6356a0	3f0000
+END	signs_owner_zero_limit_and_long_length_prefix	5
+BEGIN	signs_owner_zero_limit_and_long_length_prefix	6
+VM	101	-1	-
+UI	1001	2a6356a0	text	eod_leave	-
+END	signs_owner_zero_limit_and_long_length_prefix	6
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	0
+END	scoreboard_async_load_numeric_and_enum_parsing	0
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	1
+VM	101	-2	-
+UI	1001	0949e698	text	eod_enter	-
+UI	1001	0949e698	text	scoreboard_show	-
+PROVIDER	request	77	0949e698
+END	scoreboard_async_load_numeric_and_enum_parsing	1
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	2
+END	scoreboard_async_load_numeric_and_enum_parsing	2
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	3
+PROVIDER	result	77	0949e698	0	-
+UI	1001	0949e698	binary	scoreboard_state	000100000000
+END	scoreboard_async_load_numeric_and_enum_parsing	3
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	4
+VM	101	1	999
+UI	1001	0949e698	binary	scoreboard_state	0001e7030000
+PROVIDER	save	77	0949e698	0001e7030000
+END	scoreboard_async_load_numeric_and_enum_parsing	4
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	5
+VM	101	1	0
+UI	1001	0949e698	binary	scoreboard_state	000100000000
+PROVIDER	save	77	0949e698	000100000000
+END	scoreboard_async_load_numeric_and_enum_parsing	5
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	6
+VM	101	4	5
+PROVIDER	save	77	0949e698	000500000000
+END	scoreboard_async_load_numeric_and_enum_parsing	6
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	7
+VM	101	4	255
+PROVIDER	save	77	0949e698	00ff00000000
+END	scoreboard_async_load_numeric_and_enum_parsing	7
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	8
+UI	1001	0949e698	binary	scoreboard_state	00ff00000000
+PROVIDER	save	77	0949e698	00ff00000000
+END	scoreboard_async_load_numeric_and_enum_parsing	8
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	9
+PROVIDER	save	77	0949e698	00ff00000000
+END	scoreboard_async_load_numeric_and_enum_parsing	9
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	10
+END	scoreboard_async_load_numeric_and_enum_parsing	10
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	11
+END	scoreboard_async_load_numeric_and_enum_parsing	11
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	12
+END	scoreboard_async_load_numeric_and_enum_parsing	12
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	13
+END	scoreboard_async_load_numeric_and_enum_parsing	13
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	14
+VM	101	1	24
+UI	1001	0949e698	binary	scoreboard_state	00ff18000000
+PROVIDER	save	77	0949e698	00ff18000000
+END	scoreboard_async_load_numeric_and_enum_parsing	14
+BEGIN	scoreboard_async_load_numeric_and_enum_parsing	15
+VM	101	-1	-
+UI	1001	0949e698	text	eod_leave	-
+END	scoreboard_async_load_numeric_and_enum_parsing	15
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	0
+END	scoreboard_loaded_extremes_wrap_and_tails	0
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	1
+END	scoreboard_loaded_extremes_wrap_and_tails	1
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	2
+VM	101	-2	-
+UI	1001	0949e698	text	eod_enter	-
+UI	1001	0949e698	text	scoreboard_show	-
+PROVIDER	request	77	0949e698
+END	scoreboard_loaded_extremes_wrap_and_tails	2
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	3
+PROVIDER	result	77	0949e698	1	ff07ff7f0080aabb
+UI	1001	0949e698	binary	scoreboard_state	ff07ff7f0080
+END	scoreboard_loaded_extremes_wrap_and_tails	3
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	4
+VM	101	1	0
+UI	1001	0949e698	binary	scoreboard_state	ff0700000080
+PROVIDER	save	77	0949e698	ff0700000080
+END	scoreboard_loaded_extremes_wrap_and_tails	4
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	5
+VM	101	2	0
+UI	1001	0949e698	binary	scoreboard_state	ff0700000000
+PROVIDER	save	77	0949e698	ff0700000000
+END	scoreboard_loaded_extremes_wrap_and_tails	5
+BEGIN	scoreboard_loaded_extremes_wrap_and_tails	6
+VM	101	-1	-
+UI	1001	0949e698	text	eod_leave	-
+END	scoreboard_loaded_extremes_wrap_and_tails	6
+BEGIN	scoreboard_saved_state_reopens	0
+END	scoreboard_saved_state_reopens	0
+BEGIN	scoreboard_saved_state_reopens	1
+VM	101	-2	-
+UI	1001	0949e698	text	eod_enter	-
+UI	1001	0949e698	text	scoreboard_show	-
+PROVIDER	request	77	0949e698
+END	scoreboard_saved_state_reopens	1
+BEGIN	scoreboard_saved_state_reopens	2
+PROVIDER	result	77	0949e698	0	-
+UI	1001	0949e698	binary	scoreboard_state	000100000000
+END	scoreboard_saved_state_reopens	2
+BEGIN	scoreboard_saved_state_reopens	3
+VM	101	2	27
+UI	1001	0949e698	binary	scoreboard_state	000100001b00
+PROVIDER	save	77	0949e698	000100001b00
+END	scoreboard_saved_state_reopens	3
+BEGIN	scoreboard_saved_state_reopens	4
+VM	101	3	3
+PROVIDER	save	77	0949e698	030100001b00
+END	scoreboard_saved_state_reopens	4
+BEGIN	scoreboard_saved_state_reopens	5
+VM	101	-1	-
+UI	1001	0949e698	text	eod_leave	-
+END	scoreboard_saved_state_reopens	5
+BEGIN	scoreboard_saved_state_reopens	6
+VM	102	-2	-
+UI	1001	0949e698	text	eod_enter	-
+UI	1001	0949e698	text	scoreboard_show	-
+PROVIDER	request	77	0949e698
+END	scoreboard_saved_state_reopens	6
+BEGIN	scoreboard_saved_state_reopens	7
+PROVIDER	result	77	0949e698	1	030100001b00
+UI	1001	0949e698	binary	scoreboard_state	030100001b00
+END	scoreboard_saved_state_reopens	7
+BEGIN	scoreboard_saved_state_reopens	8
+VM	102	-1	-
+UI	1001	0949e698	text	eod_leave	-
+END	scoreboard_saved_state_reopens	8
+BEGIN	door_editor_bounds_cache_and_reopen	0
+END	door_editor_bounds_cache_and_reopen	0
+BEGIN	door_editor_bounds_cache_and_reopen	1
+END	door_editor_bounds_cache_and_reopen	1
+BEGIN	door_editor_bounds_cache_and_reopen	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_editor_bounds_cache_and_reopen	2
+BEGIN	door_editor_bounds_cache_and_reopen	3
+END	door_editor_bounds_cache_and_reopen	3
+BEGIN	door_editor_bounds_cache_and_reopen	4
+PROVIDER	result	79	0a69f29f	1	31323334
+END	door_editor_bounds_cache_and_reopen	4
+BEGIN	door_editor_bounds_cache_and_reopen	5
+UI	1001	0a69f29f	text	door_init	300a3230300a310a32300a323532
+UI	1001	0a69f29f	text	door_code	31323334
+END	door_editor_bounds_cache_and_reopen	5
+BEGIN	door_editor_bounds_cache_and_reopen	6
+PROVIDER	save	79	0a69f29f	39383736
+END	door_editor_bounds_cache_and_reopen	6
+BEGIN	door_editor_bounds_cache_and_reopen	7
+VM	101	2	2
+END	door_editor_bounds_cache_and_reopen	7
+BEGIN	door_editor_bounds_cache_and_reopen	8
+END	door_editor_bounds_cache_and_reopen	8
+BEGIN	door_editor_bounds_cache_and_reopen	9
+VM	101	3	200
+END	door_editor_bounds_cache_and_reopen	9
+BEGIN	door_editor_bounds_cache_and_reopen	10
+END	door_editor_bounds_cache_and_reopen	10
+BEGIN	door_editor_bounds_cache_and_reopen	11
+VM	101	4	252
+END	door_editor_bounds_cache_and_reopen	11
+BEGIN	door_editor_bounds_cache_and_reopen	12
+END	door_editor_bounds_cache_and_reopen	12
+BEGIN	door_editor_bounds_cache_and_reopen	13
+END	door_editor_bounds_cache_and_reopen	13
+BEGIN	door_editor_bounds_cache_and_reopen	14
+VM	101	1	-
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_editor_bounds_cache_and_reopen	14
+BEGIN	door_editor_bounds_cache_and_reopen	15
+VM	102	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_editor_bounds_cache_and_reopen	15
+BEGIN	door_editor_bounds_cache_and_reopen	16
+PROVIDER	result	79	0a69f29f	1	39383736
+END	door_editor_bounds_cache_and_reopen	16
+BEGIN	door_editor_bounds_cache_and_reopen	17
+UI	1001	0a69f29f	text	door_init	300a3230300a310a32300a323532
+UI	1001	0a69f29f	text	door_code	39383736
+END	door_editor_bounds_cache_and_reopen	17
+BEGIN	door_editor_bounds_cache_and_reopen	18
+VM	102	1	-
+VM	102	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_editor_bounds_cache_and_reopen	18
+BEGIN	door_view_hides_code_and_ignores_edits	0
+END	door_view_hides_code_and_ignores_edits	0
+BEGIN	door_view_hides_code_and_ignores_edits	1
+END	door_view_hides_code_and_ignores_edits	1
+BEGIN	door_view_hides_code_and_ignores_edits	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_view_hides_code_and_ignores_edits	2
+BEGIN	door_view_hides_code_and_ignores_edits	3
+PROVIDER	result	79	0a69f29f	1	31323334
+END	door_view_hides_code_and_ignores_edits	3
+BEGIN	door_view_hides_code_and_ignores_edits	4
+UI	1001	0a69f29f	text	door_init	310a3230300a310a32300a323532
+END	door_view_hides_code_and_ignores_edits	4
+BEGIN	door_view_hides_code_and_ignores_edits	5
+END	door_view_hides_code_and_ignores_edits	5
+BEGIN	door_view_hides_code_and_ignores_edits	6
+END	door_view_hides_code_and_ignores_edits	6
+BEGIN	door_view_hides_code_and_ignores_edits	7
+END	door_view_hides_code_and_ignores_edits	7
+BEGIN	door_view_hides_code_and_ignores_edits	8
+END	door_view_hides_code_and_ignores_edits	8
+BEGIN	door_view_hides_code_and_ignores_edits	9
+END	door_view_hides_code_and_ignores_edits	9
+BEGIN	door_view_hides_code_and_ignores_edits	10
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_view_hides_code_and_ignores_edits	10
+BEGIN	door_code_input_matching	0
+END	door_code_input_matching	0
+BEGIN	door_code_input_matching	1
+END	door_code_input_matching	1
+BEGIN	door_code_input_matching	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_code_input_matching	2
+BEGIN	door_code_input_matching	3
+PROVIDER	result	79	0a69f29f	1	31323334
+END	door_code_input_matching	3
+BEGIN	door_code_input_matching	4
+UI	1001	0a69f29f	text	door_init	320a3230300a310a32300a323532
+END	door_code_input_matching	4
+BEGIN	door_code_input_matching	5
+VM	101	7	1
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_code_input_matching	5
+BEGIN	door_code_input_wrong	0
+END	door_code_input_wrong	0
+BEGIN	door_code_input_wrong	1
+END	door_code_input_wrong	1
+BEGIN	door_code_input_wrong	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_code_input_wrong	2
+BEGIN	door_code_input_wrong	3
+PROVIDER	result	79	0a69f29f	1	31323334
+END	door_code_input_wrong	3
+BEGIN	door_code_input_wrong	4
+UI	1001	0a69f29f	text	door_init	320a3230300a310a32300a323532
+END	door_code_input_wrong	4
+BEGIN	door_code_input_wrong	5
+VM	101	7	0
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_code_input_wrong	5
+BEGIN	door_code_input_malformed	0
+END	door_code_input_malformed	0
+BEGIN	door_code_input_malformed	1
+END	door_code_input_malformed	1
+BEGIN	door_code_input_malformed	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_code_input_malformed	2
+BEGIN	door_code_input_malformed	3
+PROVIDER	result	79	0a69f29f	1	31323334
+END	door_code_input_malformed	3
+BEGIN	door_code_input_malformed	4
+UI	1001	0a69f29f	text	door_init	320a3230300a310a32300a323532
+END	door_code_input_malformed	4
+BEGIN	door_code_input_malformed	5
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_code_input_malformed	5
+BEGIN	door_code_input_before_init_closes	0
+END	door_code_input_before_init_closes	0
+BEGIN	door_code_input_before_init_closes	1
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_code_input_before_init_closes	1
+BEGIN	door_code_input_before_init_closes	2
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_code_input_before_init_closes	2
+BEGIN	door_corrupt_decimal_load_defaults_to_zero	0
+END	door_corrupt_decimal_load_defaults_to_zero	0
+BEGIN	door_corrupt_decimal_load_defaults_to_zero	1
+END	door_corrupt_decimal_load_defaults_to_zero	1
+BEGIN	door_corrupt_decimal_load_defaults_to_zero	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_corrupt_decimal_load_defaults_to_zero	2
+BEGIN	door_corrupt_decimal_load_defaults_to_zero	3
+PROVIDER	result	79	0a69f29f	1	ff3432
+END	door_corrupt_decimal_load_defaults_to_zero	3
+BEGIN	door_corrupt_decimal_load_defaults_to_zero	4
+UI	1001	0a69f29f	text	door_init	320a3230300a310a32300a323532
+END	door_corrupt_decimal_load_defaults_to_zero	4
+BEGIN	door_corrupt_decimal_load_defaults_to_zero	5
+VM	101	7	1
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_corrupt_decimal_load_defaults_to_zero	5
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	0
+END	door_uint32_persist_value_exceeds_edit_limit	0
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	1
+END	door_uint32_persist_value_exceeds_edit_limit	1
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	2
+VM	101	-2	-
+UI	1001	0a69f29f	text	eod_enter	-
+PROVIDER	request	79	0a69f29f
+END	door_uint32_persist_value_exceeds_edit_limit	2
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	3
+PROVIDER	result	79	0a69f29f	1	34323934393637323935
+END	door_uint32_persist_value_exceeds_edit_limit	3
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	4
+UI	1001	0a69f29f	text	door_init	300a3230300a310a32300a323532
+UI	1001	0a69f29f	text	door_code	34323934393637323935
+END	door_uint32_persist_value_exceeds_edit_limit	4
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	5
+END	door_uint32_persist_value_exceeds_edit_limit	5
+BEGIN	door_uint32_persist_value_exceeds_edit_limit	6
+VM	101	1	-
+VM	101	-1	-
+UI	1001	0a69f29f	text	eod_leave	-
+END	door_uint32_persist_value_exceeds_edit_limit	6
+BEGIN	policy_signs_preinitialization_write	0
+END	policy_signs_preinitialization_write	0
+BEGIN	policy_signs_preinitialization_write	1
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	policy_signs_preinitialization_write	1
+BEGIN	policy_signs_preinitialization_write	2
+PROVIDER	result	78	2a6356a0	0	-
+END	policy_signs_preinitialization_write	2
+BEGIN	policy_signs_preinitialization_write	3
+ERROR	PluginNotReady
+END	policy_signs_preinitialization_write	3
+BEGIN	policy_signs_invalid_utf8	0
+END	policy_signs_invalid_utf8	0
+BEGIN	policy_signs_invalid_utf8	1
+VM	101	-2	-
+UI	1001	2a6356a0	text	eod_enter	-
+PROVIDER	request	78	2a6356a0
+END	policy_signs_invalid_utf8	1
+BEGIN	policy_signs_invalid_utf8	2
+PROVIDER	result	78	2a6356a0	0	-
+END	policy_signs_invalid_utf8	2
+BEGIN	policy_signs_invalid_utf8	3
+UI	1001	2a6356a0	text	signs_init	340a3130
+UI	1001	2a6356a0	binary	signs_show	0f0000
+END	policy_signs_invalid_utf8	3
+BEGIN	policy_signs_invalid_utf8	4
+END	policy_signs_invalid_utf8	4
+BEGIN	policy_malformed_provider_record	0
+END	policy_malformed_provider_record	0
+BEGIN	policy_malformed_provider_record	1
+END	policy_malformed_provider_record	1
+BEGIN	policy_malformed_provider_record	2
+VM	101	-2	-
+UI	1001	0949e698	text	eod_enter	-
+UI	1001	0949e698	text	scoreboard_show	-
+PROVIDER	request	77	0949e698
+END	policy_malformed_provider_record	2
+BEGIN	policy_malformed_provider_record	3
+PROVIDER	result	77	0949e698	1	00
+ERROR	InvalidPluginData
+END	policy_malformed_provider_record	3

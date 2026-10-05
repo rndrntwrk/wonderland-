@@ -15,8 +15,10 @@ pub use limits::Limits;
 
 // Payload modules are implemented by their independent package owners.
 pub mod audio_meta;
+pub mod reconstruction;
 pub mod semantic;
 pub mod sprites;
+pub mod textures;
 pub mod vitaboy;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]

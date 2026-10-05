@@ -23,7 +23,12 @@ PAPER = 0xCA418206
 PIZZA = 0xEA47AE39
 MAZE = 0x4A245A22
 COOPERATIVE = {PAPER, PIZZA, MAZE}
-NATIVE = {TIMER, DANCE, SIGNS, SCOREBOARD, DOOR} | COOPERATIVE
+CASINO = {0xCB2819CB, 0x0B2A6B83, 0x2B2FC514, 0x1001}
+SOCIAL = {0x2D642D39, 0x8ADFC7A2, 0x1005, 0x1006, 0x6C5C7555, 0x6D113845, 0xCCC5BC43, 0xEC55D705}
+SERVICE = {0x1000, 0x1003, 0x1004, 0x2000, 0x2B58020B, 0xCB492685, 0x8B300068, 0xAA5E36DC, 0x895C1CEB, 0x897F82F5}
+FORMAT4 = CASINO | SOCIAL | SERVICE
+NATIVE = {TIMER, DANCE, SIGNS, SCOREBOARD, DOOR} | COOPERATIVE | FORMAT4
+PROVIDERS = {SIGNS, SCOREBOARD, DOOR} | CASINO | (SERVICE - {0x2000})
 PERSISTED = {SIGNS, SCOREBOARD, DOOR}
 PREREQUISITES = {
     "VMEODSignsPlugin": "GlobalLink plugin text persistence, owner/edit permissions and source UI byte traces",
@@ -107,8 +112,86 @@ def handler_anchor(name, directory):
     return candidates[0]
 
 
+# Explicit behavioral cases, not registry-construction counts. The generator
+# verifies every named case remains present; the aggregate verifier runs them.
+NEW_CASES = {
+    0xCB2819CB: ("casino/slots.rs", "slots_late_debit_after_teardown_refunds_instead_of_settling_the_selected_spin", "slots_prepared_debit_crash_replay_requires_rebound_native_authority"),
+    0x0B2A6B83: ("casino/table.rs", "roulette_retries_preserve_ordered_debits_and_source_spin_duration", "roulette_retries_preserve_ordered_debits_and_source_spin_duration"),
+    0x2B2FC514: ("casino/table.rs", "blackjack_real_host_masks_dealer_card_and_settles_a_complete_round", "blackjack_late_split_debit_after_teardown_keeps_the_refund_checkpoint_valid"),
+    0x1001: ("casino/table.rs", "holdem_real_host_keeps_each_hole_private_then_settles_side_and_called_game", "holdem_late_call_debit_after_teardown_keeps_the_refund_checkpoint_valid"),
+    0x2D642D39: ("social/war.rs", "war_final_different_pieces_continue_and_emit_one_game_result", "war_private_recovery_pauses_timer_until_controller_and_both_roles_rebind"),
+    0x8ADFC7A2: ("social/band.rs", "band_all_twenty_five_sequences_complete_with_source_final_payout", "band_rebind_shows_saved_game_before_phase_controls_without_advancing_it"),
+    0x1005: ("social/buzzer_player.rs", "buzzer_first_late_locked_and_timeout_match_source_tick_window", "buzzer_private_recovery_preserves_options_master_and_deferred_reactions"),
+    0x1006: ("social/buzzer_host.rs", "buzzer_scores_and_winner_wait_for_their_native_callbacks", "buzzer_private_recovery_preserves_options_master_and_deferred_reactions"),
+    0x6C5C7555: ("social/club.rs", "dj_button_routes_source_attribute_swap_and_never_indexes_digit_three", "nightclub_private_recovery_preserves_rng_raster_and_round_outputs"),
+    0x6D113845: ("social/floor.rs", "nightclub_floor_emits_actual_graphic_commands_with_source_blink_and_heart", "nightclub_private_recovery_preserves_rng_raster_and_round_outputs"),
+    0xCCC5BC43: ("social/club.rs", "nightclub_links_real_floor_dj_and_dance_queue_observations", "nightclub_private_recovery_preserves_rng_raster_and_round_outputs"),
+    0xEC55D705: ("social/club.rs", "nightclub_links_real_floor_dj_and_dance_queue_observations", "nightclub_private_recovery_preserves_rng_raster_and_round_outputs"),
+    0x1000: ("service/simple.rs", "newspaper_private_payload_is_checkpoint_prepared_and_current_epoch_fenced", "newspaper_private_payload_is_checkpoint_prepared_and_current_epoch_fenced"),
+    0x1003: ("service/simple.rs", "bulletin_source_latest_animation_and_once_only_posted_refresh_are_fenced", "all_service_initial_reads_and_property_state_resume_identically_after_private_restore"),
+    0x1004: ("service/simple.rs", "cooldown_all_eight_source_scopes_and_community_exclusions_use_atomic_native_queries", "all_service_initial_reads_and_property_state_resume_identically_after_private_restore"),
+    0x2000: ("service/simple.rs", "property_selection_keeps_source_sign_extension_and_emits_every_name_byte", "all_service_initial_reads_and_property_state_resume_identically_after_private_restore"),
+    0x2B58020B: ("service/wardrobe.rs", "rack_owner_rejects_unauthorized_join_and_stocks_only_canonical_catalog_price", "rack_name_denial_retains_authorized_writer_for_checkpointed_retry_after_disconnect"),
+    0xCB492685: ("service/wardrobe.rs", "rack_purchase_distinguishes_duplicate_category_limit_and_atomic_success", "all_service_initial_reads_and_property_state_resume_identically_after_private_restore"),
+    0x8B300068: ("service/wardrobe.rs", "dresser_source_big_endian_outfits_scope_mapping_and_delete_default_acknowledgment", "pending_dresser_default_delete_reserves_avatar_and_fences_detached_vm_commands"),
+    0xAA5E36DC: ("service/simple.rs", "trunk_requires_trusted_collection_then_closes_after_native_equip_and_costume_fallback", "all_service_initial_reads_and_property_state_resume_identically_after_private_restore"),
+    0x895C1CEB: ("service/draw.rs", "draw_card_owner_editor_preserves_source_counts_strings_and_compare_and_swap_bytes", "draw_card_uniform_unique_entries_ignore_frequency_and_restore_does_not_redraw"),
+    0x897F82F5: ("service/trade.rs", "secure_trade_source_offers_are_private_delay_acceptance_and_commit_once_after_checkpoint", "secure_trade_prepared_transaction_survives_both_departures_and_private_restore"),
+}
+
+
+def native_evidence(plugin_id):
+    if plugin_id not in FORMAT4:
+        family = "cooperative" if plugin_id in COOPERATIVE else "existing-five"
+        return {
+            "family": family,
+            "host_tests": ["crates/eod-runtime/tests/cooperative_games.rs"] if family == "cooperative" else ["crates/eod-runtime/tests/source_handlers.rs", "crates/eod-runtime/tests/host_scope.rs", "crates/eod-runtime/tests/adversarial.rs"],
+            "recovery_evidence": "existing real-host private format 1/2/3 tests; see named cases in the listed files",
+            "source_component_oracle": None if family == "cooperative" else "fixtures/eod/source-oracle",
+            "policies_document": "docs/swarm-b/cooperative-eod.md" if family == "cooperative" else "docs/swarm-b/eod-source-oracle.md",
+        }
+    implementation, behavior, recovery = NEW_CASES[plugin_id]
+    family = implementation.split("/")[0]
+    test_file = f"crates/eod-runtime/tests/{family}_handlers.rs"
+    test_text = (ROOT / test_file).read_text()
+    for name in {behavior, recovery}:
+        if not re.search(r"\bfn\s+" + re.escape(name) + r"\s*\(", test_text):
+            raise ValueError(f"Missing substantive native acceptance case: {test_file}::{name}")
+    component = "unchanged original handler components with authored VM/provider boundaries"
+    if plugin_id in CASINO:
+        component = "unchanged deck and exact BlackjackPlayer/value-table helper slices only; no complete casino handler execution"
+    elif plugin_id in {0x2B58020B, 0xCB492685, 0x8B300068}:
+        component = "original rack-name serializer executed; handlers/outfit packet and scope helpers source-inspected, not original rack-handler execution"
+    return {
+        "family": family,
+        "implementation": f"crates/eod-runtime/src/plugins/{implementation}",
+        "host_tests": [f"{test_file}::{behavior}"],
+        "recovery_tests": [f"{test_file}::{recovery}"],
+        "shared_boundary_tests": ["crates/eod-runtime/tests/native_recovery.rs"] if family == "social" else ["crates/eod-runtime/tests/service_handlers.rs::native_checkpoint_rejects_mismatched_kernel_object_callback_and_journal_before_dispatch"],
+        "source_component_oracle": f"fixtures/eod/{family}",
+        "source_component_scope": component,
+        "policies_document": f"docs/swarm-b/eod-{family if family != 'service' else 'services'}.md",
+    }
+
+
+def recovery_policy(plugin_id):
+    if plugin_id == TIMER:
+        return "restore-private-schema-1-at-VM-barrier"
+    if plugin_id == DANCE:
+        return "restore-private-format-2-detached-controller"
+    if plugin_id in PERSISTED:
+        return "restore-private-format-2-checkpointed-intents-and-provider-reconciliation"
+    if plugin_id in COOPERATIVE:
+        return "restore-private-format-3-detached-game-and-seats"
+    if plugin_id in FORMAT4:
+        return "restore-private-format-4-prepared-operation-replay" if plugin_id in PROVIDERS else "restore-private-format-4-detached-members-and-retained-peer-dependencies"
+    return "abort-and-reconcile-reservations-through-provider-before-enabling"
+
+
 def build():
     server, ui = registrations(SERVER), registrations(UI)
+    if set(server) != NATIVE or set(NEW_CASES) != FORMAT4:
+        raise ValueError("Registration changes require explicit implementation and evidence mapping")
     entries = []
     for plugin_id in sorted(server.keys() | ui.keys()):
         native = server.get(plugin_id)
@@ -124,16 +207,27 @@ def build():
         entries.append({
             "id": plugin_id, "id_hex": f"0x{plugin_id:08X}", "server": native, "ui": presentation,
             "runtime_status": "source-translated-native" if plugin_id in NATIVE else "unsupported-unverified",
-            "production_provider_verification": "unverified" if plugin_id in PERSISTED else "not-required-by-translated-handler" if plugin_id in NATIVE else "unverified",
+            "production_provider_required": plugin_id in PROVIDERS,
+            "production_provider_verification": "unverified" if plugin_id in PROVIDERS else "not-required-by-translated-handler",
+            "durable_provider_verified": False,
+            "native_host_verification": "source-translated-native-host-tested",
+            "native_recovery_verification": "private-native-host-recovery-tested",
+            "native_evidence": native_evidence(plugin_id),
             "original_runtime_verification": "unverified",
             "ui_runtime_verification": "unverified" if presentation else "not-registered",
-            "recovery_policy": "restore-private-schema-1-at-VM-barrier" if plugin_id == TIMER else "restore-private-format-2-detached-controller" if plugin_id == DANCE else "restore-private-format-2-checkpointed-intents-and-provider-reconciliation" if plugin_id in PERSISTED else "restore-private-format-3-detached-game-and-seats" if plugin_id in COOPERATIVE else "abort-and-reconcile-reservations-through-provider-before-enabling",
-            "remaining_leaf_ids": [f"{leaf}-SOURCE-TRACE", f"{leaf}-RECOVERY"] + ([] if plugin_id in NATIVE else [f"{leaf}-NATIVE"]) + ([f"{leaf}-PROVIDER"] if plugin_id not in ({TIMER, DANCE} | COOPERATIVE) else []),
+            "recovery_policy": recovery_policy(plugin_id),
+            "remaining_leaf_ids": [f"{leaf}-SOURCE-TRACE", f"{leaf}-RECOVERY"] + ([f"{leaf}-UI-RUNTIME"] if presentation else []) + ([f"{leaf}-PROVIDER"] if plugin_id in PROVIDERS else []),
+            "remaining_leaf_scope": {
+                "SOURCE-TRACE": "complete original application behavior, separate from bounded component/helper oracles and native policies",
+                "RECOVERY": "production VM adapter and checkpoint-store restart rehearsal, separate from native host restore tests",
+                "UI-RUNTIME": "original registered UI execution and delivery integration" if presentation else "not-registered",
+                "PROVIDER": "real provider authority, durable full-request/result deduplication and failure recovery" if plugin_id in PROVIDERS else "not-required-by-translated-handler",
+            },
             "prerequisites": PREREQUISITES[name],
         })
     return {
-        "schema_version": 2, "source_commit": SOURCE_COMMIT,
-        "evidence_kind": "static-source-registration-census; source-derived native tests; separate existing-five original-handler component oracle",
+        "schema_version": 3, "source_commit": SOURCE_COMMIT,
+        "evidence_kind": "static exact registration census; per-entry source translation, real-host behavior/recovery cases and named native policies; separate bounded original component/helper oracles",
         "server_registrations": len(server), "ui_registrations": len(ui),
         "source_translated_native_handlers": len(NATIVE), "original_runtime_verified_handlers": 0,
         "production_provider_verified_handlers": 0, "entries": entries,
@@ -157,12 +251,12 @@ def rust(census):
             "#[rustfmt::skip]", "#[derive(Clone, Copy, Debug, PartialEq, Eq)]",
             "pub enum RuntimeStatus { SourceTranslatedTimer, SourceTranslatedNative, UnsupportedUnverified }", "",
             "#[rustfmt::skip]", "#[derive(Clone, Copy, Debug, PartialEq, Eq)]",
-            "pub enum RecoveryPolicy { RestorePrivateSchema1, RestorePrivateFormat2, ReconcilePrivateFormat2, RestorePrivateFormat3, AbortAndReconcileThroughProvider }", "",
+            "pub enum RecoveryPolicy { RestorePrivateSchema1, RestorePrivateFormat2, ReconcilePrivateFormat2, RestorePrivateFormat3, RestorePrivateFormat4, ReconcilePrivateFormat4, AbortAndReconcileThroughProvider }", "",
             "#[derive(Clone, Copy, Debug, PartialEq, Eq)]",
             "pub struct Registration {", "    pub id: PluginId,", "    pub server_type: &'static str,",
             "    pub ui_type: Option<&'static str>,", "    pub server_anchor: &'static str,",
             "    pub ui_anchor: Option<&'static str>,", "    pub runtime: RuntimeStatus,",
-            "    pub recovery: RecoveryPolicy,", "    pub original_runtime_verified: bool,", "}", "",
+            "    pub recovery: RecoveryPolicy,", "    pub native_host_tested: bool,", "    pub native_recovery_tested: bool,", "    pub production_provider_required: bool,", "    pub production_provider_verified: bool,", "    pub original_runtime_verified: bool,", "}", "",
             "#[rustfmt::skip]", "pub static REGISTRATIONS: &[Registration] = &["]
     for entry in census["entries"]:
         native, ui = entry["server"], entry["ui"]
@@ -175,8 +269,8 @@ def rust(census):
                      f'        server_anchor: "{anchor(native)}",',
                      f'        ui_anchor: Some("{anchor(ui)}"),' if ui else "        ui_anchor: None,",
                      "        runtime: RuntimeStatus::" + ("SourceTranslatedTimer," if entry["id"] == TIMER else "SourceTranslatedNative," if entry["id"] in NATIVE else "UnsupportedUnverified,"),
-                     "        recovery: RecoveryPolicy::" + ("RestorePrivateSchema1," if entry["id"] == TIMER else "RestorePrivateFormat2," if entry["id"] == DANCE else "ReconcilePrivateFormat2," if entry["id"] in PERSISTED else "RestorePrivateFormat3," if entry["id"] in COOPERATIVE else "AbortAndReconcileThroughProvider,"),
-                     "        original_runtime_verified: false,", "    },"])
+                     "        recovery: RecoveryPolicy::" + ("RestorePrivateSchema1," if entry["id"] == TIMER else "RestorePrivateFormat2," if entry["id"] == DANCE else "ReconcilePrivateFormat2," if entry["id"] in PERSISTED else "RestorePrivateFormat3," if entry["id"] in COOPERATIVE else "ReconcilePrivateFormat4," if entry["id"] in FORMAT4 & PROVIDERS else "RestorePrivateFormat4," if entry["id"] in FORMAT4 else "AbortAndReconcileThroughProvider,"),
+                     "        native_host_tested: true,", "        native_recovery_tested: true,", f'        production_provider_required: {str(entry["id"] in PROVIDERS).lower()},', "        production_provider_verified: false,", "        original_runtime_verified: false,", "    },"])
     rows.extend(["];", "", "pub fn lookup(id: PluginId) -> Option<&'static Registration> {",
                  "    REGISTRATIONS.iter().find(|entry| entry.id == id)", "}", ""])
     return "\n".join(rows)
@@ -219,7 +313,7 @@ Limits bound instances and participants (including native controllers), timers, 
 
 ## Checkpoints and provider reconciliation
 
-Timer-only snapshots retain private format/schema 1, including its existing byte vectors. Generalized snapshots without cooperative games retain private format 2; snapshots containing games use private format 3. Per-handler schemas remain 1. All formats require a quiescent VM/event barrier with public and private delivery queues drained. The adapter must apply VM events and commit the VM checkpoint at the same barrier; merely removing an event from a queue is not proof the VM applied it. `PrivateCheckpointStore` must authenticate/integrity-protect the private bytes, atomically write them and retain a trusted latest stamp. No production checkpoint store or encryption implementation is supplied.
+Timer-only snapshots retain private format/schema 1, including its existing byte vectors. Generalized snapshots without cooperative or new native families retain private format 2; snapshots with cooperative games use private format 3. A snapshot with any new native family uses private format 4, with an exact format 2/3 legacy inner record. Per-handler schemas remain 1. All formats require a quiescent VM/event barrier with public and private delivery queues drained. The adapter must apply VM events and commit the VM checkpoint at the same barrier; merely removing an event from a queue is not proof the VM applied it. `PrivateCheckpointStore` must authenticate/integrity-protect the private bytes, atomically write them and retain a trusted latest stamp. No production checkpoint store or encryption implementation is supplied.
 
 Format 2 retains source state, recorded participants, native controller identities, bounded persistence bindings and immutable plugin-data write intents. It validates field/count/size bounds, schemas, unique identities, idle deadlines, canonical intent bytes and consistency between live source state and effective persisted/pending state. Signs read redaction and Door Edit's intentional stale code cache are handled as source-specific cases. A mismatched format/schema/stamp or unsupported registration fails closed.
 
@@ -233,13 +327,15 @@ Rebinding uses a scoped `InstanceAddress`, fresh transport authentication for th
 
 ## Remaining production gates
 
-All eight native translations still need original C# application/UI traces, VM-adapter integration and restart rehearsal. The separate [existing-five original-handler component oracle](eod-source-oracle.md) compiles selected unchanged C# host/server/handler components with boundary stubs; its differential evidence is distinct from executing the original application/UI or qualifying a production provider. The cooperative three currently have source-derived native-host acceptance evidence. The three persistent handlers additionally need a real private provider satisfying fencing, access control, atomic CAS, durable idempotency and failure recovery. Tests use an in-memory provider model; this is evidence about the host boundary, not a durable service implementation. The emitted native record/handler status is distinct from original-runtime, UI-runtime and production-provider verification in the JSON census.
+All thirty native translations still need complete original C# application/UI traces, production VM-adapter integration and restart rehearsal. The separate [existing-five original-handler component oracle](eod-source-oracle.md) compiles selected unchanged C# host/server/handler components with boundary stubs; its differential evidence is distinct from executing the original application/UI or qualifying a production provider. The cooperative three currently have source-derived native-host acceptance evidence. The three persistent handlers additionally need a real private provider satisfying fencing, access control, atomic CAS, durable idempotency and failure recovery. Tests use an in-memory provider model; this is evidence about the host boundary, not a durable service implementation. The emitted native record/handler status is distinct from original-runtime, UI-runtime and production-provider verification in the JSON census.
 
-The other 22 registrations retain the explicit policy **abort and reconcile any reservations through an authoritative provider before enabling recovery**. The host rejects their creation and checkpoint state. It does not simulate casino results, inventory, funds, escrow, settlement or refunds. `effects::EffectOutbox` remains a separate general-purpose foundation for those future plugins; its production durable integration remains open. The plugin-data journal and cooperative object-event outputs do not turn those unimplemented effect types into supported behavior.
+The additional 22 handlers execute through `connect_native`, authenticated `join_native`, typed native callbacks and `drive_native_provider`. Their format 4 snapshot stores exact source state, hidden RNG/cards, member bindings, peer references and immutable operations. Every member and controller restores detached. Provider replies require exact scope/origin operation identity and current host epoch; rejected output admission retains the same request for replay. Financial obligations survive departure. Required peer dependencies pause even output-silent ticks, while independent groups can progress. A closing source may deliver cleanup to a locally bound peer to remove a detached dependency. Typed VM commands and controller continuations require controller rebind.
+
+See [casino contracts and corrections](eod-casino.md), [social source and recovery policies](eod-social.md), [service contracts and corrections](eod-services.md), and [native host/provider integration](eod-native-boundary.md). Their source manifests and test cases are mapped per registration in the JSON census. Native source/host/recovery acceptance is implemented; full original-application, registered UI, durable production-provider and VM-adapter restart qualification remains open. The four casino handlers have a bounded unchanged deck/Blackjack helper oracle; that oracle does not execute the complete casino handlers or the original poker provider. `effects::EffectOutbox` remains a separate foundation and is not the native-family operation journal.
 
 ## Evidence and validation
 
-The crate's source-unit tables cover source event/register mappings, numeric parsing, UTF-16 text limits, source persistence formats, malformed data, permission modes, transitions, close ordering and private state reconstruction. Actual-host tests cover controller routing, all eight dispatch paths, malformed/unauthorized messages, checkpoint-before-write ordering, lost-response replay, provider divergence/conflict and private rebind. Cooperative acceptance covers complete three/four/two-role games, exact phase timing, role privacy, source quirks, original epoch rejection, complete private restore, malformed checkpoint state, timeout/revocation and join/callback/tick rollback including random state. Existing timer, scoped wire, replay, recipient, rate, queue, checkpoint and effect-outbox regressions remain present. `fixtures/eod/timer-source-traces.md` continues to distinguish source-derived expectations from original-runtime execution. The separate Mono component oracle records selected unchanged original C# behavior; it does not execute the FreeSO application or UI.
+The crate's source-unit tables cover source event/register mappings, numeric parsing, UTF-16 text limits, source persistence formats, malformed data, permission modes, transitions, close ordering and private state reconstruction. Actual-host tests cover controller routing, all thirty dispatch paths, malformed/unauthorized messages, checkpoint-before-write ordering, lost-response replay, provider divergence/conflict and private rebind. Cooperative acceptance covers complete three/four/two-role games, exact phase timing, role privacy, source quirks, original epoch rejection, complete private restore, malformed checkpoint state, timeout/revocation and join/callback/tick rollback including random state. Existing timer, scoped wire, replay, recipient, rate, queue, checkpoint and effect-outbox regressions remain present. `fixtures/eod/timer-source-traces.md` continues to distinguish source-derived expectations from original-runtime execution. The separate existing-five, social and service Mono component oracles and bounded casino helper oracle record selected unchanged original C# behavior; they do not execute the complete FreeSO application or UI.
 """
 
 
@@ -247,7 +343,7 @@ def markdown(census):
     lines = ["# EOD source registration and native coverage", "",
         f'Source baseline: `{SOURCE_COMMIT}`. Generated by `python3 tools/swarm-b/eod-census.py`; verify with `--check`.', "",
         f'The source has **{census["server_registrations"]} server registrations and {census["ui_registrations"]} UI registrations**. The census takes the union of the two actual `IDToHandler` dictionaries. It preserves missing UI entries and unusual server/UI pairings. `VMEODStubPlugin`, `UIDebugEOD`, and unregistered handler files are not added as registrations.', "",
-        f'**No plugin has full original-runtime conformance evidence.** The native host dispatches {census["source_translated_native_handlers"]} source-translated server handlers: Timer, DanceFloor, Signs, Scoreboard, PermissionDoor, PaperChase, PizzaMaker and TwoPersonJobObjectMaze. Native-host tests use source-derived expectations, with separate unchanged-C# component-oracle evidence for the existing five. The original FreeSO application and UI runtime were not executed. The other {len(census["entries"]) - len(NATIVE)} registrations remain rejected. The three plugin-data persistence integrations require a production provider, which is not implemented or verified here. W06.3, W06.4 and W16 remain incomplete.', "",
+        f'**The native host implements all {census["source_translated_native_handlers"]} registered server handlers.** Per-entry evidence below distinguishes source translation, substantive real-host state transitions and private recovery from original-application, UI-runtime and production-provider qualification. The new four casino, eight social and ten service handlers use native private format 4; the earlier five and three cooperative handlers retain their existing formats and tests. No plugin has full original-runtime conformance evidence. All real production provider and VM-adapter qualification remains open.', "",
         "## Exact registrations", "",
         "The JSON companion `fixtures/eod/registration-census.json` contains numeric IDs, registration-line anchors, definition-line anchors, SHA-256 source digests, separate native/UI status, recovery policies and concrete remaining leaf IDs for every row.", "",
         "| ID | Registered server source | Registered UI source | Native status | Original runtime | Recovery |", "| --- | --- | --- | --- | --- | --- |"]
@@ -258,10 +354,16 @@ def markdown(census):
             a = data["source"]
             return f'[`{data["type"]}`](../../{a["path"]}#L{a["line"]})'
         status = "Source-translated native" if entry["id"] in NATIVE else "Unsupported; unverified"
-        policy = "Private format 1, 2 or 3" if entry["id"] == TIMER else "Private format 2/3; detached controller" if entry["id"] == DANCE else "Private format 2/3; provider reconciliation" if entry["id"] in PERSISTED else "Private format 3; detached game and seats" if entry["id"] in COOPERATIVE else "Abort; provider reconciliation gate"
+        policy = "Private format 1, 2 or 3" if entry["id"] == TIMER else "Private format 2/3; detached controller" if entry["id"] == DANCE else "Private format 2/3; provider reconciliation" if entry["id"] in PERSISTED else "Private format 3; detached game and seats" if entry["id"] in COOPERATIVE else "Private format 4; immutable provider replay" if entry["id"] in FORMAT4 & PROVIDERS else "Private format 4; retained bindings and peer dependencies" if entry["id"] in FORMAT4 else "Abort; provider reconciliation gate"
         lines.append(f'| `{entry["id_hex"]}` | {linked(entry["server"])} | {linked(entry["ui"])} | {status} | **Unverified** | {policy} |')
+    lines.extend(["", "## Per-registration native behavior and recovery evidence", "", "The cases below execute real host state transitions. Named source corrections are kept in each family's policy document; original-runtime equivalence is not inferred from native acceptance.", "", "| ID | Native behavior case | Private recovery case | Policies |", "| --- | --- | --- | --- |"])
+    for entry in census["entries"]:
+        evidence = entry["native_evidence"]
+        behavior = ", ".join(evidence["host_tests"])
+        recovery = ", ".join(evidence.get("recovery_tests", [evidence.get("recovery_evidence", "")]))
+        lines.append(f'| `{entry["id_hex"]}` | `{behavior}` | `{recovery}` | [{evidence["family"]}](../../{evidence["policies_document"]}) |')
     lines.extend(["", "## Explicit remaining leaves", "",
-        "Each row below is a concrete open work item set; listing a prerequisite is not evidence that it exists. The `-PROVIDER` gate includes confirming whether that plugin has durable effects, and implementing/validating any provider it needs. Purely local plugins can satisfy that gate by source-backed evidence of no durable effects.", "",
+        "The remaining leaves refer to full original application/UI execution and real provider/VM-adapter restart qualification. They do not negate completed source translation and private native-host restore acceptance. A bounded C# component/helper oracle is narrower than the `-SOURCE-TRACE` gate. Purely local handlers have no provider gate; handlers issuing reads still require exact durable result replay at their declared provider boundary.", "",
         "| Plugin | Open leaf IDs | Prerequisites |", "| --- | --- | --- |"])
     for entry in census["entries"]:
         leaves = ", ".join(f'`{leaf}`' for leaf in entry["remaining_leaf_ids"])

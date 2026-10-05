@@ -178,7 +178,7 @@ pub fn validate_payload(
     resource: &PreparedResource,
     limits: &wonderland_legacy_formats::Limits,
 ) -> ManifestResult<()> {
-    use wonderland_legacy_formats::{audio_meta, iff, semantic, vitaboy};
+    use wonderland_legacy_formats::{audio_meta, iff, reconstruction, semantic, textures, vitaboy};
     let map = |e: wonderland_legacy_formats::Error| ManifestError(e.to_string());
     match resource.codec {
         ResourceCodec::IffChunk | ResourceCodec::IffTtabTsbo => {
@@ -210,6 +210,17 @@ pub fn validate_payload(
                     _ => {}
                 }
             }
+            if resource.kind == ResourceKind::Visual {
+                match &file.chunks[0].key.kind {
+                    b"FSOM" => {
+                        reconstruction::decode_fsom(&file.chunks[0].data, limits).map_err(map)?;
+                    }
+                    b"MTEX" => {
+                        textures::decode_png(&file.chunks[0].data, limits).map_err(map)?;
+                    }
+                    _ => {}
+                }
+            }
         }
         ResourceCodec::ResolvedTuning => {
             if resource.kind != ResourceKind::Semantic {
@@ -236,6 +247,59 @@ pub fn validate_payload(
         }
         ResourceCodec::VitaboyOutfit => {
             vitaboy::decode_outfit(&resource.payload, limits).map_err(map)?;
+        }
+        codec @ (ResourceCodec::VitaboyPurchasableOutfit
+        | ResourceCodec::VitaboyHandGroup
+        | ResourceCodec::VitaboyCollection
+        | ResourceCodec::VitaboyBcf
+        | ResourceCodec::VitaboyCmx
+        | ResourceCodec::VitaboyBmf
+        | ResourceCodec::VitaboySkn
+        | ResourceCodec::Fsom
+        | ResourceCodec::Nbhm
+        | ResourceCodec::PngTexture) => {
+            if resource.kind != ResourceKind::Visual || resource.simulation_critical {
+                return Err(ManifestError(
+                    "visual codecs require noncritical visual resource kind".into(),
+                ));
+            }
+            match codec {
+                ResourceCodec::VitaboyPurchasableOutfit => {
+                    vitaboy::decode_purchasable_outfit(&resource.payload, limits).map_err(map)?;
+                }
+                ResourceCodec::VitaboyHandGroup => {
+                    vitaboy::decode_hand_group(&resource.payload, limits).map_err(map)?;
+                }
+                ResourceCodec::VitaboyCollection => {
+                    vitaboy::decode_collection(&resource.payload, limits).map_err(map)?;
+                }
+                ResourceCodec::VitaboyBcf => {
+                    vitaboy::decode_bcf(&resource.payload, vitaboy::LegacyEncoding::Binary, limits)
+                        .map_err(map)?;
+                }
+                ResourceCodec::VitaboyCmx => {
+                    vitaboy::decode_bcf(&resource.payload, vitaboy::LegacyEncoding::Text, limits)
+                        .map_err(map)?;
+                }
+                ResourceCodec::VitaboyBmf => {
+                    vitaboy::decode_bmf(&resource.payload, vitaboy::LegacyEncoding::Binary, limits)
+                        .map_err(map)?;
+                }
+                ResourceCodec::VitaboySkn => {
+                    vitaboy::decode_bmf(&resource.payload, vitaboy::LegacyEncoding::Text, limits)
+                        .map_err(map)?;
+                }
+                ResourceCodec::Fsom => {
+                    reconstruction::decode_fsom(&resource.payload, limits).map_err(map)?;
+                }
+                ResourceCodec::Nbhm => {
+                    reconstruction::decode_nbhm(&resource.payload, limits).map_err(map)?;
+                }
+                ResourceCodec::PngTexture => {
+                    textures::decode_png(&resource.payload, limits).map_err(map)?;
+                }
+                _ => unreachable!("outer match restricts codec"),
+            }
         }
         codec @ (ResourceCodec::PcmWave
         | ResourceCodec::XaMetadata

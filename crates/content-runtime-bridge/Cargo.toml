@@ -10,6 +10,9 @@ description = "Validated content import and isolated debugging against the real 
 # Swarm F composes the sibling crate. Before that merge, the reproduction runner
 # exports exactly SIM_CORE_REVISION into a scratch assembly without submodules.
 sim-core = { path = "../sim-core" }
+# This integration package compiles the exact B-owned interactions module.
+# Swarm F replaces the temporary package boundary when composing sim-core.
+interaction_rules = { package = "wonderland-interactions-check", path = "../../tools/swarm-b-check/interactions" }
 wonderland-content-ir = { path = "../content-ir" }
 wonderland-legacy-formats = { path = "../legacy-formats" }
 wonderland-creator = { path = "../../tools/creator", optional = true }
@@ -40,6 +43,18 @@ path = "../../tests/integration/swarm_b_runtime/content_import.rs"
 [[test]]
 name = "query_bounds"
 path = "../../tests/integration/swarm_b_runtime/query_bounds.rs"
+
+[[test]]
+name = "inspection"
+path = "../../tests/integration/swarm_b_runtime/inspection.rs"
+
+[[test]]
+name = "interaction_adapter"
+path = "../../tests/integration/swarm_b_runtime/interaction_adapter.rs"
+
+[[test]]
+name = "source_families"
+path = "../../tests/integration/swarm_b_runtime/source_families.rs"
 
 [[test]]
 name = "watch_output"
@@ -73,5 +88,9 @@ path = "../../tests/integration/swarm_b_runtime/cooked_fixture_export.rs"
 [[example]]
 name = "source-replay"
 path = "../../tests/integration/swarm_b_runtime/source_replay.rs"
+
+[[example]]
+name = "source-families"
+path = "../../tests/integration/swarm_b_runtime/source_families_export.rs"
 
 [workspace]

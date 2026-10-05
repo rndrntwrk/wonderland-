@@ -1,0 +1,230 @@
+   Compiling wonderland-legacy-formats v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/legacy-formats)
+    Finished `test` profile [unoptimized] target(s) in 11.80s
+     Running unittests src/lib.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/wonderland_legacy_formats-7cd1f6800db7853d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/audio_meta.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/audio_meta-bbf106eb35aaf885)
+
+running 10 tests
+test hitlists_keep_duplicates_ranges_and_order ... ok
+test hitlist_counted_variant_and_uint_max_range_terminate_exactly ... ok
+test hit_entrypoint_metadata_keeps_table_order_and_rejects_bad_targets ... ok
+test track_csv_and_2dkt_wrapper_keep_source_indices ... ok
+test utk_header_is_metadata_only_and_extensions_are_explicitly_unsupported ... ok
+test event_names_and_hsm_first_definition_keep_original_order_and_case ... ok
+test pcm_wave_chunk_lengths_padding_and_duplicate_chunks_are_checked ... ok
+test xa_header_metadata_has_exact_frame_count_without_decompression ... ok
+test xa_stereo_fields_truncation_and_arithmetic_validation ... ok
+test unwrapped_track_short_record_and_source_version_one_detail_offsets ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/containers.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/containers-9abef4010b4780bb)
+
+running 18 tests
+test configured_limits_reject_input_and_counts ... ok
+test c_strings_bound_scan_and_validate_utf8 ... ok
+test dbpf_rejects_header_index_payload_overlap_and_wrong_index_layout ... ok
+test far1_rejects_header_manifest_and_entry_overlap ... ok
+test far1_variants_are_explicit_and_extract_bounded_raw_entries ... ok
+test far3_qfs_command_length_matches_pinned_csharp_reader ... ok
+test far_rejects_unsupported_versions_counts_and_compression ... ok
+test dbpf_keeps_full_tgi_identity_and_source_compatibility_is_explicit ... ok
+test iff_rejects_duplicate_keys_bad_sizes_and_resource_limits ... ok
+test iff_preserves_unknown_chunks_headers_labels_flags_and_data ... ok
+test qfs_uses_le_command_size_and_be_24bit_output_size ... ok
+test reader_failures_preserve_position_and_report_byte_offsets ... ok
+test indexed_iff_retains_original_bytes_and_rejects_edits ... ok
+test reader_observes_endianness_and_signed_values ... ok
+test refpack_decodes_literal_terminal_and_overlapping_backreferences ... ok
+test refpack_rejects_output_expansion_bad_references_and_trailing_data ... ok
+test iff_rejects_partial_headers_and_payloads ... ok
+test far3_preserves_type_and_file_key_and_lazily_decodes_persist_qfs ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/indexed_iff.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/indexed_iff-fbc7d1a1d4960c28)
+
+running 20 tests
+test deletion_removes_empty_type_and_preserves_remaining_chunk ... ok
+test deleting_all_resources_retains_valid_empty_map_that_can_be_edited_again ... ok
+test direct_map_or_header_mutation_and_index_removal_are_not_implicit_repairs ... ok
+test explicit_source_api_supports_fresh_baselines_and_rejects_new_index_without_source ... ok
+test hostile_map_counts_are_bounded_before_iteration_or_allocation ... ok
+test full_width_byte_labels_rekeys_and_flags_are_encoded_without_text_conversion ... ok
+test insertion_adds_type_and_entry_and_updates_both_map_sizes ... ok
+test maps_reject_duplicate_groups_duplicate_entries_missing_resources_and_self_entries ... ok
+test original_pointer_and_map_cardinality_are_required_before_any_rebuild ... ok
+test payload_growth_relocates_header_and_entries_without_changing_unrelated_bytes ... ok
+test original_map_entries_must_match_actual_chunk_boundaries_ids_flags_and_labels ... ok
+test rebuilding_observes_output_limits_after_map_growth ... ok
+test reordering_including_map_location_recomputes_all_chunk_offsets ... ok
+test recognized_size_conventions_survive_map_growth ... ok
+test raw_indexed_encoder_stays_closed_without_source_evidence ... ok
+test supported_maps_keep_exact_original_and_only_change_requested_same_size_payload ... ok
+test source_and_edited_map_names_observe_string_byte_limits ... ok
+test many_small_resources_cannot_bypass_the_rebuild_workspace_budget ... ok
+test truncated_or_trailing_map_data_is_never_repaired_during_an_edit ... ok
+test v1_rejects_nonzero_high_id_and_ambiguous_counted_labels ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/indexed_iff_corpus.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/indexed_iff_corpus-b745840bc1cd1664)
+
+running 2 tests
+test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored
+test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE
+
+test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/legacy_vitaboy.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/legacy_vitaboy-b1633ba016e77b13)
+
+running 8 tests
+test cfp_uses_original_repeat_plus_one_component_reset_and_exact_coordinate_bits ... ok
+test cmx_uses_original_single_parse_zero_and_requires_explicit_lossy_conversion ... ok
+test cmx_matches_pinned_framework_numeric_vectors_and_rejects_malformed_groups ... ok
+test bmf_and_text_skn_preserve_source_weight_order_and_mesh_identity ... ok
+test cfp_delta_table_matches_independent_original_csharp_bits ... ok
+test text_skn_retains_utf8_bone_names_without_binary_pascal_restrictions ... ok
+test legacy_nested_allocations_ranges_and_text_precision_are_bounded ... ok
+test bcf_preserves_binary_headers_skipped_bones_and_animation_metadata ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/objf.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/objf-dfd569b6158c4be3)
+
+running 5 tests
+test objf_checks_entry_resource_input_and_allocation_limits ... ok
+test objf_edits_only_requested_function_and_round_trips_empty_tables ... ok
+test objf_preserves_source_words_condition_action_order_and_tail ... ok
+test objf_rejects_bad_magic_and_truncation_before_allocating_entries ... ok
+test objf_is_decoded_as_semantic_content_for_critical_cooking ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/reconstruction.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/reconstruction-4dc4dab6fccfda5b)
+
+running 5 tests
+test nbhm_retains_house_order_duplicate_overrides_and_no_model_declaration ... ok
+test fsom_reads_independent_compressed_gzip_and_requires_deflate_stream_end ... ok
+test fsom_honors_count_output_and_decompression_budgets ... ok
+test fsom_preserves_all_source_layouts_and_dynamic_group_order ... ok
+test fsom_rejects_invalid_indices_masks_nonfinite_and_gzip_corruption ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.88s
+
+     Running tests/semantic.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/semantic-23bc507255f06425)
+
+running 13 tests
+test bhav_rejects_unknown_versions_truncated_operands_and_resource_limits ... ok
+test compact_strings_do_not_exceed_budget_through_vector_growth ... ok
+test all_string_layouts_preserve_encoding_interleaving_and_tail ... ok
+test bhav_versioned_headers_operands_and_raw_tail ... ok
+test bcon_and_glob_preserve_unknown_bytes_and_encoding ... ok
+test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence
+test piff_malformed_offsets_sizes_varints_and_modes_are_rejected ... ok
+test ttab_hand_checked_field_compression_and_guarded_edit ... ok
+test objd_versions_keep_reserved_words_and_signed_fields ... ok
+test otf_edits_only_attribute_spans_and_preflights_aggregate_escaping ... ok
+test otf_retains_order_unknown_xml_and_rejects_dtd_depth_and_limits ... ok
+test piff_all_versions_use_output_relative_offsets_and_retain_metadata ... ok
+test ttab_normal_versions_and_tsbo_flags_follow_source_layout ... ok
+
+test result: ok. 12 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/source_avatar_corpus.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/source_avatar_corpus-4691a5b30dc8d5b4)
+
+running 1 test
+test checked_in_original_avatar_and_reconstruction_payloads_roundtrip_exactly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s
+
+     Running tests/source_variants.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/source_variants-4db445bce4e7dd1c)
+
+running 3 tests
+test dgrp_writes_all_five_source_layouts_without_losing_absent_fields ... ok
+test spr_authoring_retains_pixel_planes_with_version_and_byte_order ... ok
+test later_ttab_versions_follow_original_standard_and_tsbo_field_selection ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/sprite_authoring.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/sprite_authoring-749038852fd4d359)
+
+running 7 tests
+test frame_palette_resolution_and_output_allocation_limits_are_checked ... ok
+test mismatched_palette_transparency_channels_and_frame_metadata_are_rejected ... ok
+test palette_writer_preserves_version_reserved_rgb_and_rejects_silent_alpha_loss ... ok
+test quantization_is_explicit_and_reported_for_all_alpha_values ... ok
+test source_encoder_commands_match_and_roundtrip_both_sprite_layouts ... ok
+test many_maximum_height_zero_width_frames_fit_the_zero_pixel_budget ... ok
+test encoder_never_wraps_row_or_run_fields_and_splits_long_blank_spans ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/textures.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/textures-95b765232fadbb3a)
+
+running 2 tests
+test png_expands_source_palette_transparency_and_reports_precision_conversion ... ok
+test png_validates_whole_container_and_bounds_before_pixel_allocation ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/visual.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/visual-fa22805a0ed81b0d)
+
+running 14 tests
+test palt_rgb_becomes_opaque_and_preserves_reserved_bytes ... ok
+test dgrp_retains_integer_coordinates_float_bits_flags_and_rotation ... ok
+test palt_source_versions_zero_and_one_share_the_rgb_layout ... ok
+test slot_all_versions_roundtrip_and_reject_unrepresentable_edits ... ok
+test spr2_explicit_alpha_depth_padding_transparency_and_position ... ok
+test slot_raw_roundtrip_defaults_and_source_proximity_scale ... ok
+test drawing_groups_cover_all_source_version_layouts ... ok
+test spr2_all_five_bit_alpha_values_match_source_truncation ... ok
+test spr2_opaque_transparent_index_explicit_transparency_and_unfilled_tail ... ok
+test spr2_old_palette_policy_and_new_resolver_keep_distinct_palettes ... ok
+test spr2_row_and_rle_byte_boundaries_are_enforced ... ok
+test spr_v1000_opaque_repeat_literal_and_transparent_pixels ... ok
+test spr_big_endian_offset_table_and_v1001_eof_count_semantics ... ok
+test sprite_truncation_unsupported_commands_offsets_and_aggregate_limits ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vitaboy.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/vitaboy-eca4ff7cde4ce002)
+
+running 15 tests
+test animation_invalid_indices_and_float_policy_are_explicit ... ok
+test binding_and_appearance_keep_identifier_order ... ok
+test coordinate_conversion_is_bit_exact_involution_including_signed_zero ... ok
+test animation_preserves_mixed_endian_float_bits_and_time_property_order ... ok
+test skeleton_rejects_cycles_missing_parents_and_duplicates ... ok
+test mesh_keeps_triangle_order_bone_ranges_blend_weights_and_zero_normals ... ok
+test skeleton_retains_file_order_and_resolves_forward_parents ... ok
+test outfit_resource_order_and_unknown_field_are_retained ... ok
+test standalone_authoring_preserves_independent_source_bytes ... ok
+test mesh_rejects_bad_indices_bindings_counts_and_all_truncated_prefixes ... ok
+test animation_rejects_nonfinite_counts_and_all_truncated_prefixes ... ok
+test standalone_reference_authoring_retains_selectors_and_identifier_order ... ok
+test standalone_authoring_respects_explicit_source_coordinates ... ok
+test standalone_authoring_charges_retained_data_and_output_before_allocating ... ok
+test standalone_authoring_validates_references_derived_fields_and_flags ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/vitaboy_references.rs (/workspace/scratch/378e4c36af7b/formats-remaining-target/debug/deps/vitaboy_references-546f9a0f6e45dc11)
+
+running 3 tests
+test purchasable_keeps_original_big_endian_id_and_ignored_prefix ... ok
+test collection_retains_negative_duplicate_indices_and_source_identifier_order ... ok
+test hand_group_preserves_skin_hand_gesture_order_and_requires_exact_layout ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests wonderland_legacy_formats
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

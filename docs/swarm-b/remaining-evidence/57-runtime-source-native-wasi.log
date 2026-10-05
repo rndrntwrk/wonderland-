@@ -1,0 +1,64 @@
+A revision 8a0e251d19e222a0a6833d7408ca629f674e1729; manifest /tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/content-runtime-bridge/Cargo.toml
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling cfg-if v1.0.5
+   Compiling simd-adler32 v0.3.10
+   Compiling serde v1.0.195
+   Compiling adler2 v2.0.1
+   Compiling crc32fast v1.5.2
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling miniz_oxide v0.9.1
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.8
+   Compiling flate2 v1.1.10
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling bitflags v2.13.2
+   Compiling memchr v2.8.3
+   Compiling png v0.18.1
+   Compiling quick-xml v0.38.4
+   Compiling serde_json v1.0.111
+   Compiling itoa v1.0.18
+   Compiling ryu v1.0.23
+   Compiling wonderland-legacy-formats v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/legacy-formats)
+   Compiling bincode v1.3.3
+   Compiling sim-core v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/sim-core)
+   Compiling wonderland-content-ir v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/content-ir)
+   Compiling wonderland-interactions-check v0.0.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/tools/swarm-b-check/interactions)
+   Compiling wonderland-asset-cooker v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/tools/asset-cooker)
+   Compiling wonderland-content-runtime-bridge v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/content-runtime-bridge)
+    Finished `dev` profile [unoptimized] target(s) in 24.89s
+A revision 8a0e251d19e222a0a6833d7408ca629f674e1729; manifest /tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/content-runtime-bridge/Cargo.toml
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling cfg-if v1.0.5
+   Compiling simd-adler32 v0.3.10
+   Compiling serde v1.0.195
+   Compiling adler2 v2.0.1
+   Compiling crc32fast v1.5.2
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling miniz_oxide v0.9.1
+   Compiling flate2 v1.1.10
+   Compiling sha2 v0.10.8
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling bitflags v2.13.2
+   Compiling memchr v2.8.3
+   Compiling serde_json v1.0.111
+   Compiling png v0.18.1
+   Compiling quick-xml v0.38.4
+   Compiling ryu v1.0.23
+   Compiling itoa v1.0.18
+   Compiling wonderland-legacy-formats v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/legacy-formats)
+   Compiling bincode v1.3.3
+   Compiling sim-core v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/sim-core)
+   Compiling wonderland-content-ir v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/content-ir)
+   Compiling wonderland-interactions-check v0.0.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/tools/swarm-b-check/interactions)
+   Compiling wonderland-asset-cooker v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/tools/asset-cooker)
+   Compiling wonderland-content-runtime-bridge v0.1.0 (/tmp/wonderland-b-verify-root/wonderland-b-runtime-wpnq4jwb/assembly/crates/content-runtime-bridge)
+    Finished `dev` profile [unoptimized] target(s) in 25.41s
+{"native_wasi_match": true, "negative_controls_rejected": 2, "result": {"harness": "four authored attributes; unmodified source BHAV; actual sim-core interpreter", "query": {"instructions": 3, "snapshot_unchanged": true, "stop": "ReturnTrue", "temp_xl": [0, 0], "temps": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, "replay": {"attributes": [0, 0, 30, 0], "authority_matches": true, "completed_tick": 2, "durable_dispatches": 0, "instructions": 3, "snapshot_roundtrip": true, "snapshot_sha256": "49094c9adc9b1e3df73264ec221c323ce0027ec231af4f3e38b2b006fe0ca43d", "snapshot_tick": 1, "state_hash": "d52e0091425b12e7d820dcb7f1b883fb36606059b7a121bb5cf9218cc272f62b"}, "schema": "wonderland.runtime-source-probe.v1", "scope": "No full casino bar, queue, dialog, route, animation, or EOD completion claim", "sim_revision": "8a0e251d19e222a0a6833d7408ca629f674e1729", "source_bhav": 4110, "source_sha256": "20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865"}, "source_expectations_pass": true}

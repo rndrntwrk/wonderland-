@@ -78,6 +78,63 @@ class VerificationInputTests(unittest.TestCase):
         target.write_bytes(b"different bytes supplied to original compiler")
         self.assertNotEqual(before, VERIFIER.source_digest())
 
+    def test_generated_browser_output_is_excluded_but_browser_sources_are_bound(self):
+        before = VERIFIER.source_digest()
+        for relative in (
+            "tools/creator-web/dist/pkg/generated.wasm",
+            "tools/creator-web/node_modules/playwright/generated.js",
+            "tools/creator-web/test-results/browser/report.json",
+        ):
+            path = self.root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"a local build or test result")
+        self.assertEqual(before, VERIFIER.source_digest())
+        for relative in (
+            "tools/creator-web/public/fonts/inter-latin-400-normal.woff2",
+            "tools/creator-web/package-lock.json",
+            "tools/creator-web/src/session.rs",
+            "tools/creator-web/tests/browser.mjs",
+        ):
+            with self.subTest(source=relative):
+                path = self.root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"a real browser source input")
+                current = VERIFIER.source_digest()
+                self.assertNotEqual(before, current)
+                before = current
+
+    def test_added_avatar_and_legacy_text_inputs_are_bound(self):
+        for relative in (
+            "TSOClient/FSO.Content.TSO/Content/Avatar/Meshes/source.mesh",
+            "TSOClient/tso.content/Content/MeshReplace/source.fsom",
+            "TSOClient/tso.files/Utils/BCFReadProxy.cs",
+            "TSOClient/tso.vitaboy.model/CFP.cs",
+        ):
+            with self.subTest(source=relative):
+                path = self.root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                before = VERIFIER.source_digest()
+                path.write_bytes(b"an original format input")
+                self.assertNotEqual(before, VERIFIER.source_digest())
+                path.unlink()
+                self.assertEqual(before, VERIFIER.source_digest())
+
+    def test_each_family_manifest_binds_all_original_dependencies(self):
+        for manifest_path in (ROOT / "fixtures/eod").glob("*/sources.json"):
+            manifest = json.loads(manifest_path.read_text())
+            local_manifest = self.root / manifest_path.relative_to(ROOT)
+            local_manifest.parent.mkdir(parents=True, exist_ok=True)
+            local_manifest.write_text(manifest_path.read_text())
+            for entry in manifest.get("files", manifest.get("sources", [])):
+                with self.subTest(manifest=manifest_path.parent.name, source=entry["path"]):
+                    path = self.root / entry["path"]
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    before = VERIFIER.source_digest()
+                    path.write_bytes(b"an original family dependency")
+                    self.assertNotEqual(before, VERIFIER.source_digest())
+                    path.unlink()
+                    self.assertEqual(before, VERIFIER.source_digest())
+
 
 if __name__ == "__main__":
     unittest.main()

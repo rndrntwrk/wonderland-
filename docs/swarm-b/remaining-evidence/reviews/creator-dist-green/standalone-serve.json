@@ -1,0 +1,8 @@
+{
+  "mode": "standalone-serve",
+  "cwd": "/workspace/scratch/378e4c36af7b/wonderland",
+  "configured_relative_dist": "../../../creator-dist-path-review/configured-dist",
+  "served_wasm_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "expected_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "status": "passed"
+}

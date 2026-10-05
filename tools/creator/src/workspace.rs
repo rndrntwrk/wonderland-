@@ -144,6 +144,7 @@ impl Workspace {
         let path = path.as_ref();
         let target = self.resolve(path, true)?;
         Self::check_output_type(&target)?;
+        #[cfg(unix)]
         let parent = target.parent().ok_or("output has no parent")?.to_path_buf();
         let (temp, mut f) =
             Self::create_temporary(&target, || SERIAL.fetch_add(1, Ordering::Relaxed))?;

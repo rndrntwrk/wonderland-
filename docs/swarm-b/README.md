@@ -1,8 +1,9 @@
 # Swarm B — content, objects, and creator tools
 
 This branch provides a working Rust content pipeline, guarded offline creator
-transactions and sprite editing, eight native EOD handlers, and source/cooked
-content bridges to Swarm A's actual simulation runtime. It also records every
+transactions, six graphical Creator workbenches, all 30 registered native EOD
+handlers, and source/cooked content and interaction bridges to Swarm A's actual
+simulation runtime. It also records every
 checked-in object and registered EOD in a reproducible coverage inventory, with
 source-selected OBJf lifecycle references.
 
@@ -12,10 +13,13 @@ plan. [IMPLEMENTATION.md](IMPLEMENTATION.md) records the initial ownership
 decisions; [CONTINUATION.md](CONTINUATION.md) records the following implementation.
 [BUILDOUT.md](BUILDOUT.md) and [BUILDOUT-DESIGN.md](BUILDOUT-DESIGN.md) describe the
 cooperative-game, sprite-workflow and cooked-runtime increment.
-[BUILDOUT-VERIFICATION.md](BUILDOUT-VERIFICATION.md) is the current verification
-and review record. The earlier [44-gate continuation](CONTINUATION-VERIFICATION.md)
+[REMAINING-IMPLEMENTATION.md](REMAINING-IMPLEMENTATION.md) and
+[REMAINING-VERIFICATION.md](REMAINING-VERIFICATION.md) describe the current
+implementation, independent review and final gates.
+[BUILDOUT-VERIFICATION.md](BUILDOUT-VERIFICATION.md) records the previous milestone. The earlier [44-gate continuation](CONTINUATION-VERIFICATION.md)
 and [35-gate initial result](VERIFICATION.md) remain historical baselines.
-The complete buildout passes **47 gates, 439 Rust tests and 48 Python tests**.
+The previous buildout passed **47 gates, 439 Rust tests and 48 Python tests**;
+those numbers describe its immutable source revision.
 Draft PRs [#13](https://github.com/rndrntwrk/wonderland-/pull/13),
 [#14](https://github.com/rndrntwrk/wonderland-/pull/14),
 [#15](https://github.com/rndrntwrk/wonderland-/pull/15) and
@@ -58,10 +62,12 @@ accepted-tick replay, watches, and frame-position inspection against a pinned
 real VM. The [cooked-release workflow](cooked-runtime.md) prepares a binding,
 plans selected packs, verifies and loads them, and replays an explicit scenario
 without the original source files. Instruction stepping and a running-lot editor
-remain separate integration work.
+remain separate integration work. The [graphical Creator](../../tools/creator-web/README.md)
+runs the actual source codecs and authoring library; [extended authoring](creator-authoring.md)
+documents upgrade, avatar, mesh, city, neighborhood and interchange APIs.
 
 ```sh
-bash tools/swarm-b/verify.sh --with-parity --with-source-oracle --with-runtime-bridge
+bash tools/swarm-b/verify.sh --with-parity --with-source-oracle --with-runtime-bridge --with-creator-web
 python3 tools/swarm-b/eod-census.py --check
 python3 tools/swarm-b/object-census.py --check
 ```
@@ -71,10 +77,12 @@ nonincremental compilation. It runs the native suites and lint checks, checks
 browser-safe code for `wasm32-unknown-unknown`, and runs the authored cooker
 workflow. The optional flags add native/WASI execution, original C#/C++ source
 comparisons, and the actual pinned runtime bridge. Setup and the scope of those
-checks are described in [BUILDOUT-VERIFICATION.md](BUILDOUT-VERIFICATION.md).
-The EOD comparison executes five unchanged original C# handlers; the cooked
-comparison executes the actual runtime from selected verified packs on both
-native and WASI targets.
+checks are described in [REMAINING-VERIFICATION.md](REMAINING-VERIFICATION.md).
+The EOD comparisons include five unchanged original C# handlers and the separately
+qualified casino, social and service source/helper oracles. The runtime comparisons
+execute the actual interpreter from source and selected verified packs on both
+native and WASI targets. The browser gate builds the Creator WASM artifact and
+exercises all six workbenches with real uploads and downloaded-file assertions.
 
 ## Components and integration surfaces
 
@@ -84,9 +92,10 @@ native and WASI targets.
 | `crates/content-ir` | Ordered PIFF application, namespaces, tuning and localization; effective identities; immutable manifests, packs, tuning packs and load plans | Simulation and browser loader |
 | `tools/asset-cooker` | Actual import → resolve → cook → verify; named scopes and tuning inputs; explicit codecs, provenance and demand groups | Build/import tooling |
 | `crates/sim-core/src/interactions` | Source-derived offers, permissions, detached UI queries, validated intents, queue/cancel/start transitions | Swarm A's real VM |
-| `crates/eod-runtime` | Native private host, eight handlers including three cooperative games, scoped sessions/controllers, checkpointed private state and persistence recovery | Swarm E's lot/transport/storage providers |
+| `crates/eod-runtime` | Native private host, all 30 handlers, including casino, social, music, trade and wardrobe services, scoped sessions/controllers, checkpointed private state and persistence recovery | Swarm E's lot/transport/storage providers |
 | `tools/creator` | Offline resource CLI, atomic guarded add/remove/edit/rekey transactions, guarded SPR2 packages, typed palette/BHAV/BCON/string/SLOT/OTF edits and exact BMP pixel editing | Creators and migration tools |
 | `crates/content-runtime-bridge` | Validated source and hash-bound cooked-release conversion to actual `ContentSet`, real bounded queries, isolated snapshot/accepted-tick replay and creator inspection | Swarm A simulation and Swarm F composition |
+| `tools/creator-web` | Rust/WASM IFF, upgrades, city, neighborhood, asset and patch workbenches with guarded editing, independent bounded histories, native uploads and real downloads | Local graphical authoring |
 | `tools/swarm-b-check` | Test-only manifests and cross-target fixtures compiling the actual owned modules | Swarm F integration |
 | `tools/swarm-b/*census*` | Pinned source and registration inventories with concrete open leaves | Compatibility planning and qualification |
 
@@ -111,14 +120,14 @@ not infer those rights from a filename or repository location.
 | W01.2 | Source-cased PIFF matching and user suppression, deferred moves/removals/additions, namespace lookup, tuning precedence and localization, deterministic effective identities | Full frozen installation/patch manifest and original-runtime differential cases |
 | W01.3 | CPU sprite color/alpha/depth, bounded PALT and SPR2 1000/1001 authoring, source C# encoder/reader comparisons, DGRP/SLOT, Vitaboy and audio/HIT metadata | Renderer/pose evaluation, compressed audio playback/HIT execution, additional legacy formats and visual reference comparisons |
 | W01.4 | Working source import and resolver, immutable semantic/visual/audio/opaque packs, actual effective tuning, verified load closure, source-independent runtime binding and native/WASI cooked replay | Browser cache/network integration; complete dynamic BHAV/resource dependency declarations from the VM/content contract |
-| W06.1 | Source-derived interaction module and provider traits; detached query and in-tick modes; guarded intents; queue/cancellation behavior; separate actual-interpreter source routine and accepted-tick replay proof | Complete check-tree/queue adapter, advertisement and query-state mapping, scheduler/routing/reservations and production persistence |
+| W06.1 | Source-derived interaction module and provider traits; detached query and in-tick modes; guarded intents; queue/cancellation behavior; separate actual-interpreter source routine and accepted-tick replay proof; actual content/check catalog and queue intent preparation | Mutable check-tree outputs, advertisement/query-state return API, atomic action-frame insertion, scheduler/routing/reservations and production persistence |
 | W06.2 | Real chair/bed/appliance source descriptors and explicit scenario requirements | Content-driven walk/reserve/use/animate/need-change/exit with original traces and interrupted/concurrent cases |
-| W06.3 | Eight native handlers, including PaperChase/PizzaMaker/Maze; private/public channels and controller capabilities; format 1/2/3 recovery; immutable persistence intents; unchanged-C# component comparisons for five handlers | Production transport, coherent VM/private checkpoint barrier, durable provider integration and original UI/runtime traces |
-| W06.4 | Complete checked-in object/source inventory, exact source-selected OBJf lifecycle references, exact server/UI EOD registration census and per-entry open leaves | All enter/use/cancel/leave/save/reconnect scenarios; remaining 22 EOD implementations; W00's complete installation denominator |
-| W16.1 | Safe offline inspection/import/export, strict bounded transaction JSON, atomic guarded resource creation/removal/rekey/edit and indexed repacking | Graphical resource browser, effective catalog/patch view and production tool privilege integration |
+| W06.3 | All 30 registered native handlers, including casino/social/service families; private/public channels and controller capabilities; format 1/2/3/4 recovery; immutable persistence intents; unchanged-C# component comparisons for five handlers | Production transport, coherent VM/private checkpoint barrier, durable provider integration and original UI/runtime traces |
+| W06.4 | Complete checked-in object/source inventory, exact source-selected OBJf lifecycle references, exact server/UI EOD registration census and per-entry open leaves | All enter/use/cancel/leave/save/reconnect scenarios; W00's complete installation denominator |
+| W16.1 | Browser resource browser and effective patch view, safe offline inspection/import/export, strict bounded transaction JSON, atomic guarded resource creation/removal/rekey/edit and indexed repacking | Production tool privilege integration and full installation catalog qualification |
 | W16.2 | BHAV branch/operand editing and CFG inspection; real isolated tick-step/query, bounded watches and frame-position inspection through the bridge | Instruction break/step/yield, actual executed trace and running-lot preview |
-| W16.3 | Strings, BCON, SLOT, palettes and exact OTF editing; guarded indexed sprite/palette CLI workflow with explicit alpha policy; raw interchange and actual repacking | Graphical sprite editing, mesh/animation/upgrade authoring, OBJ/MTL/glTF/GLB workflows and contact/event authoring |
-| W16.4 | Exact supported BMP city-map validation/editing and source tool disposition inventory | PNG/other map variants, graphical city/neighborhood editing, road reconstruction, server updates and optional-extension qualification |
+| W16.3 | Graphical/CLI strings, BCON, SLOT, palettes and OTF; guarded sprite packages; mesh/animation/upgrade authoring; source-bound OBJ/MTL/GLB/glTF with preserved event metadata | Live animation playback and integrated running-lot authoring |
+| W16.4 | Graphical PNG/BMP city painting, source road reconstruction, explicit neighborhood identity/order editing and source tool disposition inventory | Server updates and optional-extension qualification |
 
 ## Source compatibility decisions
 
@@ -160,8 +169,10 @@ rejects DTD/entity expansion and unsupported structural edits.
 
 Standalone Vitaboy resources use big-endian integers and **little-endian f32
 bits**, matching `IoBuffer.ReadFloat`. The named FreeSO coordinate policy
-preserves negative zero and original animation property order. BCF/CMX/BMF,
-derived skinning/pose evaluation and sprite postprocessing are remaining work.
+preserves negative zero and original animation property order. BCF/CMX/BMF/SKN/CFP authoring, FSOm/NBHm, reference resources and the
+455-payload original corpus gate are documented in
+[format-authoring-completion.md](format-authoring-completion.md). Derived
+skinning/pose evaluation and sprite postprocessing require their runtime adapters.
 WAVE PCM metadata, XA/UTK headers and HIT resource metadata have explicit tags;
 encoded audio and HIT bytecode are not executed by these readers.
 
@@ -191,10 +202,12 @@ sender's authority. Scoped identities are checked for commands, private output,
 disconnect and rebind. Public object events and private UI/checkpoint data use
 distinct types with redacted private Debug output.
 
-Timer, DanceFloor, Signs, Scoreboard, PermissionDoor, PaperChase, PizzaMaker and
-TwoPersonJobObjectMaze are native-enabled. The other 22 registrations remain
-explicitly unsupported, with source-specific implementation/recovery/provider
-leaves in [eod-coverage.md](eod-coverage.md). The [component oracle](eod-source-oracle.md)
+All 30 registered handlers are native-enabled. The newly translated casino,
+social and service families use the authenticated NativeHost and format-4 private
+recovery envelope. Source-specific implementation, recovery and remaining
+provider leaves are recorded in [eod-coverage.md](eod-coverage.md),
+[eod-casino.md](eod-casino.md), [eod-social.md](eod-social.md) and
+[eod-services.md](eod-services.md). The [component oracle](eod-source-oracle.md)
 executes the five original C# handlers in controlled scenarios. All 30 still
 require qualification against the complete original application and production
 providers.

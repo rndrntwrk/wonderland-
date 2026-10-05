@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "status": "pass",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "archive_sha256": "255ede7a282284ea466edcaa9017a49c7239b4e163ac16d9434e8e16663c9866",
+  "reader_sha256": "bb21fd4a34c2c5951eec54c6aa977fde55f10496a975fb0a1a4f5bb1ef5e79e9",
+  "v0_fixture_sha256": "5b85d2cd824a88223c458eb80e564717c1a6ee4b080cefa4dcec695bd65e93a9",
+  "source_limitations": [
+    "srcs.zip omits iff.h; declaration/accessor shim supplied",
+    "one allocation spelling compatibility change; parser logic unchanged",
+    "historical validator ignores size field and complete map coverage",
+    "version-1 fixture is source-derived; no original v1 corpus present"
+  ],
+  "gates": [
+    {
+      "name": "compile-original-reader",
+      "exit_code": 0,
+      "log": "compile-original-reader.log"
+    },
+    {
+      "name": "toolchain",
+      "exit_code": 0,
+      "log": "toolchain.log"
+    },
+    {
+      "name": "bounded-rust-corpus-edits",
+      "exit_code": 0,
+      "log": "bounded-rust-corpus-edits.log"
+    },
+    {
+      "name": "original-reader-batch-01",
+      "exit_code": 0,
+      "log": "original-reader-batch-01.log"
+    },
+    {
+      "name": "original-reader-batch-02",
+      "exit_code": 0,
+      "log": "original-reader-batch-02.log"
+    },
+    {
+      "name": "original-reader-batch-03",
+      "exit_code": 0,
+      "log": "original-reader-batch-03.log"
+    },
+    {
+      "name": "original-reader-batch-04",
+      "exit_code": 0,
+      "log": "original-reader-batch-04.log"
+    },
+    {
+      "name": "original-reader-batch-05",
+      "exit_code": 0,
+      "log": "original-reader-batch-05.log"
+    },
+    {
+      "name": "original-reader-batch-06",
+      "exit_code": 0,
+      "log": "original-reader-batch-06.log"
+    },
+    {
+      "name": "original-reader-batch-07",
+      "exit_code": 0,
+      "log": "original-reader-batch-07.log"
+    },
+    {
+      "name": "original-reader-batch-08",
+      "exit_code": 0,
+      "log": "original-reader-batch-08.log"
+    },
+    {
+      "name": "original-reader-batch-09",
+      "exit_code": 0,
+      "log": "original-reader-batch-09.log"
+    },
+    {
+      "name": "original-reader-batch-10",
+      "exit_code": 0,
+      "log": "original-reader-batch-10.log"
+    },
+    {
+      "name": "original-reader-batch-11",
+      "exit_code": 0,
+      "log": "original-reader-batch-11.log"
+    },
+    {
+      "name": "original-reader-batch-12",
+      "exit_code": 0,
+      "log": "original-reader-batch-12.log"
+    },
+    {
+      "name": "original-reader-batch-13",
+      "exit_code": 0,
+      "log": "original-reader-batch-13.log"
+    },
+    {
+      "name": "original-reader-batch-14",
+      "exit_code": 0,
+      "log": "original-reader-batch-14.log"
+    },
+    {
+      "name": "original-reader-batch-15",
+      "exit_code": 0,
+      "log": "original-reader-batch-15.log"
+    },
+    {
+      "name": "original-reader-batch-16",
+      "exit_code": 0,
+      "log": "original-reader-batch-16.log"
+    }
+  ],
+  "original_indexed_files": 198,
+  "exact_passthrough_files": 195,
+  "strict_duplicate_rejections": 3,
+  "source_maps_supporting_edits": 192,
+  "ambiguous_map_edit_rejections": 3,
+  "supported_original_map_entries": 13084,
+  "original_v0_edits": 960,
+  "source_derived_v1_edits": 5,
+  "original_reader_outputs_passed": 965,
+  "emitted_bytes": 302174293
+}
