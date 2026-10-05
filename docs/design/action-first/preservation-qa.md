@@ -30,6 +30,7 @@ Browser loading the complete source bank established 424 distinct head outfit ch
 | Pagination | The 20-choice Head grid advances to page two and exposes Male Head 9/10; the previous page remains available. |
 | Rejection and retry | In the explicit rejection fixture, the first Riley creation retains its selected head/body/skin/name. Retry accepts exactly one new profile and selects it on roster page two. |
 | Reduced motion | Enabling Reduce motion stops automatic rotation; manual rotation still changes the same textured model. |
+| Narrow viewport | At 390 × 844, document dimensions equal scroll dimensions. The source model remains above a single scrolling control panel. Player, Sound and Settings buttons are separated after the targeted spacing fix. |
 | Wardrobe boundary | Change outfit opens the source-rendered character stage. Missing owned-wardrobe data explains its unavailability; it is not filled with invented owned outfits. |
 
 ## Build gates
