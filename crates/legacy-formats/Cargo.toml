@@ -1,0 +1,12 @@
+[package]
+name = "wonderland-legacy-formats"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.90"
+description = "Bounded readers for source-derived FreeSO legacy formats"
+license = "MPL-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+quick-xml = "0.38"
