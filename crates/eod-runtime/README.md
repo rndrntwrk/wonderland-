@@ -1,156 +1,192 @@
 # Native private EOD host
 
-`wonderland-eod-runtime` is a standalone, dependency-free Rust 1.90 library. It
-rejects WebAssembly builds and forbids unsafe code. It does not contain a VM,
-renderer, browser, transport, authentication implementation or database provider.
+`wonderland-eod-runtime` is a dependency-free Rust 1.90 library. It rejects
+WebAssembly and forbids unsafe code. It contains no VM, renderer, transport,
+authentication service, database or encryption provider.
 
-The exact 30 source server registrations and 28 UI registrations are in
-`src/registry.rs`. Only `0xAA65FE9E` (`VMEODTimerPlugin`) can be instantiated.
-Its behavior is translated from the source; all original-runtime verification
-flags remain false. The other 29 registered plugins return `UnverifiedPlugin`.
-Unknown IDs return `UnregisteredPlugin`, without a stub fallback.
+Five registered server handlers are translated from C# and dispatched through
+`NativeHost`: Timer (`0xAA65FE9E`), DanceFloor (`0x4A5BE8AB`), Signs (`0x2A6356A0`),
+Scoreboard (`0x0949E698`) and PermissionDoor (`0x0A69F29F`). All original-runtime,
+UI-runtime and production-provider verification remains unverified. The other
+25 registrations return `UnverifiedPlugin`; unknown IDs return
+`UnregisteredPlugin`. There is no fallback stub.
 
-See `../../docs/swarm-b/eod-coverage.md` and
-`../../fixtures/eod/registration-census.json` for every ID, exact server/UI pair,
-source anchor, recovery policy and open leaf requirement.
+See [generated coverage](../../docs/swarm-b/eod-coverage.md) and the
+[registration census](../../fixtures/eod/registration-census.json) for source
+anchors, exact server/UI pairings, source quirks, recovery policies and open
+leaves.
 
-## Integration contract
+## Invocation and delivery
 
-1. The authoritative transport implements `ConnectionAuthority`. A connection ID
-   identifies one non-reusable transport incarnation. The lookup derives the
-   actor independently of UI message bytes. The authoritative VM implements
-   `RegisterSource`, returning a read-only snapshot of the timer invoker's first
-   four temporary registers.
-2. An authoritative Invoke Plugin operation calls `NativeHost::connect` with
-   `ConnectRequest`. This is a trusted VM entry, not a network operation. The
-   current implementation is a single-participant timer instance; it does not
-   claim support for joinable lobbies, controller-only connections or arbitrary
-   SimAntics callbacks.
-3. Give the returned `SessionTicket` only to that connection. Inbound UI frames go
-   through `receive_bytes(authority, connection, bytes)`. The typed `receive`
-   entry enforces the same version, size, allowlist, authentication, host scope, epoch,
-   plugin, session, ordering and rate checks. Tickets are routing identifiers,
-   not authentication secrets. Each ticket includes the authoritative host scope,
-   so equal per-scope epochs and counters cannot alias after a still-authenticated
-   connection moves to another host. Sequences start at one. Replays are rejected.
-4. Drain `take_public_events()` into the synchronized VM command adapter. Its
-   typed variants expose the exact source event code/temp arguments via
-   `source_event()`. Source connection/disconnection events are `-2` and `-1`.
-   Deliver `take_private(authority, connection, ticket)` only on that same
-   connection's private UI channel. The type cannot convert into a public VM
-   event; its Debug is redacted. The private UI adapter must retain plugin and
-   ticket checks when consuming deliveries.
-5. Call `tick` once per authoritative 30 Hz tick with a stable VM register and
-   authentication snapshot. Timer does not advance the VM's time registers; it
-   reads them and emits the same control/update events as the source. Timeout
-   order is deterministic by instance ID. The default idle timeout is 1,800
-   ticks; accepted UI activity renews it. Detached restored instances wait for
-   rebind while the idle deadline keeps advancing.
-6. Handle `QueueFull` as backpressure: drain/admit outputs and retry the same
-   operation. The host uses bounded clone-and-commit transactions, so a rejected
-   operation does not change plugin state, counters or sequence. Missing VM
-   registers reject a complete tick atomically. This foundation has no measured
-   30 Hz performance claim; queue handling and VM commit ordering remain adapter
-   responsibilities.
+1. The trusted transport implements `ConnectionAuthority`. Connection IDs name
+   non-reusable authenticated transport incarnations. Actor identity is derived
+   from the transport, never from UI data.
+2. The trusted VM calls existing `connect` with `ConnectRequest` for Timer, or
+   `connect_plugin` with `PluginConnectRequest` and typed `PluginInput` for the
+   other handlers. Signs ownership/roommate status, Door Edit authorization,
+   modes, avatar ObjectID and persistent-object ID come from the VM invocation.
+   They cannot be changed by inbound frames. The old timer-only entry reports
+   `PluginInputRequired` for translated plugins needing this additional data.
+3. DanceFloor has a separate native `connect_dance_controller(object, invoker)`
+   entry. Multiple authenticated players on that object route button codes to
+   this controller with their recorded avatar ObjectID as temp0. Controller
+   connections create no transport ticket or private UI. The trusted VM ends
+   them through `disconnect_invoker`. One controller per object is allowed.
+4. Deliver inbound UI frames through `receive_bytes(authority, connection,
+   bytes)`. The typed `receive` entry performs the same version, bounds, event
+   allowlist, payload kind, scope, epoch, session, actor, sequence and rate
+   checks. Sequences start at one. Tickets are scoped routing identities, not
+   authentication secrets.
+5. Drain `take_public_events()` into the synchronized VM adapter. Its typed
+   variants expose exact source event code/temp arguments through
+   `source_event()`. Connect/disconnect are `-2`/`-1`. Only
+   `take_private(authority, connection, ticket)` retrieves that recipient's UI
+   outputs; private payloads cannot convert to public events and redact Debug.
+6. Call `tick` once per authoritative 30 Hz tick. Only Timer consumes current
+   `RegisterSource` values. Signs and Door initialize after provider data loads.
+   Scoreboard sends show on connect and binary state on load completion.
+   Revoked transport authentication disconnects on the next tick. Detached
+   participants retain their bounded idle deadline.
+7. Treat `QueueFull`, `PersistenceLimit` and `PersistencePending` as explicit
+   admission failures. A rejected receive/tick leaves source state and message
+   sequence unchanged. Source-malformed handler values are accepted no-ops;
+   invalid envelope/authentication/authority is an explicit error. Signs writes
+   before permission initialization are rejected with `PluginNotReady`.
+
+Persistent handlers allow one active session/write stream per scoped plugin and
+persistent object. This deliberate native rule serializes source patches and
+avoids the C# asynchronous patch race. It is not evidence that every joinable
+legacy invocation or multiplayer callback has been reproduced.
+
+## Private plugin-data provider
+
+The `persistence::PluginDataProvider` boundary has bounded `load` and immutable
+`write` requests. `PluginDataKey` includes host scope, plugin and persistent
+object. `PluginWriteId` additionally includes origin epoch, instance and
+operation sequence; retries and restores retain the same identity. Writes carry
+the authenticated actor and expected record revision. Request Debug is redacted.
+
+New persistent sessions begin loading. Call `drive_persistence` to complete
+provider work. A provider must report an explicitly absent record before the
+source defaults are used. Malformed, denied or oversized reads do not silently
+become successful loads. Incoming valid mutations create private write intents
+and source VM/UI outputs. The provider does not receive an intent until
+`checkpoint_to` successfully records it at the matching VM/event barrier.
+
+A concrete adapter sequence is:
+
+1. Invoke, load and initialize the source handler.
+2. Receive an authenticated mutation and apply its public VM events.
+3. Deliver the private UI outputs and commit the authoritative VM checkpoint at
+   the same barrier as `checkpoint_to`.
+4. Call `drive_persistence` to dispatch the checkpointed immutable request.
+5. Retry a lost/ambiguous response using the retained ID and bytes. A later
+   checkpoint records the acknowledged binding or remaining work.
+
+The provider must fence the current `HostIdentity`, authorize actor/object/plugin
+access, atomically compare-and-set the expected revision and durably deduplicate
+the complete request. Repeating a previously applied ID must return its original
+receipt even if the response was lost. A conflicting reuse must never apply
+another write. No provider satisfying that production contract is supplied.
+
+Provider work commits one operation at a time; an error in a later operation
+cannot undo a prior durable acknowledgement. Pending, conflicted and orphaned
+intents count against record and byte limits. A UI disconnect does not discard
+ambiguous work. `abort_conflicted_writes` drops only provider-confirmed
+not-applied requests and disconnects their sessions; it cannot drop retry work.
+
+## Private checkpoints and recovery
+
+`PrivateCheckpointStore` receives private bytes only. It must provide private,
+integrity-protected, atomic storage and an authoritative latest
+`CheckpointStamp`. Both UI and VM output queues must be drained before saving.
+Draining an event does not itself prove the VM applied it: the VM and EOD
+checkpoints must share an actual commit barrier.
+
+Timer-only snapshots retain format/schema 1. Mixed snapshots use format 2 and
+per-handler schema 1. Format 2 stores loading/initialization/source state,
+participant identities, native controllers, persistence bindings and immutable
+write intents. Parsers bound lengths before allocations and check identities,
+uniqueness, schemas, counters, deadlines, canonical intent bytes and relevant
+source-state/persistence consistency. Unsupported state fails closed.
+
+`restore_from` requires an exact trusted stamp and a strictly newer host epoch.
+It discards all old transport bindings and detaches native controllers. Replayed
+write intents retain their original ID while the provider separately fences the
+new host epoch. Before persisted UI rebind, `drive_persistence` must resolve
+pending work and confirm the provider revision, record existence and private
+bytes match the expected binding. Divergence returns `PersistenceDiverged`
+and remains blocked. The trusted adapter can end an unreconciled detached
+participant through `abort_unreconciled` once it has no unresolved intent, then
+invoke afresh to reload authoritative data.
+
+`rebind` requires a scoped `InstanceAddress` and fresh authentication for the
+recorded actor. It rotates the generation and resets inbound sequence to one,
+reconstructs UI without resetting source state and does not emit a second VM
+connect event. Timer rebind retains its current register input. Controller
+rebind uses `rebind_dance_controller(address, recorded_invoker)` and produces no
+player button effects before it succeeds.
+
+Door Edit intentionally retains the source's cached original code after
+`set_code`; a new invocation reloads the saved value. Door View/CodeInput never
+receive `door_code`. Signs read redaction and the original write-mode override
+are retained. A Signs UTF-16 truncation that splits a surrogate is rejected
+atomically, instead of reproducing the source encoder exception and partial
+mutation.
 
 ## Protocol version 1
 
-The inbound envelope is intentionally separate from the legacy C# network wire
-format. Unreleased version 1 uses a 57-byte scoped header; the earlier unscoped
-draft is unsupported. All integers are little endian, and the whole frame is bounded before
-parsing. Text must be UTF-8; event names are bounded ASCII. Parsing borrows the
-frame and allocates no input-derived buffer.
+The native envelope is independent of the legacy C# wire format. Its 57-byte
+header is little endian. Event names are bounded ASCII and text bodies are
+UTF-8. The parser borrows the input after enforcing the full frame bound.
 
-| Byte offset | Field |
+| Offset | Field |
 | --- | --- |
-| 0 | `EODI` magic, 4 bytes |
-| 4 | protocol version, `u16` = 1 |
-| 6 | host scope, `u64` |
-| 14 | host epoch, `u64` |
-| 22 | instance ID, `u64` |
-| 30 | session generation, `u64` |
-| 38 | plugin ID, `u32` |
-| 42 | sequence, `u64` |
-| 50 | payload kind, `u8`: 0 text, 1 binary |
-| 51 | event-name byte length, `u16` |
-| 53 | payload byte length, `u32` |
-| 57 | event-name bytes followed by payload bytes |
+| 0 | `EODI` magic, four bytes |
+| 4 | version `u16` = 1 |
+| 6 | host scope `u64` |
+| 14 | host epoch `u64` |
+| 22 | instance ID `u64` |
+| 30 | generation `u64` |
+| 38 | plugin ID `u32` |
+| 42 | sequence `u64` |
+| 50 | kind `u8`: text 0, binary 1 |
+| 51 | event length `u16` |
+| 53 | body length `u32` |
+| 57 | event bytes then body bytes |
 
-The decoder rejects trailing bytes and unsupported payload kinds. There is no
-sender, recipient or Verified field to forge. The only accepted timer events
-are binary `Timer_State_Change`, `Timer_IsRunning_Change`, `Timer_Set`, and text
-`Timer_Close`. Source-invalid handler values are accepted as no-ops, consume a
-sequence/rate slot, and produce no plugin event, as documented in the fixtures.
+The earlier unscoped draft and extra sender/recipient/Verified fields are
+rejected. Every implemented handler has its own event/kind allowlist.
 
-## Private checkpoints
+## Other durable effects remain unimplemented
 
-`checkpoint_to` writes only through `PrivateCheckpointStore`, at a quiescent
-barrier where both output queues are empty. The store receives private bytes;
-there is no public snapshot or generic Debug path to retrieve them. The
-provider must use private, integrity-protected storage and atomic writes, and
-retain the latest trusted `CheckpointStamp`. No such provider is supplied.
+`effects::EffectOutbox` remains a separate foundation for future fund,
+inventory, settlement and refund providers. The plugin-data journal does not
+implement those operations. The 25 unsupported registrations retain their
+abort/reconcile integration gates. There is no casino, escrow, inventory,
+production storage or refund implementation in this crate.
 
-The VM must commit its synchronized events and checkpoint at the same barrier.
-Draining an event from the host is not confirmation that the VM applied it. A
-provider must not publish a checkpoint stamp until its write has committed.
-
-`restore_from` checks the exact expected scope, epoch and revision, private
-format 1, timer schema 1, bounds, unique participants/invokers/generations, source
-plugin ID and all serialized fields. It rejects timeout-policy changes without
-an explicit migration. A strictly newer host epoch is mandatory; choose it from
-authoritative durable state, fencing any earlier host before resuming effects.
-
-No network connection ID is serialized. `rebind` requires an `InstanceAddress`
-with the host scope and instance ID, obtainable from `ticket.instance_address()`.
-It rejects a different scope and verifies fresh authentication for the recorded
-actor, rotates the session generation, resets inbound sequence
-to one and reconstructs the UI from supplied authoritative registers. Preserved
-private timer state is not reset. The restored VM connection already exists, so
-rebind does not emit another VM connect event.
-
-Every unimplemented registration has an explicit abort/reconcile policy: its
-source abort behavior and any provider-confirmed reservation/refund must be
-implemented and verified before enabling its recovery. The host rejects those
-plugins and their checkpoints today. It never estimates a refund or simulates a
-successful transfer.
-
-## Durable effects
-
-`effects::EffectOutbox` requests private-data writes, fund reservations,
-settlements and refunds through `DurableEffectProvider`. It performs no effect.
-Keys are stable across host epochs and must be allocated by an authoritative
-durable caller. Immutable requests and terminal receipts are retained; duplicate
-keys with a changed operation fail. A retry reuses the exact original request.
-
-The provider must authorize all accounts, ownership and reservation references,
-and atomically persist deduplication and effect outcome. It must also enforce
-that a reservation cannot be settled or refunded twice even under different
-operation keys. Unknown or mismatched provider receipts remain pending. No
-production provider or durable outbox recovery is implemented. The outbox is an
-in-memory handoff foundation; future effectful plugins must persist their
-requests/receipts in private recovery state before being enabled. Timer does
-not request durable effects or use RNG.
-
-## Validation
+## Validation and evidence
 
 ```sh
-CARGO_INCREMENTAL=0 /root/.cargo/bin/cargo test --manifest-path crates/eod-runtime/Cargo.toml --offline
+CARGO_TARGET_DIR=/workspace/scratch/378e4c36af7b/swarm-b-eod-next-target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 /root/.cargo/bin/cargo test --manifest-path crates/eod-runtime/Cargo.toml --offline
 python3 tools/swarm-b/eod-census.py --check
 /root/.cargo/bin/cargo fmt --manifest-path crates/eod-runtime/Cargo.toml --check
-CARGO_INCREMENTAL=0 /root/.cargo/bin/cargo clippy --manifest-path crates/eod-runtime/Cargo.toml --offline --all-targets -- -D warnings
+CARGO_TARGET_DIR=/workspace/scratch/378e4c36af7b/swarm-b-eod-next-target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 /root/.cargo/bin/cargo clippy --manifest-path crates/eod-runtime/Cargo.toml --offline --all-targets -- -D warnings
 ```
 
-The tests are source-derived native fixtures and adversarial host/provider
-tests. They are not original-runtime conformance, a browser UI implementation,
-database integration, object-content validation or performance evidence.
+Tests use hand-derived C# expectations and native host/provider models. A local
+Mono probe verifies selected .NET numeric/encoding behavior. Neither those tests
+nor the probe execute the FreeSO application or UI runtime, establish a working
+durable service, validate object content, or measure 30 Hz performance.
 
-## License and source attribution
+## License and attribution
 
-This Source Code Form is subject to the terms of the Mozilla Public License,
-v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at http://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the Mozilla Public License, v. 2.0. If a
+copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
 
-The source timer behavior and registration dictionaries are derived from FreeSO
-at commit `4c6b3e8f5835b228723caea3c9f683c62f244f73`, by the original FreeSO
-contributors, under the repository's `../../LICENSE.md`. Existing C# source and
-its notices are unchanged. No original game assets are included.
+The translated handlers and registration dictionaries derive from FreeSO at
+commit `4c6b3e8f5835b228723caea3c9f683c62f244f73`, by its original contributors,
+under the repository's [LICENSE.md](../../LICENSE.md). Existing C# source and
+notices are unchanged. No original game assets are added.

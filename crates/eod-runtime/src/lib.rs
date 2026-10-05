@@ -10,8 +10,10 @@ compile_error!("authoritative private EOD state is native-only");
 mod checkpoint;
 pub mod effects;
 mod host;
+pub mod persistence;
 pub mod protocol;
 pub mod registry;
+mod source_plugins;
 mod timer;
 
 pub use checkpoint::{
@@ -19,13 +21,15 @@ pub use checkpoint::{
     StoreError,
 };
 pub use host::{
-    ConnectRequest, ConnectionAuthority, HostIdentity, HostLimits, NativeHost, RegisterSource,
+    ConnectRequest, ConnectionAuthority, HostIdentity, HostLimits, NativeHost,
+    PluginConnectRequest, PluginInput, RegisterSource,
 };
 pub use protocol::{
     ActorId, ClientMessage, ConnectionId, DispatchOutcome, Error, HostScopeId, InstanceAddress,
     InstanceId, InvokerId, PluginId, PrivateUiMessage, PublicVmEvent, SessionTicket, UiBody,
     VmProjection, WirePayload,
 };
+pub use source_plugins::{DoorInput, DoorMode, SignsInput, SignsMode, SourceObjectEvent};
 
 /// The adapter calls `NativeHost::tick` once per authoritative simulation tick.
 pub const SIMULATION_TICKS_PER_SECOND: u32 = 30;

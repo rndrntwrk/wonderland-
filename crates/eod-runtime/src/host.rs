@@ -5,8 +5,10 @@
 //! trusted integrations; no client-provided actor or recipient is authoritative.
 
 use crate::{
+    persistence::{Binding, BindingStatus, WriteRecord, *},
     protocol::{self, PrivateBody},
     registry::{self, RuntimeStatus},
+    source_plugins::{Actions, PermissionDoor, Scoreboard, Signs, SourceError, SourceUi},
     timer::{Output, Timer},
     *,
 };
@@ -43,6 +45,9 @@ pub struct HostLimits {
     pub max_messages_per_tick: u32,
     pub idle_timeout_ticks: u64,
     pub max_checkpoint_bytes: usize,
+    pub max_persistence_records: usize,
+    pub max_plugin_data_bytes: usize,
+    pub max_total_persistence_bytes: usize,
 }
 
 impl Default for HostLimits {
@@ -59,6 +64,9 @@ impl Default for HostLimits {
             max_messages_per_tick: 32,
             idle_timeout_ticks: 30 * 60,
             max_checkpoint_bytes: 1024 * 1024,
+            max_persistence_records: 256,
+            max_plugin_data_bytes: 64 * 1024,
+            max_total_persistence_bytes: 4 * 1024 * 1024,
         }
     }
 }
@@ -76,6 +84,9 @@ impl HostLimits {
             || !(1..=4096).contains(&self.max_messages_per_tick)
             || !(1..=30 * 86400).contains(&self.idle_timeout_ticks)
             || !(60..=16 * 1024 * 1024).contains(&self.max_checkpoint_bytes)
+            || !(1..=4096).contains(&self.max_persistence_records)
+            || !(6..=1024 * 1024).contains(&self.max_plugin_data_bytes)
+            || !(6..=16 * 1024 * 1024).contains(&self.max_total_persistence_bytes)
         {
             return Err(Error::InvalidLimits);
         }
@@ -91,6 +102,72 @@ pub struct ConnectRequest {
     pub object: u32,
     pub invoker: InvokerId,
     pub registers: TimerRegisters,
+}
+
+/// All fields are supplied by an authoritative Invoke Plugin adapter. In
+/// particular avatar ObjectID, mode, permissions and persistent-object identity
+/// are not extracted from UI frames. Source owner modes require explicit VM
+/// authorization; relationship status is an authoritative snapshot.
+#[derive(Clone, Copy, Debug)]
+pub enum PluginInput {
+    DanceFloor {
+        avatar_object: i16,
+    },
+    Signs {
+        persistent_object: u32,
+        input: SignsInput,
+    },
+    Scoreboard {
+        persistent_object: u32,
+    },
+    PermissionDoor {
+        persistent_object: u32,
+        input: DoorInput,
+    },
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct PluginConnectRequest {
+    pub connection: ConnectionId,
+    pub object: u32,
+    pub invoker: InvokerId,
+    pub input: PluginInput,
+}
+
+#[derive(Clone)]
+pub(crate) enum HandlerState {
+    Timer(Timer),
+    DanceFloor { avatar_object: i16 },
+    Signs(Signs),
+    Scoreboard(Scoreboard),
+    PermissionDoor(PermissionDoor),
+}
+
+impl HandlerState {
+    pub(crate) fn load(&mut self, bytes: Option<&[u8]>) -> Result<Actions, SourceError> {
+        match self {
+            Self::Signs(state) => state.load(bytes),
+            Self::Scoreboard(state) => state.load(bytes),
+            Self::PermissionDoor(state) => state.load(bytes),
+            _ => Err(SourceError::InvalidInput),
+        }
+    }
+
+    fn source_message(&mut self, event: &str, bytes: &[u8]) -> Result<Actions, SourceError> {
+        match self {
+            Self::Signs(state) => state.message(event, bytes),
+            Self::Scoreboard(state) => state.message(event, bytes),
+            Self::PermissionDoor(state) => state.message(event, bytes),
+            _ => Err(SourceError::InvalidInput),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub(crate) struct DanceController {
+    pub(crate) object: u32,
+    pub(crate) invoker: InvokerId,
+    pub(crate) attached: bool,
 }
 
 #[derive(Clone)]
@@ -110,7 +187,8 @@ pub(crate) struct Instance {
     pub(crate) plugin: PluginId,
     pub(crate) object: u32,
     pub(crate) participant: Participant,
-    pub(crate) timer: Timer,
+    pub(crate) handler: HandlerState,
+    pub(crate) persistence: Option<Binding>,
 }
 
 #[derive(Clone)]
@@ -126,13 +204,17 @@ pub(crate) struct State {
     pub(crate) next_instance: u64,
     pub(crate) next_session: u64,
     pub(crate) checkpoint_revision: u64,
+    pub(crate) next_write: u64,
     pub(crate) instances: BTreeMap<InstanceId, Instance>,
+    pub(crate) controllers: BTreeMap<InstanceId, DanceController>,
+    pub(crate) writes: BTreeMap<PluginWriteId, WriteRecord>,
     pub(crate) public: Vec<PublicVmEvent>,
     pub(crate) private: Vec<QueuedPrivate>,
 }
 
 /// All plugin state is private. Cloning/serializing a VM projection cannot copy it.
-/// This host currently accepts the single-participant timer registration only.
+/// Each UI participant has its own scoped session. DanceFloor controllers are
+/// separate native VM bindings and can be shared by UI participants on a floor.
 pub struct NativeHost {
     pub(crate) identity: HostIdentity,
     pub(crate) limits: HostLimits,
@@ -162,7 +244,10 @@ impl NativeHost {
                 next_instance: 1,
                 next_session: 1,
                 checkpoint_revision: 0,
+                next_write: 1,
                 instances: BTreeMap::new(),
+                controllers: BTreeMap::new(),
+                writes: BTreeMap::new(),
                 public: vec![],
                 private: vec![],
             },
@@ -178,36 +263,152 @@ impl NativeHost {
         std::mem::take(&mut self.state.public)
     }
 
-    /// Native-only trusted VM entry. No fallback stub marks unknown behavior done.
+    /// Legacy timer entry retained for existing authoritative VM adapters.
     pub fn connect(
         &mut self,
         authority: &impl ConnectionAuthority,
         request: ConnectRequest,
     ) -> Result<SessionTicket, Error> {
         let registration = registry::lookup(request.plugin).ok_or(Error::UnregisteredPlugin)?;
-        if registration.runtime != RuntimeStatus::SourceTranslatedTimer {
-            return Err(Error::UnverifiedPlugin);
+        match registration.runtime {
+            RuntimeStatus::UnsupportedUnverified => return Err(Error::UnverifiedPlugin),
+            RuntimeStatus::SourceTranslatedNative => return Err(Error::PluginInputRequired),
+            RuntimeStatus::SourceTranslatedTimer => {}
         }
-        let actor = authenticate(authority, request.connection)?;
-        if request.invoker.0 == 0 || request.object == 0 {
+        let (timer, output) = Timer::connect(request.registers);
+        self.connect_instance(
+            authority,
+            request.connection,
+            request.plugin,
+            request.object,
+            request.invoker,
+            HandlerState::Timer(timer),
+            None,
+            output,
+            vec![],
+        )
+    }
+
+    /// Typed native invocation for the four additional source translations.
+    /// Persisted handlers begin loading; `drive_persistence` resolves bounded
+    /// provider reads, and the authoritative tick emits Signs/Door initialization.
+    pub fn connect_plugin(
+        &mut self,
+        authority: &impl ConnectionAuthority,
+        request: PluginConnectRequest,
+    ) -> Result<SessionTicket, Error> {
+        let (plugin, handler, persistent_object, ui) = match request.input {
+            PluginInput::DanceFloor { avatar_object } => {
+                if avatar_object <= 0 {
+                    return Err(Error::InvalidIdentity);
+                }
+                if self.state.instances.values().any(|instance| {
+                    matches!(instance.handler,
+                    HandlerState::DanceFloor { avatar_object: other } if other == avatar_object)
+                }) {
+                    return Err(Error::ParticipantAlreadyConnected);
+                }
+                (
+                    registry::DANCE_FLOOR_PLUGIN,
+                    HandlerState::DanceFloor { avatar_object },
+                    None,
+                    vec![SourceUi::Text("dance_show", String::new())],
+                )
+            }
+            PluginInput::Signs {
+                persistent_object,
+                input,
+            } => (
+                registry::SIGNS_PLUGIN,
+                HandlerState::Signs(Signs::new(input).map_err(source_error)?),
+                Some(persistent_object),
+                vec![],
+            ),
+            PluginInput::Scoreboard { persistent_object } => (
+                registry::SCOREBOARD_PLUGIN,
+                HandlerState::Scoreboard(Scoreboard::new().map_err(source_error)?),
+                Some(persistent_object),
+                vec![SourceUi::Text("scoreboard_show", String::new())],
+            ),
+            PluginInput::PermissionDoor {
+                persistent_object,
+                input,
+            } => (
+                registry::PERMISSION_DOOR_PLUGIN,
+                HandlerState::PermissionDoor(PermissionDoor::new(input).map_err(source_error)?),
+                Some(persistent_object),
+                vec![],
+            ),
+        };
+        let persistence = if let Some(persistent_object) = persistent_object {
+            if persistent_object == 0 {
+                return Err(Error::InvalidIdentity);
+            }
+            let key = PluginDataKey {
+                scope: self.identity.scope,
+                plugin,
+                persistent_object,
+            };
+            if self.state.instances.values().any(|instance| {
+                instance
+                    .persistence
+                    .as_ref()
+                    .is_some_and(|binding| binding.key == key)
+            }) || self
+                .state
+                .writes
+                .values()
+                .any(|record| record.request.key() == key)
+            {
+                return Err(Error::PersistedObjectBusy);
+            }
+            Some(Binding::loading(key))
+        } else {
+            None
+        };
+        self.connect_instance(
+            authority,
+            request.connection,
+            plugin,
+            request.object,
+            request.invoker,
+            handler,
+            persistence,
+            vec![],
+            ui,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn connect_instance(
+        &mut self,
+        authority: &impl ConnectionAuthority,
+        connection: ConnectionId,
+        plugin: PluginId,
+        object: u32,
+        invoker: InvokerId,
+        handler: HandlerState,
+        persistence: Option<Binding>,
+        timer_output: Vec<Output>,
+        source_ui: Vec<SourceUi>,
+    ) -> Result<SessionTicket, Error> {
+        let actor = authenticate(authority, connection)?;
+        if invoker.0 == 0 || object == 0 {
             return Err(Error::InvalidIdentity);
         }
         if self.state.instances.values().any(|instance| {
             instance.participant.actor == actor
-                || instance.participant.invoker == request.invoker
-                || instance.participant.connection == Some(request.connection)
-        }) {
+                || instance.participant.invoker == invoker
+                || instance.participant.connection == Some(connection)
+        }) || self
+            .state
+            .controllers
+            .values()
+            .any(|controller| controller.invoker == invoker)
+        {
             return Err(Error::ParticipantAlreadyConnected);
         }
-        if self.state.instances.len() >= self.limits.max_participants {
-            return Err(Error::ParticipantLimit);
-        }
-        if self.state.instances.len() >= self.limits.max_instances {
-            return Err(Error::InstanceLimit);
-        }
-        if self.state.instances.len() >= self.limits.max_timers {
-            return Err(Error::TimerLimit);
-        }
+        self.check_capacity(matches!(handler, HandlerState::Timer(_)))?;
         self.state
             .tick
             .checked_add(self.limits.idle_timeout_ticks)
@@ -229,15 +430,15 @@ impl NativeHost {
             instance: id,
             generation,
         };
-        let (timer, output) = Timer::connect(request.registers);
         let instance = Instance {
-            plugin: request.plugin,
-            object: request.object,
-            timer,
+            plugin,
+            object,
+            handler,
+            persistence,
             participant: Participant {
                 actor,
-                connection: Some(request.connection),
-                invoker: request.invoker,
+                connection: Some(connection),
+                invoker,
                 generation,
                 last_activity: next.tick,
                 next_sequence: 1,
@@ -245,9 +446,7 @@ impl NativeHost {
                 messages_this_tick: 0,
             },
         };
-        next.public.push(PublicVmEvent::Connected {
-            invoker: request.invoker,
-        });
+        next.public.push(PublicVmEvent::Connected { invoker });
         push_private(
             &mut next,
             &instance,
@@ -255,10 +454,120 @@ impl NativeHost {
             "eod_enter",
             PrivateBody::Text(String::new()),
         );
-        push_outputs(&mut next, &instance, ticket, output);
+        push_outputs(&mut next, &instance, ticket, timer_output);
+        push_source_outputs(
+            &mut next,
+            &instance,
+            ticket,
+            Actions {
+                ui: source_ui,
+                ..Actions::default()
+            },
+        );
         next.instances.insert(id, instance);
         self.commit(next)?;
         Ok(ticket)
+    }
+
+    fn check_capacity(&self, timer: bool) -> Result<(), Error> {
+        let participants = self.state.instances.len() + self.state.controllers.len();
+        if participants >= self.limits.max_participants {
+            return Err(Error::ParticipantLimit);
+        }
+        if participants >= self.limits.max_instances {
+            return Err(Error::InstanceLimit);
+        }
+        if timer
+            && self
+                .state
+                .instances
+                .values()
+                .filter(|instance| matches!(instance.handler, HandlerState::Timer(_)))
+                .count()
+                >= self.limits.max_timers
+        {
+            return Err(Error::TimerLimit);
+        }
+        Ok(())
+    }
+
+    /// Source no-avatar DanceFloor controller connection. Only the authoritative
+    /// VM may call this; it creates no UI session or transport authority.
+    pub fn connect_dance_controller(
+        &mut self,
+        object: u32,
+        invoker: InvokerId,
+    ) -> Result<InstanceAddress, Error> {
+        if object == 0 || invoker.0 == 0 {
+            return Err(Error::InvalidIdentity);
+        }
+        if self
+            .state
+            .controllers
+            .values()
+            .any(|controller| controller.object == object)
+        {
+            return Err(Error::ControllerAlreadyConnected);
+        }
+        if self
+            .state
+            .controllers
+            .values()
+            .any(|controller| controller.invoker == invoker)
+            || self
+                .state
+                .instances
+                .values()
+                .any(|instance| instance.participant.invoker == invoker)
+        {
+            return Err(Error::ParticipantAlreadyConnected);
+        }
+        self.check_capacity(false)?;
+        let mut next = self.state.clone();
+        let id = InstanceId(next.next_instance);
+        next.next_instance = next
+            .next_instance
+            .checked_add(1)
+            .ok_or(Error::CounterExhausted)?;
+        next.controllers.insert(
+            id,
+            DanceController {
+                object,
+                invoker,
+                attached: true,
+            },
+        );
+        next.public.push(PublicVmEvent::Connected { invoker });
+        self.commit(next)?;
+        Ok(InstanceAddress {
+            host_scope: self.identity.scope,
+            instance: id,
+        })
+    }
+
+    /// Restore a native controller only after the authoritative VM has rebound
+    /// the recorded invoker. A detached controller emits no player button event.
+    pub fn rebind_dance_controller(
+        &mut self,
+        address: InstanceAddress,
+        invoker: InvokerId,
+    ) -> Result<(), Error> {
+        if address.host_scope != self.identity.scope {
+            return Err(Error::WrongScope);
+        }
+        let controller = self
+            .state
+            .controllers
+            .get_mut(&address.instance)
+            .ok_or(Error::StaleSession)?;
+        if controller.invoker != invoker {
+            return Err(Error::RecipientMismatch);
+        }
+        if controller.attached {
+            return Err(Error::AlreadyBound);
+        }
+        controller.attached = true;
+        Ok(())
     }
 
     /// Rebind an already restored private participant under fresh authentication
@@ -285,6 +594,18 @@ impl NativeHost {
             .ok_or(Error::StaleSession)?;
         if current.participant.actor != actor {
             return Err(Error::RecipientMismatch);
+        }
+        if current
+            .persistence
+            .as_ref()
+            .is_some_and(|binding| binding.status != BindingStatus::Ready)
+            || self
+                .state
+                .writes
+                .values()
+                .any(|record| record.request.id.instance == instance_id)
+        {
+            return Err(Error::ReconciliationRequired);
         }
         if current.participant.connection.is_some() {
             return Err(Error::AlreadyBound);
@@ -329,7 +650,27 @@ impl NativeHost {
             "eod_enter",
             PrivateBody::Text(String::new()),
         );
-        push_outputs(&mut next, &instance, ticket, Timer::show(registers));
+        match &mut instance.handler {
+            HandlerState::Timer(_) => {
+                push_outputs(&mut next, &instance, ticket, Timer::show(registers))
+            }
+            HandlerState::DanceFloor { .. } => push_private(
+                &mut next,
+                &instance,
+                ticket,
+                "dance_show",
+                PrivateBody::Text(String::new()),
+            ),
+            handler => {
+                let actions = match handler {
+                    HandlerState::Signs(state) => state.rebind(),
+                    HandlerState::Scoreboard(state) => state.rebind(),
+                    HandlerState::PermissionDoor(state) => state.rebind(),
+                    _ => unreachable!(),
+                };
+                push_source_outputs(&mut next, &instance, ticket, actions);
+            }
+        }
         next.instances.insert(instance_id, instance);
         self.commit(next)?;
         Ok(ticket)
@@ -373,6 +714,22 @@ impl NativeHost {
         {
             return Err(Error::RateLimited);
         }
+        if current
+            .persistence
+            .as_ref()
+            .is_some_and(|binding| binding.status == BindingStatus::Reconcile)
+        {
+            return Err(Error::ReconciliationRequired);
+        }
+        if is_persistent_write(message.plugin, message.event)
+            && self
+                .state
+                .writes
+                .values()
+                .any(|record| record.request.id.instance == message.ticket.instance)
+        {
+            return Err(Error::PersistencePending);
+        }
         self.state
             .tick
             .checked_add(self.limits.idle_timeout_ticks)
@@ -382,7 +739,9 @@ impl NativeHost {
             .instances
             .remove(&message.ticket.instance)
             .ok_or(Error::StaleSession)?;
-        if message.event == "Timer_Close" {
+        if message.event == "Timer_Close"
+            || (message.plugin == registry::DANCE_FLOOR_PLUGIN && message.event == "close")
+        {
             close_instance(&mut next, &instance, message.ticket);
             self.commit(next)?;
             return Ok(DispatchOutcome::Closed);
@@ -398,9 +757,54 @@ impl NativeHost {
         }
         instance.participant.messages_this_tick += 1;
         instance.participant.last_activity = next.tick;
-        if let WirePayload::Binary(bytes) = message.payload {
-            let output = instance.timer.binary(message.event, bytes);
-            push_outputs(&mut next, &instance, message.ticket, output);
+        let mut closing = false;
+        match &mut instance.handler {
+            HandlerState::Timer(timer) => {
+                if let WirePayload::Binary(bytes) = message.payload {
+                    let output = timer.binary(message.event, bytes);
+                    push_outputs(&mut next, &instance, message.ticket, output);
+                }
+            }
+            HandlerState::DanceFloor { avatar_object } => {
+                if let WirePayload::Text(body) = message.payload
+                    && let Some(button) = parse_source_byte(body)
+                    && let Some(controller) = next.controllers.values().find(|controller| {
+                        controller.object == instance.object && controller.attached
+                    })
+                {
+                    next.public.push(PublicVmEvent::DanceFloor {
+                        controller: controller.invoker,
+                        button,
+                        avatar_object: *avatar_object,
+                    });
+                }
+            }
+            handler => {
+                let mut actions =
+                    match handler.source_message(message.event, message.payload.bytes()) {
+                        Ok(actions) => actions,
+                        // Source malformed Signs data is caught and ignored; numeric
+                        // TryParse failures in the other handlers are also no-ops.
+                        Err(SourceError::InvalidData) => Actions::default(),
+                        Err(error) => return Err(source_error(error)),
+                    };
+                if let Some(bytes) = actions.persist.take() {
+                    queue_persistence(
+                        &mut next,
+                        self.identity,
+                        message.ticket.instance,
+                        &instance,
+                        bytes,
+                    )?;
+                }
+                closing = actions.close;
+                push_source_outputs(&mut next, &instance, message.ticket, actions);
+            }
+        }
+        if closing {
+            close_instance(&mut next, &instance, message.ticket);
+            self.commit(next)?;
+            return Ok(DispatchOutcome::Closed);
         }
         next.instances.insert(message.ticket.instance, instance);
         self.commit(next)?;
@@ -459,6 +863,17 @@ impl NativeHost {
 
     /// Authoritative VM object/invoker teardown, not an inbound UI operation.
     pub fn disconnect_invoker(&mut self, invoker: InvokerId) -> Result<(), Error> {
+        if let Some(id) = self
+            .state
+            .controllers
+            .iter()
+            .find_map(|(id, controller)| (controller.invoker == invoker).then_some(*id))
+        {
+            let mut next = self.state.clone();
+            next.controllers.remove(&id);
+            next.public.push(PublicVmEvent::Disconnected { invoker });
+            return self.commit(next);
+        }
         let (id, instance) = self
             .state
             .instances
@@ -513,11 +928,31 @@ impl NativeHost {
                 }
             } else {
                 if participant.connection.is_some() {
-                    let values = registers
-                        .timer_registers(participant.invoker)
-                        .ok_or(Error::MissingRegisters)?;
-                    let output = instance.timer.tick(values);
-                    push_outputs(&mut next, &instance, ticket, output);
+                    match &mut instance.handler {
+                        HandlerState::Timer(timer) => {
+                            let values = registers
+                                .timer_registers(participant.invoker)
+                                .ok_or(Error::MissingRegisters)?;
+                            let output = timer.tick(values);
+                            push_outputs(&mut next, &instance, ticket, output);
+                        }
+                        HandlerState::DanceFloor { .. } => {}
+                        handler
+                            if instance
+                                .persistence
+                                .as_ref()
+                                .is_some_and(|binding| binding.status == BindingStatus::Ready) =>
+                        {
+                            let actions = match handler {
+                                HandlerState::Signs(state) => state.tick(),
+                                HandlerState::Scoreboard(state) => state.tick(),
+                                HandlerState::PermissionDoor(state) => state.tick(),
+                                _ => unreachable!(),
+                            };
+                            push_source_outputs(&mut next, &instance, ticket, actions);
+                        }
+                        _ => {}
+                    }
                 }
                 next.instances.insert(id, instance);
             }
@@ -568,7 +1003,7 @@ impl NativeHost {
         self.commit(next)
     }
 
-    fn commit(&mut self, next: State) -> Result<(), Error> {
+    pub(crate) fn commit(&mut self, next: State) -> Result<(), Error> {
         if next.public.len() > self.limits.max_public_events
             || next.private.len() > self.limits.max_private_messages
         {
@@ -582,8 +1017,248 @@ impl NativeHost {
         if bytes > self.limits.max_private_output_bytes {
             return Err(Error::QueueFull);
         }
+        let records = next
+            .instances
+            .values()
+            .filter(|instance| instance.persistence.is_some())
+            .count()
+            .checked_add(next.writes.len())
+            .ok_or(Error::PersistenceLimit)?;
+        if records > self.limits.max_persistence_records {
+            return Err(Error::PersistenceLimit);
+        }
+        let mut persistence_bytes = 0usize;
+        for bytes in next
+            .instances
+            .values()
+            .filter_map(|instance| instance.persistence.as_ref())
+            .map(|binding| &binding.bytes)
+            .chain(next.writes.values().map(|record| &record.request.bytes))
+        {
+            if bytes.len() > self.limits.max_plugin_data_bytes {
+                return Err(Error::PersistenceTooLarge);
+            }
+            persistence_bytes = persistence_bytes
+                .checked_add(bytes.len())
+                .ok_or(Error::PersistenceLimit)?;
+        }
+        if persistence_bytes > self.limits.max_total_persistence_bytes {
+            return Err(Error::PersistenceLimit);
+        }
         self.state = next;
         Ok(())
+    }
+}
+
+impl NativeHost {
+    /// Advance bounded private provider work. Writes are dispatched only after
+    /// `checkpoint_to` durably records the exact intent at a VM/UI barrier.
+    /// Provider calls commit one operation at a time: a later error never rolls
+    /// back an earlier durable acknowledgement. Counts describe this call only.
+    pub fn drive_persistence(
+        &mut self,
+        provider: &mut impl PluginDataProvider,
+    ) -> Result<PersistenceProgress, Error> {
+        let mut progress = PersistenceProgress::default();
+        let ids: Vec<_> = self.state.writes.keys().copied().collect();
+        for id in ids {
+            let record = self.state.writes.get(&id).ok_or(Error::UnknownEffect)?;
+            if record.conflicted {
+                progress.conflicted += 1;
+                continue;
+            }
+            if !record.prepared {
+                progress.waiting_for_checkpoint += 1;
+                continue;
+            }
+            let request = record.request.clone();
+            let receipt = match provider.write(self.identity, &request) {
+                Ok(receipt) => receipt,
+                Err(PersistenceFailure::Retryable) => {
+                    progress.retry_pending += 1;
+                    continue;
+                }
+                Err(PersistenceFailure::Denied) => {
+                    self.state
+                        .writes
+                        .get_mut(&id)
+                        .ok_or(Error::UnknownEffect)?
+                        .conflicted = true;
+                    progress.conflicted += 1;
+                    continue;
+                }
+                Err(PersistenceFailure::Corrupt) => return Err(Error::InvalidPluginData),
+            };
+            if receipt.id != id {
+                return Err(Error::ProviderReceiptMismatch);
+            }
+            match receipt.decision {
+                PluginWriteDecision::Applied { revision } => {
+                    if request.expected_revision.checked_add(1) != Some(revision) {
+                        return Err(Error::ProviderReceiptMismatch);
+                    }
+                    if let Some(instance) = self.state.instances.get_mut(&id.instance) {
+                        let binding = instance
+                            .persistence
+                            .as_mut()
+                            .ok_or(Error::InvalidPluginData)?;
+                        if binding.key != id.key || binding.revision != request.expected_revision {
+                            return Err(Error::ProviderReceiptMismatch);
+                        }
+                        binding.revision = revision;
+                        binding.exists = true;
+                        binding.bytes = request.bytes;
+                    }
+                    self.state.writes.remove(&id);
+                    progress.applied += 1;
+                }
+                PluginWriteDecision::Conflict => {
+                    self.state
+                        .writes
+                        .get_mut(&id)
+                        .ok_or(Error::UnknownEffect)?
+                        .conflicted = true;
+                    progress.conflicted += 1;
+                }
+            }
+        }
+        let instances: Vec<_> = self.state.instances.keys().copied().collect();
+        for id in instances {
+            let instance = self.state.instances.get(&id).ok_or(Error::StaleSession)?;
+            let Some(binding) = &instance.persistence else {
+                continue;
+            };
+            if binding.status == BindingStatus::Ready
+                || self
+                    .state
+                    .writes
+                    .values()
+                    .any(|record| record.request.key() == binding.key)
+            {
+                continue;
+            }
+            let mut data = vec![0; self.limits.max_plugin_data_bytes];
+            let read = provider
+                .load(self.identity, binding.key, &mut data)
+                .map_err(|failure| match failure {
+                    PersistenceFailure::Retryable => Error::PersistenceUnavailable,
+                    PersistenceFailure::Denied => Error::NotAuthorized,
+                    PersistenceFailure::Corrupt => Error::InvalidPluginData,
+                })?;
+            if !read.complete || read.bytes_written > data.len() {
+                return Err(Error::PersistenceTooLarge);
+            }
+            if (!read.exists && (read.revision != 0 || read.bytes_written != 0))
+                || (read.exists && read.revision == 0)
+            {
+                return Err(Error::InvalidPluginData);
+            }
+            data.truncate(read.bytes_written);
+            if binding.status == BindingStatus::Reconcile {
+                if binding.revision != read.revision
+                    || binding.exists != read.exists
+                    || binding.bytes != data
+                {
+                    return Err(Error::PersistenceDiverged);
+                }
+                self.state
+                    .instances
+                    .get_mut(&id)
+                    .ok_or(Error::StaleSession)?
+                    .persistence
+                    .as_mut()
+                    .ok_or(Error::InvalidPluginData)?
+                    .status = BindingStatus::Ready;
+                progress.reconciled += 1;
+            } else {
+                let mut next = self.state.clone();
+                let mut instance = next.instances.remove(&id).ok_or(Error::StaleSession)?;
+                let actions = instance
+                    .handler
+                    .load(read.exists.then_some(data.as_slice()))
+                    .map_err(source_error)?;
+                let binding = instance
+                    .persistence
+                    .as_mut()
+                    .ok_or(Error::InvalidPluginData)?;
+                binding.revision = read.revision;
+                binding.exists = read.exists;
+                binding.bytes = data;
+                binding.status = BindingStatus::Ready;
+                let ticket = self.ticket_for(id, &instance);
+                push_source_outputs(&mut next, &instance, ticket, actions);
+                next.instances.insert(id, instance);
+                self.commit(next)?;
+                progress.loaded += 1;
+            }
+        }
+        Ok(progress)
+    }
+
+    /// Explicit conflict policy: accept the provider's terminal *not applied*
+    /// result, abandon that write and disconnect its session. This cannot drop an
+    /// ambiguous or retry-pending request. A new invocation can reload provider
+    /// state; this method never merges/overwrites it or fabricates a refund.
+    pub fn abort_conflicted_writes(&mut self) -> Result<usize, Error> {
+        let ids: Vec<_> = self
+            .state
+            .writes
+            .iter()
+            .filter_map(|(id, record)| record.conflicted.then_some(*id))
+            .collect();
+        let mut next = self.state.clone();
+        for id in &ids {
+            next.writes.remove(id);
+            if let Some(instance) = next.instances.remove(&id.instance) {
+                close_instance(
+                    &mut next,
+                    &instance,
+                    self.ticket_for(id.instance, &instance),
+                );
+            }
+        }
+        self.commit(next)?;
+        Ok(ids.len())
+    }
+
+    /// After a provider read reports divergence, the trusted VM adapter can
+    /// abandon the detached snapshot participant and invoke afresh. Pending
+    /// intent reconciliation must finish first; it cannot be discarded here.
+    pub fn abort_unreconciled(&mut self, address: InstanceAddress) -> Result<(), Error> {
+        if address.host_scope != self.identity.scope {
+            return Err(Error::WrongScope);
+        }
+        let instance = self
+            .state
+            .instances
+            .get(&address.instance)
+            .ok_or(Error::StaleSession)?;
+        if instance.participant.connection.is_some()
+            || !instance
+                .persistence
+                .as_ref()
+                .is_some_and(|binding| binding.status == BindingStatus::Reconcile)
+        {
+            return Err(Error::ReconciliationRequired);
+        }
+        if self
+            .state
+            .writes
+            .values()
+            .any(|record| record.request.id.instance == address.instance)
+        {
+            return Err(Error::PersistencePending);
+        }
+        self.close(self.ticket_for(address.instance, instance))
+    }
+
+    pub(crate) fn ticket_for(&self, id: InstanceId, instance: &Instance) -> SessionTicket {
+        SessionTicket {
+            host_scope: self.identity.scope,
+            host_epoch: self.identity.epoch,
+            instance: id,
+            generation: instance.participant.generation,
+        }
     }
 }
 
@@ -598,16 +1273,117 @@ fn authenticate(
 }
 
 fn event_allowed(plugin: PluginId, event: &str, payload: WirePayload<'_>) -> bool {
-    if plugin != registry::TIMER_PLUGIN {
-        return false;
+    match plugin {
+        registry::TIMER_PLUGIN => matches!(
+            (event, payload),
+            (
+                "Timer_State_Change" | "Timer_IsRunning_Change" | "Timer_Set",
+                WirePayload::Binary(_)
+            ) | ("Timer_Close", WirePayload::Text(_))
+        ),
+        registry::DANCE_FLOOR_PLUGIN => matches!(
+            (event, payload),
+            ("close" | "press_button", WirePayload::Text(_))
+        ),
+        registry::SIGNS_PLUGIN => matches!(
+            (event, payload),
+            ("close", WirePayload::Text(_)) | ("set_message", WirePayload::Binary(_))
+        ),
+        registry::SCOREBOARD_PLUGIN => matches!(
+            (event, payload),
+            (
+                "close"
+                    | "scoreboard_updatecolor"
+                    | "scoreboard_updatescore"
+                    | "scoreboard_setscore",
+                WirePayload::Text(_)
+            )
+        ),
+        registry::PERMISSION_DOOR_PLUGIN => matches!(
+            (event, payload),
+            (
+                "close" | "set_code" | "set_state" | "set_fee" | "set_flags" | "try_code",
+                WirePayload::Text(_)
+            )
+        ),
+        _ => false,
     }
-    matches!(
-        (event, payload),
-        (
-            "Timer_State_Change" | "Timer_IsRunning_Change" | "Timer_Set",
-            WirePayload::Binary(_)
-        ) | ("Timer_Close", WirePayload::Text(_))
-    )
+}
+
+fn is_persistent_write(plugin: PluginId, event: &str) -> bool {
+    match plugin {
+        registry::SIGNS_PLUGIN => event == "set_message",
+        registry::SCOREBOARD_PLUGIN => event != "close",
+        registry::PERMISSION_DOOR_PLUGIN => event == "set_code",
+        _ => false,
+    }
+}
+
+fn parse_source_byte(body: &str) -> Option<u8> {
+    crate::source_plugins::parse_source_u32(body.as_bytes())
+        .ok()?
+        .try_into()
+        .ok()
+}
+
+fn source_error(error: SourceError) -> Error {
+    match error {
+        SourceError::InvalidInput => Error::InvalidPluginInput,
+        SourceError::InvalidData => Error::InvalidPluginData,
+        SourceError::NotReady => Error::PluginNotReady,
+        SourceError::NotAuthorized => Error::NotAuthorized,
+    }
+}
+
+fn queue_persistence(
+    state: &mut State,
+    identity: HostIdentity,
+    instance_id: InstanceId,
+    instance: &Instance,
+    bytes: Vec<u8>,
+) -> Result<(), Error> {
+    let binding = instance
+        .persistence
+        .as_ref()
+        .ok_or(Error::InvalidPluginInput)?;
+    if binding.status != BindingStatus::Ready {
+        return Err(Error::ReconciliationRequired);
+    }
+    if state
+        .writes
+        .values()
+        .any(|record| record.request.key() == binding.key)
+    {
+        return Err(Error::PersistencePending);
+    }
+    binding
+        .revision
+        .checked_add(1)
+        .ok_or(Error::CounterExhausted)?;
+    let id = PluginWriteId {
+        key: binding.key,
+        origin_epoch: identity.epoch,
+        instance: instance_id,
+        operation: state.next_write,
+    };
+    state.next_write = state
+        .next_write
+        .checked_add(1)
+        .ok_or(Error::CounterExhausted)?;
+    state.writes.insert(
+        id,
+        WriteRecord {
+            request: PluginDataWrite {
+                id,
+                actor: instance.participant.actor,
+                expected_revision: binding.revision,
+                bytes,
+            },
+            prepared: false,
+            conflicted: false,
+        },
+    );
+    Ok(())
 }
 
 fn push_private(
@@ -667,4 +1443,28 @@ fn close_instance(state: &mut State, instance: &Instance, ticket: SessionTicket)
         "eod_leave",
         PrivateBody::Text(String::new()),
     );
+}
+
+fn push_source_outputs(
+    state: &mut State,
+    instance: &Instance,
+    ticket: SessionTicket,
+    actions: Actions,
+) {
+    for event in actions.events {
+        state.public.push(PublicVmEvent::SourcePlugin {
+            invoker: instance.participant.invoker,
+            event,
+        });
+    }
+    for ui in actions.ui {
+        match ui {
+            SourceUi::Text(event, text) => {
+                push_private(state, instance, ticket, event, PrivateBody::Text(text))
+            }
+            SourceUi::Binary(event, bytes) => {
+                push_private(state, instance, ticket, event, PrivateBody::Binary(bytes))
+            }
+        }
+    }
 }

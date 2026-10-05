@@ -141,7 +141,7 @@ fn all_unverified_registrations_and_unknown_ids_fail_closed() {
     let auth = authority();
     for registration in registry::REGISTRATIONS
         .iter()
-        .filter(|entry| entry.id != TIMER_PLUGIN)
+        .filter(|entry| entry.runtime == registry::RuntimeStatus::UnsupportedUnverified)
     {
         let mut req = request(A, 100, [0, 0, 0, 0]);
         req.plugin = registration.id;
@@ -826,7 +826,9 @@ fn checkpoints_reject_schema_version_epochs_stamps_and_timeout_policy_drift() {
         (6, Error::UnsupportedPluginSchema),
     ] {
         store.bytes = original.clone();
-        store.bytes[offset..offset + 2].copy_from_slice(&2u16.to_le_bytes());
+        // Generalized host checkpoints now support format 2; schema 2 does not exist.
+        store.bytes[offset..offset + 2]
+            .copy_from_slice(&(if offset == 4 { 3u16 } else { 2u16 }).to_le_bytes());
         assert_eq!(
             NativeHost::restore_from(&mut store, identity(8), stamp, limits()).unwrap_err(),
             expected
