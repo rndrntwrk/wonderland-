@@ -104,6 +104,7 @@ def assemble(repo: Path, destination: Path) -> Path:
         destination / "crates/content-ir": repo / "crates/content-ir",
         destination / "crates/legacy-formats": repo / "crates/legacy-formats",
         destination / "tools/creator": repo / "tools/creator",
+        destination / "tools/asset-cooker": repo / "tools/asset-cooker",
         destination / "tests/integration/swarm_b_runtime": repo / "tests/integration/swarm_b_runtime",
         destination / "TSOClient": repo / "TSOClient",
     }

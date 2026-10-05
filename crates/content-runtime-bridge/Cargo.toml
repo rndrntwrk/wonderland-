@@ -18,6 +18,9 @@ serde_json = "=1.0.111"
 sha2 = "=0.10.8"
 bincode = "=1.3.3"
 
+[dev-dependencies]
+wonderland-asset-cooker = { path = "../../tools/asset-cooker" }
+
 [features]
 default = ["creator-debug"]
 creator-debug = ["dep:wonderland-creator"]
@@ -42,6 +45,30 @@ path = "../../tests/integration/swarm_b_runtime/query_bounds.rs"
 name = "watch_output"
 path = "../../tests/integration/swarm_b_runtime/watch_output.rs"
 required-features = ["creator-debug"]
+
+[[test]]
+name = "cooked_release"
+path = "../../tests/integration/swarm_b_runtime/cooked_release.rs"
+
+[[test]]
+name = "cooked_rejection"
+path = "../../tests/integration/swarm_b_runtime/cooked_rejection.rs"
+
+[[test]]
+name = "cooked_metadata"
+path = "../../tests/integration/swarm_b_runtime/cooked_metadata.rs"
+
+[[test]]
+name = "cooked_cli"
+path = "../../tests/integration/swarm_b_runtime/cooked_cli.rs"
+
+[[test]]
+name = "cooked_scopes"
+path = "../../tests/integration/swarm_b_runtime/cooked_scopes.rs"
+
+[[example]]
+name = "cooked-fixture"
+path = "../../tests/integration/swarm_b_runtime/cooked_fixture_export.rs"
 
 [[example]]
 name = "source-replay"

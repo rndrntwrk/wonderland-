@@ -13,10 +13,10 @@ use wonderland_content_ir::{
     objects::{resource_identity, ResolvedContent, ResourceNamespace},
     patches::iff_sha256,
     strings::{lookup_string, LocaleSelection},
+    tuning::ResolvedTuning,
 };
 use wonderland_legacy_formats::{
     iff::{ChunkKey, IffChunk, IffFile},
-    reader::Reader,
     semantic::{
         decode_objd, decode_slot, decode_strings, decode_ttab_with_variant, Objd, TtabVariant,
     },
@@ -89,6 +89,44 @@ pub struct ImportedContent {
     pub objects: Vec<ImportedObject>,
 }
 
+/// Internal borrowed conversion input. Only the source resolver wrapper and
+/// verified cooked loader construct this view; neither invents the other's
+/// provenance. Scope hashes describe the supplied ordered scope projection.
+#[derive(Clone, Copy)]
+pub(crate) struct ScopeView<'a> {
+    pub(crate) name: &'a str,
+    pub(crate) iff: &'a IffFile,
+    pub(crate) identity: [u8; 32],
+}
+
+pub(crate) struct ContentView<'a> {
+    pub(crate) iff: &'a IffFile,
+    pub(crate) semiglobal_name: Option<&'a str>,
+    pub(crate) semiglobal: Option<ScopeView<'a>>,
+    pub(crate) global: Option<ScopeView<'a>>,
+    pub(crate) tuning: &'a ResolvedTuning,
+    pub(crate) resolved: Option<&'a ResolvedContent>,
+}
+
+pub(crate) struct ConversionObject<'a> {
+    pub(crate) source: ContentView<'a>,
+    pub(crate) object_chunk_id: u16,
+    pub(crate) semiglobal_owner: Option<u32>,
+    pub(crate) runtime: &'a RuntimeMetadata,
+}
+
+pub(crate) struct ConvertedObject {
+    pub(crate) guid: u32,
+    pub(crate) object_chunk_id: u16,
+    pub(crate) semiglobal_owner: Option<u32>,
+    pub(crate) interactions: Option<Vec<ImportedInteraction>>,
+}
+
+pub(crate) struct ConvertedContent {
+    pub(crate) content: ContentSet,
+    pub(crate) objects: Vec<ConvertedObject>,
+}
+
 pub fn import_content(
     objects: &[ObjectImport<'_>],
     options: ImportOptions,
@@ -98,6 +136,82 @@ pub fn import_content(
         return Err("object import count outside bounds".into());
     }
     let mut budget = ImportBudget::new(limits);
+    budget.entries::<ConversionObject<'_>>(objects.len())?;
+    budget.entries::<ImportedObject>(objects.len())?;
+    let mut inputs = Vec::with_capacity(objects.len());
+    for input in objects {
+        let resolved = input.resolved;
+        budget.reserve(resolved.source_name.len())?;
+        verify_resolved(resolved, limits, &mut budget)?;
+        inputs.push(ConversionObject {
+            source: ContentView {
+                iff: &resolved.iff,
+                semiglobal_name: resolved.semiglobal_name.as_deref(),
+                semiglobal: resolved
+                    .semiglobal
+                    .as_ref()
+                    .map(|s| resolved_scope(resolved, s, ResourceNamespace::Semiglobal))
+                    .transpose()?,
+                global: resolved
+                    .global
+                    .as_ref()
+                    .map(|s| resolved_scope(resolved, s, ResourceNamespace::Global))
+                    .transpose()?,
+                tuning: &resolved.tuning,
+                resolved: Some(resolved),
+            },
+            object_chunk_id: input.object_chunk_id,
+            semiglobal_owner: input.semiglobal_owner,
+            runtime: &input.runtime,
+        });
+    }
+    let converted = convert_content(&inputs, options, limits, &mut budget)?;
+    let reports = converted
+        .objects
+        .into_iter()
+        .zip(objects)
+        .map(|(object, input)| ImportedObject {
+            guid: object.guid,
+            object_chunk_id: object.object_chunk_id,
+            source_name: input.resolved.source_name.clone(),
+            effective_identity: input.resolved.identity,
+            semiglobal_owner: object.semiglobal_owner,
+            interactions: object.interactions,
+        })
+        .collect();
+    Ok(ImportedContent {
+        content: converted.content,
+        objects: reports,
+    })
+}
+
+fn resolved_scope<'a>(
+    resolved: &ResolvedContent,
+    source: &'a wonderland_content_ir::objects::SourceContent,
+    namespace: ResourceNamespace,
+) -> Result<ScopeView<'a>, String> {
+    let identity = resolved
+        .scope_provenance
+        .iter()
+        .find(|scope| scope.namespace == namespace)
+        .ok_or("missing effective scope identity")?
+        .effective_hash;
+    Ok(ScopeView {
+        name: &source.name,
+        iff: &source.iff,
+        identity,
+    })
+}
+
+pub(crate) fn convert_content(
+    objects: &[ConversionObject<'_>],
+    options: ImportOptions,
+    limits: &Limits,
+    budget: &mut ImportBudget,
+) -> Result<ConvertedContent, String> {
+    if objects.is_empty() || objects.len() > 32767 || objects.len() > limits.max_entries {
+        return Err("object import count outside bounds".into());
+    }
     budget.tuning(&options.runtime_tuning)?;
     if options.animations.len() > 65536 || options.animations.len() > limits.max_entries {
         return Err("runtime animation count limit".into());
@@ -106,9 +220,9 @@ pub fn import_content(
         budget.animation(animation)?;
     }
     budget.entries::<(AnimationKey, AnimationMetadata)>(options.animations.capacity())?;
-    budget.entries::<ImportedObject>(objects.len())?;
+    budget.entries::<ConvertedObject>(objects.len())?;
     budget.entries::<ObjectDefinition>(objects.len())?;
-    budget.entries::<(&ObjectImport<'_>, Objd)>(objects.len())?;
+    budget.entries::<(&ConversionObject<'_>, Objd)>(objects.len())?;
     let mut routines = BTreeMap::new();
     let mut strings = BTreeMap::new();
     let mut names = BTreeMap::new();
@@ -122,12 +236,10 @@ pub fn import_content(
     let mut shared_scopes = BTreeMap::new();
 
     for input in objects {
-        budget.metadata(&input.runtime)?;
-        budget.reserve(input.resolved.source_name.len())?;
+        budget.metadata(input.runtime)?;
         budget.entries::<u16>(103)?; // Largest fixed source RawData prefix.
         budget.map_entries::<u32, ()>(1)?;
-        verify_resolved(input.resolved, limits, &mut budget)?;
-        let raw = resource(&input.resolved.iff, *b"OBJD", input.object_chunk_id)
+        let raw = resource(input.source.iff, *b"OBJD", input.object_chunk_id)
             .ok_or_else(|| format!("missing OBJD {}", input.object_chunk_id))?;
         let object = decode_source_objd(&raw.data, &budget.limits(limits))?;
         if object.field("NumAttributes").unwrap_or(0) > 4096 {
@@ -137,25 +249,25 @@ pub fn import_content(
         if guid == 0 || !guids.insert(guid) {
             return Err("zero or duplicate object GUID".into());
         }
-        if input.resolved.semiglobal_name.is_some() && input.resolved.semiglobal.is_none() {
+        if input.source.semiglobal_name.is_some() && input.source.semiglobal.is_none() {
             return Err(format!(
                 "missing effective semiglobal {:?}",
-                input.resolved.semiglobal_name
+                input.source.semiglobal_name
             ));
         }
-        if input.semiglobal_owner.is_some() != input.resolved.semiglobal.is_some()
+        if input.semiglobal_owner.is_some() != input.source.semiglobal.is_some()
             || input.semiglobal_owner == Some(0)
         {
             return Err("semiglobal resource requires an explicit nonzero owner identity".into());
         }
         if let (Some(expected), Some(actual)) =
-            (&input.resolved.semiglobal_name, &input.resolved.semiglobal)
+            (&input.source.semiglobal_name, &input.source.semiglobal)
         {
             let source = actual
                 .name
                 .rsplit(['/', '\\'])
                 .next()
-                .unwrap_or(&actual.name);
+                .unwrap_or(actual.name);
             let source = source
                 .get(..source.len().saturating_sub(4))
                 .filter(|_| source[source.len().saturating_sub(4)..].eq_ignore_ascii_case(".iff"))
@@ -171,76 +283,64 @@ pub fn import_content(
                 .map_err(|e| e.to_string())?;
         }
         import_scope(
-            &input.resolved.iff,
+            input.source.iff,
             RoutineScope::Private(guid),
             guid,
             limits,
             options.locale,
             &mut routines,
             &mut strings,
-            &mut budget,
+            budget,
         )?;
         import_names(
-            &input.resolved.iff,
+            input.source.iff,
             RoutineScope::Private(guid),
             guid,
             &mut names,
-            &mut budget,
+            budget,
         )?;
-        if let (Some(source), Some(owner)) = (&input.resolved.semiglobal, input.semiglobal_owner) {
+        if let (Some(source), Some(owner)) = (&input.source.semiglobal, input.semiglobal_owner) {
             budget.map_entries::<RoutineScope, [u8; 32]>(1)?;
             register_scope(
-                input.resolved,
-                ResourceNamespace::Semiglobal,
+                source.identity,
                 RoutineScope::SemiGlobal(owner),
                 &mut shared_scopes,
             )?;
             import_scope(
-                &source.iff,
+                source.iff,
                 RoutineScope::SemiGlobal(owner),
                 owner,
                 limits,
                 options.locale,
                 &mut routines,
                 &mut strings,
-                &mut budget,
+                budget,
             )?;
             // Source TreeByName: private names win; semiglobal names fill gaps.
             import_names(
-                &source.iff,
+                source.iff,
                 RoutineScope::SemiGlobal(owner),
                 guid,
                 &mut names,
-                &mut budget,
+                budget,
             )?;
         }
-        if let Some(source) = &input.resolved.global {
+        if let Some(source) = &input.source.global {
             budget.map_entries::<RoutineScope, [u8; 32]>(1)?;
-            register_scope(
-                input.resolved,
-                ResourceNamespace::Global,
-                RoutineScope::Global,
-                &mut shared_scopes,
-            )?;
+            register_scope(source.identity, RoutineScope::Global, &mut shared_scopes)?;
             import_scope(
-                &source.iff,
+                source.iff,
                 RoutineScope::Global,
                 0,
                 limits,
                 options.locale,
                 &mut routines,
                 &mut strings,
-                &mut budget,
+                budget,
             )?;
-            import_names(
-                &source.iff,
-                RoutineScope::Global,
-                0,
-                &mut names,
-                &mut budget,
-            )?;
+            import_names(source.iff, RoutineScope::Global, 0, &mut names, budget)?;
         }
-        import_tuning(input, guid, &mut tuning.values, &mut budget)?;
+        import_tuning(input, guid, &mut tuning.values, budget)?;
         for (index, slot) in &input.runtime.routing_slots {
             insert_consistent(&mut slots, (guid, *index), slot.clone(), "routing slot")?;
         }
@@ -288,7 +388,7 @@ pub fn import_content(
             budget.entries::<Objd>(2)?;
             budget.entries::<u16>(2 * 103)?;
             let mut master = None;
-            for chunk in &input.resolved.iff.chunks {
+            for chunk in &input.source.iff.chunks {
                 if chunk.key.kind == *b"OBJD" {
                     let candidate = decode_source_objd(&chunk.data, &budget.limits(limits))?;
                     if candidate.guid() == master_guid {
@@ -307,18 +407,18 @@ pub fn import_content(
         } else {
             None
         };
-        if let Some(slot) = resource(&input.resolved.iff, *b"SLOT", raw.slot_id()) {
+        if let Some(slot) = resource(input.source.iff, *b"SLOT", raw.slot_id()) {
             let slots =
                 decode_slot(&slot.data, &budget.limits(limits)).map_err(|e| e.to_string())?;
             definition.slot_count =
                 u16::try_from(slots.slots.iter().filter(|s| s.type_id == 0).count())
                     .map_err(|_| "containment slot count overflow")?;
         }
-        budget.entries::<(u16, u16)>(256)?; // Maximum bounded transient function table.
+        budget.entries::<(u16, u16)>(512)?; // Maximum bounded transient function table.
         let functions = if raw.field("UsesFnTable").unwrap_or(0) == 0 {
             generated_functions(&raw)
         } else {
-            let chunk = resource(&input.resolved.iff, *b"OBJf", input.object_chunk_id)
+            let chunk = resource(input.source.iff, *b"OBJf", input.object_chunk_id)
                 .ok_or("missing required OBJf function table")?;
             decode_functions(chunk, &budget.limits(limits))?
         };
@@ -348,10 +448,10 @@ pub fn import_content(
             options.locale,
             options.ttab_variant,
             limits,
-            &mut budget,
+            budget,
         )?;
         let roots = input
-            .resolved
+            .source
             .iff
             .chunks
             .iter()
@@ -368,19 +468,17 @@ pub fn import_content(
                     .flatten()
                     .flat_map(|item| [Some(item.action), item.check].into_iter().flatten()),
             );
-        verify_direct_calls(&store, input, guid, roots, &mut budget)?;
-        reports.push(ImportedObject {
+        verify_direct_calls(&store, input, guid, roots, budget)?;
+        reports.push(ConvertedObject {
             guid,
             object_chunk_id: input.object_chunk_id,
-            source_name: input.resolved.source_name.clone(),
-            effective_identity: input.resolved.identity,
             semiglobal_owner: input.semiglobal_owner,
             interactions,
         });
         definitions.push(definition);
     }
     reserve_validation_workspace(
-        &mut budget,
+        budget,
         &(
             &store,
             &definitions,
@@ -397,7 +495,7 @@ pub fn import_content(
         .with_strings(strings.into_iter().collect())?
         .with_named_trees(names.into_iter().collect())?
         .with_routing_slots(slots.into_iter().collect())?;
-    Ok(ImportedContent {
+    Ok(ConvertedContent {
         content,
         objects: reports,
     })
@@ -409,7 +507,7 @@ fn resource(file: &IffFile, kind: [u8; 4], id: u16) -> Option<&IffChunk> {
         .find(|chunk| chunk.key == ChunkKey { kind, id })
 }
 
-fn decode_source_objd(data: &[u8], limits: &Limits) -> Result<Objd, String> {
+pub(crate) fn decode_source_objd(data: &[u8], limits: &Limits) -> Result<Objd, String> {
     let version = u32::from_le_bytes(
         data.get(..4)
             .ok_or("truncated OBJD version")?
@@ -445,17 +543,10 @@ fn runtime_definition(object: &Objd) -> Vec<i16> {
 }
 
 fn register_scope(
-    resolved: &ResolvedContent,
-    namespace: ResourceNamespace,
+    identity: [u8; 32],
     runtime: RoutineScope,
     scopes: &mut BTreeMap<RoutineScope, [u8; 32]>,
 ) -> Result<(), String> {
-    let identity = resolved
-        .scope_provenance
-        .iter()
-        .find(|scope| scope.namespace == namespace)
-        .ok_or("missing effective scope identity")?
-        .effective_hash;
     insert_consistent(scopes, runtime, identity, "scope identity")
 }
 
@@ -677,12 +768,12 @@ fn import_names(
 }
 
 fn import_tuning(
-    input: &ObjectImport<'_>,
+    input: &ConversionObject<'_>,
     guid: u32,
     values: &mut BTreeMap<(u32, u16, u16), i16>,
     budget: &mut ImportBudget,
 ) -> Result<(), String> {
-    let source = &input.resolved.tuning;
+    let source = input.source.tuning;
     if source.has_semiglobal != input.semiglobal_owner.is_some() {
         return Err("resolved tuning semiglobal binding mismatch".into());
     }
@@ -732,7 +823,7 @@ fn required_routine(store: &RoutineStore, owner: u32, id: u16) -> Result<Routine
 
 fn verify_direct_calls(
     store: &RoutineStore,
-    input: &ObjectImport<'_>,
+    input: &ConversionObject<'_>,
     owner: u32,
     roots: impl Iterator<Item = RoutineKey>,
     budget: &mut ImportBudget,
@@ -750,11 +841,11 @@ fn verify_direct_calls(
             continue;
         }
         let source = match key.scope {
-            RoutineScope::Private(guid) if guid == owner => Some(&input.resolved.iff),
+            RoutineScope::Private(guid) if guid == owner => Some(input.source.iff),
             RoutineScope::SemiGlobal(guid) if Some(guid) == input.semiglobal_owner => {
-                input.resolved.semiglobal.as_ref().map(|s| &s.iff)
+                input.source.semiglobal.as_ref().map(|s| s.iff)
             }
-            RoutineScope::Global => input.resolved.global.as_ref().map(|s| &s.iff),
+            RoutineScope::Global => input.source.global.as_ref().map(|s| s.iff),
             _ => None,
         };
         if source
@@ -778,41 +869,24 @@ fn verify_direct_calls(
 }
 
 fn decode_functions(chunk: &IffChunk, limits: &Limits) -> Result<Vec<(u16, u16)>, String> {
-    // FSO.Files/Formats/IFF/Chunks/OBJf.cs: pad, version, fJBO, count;
-    // each entry stores condition before action. Source accepts version words.
-    let read = || -> wonderland_legacy_formats::Result<Vec<(u16, u16)>> {
-        limits.check_input(&chunk.data)?;
-        limits.check_count(chunk.data.len(), limits.max_resource_bytes, 0, "OBJf bytes")?;
-        limits.check_count(
-            chunk.data.len(),
-            limits.max_total_decoded_bytes,
-            0,
-            "OBJf allocation budget",
-        )?;
-        let mut reader = Reader::new(&chunk.data);
-        reader.u32_le()?;
-        reader.u32_le()?;
-        if reader.read_bytes(4)? != b"fJBO" {
-            return Err(wonderland_legacy_formats::Error::new(
-                wonderland_legacy_formats::ErrorKind::InvalidData,
-                8,
-                "OBJf magic",
-            ));
-        }
-        let count = reader.u32_le()? as usize;
-        limits.check_count(count, 256.min(limits.max_entries), 12, "OBJf functions")?;
-        if reader.remaining() != count * 4 {
-            return Err(wonderland_legacy_formats::Error::new(
-                wonderland_legacy_formats::ErrorKind::InvalidData,
-                16,
-                "OBJf exact entry length",
-            ));
-        }
-        (0..count)
-            .map(|_| Ok((reader.u16_le()?, reader.u16_le()?)))
-            .collect()
-    };
-    read().map_err(|e| format!("OBJf: {e}"))
+    let count = u32::from_le_bytes(
+        chunk
+            .data
+            .get(12..16)
+            .ok_or("OBJf truncated header")?
+            .try_into()
+            .unwrap(),
+    ) as usize;
+    if count > 256 || chunk.data.len() != 16 + count * 4 {
+        return Err("OBJf runtime requires at most 256 functions and no trailing bytes".into());
+    }
+    let table = wonderland_legacy_formats::semantic::decode_objf(&chunk.data, limits)
+        .map_err(|error| format!("OBJf: {error}"))?;
+    Ok(table
+        .functions
+        .into_iter()
+        .map(|entry| (entry.condition, entry.action))
+        .collect())
 }
 
 fn generated_functions(object: &Objd) -> Vec<(u16, u16)> {
@@ -860,7 +934,7 @@ fn generated_functions(object: &Objd) -> Vec<(u16, u16)> {
 
 #[allow(clippy::too_many_arguments)] // Source inheritance, locale and runtime resolution remain explicit.
 fn import_interactions(
-    input: &ObjectImport<'_>,
+    input: &ConversionObject<'_>,
     object: &Objd,
     master: Option<&Objd>,
     store: &RoutineStore,
@@ -870,10 +944,10 @@ fn import_interactions(
     budget: &mut ImportBudget,
 ) -> Result<Option<Vec<ImportedInteraction>>, String> {
     let find = |id| {
-        if let Some(chunk) = resource(&input.resolved.iff, *b"TTAB", id) {
-            return Some((&input.resolved.iff, chunk, id));
+        if let Some(chunk) = resource(input.source.iff, *b"TTAB", id) {
+            return Some((input.source.iff, chunk, id));
         }
-        let semi = &input.resolved.semiglobal.as_ref()?.iff;
+        let semi = input.source.semiglobal.as_ref()?.iff;
         resource(semi, *b"TTAB", id).map(|chunk| (semi, chunk, id))
     };
     // VMContext calls UseTreeTableOf(master), which preserves a child's own
@@ -899,9 +973,12 @@ fn import_interactions(
     budget.decoded_ttab(&table, chunk.data.len())?;
     // The bytes are authoritative. A cached semantic value or dialect may not
     // substitute altered permissions under the same effective resource hash.
-    if std::ptr::eq(file, &input.resolved.iff) {
-        match input
-            .resolved
+    if let Some(resolved) = input
+        .source
+        .resolved
+        .filter(|resolved| std::ptr::eq(file, &resolved.iff))
+    {
+        match resolved
             .semantic_resources
             .iter()
             .find(|s| s.key == chunk.key)
