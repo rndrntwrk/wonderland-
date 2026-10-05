@@ -2,6 +2,8 @@
 
 This branch advances the action-focused redesign into original-service account flows, source city/lot rendering, player panels, source authoring requests and an integrated A/B simulation library. The existing character/Home preview and original FreeSO source remain available. The [21-surface capability map](player-capability-map.md) records what works together and what still needs implementation.
 
+The [screenshot gallery](screenshot-gallery.md) shows the six unedited browser captures with their verification scope.
+
 **This is a reviewable integration increment, not a complete replacement for the original FreeSO client.** The connected lot currently presents source snapshots; it does not continuously restore and replay the original VM. Bookmarks/profile updates, comprehensive building/catalog/inventory adapters and most specialized object dialogs are still code work. A live server or an asset upload alone cannot close those gaps.
 
 ## Review target and source pins
