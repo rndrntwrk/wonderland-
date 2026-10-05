@@ -3,6 +3,8 @@
 use std::collections::BTreeMap;
 use wonderland_contracts::*;
 
+pub mod authoring;
+
 /// Request IDs are unique for this shell lifetime and never reused after navigation.
 #[derive(Clone, Debug)]
 pub struct ShellState {

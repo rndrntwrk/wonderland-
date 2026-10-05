@@ -6,7 +6,7 @@ use crate::{
     bridge::{Overlay, Ui},
     components::{Icon, hud::NeedsGrid},
     fixture::Scenario,
-    screens::{avatars::Avatars, city::City, lot::Lot},
+    screens::{avatars::Avatars, city::City, creator::Creator, home::HomeScreen, lot::Lot},
 };
 
 #[component]
@@ -27,6 +27,19 @@ pub fn App() -> impl IntoView {
     };
     let ui = Ui::new(scenario);
     provide_context(ui);
+    let author = crate::authoring_bridge::AuthorUi::new(ui, value.as_deref());
+    provide_context(author);
+    let character_editor = Memo::new(move |_| {
+        author.state.with(|s| {
+            matches!(
+                s.draft(),
+                Some(
+                    wonderland_contracts::authoring::AuthoringDraft::Creation(_)
+                        | wonderland_contracts::authoring::AuthoringDraft::Outfit(_)
+                )
+            )
+        })
+    });
     let screen = Memo::new(move |_| ui.state.with(|state| state.screen.clone()));
     Effect::new(move |_| {
         let active = ui.overlay.get();
@@ -54,11 +67,13 @@ pub fn App() -> impl IntoView {
 
     view! {
         <main class="game-shell" class:reduce-motion=move || ui.reduced_motion.get()>
-            {move || match screen.get() {
+            {move || if character_editor.get() { view! { <Creator/> }.into_any() } else { match screen.get() {
                 Screen::CharacterSelection => view! { <Avatars/> }.into_any(),
                 Screen::City => view! { <City/> }.into_any(),
+                Screen::Lot { place_id } if place_id.as_ref() == "home" => view! { <HomeScreen/> }.into_any(),
                 Screen::Lot { .. } => view! { <Lot/> }.into_any(),
-            }}
+            }}}
+            <Show when=move || !author.storage_notice.get().is_empty()><p class="storage-notice" role="status">{move || author.storage_notice.get()}</p></Show>
             <div class="top-tools">
                 <button class="chrome round unavailable" aria-label="Sound unavailable: preview has no audio" aria-disabled="true" title="Audio arrives with the game renderer" on:click=move |_| ui.explain("Audio arrives with the game renderer.")><Icon name="volume-off"/></button>
                 <button id="settings" class="chrome round" aria-label="Settings" on:click=move |_| ui.overlay.set(Overlay::Settings)><Icon name="settings"/></button>

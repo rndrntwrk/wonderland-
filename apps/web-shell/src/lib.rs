@@ -11,3 +11,9 @@ pub mod bridge;
 pub mod components;
 #[cfg(target_arch = "wasm32")]
 pub mod screens;
+
+pub mod authoring_adapter;
+#[cfg(target_arch = "wasm32")]
+pub mod authoring_bridge;
+pub mod authoring_geometry;
+pub mod persistence;

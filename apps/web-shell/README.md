@@ -39,7 +39,7 @@ The focused [Browser UI workflow](../../.github/workflows/browser-ui.yml) checks
 ## Player flow and controls
 
 1. Select Maya, Jules, Nico, Amara, or Leo. The portrait card, full-body stage, selected state, and green Play label update together.
-2. Play enters Quack's Creek. Select a destination on its map lot. Harbor Café shows six visitors and an available Visit button. Park, Arcade, and Home explain that their own preview scenes are not present.
+2. Play enters Quack's Creek. Select a destination on its map lot. Harbor Café and your selected Sim’s Home are available. Park and Arcade retain unavailable reasons.
 3. Visit shows a pending state. The café appears only after the adapter's matching acknowledgment.
 4. Select the independent coffee-machine sprite. Make coffee, Clean, and Inspect are arranged around the object. Clean is unavailable because the machine is already clean.
 5. Make coffee or Inspect first appears as Requested. Only the corresponding accepted reply creates an acknowledged queue item. Cancel shows Cancelling until the distinct cancellation acknowledgment arrives.
@@ -58,7 +58,7 @@ The bridge retains cancellable timeout handles, removes handles after delivery, 
 
 Reply feedback uses the current event and `receive` result. A retained rejection from an earlier operation does not replace a later acceptance announcement. Map focus reveals destinations outside either axis's usable bounds, and scene clipping prevents native browser scrolling from introducing a second camera offset.
 
-The small **UI preview** label is always visible. These replies demonstrate presentation flow. They do not run simulation, spend money, contact a multiplayer service, authenticate a character, or assert server authorization. Queue items remain acknowledged presentation items until cancelled; they do not fabricate completion progress.
+The small **UI preview** label is always visible. These replies demonstrate presentation flow. Authoring changes a local preview budget only; they do not run simulation, spend real money, contact a multiplayer service, authenticate a character, or assert server authorization. Queue items remain acknowledged presentation items until cancelled; they do not fabricate completion progress.
 
 ### Reproducible browser scenarios
 
@@ -88,7 +88,35 @@ The [asset manifest](public/assets/ASSETS.md) records generated artwork provenan
 - **Transport and authentication:** Replace the delayed reply scheduling in `bridge.rs` with an explicit authenticated adapter. Independently authorize actor identity and operations, validate generation/revision, bound source bytes before decoding, and preserve request/response identity. Displayed availability is never authorization.
 - **Renderer and picking:** Replace `components/scene.rs` and `geometry.rs` with a renderer adapter that projects stable targets into screen coordinates. Maintain the screen-anchor contract used by `components/actions.rs`; add occlusion and picking without exposing engine entities or DOM nodes to persistent contracts. Evaluate the production 3D camera and WebGPU/WebGL2 fallback separately.
 - **Simulation and queue:** Integrate authoritative queue progress/completion, ordered actions, need and money updates, travel rules, and real cancellation outcomes through projections/events.
-- **Creation, outfit, catalog, and placement:** Add these subsystem adapters before enabling their controls. Build, Buy, outfit editing, and Create a Sim currently show concise unavailable reasons. Actual 3D orbit/view switching and chat transport are omitted.
-- **Content:** Add distinct scenes and validated place availability for Park, Arcade, and Home before enabling Visit. The café fixture must not impersonate those locations. Replace the five-portrait fixture asset mapping with a versioned content manifest when character content becomes dynamic.
+- **Authoring services:** Replace `authoring_bridge.rs` and the bounded `PreviewAuthoringProvider` with coordinated authoritative authoring and shell projections. Keep typed actor/Home/instance identities, exact operation/base matching, validation, and receipt-before-mirroring ordering. Creation is a preview profile, not an account. Placement coordinates and visual identity IDs must be explicitly mapped to source-content and simulation identities; never cast them into engine entity IDs. Actual 3D orbit/view switching and chat transport are omitted.
+- **Content and renderer:** Park and Arcade still need distinct scenes. The Home PNG and calibrated affine adapter in `authoring_geometry.rs` are fixed-camera presentation art, not a movable 3D renderer. Replace image composition and semantic picking with an engine render/pick adapter while retaining accessible keyboard controls, projected ground anchors, usable camera insets, typed outcomes, and ownership checks.
 
-This shell is an integration increment, not the completed FreeSO browser rewrite. It adds no legacy C# behavior changes, live transport, persistence, asset importer, production renderer, or simulation.
+This shell is an integration increment, not the completed FreeSO browser rewrite. It adds no legacy C# behavior changes, live transport, asset importer, production renderer, or simulation. Local preview persistence is bounded and replaceable; the full W11 screen matrix remains incomplete.
+
+
+## Character and Home authoring preview
+
+Create a Sim opens the full-body garden stage. Choose one of five appearance presets and Everyday, Smart, or Active, then enter a short Unicode name. Create sends one request and waits **850 ms**; the acknowledged typed identity becomes the selected profile. Profiles have independent Homes/budgets even when sharing appearance. The cap is eight; selection shows five profiles plus Create per page, with Previous/Next selecting a visible card. Change outfit uses the same stage, with Save and immediate draft Cancel. Accepted appearance updates cards, full-body stage, café sprite, Home portrait, and HUD. Submission and navigation lock during the short pending interval. Drafts survive matching rejection for retry.
+
+Visit Home for the actual selected profile, then choose Buy. Its six illustrated starter objects have category/search controls. Select an item and a floor cell; the ghost footprint and explicit reason explain entrance `(0,0)`, bounds, occupancy, permissions, capacity, or budget. Green/red is supplemental. Buy and place charges the preview budget only after a matching newer receipt. Build selects an owned object; Move stages it, Rotate changes directional artwork and footprint, and Store keeps its identity in Inventory with no refund. Place again reuses that same instance without charging. Symmetric lamp/fern/rug expose no rotation button. Build is room arrangement; wall/roof construction and live simulation are unavailable.
+
+The Home floor is exactly **8 × 6**, with at most 64 owned objects including storage. Art-space origin `(811,317)` and bases `(86,42)`/`(-94,38)` share a single affine transform for floor picks, ghost, footprints, and furniture. `HomeCamera` contains the room in a real viewport above the drawer and permits bounded overscroll so first/last rows can be revealed. It does not change café/map camera behavior. Directional artwork uses front/back plus mirroring; alpha bounds normalize visible width, and measured ground anchors avoid transparent-image-padding drift. Rugs render beneath standing objects, which sort by projected depth. Art is not warped or arbitrarily rotated.
+
+Focus Home to pan with arrows when no candidate is active, zoom with +/−, and reset with Home. During placement, arrows move the candidate, R rotates directional items, Enter confirms, and Escape cancels. Semantic floor/object/catalog buttons also work by keyboard. Name/search typing and IME composition are not intercepted. Escape restores scene focus without native page scrolling. Reduced motion is honored. Root performs rendered desktop and 390 × 844 verification separately from native geometry tests.
+
+### Local saving and authoring fixtures
+
+Only the validated acknowledged snapshot is encoded in a version-1 envelope at localStorage key `wonderland.authoring.v1`. Both decoding and encoding enforce **256 KiB**. Drafts, pending requests, receipt caches, grants, and assets are excluded. Reload loads and validates the saved snapshot before projection into the shell. Invalid, unsupported, or oversized existing data is preserved; a temporary preview continues with writing disabled for that load and a visible notice. Storage access/write failures leave the tab usable and explain the failed local save. There is no destructive reset control. Any `fixture` URL bypasses saved data and disables fixture writes.
+
+| Query | Expected authoring behavior |
+| --- | --- |
+| `?fixture=reject-authoring` | The first authoring request receives a matching typed rejection without committing the provider; draft remains and retry succeeds. |
+| `?fixture=read-only-home` | Each Home denies purchase and arrangement, with an explicit candidate reason. |
+| `?fixture=poor-home` | Each profile has a preview budget of 20, so catalog placement explains insufficient funds. |
+| `?fixture=empty-catalog` | Fresh empty Homes and empty catalog; clear empty state, no invented objects. |
+
+Original travel/action/empty/unavailable fixture behavior is preserved. The authoring session owns its timer and independent lifetime guard. Current-session callbacks additionally compare the exact pending request. `authoring_adapter::deliver` classifies success only after a newer revision plus matching operation/base/receipt; `receive(Ok)` and a retained `last_commit` alone are insufficient. A current rejection is classified from its event, never an older retained error. Verified commits mirror through `preview_project_authoring_to_ui` and `ShellState::receive`, then save. Only original shell selection intents select a new character; DOM code never mutates reducer fields.
+
+### Runtime artwork mapping
+
+Everyday uses `/assets/art/<identity>.png`; Smart/Active use `/assets/authoring/<identity>-<style>.png`. Profile IDs are independent of appearance IDs, so created profiles resolve artwork through authoring data rather than their opaque profile ID. Home uses `/assets/authoring/home-scene.png`. Directional armchair/coffee-table/bookcase use `-front.png` or `-back.png`; lamp/fern/rug use their standalone PNGs. Exact source prompts, hashes, dimensions and alpha bounds are in `public/assets/authoring-manifest.json`; selected image bytes are unchanged. All chrome remains semantic Rust-rendered DOM using existing bundled Nunito and Tabler assets.

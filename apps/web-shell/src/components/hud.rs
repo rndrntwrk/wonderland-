@@ -1,6 +1,6 @@
 use crate::{
     bridge::{Overlay, Ui, selected_character},
-    components::{Icon, portrait_path},
+    components::Icon,
 };
 use leptos::prelude::*;
 use wonderland_contracts::Need;
@@ -28,10 +28,11 @@ pub fn NeedsGrid(#[prop(default = false)] all: bool) -> impl IntoView {
 #[component]
 pub fn Hud(#[prop(default = false)] lot: bool) -> impl IntoView {
     let ui = expect_context::<Ui>();
+    let author = expect_context::<crate::authoring_bridge::AuthorUi>();
     view! {
         <aside class="character-hud" class:lot-hud=lot aria-label="Your Sim">
             <div class="hud-profile chrome">
-                <div class="hud-portrait"><img src=move || selected_character(ui).map(|c| portrait_path(c.id.as_ref())).unwrap_or_default() alt=""/></div>
+                <div class="hud-portrait"><img src=move || selected_character(ui).map(|c| author.path(&c.id)).unwrap_or_default() alt=""/></div>
                 <div class="hud-name-money"><strong>{move || selected_character(ui).map(|c| c.name).unwrap_or_default()}</strong><span class="money"><span class="currency-mark">"$"</span>{move || selected_character(ui).map(|c| format_money(c.money)).unwrap_or_default()}</span></div>
             </div>
             {lot.then(|| view! { <div class="needs-hud chrome"><NeedsGrid/><button id="all-needs" class="all-needs" aria-haspopup="dialog" on:click=move |_| ui.overlay.set(Overlay::Needs)>"All needs"<Icon name="chevron-up"/></button></div> })}

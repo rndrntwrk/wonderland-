@@ -23,6 +23,8 @@ macro_rules! string_id {
 }
 string_id!(CharacterId, PlaceId, ObjectId, ActionId, OperationId);
 
+pub mod authoring;
+
 /// Stable object identity plus incarnation; never an engine entity index.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct EntityRef {

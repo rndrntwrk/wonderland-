@@ -93,12 +93,14 @@ impl Ui {
         if reject {
             self.rejected_once.set(true);
         }
-        let pending_message = match request.kind {
-            RequestKind::Travel { .. } => "Visiting Harbor Café…",
-            RequestKind::Interaction { .. } => "Action requested. Waiting for a reply…",
-            RequestKind::Cancellation { .. } => "Cancelling action…",
+        let pending_message = match &request.kind {
+            RequestKind::Travel { .. } => self.state.with_untracked(|state| {
+                crate::authoring_adapter::travel_message(state, &request, true)
+            }),
+            RequestKind::Interaction { .. } => "Action requested. Waiting for a reply…".into(),
+            RequestKind::Cancellation { .. } => "Cancelling action…".into(),
         };
-        self.announcement.set(pending_message.into());
+        self.announcement.set(pending_message);
         let id = request.operation_id.clone();
         let callback_id = id.clone();
         let timer = set_timeout_with_handle(
@@ -126,6 +128,7 @@ impl Ui {
                 match feedback {
                     ReplyFeedback::Error(error) => self.explain(error.to_string()),
                     ReplyFeedback::Announcement(message) => self.announcement.set(message.into()),
+                    ReplyFeedback::TravelAnnouncement(message) => self.announcement.set(message),
                     ReplyFeedback::None => {}
                 }
                 if before != self.state.with_untracked(|state| state.screen.clone()) {

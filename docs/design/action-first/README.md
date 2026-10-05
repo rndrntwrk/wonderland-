@@ -27,3 +27,9 @@ The first increment introduces a Rust/Leptos browser shell, a pure state layer, 
 Production 3D camera and picking, character animation, simulation, server-authorized actions, content imports, account flows, and build/buy remain integration work. Their UI direction is preserved here without claiming the illustration implements those systems.
 
 The detailed [first increment specification](../../superpowers/specs/2026-10-05-action-first-browser-ui.md) and [implementation plan](../../superpowers/plans/2026-10-05-action-first-browser-ui.md) define the scope and acceptance checks.
+
+## Character and Home increment
+
+The next increment extends this same visual family with a character-stage creator, whole-look wardrobe choices, and a distinct Home scene. Buy uses an illustrated catalog and direct floor placement; Build selects existing furniture for Move/Rotate/Store, while inventory preserves owned-instance identity. Drafts preview immediately, and confirmed profile, outfit, room and budget changes come from typed provider outcomes.
+
+The [character and Home specification](../../superpowers/specs/2026-10-05-character-and-home-ui.md) defines the bounded local preview, persistence and accessible actions. The [cross-swarm integration handoff](../../integration/character-home-ui-handoff.md) records the inspected simulation/content interfaces and remaining live-service/renderer adapters. This addition covers preview room arrangement; architecture construction and production 3D remain separate work.

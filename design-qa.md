@@ -1,102 +1,106 @@
-# Wonderland action-focused UI — design and browser verification
+# Wonderland character and Home UI — design and browser verification
 
-## Result and remaining evidence gate
+## Result
 
-The character, map, and café interfaces were rendered in the browser and compared with their approved references, including matching full views and detailed crops. The material visual and behavior findings listed below have been corrected. The first increment remains an illustrated UI preview with explicit fixture replies.
+This increment extends the approved game interface with a visual character creator, wardrobe, a separate Home, a furniture catalog, direct placement, room arrangement, and owned inventory. It is stacked on the original character/map/café UI in PR #5. The original report is preserved in [initial-ui-qa.md](docs/design/action-first/initial-ui-qa.md).
 
-**The durable screenshot evidence gate is blocked.** The supported browser API displayed actual screenshots, but files written through its documented shared directory disappeared before they synchronized to the execution workspace. Two destination paths and a bounded five-second poll were tried; neither produced a usable file. No alternative browser-control mechanism or manual container transfer was used. This report therefore includes the observations and reproduction instructions, but does not embed a fabricated or missing implementation screenshot. The pull request remains a draft rather than claiming completed visual handoff.
+The actual Rust/Leptos release application was exercised in the browser. Its preview provider acknowledges operations after 850 ms; only a validated matching commit changes the accepted character, room, ownership or budget. Accepted local preview changes survive refresh. These are working preview journeys, not production account, economy or simulation services.
 
-- Source visual truth: [characters](docs/design/action-first/references/characters.png), [city](docs/design/action-first/references/city.png), [lot](docs/design/action-first/references/lot.png).
-- Implementation screenshot path: **unavailable — browser export/synchronization failure**. Browser-rendered screenshots and combined comparisons were inspected in the work session on 5 October 2026.
-- Implementation: the actual Rust/Leptos release WASM build served by the supervised local preview; no reference image is used as an interactive page.
-- Scope: [approved specification](docs/superpowers/specs/2026-10-05-action-first-browser-ui.md), [design record](docs/design/action-first/README.md), and [shell README](apps/web-shell/README.md).
-- Final product commit checked: `79aceeaad622c73679c5b6dfaa0beb462f15b66c`; release distribution applied at **09:30:23 UTC on 5 October 2026**. Later changes in this increment add this report and the local QA helper only.
+**Verified product source:** `d2561a7d7c01cc04d4897a9880a76ab5c7073f5f`, actual release completed **13:14:50 UTC on 5 October 2026**. All **72 workspace tests**, formatting, native clippy and WASM clippy passed on this source. Later documentation commits preserve this product tree. Final whole-branch review and remote CI outcomes are reported with the PR.
 
-## Comparison conditions
+**Screenshot limitation:** the browser displayed the actual rendered creator, Home and comparison views. The supported screenshot export again failed to synchronize a saved JPEG into the execution workspace, so this report does not embed a missing file or substitute a reference image for implementation evidence. The compiled live preview and reproduction instructions are available for review. Publication proceeds as a draft, as required by the specification.
 
-| Check | Source / implementation dimensions and state |
+## Design and source of truth
+
+- [Character and Home specification](docs/superpowers/specs/2026-10-05-character-and-home-ui.md) and [implementation plan](docs/superpowers/plans/2026-10-05-character-and-home-ui.md).
+- [Visual design record](docs/design/action-first/README.md), including the selected [character](docs/design/action-first/references/characters.png), [city](docs/design/action-first/references/city.png), and [café](docs/design/action-first/references/lot.png) references.
+- [Asset manifest](apps/web-shell/public/assets/authoring-manifest.json): 20 new runtime PNGs, 34,165,660 bytes, exact generation lineage, dimensions, alpha bounds and checksums. These extend the existing five Everyday characters with ten wardrobe looks, a separate unfurnished Home, and nine furniture views.
+- [Authoring contract](docs/contracts/authoring-v1.md), [run and fixture instructions](apps/web-shell/README.md), and [service/content/3D integration handoff](docs/integration/character-home-ui-handoff.md).
+
+The character remains the focus of creation and outfit changes. Appearance and look tiles update the large stage immediately; the only name entry is a compact nameplate. The map remains the location selector. Home editing uses object thumbnails, scene cells and a placement ghost, then actions attached near the selected furniture. The room remains visible above the lower drawer.
+
+The retained style uses rounded blue game chrome, green selection and primary actions, bundled Nunito typography and Tabler icons, warm scenic art and independent transparent character/object images. The new views extend that visual family; they do not have separate approved full-screen raster references and are not claimed as pixel-identical reproductions.
+
+## Browser conditions and visual comparison
+
+| Condition | Actual observation |
 | --- | --- |
-| Matched desktop fidelity | All source PNGs are **1672 × 941 pixels**. The live app ran in a **1672 × 941 CSS-pixel iframe at DPR 1**, verified through its document dimensions. Source and live frame were displayed together at the same scale, 660 / 1672, with the same crop. Browser chrome and comparison-page padding were excluded from design judgments. |
-| Normal desktop use | **1363 × 936 CSS pixels, DPR 1**. Verified the actual full-page character, city, café, action, and needs states. |
-| Narrow layout | A same-origin iframe measured **390 × 844 CSS pixels, DPR 1**. The character page's small vertical overflow reduced its inner client width to 375 pixels; city and café measured 390 × 844 with no document overflow. This is a CSS viewport check, not physical touch-device or GPU certification. |
-| Character comparison | Maya selected, five named portraits, creation slot, independent full-body stage, Play as Maya. |
-| City comparison | Harbor Café selected, six visitors, Visit available, default camera. |
-| Café comparison | Maya, selected coffee machine, Make coffee / Clean / Inspect petals, compact needs HUD. Clean is intentionally unavailable in the fixture. Queue content and money come from projection data, so the mock's decorative values are not treated as an exact state match. |
+| Desktop | Main application at 1363 × 936 CSS pixels, DPR 1. Creator, character grid, map, Home, catalog, object actions, café and dialogs inspected. |
+| Narrow | Same-origin live application iframe at 390 × 844 CSS pixels, DPR 1. Character roster, creator and Home measured with equal client/document dimensions and no page overflow. This is a CSS viewport check, not physical-device certification. |
+| Matched reference family | Each original 1672 × 941 reference displayed beside a live 1672 × 941 iframe at the same 660/1672 scale and crop. Current character, city and café full views inspected on the 13:01 UTC release. The prior detailed-crop record remains in the original QA report. |
+| Character hierarchy | Five profile cards and Create slot, independent body stage, selected green treatment, green Play, visual outfit control. Pagination fits below the grid. |
+| Map hierarchy | Building selection and an attached destination placard with Visit; scenic geography remains the primary surface. |
+| Café hierarchy | Independent character/object presentation, object-attached action petals, compact needs and queue. Fixture values differ from decorative mock values. |
+| Home geometry | Explicit 8 × 6 affine floor projection; background, grid, ghost, footprints and placed objects share the camera transform. Directional sprites use separate front/back art and mirroring, with alpha-bounds width normalization. |
 
-The [local comparison helper](tests/ui/prepare-browser-qa.py) prepares full and focused comparison pages in ignored `dist` after a build. It presents the source image beside the **live app iframe**, then changes both crops together without changing app state. It does not inject a simulation or fabricate a screenshot. The helper and the mobile iframe are outside production build inputs.
+The local-only [comparison helper](tests/ui/prepare-browser-qa.py) prepares matching live/reference pages and the narrow iframe in ignored `dist` after a Trunk build. It does not replace the application with a screenshot. A clean release build removes those diagnostics; they are not publication inputs.
 
-### Full-view and detailed comparison evidence
+## Journeys verified in the actual browser
 
-Each of the following was actually opened with both source and implementation visible in the same browser capture. Separate remembered images were not treated as a side-by-side comparison.
-
-| Screen | Full-view comparison | Detailed region in source coordinates | Outcome |
-| --- | --- | --- | --- |
-| Characters | `/__verify-characters-comparison.html` | x45, y105, width880, height685 | Large 3 × 2 portrait grid, selected green border/diamond, full-body stage, and dominant green Play preserve the approved hierarchy. Detailed view checked names, portrait crops, border treatment, typography, and creation affordance. |
-| City | `/__verify-city-comparison.html` | x590, y440, width575, height380 | Same town geography and building-first selection. Detailed view checked the café footprint, placard pointer, Visit, café name, six-visitor label, icons, and blue/green state colors. |
-| Café | `/__verify-lot-comparison.html` | x795, y260, width500, height390 | The world remains dominant, with independent character/object sprites, object-attached petals, and a compact HUD. Detailed view checked the three actions, close control, object thumbnail, disabled Clean reason, font weight, icon alignment, and spacing. |
-
-These are local diagnostic routes, not deployed public links. Use the controls inside the live iframe to reach the stated screen, then the diagnostic page's **Toggle detailed crop** button to compare the same region. A new Trunk build removes the diagnostic pages; do not publish a `dist` directory that contains them.
-
-## Required fidelity surfaces
-
-| Surface | Specific evaluation |
+| Journey | Observed result |
 | --- | --- |
-| Fonts and typography | Bundled **Nunito**, with Arial/sans-serif fallback and font synthesis disabled, is a documented approximation of the rounded heavy lettering in the generated references; those raster references contain no authoritative font metadata. White display text, dark blue outlines/shadows, heavy action labels, and readable smaller visitor/need labels maintain hierarchy. The mobile creation caption's wrapping defect was fixed. No leaked Rust/template text remains in camera controls. |
-| Spacing and layout rhythm | Desktop grid/stage proportions, rounded blue chrome, green primary controls, compact map placards, three-petal action grouping, and bottom HUD agree with the action-focused design. The narrow character composition was changed to three columns by two rows so all choices, the full-body stage, and Play are visible together. Map and café controls remain within the viewport; focused targets are revealed by camera movement rather than hidden browser scrolling. |
-| Colors and visual tokens | The implementation uses blue `#1358a5`, dark blue `#0a3775`, light blue `#74c5ff`, green `#75fc38`, warm-white text, and the documented beveled chrome gradients. The full and detailed comparisons preserve the reference's blue secondary actions and green selection/primary-action hierarchy. Disabled state also has explicit text; it is not conveyed by color alone. |
-| Image quality and asset fidelity | Actual generated scene PNGs and independent transparent character, machine, and diamond sprites are used. The visual inspection found clean compositing without opaque transparency boxes. Portrait identity, outfits, world geography, and café subject matter follow the references. Companion-art pose and machine-model differences are expected fixture variations. Icons are the bundled original Tabler assets, not emoji or hand-drawn replacement illustrations. The PNGs become softer at maximum zoom; production renderer content and image cooking remain separate work. |
-| Copy and app content | Character names, Play, named map destinations, Visit, three object actions, all eight needs, and concise unavailable/retry messages stand on their own as game UI. The small UI preview label identifies the increment. There is no account-form substitute for character selection or destination form replacing the map. Request and cancellation feedback reflects actual fixture replies, with concurrent reply classification covered by a regression test. |
+| Appearance and look draft | Maya → Leo → Active changed the full-body preview. Unicode name `試作 Éloïse` was accepted. Cancel returned to the unchanged roster. |
+| Create and select | Created `Éloïse` using Amara/Smart. During pending, presets, looks, name, Cancel and submit were disabled. Acceptance produced exactly one selected/focused new profile on page 2. |
+| Outfit Cancel and Save | Active preview then Cancel retained `amara-smart.png`. Save locked controls while pending; acceptance changed the stage to `amara-active.png`. |
+| Refresh persistence | Reloading the normal URL retained Éloïse on page 2 with the accepted Active outfit. The default initial selection remained Maya. |
+| Home entry and portraits | Playing Éloïse opened the map with the correct budget. Home visit entered a distinct Éloïse Home. The entrance sprite used the accepted Active look. Pending and arrival messages named Home. |
+| Category/search | Decor plus `zzzz` showed a useful no-match message; clearing search and choosing Living returned the armchair and coffee table. |
+| Invalid placement | Entrance cell (0,0) showed an explicit reserved-entrance reason and disabled Buy and place. A rotated out-of-room candidate also showed its validity reason. |
+| Purchase | Chair at (2,2): pending disabled navigation; acceptance placed one instance and changed budget from 1250 to 1070. |
+| Move and Cancel | The purchased `preview-instance-4` moved as a draft; Escape restored the committed position. A later accepted move preserved its ID and budget. |
+| Store and place again | Store removed the chair from the room and exposed it in inventory without refund. Placing it again at (2,2) reused `preview-instance-4`, kept budget 1070 and emptied inventory. |
+| Per-profile isolation | Ordinary Maya retained an empty room and budget 1250 while Éloïse retained the chair and budget 1070. |
+| Narrow character UI | All six roster choices, full body and primary action fit 390 × 844. Play measured x25, y679, width340, height67. Creator choices, body, nameplate, Cancel and Create were visible together. |
+| Narrow Home | The corrected room fills the 734-pixel usable Live scene above the compact drawer, without the previous unused vertical gap or document overflow. |
+| Nearby object actions | Arrange armchair group measured x48, y281.5, width330, height60 on narrow. Escape removed it and restored the furniture button's focus; no independent scene scrolling was observed. |
+| Placement keyboard | Catalog selection focuses the Home scene. Arrow keys move the candidate, R changes direction, Enter confirms and Escape cancels. Current-release edge checks passed; details are recorded below. |
+| Existing café | Visit named Harbor Café. Selecting the machine opened its actions; Make coffee showed Requested then Accepted in the queue. Existing unavailable Clean retained its reason. |
+| Needs/settings | All needs exposed eight named meters. Escape closed the needs dialog and restored All needs focus. Reduce motion changed state; Escape closed Settings and restored Settings focus. |
+| Existing empty roster | `?fixture=empty-characters` showed the empty state and disabled Play. Try again restored five profiles and focused Maya. |
 
-## Findings and correction history
+## Failure and unavailable states
 
-| Severity | Earlier finding and evidence | Correction and post-fix evidence |
-| --- | --- | --- |
-| P1 | Initial city/café camera markup leaked a Rust comparison/handler expression into the Zoom in button; both zoom buttons were disabled. The leaked text also produced page overflow and scroll displacement when selecting Café. | Braced the Leptos comparison closures. Browser recheck: Zoom in enabled at fit, Zoom out enabled after zoom, Reset restores fit, no source text displayed, and desktop document remains 1363 × 936 at scroll (0,0). |
-| P2 | Initial 390 × 844 character layout used a tall two-column grid and required scrolling to reach Play; document height was 1150. | Compact three-column grid and shorter full-body stage. Browser recheck: all six cards and the body are visible; Play occupies y699–766 in the first viewport. |
-| P2 | The compact Create a Sim caption wrapped into two lines inside a one-line strip. | Mobile caption uses a smaller no-wrap label while retaining the full accessible name. The final 390 × 844 screenshot confirms the complete single-line caption inside its strip, with all six cards, the full-body stage, and Play visible. |
-| P2 | At maximum zoom and two ArrowUp pans, Café's pick began at y971.868 below the 936-pixel viewport. Tab focused it by implicitly scrolling the overflow-hidden scene by 749 pixels, while the camera transform and placard projection stayed unchanged. The placard appeared below the building. | Reveal focused anchors on both axes and use non-scrollable scene clipping. Exact browser repeat: target becomes y222.876–713.058, placard y181.891–261.891 above the building, and scene, outer screen, and page scroll offsets all remain (0,0). The camera transform performs the recentering and the focus outline is visible. |
-| P2 | Independent source review found that a rejected action followed by another outstanding action's acceptance could announce the old persistent reducer error as the current reply's outcome. | Feedback derives from the current event and `receive` result. The focused native regression submits both requests before either reply, retains the earlier reducer error, then verifies accepted feedback for the second reply. The browser automation's sequential-click latency exceeded the 850 ms fixture interval, so it is not claimed as a concurrent browser reproduction. |
-| P2 | Final integration review found that the café object caller lacked the shared focus-reveal handler. At zoom 2.8 after thirteen ArrowLeft presses, the machine pick lay entirely offscreen at x1414.914–2113.415. | Object focus now uses the same camera reveal with the lot's chrome/HUD bounds. Exact browser repeat: Tab focuses the machine, moves its pick to x332.227–1030.727, places its anchor/label at y467.986, and leaves scene, outer-screen, and page scroll offsets at (0,0). After opening the menu and panning again, Escape dismisses it and restores the same visible object focus. The tall sprite remains partly above the viewport at maximum zoom; its action anchor and focus outline are reachable. |
-
-No additional visual P0/P1/P2 differences were identified in the matched full and detailed comparisons. The screenshot-export gate above remains open independently of those corrected product defects.
-
-## Browser interactions checked
-
-| Journey or state | Observed result |
+| Scenario | Browser result |
 | --- | --- |
-| Character selection | Clicking a different portrait updates selected state, the full-body stage, and Play text. Tab from Maya reaches Jules; Enter selects Jules. |
-| Map and travel | Character → Play → café pick → Visit → pending state → matching café entry works. Park remains selectable with a disabled Visit and an explicit missing-scene reason. |
-| Scene controls | Zoom, keyboard pan, Reset, common art/pick transform, anchored placard, and the maximum-zoom focus regression were checked in the actual browser. |
-| Object actions | Machine selection opens three named buttons and places keyboard focus in the action group. Escape dismisses it and restores `object-coffee-machine` focus. At maximum zoom, both Tab and Escape reveal the offscreen object's anchor through camera movement, with no native scroll offset. |
-| Queue and cancellation | A request appears pending, acceptance creates its queue entry, cancellation remains visible while pending, and the matching acknowledgment removes the entry. |
-| Needs and settings | Four summary meters and all eight expanded meters have names and values. All needs and Settings are native dialogs. Escape restores `all-needs` and `settings` focus. The Reduce motion checkbox changes state. |
-| Narrow map/café | Both documents fit 390 × 844. Object menu is 286 × 264, clamped within x92–378; all-needs dialog is 352 × 300.375 at x19–371, y325.625–626. Controls remain reachable while panning. |
-| Travel rejection | `?fixture=reject-travel` retains selected Café, shows the busy reason and enabled Visit, then succeeds on retry and clears the error. |
-| Empty characters | `?fixture=empty-characters` disables Play, displays Try again, restores five portraits, and focuses Maya after recovery. |
+| `reject-authoring` | Fixture bypassed saved Éloïse data. First Create for RetryTest rejected with name/look draft intact and a clear error. Retry created exactly one selected new profile and cleared rejection. |
+| `poor-home` | Maya budget 20; fern price 45. Placement showed insufficient funds and disabled confirmation. |
+| `read-only-home` | Buy showed the provider's read-only reason and disabled confirmation. The corrected empty Build view also displayed “This Home is read only in this preview.” |
+| `empty-catalog` | Corrected Buy view displayed “No furniture is available in this preview.” It no longer suggested clearing an already empty search. Filtered no-match and empty inventory keep separate guidance. |
+| Invalid saved data | Native codec tests cover corrupt, unsupported, invalid and oversized envelopes. The storage adapter preserves the existing value and disables writes while providing a temporary preview. Browser storage denial and corrupt-storage injection were not performed. |
 
-Browser console inspection found no application-origin errors in the checked flow. The browser's own extension emitted “Error sending browser metadata to extension” from a `chrome-extension://` URL; that is recorded separately and is not attributed to the application. No production GPU, physical mobile, screen-reader software, or multiplayer certification is implied.
+Console inspection returned 378 warning/error records for the checked main-tab flows, all from the browser extension's metadata messaging at a `chrome-extension://` URL. No application-origin warning/error entry appeared in that returned set. This is not a claim about unobserved devices, multiplayer or production renderer behavior.
 
-## Code verification
+## Corrections made during verification
 
-The final product source passed `cargo test --workspace --locked`: **29 tests**, covering reducer/request identity (15), projection/fixture contracts (2), the preview reply adapter (3), camera and overlay geometry (7), and current-reply feedback (2). The final workspace formatting check passed. Native and WASM clippy checks passed during implementation; the final two-line lot caller also passed WASM clippy and the release Trunk/WASM build. The diagnostic preparation script successfully generated all comparison pages after that build.
+| Finding | Correction and evidence |
+| --- | --- |
+| Home travel feedback incorrectly named the café | Feedback now derives from the request destination; native regression and actual Home/café pending/arrival checks passed. |
+| Visible cell coordinates made placement look like a debug overlay | Visible coordinate pills removed; 48 named semantic cell controls remain available. |
+| Furniture arrangement actions lived in the bottom drawer | Move/Rotate/Store/Done moved near the selected furniture with usable-area clamping; narrow position and Escape focus rechecked. |
+| Narrow Live left about 245 pixels of unused space | Scene viewport and initial camera fill corrected; 390 × 844 recheck confirmed the room fills the usable scene. |
+| Read-only Build and provider-empty catalog gave misleading guidance | Two focused rendering branches corrected and independently re-reviewed; both messages confirmed on the actual 13:01 UTC release. |
+| Camera revealed only the ground point at room edges | On narrow, a valid East coffee table at (0,4) had a 204.88-pixel ghost extending to x−62.44. Complete sprite/footprint bounds now drive reveal. Current-release repeat at (0,4) had x44.42–249.30; (7,4) and (7,0) had x140.70–345.57, all within the 390-pixel viewport. South (1,5) used the back view, x117.58–316.54. All were valid, with no page overflow. Enter at (3,2) accepted one table and changed budget1070→950; Reset and nearby owned-object actions remained usable. |
 
-Independent review approved the contracts/state increment and the browser correction delta. Final whole-branch review includes the remaining lot focus caller and this QA/helper record. Cargo's existing `proc-macro-error2 v2.0.1` dependency emits a future-compatibility advisory; it does not fail the pinned Rust 1.99.0 build. No legacy C# suite or remote CI result is claimed by these local checks.
+## Native, WASM and review evidence
 
-## Expected scope differences and follow-up polish
+The first increment's 29 tests are preserved. Task 1 adds 31 authoring tests covering typed receipts, snapshot validation, stale/duplicate outcomes, preview provider atomicity, ownership, budgets and inventory. Task 2 initially adds ten tests for persistence envelopes, current-reply classification, destination feedback, affine geometry and overlay placement. The integrated pre-camera run passed **70 tests**.
 
-The approved images are the visual target for a larger game. This first increment omits the reference's 3D orbit/view toggle, social pins/chat bubble, character-screen home thumbnail, and game completion animations because their adapters are not present. Creation, outfit, Build, and Buy expose unavailable states. Harbor Café is the only implemented lot scene. These are explicit specification boundaries, not hidden working features.
+After the camera correction added two behavioral geometry regressions, the final integrated run on `d2561a7` passed **72 tests** (29 original +31 state/provider +12 adapter/geometry/persistence). Workspace format, native clippy and WASM clippy all exited0. The worker’s actual 13:14:50 UTC release was reloaded and verified in the browser. Commands are `cargo test --workspace --locked`, workspace format, native and WASM clippy with warnings denied, and the actual `NO_COLOR=true trunk build --release --locked`. Rust 1.99.0, Trunk 0.21.14 and the existing lockfile are used. No dependency package versions were upgraded and no Node tooling changed. The existing dependency's `proc-macro-error2` future-compatibility notice remains separate from project warning gates.
 
-The companion character poses and coffee-machine model differ from the reference illustration while preserving identities and scene roles. Nunito and the consistent Tabler icon family are close style matches, not recovered original assets. Portrait backdrops are busier than the source; simplifying those backgrounds is optional P3 polish after the interaction model is reviewed. Maximum-zoom raster softness is a content/renderer follow-up.
+Task 1 and Task 2 have independent scoped source reviews. The two Home feedback fixes and complete-bounds camera correction were re-reviewed without new source findings. The earlier effective sprite-width test gap was also closed by the camera regression. This report is part of the final whole-branch review input. Publication requires the remote Git tree to equal the reviewed local tree; the final verdict, exact-tree check and GitHub CI are recorded with the PR.
 
-## Implementation checklist
+## Screenshot evidence limitation
 
-- [x] Render actual compiled Rust/WASM controls and verify the primary action journey.
-- [x] Compare all three source references with the live app at matching viewport and scale.
-- [x] Inspect readable detailed crops for typography, controls, icons, imagery, and copy.
-- [x] Correct the zoom markup, narrow Play layout, and creation caption.
-- [x] Correct and reproduce the maximum-zoom keyboard focus/overlay defect.
-- [x] Verify the shared focus behavior for the café object, including Escape restoration after panning.
-- [x] Add a meaningful concurrent-reply feedback regression.
-- [ ] Attach durable browser-rendered screenshots and close the visual evidence gate.
+At 13:12 UTC on 5 October 2026, the documented browser screenshot API captured the actual creator as a 256,229-byte JPEG. The same bytes were displayed and written to `/home/oai/share/browser-screenshot-1791205952711.jpg`. The matching execution-workspace path did not appear within a bounded five-second poll. No alternative browser controller, manual container transfer or reconstructed image was used. Earlier first-increment attempts are documented in the archived QA report.
 
-final result: blocked
+The browser-rendered views were visually inspected, but a durable screenshot attachment remains unavailable. Reviewers can run the compiled app using the shell README and reproduce the journeys above. The PR remains a draft; this export limitation does not conceal an application defect or prevent reviewing the committed implementation.
+
+## Scope and next integration work
+
+This increment completes the specified character/Home preview journeys. It does not complete the entire W11 screen inventory or replace FreeSO's game renderer. Appearance choices are whole looks across five identities, with eight local profile slots. Build arranges furniture; architectural tools, a live economy and live account saves are outside this provider.
+
+The Home projection is a calibrated fixed-camera illustrated adapter with directional sprites. Production 3D requires a renderer/pick interface, canonical lot-coordinate and ID mapping, authoritative placement transactions, rigged content, motive conversion and shared dependency integration. The source-backed handoff documents those boundaries against the inspected simulation/content branches. Other swarm PRs have not been merged or repinned.
+
+Remaining polish includes production asset cooking and replacing raster zoom softness through the renderer/content pipeline. No physical touch device, screen-reader software, real GPU or multiplayer certification is claimed.
+
+Final result: specified preview journeys verified locally; durable screenshot attachment unavailable. Final review and remote CI status accompany the stacked draft PR.

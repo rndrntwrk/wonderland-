@@ -8,11 +8,13 @@ license.workspace = true
 [dependencies]
 wonderland-contracts.workspace = true
 wonderland-client-app.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 leptos = { version = "=0.8.21", features = ["csr"] }
 wasm-bindgen = "0.2"
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlDialogElement", "DomRect", "Location", "UrlSearchParams", "PointerEvent", "KeyboardEvent", "WheelEvent", "MediaQueryList"] }
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlDialogElement", "DomRect", "Location", "UrlSearchParams", "PointerEvent", "KeyboardEvent", "WheelEvent", "MediaQueryList", "Storage"] }
 console_error_panic_hook = "0.1"
 
 [lib]

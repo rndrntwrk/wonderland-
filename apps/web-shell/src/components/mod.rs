@@ -27,3 +27,5 @@ pub fn availability_reason(availability: &wonderland_contracts::Availability) ->
         wonderland_contracts::Availability::Available => None,
     }
 }
+
+pub mod authoring;
