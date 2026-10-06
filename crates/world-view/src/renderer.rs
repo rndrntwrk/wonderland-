@@ -17,6 +17,9 @@ pub struct WorldRenderStats {
     pub diagnostics: Vec<WorldDiagnostic>,
 }
 
+mod gpu;
+pub use gpu::WorldGpuFrame;
+
 struct DisplayedRaster {
     color: ReferenceSurface,
     /// Private index IDs never enter FrameStore or any live operation.
@@ -30,6 +33,7 @@ pub struct WorldRenderer {
     frames: Option<FrameStore>,
     prepared: Option<(ViewportControls, PreparedWorld)>,
     raster: Option<DisplayedRaster>,
+    gpu: Option<gpu::DisplayedGpu>,
     generation: u64,
 }
 impl WorldRenderer {
@@ -59,6 +63,7 @@ impl WorldRenderer {
             frames,
             prepared: None,
             raster: None,
+            gpu: None,
             generation: 0,
         })
     }
@@ -122,6 +127,7 @@ impl WorldRenderer {
         self.document = document;
         self.prepared = None;
         self.raster = None;
+        self.gpu = None;
         self.generation = self
             .generation
             .checked_add(1)
@@ -166,35 +172,7 @@ impl WorldRenderer {
             if outside_frustum(&part.mesh, matrix) {
                 continue;
             }
-            let target = if let Some(index) = part.object {
-                let object = &self.document.objects[index];
-                object.selectable.then_some(WorldPickTarget::Object {
-                    entity: object.entity,
-                    source_guid: object.source_guid,
-                    source_record: object
-                        .blueprint
-                        .map(|source| source.record)
-                        .or_else(|| object.snapshot.map(|source| source.record)),
-                })
-            } else if let (Some((x, y, level)), Some(surface)) = (part.tile, part.surface) {
-                (level == controls.visible_level
-                    && matches!(
-                        surface,
-                        WorldSurface::Terrain
-                            | WorldSurface::Floor
-                            | WorldSurface::Water
-                            | WorldSurface::Pool
-                            | WorldSurface::BuildSupport
-                    ))
-                .then_some(WorldPickTarget::Tile {
-                    x,
-                    y,
-                    level,
-                    surface,
-                })
-            } else {
-                None
-            };
+            let target = pick_target(&self.document, part, controls);
             let hit = target.map(|target| {
                 hits.push(target);
                 EntityRef {
@@ -231,6 +209,7 @@ impl WorldRenderer {
             .checked_add(1)
             .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
         self.generation = generation;
+        self.gpu = None;
         self.raster = Some(DisplayedRaster {
             color,
             hit_ids,
@@ -290,6 +269,7 @@ impl WorldRenderer {
             frames.device_reset();
         }
         self.raster = None;
+        self.gpu = None;
         self.prepared = None;
         self.generation = self.generation.saturating_add(1);
     }
@@ -355,4 +335,36 @@ fn outside_frustum(mesh: &wonderland_render_core::Mesh, matrix: Mat4) -> bool {
         }
     }
     outside.into_iter().any(|value| value)
+}
+
+fn pick_target(document: &WorldDocument, part: &ScenePart, controls: ViewportControls) -> Option<WorldPickTarget> {
+    if let Some(index) = part.object {
+                let object = &document.objects[index];
+                object.selectable.then_some(WorldPickTarget::Object {
+                    entity: object.entity,
+                    source_guid: object.source_guid,
+                    source_record: object
+                        .blueprint
+                        .map(|source| source.record)
+                        .or_else(|| object.snapshot.map(|source| source.record)),
+                })
+            } else if let (Some((x, y, level)), Some(surface)) = (part.tile, part.surface) {
+                (level == controls.visible_level
+                    && matches!(
+                        surface,
+                        WorldSurface::Terrain
+                            | WorldSurface::Floor
+                            | WorldSurface::Water
+                            | WorldSurface::Pool
+                            | WorldSurface::BuildSupport
+                    ))
+                .then_some(WorldPickTarget::Tile {
+                    x,
+                    y,
+                    level,
+                    surface,
+                })
+            } else {
+                None
+            }
 }

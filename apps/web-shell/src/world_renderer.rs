@@ -6,32 +6,24 @@ use wonderland_world_view::{
     ViewportControls, WorldDocument, WorldPick, WorldRenderStats, WorldRenderer,
 };
 
-#[wasm_bindgen(inline_js = r#"
-const worlds = new WeakMap();
-export function nextWorldPaint() { return new Promise(resolve => requestAnimationFrame(resolve)); }
-export function paintSourceWorld(canvas, bytes, width, height) {
-  let context=worlds.get(canvas);
-  if(!context){context=canvas.getContext('2d',{alpha:false});if(!context)throw new Error('Canvas graphics are unavailable.');worlds.set(canvas,context);}
-  if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
-  context.putImageData(new ImageData(new Uint8ClampedArray(bytes),width,height),0,0);
-  canvas.setAttribute('data-renderer','source-software-3d');
-}
-export function disposeSourceWorld(canvas) {
-  const context=worlds.get(canvas);if(context)context.clearRect(0,0,canvas.width,canvas.height);worlds.delete(canvas);
-}
-"#)]
+#[wasm_bindgen(module = "/public/world-gpu.mjs")]
 extern "C" {
     #[wasm_bindgen(js_name=nextWorldPaint)]
     fn next_paint() -> js_sys::Promise;
     #[wasm_bindgen(catch,js_name=paintSourceWorld)]
-    fn paint(
-        canvas: &web_sys::HtmlCanvasElement,
-        bytes: &js_sys::Uint8Array,
-        width: u32,
-        height: u32,
-    ) -> Result<(), JsValue>;
+    fn paint(canvas: &web_sys::HtmlCanvasElement, frame: &str) -> Result<(), JsValue>;
+    #[wasm_bindgen(js_name=pickSourceWorld)]
+    fn gpu_pick(canvas: &web_sys::HtmlCanvasElement, x: u32, y: u32) -> js_sys::Promise;
     #[wasm_bindgen(js_name=disposeSourceWorld)]
     fn dispose(canvas: &web_sys::HtmlCanvasElement);
+}
+
+#[derive(serde::Deserialize)]
+struct GpuPickReceipt {
+    generation: String,
+    index: u32,
+    x: u32,
+    y: u32,
 }
 
 #[derive(Clone, Copy)]
@@ -107,6 +99,7 @@ pub fn WorldViewport(
     let runtime = StoredValue::new(None::<WorldRenderer>);
     let pointers = StoredValue::new(BTreeMap::<i32, PointerTrack>::new());
     let requested = RwSignal::new(0u64);
+    let pick_request = RwSignal::new(0u64);
     let resize = RwSignal::new(0u64);
     let busy = RwSignal::new(true);
     let error = RwSignal::new(String::new());
@@ -173,19 +166,14 @@ pub fn WorldViewport(
                     );
                 }
                 let renderer = slot.as_mut().expect("admitted world renderer");
-                let result = renderer
-                    .render(settings, width, height)
+                let (frame, result) = renderer
+                    .prepare_gpu(settings, width, height)
                     .map_err(|error| error.to_string())?;
-                let image = renderer
-                    .image()
-                    .ok_or_else(|| "World drawing did not produce a frame.".to_string())?;
-                paint(
-                    &canvas,
-                    &js_sys::Uint8Array::from(image.pixels.as_flattened()),
-                    image.width,
-                    image.height,
-                )
-                .map_err(js_message)?;
+                let encoded = serde_json::to_string(&frame).map_err(|error| error.to_string())?;
+                if encoded.len() > 128 * 1024 * 1024 {
+                    return Err("Source GPU frame exceeds the transfer budget.".into());
+                }
+                paint(&canvas, &encoded).map_err(js_message)?;
                 Ok(result)
             });
             if requested.try_get_untracked() != Some(expected) {
@@ -226,16 +214,44 @@ pub fn WorldViewport(
         if busy.get_untracked() {
             return;
         }
-        let picked = runtime.with_value(|slot| {
-            slot.as_ref().and_then(|renderer| {
-                renderer
-                    .pick(x, y)
-                    .and_then(|pick| renderer.resolve_pick(&pick))
-            })
+        let Some(canvas) = canvas.get_untracked() else {
+            return;
+        };
+        pick_request.update(|value| *value = value.saturating_add(1));
+        let serial = pick_request.get_untracked();
+        let frame_request = requested.get_untracked();
+        wasm_bindgen_futures::spawn_local(async move {
+            let result = wasm_bindgen_futures::JsFuture::from(gpu_pick(&canvas, x, y)).await;
+            if requested.try_get_untracked() != Some(frame_request)
+                || pick_request.try_get_untracked() != Some(serial)
+                || busy.try_get_untracked() != Some(false)
+            {
+                return;
+            }
+            let encoded = match result {
+                Ok(value) => value.as_string(),
+                Err(reason) => {
+                    let cancelled = js_sys::Reflect::get(&reason, &JsValue::from_str("name"))
+                        .ok().and_then(|value| value.as_string()).is_some_and(|name| name == "AbortError");
+                    if !cancelled {
+                        error.set(js_message(reason));
+                    }
+                    return;
+                }
+            };
+            let Some(encoded) = encoded.filter(|value| value.len() <= 512) else { return; };
+            let Ok(receipt) = serde_json::from_str::<GpuPickReceipt>(&encoded) else { return; };
+            let Ok(generation) = receipt.generation.parse::<u64>() else { return; };
+            if receipt.x != x || receipt.y != y { return; }
+            let picked = runtime.try_with_value(|slot| {
+                slot.as_ref().and_then(|renderer| {
+                    renderer.resolve_gpu_pick(generation, receipt.index, x, y)
+                })
+            }).flatten();
+            if let Some(picked) = picked {
+                on_pick.run(picked);
+            }
         });
-        if let Some(picked) = picked {
-            on_pick.run(picked);
-        }
     };
     view! {
         <style>{include_str!("../public/world.css")}</style>
@@ -289,6 +305,7 @@ pub fn WorldViewport(
                 on:pointercancel=move |event| { pointers.update_value(|map|{ map.remove(&event.pointer_id()); }); }
                 on:wheel=move |event| { event.prevent_default();let scale=(-event.delta_y()*0.0015).exp().clamp(0.67,1.5) as f32;controls.update(|controls|controls.zoom=(controls.zoom*scale).clamp(0.25,8.)); }
                 on:keydown=move |event| {
+                    if event.is_composing() { return; }
                     let key=event.key();
                     if key=="Enter" { event.prevent_default();if let Some(canvas)=canvas.get_untracked() { choose(canvas.width()/2,canvas.height()/2); }return; }
                     if !matches!(key.as_str(),"ArrowLeft"|"ArrowRight"|"ArrowUp"|"ArrowDown"|"q"|"Q"|"e"|"E"|"+"|"="|"-"|"_"|"PageUp"|"PageDown"|"Home") { return; }
@@ -318,7 +335,7 @@ pub fn WorldViewport(
             <Show when=move ||!stats.get().diagnostics.is_empty()>
                 <details class="world-resource-status"><summary>"Some original scenery is unavailable"</summary><div>{move ||stats.get().diagnostics.into_iter().map(|diagnostic|view!{<p>{diagnostic.message}</p>}).collect_view()}</div></details>
             </Show>
-            <span class="world-render-evidence" data-frame-generation=move ||requested.get().to_string() data-triangles=move ||stats.get().triangles.to_string()>"Depth-tested source geometry"</span>
+            <span class="world-render-evidence" data-frame-generation=move ||requested.get().to_string() data-triangles=move ||stats.get().triangles.to_string()>"GPU depth-tested source geometry"</span>
         </div>
     }
 }
