@@ -1,0 +1,35 @@
+name: Swarm C GPU bootstrap diagnostics
+on:
+  push:
+    branches: [fix/swarm-c-gpu-bootstrap]
+    paths:
+      - '.github/workflows/swarm-c-gpu-diagnostics.yml'
+      - 'tools/swarm-c/probe-browser-gpu.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gpu-bootstrap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install the same browser as the engine gate
+        run: |
+          npm ci --prefix tools/swarm-c --ignore-scripts
+          tools/swarm-c/node_modules/.bin/playwright install --with-deps --no-shell chromium
+      - name: Compare actual software adapter and page presentation configurations
+        run: node tools/swarm-c/probe-browser-gpu.mjs
+      - name: Preserve observations and ordinary page captures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gpu-bootstrap-${{ github.sha }}
+          path: tools/swarm-c/output/gpu-bootstrap/
+          retention-days: 14
+          if-no-files-found: error
