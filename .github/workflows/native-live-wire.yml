@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p offline-workspace
-          git archive --format=tar HEAD > offline-workspace/source.tar
+          git archive --format=tar HEAD | gzip > offline-workspace/source.tar.gz
           git rev-parse HEAD > offline-workspace/revision.txt
           git rev-parse 'HEAD^{tree}' >> offline-workspace/revision.txt
           rustc -vV >> offline-workspace/revision.txt
@@ -45,12 +45,31 @@ jobs:
           tar -czf offline-workspace/compiler.tar.gz -C "$TOOLCHAIN" .
           # Only public registry sources/index/cache, never credentials or config.
           tar -czf offline-workspace/registry.tar.gz -C "${CARGO_HOME:-$HOME/.cargo}" registry
-          sha256sum offline-workspace/*.tar* > offline-workspace/SHA256SUMS
+          sha256sum offline-workspace/*.tar.gz > offline-workspace/SHA256SUMS
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'push'
         with:
-          name: native-live-offline-workspace
-          path: offline-workspace/
+          name: native-live-source
+          path: |
+            offline-workspace/source.tar.gz
+            offline-workspace/revision.txt
+            offline-workspace/SHA256SUMS
+          retention-days: 2
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push'
+        with:
+          name: native-live-compiler
+          path: offline-workspace/compiler.tar.gz
+          retention-days: 2
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push'
+        with:
+          name: native-live-registry
+          path: offline-workspace/registry.tar.gz
           retention-days: 2
           compression-level: 0
           if-no-files-found: error
