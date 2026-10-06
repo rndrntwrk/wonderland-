@@ -30,11 +30,19 @@ jobs:
           tar -C "$HOME/.rustup/toolchains" -czf verification-workspace/compiler.tar.gz 1.99.0-x86_64-unknown-linux-gnu
           tar -C "$HOME/.cargo" -czf verification-workspace/registry.tar.gz registry
           sha256sum verification-workspace/*.tar.gz > verification-workspace/checksums.txt
-          du -h verification-workspace/*
+          tar -cf - verification-workspace | split -b 350M -d - verification-part-
+          du -h verification-workspace/* verification-part-*
       - uses: actions/upload-artifact@v4
         with:
-          name: native-verification-workspace
-          path: verification-workspace/
+          name: native-verification-part-00
+          path: verification-part-00
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-verification-part-01
+          path: verification-part-01
           compression-level: 0
           if-no-files-found: error
           retention-days: 1
