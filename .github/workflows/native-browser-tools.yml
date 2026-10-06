@@ -1,0 +1,24 @@
+name: Native browser tools
+on:
+  push:
+    branches: [feat/native-live-browser-session]
+    paths: [.github/workflows/native-browser-tools.yml]
+permissions:
+  contents: read
+jobs:
+  pinned-linker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch the exact existing lockfile's browser linker
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 --output wasm-bindgen.tar.gz https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz
+          echo '82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e  wasm-bindgen.tar.gz' | sha256sum --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-browser-linker
+          path: wasm-bindgen.tar.gz
+          retention-days: 2
+          compression-level: 0
+          if-no-files-found: error
