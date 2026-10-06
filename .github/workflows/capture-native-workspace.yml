@@ -1,0 +1,40 @@
+name: Capture native verification workspace
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/capture-native-workspace.yml
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare the pinned compiler and dependencies
+        run: |
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          cargo fetch --locked
+      - name: Capture only tracked source, compiler and public registry inputs
+        run: |
+          mkdir verification-workspace
+          git rev-parse HEAD > verification-workspace/revision.txt
+          git rev-parse 'HEAD^{tree}' >> verification-workspace/revision.txt
+          git archive HEAD | gzip -1 > verification-workspace/source.tar.gz
+          tar -C "$HOME/.rustup/toolchains" -czf verification-workspace/compiler.tar.gz 1.99.0-x86_64-unknown-linux-gnu
+          tar -C "$HOME/.cargo" -czf verification-workspace/registry.tar.gz registry
+          sha256sum verification-workspace/*.tar.gz > verification-workspace/checksums.txt
+          du -h verification-workspace/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-verification-workspace
+          path: verification-workspace/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 1
