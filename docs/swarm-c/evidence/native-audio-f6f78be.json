@@ -1,0 +1,76 @@
+{
+  "evidence": "Observed hosted Linux OS audio execution through the ALSA null device; synthetic PCM inputs.",
+  "commit": "f6f78be1fef247f2db47e19f56d94054f0c9e88c",
+  "run_id": 37353615543,
+  "job_id": 111910340211,
+  "job_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340211",
+  "artifact_id": 11363147911,
+  "artifact_sha256": "99b6fc6427c7cff4e0ef6025d0d5fc75ec168e64ac68c56e5dd3ad243d4fd17e",
+  "rust_version": "1.95.0",
+  "cpal_version": "0.15.3",
+  "configuration_tests": [
+    "tests::high_rate_device_buffer_fits_both_transport_budgets",
+    "tests::nearest_supported_rate_is_explicit_and_unsupported_formats_are_rejected",
+    "tests::selection_prefers_exact_rate_then_supported_float_stereo",
+    "tests::unknown_or_incompatible_minimum_buffer_is_rejected_before_open"
+  ],
+  "device": {
+    "name": "default",
+    "route": "ALSA null",
+    "sample_rate": 48000,
+    "channels": 2,
+    "sample_format": "F32",
+    "ring_frames": 2048,
+    "block_frames": 256,
+    "device_buffer_frames": 1024
+  },
+  "smoke": {
+    "backend": "cpal-0.15.3",
+    "sample_rate": 48000,
+    "callbacks": 10744,
+    "copied_frames": 18432,
+    "underrun_frames": 2101504,
+    "completed_voices": 2,
+    "device_errors": 0,
+    "live_loop_suspend_resume": true,
+    "live_stop_reset": true,
+    "stale_session_rejected": true,
+    "physical_output_verified": false
+  },
+  "files": [
+    {
+      "archive_path": "crates/audio-runtime/native/cpal/Cargo.lock",
+      "bytes": 28738,
+      "sha256": "f76004178c0e2d06345d22db4e23fb76191b433d2aa55492ca347626a40ab693"
+    },
+    {
+      "archive_path": "tools/swarm-c/output/native-audio/build.log",
+      "bytes": 2669,
+      "sha256": "4313864edf32ed16be8dcc0a21a26638bb635c3bfb6a6bce88dc3cd6185d51b1"
+    },
+    {
+      "archive_path": "tools/swarm-c/output/native-audio/device-smoke.log",
+      "bytes": 559,
+      "sha256": "136b0ff2550f9858fe08f30a2c8d8638d291a23f3647ab41b6f701c05e95e2c7"
+    }
+  ],
+  "reviewed_git_blobs": {
+    "crates/audio-runtime/native/src/lib.rs": "79043013d6e9ff6e6e946fa272a8be785e7f6cf9",
+    "crates/audio-runtime/native/cpal/src/lib.rs": "1c4a5d37f5037ac64eb01fb69e3af919c31b0ad1",
+    "crates/audio-runtime/native/cpal/examples/native_smoke.rs": "e6297f6c7b3949105b5a59a6301fe041d7e913d9"
+  },
+  "limits": [
+    "The null route is unpaced. Callback and underrun counts are not real-time performance measurements.",
+    "Physical speaker/headphone output, physical hot unplug, other OS backends and production-load latency remain unverified."
+  ],
+  "conclusion": "success",
+  "artifact_bytes": 8782,
+  "lock": {
+    "tracked": true,
+    "git_blob": "bb8e117a75cba2c0ec69cd0982bcfdc597629259",
+    "package_records": 125,
+    "cpal_version": "0.15.3",
+    "verification_command": "cargo test --locked",
+    "resolver_rewrite_observed": false
+  }
+}

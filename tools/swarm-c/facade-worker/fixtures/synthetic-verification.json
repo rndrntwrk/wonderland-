@@ -1,0 +1,57 @@
+{
+  "algorithm_version": 2,
+  "artifact_sha256": "1997e7aa7aa00c7fdac8c889c54a4264f8a1c2bfa7a391b46ab728c5084c0007",
+  "effective_input_sha256": "a055942d956a334dee96e5419190aa8ebde4021b79a260edd09f77cfd3317aef",
+  "existing_directory_preserved": true,
+  "fixture": "synthetic normalized geometry; not licensed-content evidence",
+  "images": 6,
+  "malformed_requests_rejected": 5,
+  "png_decoder": "Python standard-library zlib with CRC, RGBA, size and EOF checks",
+  "png_sha256": {
+    "floor-day.png": "324eb1ab310f2de1c3b827afcd49a286362dda3f815e5d7b26da77100a79df99",
+    "floor-night.png": "d5163767bc2862bb11830dd69643965e28127f3d2ea5cafa84eb31ad4e32255a",
+    "thumbnail-day.png": "ff19f16f7fd3abe4348c3b1e3b6412bee02ca64b9f5f3fbf42bc766611093e1e",
+    "thumbnail-night.png": "462f31ac87ba29f4730a180ba9d4be51bf782227b3ca2ec09c2ba46a19a72ba0",
+    "wall-day.png": "052e455695397d77263215a7abc71028ee50a084b346993fa2534a37fbf8437f",
+    "wall-night.png": "9f79c376767b74ff728c455f5e353896532eca8c8edd54be8d446a6277f646f1"
+  },
+  "prior_algorithm_1_review": {
+    "challenge_tests_passed": 6,
+    "core_tests_passed": 73,
+    "format_checks_passed": 2,
+    "note": "Historical normalized-path review; current algorithm 2 measurements are the top-level fields.",
+    "pillow_verification": {
+      "all_used_floor_borders_transparent": true,
+      "bleed_pixels_checked": 4982,
+      "identical_repeat_files": 8,
+      "png_images": 6
+    },
+    "source_csharp_wall_comparison": {
+      "allowed_difference_pixels": 0.001,
+      "matrix_coefficients": 368,
+      "max_atlas_difference_pixels": 4.0875e-05,
+      "rectangles": 23,
+      "transformed_points": 115
+    },
+    "status": "approved",
+    "tiny_view_allocator": {
+      "measured_owned_peak_bytes": 439104,
+      "reserved_bytes": 448832,
+      "views": 512
+    }
+  },
+  "repeat_files_identical": [
+    "floor-day.png",
+    "floor-night.png",
+    "metadata.json",
+    "request.wlcdr",
+    "thumbnail-day.png",
+    "thumbnail-night.png",
+    "wall-day.png",
+    "wall-night.png"
+  ],
+  "reservation_bytes": 3733128,
+  "resident_bytes": 1607240,
+  "rust_toolchain": "1.75.0",
+  "work_units": 4269072
+}

@@ -1,0 +1,51 @@
+{
+  "fixture": "synthetic source-world topology and materials; not licensed-content evidence",
+  "algorithm_version": 2,
+  "images": 6,
+  "thumbnail_dimensions": [
+    576,
+    576
+  ],
+  "repeat_files_identical": [
+    "facade.fsof",
+    "floor-day.png",
+    "floor-night.png",
+    "metadata.json",
+    "source-request.wlcsrc",
+    "thumbnail-day.png",
+    "thumbnail-night.png",
+    "wall-day.png",
+    "wall-night.png"
+  ],
+  "source_request_and_original_fsof": true,
+  "container_textures_equal_decoded_png": true,
+  "source_ground_floor_overlay_roof_and_walls": true,
+  "geometry": {
+    "floor": {
+      "vertices": 112,
+      "indices": 456
+    },
+    "wall": {
+      "vertices": 32,
+      "indices": 48
+    }
+  },
+  "no_night_source_emits_three_images_and_no_night_container": true,
+  "malformed_requests_rejected": 5,
+  "existing_directory_preserved": true,
+  "artifact_sha256": "8f1e793ae2f90d333e12e6d1b27dbb8d38cb38e9b3a56e13702d69661ad6ce32",
+  "fsof_sha256": "a4de41d5970a9b7420a78b7f9fca138e834144d8e8c69854bc38d3bf520b8655",
+  "effective_input_sha256": "ff72764824b5917744317b9acb053c044616a97372aa418abe36da284846401f",
+  "work_units": 23638632,
+  "reservation_bytes": 17146856,
+  "resident_bytes": 3743880,
+  "png_sha256": {
+    "floor-day.png": "3259a3b9ed6a9e77f65d4873ef42526a39830c2f958250bcda138028df6ab272",
+    "floor-night.png": "f2811ee3a6ed4614744db0e5fa1c09e4c924e8a15e9cb8ecf28050a4ff6bfc0f",
+    "wall-day.png": "052e455695397d77263215a7abc71028ee50a084b346993fa2534a37fbf8437f",
+    "wall-night.png": "9f79c376767b74ff728c455f5e353896532eca8c8edd54be8d446a6277f646f1",
+    "thumbnail-day.png": "8463aed7bfd44a8412573d1a9d8e8792492bcc3a3707b235fd67171377c007a4",
+    "thumbnail-night.png": "04d87384addb027eda0a210aa7de0d943fdc8ac66e2df51170c01bed24bddd07"
+  },
+  "decoder": "independent Python struct/zlib FSOf and CRC-checked PNG decoders"
+}

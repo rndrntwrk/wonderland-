@@ -1,0 +1,962 @@
+{'restored_cached_test_execute_bits': ['hit_reference-24a82fc8b8133b8d', 'wonderland_avatar_view-711dcc26295c7ab4']}
+    Finished test [unoptimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_render_core-c34960b7c9328523)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/depth_comparison.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/depth_comparison-7c5823248cff202d)
+
+running 2 tests
+test default_strict_depth_keeps_the_first_equal_fragment ... ok
+test source_less_equal_replaces_ties_without_accepting_farther_depths ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/derivative_fsof.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/derivative_fsof-04777c0dfe7e45aa)
+
+running 5 tests
+test malformed_counts_dimensions_versions_and_trailing_data_fail_closed ... ok
+test source_vertex_layout_night_color_and_mesh_indices_round_trip_exactly ... ok
+test dxt5_uses_four_color_palette_even_when_first_565_endpoint_is_lower ... ok
+test source_gzip_body_preserves_uncompressed_header_and_checks_crc ... ok
+test gzip_expansion_and_total_mesh_memory_are_bounded_before_allocation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/derivative_source.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/derivative_source-6d053f0926333c88)
+
+running 9 tests
+test source_room_bases_and_outside_sample_select_walls_and_fences_in_source_order ... ok
+test source_altitude_clamps_corners_and_preserves_base_and_fractional_interpolation ... ok
+test source_thumbnail_uses_far_topleft_576_camera_and_buildable_area ... ok
+test fine_area_changes_center_and_crops_terrain_without_floor_based_room_guesses ... ok
+test bounded_tile_topology_merges_exterior_edges_and_keeps_fences_permeable ... ok
+test absent_night_state_produces_no_night_images_or_fsof_night_payload ... ok
+test source_room_input_changes_identity_even_if_declared_provenance_is_unchanged ... ok
+test source_thumbnail_accepts_a_real_tile_field_and_filters_default_buildable_slice ... ok
+test source_worker_ground_subdivision_and_overlay_use_source_geometry_units ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+
+     Running tests/derivative_upload.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/derivative_upload-8dfe7e59bdcf6513)
+
+running 4 tests
+test dropped_upload_and_superseded_candidate_cannot_clear_the_new_attempt ... ok
+test source_invalidation_retains_gpu_and_cpu_lease_bytes_until_last_consumer_drops ... ok
+test upload_ownership_moves_once_and_device_reset_rejects_stale_result ... ok
+test upload_reservation_rejects_underreported_texture_bytes_before_ownership ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/derivatives.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/derivatives-07f17d99b2ea61fe)
+
+running 26 tests
+test cancelled_running_work_retains_capacity_until_owned_handle_drops ... ok
+test explicit_eviction_cancels_pending_work_and_late_completion_cannot_resurrect_it ... ok
+test dropping_the_queue_detaches_running_jobs_and_owned_leases_safely ... ok
+test content_a_b_a_never_revives_old_work ... ok
+test invalid_cameras_materials_frame_owners_and_work_limits_are_rejected_before_render ... ok
+test later_coplanar_source_draws_replace_earlier_materials ... ok
+test late_failure_does_not_remove_a_replacement_request ... ok
+test incremental_worker_yields_between_draws_and_cancellation_releases_staging ... ok
+test queue_and_running_count_limits_are_independent ... ok
+test queued_supersession_reuses_its_reservation_atomically ... ok
+test malformed_facade_layouts_reject_zero_length_walls_and_oversized_atlases ... ok
+test reset_to_same_boundary_invalidates_jobs_and_retains_running_reservations ... ok
+test failed_pinned_replacement_keeps_the_existing_artifact ... ok
+test pinned_artifacts_remain_accounted_across_reset_until_last_lease_drops ... ok
+test unrelated_queue_cannot_cancel_ticket_and_drop_releases_reservations ... ok
+test source_and_material_bytes_are_hashed_without_trusting_declared_provenance ... ok
+test same_key_supersession_does_not_cancel_or_install_over_new_work ... ok
+test repeated_render_is_identical_and_day_night_are_distinct ... ok
+test vertex_only_work_and_frame_entity_counts_are_bounded_before_transformation ... ok
+test resident_budget_is_enforced_and_unpinned_artifacts_are_evicted ... ok
+test stale_frames_and_malformed_geometry_do_not_replace_valid_requests ... ok
+test wall_outside_side_flips_camera_but_preserves_endpoint_uv_direction ... ok
+test wrong_artifact_cannot_be_installed ... ok
+test floor_layout_matches_three_by_two_cells_and_source_overlay_index ... ok
+test wall_first_fit_preserves_round_even_gaps_and_four_pixel_height_alignment ... ok
+test floor_scissor_leaves_a_one_pixel_transparent_border ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/lifetime.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lifetime-02140d792c93720e)
+
+running 13 tests
+test admission_requires_explicit_boundary_and_monotonic_full_frames ... ok
+test checked_byte_accounting_rejects_overflow ... ok
+test cache_accounts_each_category_evicts_lru_and_drops_owned_handles ... ok
+test derivation_and_thumbnail_identity_include_effective_inputs ... ok
+test device_reset_releases_gpu_handle_without_discarding_immutable_cpu_data ... ok
+test generation_zero_reuse_and_unversioned_visual_changes_are_rejected ... ok
+test rejection_is_atomic_for_duplicate_invalid_and_inconsistent_selection ... ok
+test identity_history_budget_rejects_churn_atomically_and_reset_releases_it ... ok
+test pick_survives_unrelated_update_but_not_target_motion_content_or_device_reset ... ok
+test pinned_entries_make_failed_admission_atomic_and_category_budgets_apply ... ok
+test interpolation_history_change_requires_visual_revision_and_invalidates_picks ... ok
+test zero_cost_entries_still_obey_entry_limit_and_pins_prevent_removal ... ok
+test pick_fails_after_deletion_reuse_and_even_same_boundary_reset ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/math_data.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/math_data-5e715082e1982e82)
+
+running 15 tests
+test orthographic_and_look_at_agree_on_right_handed_axes ... ok
+test normalization_and_axis_angle_reject_invalid_inputs ... ok
+test owned_contract_data_roundtrips_without_engine_handles ... ok
+test inverse_recovers_scaled_rotated_translated_point ... ok
+test perspective_is_right_handed_zero_to_one_depth ... ok
+test large_finite_vector_length_and_projection_do_not_overflow_intermediates ... ok
+test mesh_validation_rejects_nonfinite_and_out_of_range_indices_and_limits ... ok
+test quaternion_slerp_takes_shortest_path_and_handles_antipodes ... ok
+test rgba_validation_checks_length_dimensions_and_pixels_before_use ... ok
+test scaled_ray_parameter_is_preserved_and_parallel_slabs_are_checked ... ok
+test singular_nontrivial_matrix_never_produces_a_false_inverse ... ok
+test transform_sampling_rejects_invalid_fraction_or_nonunit_rotation ... ok
+test transformed_box_encloses_all_corners_with_negative_scale ... ok
+test trs_uses_column_vectors_and_parent_order ... ok
+test source_offsets_convert_once_with_distinct_vertical_divisor ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/reference.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/reference-a398908c156fcc32)
+
+running 12 tests
+test alpha_cutoff_and_optional_depth_write_support_masked_and_translucent_draws ... ok
+test depth_and_id_overlap_are_ordered_and_out_of_bounds_is_safe ... ok
+test blit_clips_signed_origin_and_validates_image_before_writing ... ok
+test invalid_late_mesh_vertex_and_invalid_texture_are_atomic ... ok
+test invalid_triangle_is_rejected_without_any_partial_write ... ok
+test perspective_color_interpolation_uses_reciprocal_w_but_depth_is_screen_linear ... ok
+test mesh_reference_maps_clip_coordinates_and_clips_near_plane ... ok
+test straight_alpha_over_preserves_rgb_and_transparent_fragments_do_not_occlude ... ok
+test surface_budget_is_checked_and_digest_includes_color_depth_and_game_identity ... ok
+test textured_mesh_uses_nearest_clamp_and_transparent_texel_does_not_claim_id ... ok
+test triangle_top_left_rule_prevents_shared_edge_double_blending ... ok
+test triangles_interpolate_depth_and_colors_at_pixel_centers ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/review_regressions.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/review_regressions-60ec6a0a4fd4d425)
+
+running 6 tests
+test changing_content_away_and_back_cannot_revive_old_pick_tickets ... ok
+test tiny_shared_edge_roundoff_cannot_change_triangle_coverage ... ok
+test clipping_either_diagonal_of_a_large_quad_covers_each_pixel_once ... ok
+test exactly_dependent_columns_have_no_inverse ... ok
+test large_finite_orthographic_range_still_maps_its_boundary_and_inverts ... ok
+test unit_quaternion_large_vector_rotation_does_not_overflow_intermediate_cross_product ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland-render-core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_render_iso-9bdbf971850150f6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cutaway_view.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/cutaway_view-88d6c0e7978b6c76)
+
+running 9 tests
+test cut_styles_select_overlays_omit_doors_and_preserve_down_masks ... ok
+test object_cutaways_require_both_adjacent_tiles_and_nearest_even ... ok
+test generated_wall_depth_preserves_even_rounding_and_logical_height_quirk ... ok
+test cutaways_use_interior_edges_and_only_displayed_top_floor ... ok
+test all_modes_preserve_camera_selection_and_keep_view_policy_distinct ... ok
+test rotated_cuts_read_neighbors_and_swap_slopes ... ok
+test source_rotation_and_zoom_easing_use_presentation_seconds ... ok
+test source_yaw_boundaries_keep_double_precision_after_promoting_f32_input ... ok
+test transitions_retain_continuity_on_interrupt_and_enforce_safe_2d ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/invalidation_shader.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/invalidation_shader-a39d77b8c4799e7f)
+
+running 4 tests
+test legacy_dynamic_blend_difference_is_visible_without_double_premultiplying_input ... ok
+test missing_light_bindings_have_explicit_source_fallbacks_and_sampler_policies ... ok
+test source_time_and_color_thresholds_preserve_exact_boundaries ... ok
+test standalone_room_and_unimportant_light_changes_are_not_lost ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lighting.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lighting-b09623e197cd5cd5)
+
+running 9 tests
+test atlas_layout_and_nonsquare_scissor_use_both_lot_dimensions ... ok
+test clustering_explicitly_preserves_source_unstored_weight_quirk ... ok
+test rgb_surround_adjustment_preserves_the_unadjusted_floor_shadow_average ... ok
+test light_queue_keeps_source_priority_and_important_room_semantics ... ok
+test multitile_occlusion_keeps_provider_group_footprints_without_duplicate_subtiles ... ok
+test world_atlas_coordinates_keep_floor_slot_and_grass_offset_policy ... ok
+test ultra_floor_shadow_averages_twenty_five_green_samples ... ok
+test source_floor_shadow_factor_is_not_clamped ... ok
+test room_light_accumulation_scales_indoor_points_and_respects_window_cutoff ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/lighting_allocation.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lighting_allocation-ec5d36afc4be5428)
+
+running 1 test
+test rejected_geometry_respects_peak_allocation_budget ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.40s
+
+     Running tests/lighting_production.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lighting_production-f41021f63c134716)
+
+running 11 tests
+test production_peak_budget_counts_key_headers ... ok
+test production_bounds_scan_is_charged_even_when_all_rooms_are_empty ... ok
+test packed_room_upload_and_diagonal_pixel_masks_follow_the_source ... ok
+test production_peak_budget_counts_projected_scratch ... ok
+test production_scene_rejects_missing_window_rooms_duplicates_and_combined_work ... ok
+test room_map_admission_rejects_invalid_ids_sizes_and_total_residency ... ok
+test room_resources_hash_effective_bytes_and_own_their_uploads ... ok
+test production_atlas_builds_and_executes_shadow_targets_with_room_masks ... ok
+test production_atlas_saturates_each_pass_then_multiplies_outside_before_indoor_points ... ok
+test ultra_atlas_executes_projected_object_geometry_and_floor_shadow_blur ... ok
+test production_mesh_descriptor_budget_counts_empty_records_and_skips_empty_draws ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/lighting_shadows.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lighting_shadows-42e383f95f114d73)
+
+running 6 tests
+test malformed_or_over_budget_shadows_fail_before_publication ... ok
+test directional_wall_shadow_has_the_source_32_unit_falloff ... ok
+test retained_shadow_bytes_include_spare_vector_capacity ... ok
+test projected_mesh_shadows_execute_source_point_and_directional_transforms ... ok
+test source_wall_volume_occludes_behind_the_wall_and_uploads_64_byte_vertices ... ok
+test object_ellipse_uses_max_green_and_preserves_the_light_inside_exclusion ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lighting_wcrc.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lighting_wcrc-3a2ed0709c2e6956)
+
+running 9 tests
+test wcrc_rejects_malformed_masks_indices_counts_work_and_stale_inputs ... ok
+test wcrc_capture_identity_rejects_changed_map_sun_and_ultra ... ok
+test wcrc_removes_cutaways_applies_mask_and_preserves_ordered_source_channels ... ok
+test wcrc_target_respects_large_lot_software_depth_without_disabling_ultra_objects ... ok
+test wcrc_executes_four_quantized_blurs_and_indoor_bleed_in_real_atlases ... ok
+test wcrc_captures_source_floor_and_roof_height_attenuation ... ok
+test wcrc_raw_and_pcf_targets_have_distinct_owned_identities_and_nonuniform_pixels ... ok
+test source_noise_uses_decimate_mips_with_point_lod_for_pcf ... ok
+test standard_64_tile_five_floor_wcrc_executes_real_geometry_with_default_budgets ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.69s
+
+     Running tests/material_depth.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/material_depth-437d400212bfe1c5)
+
+running 10 tests
+test raw_byte_depth_extrapolates_instead_of_clamping ... ok
+test dynamic_masks_keep_two_words_and_reject_unrepresentable_ranges ... ok
+test source_alpha_passes_disagree_at_low_alpha_bytes ... ok
+test wall_mask_replaces_color_alpha_and_premultiplies_once ... ok
+test sentinel_rooms_apply_inversion_grayscale_and_fullbright ... ok
+test wall_and_floor_occlusion_modify_separate_light_channels ... ok
+test wall_shader_does_not_apply_sprite_highlight_sentinels ... ok
+test packed_source_depth_wraps_one_and_roundtrips_short_ids ... ok
+test gamma_modes_use_source_transfer_without_automatic_srgb ... ok
+test room_diagonals_retain_source_equality_rules ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/projection_depth.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/projection_depth-51811b47c094df4e)
+
+running 9 tests
+test projection_rejects_unbounded_and_nonfinite_camera_inputs ... ok
+test advanced_lighting_reconstruction_preserves_clip_w_without_second_division ... ok
+test nearest_even_truncation_and_negative_cache_floor_remain_distinct ... ok
+test tile_bases_and_inverse_preserve_all_twelve_views ... ok
+test depth_binding_and_cache_restore_never_reuse_previous_sampler ... ok
+test source_camera_matrix_matches_unshifted_screen_basis ... ok
+test cached_surface_destination_uses_framebuffer_delta_and_world_translation ... ok
+test depth_anchors_use_rotation_specific_offsets_and_unclamped_fraction ... ok
+test camera_and_sprite_offsets_preserve_cadge_alignment ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/sprites_batch.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/sprites_batch-77a244d8432464bf)
+
+running 19 tests
+test cardinal_offsets_use_sixteenths_and_fifths_without_frame_offset ... ok
+test batching_includes_depth_preserves_equal_order_and_splits_portable_indices ... ok
+test aggregate_batch_limits_are_checked_before_geometry_copy ... ok
+test dgrp_selects_first_exact_rotated_direction_and_handles_missing ... ok
+test fragment_oracle_rejects_malformed_quad_without_panicking ... ok
+test dynamic_and_null_layers_produce_empty_bounds_without_stale_depth ... ok
+test local_cadge_destination_and_resolved_position_are_separate ... ok
+test malformed_images_and_depth_dimensions_fail_before_preparation ... ok
+test material_switching_never_reorders_transparent_equal_depth_sprites ... ok
+test different_lighting_resources_cannot_alias_one_material_batch ... ok
+test framebuffer_cache_restore_matches_direct_sprites_at_fractional_zoom_and_negative_scroll ... ok
+test presentation_dynamic_residency_expires_without_advancing_simulation ... ok
+test shader_vertex_abi_preserves_room_floor_and_pick_code ... ok
+test reserved_luminous_rooms_and_hidden_floor_policy_are_explicit ... ok
+test mask_physical_padding_stays_transparent_with_shared_and_mirrored_uvs ... ok
+test software_passes_split_overlapping_rectangles_without_reordering ... ok
+test world_offsets_are_baked_once_into_shader_anchors_in_compatible_batches ... ok
+test padded_uvs_do_not_enlarge_logical_destination_and_flip_depth_together ... ok
+test mirrored_color_and_depth_sample_same_logical_pixel ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests wonderland-render-iso
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_render_3d-1c93456cabcc8466)
+
+running 3 tests
+test reconstruction::simplification::tests::quadric_determinants_recover_the_three_plane_intersection ... ok
+test legacy_random::tests::seeded_legacy_sequence_is_independent_of_render_cadence ... ok
+test legacy_random::tests::extreme_legacy_seeds_stay_bounded_with_overflow_checks ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/camera_environment.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/camera_environment-10064179ada18aee)
+
+running 12 tests
+test manual_weather_word_preserves_intensity_type_and_thunder ... ok
+test elapsed_time_damping_and_flight_match_at_30_60_120_hz ... ok
+test finite_camera_matrices_must_have_a_finite_product ... ok
+test quality_tiers_and_aa_follow_source_semantics_with_explicit_capability_limits ... ok
+test time_of_day_interpolates_bytes_then_power_and_wraps_safely ... ok
+test transition_slerps_pose_lerps_projection_and_handles_zero_duration ... ok
+test cut_rotation_uses_ties_to_even_and_positive_modulo ... ok
+test extreme_camera_inputs_fail_atomically_without_nonfinite_outputs ... ok
+test orbit_camera_preserves_units_defaults_and_limits ... ok
+test city_camera_uses_city_units_and_the_source_zoom_and_flight_formulas ... ok
+test direct_camera_mount_is_generation_aware_and_uses_source_head_clearance ... ok
+test automatic_weather_crossfades_injected_utc_and_honors_tuning ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/city_mesh.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/city_mesh-3e315f3b9c3d9464)
+
+running 10 tests
+test city_geometry_uses_pixel_positions_heights_and_source_road_uvs ... ok
+test city_inverse_rejects_finite_input_when_tile_output_overflows ... ok
+test city_lot_coordinate_mapping_and_facade_are_distinct ... ok
+test city_layers_skip_void_and_blend_toward_the_next_higher_neighbor ... ok
+test coarse_blend_keeps_terrain_uv_and_an_unmirrored_secondary_mask ... ok
+test detailed_patch_uses_source_tr_bl_diagonal_and_preserves_every_material_layer ... ok
+test near_patch_hermite_edges_join_coarse_heights ... ok
+test canonical_city_fade_clamps_samples_and_excludes_edge_material_layers ... ok
+test foliage_is_deterministic_and_respects_road_clearance ... ok
+test shared_synthetic_fixtures_exercise_all_geometry_paths ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/city_semantics.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/city_semantics-f041a1d95c276314)
+
+running 4 tests
+test all_road_nibbles_and_density_thresholds_use_source_atlases ... ok
+test distinct_legacy_boundaries_preserve_inclusive_server_edge ... ok
+test exact_palette_includes_alpha_and_keeps_forests_semantic ... ok
+test patch_boundary_is_linear_and_neighborhood_ties_keep_first ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/environment_execution.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/environment_execution-b3f3745ac55406d6)
+
+running 7 tests
+test sky_dome_uses_source_65_subdivisions_and_real_gradient_uvs ... ok
+test solar_transform_preserves_source_sun_moon_and_shadow_fade ... ok
+test weather_fragment_roof_clipping_and_fog_follow_source_spaces ... ok
+test weather_executes_source_particles_with_injected_time_and_independent_seed ... ok
+test weather_changes_crossfade_two_bounded_emitters_and_eventually_release_them ... ok
+test weather_reset_camera_modes_and_budget_failures_are_atomic ... ok
+test weather_time_and_fades_are_stable_at_30_60_and_120_hz ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/lot_geometry.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/lot_geometry-533dfd952aed8118)
+
+running 17 tests
+test contact_bilinear_saddle_and_negative_altitude_are_explicit ... ok
+test authored_pool_projection_is_bilinear_with_reversed_winding ... ok
+test both_diagonals_preserve_a_half_and_legacy_side_membership ... ok
+test malformed_public_roof_query_is_total ... ok
+test courtyard_and_diagonal_blockers_remain_open ... ok
+test malformed_lots_budgets_and_grass_offset_are_checked ... ok
+test pool_topology_covers_all_masks_and_interior_margin ... ok
+test rectangular_terrain_uses_literal_units_origin_and_source_winding ... ok
+test water_and_optional_legacy_pool_variants_keep_exact_ids ... ok
+test roof_content_appearance_is_an_explicit_visual_input ... ok
+test roof_eligibility_growth_and_hip_rise_are_source_half_tiles ... ok
+test wall_endpoint_cuts_sample_each_source_rotation ... ok
+test walls_preserve_thickness_caps_style_and_cut_endpoint_height ... ok
+test zero_floor_water_and_build_support_have_separate_presentation_paths ... ok
+test dirty_rebuild_has_normal_pool_halos_and_bounded_roof_level ... ok
+test l_shaped_roof_rectangles_overlap_in_source_expand_order ... ok
+test zero_pitch_and_stacked_room_roof_exclusions_are_valid ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/objects.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/objects-3685712d560c88fc)
+
+running 26 tests
+test aggregate_mesh_and_texture_budgets_include_every_group_and_mask ... ok
+test invalid_instance_or_fragment_cannot_emit_partial_draws_or_mutate_depth ... ok
+test depth_mark_respects_clockwise_face_and_source_less_equal_rule ... ok
+test disabled_room_uses_source_grayscale_shader_without_regular_alpha_discard ... ok
+test malformed_replacement_preserves_installed_identity_generation_and_geometry ... ok
+test lightmap_shadow_target_has_no_depth_attachment_so_all_fragments_reach_max_blend ... ok
+test finite_extreme_body_mask_and_normal_values_cannot_overflow_scene_outputs ... ok
+test masks_execute_without_body_groups_and_empty_portal_final_group_is_not_replaced ... ok
+test non_axis_v1_normal_bits_match_the_executed_original_dgrp3dvert ... ok
+test lightmap_signed_level_extremes_are_widened_before_subtraction ... ok
+test dynamic_groups_preserve_both_64_bit_banks_and_static_group ... ok
+test lightmap_uses_source_y_override_and_skips_portals ... ok
+test portal_final_group_is_forced_stencil_restricted_and_cleaned_after_drawing ... ok
+test normal_mask_executes_source_depth_writes_and_stencil_clear ... ok
+test portal_mask_can_extend_beyond_preserved_body_bounds ... ok
+test preserves_group_order_source_coordinates_and_resolved_material_binding ... ok
+test reset_entity_and_session_fences_reject_old_completions ... ok
+test rejects_corrupt_versions_indices_materials_bounds_and_nonfinite_inputs ... ok
+test result_with_wrong_effective_content_cannot_satisfy_a_ticket ... ok
+test content_key_tracks_actual_buffers_binding_layout_and_effective_content ... ok
+test source_nonpremultiplied_blend_uses_source_alpha_for_alpha_too ... ok
+test source_world_transform_applies_mesh_scale_yaw_and_tile_center_once ... ok
+test shader_scales_uv_before_the_linear_clamp_sampler ... ok
+test v1_normals_use_original_area_weighted_cross_product_and_normalization ... ok
+test unsupported_masks_duplicate_bindings_and_degenerate_legacy_normals_reject ... ok
+test request_serial_prevents_a_b_a_completion_revival ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/reconstruction.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/reconstruction-ec61ce95105a4b2d)
+
+running 19 tests
+test contact_translation_handles_extreme_bounds_without_overflow ... ok
+test contact_translation_uses_wide_intermediates_and_rejects_unrepresentable_results ... ok
+test finite_extreme_depth_distances_do_not_compare_infinity_to_infinity ... ok
+test inverse_uv_projection_matches_source_half_pixel_and_mirrored_branches ... ok
+test parameters_range_and_door_fix_precedence_are_exact ... ok
+test portal_depth_pass_order_and_dynamic_group_visibility_are_explicit ... ok
+test counter_fix_uses_nearest_border_pixel_and_final_bounds ... ok
+test generated_cache_invalidations_are_bounded_and_conservative ... ok
+test projection_preserves_literal_source_matrix_and_flip_direction ... ok
+test reconstruction_preserves_texture_identity_and_ordinals_across_missing_depth ... ok
+test depth_alpha_and_missing_resources_complete_without_async_deadlock ... ok
+test reconstruction_material_identity_retains_source_rotation_and_sprite_ordinal ... ok
+test effective_content_and_all_derivation_choices_change_the_hash ... ok
+test resolver_lru_bound_evicts_the_least_recently_used_mesh ... ok
+test resolver_rejects_empty_and_old_meshes_while_accepting_authored ... ok
+test resolver_falls_through_corrupt_candidates_and_content_changes_evict_memory_identity ... ok
+test counter_correction_declares_a_work_limit_before_modifying_vertices ... ok
+test triangulation_rejects_discontinuities_and_requires_both_quad_diagonals ... ok
+test source_simplification_reduces_depth_geometry_and_reprojects_uvs ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/simplification.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/simplification-bda8c63299d444b2)
+
+running 6 tests
+test no_op_target_compacts_orphans_and_preserves_the_surface ... ok
+test malformed_quadric_inputs_are_rejected_before_collapsing ... ok
+test simplification_work_and_reference_budgets_fail_without_mutating_input ... ok
+test curved_surface_preserves_source_position_uv_bits_and_triangle_order ... ok
+test curved_surface_matches_unmodified_csharp_collapse_schedule ... ok
+test source_quadric_schedule_reduces_a_plane_deterministically ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/source_facade.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/source_facade-f7cef03ba5b171a0)
+
+running 1 test
+test original_fsof_geometry_and_textures_reach_city_space_without_a_second_tile_conversion ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/transitions_facade.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/transitions_facade-4a7936134fccb710)
+
+running 8 tests
+test directory_changes_cancel_pending_tickets_and_stale_updates_are_atomic ... ok
+test leaving_during_load_invalidates_late_frame_completion ... ok
+test recreated_transition_rejects_old_session_ticket_and_receipt ... ok
+test rejected_wrong_or_unavailable_admissions_preserve_city_intent ... ok
+test two_live_ids_select_distinct_lots_and_require_the_accepted_first_frame ... ok
+test obj_export_rejects_malformed_public_mesh_without_indexing_it ... ok
+test facade_mesh_and_obj_are_deterministic_and_change_with_effective_inputs ... ok
+test facade_graphics_units_convert_once_to_one_city_tile ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+   Doc-tests wonderland-render-3d
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_avatar_view-711dcc26295c7ab4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/animation.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/animation-fd12b93573b74897)
+
+running 7 tests
+test a_clip_bound_to_a_larger_rig_cannot_partially_change_a_pose ... ok
+test invalid_active_channels_fail_atomically ... ok
+test reverse_fraction_track_end_exact_names_and_zero_prefix ... ok
+test prefix_order_ended_weight_carry_and_missing_channels ... ok
+test malformed_public_pose_storage_is_rejected_without_mutation ... ok
+test resolved_lookup_name_is_separate_from_animation_internal_name ... ok
+test refresh_cadence_cannot_accumulate_pose_or_mutate_timeline ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/appearance.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/appearance-753a7ec3d1be5851)
+
+running 6 tests
+test literal_ts1_right_hand_keeps_idle_texture_and_no_hand_is_removed ... ok
+test normalized_hand_group_file_order_differs_from_gesture_enum ... ok
+test retagging_a_prepared_mesh_cannot_forge_its_rig_binding ... ok
+test out_of_palette_joints_cannot_replace_a_working_appearance ... ok
+test failed_and_late_outfits_do_not_partially_replace_live_resources ... ok
+test three_skins_hands_and_deduplicated_accessories_keep_resource_ids ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contact_look.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/contact_look-6e89792d9cd52d0d)
+
+running 4 tests
+test admitted_attachments_drop_departed_or_recycled_participants ... ok
+test seek_fade_caps_full_weight_without_clamping_fade_out_below_zero ... ok
+test source_slot_positions_and_avatar_seat_height ... ok
+test look_clamps_and_antipodal_smoothing_is_stationary ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/math_probe.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/math_probe-b92f03816d0339df)
+
+running 1 test
+test quaternion_unit_vectors_match_local_source_probe_with_explicit_tolerance ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/preview_lod_cook.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/preview_lod_cook-3888e89c39eb6f91)
+
+running 3 tests
+test cook_roundtrip_preserves_bits_ids_dual_positions_and_ordered_properties ... ok
+test bounded_32_and_64_actor_lod_keeps_visible_dependents_endpoints ... ok
+test preview_renders_fitted_bounds_and_releases_targets_without_shared_mesh_loss ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/rig_mesh.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/rig_mesh-abec187e7dbcbd91)
+
+running 11 tests
+test a_matching_rig_key_cannot_hide_the_wrong_actual_palette_length ... ok
+test binds_are_rig_specific_and_invalid_ranges_are_rejected ... ok
+test finite_source_whose_hierarchy_overflows_is_rejected_without_bind_pose_panic ... ok
+test hierarchy_and_source_data_faults_fail_before_binding ... ok
+test oversized_palette_and_forged_prepared_indices_fail_explicitly ... ok
+test last_blend_record_wins_and_weights_are_not_clamped ... ok
+test source_row_matrix_conversion_retains_palette_order ... ok
+test provider_normalized_signed_zero_is_not_converted_again ... ok
+test two_local_positions_and_primary_normal_are_source_correct ... ok
+test representative_fixture_is_articulated_and_has_dual_joint_vertices ... ok
+test conservative_envelope_contains_rotated_and_translated_samples ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests wonderland-avatar-view
+
+running 3 tests
+test src/animation.rs - animation::Clip (line 19) - compile fail ... ok
+test src/rig.rs - rig::Rig (line 19) - compile fail ... ok
+test src/animation.rs - animation::Clip (line 8) - compile fail ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+    Finished test [unoptimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_audio_runtime-0fc8e61fd4a80461)
+
+running 1 test
+test codec::utk::tests::halfway_rounding_matches_math_round ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/decoder_cli.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/audio_decode-2ac7441061b2daf3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/audio_runtime.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/audio_runtime-d0dc7063268ae8ba)
+
+running 7 tests
+test global_event_sharing_aggregates_loudest_owner_and_first_tie ... ok
+test interruptible_replacement_keeps_latest_waiter_and_cleans_old_voices ... ok
+test nightclub_later_tie_wins_suffix_and_interruption_waits_for_boundary ... ok
+test nightclub_winner_compares_effective_master_scaled_volume ... ok
+test provider_group_first_wins_hsm_and_entrypoint_and_piano_resolution ... ok
+test all_threads_tick_before_ordered_queued_starts_and_faults_retire_active_names ... ok
+test reconcile_generation_removes_stale_owner_without_restarting_matching_voice ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/audio_system.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/audio_system-a060529b61929ca0)
+
+running 14 tests
+test a_sound_projection_preserves_owner_flag_quirks_and_scoped_fallback ... ok
+test avatar_audio_keeps_nested_source_ordinal_and_does_not_reinterpret_dress ... ok
+test latest_pending_music_replacement_reuses_its_capacity_and_cancels_old_start ... ok
+test a_missing_fsc_sample_cannot_discard_other_players_ordered_intents ... ok
+test muted_group_keeps_logical_cue_but_zeroes_playback_gain ... ok
+test causal_cues_route_station_and_hit_in_shared_source_insertion_order ... ok
+test failed_ambience_loop_feedback_releases_and_explicit_reapplication_retries ... ok
+test rejected_cue_preserves_ledger_and_can_retry_after_capacity_frees ... ok
+test rejected_eager_music_does_not_fade_current_music_or_advance_audio_rng ... ok
+test direct_loadloop_and_ambience_replacement_produce_owned_loop_intents ... ok
+test fsc_players_emit_after_hit_starts_in_activation_order ... ok
+test mixed_player_budget_counts_hit_and_station_but_allows_existing_owner_sharing ... ok
+test repeat_owner_request_preserves_program_set_loop_while_a_new_owner_applies_flags ... ok
+test station_owner_volume_uses_first_tie_then_resets_each_tick_and_checks_generation ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/catalog_fsc.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/catalog_fsc-518ea1f777f35598)
+
+running 7 tests
+test dj_order_compensation_and_base_four_digits_are_validated ... ok
+test station_initial_shuffle_then_fixed_rotation_and_fade_final_silence ... ok
+test fsc_strict_beat_spacing_last_row_restart_and_cleanup ... ok
+test ambience_bitfields_preserve_source_guid_order_and_only_one_loop ... ok
+test fsc_parser_retains_the_skipped_first_row_and_raw_unused_metadata ... ok
+test station_codes_modes_and_commercial_paths_follow_source ... ok
+test music_queue_promotes_after_tick_and_latest_pending_replaces_prior ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/codecs.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/codecs-5a43aae01a6db6c5)
+
+running 8 tests
+test invalid_metadata_and_mp3_never_report_decode_success ... ok
+test normalized_pcm_integer_widths_decode_and_wave_output_retains_frames ... ok
+test utk_exhaustion_and_unary_budget_fail_in_finite_work ... ok
+test xa_all_predictors_are_valid_but_incomplete_blocks_and_capacity_mismatch_fail ... ok
+test xa_high_low_nibbles_stereo_order_and_channel_history ... ok
+test utk_partial_last_frame_and_frame_history_preserve_declared_length ... ok
+test utk_half_excitation_zero_fill_and_sinc_produce_real_samples ... ok
+test utk_unvoiced_and_voiced_integer_magnitude_have_source_samples ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cue_pcm.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/cue_pcm-451289df08d7fe18)
+
+running 7 tests
+test cue_admission_preflight_does_not_record_until_committed ... ok
+test native_mixing_preserves_order_pan_rate_and_pause_without_advancing_paused_voices ... ok
+test native_bounds_and_voice_reuse_are_explicit ... ok
+test native_completion_queue_backpressures_starts_instead_of_losing_lifecycle_events ... ok
+test native_residency_release_and_voice_watermark_survive_reset ... ok
+test native_tiny_sample_residency_has_an_entry_budget ... ok
+test retired_causal_cues_cannot_replay_after_eviction_or_delivery_epoch_change ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/hit_reference.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/hit_reference-24a82fc8b8133b8d)
+
+running 15 tests
+test each_conditional_branch_obeys_zero_and_sign_flags ... ok
+test division_faults_do_not_leave_a_live_thread ... ok
+test end_returns_to_call_but_return_kills_even_with_caller ... ok
+test get_src_data_field_uses_current_owner_despite_source_operand ... ok
+test all_97_registry_slots_and_source_stub_operand_arities_remain_distinct ... ok
+test min_max_are_immediate_and_set_copies_flags ... ok
+test register_jump_inspects_target_and_skips_three_only_for_target_nop ... ok
+test malformed_and_runaway_programs_are_bounded ... ok
+test smart_index_can_replace_hitlist_and_returns_second_lookup ... ok
+test missing_note_loop_still_halts_and_wait_sample_completion_halts_once ... ok
+test signed_immediates_wrapping_arithmetic_and_cmp_flags ... ok
+test source_quirks_random_bounds_broken_wait_and_literal_global_store ... ok
+test variable_gaps_and_patch_side_effects_match_source_but_bad_fields_fault ... ok
+test queue_is_ordered_and_fault_cleanup_releases_each_owned_voice_once ... ok
+test wait_latches_and_subtracts_16_until_exact_boundary ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland-audio-runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_engine_fixture-8ef766794b986493)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/reference.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/reference-c31de2d7a5f37e9f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/crowd_footprint.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/crowd_footprint-af07bc916cacea8a)
+
+running 3 tests
+test corrected_fixture_versions_inputs_and_keeps_count_view_and_tick_identity_contracts ... ok
+test every_view_and_count_retains_visible_meshes_sprites_and_ownerless_occlusion ... ok
+test every_animation_phase_keeps_actual_avatar_geometry_separate_and_inside_the_lot ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.80s
+
+     Running tests/physical_reference.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/physical_reference-5488e9636b8be628)
+
+running 6 tests
+test high_dpi_coplanar_color_and_selection_keep_the_later_source_draw ... ok
+test physical_pixel_centers_rerasterize_thin_mesh_geometry_with_the_same_aspect ... ok
+test scaled_sprite_extent_preserves_nearest_mask_depth_and_mirror_sampling ... ok
+test physical_pixel_centers_reveal_a_thin_sprite_without_resampling_encoded_ids ... ok
+test default_reference_keeps_the_existing_640_by_480_result ... ok
+test malformed_dimensions_and_late_sprite_errors_return_no_partial_frame ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.05s
+
+     Running tests/representative.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/representative-987195a230c2f80b)
+
+running 6 tests
+test render_cadence_cannot_duplicate_accepted_audio_cues ... ok
+test fixture_limits_fail_before_building_unbounded_avatar_meshes ... ok
+test same_inputs_produce_identical_engine_payloads_and_preserve_game_identity ... ok
+test source_mask_hole_replaces_sprite_alpha_in_color_and_selection_passes ... ok
+test three_views_keep_the_same_selection_and_simulation_stamp ... ok
+test reference_renders_actual_geometry_and_game_id_buffers ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.02s
+
+     Running tests/source_depth.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/source_depth-61168b770d87a96c)
+
+running 1 test
+test later_coplanar_mesh_matches_the_engines_source_less_equal_policy ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+   Doc-tests wonderland-engine-fixture
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_presentation_replay-93802d838ed41bd4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_presentation_replay-fee1477de7c8cefe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland-presentation-replay
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_native_audio-996fbc5501870f10)
+
+running 3 tests
+test commit_races::reset_during_commit_discards_the_entire_old_block ... ok
+test commit_races::device_fault_during_commit_discards_without_natural_completion ... ok
+test commit_races::suspension_during_commit_delivers_one_block_and_preserves_next_block ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/callback_allocation.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/callback_allocation-90b3ca91f6cdc17a)
+
+running 1 test
+test application_data_callback_has_no_allocations_or_deallocations_in_all_paths ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/concurrency.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/concurrency-6f3e7949e62ac2a4)
+
+running 3 tests
+test worker_policy_rejects_sub_two_millisecond_rings_at_high_rates ... ok
+test high_rate_small_blocks_refill_the_entire_bounded_ring_before_parking ... ok
+test concurrent_worker_and_variable_callback_sizes_never_tear_repeat_or_reorder_frames ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/transport.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/transport-ad4f35a0fa9e25e8)
+
+running 18 tests
+test a_reopened_driver_rejects_a_prior_instance_session ... ok
+test dropping_worker_releases_queued_pcm_and_closes_the_callback ... ok
+test command_and_pcm_backpressure_return_the_original_payload ... ok
+test callback_copies_actual_native_mixer_output_and_silences_underrun ... ok
+test a_device_error_is_latched_and_cannot_be_cleared_by_resume_or_reset ... ok
+test completion_waits_for_callback_consumption_and_is_delivered_once ... ok
+test a_full_frame_ring_does_not_advance_mixer_or_grow_memory ... ok
+test callback_shape_faults_are_silent_and_do_not_consume_pcm ... ok
+test finished_but_unconsumed_voice_backpressures_starts_without_reusing_identity ... ok
+test format_conversion_has_exact_silence_and_endpoint_scaling ... ok
+test full_event_queue_retains_completions_and_orders_start_ack_first ... ok
+test native_intent_pause_resume_stop_and_release_reach_the_mixer ... ok
+test newer_voice_generation_invalidates_older_buffer_and_completion ... ok
+test oversized_callback_fills_silence_and_faults_without_consuming_the_ring ... ok
+test pcm_allocation_capacity_is_bounded_not_only_visible_length ... ok
+test reset_discards_old_audio_old_commands_and_old_completions ... ok
+test suspend_and_resume_freeze_the_unconsumed_buffer ... ok
+test stop_resets_and_requires_explicit_resume ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests wonderland-native-audio
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.03s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_facade_worker-c014878c9e5114c9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_facade_worker-80f9e70b072c8bae)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/worker.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/worker-f74dcbddbee23323)
+
+running 5 tests
+test malformed_png_image_is_rejected_without_writing_header ... ok
+test png_bytes_are_deterministic_and_preserve_alpha ... ok
+test transformed_entity_and_texture_changes_change_the_effective_input_hash ... ok
+test fixture_round_trips_and_renders_all_six_images ... ok
+test source_worker_outputs_original_container_and_576_source_thumbnail ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.80s
+
+   Doc-tests wonderland-facade-worker
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished test [unoptimized] target(s) in 0.08s
+     Running unittests ../bridge.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_engine_control_tests-eb5d22c1a8bde351)
+
+running 9 tests
+test tests::rejected_fixture_command_keeps_current_hash_and_tick ... ok
+test tests::nonzero_id_without_an_eligible_request_ticket_is_not_a_no_hit ... ok
+test tests::gpu_zero_clears_selection_and_exact_rgb_id_resolves_the_request_ticket ... ok
+test tests::newer_selection_cancels_old_completion_without_consuming_the_new_request ... ok
+test tests::selection_waits_for_gpu_completion_without_changing_the_visible_pass ... ok
+test tests::same_fixture_reload_invalidates_earlier_pick_ticket ... ok
+test tests::invalid_gpu_bytes_and_read_errors_preserve_selection ... ok
+test tests::content_aba_and_entity_replacement_cannot_resolve_request_time_tickets ... ok
+test tests::every_display_lifetime_boundary_cancels_pending_pick_including_no_hit ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s
+
+   Doc-tests wonderland-engine-control-tests
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished dev [unoptimized] target(s) in 0.03s
+{"artifact_sha256": "1997e7aa7aa00c7fdac8c889c54a4264f8a1c2bfa7a391b46ab728c5084c0007", "effective_input_sha256": "a055942d956a334dee96e5419190aa8ebde4021b79a260edd09f77cfd3317aef", "existing_directory_preserved": true, "fixture": "synthetic normalized geometry; not licensed-content evidence", "images": 6, "malformed_requests_rejected": 5, "png_decoder": "Python standard-library zlib with CRC, RGBA, size and EOF checks", "png_sha256": {"floor-day.png": "324eb1ab310f2de1c3b827afcd49a286362dda3f815e5d7b26da77100a79df99", "floor-night.png": "d5163767bc2862bb11830dd69643965e28127f3d2ea5cafa84eb31ad4e32255a", "thumbnail-day.png": "ff19f16f7fd3abe4348c3b1e3b6412bee02ca64b9f5f3fbf42bc766611093e1e", "thumbnail-night.png": "462f31ac87ba29f4730a180ba9d4be51bf782227b3ca2ec09c2ba46a19a72ba0", "wall-day.png": "052e455695397d77263215a7abc71028ee50a084b346993fa2534a37fbf8437f", "wall-night.png": "9f79c376767b74ff728c455f5e353896532eca8c8edd54be8d446a6277f646f1"}, "repeat_files_identical": ["floor-day.png", "floor-night.png", "metadata.json", "request.wlcdr", "thumbnail-day.png", "thumbnail-night.png", "wall-day.png", "wall-night.png"], "reservation_bytes": 3733128, "resident_bytes": 1607240, "work_units": 4269072}
+{"algorithm_version": 2, "artifact_sha256": "8f1e793ae2f90d333e12e6d1b27dbb8d38cb38e9b3a56e13702d69661ad6ce32", "container_textures_equal_decoded_png": true, "decoder": "independent Python struct/zlib FSOf and CRC-checked PNG decoders", "effective_input_sha256": "ff72764824b5917744317b9acb053c044616a97372aa418abe36da284846401f", "existing_directory_preserved": true, "fixture": "synthetic source-world topology and materials; not licensed-content evidence", "fsof_sha256": "a4de41d5970a9b7420a78b7f9fca138e834144d8e8c69854bc38d3bf520b8655", "geometry": {"floor": {"indices": 456, "vertices": 112}, "wall": {"indices": 48, "vertices": 32}}, "images": 6, "malformed_requests_rejected": 5, "no_night_source_emits_three_images_and_no_night_container": true, "png_sha256": {"floor-day.png": "3259a3b9ed6a9e77f65d4873ef42526a39830c2f958250bcda138028df6ab272", "floor-night.png": "f2811ee3a6ed4614744db0e5fa1c09e4c924e8a15e9cb8ecf28050a4ff6bfc0f", "thumbnail-day.png": "8463aed7bfd44a8412573d1a9d8e8792492bcc3a3707b235fd67171377c007a4", "thumbnail-night.png": "04d87384addb027eda0a210aa7de0d943fdc8ac66e2df51170c01bed24bddd07", "wall-day.png": "052e455695397d77263215a7abc71028ee50a084b346993fa2534a37fbf8437f", "wall-night.png": "9f79c376767b74ff728c455f5e353896532eca8c8edd54be8d446a6277f646f1"}, "repeat_files_identical": ["facade.fsof", "floor-day.png", "floor-night.png", "metadata.json", "source-request.wlcsrc", "thumbnail-day.png", "thumbnail-night.png", "wall-day.png", "wall-night.png"], "reservation_bytes": 17146856, "resident_bytes": 3743880, "source_ground_floor_overlay_roof_and_walls": true, "source_request_and_original_fsof": true, "thumbnail_dimensions": [576, 576], "work_units": 23638632}
+    Finished dev [unoptimized] target(s) in 0.03s
+     Running `/workspace/scratch/cb8e2814717b/target-c-final/debug/reference tools/swarm-c/output/reference`
+{"name":"full2d-32","mode":"full2d","avatars":32,"tick":30,"fixtureHash":"8a02eb6628b45fc1a9fe4a1724f9409e39a5c45f5803dc36534143448b5d7b8e","referenceHash":"2e2261c139787b9ba2a2d03d84ea1a2bdf0676ff4de9b1542c9065cc667f5741","vertices":10588,"triangles":5290,"pickablePixels":11031,"idReferences":[{"width":640,"height":480,"ids":"full2d-32.ids","depth":"full2d-32.depth"},{"width":1280,"height":960,"ids":"full2d-32-dpr2.ids","depth":"full2d-32-dpr2.depth"}]}
+{"name":"full2d-64","mode":"full2d","avatars":64,"tick":30,"fixtureHash":"24139c48a2e69181315c39baf10f2f241817749370cd179b1397dc60ba7e9edd","referenceHash":"bc0c34c983844f71f9e8edb2a5ff8e1fae21aa3b7c0766ad4d4c79ff04acf1e5","vertices":20572,"triangles":10282,"pickablePixels":24300,"idReferences":[{"width":640,"height":480,"ids":"full2d-64.ids","depth":"full2d-64.depth"},{"width":1280,"height":960,"ids":"full2d-64-dpr2.ids","depth":"full2d-64-dpr2.depth"}]}
+{"name":"hybrid2d-32","mode":"hybrid2d","avatars":32,"tick":30,"fixtureHash":"48a136a66cced234d1de22451ba90d86ab261bac298b3472dc408d4709ec58e4","referenceHash":"76bdd0505421d0c5ab3da16d002f2a01ba207d268cc371153df02fb01f6b9e87","vertices":10756,"triangles":5374,"pickablePixels":8615,"idReferences":[{"width":640,"height":480,"ids":"hybrid2d-32.ids","depth":"hybrid2d-32.depth"},{"width":1280,"height":960,"ids":"hybrid2d-32-dpr2.ids","depth":"hybrid2d-32-dpr2.depth"}]}
+{"name":"hybrid2d-64","mode":"hybrid2d","avatars":64,"tick":30,"fixtureHash":"9c3adbc7b934fd87a0703a0979e438840cc24400de61f286ed4f04a20f0bcd26","referenceHash":"8ef91c2c2bb52c54a28f12a9f830787b99090c2a27589b8a78e8bda3658ba738","vertices":20740,"triangles":10366,"pickablePixels":21884,"idReferences":[{"width":640,"height":480,"ids":"hybrid2d-64.ids","depth":"hybrid2d-64.depth"},{"width":1280,"height":960,"ids":"hybrid2d-64-dpr2.ids","depth":"hybrid2d-64-dpr2.depth"}]}
+{"name":"full3d-32","mode":"full3d","avatars":32,"tick":30,"fixtureHash":"db5037d950947f3e6c9cafb1cf0c5e42399d85acc72c613173ad8a8aa6a3470e","referenceHash":"81472ad9d8957310dc425c1c84e398d872ff91d58f30b9ca59fc2eceec0e4c3f","vertices":10756,"triangles":5374,"pickablePixels":6212,"idReferences":[{"width":640,"height":480,"ids":"full3d-32.ids","depth":"full3d-32.depth"},{"width":1280,"height":960,"ids":"full3d-32-dpr2.ids","depth":"full3d-32-dpr2.depth"}]}
+{"name":"full3d-64","mode":"full3d","avatars":64,"tick":30,"fixtureHash":"c4308b803c2242c90dc0b405cba01469dcb7cb8018162b918aaa0e61753eefbe","referenceHash":"7f350fbfd342d95ff5d5ed273677386bb46bf239c7ef634c20e6de0230f7f965","vertices":20740,"triangles":10366,"pickablePixels":13076,"idReferences":[{"width":640,"height":480,"ids":"full3d-64.ids","depth":"full3d-64.depth"},{"width":1280,"height":960,"ids":"full3d-64-dpr2.ids","depth":"full3d-64-dpr2.depth"}]}
+✔ gesture unlock creates and resumes actual context only after explicit unlock (5.584673ms)
+✔ autoplay rejection is explicit and a later gesture retries without duplicating (1.654376ms)
+✔ out of order asynchronous decode completion retains source start order (17.492165ms)
+✔ stop and reset fence pending decode and stale voice replay (0.939106ms)
+✔ decode and voice budgets reject overflow without hiding codec failure (1.669979ms)
+✔ suspend pauses context and queued starts until gesture resume (0.740474ms)
+✔ interruption drops one shots and recreates only loops once from saved phase (1.940535ms)
+✔ explicit pause resume replaces one shot node at its logical offset and releases on end (0.743882ms)
+✔ numeric and PCM bounds reject unsafe identities and wrong sample dimensions (0.786171ms)
+✔ locked start stop churn cannot accumulate retired queue entries (2.255726ms)
+✔ concurrent PCM conversions charge provisional memory before creating buffers (0.897964ms)
+✔ small decoded samples are bounded by both memory and cache entry count (3.5474ms)
+✔ a closed context is replaced only on gesture and resumes retained loops once (2.205675ms)
+✔ finished voice delivery reserves capacity until the presentation host drains it (0.436286ms)
+✔ decoder failures deliver a presentation completion and never resurrect a voice (0.391205ms)
+✔ pending gesture resume cannot change a disposed adapter back to running (0.229341ms)
+✔ voice resume during context suspension restarts after gesture recovery (0.278854ms)
+✔ replacement voice cannot inherit an aborted inflight request for the same key (5.895446ms)
+✔ admission snapshots the asset key before the caller reuses its byte array (1.959495ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 226.141789
+✔ capture alignment uses layout offsets without a compositor transform or cumulative movement (3.641093ms)
+✔ immutable fixture URL selection validates exact view and bounded counts (0.725754ms)
+✔ backend requests do not become observations and snapshots are side-effect free (0.577492ms)
+✔ bounded command queue rejects out-of-range pick and stale input after suspension (0.633259ms)
+✔ simulated loss is recorded separately and never certifies actual context loss (0.340898ms)
+✔ partial renderer observations survive subsequent fixture-state publications (1.289176ms)
+✔ device loss invalidation cannot be dropped behind a saturated input queue (0.429558ms)
+✔ suspension is delivered even when ordinary presentation commands filled the queue (0.444666ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 260.160294
+✔ readback waits for a new engine-acquired texture and copies padded rows after engine submissions (4.120955ms)
+✔ diagnostic validation errors reject instead of reporting an unwritten mapped buffer as engine pixels (1.202271ms)
+✔ BGRA canvas bytes are explicitly converted to RGBA without premultiplication (0.717442ms)
+✔ readback rejects concurrent requests and reconfiguration without consuming unrelated submissions (0.627185ms)
+✔ readback deadline rejects a stopped engine and releases a stalled mapped buffer (12.054637ms)
+✔ readback rejects dimensions or format unsupported by the diagnostic (0.677409ms)
+✔ deadline identifies texture acquisition, engine submission, validation and mapping stalls separately (23.686216ms)
+✔ cancelled mapping releases its buffer and cannot complete a subsequent request (3.017781ms)
+✔ retiring an old device or context cannot cancel the current device read (1.312503ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 201.683621
+PASS: five PNG filters; exact nonzero-origin RGBA crops at DPR1/2; physical ID grids; corrupt background/ownerless IDs; dimensions and injective ID maps; independent logical selection

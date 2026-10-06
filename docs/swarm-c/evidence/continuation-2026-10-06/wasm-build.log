@@ -1,0 +1,37 @@
+rustc 1.75.0 (82e1608df 2023-12-21)
+binary: rustc
+commit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112
+commit-date: 2023-12-21
+host: x86_64-unknown-linux-gnu
+release: 1.75.0
+LLVM version: 17.0.6
+cargo 1.75.0 (1d8b05cdd 2023-11-20)
+wasm32-unknown-unknown
+x86_64-unknown-linux-gnu
+   Compiling version_check v0.9.4
+   Compiling proc-macro2 v1.0.76
+   Compiling typenum v1.16.0
+   Compiling generic-array v0.14.7
+   Compiling unicode-ident v1.0.12
+   Compiling quote v1.0.35
+   Compiling syn v2.0.48
+   Compiling cfg-if v1.0.0
+   Compiling crc32fast v1.5.2
+   Compiling serde v1.0.195
+   Compiling serde_derive v1.0.195
+   Compiling crypto-common v0.1.6
+   Compiling block-buffer v0.10.2
+   Compiling adler2 v2.0.1
+   Compiling miniz_oxide v0.8.9
+   Compiling digest v0.10.7
+   Compiling flate2 v1.0.35
+   Compiling sha2 v0.10.8
+   Compiling wonderland-render-core v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/crates/render-core)
+   Compiling bincode v1.3.3
+   Compiling wonderland-avatar-view v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/crates/avatar-view)
+   Compiling wonderland-audio-runtime v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/crates/audio-runtime)
+   Compiling wonderland-render-3d v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/crates/render-3d)
+   Compiling wonderland-render-iso v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/crates/render-iso)
+   Compiling wonderland-engine-fixture v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/probes/engine-bakeoff/fixture)
+   Compiling wonderland-presentation-replay v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/probes/engine-bakeoff/replay)
+    Finished release [optimized] target(s) in 2m 19s

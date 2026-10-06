@@ -1,0 +1,456 @@
+{
+  "evidence": "synthetic CPU fixture input correction; no new GPU result claimed",
+  "fixtureVersion": 2,
+  "contentIdentitySha256": "05e2b8926ec90ebb04b49dc757b77ff881263982e99029d2a596640874d71fd5",
+  "sourceFiles": {
+    "probes/engine-bakeoff/fixture/src/lib.rs": "6b8300b6bcd85a1701637c438dc84f84417ca8e9ba89e0f2d28dc46943d89e27",
+    "probes/engine-bakeoff/fixture/tests/crowd_footprint.rs": "619bae8e1e406a93e01c7e761570bb7802974686e9b2e660fc6402b0278b043c"
+  },
+  "animationPhasesChecked": 60,
+  "fullCycleFootprintWorld": {
+    "min": [
+      -1.472239,
+      -0.22
+    ],
+    "max": [
+      1.472239,
+      0.22
+    ],
+    "width": 2.944478,
+    "depth": 0.44
+  },
+  "layout": {
+    "capacity": 64,
+    "columns": 5,
+    "rows": 13,
+    "lotWorldSize": [
+      18,
+      18
+    ],
+    "margin": 0.125,
+    "requiredGeometricClearance": 0.125,
+    "sameCountPrefix": true,
+    "samePlacementAcrossTicksAndViews": true
+  },
+  "minimumMeasuredPairwiseHorizontalSeparationWorld": 1.002498627,
+  "tests": {
+    "passed": 16,
+    "failed": 0,
+    "newRegressionTests": 3,
+    "historicalRed": {
+      "provenance": "Local execution log; not a file in this repository",
+      "workspaceRelativePath": "swarm-c-ci8-depth-diagnosis/crowd-separation-red.log",
+      "sha256": "ca1bf833a9e3dff7b87cd4d5a50492f96fbd6d4b0cff705b689be99c387e9daa",
+      "durableSummary": "fixture-v1-coplanar.json"
+    },
+    "bothExistingCoplanarRegressionsRetained": true,
+    "fmtCheck": true,
+    "diffCheck": true
+  },
+  "coverage": [
+    {
+      "mode": "Full2D",
+      "avatars": 32,
+      "width": 640,
+      "height": 480,
+      "visibleMeshPixels": 4835,
+      "visibleMeshIds": 15,
+      "visibleSpritePixels": [
+        2850,
+        2130,
+        1216
+      ],
+      "ownerlessColorDepthPixels": 41376,
+      "ownerlessOccludedPickPixels": 6327
+    },
+    {
+      "mode": "Full2D",
+      "avatars": 64,
+      "width": 640,
+      "height": 480,
+      "visibleMeshPixels": 18227,
+      "visibleMeshIds": 47,
+      "visibleSpritePixels": [
+        2849,
+        2008,
+        1216
+      ],
+      "ownerlessColorDepthPixels": 29583,
+      "ownerlessOccludedPickPixels": 6966
+    },
+    {
+      "mode": "Hybrid2D",
+      "avatars": 32,
+      "width": 640,
+      "height": 480,
+      "visibleMeshPixels": 4835,
+      "visibleMeshIds": 15,
+      "visibleSpritePixels": [
+        1547,
+        1412,
+        821
+      ],
+      "ownerlessColorDepthPixels": 45516,
+      "ownerlessOccludedPickPixels": 8743
+    },
+    {
+      "mode": "Hybrid2D",
+      "avatars": 64,
+      "width": 640,
+      "height": 480,
+      "visibleMeshPixels": 18227,
+      "visibleMeshIds": 47,
+      "visibleSpritePixels": [
+        1546,
+        1290,
+        821
+      ],
+      "ownerlessColorDepthPixels": 33723,
+      "ownerlessOccludedPickPixels": 9382
+    },
+    {
+      "mode": "Full3D",
+      "avatars": 32,
+      "width": 640,
+      "height": 480,
+      "visibleMeshPixels": 1852,
+      "visibleMeshIds": 12,
+      "visibleSpritePixels": [
+        1833,
+        1569,
+        958
+      ],
+      "ownerlessColorDepthPixels": 23004,
+      "ownerlessOccludedPickPixels": 4611
+    },
+    {
+      "mode": "Full3D",
+      "avatars": 64,
+      "width": 640,
+      "height": 480,
+      "visibleMeshPixels": 8766,
+      "visibleMeshIds": 43,
+      "visibleSpritePixels": [
+        1833,
+        1527,
+        950
+      ],
+      "ownerlessColorDepthPixels": 16862,
+      "ownerlessOccludedPickPixels": 4815
+    }
+  ],
+  "scenes": [
+    {
+      "name": "full2d-32",
+      "mode": "full2d",
+      "avatars": 32,
+      "tick": 30,
+      "fixtureHash": "8a02eb6628b45fc1a9fe4a1724f9409e39a5c45f5803dc36534143448b5d7b8e",
+      "referenceHash": "2e2261c139787b9ba2a2d03d84ea1a2bdf0676ff4de9b1542c9065cc667f5741",
+      "vertices": 10588,
+      "triangles": 5290,
+      "pickablePixels": 11031,
+      "idReferences": [
+        {
+          "width": 640,
+          "height": 480,
+          "ids": "full2d-32.ids",
+          "depth": "full2d-32.depth"
+        },
+        {
+          "width": 1280,
+          "height": 960,
+          "ids": "full2d-32-dpr2.ids",
+          "depth": "full2d-32-dpr2.depth"
+        }
+      ]
+    },
+    {
+      "name": "full2d-64",
+      "mode": "full2d",
+      "avatars": 64,
+      "tick": 30,
+      "fixtureHash": "24139c48a2e69181315c39baf10f2f241817749370cd179b1397dc60ba7e9edd",
+      "referenceHash": "bc0c34c983844f71f9e8edb2a5ff8e1fae21aa3b7c0766ad4d4c79ff04acf1e5",
+      "vertices": 20572,
+      "triangles": 10282,
+      "pickablePixels": 24300,
+      "idReferences": [
+        {
+          "width": 640,
+          "height": 480,
+          "ids": "full2d-64.ids",
+          "depth": "full2d-64.depth"
+        },
+        {
+          "width": 1280,
+          "height": 960,
+          "ids": "full2d-64-dpr2.ids",
+          "depth": "full2d-64-dpr2.depth"
+        }
+      ]
+    },
+    {
+      "name": "hybrid2d-32",
+      "mode": "hybrid2d",
+      "avatars": 32,
+      "tick": 30,
+      "fixtureHash": "48a136a66cced234d1de22451ba90d86ab261bac298b3472dc408d4709ec58e4",
+      "referenceHash": "76bdd0505421d0c5ab3da16d002f2a01ba207d268cc371153df02fb01f6b9e87",
+      "vertices": 10756,
+      "triangles": 5374,
+      "pickablePixels": 8615,
+      "idReferences": [
+        {
+          "width": 640,
+          "height": 480,
+          "ids": "hybrid2d-32.ids",
+          "depth": "hybrid2d-32.depth"
+        },
+        {
+          "width": 1280,
+          "height": 960,
+          "ids": "hybrid2d-32-dpr2.ids",
+          "depth": "hybrid2d-32-dpr2.depth"
+        }
+      ]
+    },
+    {
+      "name": "hybrid2d-64",
+      "mode": "hybrid2d",
+      "avatars": 64,
+      "tick": 30,
+      "fixtureHash": "9c3adbc7b934fd87a0703a0979e438840cc24400de61f286ed4f04a20f0bcd26",
+      "referenceHash": "8ef91c2c2bb52c54a28f12a9f830787b99090c2a27589b8a78e8bda3658ba738",
+      "vertices": 20740,
+      "triangles": 10366,
+      "pickablePixels": 21884,
+      "idReferences": [
+        {
+          "width": 640,
+          "height": 480,
+          "ids": "hybrid2d-64.ids",
+          "depth": "hybrid2d-64.depth"
+        },
+        {
+          "width": 1280,
+          "height": 960,
+          "ids": "hybrid2d-64-dpr2.ids",
+          "depth": "hybrid2d-64-dpr2.depth"
+        }
+      ]
+    },
+    {
+      "name": "full3d-32",
+      "mode": "full3d",
+      "avatars": 32,
+      "tick": 30,
+      "fixtureHash": "db5037d950947f3e6c9cafb1cf0c5e42399d85acc72c613173ad8a8aa6a3470e",
+      "referenceHash": "81472ad9d8957310dc425c1c84e398d872ff91d58f30b9ca59fc2eceec0e4c3f",
+      "vertices": 10756,
+      "triangles": 5374,
+      "pickablePixels": 6212,
+      "idReferences": [
+        {
+          "width": 640,
+          "height": 480,
+          "ids": "full3d-32.ids",
+          "depth": "full3d-32.depth"
+        },
+        {
+          "width": 1280,
+          "height": 960,
+          "ids": "full3d-32-dpr2.ids",
+          "depth": "full3d-32-dpr2.depth"
+        }
+      ]
+    },
+    {
+      "name": "full3d-64",
+      "mode": "full3d",
+      "avatars": 64,
+      "tick": 30,
+      "fixtureHash": "c4308b803c2242c90dc0b405cba01469dcb7cb8018162b918aaa0e61753eefbe",
+      "referenceHash": "7f350fbfd342d95ff5d5ed273677386bb46bf239c7ef634c20e6de0230f7f965",
+      "vertices": 20740,
+      "triangles": 10366,
+      "pickablePixels": 13076,
+      "idReferences": [
+        {
+          "width": 640,
+          "height": 480,
+          "ids": "full3d-64.ids",
+          "depth": "full3d-64.depth"
+        },
+        {
+          "width": 1280,
+          "height": 960,
+          "ids": "full3d-64-dpr2.ids",
+          "depth": "full3d-64-dpr2.depth"
+        }
+      ]
+    }
+  ],
+  "idDepthFiles": [
+    {
+      "file": "full2d-32.ids",
+      "bytes": 2457600,
+      "sha256": "d77f542e38d23a69f2ef0b1972ce52306ca53ad57e8959ffd7c35bb5596b095d"
+    },
+    {
+      "file": "full2d-32.depth",
+      "bytes": 1228800,
+      "sha256": "2e5d29e673400c96c4a7c007dad77436975d8aab59233d795245b846b5594135"
+    },
+    {
+      "file": "full2d-32-dpr2.ids",
+      "bytes": 9830400,
+      "sha256": "5afc31509bf8aacdebd153e23b9cdac399bbe0d1e608cc5dbefa94584cf3a7f4"
+    },
+    {
+      "file": "full2d-32-dpr2.depth",
+      "bytes": 4915200,
+      "sha256": "ee7122bc2af75c23d84eda0aa2c3ff46d2c8f231812ee65290fea9c0e532eba0"
+    },
+    {
+      "file": "full2d-64.ids",
+      "bytes": 2457600,
+      "sha256": "1a2c1bcf9ce0f44a31eedf73289cb4c1638a51df709a3843990c08ff3ada2f3a"
+    },
+    {
+      "file": "full2d-64.depth",
+      "bytes": 1228800,
+      "sha256": "9c0cedf430eefc2335a2d5068eb97ffade107e02bb7763afc94babec314b8f82"
+    },
+    {
+      "file": "full2d-64-dpr2.ids",
+      "bytes": 9830400,
+      "sha256": "df79509e0932b956eedc23a949069db8c6587383242185ca5aac14f6ca656f6b"
+    },
+    {
+      "file": "full2d-64-dpr2.depth",
+      "bytes": 4915200,
+      "sha256": "ccedc2a64f96bceae6b3e602f11f0b9c816a22de0af1ac449b27ee8d05da7ed1"
+    },
+    {
+      "file": "hybrid2d-32.ids",
+      "bytes": 2457600,
+      "sha256": "ccb9aa2ac24b32d1fdf345888bc9f70783cbf86b745745898cbbacf3f329e497"
+    },
+    {
+      "file": "hybrid2d-32.depth",
+      "bytes": 1228800,
+      "sha256": "6909844ff38a501c05e05799c21c4587a05feecea88a3cae4f47c65ced0bbf87"
+    },
+    {
+      "file": "hybrid2d-32-dpr2.ids",
+      "bytes": 9830400,
+      "sha256": "1b0236a755074ba5b32aeb0c6d034d79e97e5d972c17bf2b678c230b586771ac"
+    },
+    {
+      "file": "hybrid2d-32-dpr2.depth",
+      "bytes": 4915200,
+      "sha256": "54aa5504eec928b95047a42ba1a1fe9b6e66477ff45b25cba386f5886801f89e"
+    },
+    {
+      "file": "hybrid2d-64.ids",
+      "bytes": 2457600,
+      "sha256": "7970e107165a3a683bcf6e67c5e5cb257f6ad1ffebc9d22f26b8cfc1761c42b9"
+    },
+    {
+      "file": "hybrid2d-64.depth",
+      "bytes": 1228800,
+      "sha256": "f7770a9db863c9706bdadb32b85718cee7a574b11f19bcdaa16631cf3ddd7ac9"
+    },
+    {
+      "file": "hybrid2d-64-dpr2.ids",
+      "bytes": 9830400,
+      "sha256": "b5c387e55ccd123693812b8e3c738cb66bf06436bb4cb5294699d109c36468f2"
+    },
+    {
+      "file": "hybrid2d-64-dpr2.depth",
+      "bytes": 4915200,
+      "sha256": "7c6134dbc5d3d211c2452e905d5380e0a80d52339897d46ef7e8b7f589179f47"
+    },
+    {
+      "file": "full3d-32.ids",
+      "bytes": 2457600,
+      "sha256": "67e4384f2ccf0b5acf21c4255379886a28d20a0bf0856422ed6f823515decdf9"
+    },
+    {
+      "file": "full3d-32.depth",
+      "bytes": 1228800,
+      "sha256": "b050c6f26fcabb2b0c43f1315d9151384d057965242f0547f75355cfe09c54a1"
+    },
+    {
+      "file": "full3d-32-dpr2.ids",
+      "bytes": 9830400,
+      "sha256": "99a5afac9b4a5a70cb9529ce35cbad5e54a9e34ccfbab8809e91850c7bdcac1a"
+    },
+    {
+      "file": "full3d-32-dpr2.depth",
+      "bytes": 4915200,
+      "sha256": "b79297a2568cd1559185ffe63250187f7a54d95e232df1ac162563d813a56bb4"
+    },
+    {
+      "file": "full3d-64.ids",
+      "bytes": 2457600,
+      "sha256": "a8443267b043cfe925a712e9c384a781e4573cd8e17c490d2a3189fda15a2395"
+    },
+    {
+      "file": "full3d-64.depth",
+      "bytes": 1228800,
+      "sha256": "f35e576690c74697ffabbc1d1fa1d7c4c1b0411919e7760773e3ff34f0ec3346"
+    },
+    {
+      "file": "full3d-64-dpr2.ids",
+      "bytes": 9830400,
+      "sha256": "f070197e76c398bb4e8e281f90dbb1029edf3c18b911cce6b5ad409f22f1eaa1"
+    },
+    {
+      "file": "full3d-64-dpr2.depth",
+      "bytes": 4915200,
+      "sha256": "c936dc5ac613804d48716427f1df3099999596d585dc3fd3606d282a15bb7f16"
+    }
+  ],
+  "historicalFailure": {
+    "commit": "f6f78be1fef247f2db47e19f56d94054f0c9e88c",
+    "sourceCopy": "https://github.com/rndrntwrk/wonderland-/blob/f6f78be1fef247f2db47e19f56d94054f0c9e88c/probes/engine-bakeoff/fixture/src/lib.rs",
+    "diagnosis": "fixture-v1-coplanar.json",
+    "ownerlessDiagnosis": {
+      "provenance": "Local diagnostic; not a file in this repository",
+      "workspaceRelativePath": "swarm-c-ci8-depth-diagnosis/ownerless-evidence.json",
+      "sha256": "46eef53337ceb078e93c8746b56f9822ca70f18bfe90eea595aee147b2ec98fa",
+      "durableBrowserEvidence": "engines-f6f78be.json"
+    },
+    "originalReferenceBuffers": {
+      "provenance": "Local generated binary reference buffers; not committed to this repository",
+      "workspaceRelativePath": "swarm-c-physical-reference-proof/reference",
+      "manifestSha256": "7ba009261541cd04af34baf44abc787fe35743a525f2df797241312ba79efbe4",
+      "durableReferenceEvidence": "reference-f6f78be.json"
+    }
+  },
+  "limits": "This changes synthetic crowd placement to prevent physical overlap; it does not prove arbitrary coplanar GPU rasterization parity. Source LessEqual, alpha/depth laws, camera, lot, stable IDs and zero-mismatch comparator policy remain unchanged. Depth sidecars are CPU color-pass depths.",
+  "commit": "d247ebb94d1d4de79247983b4f62fffb7e06427d",
+  "independent_review": {
+    "scenes_built": 448,
+    "all_phases": 60,
+    "all_view_count_cases_per_phase": 6,
+    "pairwise_bounds_checks": 120960,
+    "minimum_gap": 1.002498627,
+    "minimum_lot_margin": 0.125,
+    "columns": 5,
+    "rows": 13,
+    "tick_wrap_and_limits": true,
+    "prefix_transform_mesh_entity_identity": true,
+    "repeated_hashes": true,
+    "gpu_evidence": false,
+    "decision": "approved source and CPU fixture correctness; GPU acceptance remains separate"
+  },
+  "historical_counterexample": "fixture-v1-coplanar.json",
+  "evidence_file_sha256": {
+    "swarm-c-crowd-footprint-proof/verification.json": "4ee5c9b41aac2b7fb0f20ea7b8919ade4bbcc3f38e744704745fccc67084d633",
+    "swarm-c-crowd-independent-review/challenge-result.json": "85e53ba4f287f46fe4ae32b82ebb6ceb933a76d2d1e0e18d4b6369f815c3341d",
+    "swarm-c-crowd-footprint-proof/fixture-test.log": "788ac43ca5d87bb293aa680ebbbc95d8e596faee5da4ce3137e3a3ab17863697"
+  }
+}

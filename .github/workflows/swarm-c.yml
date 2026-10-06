@@ -1,0 +1,241 @@
+name: Swarm C presentation
+
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths:
+      - 'crates/render-core/**'
+      - 'crates/render-iso/**'
+      - 'crates/render-3d/**'
+      - 'crates/avatar-view/**'
+      - 'crates/audio-runtime/**'
+      - 'probes/engine-bakeoff/**'
+      - 'tools/swarm-c/**'
+      - '.github/workflows/swarm-c.yml'
+  pull_request:
+    paths:
+      - 'crates/render-core/**'
+      - 'crates/render-iso/**'
+      - 'crates/render-3d/**'
+      - 'crates/avatar-view/**'
+      - 'crates/audio-runtime/**'
+      - 'probes/engine-bakeoff/**'
+      - 'tools/swarm-c/**'
+      - '.github/workflows/swarm-c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: swarm-c-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reference:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/swarm-c-views-audio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install the isolated reference compiler
+        run: |
+          rustup toolchain install 1.75.0 --profile minimal --component rustfmt
+          rustup target add wasm32-unknown-unknown --toolchain 1.75.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install original-source and native audio tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y mono-mcs mono-runtime ffmpeg
+      - name: Verify presentation libraries
+        run: bash tools/swarm-c/verify.sh
+      - name: Compare actual native and ordinary WASM execution
+        if: always()
+        run: bash tools/swarm-c/verify-native-wasm.sh
+      - name: Compare codecs with original source and exercise native audio
+        if: always()
+        run: bash tools/swarm-c/verify-audio.sh
+      - name: Check out the pinned A provider for the authority boundary probe
+        if: always()
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: rndrntwrk/wonderland-
+          ref: 8a0e251d19e222a0a6833d7408ca629f674e1729
+          path: swarm-a-input
+          persist-credentials: false
+      - name: Verify presentation cannot alter A simulation or duplicate cues
+        if: always()
+        env:
+          RUSTUP_TOOLCHAIN: '1.75.0'
+          SWARM_A_PATH: ${{ github.workspace }}/swarm-a-input
+        run: |
+          cargo fetch --locked --manifest-path swarm-a-input/crates/sim-core/Cargo.toml
+          python3 tools/swarm-c/avatar-integration/run.py tools/swarm-c/output/avatar-a 2>&1 | tee tools/swarm-c/output/avatar-a.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-reference-evidence-${{ github.sha }}
+          path: |
+            tools/swarm-c/output/**/*.log
+            tools/swarm-c/output/**/*.json
+            tools/swarm-c/output/**/*.png
+          retention-days: 14
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-reference-${{ github.sha }}
+          path: tools/swarm-c/output/
+          retention-days: 14
+          if-no-files-found: warn
+
+  native-audio:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/swarm-c-views-audio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RUSTUP_TOOLCHAIN: '1.95.0'
+      CARGO_BUILD_JOBS: 2
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_INCREMENTAL: 0
+      CARGO_TARGET_DIR: ${{ github.workspace }}/native-audio-target
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install the isolated device compiler and ALSA development files
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal --component rustfmt
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y pkg-config libasound2-dev
+      - name: Compile the actual CPAL adapter
+        run: |
+          mkdir -p tools/swarm-c/output/native-audio
+          cargo --version
+          rustc -vV
+          task_manifest=crates/audio-runtime/native/cpal/Cargo.toml
+          if [[ ! -f crates/audio-runtime/native/cpal/Cargo.lock ]]; then
+            cargo generate-lockfile --manifest-path "$task_manifest"
+          fi
+          cargo fmt --manifest-path "$task_manifest" --check
+          cargo test --manifest-path "$task_manifest" --locked 2>&1 | tee tools/swarm-c/output/native-audio/build.log
+      - name: Exercise a real ALSA-null callback stream
+        run: |
+          bash crates/audio-runtime/native/cpal/run-alsa-null.sh 2>&1 | tee tools/swarm-c/output/native-audio/device-smoke.log
+      - name: Retain the native device resolution and evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: swarm-c-native-audio-evidence-${{ github.sha }}
+          path: |
+            crates/audio-runtime/native/cpal/Cargo.lock
+            tools/swarm-c/output/native-audio/
+          retention-days: 14
+          if-no-files-found: warn
+
+  engine:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/swarm-c-views-audio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { engine: bevy, backend: native }
+          - { engine: bevy, backend: webgpu }
+          - { engine: bevy, backend: webgl2 }
+          - { engine: fyrox, backend: native }
+          - { engine: fyrox, backend: webgl2 }
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_PROFILE_RELEASE_DEBUG: 0
+      CARGO_PROFILE_DEV_OPT_LEVEL: 1
+      CARGO_INCREMENTAL: 0
+      CARGO_TARGET_DIR: ${{ github.workspace }}/engine-target
+      WONDERLAND_ENGINE: ${{ matrix.engine }}
+      WONDERLAND_BACKEND: ${{ matrix.backend }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install the isolated engine compiler
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          rustup target add wasm32-unknown-unknown --toolchain 1.95.0
+      - name: Provision native and software graphics dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libasound2-dev libudev-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev libxkbcommon-x11-dev libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers libgl1-mesa-dri xvfb
+      - name: Build the actual engine and preserve its resolution
+        run: bash tools/swarm-c/build-engine.sh
+      - name: Exercise the native software renderer
+        if: matrix.backend == 'native'
+        run: bash tools/swarm-c/run-native-engine.sh
+      - name: Exercise the browser software renderer
+        if: matrix.backend != 'native'
+        run: bash tools/swarm-c/run-browser-engine.sh
+      - name: Print bounded runtime diagnostics
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib
+          for path in (pathlib.Path('probes/engine-bakeoff') / os.environ['WONDERLAND_ENGINE'] / 'Cargo.lock', pathlib.Path('tools/swarm-c/package-lock.json')):
+              if path.is_file():
+                  data = path.read_bytes()
+                  print('LOCKFILE', json.dumps({'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}))
+          for path in sorted(pathlib.Path('tools/swarm-c/output').rglob('*')):
+              if path.is_file() and path.name in ('report.json', 'console.json', 'native-report.json', 'native.log', 'browser-process.log'):
+                  print('DIAGNOSTIC_FILE', path)
+                  raw = path.read_text(errors='replace')
+                  if path.name == 'report.json':
+                      report = json.loads(raw)
+                      summary = {key: value for key, value in report.items() if key not in ('console', 'requests', 'checks', 'scenes', 'lifecycle')}
+                      summary['checks'] = [{key: value for key, value in item.items() if key != 'detail' or not item.get('passed')} for item in report.get('checks', [])]
+                      summary['scenes'] = [{key: value for key, value in item.items() if key != 'state'} for item in report.get('scenes', [])]
+                      summary['lifecycle'] = [{key: value for key, value in item.items() if key not in ('detail', 'state')} for item in report.get('lifecycle', [])]
+                      summary['requestFailures'] = report.get('requests', [])
+                      print(json.dumps(summary, indent=2))
+                  elif path.name == 'console.json':
+                      messages = json.loads(raw)
+                      errors = [item for item in messages if item.get('type') in ('error', 'pageerror')]
+                      print(json.dumps({'totalMessages': len(messages), 'totalErrors': len(errors), 'errors': errors[:64]}, indent=2))
+                  else:
+                      print(raw[-60000:])
+          PY
+      - name: Preserve compact reports and screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-${{ matrix.engine }}-${{ matrix.backend }}-evidence-${{ github.sha }}
+          path: |
+            tools/swarm-c/output/**/report.json
+            tools/swarm-c/output/**/console.json
+            tools/swarm-c/output/**/native-report.json
+            tools/swarm-c/output/**/native.log
+            tools/swarm-c/output/**/browser-process.log
+            tools/swarm-c/output/**/gpu-picker-*.json
+            tools/swarm-c/output/**/*.png
+          retention-days: 14
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-c-${{ matrix.engine }}-${{ matrix.backend }}-${{ github.sha }}
+          path: |
+            tools/swarm-c/output/
+            probes/engine-bakeoff/${{ matrix.engine }}/Cargo.lock
+            probes/engine-bakeoff/web/pkg/
+          retention-days: 14
+          if-no-files-found: warn

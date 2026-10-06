@@ -1,0 +1,2 @@
+kind=synthetic_cpu_reference actors=32 ticks=60 bones=14 vertices=312 triangles=156 shared_prepared_bytes=26832 palette_updates=1020 draw_instances=1440 endpoint_checks=240 pose_commit_sample_us=8743 cpu_skin_us=39465 gpu_pass_time=unmeasured backend=none
+kind=synthetic_cpu_reference actors=64 ticks=60 bones=14 vertices=312 triangles=156 shared_prepared_bytes=26832 palette_updates=1560 draw_instances=2160 endpoint_checks=480 pose_commit_sample_us=13586 cpu_skin_us=51576 gpu_pass_time=unmeasured backend=none

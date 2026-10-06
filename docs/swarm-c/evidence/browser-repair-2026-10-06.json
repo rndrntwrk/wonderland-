@@ -1,0 +1,39 @@
+{
+  "schema": "wonderland-swarm-c-browser-repair-v1",
+  "date": "2026-10-06",
+  "repository": "rndrntwrk/wonderland-",
+  "runtime_commit": "a1e5c6c0b91835c30c260a283d08f029b1cf5dce",
+  "runtime_tree": "bfbb65203cbc965a48bd98800caff4cf592a9462",
+  "full_run": {"id": 37444262973, "conclusion": "success", "successful_jobs": 7, "failed_jobs": 0},
+  "jobs": [
+    {"id": 112205528139, "name": "native-audio", "conclusion": "success"},
+    {"id": 112205528360, "name": "engine (bevy, native)", "conclusion": "success"},
+    {"id": 112205528397, "name": "engine (fyrox, native)", "conclusion": "success"},
+    {"id": 112205528405, "name": "engine (bevy, webgpu)", "conclusion": "success"},
+    {"id": 112205528479, "name": "reference", "conclusion": "success"},
+    {"id": 112205528511, "name": "engine (bevy, webgl2)", "conclusion": "success"},
+    {"id": 112205528587, "name": "engine (fyrox, webgl2)", "conclusion": "success"}
+  ],
+  "reference": {"rust_tests_passed": 441, "rust_failed": 0, "rust_ignored": 0, "node_tests_passed": 50, "native_wasm_records": 18, "host_imports": 0, "shared_memory": false, "codec_python_tests": 11, "source_codec_vectors": 32},
+  "browser": "151.0.7922.34",
+  "browser_variants": [
+    {"variant": "bevy-webgpu", "status": "software-browser-checks-passed", "scenes": 6, "checks": 38, "lifecycle_diagnostics": 18, "id_samples": 52719, "id_mismatches": 0, "ownerless_samples": 15167, "max_color_rms": 5.9387374441505285, "gpu_picks": 60, "interrupted_transfers": 18, "raw_copies": 12, "report_sha256": "e9152f97ad919147daef3b366e546bcfec6a2cf7cd719aaa771f1d22590fe20e", "wasm_sha256": "ab11bf936f54dfd6a11c80fb278034803042136a953f3e37edc7609c052a5f2a"},
+    {"variant": "bevy-webgl2", "status": "software-browser-checks-passed", "scenes": 6, "checks": 38, "lifecycle_diagnostics": 16, "id_samples": 52719, "id_mismatches": 0, "ownerless_samples": 15167, "max_color_rms": 5.901143442046728, "gpu_picks": 60, "interrupted_transfers": 18, "report_sha256": "3b6cb4bb8999400ffd4659f95fbfec86666df50311d101f1076d273986d75679", "wasm_sha256": "4537f7d22d9201c9153e5cb9b153ab04291e4a4ca957675d4a2e82dae8942345"},
+    {"variant": "fyrox-webgl2", "status": "software-browser-checks-passed", "scenes": 6, "checks": 38, "lifecycle_diagnostics": 16, "id_samples": 52719, "id_mismatches": 0, "ownerless_samples": 15167, "max_color_rms": 6.006997330370917, "gpu_picks": 60, "interrupted_transfers": 18, "report_sha256": "f5f27989da47407e410115ad8ee7f2bf9eb448da9d309226b1920c65bd8b736e", "wasm_sha256": "fd1a42d7e4a90b268f9a62c9f81a837fa2cb89fda2ad1add4caebfce1c37f6ae"}
+  ],
+  "artifact_archives": [
+    {"id": 11403510396, "scope": "fresh-bevy-webgpu", "sha256": "62c0637a395b1c7a1fb1370eb9752a1746e1b8270714cee95e06bca5d536ee1f"},
+    {"id": 11403138291, "scope": "fresh-bevy-webgl2", "sha256": "0e2c52dd3992d0407a7320205a41768ce8920d8389f9a9ce5e8793013bb9aea3"},
+    {"id": 11402624216, "scope": "fresh-fyrox-webgl2", "sha256": "fbea6320c87ce577af4a64c0f993c3b738715cc0e35f2816b02ebcf308927002"},
+    {"id": 11402533454, "scope": "fresh-reference", "sha256": "c9803699259f82eea230c82ab801078f7143ff3352f9ce53d39adc13b89836a2"},
+    {"id": 11402936071, "scope": "isolated-resize-repair", "sha256": "b0ee217d7c73939f2a99a4bcec7ddbca78164b1bdf780adc27464946b95fcf16"},
+    {"id": 11400322335, "scope": "built-client-application", "sha256": "d009fab923e6a8c8c9a36ecb44c57ee0d2cff1d9c77c12be542b32b84e3d4a34"}
+  ],
+  "client": {"pr": 23, "head": "63dbc9a4c173324610b770dee6b9c3b03ecdfff2", "tested_merge": "63aec33b591b731d3fce4dbfddbce455926572b9", "workflow_run": 37438003534, "conclusion": "success", "application_scenarios": 8, "page_errors": 0, "failed_requests": 0, "report_sha256": "067d132c6cf643928f2b8af78b1292864ad0923cc0ac7bed0fcde311106dc72e", "wasm_bytes": 8454529, "wasm_sha256": "23b3401d609fe41a58c42cd868bac6eddb09f63f053b30b8d8d5b2d7c35abb59"},
+  "scope": "Repair of the observed browser acceptance failures and verified delivery of the recovered source-3D client handoff; not completion of all 17 Swarm C packages.",
+  "remaining_client_implementation": ["source sprite/hybrid/Full2D composition", "advanced lighting/environment client adapters", "full accepted-avatar/audio-host composition", "PNG/FSOf client exports", "continuous original VM restoration"],
+  "physical_devices_qualified": false,
+  "live_multiplayer_qualified": false,
+  "merged": false,
+  "deployed": false
+}

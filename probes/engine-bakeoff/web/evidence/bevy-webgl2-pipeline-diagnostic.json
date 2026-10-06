@@ -1,0 +1,43 @@
+{
+  "variant": "bevy-webgl2",
+  "scenes": [
+    {
+      "mode": "full2d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "failed",
+          "error": "GPU ID readback deadline while awaiting rendered target: ready_frames=0, image_ready=true, source_revision=2, request_revision=2, waiting_pipelines=1, pending=[\"sparse buffer update pipeline: Queued\"]",
+          "source": "immutable-fixture-initial-selection"
+        }
+      ],
+      "interruptions": []
+    }
+  ],
+  "raw": [],
+  "console": [],
+  "presentationQualified": false,
+  "artifact": {
+    "path": "web/pkg/bevy-webgl2/engine_bg.wasm",
+    "sha256": "8bb8e82fb3600da66fea2a4e54bf3fe9295eba732df37ccb139889e8fa8745c9",
+    "profile": "dev-opt1-debug0"
+  },
+  "browser": "141.0.7390.37",
+  "args": [
+    "--use-gl=angle",
+    "--use-angle=swiftshader-webgl",
+    "--enable-unsafe-swiftshader"
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: GPU ID readback deadline while awaiting rendered target: ready_frames=0, image_ready=true, source_revision=2, request_revision=2, waiting_pipelines=1, pending=[\"sparse buffer update pipeline: Queued\"]\n+ actual - expected\n\n+ 'failed'\n- 'completed'\n\n    at TestContext.<anonymous> (file:///workspace/scratch/cb8e2814717b/wonderland-c-completion/probes/engine-bakeoff/web/gpu-picker.browser-test.mjs:116:20)\n    at async Test.run (node:internal/test_runner/test:1389:7)\n    at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)"
+}
