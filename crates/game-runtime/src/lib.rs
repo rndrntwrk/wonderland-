@@ -9,6 +9,7 @@ use wonderland_content_runtime_bridge::{
     cooked::LoadedRelease,
 };
 pub mod live_session;
+pub mod live_wire;
 mod world_projection;
 
 pub use sim_core;
