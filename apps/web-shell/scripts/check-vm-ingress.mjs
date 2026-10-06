@@ -33,6 +33,7 @@ const delay = ms => new Promise(done => setTimeout(done, ms));
 const results = { fixture: 'controlled_replay; unchanged source-wire payloads; deferred callback scheduler',
   passed: false, checks: [], pageErrors: [] };
 let browser;
+let activePage;
 let gateway;
 let gatewayError;
 let gatewayLog = '';
@@ -70,10 +71,12 @@ try {
   browser = await chromium.launch({ headless: true,
     ...(process.env.WONDERLAND_QA_CHROMIUM ? { executablePath: process.env.WONDERLAND_QA_CHROMIUM } : {}),
     args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  results.browser = browser.version();
   for (const [width, height] of [[1440, 1000], [390, 844]]) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce',
       isMobile: width < 600, hasTouch: width < 600 });
     const page = await context.newPage();
+    activePage = page;
     page.on('pageerror', error => results.pageErrors.push(error.message));
     await context.addInitScript(() => {
       const Native = window.WebSocket;
@@ -132,10 +135,22 @@ try {
     results.checks.push({ width, height, name: 'Overflow disconnects and removes the stale playable view',
       injected: await page.evaluate(() => window.__vmIngressTest.injected) });
     await context.close();
+    activePage = null;
   }
   assert.deepEqual(results.pageErrors, []);
   results.passed = true;
   console.log(JSON.stringify(results, null, 2));
+} catch (error) {
+  results.failure = String(error.stack || error);
+  if (activePage && !activePage.isClosed()) {
+    await activePage.screenshot({ path: resolve(output, 'failure.png') }).catch(() => {});
+    await writeFile(resolve(output, 'failure.html'), await activePage.content().catch(() => '')).catch(() => {});
+    results.scheduler = await activePage.evaluate(() => {
+      const state = window.__vmIngressTest;
+      return state ? { batches: state.batches, injected: state.injected } : null;
+    }).catch(() => null);
+  }
+  throw error;
 } finally {
   await writeFile(resolve(output, 'results.json'), `${JSON.stringify(results, null, 2)}\n`);
   await writeFile(resolve(output, 'gateway.log'), gatewayLog);
