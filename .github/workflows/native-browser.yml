@@ -1,0 +1,27 @@
+name: Native browser
+
+on:
+  pull_request:
+    paths:
+      - apps/web-shell/**
+      - crates/game-runtime/**
+      - .github/workflows/native-browser.yml
+      - tools/native-browser/**
+      - Cargo.lock
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-browser-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  socket:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: node --test apps/web-shell/scripts/native-socket.test.mjs
