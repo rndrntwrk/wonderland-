@@ -15,3 +15,16 @@
 .world-resource-status p{margin:0 0 8px}
 .world-render-evidence{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:650px){.world-viewport,.world-viewport canvas{min-height:330px}.world-view-caption{left:10px;right:10px;top:10px;font-size:10px}.world-view-caption span{padding:7px 9px}.world-view-hint{left:10px;bottom:10px;font-size:10px;max-width:calc(100% - 20px)}.world-resource-status{left:10px;right:10px;bottom:43px;width:fit-content;max-width:calc(100% - 20px);font-size:11px}}
+
+/* Capture uses the existing inspector: no new modal, global menu or form. */
+.world-capture-panel{margin-top:16px;padding-top:14px;border-top:1px solid #d5eaff40}
+.world-capture-panel>button{min-height:44px}
+.world-capture-status{margin:8px 0;font-size:12px}
+.world-capture-preview{margin:12px 0}
+.world-capture-preview img{display:block;width:100%;height:auto;max-height:160px;object-fit:contain;background:#e5ebde;border-radius:12px}
+.world-capture-preview figcaption{margin-top:7px;font-size:11px;line-height:1.4}
+.world-capture-actions{display:flex;gap:8px;flex-wrap:wrap}
+.world-capture-actions .chrome{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border-radius:15px;font-size:12px;text-decoration:none}
+.world-capture-panel a:focus-visible,.world-capture-panel button:focus-visible{outline:3px solid #fff4b0;outline-offset:3px}
+.source-world-screen .source-world-inspector{max-height:calc(100% - 300px);overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:760px){.source-world-screen .source-world-inspector{max-height:calc(100% - 390px)}.world-capture-preview img{max-height:100px}}

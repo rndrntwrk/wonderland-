@@ -6,7 +6,10 @@ use wonderland_world_view::{
     ViewportControls, WallMode, WorldDocument, WorldPick, WorldPickTarget,
 };
 
-use crate::{components::Icon, world_renderer::WorldViewport};
+use crate::{
+    components::Icon,
+    world_renderer::{WorldCaptureControls, WorldCapturePanel, WorldViewport},
+};
 
 #[component]
 pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
@@ -19,6 +22,7 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
         }.into_any(),
     };
     let world = RwSignal::new(original);
+    let capture = WorldCaptureControls::default();
     let controls = RwSignal::new(ViewportControls::default());
     let selected = RwSignal::new(None::<WorldPick>);
     let title = RwSignal::new("Original lot".to_string());
@@ -92,7 +96,7 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
     };
     view! {
         <section class="source-world-screen" aria-label="Source lot view">
-            <WorldViewport world=Signal::derive(move || world.get()) controls on_pick/>
+            <WorldViewport world=Signal::derive(move || world.get()) controls on_pick capture/>
             <header class="source-world-header chrome">
                 <button class="chrome round small" aria-label="Back to your Sims" on:click=move |_| on_close.run(())><Icon name="chevron-left"/></button>
                 <div><span class="eyebrow">"SOURCE LOT"</span><h1>{move || title.get()}</h1>
@@ -135,6 +139,7 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
                     }).unwrap_or_default())}</p>
                     <button class="chrome" on:click=move |_| selected.set(None)>"Clear selection"</button>
                 </Show>
+                <WorldCapturePanel capture/>
                 <p class="source-world-mode">"Local source view"</p>
             </aside>
             <Show when=move || !notice.get().is_empty()><p class="source-world-notice chrome" role="status">{move || notice.get()}</p></Show>

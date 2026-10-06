@@ -29,6 +29,7 @@ pub mod snapshot_world;
 pub mod source_city;
 pub mod source_identity;
 pub mod startup;
+pub mod world_capture;
 pub mod world_draft;
 
 #[cfg(target_arch = "wasm32")]

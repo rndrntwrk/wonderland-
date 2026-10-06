@@ -85,10 +85,11 @@ function emptyResources(){return {vaos:[],buffers:[],textures:[],framebuffers:[]
 class WorldGpuOwner{
   constructor(canvas){
     this.canvas=canvas;this.gl=required(canvas.getContext('webgl2',{alpha:false,antialias:false,depth:true,stencil:true,premultipliedAlpha:false}),'WebGL2 context');
+    this.captureStore=new WorldPngCapture();
     this.resources=null;this.current=null;this.pending=null;this.disposed=false;this.lost=false;this.program=null;this.serial=0;
-    this.onLost=event=>{event.preventDefault();this.lost=true;this.cancel('Graphics context lost');this.current=null;this.resources=null;this.program=null;canvas.setAttribute('data-gpu-state','lost');};
+    this.onLost=event=>{event.preventDefault();this.lost=true;this.cancel('Graphics context lost');this.captureStore.clear('Graphics context lost. Capture again after recovery.');this.current=null;this.resources=null;this.program=null;canvas.setAttribute('data-gpu-state','lost');};
     this.onRestored=()=>{this.lost=false;canvas.setAttribute('data-gpu-state','restored-awaiting-frame');window.dispatchEvent(new Event('resize'));};
-    this.onVisibility=()=>{if(document.hidden)this.cancel('Page suspended');};
+    this.onVisibility=()=>{if(document.hidden){this.cancel('Page suspended');this.captureStore.cancelPending('Page suspended. Capture again after returning.');}};
     canvas.addEventListener('webglcontextlost',this.onLost);canvas.addEventListener('webglcontextrestored',this.onRestored);
     document.addEventListener('visibilitychange',this.onVisibility);
   }
@@ -124,7 +125,7 @@ class WorldGpuOwner{
       const depth=required(gl.createRenderbuffer(),'ID depth');candidate.renderbuffers.push(depth);gl.bindRenderbuffer(gl.RENDERBUFFER,depth);
       gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH24_STENCIL8,frame.width,frame.height);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_STENCIL_ATTACHMENT,gl.RENDERBUFFER,depth);
       if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw new Error('Source ID framebuffer is incomplete');
-      this.check();this.cancel('Frame replaced');
+      this.check();this.cancel('Frame replaced');this.captureStore.clear('The displayed view changed. Capture again.');
       const previous=this.resources;this.resources=candidate;this.current={frame,meshes,images,white,framebuffer};
       this.canvas.width=frame.width;this.canvas.height=frame.height;
       try{this.draw(false);}catch(error){this.current=null;this.resources=null;release(gl,candidate);release(gl,previous);throw error;}
@@ -185,8 +186,19 @@ class WorldGpuOwner{
       }
     });
   }
+  capture(generation,metadata){
+    try{
+      this.check();const scene=this.current;
+      if(!scene||document.hidden||scene.frame.generation!==generation)throw abort('The displayed view changed. Capture again.');
+      // Picking uses a separate framebuffer. Redraw color without reinstalling
+      // geometry, advancing generation, or cancelling an unrelated pending pick.
+      this.draw(false);
+      return this.captureStore.capture(this.canvas,generation,metadata,()=>
+        !this.disposed&&!this.lost&&!this.gl.isContextLost()&&!document.hidden&&this.current===scene);
+    }catch(error){return Promise.reject(error);}
+  }
   dispose(){
-    if(this.disposed)return;this.cancel('View disposed');this.disposed=true;
+    if(this.disposed)return;this.cancel('View disposed');this.captureStore.clear('View disposed');this.disposed=true;
     this.canvas.removeEventListener('webglcontextlost',this.onLost);this.canvas.removeEventListener('webglcontextrestored',this.onRestored);document.removeEventListener('visibilitychange',this.onVisibility);
     release(this.gl,this.resources);if(this.program)this.gl.deleteProgram(this.program);
     this.resources=null;this.current=null;this.program=null;this.canvas.setAttribute('data-gpu-state','disposed');
@@ -199,9 +211,138 @@ export function paintSourceWorld(canvas,encoded){
   if(!owner){owner=new WorldGpuOwner(canvas);owners.set(canvas,owner);}owner.install(frame);
 }
 export function pickSourceWorld(canvas,x,y){const owner=owners.get(canvas);return owner?owner.pick(x,y):Promise.reject(abort('View disposed'));}
+export function captureSourceWorld(canvas,generation,metadata){const owner=owners.get(canvas);return owner?owner.capture(generation,metadata):Promise.reject(abort('View disposed'));}
+export function clearSourceWorldCapture(canvas){owners.get(canvas)?.captureStore.clear();}
 export function disposeSourceWorld(canvas){const owner=owners.get(canvas);owner?.dispose();owners.delete(canvas);}
 export function worldGpuStats(canvas){
   const owner=owners.get(canvas),r=owner?.resources;
   return {ready:!!owner?.current,lost:owner?.lost??false,pending:!!owner?.pending,generation:owner?.current?.frame.generation??null,
+    capturePending:!!owner?.captureStore.pending,captureUrls:owner?.captureStore.ready?.urls.length??0,
     meshes:r?.vaos.length??0,buffers:r?.buffers.length??0,textures:r?.textures.length??0,framebuffers:r?.framebuffers.length??0,renderbuffers:r?.renderbuffers.length??0};
+}
+
+// Keep this implementation in the wasm-bindgen snippet: no unbundled imports.
+// One bounded, disposable source-view capture. Browser encoding and object URLs
+// live here; source state, camera choices and frame identity remain Rust-owned.
+const MAX_PIXELS = 1_048_576;
+const MAX_PNG_BYTES = 8 * 1024 * 1024;
+const MAX_METADATA_CHARS = 65_536;
+
+function request(canvas, generation, encoded) {
+  const {width, height} = canvas;
+  if (![width, height].every(n => Number.isSafeInteger(n) && n > 0 && n <= 4096)
+      || width * height > MAX_PIXELS) throw new Error('PNG capture exceeds the surface budget.');
+  if (typeof generation !== 'string' || !/^[1-9][0-9]{0,19}$/.test(generation)
+      || BigInt(generation) > 18446744073709551615n) throw new Error('Invalid capture generation.');
+  if (typeof encoded !== 'string' || encoded.length > MAX_METADATA_CHARS) throw new Error('Capture metadata exceeds its budget.');
+  let source;
+  try { source = JSON.parse(encoded); } catch { throw new Error('Invalid capture metadata.'); }
+  if (!source || typeof source !== 'object' || Array.isArray(source)) throw new Error('Invalid capture metadata.');
+  return {width, height, generation, source};
+}
+
+function validatePng(bytes, width, height) {
+  const signature = [137, 80, 78, 71, 13, 10, 26, 10];
+  if (bytes.byteLength < 45 || signature.some((value, index) => bytes[index] !== value)) throw new Error('PNG encoder returned an invalid image.');
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (view.getUint32(8) !== 13 || view.getUint32(12) !== 0x49484452
+      || view.getUint32(16) !== width || view.getUint32(20) !== height) throw new Error('PNG encoder returned different dimensions.');
+}
+
+export class WorldPngCapture {
+  constructor({urlApi = URL, cryptoApi = globalThis.crypto, timeoutMs = 10_000} = {}) {
+    if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30_000) throw new Error('Invalid capture deadline.');
+    this.urlApi = urlApi;
+    this.cryptoApi = cryptoApi;
+    this.timeoutMs = timeoutMs;
+    this.pending = null;
+    this.ready = null;
+    this.encoders = 0;
+  }
+
+  cancelPending(message = 'Capture cancelled.') {
+    this.pending?.fail(abort(message));
+  }
+
+  clear(message = 'Captured view released.') {
+    this.cancelPending(message);
+    if (this.ready) {
+      for (const url of this.ready.urls) this.urlApi.revokeObjectURL(url);
+      this.ready = null;
+    }
+  }
+
+  capture(canvas, generation, encoded, isCurrent) {
+    this.clear('A newer capture was requested.');
+    return new Promise((resolve, reject) => {
+      let info;
+      try {
+        info = request(canvas, generation, encoded);
+        if (this.encoders >= 2) throw new Error('PNG encoder is busy finishing a cancelled capture. Retry shortly.');
+        if (!isCurrent()) throw abort('The displayed view changed. Capture again.');
+        if (!this.cryptoApi?.subtle) throw new Error('PNG capture requires a secure browser context.');
+      } catch (error) { reject(error); return; }
+      const urls = [];
+      const ticket = {
+        timer: null,
+        fail: error => {
+          if (this.pending !== ticket) return;
+          this.pending = null;
+          clearTimeout(ticket.timer);
+          for (const url of urls) this.urlApi.revokeObjectURL(url);
+          reject(error);
+        },
+      };
+      this.pending = ticket;
+      const current = () => {
+        if (this.pending !== ticket) return false;
+        if (!isCurrent()) { ticket.fail(abort('The displayed view changed. Capture again.')); return false; }
+        return true;
+      };
+      ticket.timer = setTimeout(() => ticket.fail(new DOMException('PNG encoding timed out. Try capturing again.', 'TimeoutError')), this.timeoutMs);
+      let encoding = false;
+      try {
+        // Browser encoders cannot be cancelled. Keep at most two outstanding
+        // snapshots, including cancelled requests whose callbacks have not run.
+        this.encoders += 1;
+        encoding = true;
+        // Called immediately after the owner redraws its color pass, in the same
+        // JS task. We do not read a compositor-cleared default drawing buffer.
+        canvas.toBlob(async blob => {
+          try {
+            if (!current()) return;
+            if (!blob) throw new Error('PNG encoding failed. Try capturing again.');
+            if (blob.type !== 'image/png' || blob.size > MAX_PNG_BYTES || blob.size < 45) throw new Error('PNG encoder exceeded its format or byte budget.');
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            if (!current()) return;
+            validatePng(bytes, info.width, info.height);
+            const digest = await this.cryptoApi.subtle.digest('SHA-256', bytes);
+            if (!current()) return;
+            const sha256 = Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2, '0')).join('');
+            const manifest = {
+              schema: 1,
+              kind: 'source-view-capture',
+              generation: info.generation,
+              image: {width: info.width, height: info.height, bytes: blob.size, sha256},
+              source: info.source,
+              scope: 'Local rendered source view only; not a saved game, facade or authoritative snapshot.',
+            };
+            const metadata = new Blob([JSON.stringify(manifest, null, 2) + '\n'], {type: 'application/json'});
+            urls.push(this.urlApi.createObjectURL(blob));
+            urls.push(this.urlApi.createObjectURL(metadata));
+            const filename = `wonderland-source-view-${generation}.png`;
+            const receipt = {generation, width: info.width, height: info.height, image_url: urls[0], metadata_url: urls[1], filename, metadata_filename: `wonderland-source-view-${generation}.json`};
+            this.ready = {urls, receipt};
+            this.pending = null;
+            clearTimeout(ticket.timer);
+            resolve(JSON.stringify(receipt));
+          } catch (error) { ticket.fail(error); }
+          finally { this.encoders -= 1; }
+        }, 'image/png');
+      } catch (error) {
+        if (encoding) this.encoders -= 1;
+        ticket.fail(error);
+      }
+    });
+  }
 }

@@ -5,6 +5,7 @@ import {createServer} from 'node:http';
 import {resolve,relative,sep,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
+import {png} from './png.mjs';
 const root=fileURLToPath(new URL('../../../../',import.meta.url));
 const output=resolve(root,'tests/output/source-gpu');await mkdir(output,{recursive:true});
 const {chromium}=await import(process.env.WONDERLAND_PLAYWRIGHT_MODULE||'playwright');
@@ -56,6 +57,29 @@ try{
       const pick=await page.evaluate(async point=>JSON.parse(await window.sourceGpu.pickSourceWorld(window.canvas,point.x,point.y)),point);
       assert.equal(pick.index,point.index);assert.equal(pick.generation,frame.generation);
     }
+    const photo=await page.evaluate(async()=>{
+      const api=window.sourceGpu,canvas=window.canvas,gl=canvas.getContext('webgl2'),toBlob=canvas.toBlob;
+      const before=api.worldGpuStats(canvas);let observed;
+      canvas.toBlob=function(callback,type){
+        const pixels=new Uint8Array(this.width*this.height*4);gl.readPixels(0,0,this.width,this.height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);observed=Array.from(pixels);
+        toBlob.call(this,callback,type);
+      };
+      const pick=api.pickSourceWorld(canvas,100,100);
+      let pending;
+      try{pending=api.captureSourceWorld(canvas,window.frame.generation,JSON.stringify({test:'Rust source fixture',revision:{tick:'9007199254740993'}}));}
+      finally{canvas.toBlob=toBlob;}
+      const receipt=JSON.parse(await pending),image=await (await fetch(receipt.image_url)).arrayBuffer(),details=await (await fetch(receipt.metadata_url)).json();
+      const picked=JSON.parse(await pick),after=api.worldGpuStats(canvas);api.clearSourceWorldCapture(canvas);
+      return {before,after,receipt,image:Array.from(new Uint8Array(image)),details,observed,picked,released:api.worldGpuStats(canvas)};
+    });
+    const photoBytes=Buffer.from(photo.image),decoded=png(photoBytes);assert.equal(decoded.width,scene.width);assert.equal(decoded.height,scene.height);
+    for(let y=0;y<scene.height;y++)for(let x=0;x<scene.width;x++)for(let c=0;c<4;c++)assert.equal(decoded.pixels[(y*scene.width+x)*4+c],photo.observed[((scene.height-y-1)*scene.width+x)*4+c]);
+    assert.equal(photo.details.image.sha256,createHash('sha256').update(photoBytes).digest('hex'));
+    assert.equal(photo.details.source.revision.tick,'9007199254740993');assert.equal(photo.picked.generation,frame.generation);
+    for(const key of ['generation','meshes','buffers','textures','framebuffers','renderbuffers'])assert.equal(photo.before[key],photo.after[key]);
+    assert.equal(photo.after.captureUrls,2);assert.equal(photo.released.captureUrls,0);assert.equal(photo.released.capturePending,false);
+    await writeFile(resolve(output,scene.name+'-export.png'),photoBytes);
+    report.lifecycle.push({name:'exact PNG and sidecar from '+scene.name,pixels:scene.width*scene.height,concurrentPickPreserved:true,generation:frame.generation});
     await page.locator('canvas').screenshot({path:resolve(output,scene.name+'.png')});
     report.scenes.push({name:scene.name,triangles:scene.triangles,color,picks:targets.length,renderer:observed.renderer,version:observed.version,stats:observed.stats,frameSha256:createHash('sha256').update(JSON.stringify(frame)).digest('hex')});
   }
@@ -74,6 +98,17 @@ try{
     const newer=await api.pickSourceWorld(canvas,100,100);if(JSON.parse(newer).generation!=='120')throw new Error('Current GPU generation not retained');
   });
   report.lifecycle.push('20 replacements retain owned-resource counts; real transfer cancelled on replacement; new generation remains pickable');
+  await page.evaluate(async()=>{
+    const api=window.sourceGpu,canvas=window.canvas,toBlob=canvas.toBlob;
+    let release,encoded;const encoding=new Promise(resolve=>{encoded=resolve;});
+    canvas.toBlob=function(callback,type){toBlob.call(this,blob=>{release=()=>callback(blob);encoded();},type);};
+    const pending=api.captureSourceWorld(canvas,'120','{}').catch(error=>({name:error.name}));
+    await encoding;canvas.toBlob=toBlob;window.setFrame({...window.frame,generation:'121'});
+    if((await pending).name!=='AbortError')throw new Error('Replaced frame capture was accepted');
+    release();await new Promise(resolve=>setTimeout(resolve,0));
+    const state=api.worldGpuStats(canvas);if(state.captureUrls||state.capturePending)throw new Error('Stale photo retained owned resources');
+  });
+  report.lifecycle.push('actual PNG encoder callback cancelled on source frame replacement; delayed completion creates no URLs');
   await page.evaluate(()=>{
     const canvas=window.canvas,gl=canvas.getContext('webgl2');window.loss=gl.getExtension('WEBGL_lose_context');
     if(!window.loss)throw new Error('Actual context-loss extension unavailable');window.loss.loseContext();

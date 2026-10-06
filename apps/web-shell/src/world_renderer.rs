@@ -6,6 +6,8 @@ use wonderland_world_view::{
     ViewportControls, WorldDocument, WorldPick, WorldRenderStats, WorldRenderer,
 };
 
+use crate::world_capture::{WorldCaptureReceipt, capture_metadata};
+
 #[wasm_bindgen(module = "/public/world-gpu.mjs")]
 extern "C" {
     #[wasm_bindgen(js_name=nextWorldPaint)]
@@ -14,8 +16,79 @@ extern "C" {
     fn paint(canvas: &web_sys::HtmlCanvasElement, frame: &str) -> Result<(), JsValue>;
     #[wasm_bindgen(js_name=pickSourceWorld)]
     fn gpu_pick(canvas: &web_sys::HtmlCanvasElement, x: u32, y: u32) -> js_sys::Promise;
+    #[wasm_bindgen(js_name=captureSourceWorld)]
+    fn capture_png(
+        canvas: &web_sys::HtmlCanvasElement,
+        generation: &str,
+        metadata: &str,
+    ) -> js_sys::Promise;
+    #[wasm_bindgen(js_name=clearSourceWorldCapture)]
+    fn clear_capture(canvas: &web_sys::HtmlCanvasElement);
     #[wasm_bindgen(js_name=disposeSourceWorld)]
     fn dispose(canvas: &web_sys::HtmlCanvasElement);
+}
+
+#[derive(Clone, Default)]
+pub enum WorldCaptureState {
+    #[default]
+    Unavailable,
+    Idle,
+    Preparing,
+    Ready(WorldCaptureReceipt),
+    Failed(String),
+}
+#[derive(Clone, Copy)]
+pub struct WorldCaptureControls {
+    command: RwSignal<(u64, bool)>,
+    state: RwSignal<WorldCaptureState>,
+}
+impl Default for WorldCaptureControls {
+    fn default() -> Self {
+        Self {
+            command: RwSignal::new((0, false)),
+            state: RwSignal::new(WorldCaptureState::Unavailable),
+        }
+    }
+}
+impl WorldCaptureControls {
+    fn send(self, capture: bool) {
+        if let Some(serial) = self.command.get_untracked().0.checked_add(1) {
+            self.command.set((serial, capture));
+        } else {
+            self.state.set(WorldCaptureState::Failed(
+                "Reopen this view before capturing again.".into(),
+            ));
+        }
+    }
+}
+#[component]
+pub fn WorldCapturePanel(capture: WorldCaptureControls) -> impl IntoView {
+    view! {
+        <div class="world-capture-panel" aria-label="Source view photo">
+            <button class="chrome" disabled=move || matches!(capture.state.get(), WorldCaptureState::Unavailable | WorldCaptureState::Preparing) on:click=move |_| capture.send(true)>"Capture PNG"</button>
+            <p class="world-capture-status" role="status">{move || match capture.state.get() {
+                WorldCaptureState::Unavailable => "Waiting for the view…".to_string(),
+                WorldCaptureState::Idle => "Capture the scene without menus.".to_string(),
+                WorldCaptureState::Preparing => "Preparing your photo…".to_string(),
+                WorldCaptureState::Ready(_) => "Your photo is ready to save.".to_string(),
+                WorldCaptureState::Failed(message) => message,
+            }}</p>
+            {move || match capture.state.get() {
+                WorldCaptureState::Ready(receipt) => view! {
+                    <figure class="world-capture-preview">
+                        <img src=receipt.image_url.clone() alt="Captured source-world view"/>
+                        <figcaption>{format!("{} × {} pixels · local source view",receipt.width,receipt.height)}</figcaption>
+                    </figure>
+                    <div class="world-capture-actions">
+                        <a class="chrome" href=receipt.image_url download=receipt.filename>"Save PNG"</a>
+                        <a class="chrome" href=receipt.metadata_url download=receipt.metadata_filename>"Photo details"</a>
+                        <button class="chrome" on:click=move |_| capture.send(false)>"Discard photo"</button>
+                    </div>
+                }.into_any(),
+                _ => ().into_any(),
+            }}
+        </div>
+    }
 }
 
 #[derive(serde::Deserialize)]
@@ -94,9 +167,18 @@ pub fn WorldViewport(
     controls: RwSignal<ViewportControls>,
     on_pick: Callback<WorldPick>,
     #[prop(optional)] draft: Option<Signal<crate::world_draft::WorldDraftOutline>>,
+    #[prop(optional)] capture: Option<WorldCaptureControls>,
 ) -> impl IntoView {
     let canvas = NodeRef::<leptos::html::Canvas>::new();
     let runtime = StoredValue::new(None::<WorldRenderer>);
+    let painted = StoredValue::new(
+        None::<(
+            String,
+            Arc<WorldDocument>,
+            ViewportControls,
+            WorldRenderStats,
+        )>,
+    );
     let pointers = StoredValue::new(BTreeMap::<i32, PointerTrack>::new());
     let requested = RwSignal::new(0u64);
     let pick_request = RwSignal::new(0u64);
@@ -148,6 +230,11 @@ pub fn WorldViewport(
         requested.update(|value| *value = value.saturating_add(1));
         let expected = requested.get_untracked();
         busy.set(true);
+        painted.set_value(None);
+        clear_capture(&canvas);
+        if let Some(capture) = capture {
+            capture.state.set(WorldCaptureState::Unavailable);
+        }
         wasm_bindgen_futures::spawn_local(async move {
             let _ = wasm_bindgen_futures::JsFuture::from(next_paint()).await;
             if requested.try_get_untracked() != Some(expected) {
@@ -174,6 +261,12 @@ pub fn WorldViewport(
                     return Err("Source GPU frame exceeds the transfer budget.".into());
                 }
                 paint(&canvas, &encoded).map_err(js_message)?;
+                painted.set_value(Some((
+                    frame.generation,
+                    Arc::clone(&document),
+                    settings,
+                    result.clone(),
+                )));
                 Ok(result)
             });
             if requested.try_get_untracked() != Some(expected) {
@@ -181,6 +274,9 @@ pub fn WorldViewport(
             }
             match result {
                 Some(Ok(rendered)) => {
+                    if let Some(capture) = capture {
+                        capture.state.set(WorldCaptureState::Idle);
+                    }
                     stats.set(rendered);
                     error.set(String::new());
                     busy.set(false);
@@ -199,6 +295,81 @@ pub fn WorldViewport(
             }
         });
     });
+    if let Some(capture) = capture {
+        Effect::new(move |_| {
+            let (serial, take_photo) = capture.command.get();
+            if serial == 0 {
+                return;
+            }
+            let Some(canvas) = canvas.get_untracked() else {
+                return;
+            };
+            clear_capture(&canvas);
+            if !take_photo {
+                capture.state.set(if busy.get_untracked() {
+                    WorldCaptureState::Unavailable
+                } else {
+                    WorldCaptureState::Idle
+                });
+                return;
+            }
+            let Some((generation, document, settings, dimensions)) = painted.get_value() else {
+                return;
+            };
+            if busy.get_untracked()
+                || !Arc::ptr_eq(&document, &world.get_untracked())
+                || settings != controls.get_untracked()
+            {
+                capture.state.set(WorldCaptureState::Failed(
+                    "The view is changing. Capture again when it settles.".into(),
+                ));
+                return;
+            }
+            let metadata = match capture_metadata(&document, settings, &dimensions) {
+                Ok(metadata) => metadata,
+                Err(message) => {
+                    capture.state.set(WorldCaptureState::Failed(message));
+                    return;
+                }
+            };
+            let frame_request = requested.get_untracked();
+            capture.state.set(WorldCaptureState::Preparing);
+            wasm_bindgen_futures::spawn_local(async move {
+                let result = wasm_bindgen_futures::JsFuture::from(capture_png(
+                    &canvas,
+                    &generation,
+                    &metadata,
+                ))
+                .await;
+                if requested.try_get_untracked() != Some(frame_request)
+                    || capture.command.try_get_untracked() != Some((serial, true))
+                {
+                    return;
+                }
+                let receipt = result.map_err(js_message).and_then(|value| {
+                    let encoded = value
+                        .as_string()
+                        .filter(|value| value.len() <= 8192)
+                        .ok_or_else(|| "Invalid photo receipt.".to_string())?;
+                    let receipt: WorldCaptureReceipt = serde_json::from_str(&encoded)
+                        .map_err(|_| "Invalid photo receipt.".to_string())?;
+                    if !receipt.matches(&generation, dimensions.width, dimensions.height) {
+                        return Err("The captured photo did not match the displayed view.".into());
+                    }
+                    Ok(receipt)
+                });
+                match receipt {
+                    Ok(receipt) => {
+                        capture.state.try_set(WorldCaptureState::Ready(receipt));
+                    }
+                    Err(message) => {
+                        clear_capture(&canvas);
+                        capture.state.try_set(WorldCaptureState::Failed(message));
+                    }
+                }
+            });
+        });
+    }
     on_cleanup(move || {
         requested.try_update(|value| *value = value.saturating_add(1));
         runtime.try_update_value(|slot| {
@@ -269,6 +440,11 @@ pub fn WorldViewport(
         <style>{include_str!("../public/world.css")}</style>
         <div class="world-viewport" class:world-busy=move ||busy.get() data-source-kind=move ||format!("{:?}",world.get().provenance.kind)>
             <canvas node_ref=canvas tabindex="0" aria-label="Source world. Drag to pan, Shift-drag to rotate, or pinch to zoom. Arrow keys pan; Q and E rotate; plus and minus zoom; Page Up and Page Down change floors; Enter selects the center tile."
+                on:webglcontextlost=move |_: web_sys::Event| {
+                    requested.try_update(|value| *value = value.saturating_add(1));
+                    painted.try_update_value(|value| *value = None);
+                    if let Some(capture) = capture { capture.state.try_set(WorldCaptureState::Unavailable); }
+                }
                 on:contextmenu=move |event|event.prevent_default()
                 on:pointerdown=move |event| {
                     if event.button()!=0 && event.button()!=2 { return; }
