@@ -2,10 +2,10 @@
 // the reference generator first. Presentation screenshots remain a separate gate.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createServer} from 'node:http';
+import {createFixtureServer} from './fixture-server.mjs';
 import {createHash} from 'node:crypto';
 import {readFile,writeFile} from 'node:fs/promises';
-import {resolve,extname} from 'node:path';
+import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {colorDifference,readPpm,compareIds} from '../../../tools/swarm-c/read-png.mjs';
 
@@ -37,14 +37,7 @@ function stablePoints(ids,depth){
 test(`${variant} selects from offscreen GPU IDs and rejects interrupted work`,{timeout:300000},async()=>{
   const {chromium}=await import(process.env.WONDERLAND_PLAYWRIGHT_MODULE||new URL('../../../tools/swarm-c/node_modules/playwright/index.mjs',import.meta.url).href);
   const manifest=JSON.parse(await readFile(resolve(reference,'manifest.json'),'utf8'));
-  const server=createServer(async(request,response)=>{
-    try{
-      const path=resolve(root,'.'+new URL(request.url,'http://local').pathname);
-      if(!path.startsWith(root))throw new Error('Invalid test path');
-      response.writeHead(200,{'Content-Type':({'.mjs':'text/javascript','.js':'text/javascript','.wasm':'application/wasm','.css':'text/css','.html':'text/html'})[extname(path)]||'application/octet-stream'});
-      response.end(await readFile(path));
-    }catch{response.writeHead(404);response.end();}
-  });
+  const server=createFixtureServer(root);
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const report={variant,observations:[],scenes:[],raw:[],console:[],presentationQualified:false};
   let browser;

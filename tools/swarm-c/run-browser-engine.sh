@@ -2,6 +2,7 @@
 set -euo pipefail
 task_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$task_root"
+node --test probes/engine-bakeoff/web/fixture-server.test.mjs
 if [[ -f tools/swarm-c/package-lock.json ]]; then
   npm ci --prefix tools/swarm-c --ignore-scripts
 else
