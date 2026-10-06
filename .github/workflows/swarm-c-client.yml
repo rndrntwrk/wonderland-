@@ -1,0 +1,57 @@
+name: Swarm C client recovery
+on:
+  push:
+    branches: [feat/swarm-c-client-integration]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-client:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+      - name: Verify formatting without modifying the tested source
+        run: |
+          mkdir -p tests/output/source-gpu
+          git rev-parse HEAD > tests/output/source-gpu/source-commit.txt
+          git rev-parse HEAD^{tree} > tests/output/source-gpu/source-tree.txt
+          cargo fmt --all --check
+      - name: Verify native source rendering and produce independent browser fixture
+        run: |
+          set -o pipefail
+          cargo test -p wonderland-world-view --locked 2>&1 | tee tests/output/source-gpu/native-tests.log
+          cargo run -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu
+      - name: Verify the actual WASM client bindings
+        run: |
+          set -o pipefail
+          cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings 2>&1 | tee tests/output/source-gpu/wasm-clippy.log
+      - name: Run protocol, capture, packaging and actual WebGL2 source rendering
+        run: |
+          set -o pipefail
+          node --test apps/web-shell/tests/gpu/*.test.mjs | tee tests/output/source-gpu/node-tests.log
+          npm install --prefix /tmp/source-gpu-playwright --ignore-scripts --no-audit --no-fund playwright@1.62.1
+          /tmp/source-gpu-playwright/node_modules/.bin/playwright install --with-deps --no-shell chromium
+          WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-gpu-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/browser.mjs
+      - name: Retain complete committed client inputs and verify no mutation
+        if: always()
+        run: |
+          mkdir -p tests/output/source-gpu
+          git archive --format=tar.gz HEAD -- .github .gitignore Cargo.toml Cargo.lock rust-toolchain.toml apps crates docs fixtures tests tools services > tests/output/source-gpu/source-input.tar.gz
+          sha256sum tests/output/source-gpu/source-input.tar.gz > tests/output/source-gpu/source-input.sha256
+          git diff --exit-code
+      - name: Preserve all results, including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: source-client-${{ github.sha }}
+          path: tests/output/source-gpu/
+          retention-days: 14
+          if-no-files-found: error
