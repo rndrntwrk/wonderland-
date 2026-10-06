@@ -31,10 +31,11 @@ jobs:
           before={'tools/swarm-c/browser-gate.mjs':'c533131677b160f0b5eb9bba406a5663ee8122de8c4aba82ded813985a6ebcdb','tools/swarm-c/verify.sh':'784ad8f6add4693fd369fdca1c9ce93f28a00f80522562c26863c76a783d328d','tools/swarm-c/viewport-ready.test.mjs':'4a659a41534f3dcd1c3f3b2b5fc3825c72446fde585973ba5683daf7fd4d7c7f'}
           for p,digest in before.items(): assert hashlib.sha256(Path(p).read_bytes()).hexdigest()==digest,p
           PY
-          if node --test tools/swarm-c/viewport-ready.test.mjs > /tmp/resize-evidence/red.log 2>&1; then
+          if node --test --test-reporter=tap tools/swarm-c/viewport-ready.test.mjs > /tmp/resize-evidence/red.log 2>&1; then
             echo 'Expected the two unwired-runner regression failures' >&2; exit 1
           fi
-          grep -q '# fail 2' /tmp/resize-evidence/red.log
+          cat /tmp/resize-evidence/red.log
+          grep -q '^# fail 2$' /tmp/resize-evidence/red.log
           python3 - <<'PY'
           from pathlib import Path
           import hashlib
