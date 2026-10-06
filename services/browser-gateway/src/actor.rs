@@ -1,5 +1,6 @@
 use crate::{
     eod::EodGate,
+    lot_chat::LotChatGate,
     native,
     server::{Session, Shared, capabilities},
 };
@@ -37,6 +38,7 @@ struct Actor {
     rx: mpsc::Receiver<NativeEvent>,
     timer: tokio::time::Interval,
     eod: EodGate,
+    lot_chat: LotChatGate,
     last_snapshot_request: Option<tokio::time::Instant>,
     neighborhood_failed: bool,
     cancelled_find_lot: bool,
@@ -61,6 +63,7 @@ pub(crate) async fn run(socket: WebSocket, state: Arc<Shared>, session: Arc<Sess
         rx,
         timer: tokio::time::interval(Duration::from_secs(10)),
         eod: EodGate::new(0),
+        lot_chat: LotChatGate::new(0, 0, 0),
         last_snapshot_request: None,
         neighborhood_failed: false,
         cancelled_find_lot: false,
@@ -596,6 +599,7 @@ impl Actor {
         self.projection.lot_location = None;
         self.projection.lot_incarnation = None;
         self.eod.reset(0);
+        self.lot_chat.reset(0, 0, 0);
         self.last_snapshot_request = None;
     }
     async fn abandon_pending(&mut self) -> ServiceResult<()> {
@@ -679,6 +683,11 @@ impl Actor {
                         self.projection.lot_location = Some(lot_location);
                         self.projection.lot_incarnation = Some(self.lot_generation);
                         self.eod.reset(self.projection.avatar_id.unwrap_or(0));
+                        self.lot_chat.reset(
+                            self.projection.avatar_id.unwrap_or(0),
+                            lot_location,
+                            self.lot_generation,
+                        );
                         Ok(())
                     }
                     Err(error) => {
@@ -865,6 +874,7 @@ impl Actor {
             }
             SourcePacket::VmFrame { direct, data } if lot => {
                 let old_plugin = self.eod.active_plugin();
+                let chat = self.lot_chat.observe(direct, &data)?;
                 match self.eod.observe_for_lot(
                     direct,
                     &data,
@@ -927,6 +937,24 @@ impl Actor {
                         }
                         self.send(None,GatewayEvent::SourceEvent{family:"vm_decode_error".into(),source_code:None,data:serde_json::json!({"error":error,"lot_incarnation":self.projection.lot_incarnation})}).await?;
                     }
+                }
+                if self.projection.state == SessionState::LotReady
+                    && let Some(chat) = chat
+                {
+                    self.send(
+                        None,
+                        GatewayEvent::SourceEvent {
+                            family: "lot_chat".into(),
+                            source_code: None,
+                            data: serde_json::to_value(chat).map_err(|_| {
+                                ServiceError::new(
+                                    ErrorCode::InvalidResponse,
+                                    "Cannot encode observed lot chat",
+                                )
+                            })?,
+                        },
+                    )
+                    .await?;
                 }
                 self.send(
                     None,

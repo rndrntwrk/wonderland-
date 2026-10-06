@@ -88,13 +88,28 @@ impl SourceFrameGate {
         let mut needs_refresh = false;
         let mut admitted = false;
         for (tick, commands) in batches {
+            let snapshot_only = !commands.is_empty()
+                && commands
+                    .iter()
+                    .all(|command| matches!(&command.body, CommandBody::StateSync { .. }));
             let mut historical = false;
             if let Some(tick) = tick {
                 if let Some(previous) = last_tick {
                     let delta = tick.wrapping_sub(previous);
                     historical = delta == 0 || delta >= (1_u32 << 31);
                 }
-                if !historical {
+                if snapshot_only {
+                    // VMServerDriver.SendState labels a saved state with the
+                    // NEXT ordinary TickID. Reject history before that boundary,
+                    // but admit its first real tick with the same ID exactly once.
+                    let before_snapshot = tick.wrapping_sub(1);
+                    if last_tick.is_none_or(|previous| {
+                        let delta = before_snapshot.wrapping_sub(previous);
+                        delta != 0 && delta < (1_u32 << 31)
+                    }) {
+                        last_tick = Some(before_snapshot);
+                    }
+                } else if !historical {
                     last_tick = Some(tick);
                     admitted = true;
                     // Autonomous source simulation also advances on empty ticks.
@@ -122,14 +137,14 @@ impl SourceFrameGate {
                         }
                         snapshots.push(*snapshot);
                         admitted = true;
-                        needs_refresh = historical;
+                        needs_refresh = historical || (tick.is_some() && !snapshot_only);
                     }
                     CommandBody::EodMessage(message) => {
                         if message.actor_uid == identity.avatar_id {
                             eods.push(message);
                         }
                     }
-                    CommandBody::SourceFields { .. } => {
+                    _ => {
                         // These source commands affect dialogs/chat or transport.
                         // All other accepted commands can change the world.
                         if !matches!(command.kind, 4 | 13 | 14 | 26 | 34 | 39 | 40 | 41) {
@@ -394,5 +409,70 @@ mod tests {
         assert!(update.eods.is_empty());
         assert_eq!(update.last_tick, Some(103));
         assert!(update.needs_refresh);
+    }
+
+    #[test]
+    fn source_snapshot_wrapper_precedes_the_first_ordinary_tick_with_the_same_id() {
+        let command =
+            include_bytes!("../../../crates/vm-protocol/tests/fixtures/source-v38-state-sync.bin");
+        let owner = LiveWorldIdentity {
+            lot_location: 55,
+            ..identity(1)
+        };
+        let mut gate = SourceFrameGate::default();
+        gate.reset(Some(owner));
+        let snapshot = gate
+            .admit(owner, false, &tick(42, &[command.to_vec()], false))
+            .unwrap();
+        assert!(!snapshot.needs_refresh);
+        assert_eq!(
+            gate.admit(owner, false, &tick(41, &[eod(7)], false))
+                .unwrap_err(),
+            FrameError::StaleTick
+        );
+        let first = gate
+            .admit(owner, false, &tick(42, &[eod(7)], false))
+            .expect("VMServerDriver tags its snapshot with the next real TickID");
+        assert!(first.needs_refresh);
+        assert_eq!(first.eods.len(), 1);
+        assert_eq!(first.last_tick, Some(42));
+        assert_eq!(
+            gate.admit(owner, false, &tick(42, &[eod(7)], false))
+                .unwrap_err(),
+            FrameError::StaleTick
+        );
+        let cached = gate
+            .admit(owner, false, &tick(42, &[command.to_vec()], false))
+            .unwrap();
+        assert!(
+            cached.needs_refresh,
+            "The pre-tick snapshot is older than completed tick 42"
+        );
+        assert!(cached.eods.is_empty());
+        assert_eq!(cached.last_tick, Some(42));
+    }
+
+    #[test]
+    fn snapshot_pre_tick_boundary_preserves_wrapping_source_tick_order() {
+        let command =
+            include_bytes!("../../../crates/vm-protocol/tests/fixtures/source-v38-state-sync.bin");
+        let owner = LiveWorldIdentity {
+            lot_location: 55,
+            ..identity(1)
+        };
+        let mut gate = SourceFrameGate::default();
+        gate.reset(Some(owner));
+        gate.admit(owner, false, &tick(0, &[command.to_vec()], false))
+            .unwrap();
+        assert_eq!(
+            gate.admit(owner, false, &tick(u32::MAX, &[eod(7)], false))
+                .unwrap_err(),
+            FrameError::StaleTick
+        );
+        let first = gate
+            .admit(owner, false, &tick(0, &[eod(7)], false))
+            .unwrap();
+        assert_eq!(first.eods.len(), 1);
+        assert!(first.needs_refresh);
     }
 }

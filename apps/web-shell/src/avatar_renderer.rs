@@ -100,6 +100,19 @@ async function renderSoftware(canvas,parts,reduced){
 }
 export function textureUrl(bytes,mime){return URL.createObjectURL(new Blob([bytes],{type:mime}));}
 export function revokeTextureUrl(url){URL.revokeObjectURL(url);}
+// Shared source-byte decoder for the world's reference rasterizer. Pixel order
+// and UV orientation stay unchanged; the caller validates identity and bounds.
+export async function decodeAvatarTexture(bytes,mime,maxPixels,maxDimension){
+  const bitmap=await createImageBitmap(new Blob([bytes],{type:mime}),{premultiplyAlpha:'none',colorSpaceConversion:'none'});
+  try{
+    if(!bitmap.width||!bitmap.height||bitmap.width>maxDimension||bitmap.height>maxDimension||bitmap.width*bitmap.height>maxPixels)throw new Error('Original avatar texture exceeds the world image budget.');
+    const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;
+    const context=canvas.getContext('2d',{willReadFrequently:true});if(!context)throw new Error('Original avatar texture decoding is unavailable.');
+    context.globalCompositeOperation='copy';context.drawImage(bitmap,0,0);
+    const data=context.getImageData(0,0,bitmap.width,bitmap.height).data;
+    return {width:bitmap.width,height:bitmap.height,pixels:new Uint8Array(data.buffer,data.byteOffset,data.byteLength)};
+  }finally{bitmap.close();}
+}
 export function turnAvatar(canvas,degrees){const s=sessions.get(canvas);if(s){s.yaw+=degrees*Math.PI/180;if(s.draw)s.draw();}}
 export async function renderAvatar(canvas,parts,reduced) {
   dropAvatar(canvas);
@@ -157,6 +170,13 @@ export async function renderAvatar(canvas,parts,reduced) {
 }
 "#)]
 extern "C" {
+    #[wasm_bindgen(js_name=decodeAvatarTexture)]
+    pub fn decode_avatar_texture(
+        bytes: &js_sys::Uint8Array,
+        mime: &str,
+        max_pixels: u32,
+        max_dimension: u32,
+    ) -> js_sys::Promise;
     #[wasm_bindgen(js_name=textureUrl)]
     pub fn texture_url(bytes: &js_sys::Uint8Array, mime: &str) -> String;
     #[wasm_bindgen(js_name=revokeTextureUrl)]

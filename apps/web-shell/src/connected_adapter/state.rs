@@ -100,6 +100,8 @@ pub struct ConnectedState {
     pub wire_epochs: BTreeMap<String, u64>,
     pub results: BTreeMap<String, Value>,
     pub events: Vec<ServiceEvent>,
+    pub lot_chat: lot_chat::LotChatLedger,
+    pub chat_lot: bool,
     pub inbox: BTreeMap<i32, Value>,
     pub read_mail: BTreeSet<i32>,
     pub(crate) private_avatar: Option<u32>,
@@ -124,6 +126,7 @@ impl ConnectedState {
             .map(|entry| entry.shard_name.clone())
             .or_else(|| shards.first().map(|shard| shard.name.clone()));
         self.private_avatar = session.avatar_id.filter(|id| *id != 0);
+        self.lot_chat.reset();
         self.session = Some(session);
         self.roster = roster;
         self.shards = shards;
@@ -150,6 +153,9 @@ impl ConnectedState {
                 if session.epoch != envelope.epoch {
                     return false;
                 }
+                if self.property_admission_ready(&session) {
+                    self.panel = None;
+                }
                 if self.home_intent.as_ref().is_some_and(|intent| {
                     !self.home_intent_matches(intent)
                         || session.epoch != intent.source_epoch
@@ -171,6 +177,17 @@ impl ConnectedState {
                 }) || session.state == SessionState::Disconnected
                 {
                     self.clear_live_hud();
+                }
+                if self.session.as_ref().is_some_and(|old| {
+                    old.epoch != session.epoch
+                        || old.avatar_id != session.avatar_id
+                        || old.lot_incarnation != session.lot_incarnation
+                        || old.lot_location != session.lot_location
+                        || (old.state == SessionState::LotReady
+                            && session.state != SessionState::LotReady)
+                }) || session.state == SessionState::Disconnected
+                {
+                    self.lot_chat.reset();
                 }
                 if session.epoch > current_epoch || session.state == SessionState::Disconnected {
                     self.ledger.close_transport(
@@ -322,6 +339,22 @@ impl ConnectedState {
                 true
             }
             GatewayEvent::SourceEvent { family, data, .. } => {
+                if family == "lot_chat" {
+                    if !self.ledger.transport_ready {
+                        return false;
+                    }
+                    let Ok(delivery) = serde_json::from_value(data) else {
+                        return false;
+                    };
+                    let Some(session) = self.session.as_ref() else {
+                        return false;
+                    };
+                    return self.lot_chat.receive(
+                        session,
+                        delivery,
+                        self.panel == Some(Panel::Chat) && self.chat_lot,
+                    );
+                }
                 if family == "instant_message" && source_u32(&data, "type") == Some(0) {
                     let Some(person) = source_u32(&data, "from") else {
                         return false;
@@ -333,6 +366,7 @@ impl ConnectedState {
                         format!("{person}:{ack}")
                     };
                     let visible = self.panel == Some(Panel::Chat)
+                        && !self.chat_lot
                         && self.ledger.selected_person == Some(person);
                     if !self
                         .ledger
@@ -414,6 +448,54 @@ impl ConnectedState {
             }),
             _ => Err("Finish or leave the current city or property before going home.".into()),
         }
+    }
+
+    fn property_admission_ready(&self, next: &SessionProjection) -> bool {
+        let Some(previous) = &self.session else {
+            return false;
+        };
+        if self.panel != Some(Panel::Property)
+            || next.state != SessionState::LotReady
+            || previous.state != SessionState::LotConnecting
+            || previous.epoch != next.epoch
+            || previous.avatar_id != next.avatar_id
+            || previous.shard_name != next.shard_name
+            || next.avatar_id.is_none_or(|id| id == 0)
+            || next.lot_incarnation.is_none_or(|id| id == 0)
+            || previous
+                .lot_location
+                .is_some_and(|location| next.lot_location != Some(location))
+            || previous
+                .lot_incarnation
+                .is_some_and(|incarnation| next.lot_incarnation != Some(incarnation))
+        {
+            return false;
+        }
+        let property = self.data("property");
+        let Some(location) = next.lot_location.filter(|location| *location != 0) else {
+            return false;
+        };
+        if source_u32(&property, "location") != Some(location)
+            || self.ledger.selected_lot.is_none()
+            || source_u32(&property, "lot_id") != self.ledger.selected_lot
+        {
+            return false;
+        }
+        self.sent.iter().filter(|(_, operation)| matches!(operation, GatewayOperation::JoinLot { lot_location, .. } if *lot_location == location))
+            .filter_map(|(id, _)| self.ledger.operations.get(id))
+            .max_by_key(|operation| operation.stamp.operation_id.strip_prefix("ui-").and_then(|id| id.parse::<u64>().ok()).unwrap_or(0))
+            .is_some_and(|operation| {
+                operation.stamp.epoch == self.ledger.epoch
+                    && self.wire_epochs.get(&operation.stamp.operation_id) == Some(&next.epoch)
+                    && matches!(operation.label.as_str(), "Enter property" | "Open property")
+                    && matches!(operation.status, OperationStatus::Waiting | OperationStatus::Pending(_) | OperationStatus::Accepted(_))
+            })
+    }
+
+    pub fn select_private_conversation(&mut self, person: u32) {
+        self.chat_lot = false;
+        self.ledger.select_conversation(person);
+        self.panel = Some(Panel::Chat);
     }
 
     /// Arm only the explicit request that was written by the Go home control.
@@ -546,6 +628,7 @@ impl ConnectedState {
     }
 
     pub fn clear_live_hud(&mut self) {
+        self.lot_chat.suspend();
         for entry in &mut self.roster {
             entry.money = None;
             entry.motives = None;

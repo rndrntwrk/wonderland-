@@ -1,8 +1,8 @@
 //! Exact field layouts from NetPlay/Model/Commands at FreeSO 4c6b3e8.
 //! Unknown layout aborts the whole packet. There is no per-command byte length.
 use crate::{
-    reader::Reader, snapshot, Command, CommandBody, EodMessage, EodPayload, ErrorKind, Result,
-    SyncTraceTick,
+    reader::Reader, snapshot, AvatarJoin, Command, CommandBody, EodMessage, EodPayload, ErrorKind,
+    Result, SyncTraceTick,
 };
 pub(crate) fn decode(r: &mut Reader<'_, '_>) -> Result<Command> {
     let offset = r.at;
@@ -18,6 +18,26 @@ pub(crate) fn decode(r: &mut Reader<'_, '_>) -> Result<Command> {
         Some(r.u32()?)
     };
     let body = match kind {
+        0 => CommandBody::AvatarJoin(avatar_join(r)?),
+        4 => CommandBody::Chat {
+            message: r.text()?,
+            channel_id: r.u8()?,
+        },
+        16 => CommandBody::ChangePermissions {
+            target_uid: r.u32()?,
+            replace_uid: r.u32()?,
+            level: r.u8()?,
+            mode: r.u8()?,
+        },
+        31 => CommandBody::SetIgnore {
+            target_uid: r.u32()?,
+            ignore: r.boolean()?,
+        },
+        39 => CommandBody::ChatParameters {
+            pitch: r.i8()?,
+            color: r.u32()?,
+        },
+        40 => CommandBody::ChatEditChannel(snapshot::chat_channel(r)?),
         18 => {
             let actor_uid = actor_uid.unwrap();
             let plugin_id = r.u32()?;
@@ -76,7 +96,6 @@ pub(crate) fn decode(r: &mut Reader<'_, '_>) -> Result<Command> {
 }
 fn fields(r: &mut Reader<'_, '_>, kind: u8) -> Result<()> {
     match kind {
-        0 => avatar_join(r)?,
         1 => {
             r.u16()?;
             r.i16()?;
@@ -108,10 +127,6 @@ fn fields(r: &mut Reader<'_, '_>, kind: u8) -> Result<()> {
             r.u8()?;
             r.i32()?;
             r.u8()?;
-            r.u8()?;
-        }
-        4 => {
-            r.text()?;
             r.u8()?;
         }
         5 => {
@@ -169,12 +184,6 @@ fn fields(r: &mut Reader<'_, '_>, kind: u8) -> Result<()> {
             r.i16()?;
             snapshot::async_state(r)?;
         }
-        16 => {
-            r.u32()?;
-            r.u32()?;
-            r.u8()?;
-            r.u8()?;
-        }
         17 => {
             r.i16()?;
             snapshot::eod_object_event(r)?;
@@ -229,10 +238,6 @@ fn fields(r: &mut Reader<'_, '_>, kind: u8) -> Result<()> {
             r.u8()?;
             r.i16()?;
         }
-        31 => {
-            r.u32()?;
-            r.boolean()?;
-        }
         32 => {
             r.f32()?;
             r.u32()?;
@@ -258,13 +263,6 @@ fn fields(r: &mut Reader<'_, '_>, kind: u8) -> Result<()> {
             let n = r.count(3)?; // each Int16 object ID has a corresponding graphic byte
             r.short_values(n)?;
             r.take(n)?;
-        }
-        39 => {
-            r.i8()?;
-            r.u32()?;
-        }
-        40 => {
-            snapshot::chat_channel(r)?;
         }
         42 => {
             r.u32()?;
@@ -324,7 +322,7 @@ fn fields(r: &mut Reader<'_, '_>, kind: u8) -> Result<()> {
     };
     Ok(())
 }
-fn avatar_join(r: &mut Reader<'_, '_>) -> Result<()> {
+fn avatar_join(r: &mut Reader<'_, '_>) -> Result<AvatarJoin> {
     let version = r.u16()?;
     if version != 0xffee {
         return Err(r.error(
@@ -339,12 +337,12 @@ fn avatar_join(r: &mut Reader<'_, '_>) -> Result<()> {
             "VMNetAvatarPersistState",
         ));
     }
-    r.text()?;
-    r.u32()?;
+    let name = r.text()?;
+    let persist_id = r.u32()?;
     for _ in 0..3 {
         snapshot::outfit(r)?;
     }
-    r.u8()?;
+    let permissions = r.u8()?;
     r.u32()?;
     r.u32()?;
     r.u64()?;
@@ -357,10 +355,16 @@ fn avatar_join(r: &mut Reader<'_, '_>) -> Result<()> {
     snapshot::persistent_relationships(r)?;
     snapshot::jobs(r)?;
     let n = r.count(4)?;
+    let mut ignored = Vec::with_capacity(n);
     for _ in 0..n {
-        r.u32()?;
+        ignored.push(r.u32()?);
     }
-    Ok(())
+    Ok(AvatarJoin {
+        name,
+        persist_id,
+        permissions,
+        ignored,
+    })
 }
 fn inventory_place(r: &mut Reader<'_, '_>) -> Result<()> {
     r.u32()?;

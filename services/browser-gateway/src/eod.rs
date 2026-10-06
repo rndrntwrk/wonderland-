@@ -110,14 +110,30 @@ impl EodGate {
         }
         let mut events = Vec::new();
         for (tick_id, commands) in ticks {
+            let snapshot_only = !commands.is_empty()
+                && commands
+                    .iter()
+                    .all(|command| matches!(&command.body, CommandBody::StateSync { .. }));
             let fresh = tick_id.is_none_or(|tick| {
                 !self.last_tick.is_some_and(|last| {
                     let distance = tick.wrapping_sub(last);
                     distance == 0 || distance > 0x7fffffff
                 })
             });
-            if fresh && let Some(tick) = tick_id {
-                self.last_tick = Some(tick);
+            if let Some(tick) = tick_id {
+                // Source SendState carries the NEXT ordinary TickID. Its
+                // predecessor is a history barrier, not a consumed live tick.
+                let candidate = if snapshot_only {
+                    tick.wrapping_sub(1)
+                } else {
+                    tick
+                };
+                if self.last_tick.is_none_or(|last| {
+                    let distance = candidate.wrapping_sub(last);
+                    distance != 0 && distance < (1_u32 << 31)
+                }) {
+                    self.last_tick = Some(candidate);
+                }
             }
             for command in commands {
                 match command.body {

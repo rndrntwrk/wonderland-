@@ -97,3 +97,35 @@ test('admission snapshots the asset key before the caller reuses its byte array'
   const intent=start(1);adapter.apply(intent);intent.Start.sample.fill(2);await adapter.unlockFromGesture();await adapter.settled();
   assert.deepEqual(requested,[1]);assert.equal(context.starts[0].buffer.getChannelData(0)[0],1/32768);await adapter.dispose();
 });
+
+test('a stale suspension completion cannot overwrite a newer successful gesture',async()=>{
+  const {adapter,context}=make(),gate=deferred();await adapter.unlockFromGesture();context.suspend=()=>gate.promise;
+  const suspension=adapter.suspend();await adapter.unlockFromGesture();gate.resolve();await suspension;
+  assert.equal(context.state,'running');assert.equal(adapter.state,'running');await adapter.dispose();
+});
+test('a rejected older unlock cannot overwrite a newer successful gesture',async()=>{
+  const {adapter,context}=make(),gate=deferred();let calls=0;const resume=context.resume.bind(context);context.resume=()=>++calls===1?gate.promise:resume();
+  const old=adapter.unlockFromGesture();await adapter.unlockFromGesture();gate.reject(Error('older attempt rejected'));await assert.rejects(old);
+  assert.equal(adapter.state,'running');assert.equal(adapter.snapshot().lastError,null);await adapter.dispose();
+});
+test('interrupted context remains gesture-gated through suspended and running events',async()=>{
+  const {adapter,context}=make();adapter.apply(start(1,1,true));await adapter.unlockFromGesture();await adapter.settled();
+  context.state='interrupted';context.signal();context.state='suspended';context.signal();context.state='running';context.signal();
+  assert.equal(adapter.state,'interrupted');assert.equal(context.starts.length,1);await adapter.unlockFromGesture();assert.equal(context.starts.length,2);await adapter.dispose();
+});
+test('a cancelled unlock cannot resume queued sound after Pause sound',async()=>{
+  const {adapter,context}=make(),gate=deferred();context.resume=async()=>{await gate.promise;context.state='running';context.signal();};adapter.apply(start(1));
+  const activation=adapter.unlockFromGesture();await adapter.suspend();gate.resolve();await assert.rejects(activation,/cancelled|superseded/);await adapter.settled();
+  assert.equal(adapter.state,'suspended');assert.equal(context.starts.length,0);await adapter.dispose();
+});
+test('encoded WAVE reserves resampled PCM and keeps seek positions in source frames',async()=>{
+  const {adapter,context}=make({maxPcmBytes:192004,loadSample:async()=>({encoded:new ArrayBuffer(44),format:'wav',decodedBytes:88200,sampleRate:22050,channels:1,frames:22050})});
+  context.sampleRate=48000;context.decodeAudioData=async()=>context.createBuffer(1,48000,48000);
+  const intent=start(1);intent.Start.seek_frame='11025';adapter.apply(intent);await adapter.unlockFromGesture();await adapter.settled();
+  assert.equal(context.starts.length,1);assert.equal(context.starts[0].offset,0.5);assert.equal(adapter.snapshot().pcmBytes,192000);await adapter.dispose();
+});
+test('resampled PCM must fit the memory budget before browser decoding starts',async()=>{
+  let decodes=0;const {adapter,context}=make({maxPcmBytes:100000,loadSample:async()=>({encoded:new ArrayBuffer(44),format:'wav',decodedBytes:88200,sampleRate:22050,channels:1,frames:22050})});
+  context.sampleRate=48000;context.decodeAudioData=async()=>{decodes++;return context.createBuffer(1,48000,48000);};
+  adapter.apply(start(1));await adapter.unlockFromGesture();await adapter.settled();assert.equal(decodes,0);assert.match(adapter.snapshot().lastError,/budget/);await adapter.dispose();
+});

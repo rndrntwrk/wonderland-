@@ -12,6 +12,8 @@ wonderland-game-services.workspace = true
 wonderland-player-authoring.workspace = true
 wonderland-vm-protocol.workspace = true
 wonderland-world-view.workspace = true
+wonderland-avatar-content.workspace = true
+wonderland-avatar-view.workspace = true
 wonderland-render-core.workspace = true
 wonderland-render-3d.workspace = true
 wonderland-audio-runtime.workspace = true
@@ -22,8 +24,6 @@ serde.workspace = true
 serde_json.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wonderland-avatar-content.workspace = true
-wonderland-avatar-view.workspace = true
 wonderland-render-core.workspace = true
 wonderland-render-3d.workspace = true
 wonderland-world-view.workspace = true

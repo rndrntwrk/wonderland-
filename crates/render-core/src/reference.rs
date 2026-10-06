@@ -17,6 +17,12 @@ pub struct FragmentOptions {
     pub write_depth: bool,
     pub write_id: bool,
     pub alpha_cutoff: u8,
+    pub texture_address: TextureAddress,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TextureAddress {
+    Clamp,
+    Wrap,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DepthComparison {
@@ -30,6 +36,7 @@ impl Default for FragmentOptions {
             write_depth: true,
             write_id: true,
             alpha_cutoff: 0,
+            texture_address: TextureAddress::Clamp,
         }
     }
 }
@@ -234,7 +241,12 @@ impl ReferenceSurface {
                 }
                 let mut normalized = color.map(|c| (c / divisor).clamp(0., 1.));
                 if let Some(image) = texture {
-                    let texel = nearest(image, uv[0] / divisor, uv[1] / divisor);
+                    let texel = nearest(
+                        image,
+                        uv[0] / divisor,
+                        uv[1] / divisor,
+                        options.texture_address,
+                    );
                     for c in 0..4 {
                         normalized[c] *= texel[c] as f64 / 255.;
                     }
@@ -258,7 +270,8 @@ impl ReferenceSurface {
     ) -> Result<usize, ReferenceError> {
         self.mesh(mesh, clip_from_model, None, id, options, limits)
     }
-    /// Nearest, clamped normalized UVs; vertex color multiplies straight RGBA texture.
+    /// Nearest sampling with explicit fragment-stage UV addressing; vertex color
+    /// multiplies straight RGBA texture. Clamp remains the default.
     pub fn draw_textured_mesh(
         &mut self,
         mesh: &Mesh,
@@ -462,9 +475,13 @@ fn covered(value: f64, a: RasterVertex, b: RasterVertex) -> bool {
     let dx = b.position.x as f64 - a.position.x as f64;
     value > 0. || (value == 0. && (dy < 0. || (dy == 0. && dx > 0.)))
 }
-fn nearest(image: &RgbaImage, u: f64, v: f64) -> [u8; 4] {
-    let x = ((u.clamp(0., 1.) * image.width as f64).floor() as u32).min(image.width - 1);
-    let y = ((v.clamp(0., 1.) * image.height as f64).floor() as u32).min(image.height - 1);
+fn nearest(image: &RgbaImage, u: f64, v: f64, address: TextureAddress) -> [u8; 4] {
+    let coordinate = |value: f64| match address {
+        TextureAddress::Clamp => value.clamp(0., 1.),
+        TextureAddress::Wrap => value.rem_euclid(1.),
+    };
+    let x = ((coordinate(u) * image.width as f64).floor() as u32).min(image.width - 1);
+    let y = ((coordinate(v) * image.height as f64).floor() as u32).min(image.height - 1);
     image.pixels[y as usize * image.width as usize + x as usize]
 }
 #[derive(Clone, Copy)]

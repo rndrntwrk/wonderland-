@@ -25,9 +25,11 @@ pub mod avatar_content;
 pub mod avatar_renderer;
 pub mod connected_adapter;
 pub mod live_world_adapter;
+pub mod snapshot_avatar;
 pub mod snapshot_world;
 pub mod source_city;
 pub mod source_identity;
+pub mod source_needs;
 pub mod startup;
 pub mod world_draft;
 

@@ -1,4 +1,5 @@
 //! Browser-owned request correlation. This state contains no credentials or tokens.
+pub mod lot_chat;
 pub mod state;
 use serde::de::DeserializeOwned;
 use serde_json::Value;

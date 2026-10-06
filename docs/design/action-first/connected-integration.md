@@ -1,5 +1,12 @@
 # Connected Wonderland integration handoff
 
+**Continuation:** The work after PR #18 is documented in
+[connected-continuation.md](connected-continuation.md), including original
+in-world avatar resources, incoming lot chat, responsive source terrain and
+audio fixes. The verification section below records the historical PR #18
+checkpoint; consult the continuation for current results. Startup and operator
+configuration remain applicable.
+
 This branch advances the action-focused redesign into original-service account flows, source city/lot rendering, player panels, source authoring requests and an integrated A/B simulation library. The existing character/Home preview and original FreeSO source remain available. The [21-surface capability map](player-capability-map.md) records what works together and what still needs implementation.
 
 The [screenshot gallery](screenshot-gallery.md) shows the six unedited browser captures with their verification scope.

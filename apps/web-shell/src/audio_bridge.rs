@@ -40,24 +40,69 @@ mod browser {
     use leptos::prelude::*;
     use wasm_bindgen::prelude::*;
     #[wasm_bindgen(inline_js = r#"
-let sourceAudioModule = null;
-export function initializeSourceAudio() {
-  import('/audio/source-audio.mjs').then(m => sourceAudioModule = m).catch(e => console.error('Sound controls unavailable', e));
+export function createSourceAudioBridge({load = () => import('/audio/source-audio.mjs')} = {}) {
+  let module = null, pending = null, epoch = 0, lastError = null;
+  const initialize = () => {
+    if (module) return Promise.resolve(module);
+    if (pending) return pending;
+    const lifetime = epoch;
+    const attempt = Promise.resolve().then(load).then(candidate => {
+      if (lifetime !== epoch) throw Error('sound initialization cancelled');
+      for (const name of ['acceptedAudioHost', 'openSourceAudioControls', 'disposeSourceAudio']) {
+        if (typeof candidate?.[name] !== 'function') throw Error('Incompatible sound module');
+      }
+      module = candidate;
+      lastError = null;
+      return module;
+    }).catch(error => {
+      if (lifetime !== epoch) throw Error('sound initialization cancelled');
+      lastError = `Sound settings could not load. Try again or reload this page. ${String(error?.message ?? error).slice(0, 512)}`;
+      throw Error(lastError);
+    }).finally(() => { if (pending === attempt) pending = null; });
+    pending = attempt;
+    return attempt;
+  };
+  return {
+    initialize,
+    ready: () => module !== null,
+    error: () => {
+      if (lastError) return lastError;
+      try {
+        const state = module?.acceptedAudioHost().snapshot();
+        return state?.lastNotice ?? state?.lastError ?? null;
+      } catch (error) { return String(error?.message ?? error).slice(0, 1024); }
+    },
+    open: async () => {
+      const lifetime = epoch, current = await initialize();
+      if (lifetime !== epoch) throw Error('sound settings opening cancelled');
+      current.openSourceAudioControls();
+    },
+    deliver: json => {
+      if (!module) throw Error(lastError ?? 'Sound adapter is not loaded');
+      module.acceptedAudioHost().applyAll(JSON.parse(json));
+    },
+    finished: () => JSON.stringify(module?.acceptedAudioHost().takeFinished() ?? []),
+    clean: async () => {
+      const current = module, lifetime = ++epoch;
+      module = null;
+      pending = null;
+      lastError = null;
+      try { await current?.disposeSourceAudio(); }
+      catch (error) {
+        if (lifetime === epoch) lastError = `Sound could not close: ${String(error?.message ?? error).slice(0, 512)}`;
+        throw error;
+      }
+    }
+  };
 }
-export function sourceAudioReady() { return sourceAudioModule !== null; }
-export function sourceAudioError() { return sourceAudioModule?.acceptedAudioHost().snapshot().lastError ?? null; }
-export function openSourceAudio() {
-  if (!sourceAudioModule) { initializeSourceAudio(); throw Error('Sound controls are loading. Please try again.'); }
-  sourceAudioModule.openSourceAudioControls();
-}
-export function deliverSourceAudio(json) {
-  if (!sourceAudioModule) throw Error('Sound adapter is not loaded');
-  sourceAudioModule.acceptedAudioHost().applyAll(JSON.parse(json));
-}
-export function finishedSourceAudio() {
-  return JSON.stringify(sourceAudioModule?.acceptedAudioHost().takeFinished() ?? []);
-}
-export function cleanSourceAudio() { sourceAudioModule?.disposeSourceAudio(); }
+const sourceAudioBridge = createSourceAudioBridge();
+export function initializeSourceAudio() { sourceAudioBridge.initialize().catch(() => {}); }
+export function sourceAudioReady() { return sourceAudioBridge.ready(); }
+export function sourceAudioError() { return sourceAudioBridge.error(); }
+export function openSourceAudio() { return sourceAudioBridge.open(); }
+export function deliverSourceAudio(json) { sourceAudioBridge.deliver(json); }
+export function finishedSourceAudio() { return sourceAudioBridge.finished(); }
+export function cleanSourceAudio() { sourceAudioBridge.clean().catch(() => {}); }
 "#)]
     extern "C" {
         #[wasm_bindgen(js_name=initializeSourceAudio)]
@@ -66,8 +111,8 @@ export function cleanSourceAudio() { sourceAudioModule?.disposeSourceAudio(); }
         fn ready() -> bool;
         #[wasm_bindgen(js_name=sourceAudioError)]
         fn device_error() -> Option<String>;
-        #[wasm_bindgen(catch,js_name=openSourceAudio)]
-        fn open() -> Result<(), JsValue>;
+        #[wasm_bindgen(js_name=openSourceAudio)]
+        fn open() -> js_sys::Promise;
         #[wasm_bindgen(catch,js_name=deliverSourceAudio)]
         pub fn deliver(json: &str) -> Result<(), JsValue>;
         #[wasm_bindgen(js_name=finishedSourceAudio)]
@@ -107,14 +152,16 @@ export function cleanSourceAudio() { sourceAudioModule?.disposeSourceAudio(); }
             let now = js_sys::Date::now();
             let count = cadence.advance(now - previous);
             previous = now;
-            if !ready() {
-                return;
-            }
             if let Some(error) = device_error()
                 && last_device_error.as_ref() != Some(&error)
             {
                 notice(format!("Source sound could not play: {error}"));
                 last_device_error = Some(error);
+            } else if device_error().is_none() {
+                last_device_error = None;
+            }
+            if !ready() {
+                return;
             }
             let mut session = current.borrow_mut();
             match serde_json::from_str::<Vec<serde_json::Value>>(&finished()) {
@@ -172,8 +219,32 @@ export function cleanSourceAudio() { sourceAudioModule?.disposeSourceAudio(); }
     pub fn SourceAudioControls() -> impl IntoView {
         initialize();
         let notice = RwSignal::new(String::new());
+        let opening = RwSignal::new(false);
         on_cleanup(clean);
-        view! { <span class="source-audio-control"><button type="button" class="chrome round settings-audio" aria-label="Sound settings" on:click=move |_| { if let Err(e)=open(){ notice.set(e.as_string().unwrap_or_else(||"Sound could not be opened. Try again.".into()));}else{notice.set(String::new());} }><crate::components::Icon name="volume"/></button><span role="status">{move ||notice.get()}</span></span> }
+        view! {
+            <span class="source-audio-control">
+                <button type="button" class="chrome round settings-audio" aria-label="Sound settings"
+                    disabled=move || opening.get() aria-busy=move || opening.get().to_string()
+                    on:click=move |_| {
+                        opening.set(true);
+                        notice.set("Opening sound settings…".into());
+                        wasm_bindgen_futures::spawn_local(async move {
+                            let result = wasm_bindgen_futures::JsFuture::from(open()).await;
+                            let message = result.err().map(|error| {
+                                error.as_string().or_else(|| {
+                                    js_sys::Reflect::get(&error, &JsValue::from_str("message"))
+                                        .ok().and_then(|value| value.as_string())
+                                }).unwrap_or_else(|| "Sound settings could not open. Try again.".into())
+                            }).unwrap_or_default();
+                            let _ = opening.try_set(false);
+                            let _ = notice.try_set(message);
+                        });
+                    }>
+                    <crate::components::Icon name="volume"/>
+                </button>
+                <span role="status" aria-live="polite">{move || notice.get()}</span>
+            </span>
+        }
     }
 }
 #[cfg(target_arch = "wasm32")]

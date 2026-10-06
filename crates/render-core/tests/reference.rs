@@ -180,6 +180,85 @@ fn mesh(positions: [Vec3; 3]) -> Mesh {
 }
 
 #[test]
+fn wrap_addresses_interpolated_fragments_and_preserves_default_clamp() {
+    let image = RgbaImage {
+        width: 4,
+        height: 2,
+        pixels: vec![
+            [255, 0, 0, 255],
+            [0, 255, 0, 255],
+            [0, 0, 255, 255],
+            [255, 255, 0, 255],
+            [0, 255, 255, 255],
+            [255, 0, 255, 255],
+            [128, 0, 0, 255],
+            [0, 128, 0, 255],
+        ],
+    };
+    let mut triangle = mesh([
+        Vec3::new(-1., 1., 0.5),
+        Vec3::new(1., 1., 0.5),
+        Vec3::new(-1., -1., 0.5),
+    ]);
+    for (vertex, u) in triangle.vertices.iter_mut().zip([0.75, 1.75, 0.75]) {
+        vertex.uv = Vec2::new(u, -0.25);
+    }
+    let mut wrapped = surface();
+    let options = FragmentOptions {
+        texture_address: TextureAddress::Wrap,
+        ..Default::default()
+    };
+    wrapped
+        .draw_textured_mesh(
+            &triangle,
+            Mat4::IDENTITY,
+            &image,
+            id(4),
+            options,
+            &Default::default(),
+        )
+        .unwrap();
+    // Top-row barycentric interpolation yields u=.875,1.125,1.375. Wrapping
+    // the vertices before interpolation would collapse the span to constant .75.
+    assert_eq!(wrapped.pixel(0, 0), Some([0, 128, 0, 255]));
+    assert_eq!(wrapped.pixel(1, 0), Some([0, 255, 255, 255]));
+    assert_eq!(wrapped.pixel(2, 0), Some([255, 0, 255, 255]));
+    let mut clamped = surface();
+    clamped
+        .draw_textured_mesh(
+            &triangle,
+            Mat4::IDENTITY,
+            &image,
+            id(4),
+            Default::default(),
+            &Default::default(),
+        )
+        .unwrap();
+    assert_eq!(clamped.pixel(1, 0), Some([255, 255, 0, 255]));
+    assert_eq!(clamped.pixel(2, 0), Some([255, 255, 0, 255]));
+    // The same wrapped alpha sample controls depth/ID, rather than an invisible
+    // clamped-edge hit: source integer u=1 wraps back to its transparent origin.
+    for vertex in &mut triangle.vertices {
+        vertex.uv = Vec2::new(1., 0.);
+    }
+    let mut alpha = image;
+    alpha.pixels[0][3] = 0;
+    wrapped.clear([0; 4]);
+    wrapped
+        .draw_textured_mesh(
+            &triangle,
+            Mat4::IDENTITY,
+            &alpha,
+            id(4),
+            options,
+            &Default::default(),
+        )
+        .unwrap();
+    assert_eq!(wrapped.id_at(0, 0), None);
+    assert!(wrapped.depth_at(0, 0).unwrap().is_infinite());
+}
+
+#[test]
 fn mesh_reference_maps_clip_coordinates_and_clips_near_plane() {
     let mut s = surface();
     let m = mesh([

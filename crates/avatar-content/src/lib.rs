@@ -50,6 +50,10 @@ pub struct ImportLimits {
     pub max_choices: usize,
     pub max_total_input_bytes: usize,
     pub max_total_resource_bytes: usize,
+    /// Aggregate retained clip data, in addition to each source decoder's bounds.
+    pub max_animations: usize,
+    pub max_total_animation_samples: usize,
+    pub max_total_animation_metadata_bytes: usize,
 }
 impl Default for ImportLimits {
     fn default() -> Self {
@@ -61,6 +65,9 @@ impl Default for ImportLimits {
             max_choices: 100_000,
             max_total_input_bytes: 1024 * 1024 * 1024,
             max_total_resource_bytes: 1024 * 1024 * 1024,
+            max_animations: 10_000,
+            max_total_animation_samples: 1_000_000,
+            max_total_animation_metadata_bytes: 64 * 1024 * 1024,
         }
     }
 }
@@ -130,6 +137,9 @@ pub struct ImportedContent {
     pub choices: Vec<CollectionChoice>,
     pub textures: BTreeMap<AssetKey, EncodedTexture>,
     pub issues: Vec<ContentIssue>,
+    animations: BTreeMap<String, Arc<c::Clip>>,
+    named_appearances: BTreeMap<String, FileKey>,
+    named_outfits: BTreeMap<String, FileKey>,
     limits: ImportLimits,
 }
 pub fn file_content_key(key: FileKey) -> String {
@@ -192,6 +202,7 @@ pub struct ResourceDescriptor {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ResourceKind {
     Skeleton,
+    Animation,
     Collection,
     Purchasable,
     Outfit,
@@ -205,6 +216,7 @@ pub enum ResourceKind {
 fn kind(name: &str) -> ResourceKind {
     match suffix(name).as_str() {
         "skel" => ResourceKind::Skeleton,
+        "anim" => ResourceKind::Animation,
         "co" | "col" => ResourceKind::Collection,
         "po" | "pof" | "purchasable" => ResourceKind::Purchasable,
         "oft" => ResourceKind::Outfit,
@@ -318,6 +330,21 @@ struct Resource {
     name: String,
     bytes: Vec<u8>,
     key: Option<ResourceKey>,
+    loose: bool,
+}
+
+fn provider_name(resource: &Resource) -> String {
+    // FileProvider strips the standalone packed-ID component and directory.
+    // FAR3Provider uses the archive entry name as supplied by its index.
+    if !resource.loose {
+        return resource.name.to_ascii_lowercase();
+    }
+    let name = resource.name.rsplit(['/', '\\']).next().unwrap_or("");
+    let mut parts: Vec<_> = name.split('.').collect();
+    if source_filename_key(name).is_some() {
+        parts.remove(parts.len() - 2);
+    }
+    parts.join(".").to_ascii_lowercase()
 }
 struct ResourceIndex<'a> {
     files: BTreeMap<FileKey, Vec<&'a Resource>>,
@@ -454,6 +481,7 @@ pub fn import(
                         file_id,
                         type_id,
                     }),
+                    loose: false,
                 });
             }
         } else {
@@ -484,6 +512,7 @@ pub fn import(
                 name: file.name.to_owned(),
                 bytes: file.bytes.to_vec(),
                 key: file.key.or_else(|| source_filename_key(file.name)),
+                loose: true,
             });
         }
     }
@@ -493,6 +522,9 @@ pub fn import(
         choices: Vec::new(),
         textures: BTreeMap::new(),
         issues: Vec::new(),
+        animations: BTreeMap::new(),
+        named_appearances: BTreeMap::new(),
+        named_outfits: BTreeMap::new(),
         limits: *limits,
     };
     let index = ResourceIndex::new(&resources);
@@ -506,6 +538,105 @@ pub fn import(
     }) {
         Ok(rig) => content.rig = Some(rig),
         Err(e) => content.issues.push(e),
+    }
+    let mut named_animations = BTreeMap::<String, Vec<&Resource>>::new();
+    let mut named_appearances = BTreeMap::<String, Vec<&Resource>>::new();
+    let mut named_outfits = BTreeMap::<String, Vec<&Resource>>::new();
+    for resource in &resources {
+        match suffix(&resource.name).as_str() {
+            "anim" => named_animations
+                .entry(provider_name(resource))
+                .or_default()
+                .push(resource),
+            "apr" => named_appearances
+                .entry(provider_name(resource))
+                .or_default()
+                .push(resource),
+            "oft" => named_outfits
+                .entry(provider_name(resource))
+                .or_default()
+                .push(resource),
+            _ => {}
+        }
+    }
+    let mut animation_samples = 0usize;
+    let mut animation_metadata_bytes = 0usize;
+    for (name, resources) in named_animations {
+        let result = (|| {
+            let [resource] = resources.as_slice() else {
+                return Err(ContentIssue::new(
+                    IssueKind::Ambiguous,
+                    &name,
+                    "duplicate original animation provider name; no precedence selected",
+                ));
+            };
+            let rig = content.rig.as_ref().ok_or_else(|| {
+                ContentIssue::new(
+                    IssueKind::Missing,
+                    &name,
+                    "animation needs the original skeleton",
+                )
+            })?;
+            if content.animations.len() >= limits.max_animations {
+                return Err(ContentIssue::new(
+                    IssueKind::Limit,
+                    "animations",
+                    "aggregate clip count",
+                ));
+            }
+            let source = b::decode_animation(&resource.bytes, &limits.resources)
+                .map_err(|e| error(&resource.name, e))?;
+            let samples = source
+                .translations
+                .len()
+                .checked_add(source.rotations.len())
+                .and_then(|count| animation_samples.checked_add(count))
+                .ok_or_else(|| {
+                    ContentIssue::new(IssueKind::Limit, "animations", "sample count overflow")
+                })?;
+            if samples > limits.max_total_animation_samples {
+                return Err(ContentIssue::new(
+                    IssueKind::Limit,
+                    "animations",
+                    "aggregate source sample count",
+                ));
+            }
+            // B already bounded decoding and finite values. Count the complete
+            // normalized metadata before retaining C's resolved clip.
+            let encoded = serde_json::to_vec(&source)
+                .map_err(|e| ContentIssue::new(IssueKind::Corrupt, &name, e.to_string()))?;
+            let bytes = animation_metadata_bytes
+                .checked_add(encoded.len())
+                .ok_or_else(|| {
+                    ContentIssue::new(IssueKind::Limit, "animations", "metadata byte overflow")
+                })?;
+            if bytes > limits.max_total_animation_metadata_bytes {
+                return Err(ContentIssue::new(
+                    IssueKind::Limit,
+                    "animations",
+                    "aggregate normalized metadata bytes",
+                ));
+            }
+            let source = serde_json::from_slice(&encoded)
+                .map_err(|e| ContentIssue::new(IssueKind::Corrupt, &name, e.to_string()))?;
+            let clip = c::Clip::new_resolved(
+                rig,
+                source,
+                hash(&resource.bytes),
+                name.clone(),
+                limits.avatar,
+            )
+            .map_err(|e| avatar_error(&name, e))?;
+            animation_samples = samples;
+            animation_metadata_bytes = bytes;
+            Ok(Arc::new(clip))
+        })();
+        match result {
+            Ok(clip) => {
+                content.animations.insert(name, clip);
+            }
+            Err(issue) => content.issues.push(issue),
+        }
     }
     let mut purchasables = BTreeMap::new();
     let mut counts = BTreeMap::<FileKey, usize>::new();
@@ -580,6 +711,38 @@ pub fn import(
         })();
         if let Err(e) = result {
             content.issues.push(e);
+        }
+    }
+    for (name, resources) in named_appearances {
+        match resources.as_slice() {
+            [resource] => {
+                if let Some(key) =
+                    file_key(resource).filter(|key| content.catalog.appearances.contains_key(key))
+                {
+                    content.named_appearances.insert(name, key);
+                }
+            }
+            _ => content.issues.push(ContentIssue::new(
+                IssueKind::Ambiguous,
+                name,
+                "duplicate original appearance provider name; no precedence selected",
+            )),
+        }
+    }
+    for (name, resources) in named_outfits {
+        match resources.as_slice() {
+            [resource] => {
+                if let Some(key) =
+                    file_key(resource).filter(|key| content.catalog.outfits.contains_key(key))
+                {
+                    content.named_outfits.insert(name, key);
+                }
+            }
+            _ => content.issues.push(ContentIssue::new(
+                IssueKind::Ambiguous,
+                name,
+                "duplicate original outfit provider name; no precedence selected",
+            )),
         }
     }
     let mesh_keys: BTreeSet<_> = content
@@ -745,6 +908,64 @@ pub fn import(
 }
 
 impl ImportedContent {
+    /// Source FileProvider/FAR3Provider lookup, independently of Animation.Name.
+    pub fn animation(&self, name: &str) -> Result<Arc<c::Clip>, ContentIssue> {
+        if name.len() > 1024 || !name.is_ascii() {
+            return Err(ContentIssue::new(
+                IssueKind::Unsupported,
+                "animation",
+                "invalid original provider name",
+            ));
+        }
+        self.animations
+            .get(&name.to_ascii_lowercase())
+            .cloned()
+            .ok_or_else(|| {
+                ContentIssue::new(
+                    IssueKind::Missing,
+                    name,
+                    "original animation is absent, ambiguous, corrupt, or exceeds import limits",
+                )
+            })
+    }
+    pub fn named_appearance(&self, name: &str) -> Result<FileKey, ContentIssue> {
+        if name.len() > 1024 || !name.is_ascii() {
+            return Err(ContentIssue::new(
+                IssueKind::Unsupported,
+                "appearance",
+                "invalid original provider name",
+            ));
+        }
+        self.named_appearances
+            .get(&name.to_ascii_lowercase())
+            .copied()
+            .ok_or_else(|| {
+                ContentIssue::new(
+                    IssueKind::Missing,
+                    name,
+                    "original bound appearance is absent, ambiguous, or corrupt",
+                )
+            })
+    }
+    pub fn named_outfit(&self, name: &str) -> Result<FileKey, ContentIssue> {
+        if name.len() > 1024 || !name.is_ascii() {
+            return Err(ContentIssue::new(
+                IssueKind::Unsupported,
+                "outfit",
+                "invalid original provider name",
+            ));
+        }
+        self.named_outfits
+            .get(&name.to_ascii_lowercase())
+            .copied()
+            .ok_or_else(|| {
+                ContentIssue::new(
+                    IssueKind::Missing,
+                    name,
+                    "original named outfit is absent, ambiguous, or corrupt",
+                )
+            })
+    }
     pub fn selection_issues(&self, selection: &AppearanceSelection) -> Vec<ContentIssue> {
         let mut issues = Vec::new();
         if self.rig.is_none() {
@@ -845,6 +1066,18 @@ impl ImportedContent {
         &self,
         selection: &AppearanceSelection,
     ) -> Result<Vec<RenderablePart>, Vec<ContentIssue>> {
+        let Some(rig) = &self.rig else {
+            return Err(self.selection_issues(selection));
+        };
+        self.compose_at(selection, &rig.bind_pose())
+    }
+    /// A caller supplies an already sampled source pose; this method neither
+    /// advances animation nor executes time-property/gameplay events.
+    pub fn compose_at(
+        &self,
+        selection: &AppearanceSelection,
+        pose: &c::Pose,
+    ) -> Result<Vec<RenderablePart>, Vec<ContentIssue>> {
         let issues = self.selection_issues(selection);
         if !issues.is_empty() {
             return Err(issues);
@@ -861,7 +1094,48 @@ impl ImportedContent {
                 "no head/body/parts selected",
             )]);
         }
-        let pose = rig.bind_pose();
+        let mut vertices = 0usize;
+        let mut indices = 0usize;
+        for part in &bundle.parts {
+            vertices = vertices
+                .checked_add(part.mesh.vertices.len())
+                .ok_or_else(|| {
+                    vec![ContentIssue::new(
+                        IssueKind::Limit,
+                        "appearance composition",
+                        "vertex count overflow",
+                    )]
+                })?;
+            indices = indices
+                .checked_add(part.mesh.indices.len())
+                .ok_or_else(|| {
+                    vec![ContentIssue::new(
+                        IssueKind::Limit,
+                        "appearance composition",
+                        "index count overflow",
+                    )]
+                })?;
+            let bytes = vertices
+                .checked_mul(std::mem::size_of::<wonderland_render_core::Vertex>())
+                .and_then(|bytes| {
+                    indices
+                        .checked_mul(4)
+                        .and_then(|indices| bytes.checked_add(indices))
+                });
+            if vertices > self.limits.render.max_vertices
+                || indices > self.limits.render.max_indices
+                || bytes.is_none_or(|bytes| bytes > self.limits.avatar.max_metadata_bytes)
+            {
+                return Err(vec![ContentIssue::new(
+                    IssueKind::Limit,
+                    "appearance composition",
+                    "aggregate skinned geometry budget",
+                )]);
+            }
+        }
+        let mut pose = pose.clone();
+        pose.rebuild(rig)
+            .map_err(|e| vec![avatar_error("appearance pose", e)])?;
         bundle
             .parts
             .iter()

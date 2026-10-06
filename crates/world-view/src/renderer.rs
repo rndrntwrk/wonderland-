@@ -5,7 +5,7 @@ use wonderland_render_core::{
     AssetKey, EntityProjection, EntityRef, FrameStamp, Mat4, Quat, RenderFrame, RenderLimits,
     RgbaImage, Transform, Vec3,
     frame::FrameStore,
-    reference::{DepthComparison, FragmentOptions, ReferenceSurface},
+    reference::{DepthComparison, FragmentOptions, ReferenceSurface, TextureAddress},
 };
 
 #[derive(Clone, Debug, Default)]
@@ -75,6 +75,7 @@ impl WorldRenderer {
             && self.document.provenance.kind == WorldSourceKind::LegacySnapshot
             && document.revision.architecture_revision
                 <= self.document.revision.architecture_revision
+            && !snapshot_resource_update(&self.document, &document)
         {
             return Err(WorldError(
                 "snapshot presentation generation must increase on refresh".into(),
@@ -214,6 +215,18 @@ impl WorldRenderer {
             hit_ids.set_depth_comparison(depth);
             let options = FragmentOptions {
                 alpha_cutoff: 2,
+                // Source Vitaboy.fx wraps both UV axes. Address the interpolated
+                // fragments, preserving original out-of-range mesh coordinates.
+                texture_address: if part
+                    .object
+                    .and_then(|index| self.document.objects[index].model)
+                    .is_some_and(|index| {
+                        matches!(self.document.models[index].context, ModelContext::Vitaboy)
+                    }) {
+                    TextureAddress::Wrap
+                } else {
+                    TextureAddress::Clamp
+                },
                 ..Default::default()
             };
             if let Some(texture) = &part.texture {
@@ -293,6 +306,34 @@ impl WorldRenderer {
         self.prepared = None;
         self.generation = self.generation.saturating_add(1);
     }
+}
+
+// Loading source bytes can finish after the snapshot itself. That changes the
+// display's content fence, never its accepted VM state or source generations.
+fn snapshot_resource_update(previous: &WorldDocument, next: &WorldDocument) -> bool {
+    previous.provenance == next.provenance
+        && previous.revision.lot_id == next.revision.lot_id
+        && previous.revision.epoch == next.revision.epoch
+        && previous.revision.tick == next.revision.tick
+        && previous.revision.architecture_revision == next.revision.architecture_revision
+        && previous.lot == next.lot
+        && previous.source_counts == next.source_counts
+        && previous.category == next.category
+        && previous.sounds == next.sounds
+        && previous.objects.len() == next.objects.len()
+        && previous
+            .objects
+            .iter()
+            .zip(&next.objects)
+            .all(|(before, after)| {
+                let mut source = after.clone();
+                source.model = before.model;
+                *before == source
+            })
+        && (previous.revision.content != next.revision.content
+            || (previous.models == next.models
+                && previous.materials == next.materials
+                && previous.objects == next.objects))
 }
 
 fn render_frame(document: &WorldDocument) -> Result<RenderFrame, WorldError> {

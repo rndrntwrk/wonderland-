@@ -1,5 +1,9 @@
 # Browser redesign gallery
 
+This is the historical PR #18 gallery. The newer
+[connected continuation gallery](connected-continuation-gallery.md) adds
+desktop/mobile city, source avatar, incoming lot chat and local audio evidence.
+
 These six images are unedited captures from the verified browser release. Their captions identify original-source rendering, the preserved illustrated preview and the scope of each check. The [integration handoff](connected-integration.md) records verification and remaining work. No connected browser account/city/lot journey or deployed-server gameplay is claimed by these images.
 
 ## Original-content character creator

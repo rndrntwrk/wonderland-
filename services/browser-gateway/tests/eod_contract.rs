@@ -1,6 +1,52 @@
 use wonderland_browser_gateway::eod::EodGate;
 use wonderland_game_services::ErrorCode;
 
+#[test]
+fn source_snapshot_does_not_consume_its_next_ordinary_tick_or_replay_prior_eods() {
+    let mut gate = EodGate::new(42);
+    let mut snapshot =
+        include_bytes!("../../../crates/vm-protocol/tests/fixtures/source-v38-state-sync-tick.bin")
+            .to_vec();
+    snapshot[0] = 0;
+    gate.observe_for_lot(false, &snapshot, 55).unwrap();
+    assert!(
+        gate.observe(false, &tick(41, 42, 0x8b300068, "eod_enter"))
+            .unwrap()
+            .is_empty()
+    );
+    let first = gate
+        .observe(false, &tick(42, 42, 0x8b300068, "eod_enter"))
+        .unwrap();
+    assert_eq!(
+        first.len(),
+        1,
+        "Source StateSync uses the next real tick ID, not an executed tick"
+    );
+    assert!(gate.authorize(first[0].incarnation, 0x8b300068).is_ok());
+    assert!(
+        gate.observe(false, &tick(42, 42, 0x8b300068, "eod_leave"))
+            .unwrap()
+            .is_empty()
+    );
+    gate.observe_for_lot(false, &snapshot, 55).unwrap();
+    assert!(gate.active_plugin().is_none());
+    assert!(
+        gate.observe(false, &tick(42, 42, 0x8b300068, "eod_enter"))
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        gate.active_plugin().is_none(),
+        "A cached snapshot cannot replay an earlier EOD grant"
+    );
+    assert_eq!(
+        gate.observe(false, &tick(43, 42, 0x8b300068, "eod_enter"))
+            .unwrap()
+            .len(),
+        1
+    );
+}
+
 fn tick(tick: u32, actor: u32, plugin: u32, event: &str) -> Vec<u8> {
     let mut bytes = vec![0, 1, 0, 0, 0];
     bytes.extend(tick.to_le_bytes());

@@ -158,6 +158,122 @@ fn load(r: &[Owned]) -> ImportedContent {
     )
     .unwrap()
 }
+
+// Original .anim layout, deliberately distinct internal and provider names.
+fn animation(name: &str, first: f32, last: f32) -> Vec<u8> {
+    let mut bytes = u32s(&[2]);
+    bytes.extend((name.len() as i16).to_be_bytes());
+    bytes.extend(name.as_bytes());
+    bytes.extend(1000f32.to_le_bytes());
+    bytes.extend(0f32.to_le_bytes());
+    bytes.push(0);
+    bytes.extend(u32s(&[2]));
+    for x in [first, last] {
+        for value in [x, 0., 0.] {
+            bytes.extend(value.to_le_bytes());
+        }
+    }
+    bytes.extend(u32s(&[0, 1, 0]));
+    bytes.push(4);
+    bytes.extend(b"ROOT");
+    bytes.extend(u32s(&[2]));
+    bytes.extend(1000f32.to_le_bytes());
+    bytes.extend([1, 0]);
+    bytes.extend(0i32.to_be_bytes());
+    bytes.extend((-1i32).to_be_bytes());
+    bytes.extend([0, 0]);
+    bytes
+}
+
+#[test]
+fn original_named_animation_import_and_posed_composition_preserve_source_frame() {
+    use wonderland_avatar_view::{sample_timeline, Timeline, TimelineLayer};
+    let mut resources = original_set();
+    resources.push(Owned {
+        name: "Folder/Provider_Name.0000000100000007.anim".into(),
+        bytes: animation("internal", 2., 6.),
+        key: None,
+    });
+    let content = load(&resources);
+    let clip = content.animation("pROVIDER_nAME.anim").unwrap();
+    assert_eq!(clip.source().name, "internal");
+    assert!(content.animation("internal.anim").is_err());
+    let rig = content.rig.as_ref().unwrap();
+    let mut pose = rig.bind_pose();
+    sample_timeline(
+        rig,
+        &mut pose,
+        &Timeline {
+            layers: vec![TimelineLayer {
+                clip,
+                current_frame: 0.5,
+                speed: 1.,
+                weight: 1.,
+                backwards: false,
+                end_reached: false,
+                looping: false,
+            }],
+            carry: None,
+        },
+        0.,
+    )
+    .unwrap();
+    let selection = AppearanceSelection {
+        head: Some(file(200, 11)),
+        left: Gesture::None,
+        right: Gesture::None,
+        ..Default::default()
+    };
+    let bind = content.compose(&selection).unwrap();
+    let posed = content.compose_at(&selection, &pose).unwrap();
+    assert_eq!(bind[0].mesh.vertices[0].position.x, -302.);
+    assert_eq!(posed[0].mesh.vertices[0].position.x, -304.);
+    assert_eq!(posed[0].texture, bind[0].texture);
+    assert_eq!(pose.locals[0].translation.x, -4.);
+}
+
+#[test]
+fn named_animation_ambiguity_and_aggregate_limits_never_choose_an_arbitrary_clip() {
+    let mut resources = original_set();
+    for (folder, x) in [("one", 2.), ("two", 9.)] {
+        resources.push(Owned {
+            name: format!("{folder}/Duplicate.anim"),
+            bytes: animation("duplicate", x, x + 1.),
+            key: None,
+        });
+    }
+    let content = load(&resources);
+    assert!(content.animation("duplicate.anim").is_err());
+    assert!(content
+        .issues
+        .iter()
+        .any(|issue| issue.kind == IssueKind::Ambiguous && issue.resource == "duplicate.anim"));
+    resources.pop();
+    let content = import(
+        ImportRequest {
+            files: resources
+                .iter()
+                .map(|r| NamedBytes {
+                    name: &r.name,
+                    bytes: &r.bytes,
+                    key: r.key,
+                })
+                .collect(),
+            skeleton_name: "adult.skel",
+            collections: vec![],
+        },
+        &ImportLimits {
+            max_total_animation_samples: 1,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    assert!(content.animation("duplicate.anim").is_err());
+    assert!(content
+        .issues
+        .iter()
+        .any(|issue| issue.kind == IssueKind::Limit && issue.resource.contains("animation")));
+}
 #[test]
 fn source_readers_retain_order_ids_prefix_and_hand_order() {
     let col = decode_collection(

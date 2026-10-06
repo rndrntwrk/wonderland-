@@ -184,6 +184,10 @@ pub enum ModelContext {
         chunk_id: u16,
     },
     Standalone,
+    /// CPU-skinned original avatar geometry in source Y-up graphics units.
+    /// Its one static group already includes source scale, pose and display tint.
+    /// Source format 1 here is this normalized posed-mesh contract, not FSOm.
+    Vitaboy,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -381,6 +385,16 @@ impl WorldDocument {
             {
                 return Err(invalid("ambiguous or duplicate snapshot object identity"));
             }
+            if object
+                .model
+                .is_some_and(|index| matches!(self.models[index].context, ModelContext::Vitaboy))
+                && (object.blueprint.is_some()
+                    || object.snapshot.is_some_and(|source| !source.avatar))
+            {
+                return Err(invalid(
+                    "avatar geometry requires an avatar source identity",
+                ));
+            }
         }
         if let Some(counts) = self.source_counts
             && (counts.objects != self.objects.len()
@@ -422,11 +436,19 @@ impl WorldDocument {
             {
                 return Err(invalid("invalid source object model format or bounds"));
             }
+            if matches!(model.context, ModelContext::Vitaboy)
+                && (model.format_version != 1
+                    || model.reconstruction_version != 0
+                    || model.groups.len() != 1
+                    || model.depth_mask.is_some())
+            {
+                return Err(invalid("invalid posed avatar model contract"));
+            }
             let mut selectors = BTreeSet::new();
             for texture in &model.textures {
                 let key = match texture.selector {
                     ModelTextureSelector::Sprite { rotation, ordinal } => {
-                        if rotation > 3 || matches!(model.context, ModelContext::Standalone) {
+                        if rotation > 3 || !matches!(model.context, ModelContext::Dgrp { .. }) {
                             return Err(invalid("invalid DGRP texture selector"));
                         }
                         (0, rotation, ordinal)
@@ -453,7 +475,10 @@ impl WorldDocument {
             for group in &model.groups {
                 let mut textures = BTreeSet::new();
                 for part in group {
-                    if part.texture >= model.textures.len() || !textures.insert(part.texture) {
+                    if part.texture >= model.textures.len()
+                        || (!matches!(model.context, ModelContext::Vitaboy)
+                            && !textures.insert(part.texture))
+                    {
                         return Err(invalid("invalid model material group"));
                     }
                     part.mesh

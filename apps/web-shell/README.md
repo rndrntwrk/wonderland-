@@ -1,6 +1,16 @@
 # Wonderland browser shell
 
-Rust-authored, Leptos 0.8.21 CSR interface for the approved character grid, directly selectable Quack's Creek map, and Harbor Café object actions. The browser runs the compiled WebAssembly application. Node is development tooling only.
+Rust-authored, Leptos 0.8.21 CSR interface for the approved character grid, directly selectable city map, and contextual lot actions. The browser runs the compiled WebAssembly application. Node is development tooling only.
+
+Startup explicitly selects the existing saved **preview** or an original-service
+**connected** session through `public/wonderland-config.json`. Connected mode
+includes account admission, original city terrain and directory results, source
+FSOv38 lot snapshots, original avatar resource composition, and incoming native
+lot chat. The lot presentation is still refresh-based; continuous original VM
+restoration and full gameplay integration remain work in progress. See the
+[connected integration handoff](../../docs/design/action-first/connected-integration.md),
+[continuation verification](../../docs/design/action-first/connected-continuation.md),
+and [21-surface capability map](../../docs/design/action-first/player-capability-map.md).
 
 ## Run locally
 
@@ -25,6 +35,7 @@ From the repository root:
 
 ```sh
 cargo test --workspace --locked
+node --test crates/audio-runtime/browser/*.test.mjs
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
@@ -32,13 +43,13 @@ cd apps/web-shell
 npm run build
 ```
 
-`npm run build` invokes `trunk build --release --locked`. The static build is written to the ignored `apps/web-shell/dist` directory. Serve that directory from an HTTP server with `.wasm` mapped to `application/wasm`; opening `index.html` with a `file:` URL is insufficient. Bundled art, the Nunito font, and Tabler icons use same-origin asset URLs. There are no runtime font CDNs or game-service requests.
+`npm run build` invokes `trunk build --release --locked`. The static build is written to the ignored `apps/web-shell/dist` directory. Serve that directory from an HTTP server with `.wasm` mapped to `application/wasm`; opening `index.html` with a `file:` URL is insufficient. Bundled art, the Nunito font, and Tabler icons use same-origin asset URLs. Fonts need no runtime CDN. Connected mode contacts the explicitly configured gateway; preview does not authenticate a game account.
 
 The focused [Browser UI workflow](../../.github/workflows/browser-ui.yml) checks the new Rust workspace and builds the WASM shell without changing legacy build jobs. Native tests cover the shared reducer and projection plus camera/overlay geometry and fixture reply behavior. Browser visual and interaction checks remain a separate gate; a successful build alone cannot verify the rendered interface.
 
-## Player flow and controls
+## Preview player flow and controls
 
-1. Select Maya, Jules, Nico, Amara, or Leo. The portrait card, full-body stage, selected state, and green Play label update together.
+1. Select a saved Sim from the paginated character grid. The portrait card, full-body stage, selected state, and green Play label update together. Five cards are a layout page, not an account or identity limit.
 2. Play enters Quack's Creek. Select a destination on its map lot. Harbor Café and your selected Sim’s Home are available. Park and Arcade retain unavailable reasons.
 3. Visit shows a pending state. The café appears only after the adapter's matching acknowledgment.
 4. Select the independent coffee-machine sprite. Make coffee, Clean, and Inspect are arranged around the object. Clean is unavailable because the machine is already clean.
@@ -82,16 +93,22 @@ The exact approved references are in the [design record](../../docs/design/actio
 
 The [asset manifest](public/assets/ASSETS.md) records generated artwork provenance, source hashes, Nunito's SIL Open Font License, and Tabler's MIT license. No proprietary TSO assets are included. The original high-resolution PNGs are deliberately retained; production image cooking, delivery-size budgets, LOD, and renderer content are later work.
 
-## Replacement boundaries and next integration work
+## Preview boundaries and remaining integration work
 
 - **Presentation snapshot and reducer:** Keep `wonderland-contracts` and `wonderland-client-app` DOM-, renderer-, network-, and simulation-free. Consume validated versioned projections and dispatch typed intents; do not write directly into `ShellState` fields.
-- **Transport and authentication:** Replace the delayed reply scheduling in `bridge.rs` with an explicit authenticated adapter. Independently authorize actor identity and operations, validate generation/revision, bound source bytes before decoding, and preserve request/response identity. Displayed availability is never authorization.
+- **Transport and authentication:** Preview's delayed replies in `bridge.rs` remain separate from `connected_bridge.rs` and the native gateway. The connected adapter authenticates actor identity, fences session/lot generations, bounds source bytes, and preserves request identity. Displayed availability is never authorization; missing connected providers must be implemented against original source outcomes.
 - **Renderer and picking:** Replace `components/scene.rs` and `geometry.rs` with a renderer adapter that projects stable targets into screen coordinates. Maintain the screen-anchor contract used by `components/actions.rs`; add occlusion and picking without exposing engine entities or DOM nodes to persistent contracts. Evaluate the production 3D camera and WebGPU/WebGL2 fallback separately.
 - **Simulation and queue:** Integrate authoritative queue progress/completion, ordered actions, need and money updates, travel rules, and real cancellation outcomes through projections/events.
-- **Authoring services:** Replace `authoring_bridge.rs` and the bounded `PreviewAuthoringProvider` with coordinated authoritative authoring and shell projections. Keep typed actor/Home/instance identities, exact operation/base matching, validation, and receipt-before-mirroring ordering. Creation is a preview profile, not an account. Original outfit keys and lot coordinates must remain explicitly mapped to source-content and simulation identities; never cast them into engine entity IDs. The avatar stage renders source meshes; production lot orbit/view switching and chat transport still require their adapters.
+- **Authoring services:** Preserve `authoring_bridge.rs` and the bounded `PreviewAuthoringProvider` for saved preview profiles. Connected account creation and supported source authoring requests use separate adapters. Complete their catalog, inventory, construction and ownership providers while retaining typed identities, exact operation matching and source-confirmed outcomes. Original outfit keys and lot coordinates remain explicitly mapped to source-content and simulation identities; never cast them into engine entity IDs.
 - **Content and renderer:** Park and Arcade still need distinct scenes. The Home PNG and calibrated affine adapter in `authoring_geometry.rs` are fixed-camera presentation art, not a movable 3D renderer. Replace image composition and semantic picking with an engine render/pick adapter while retaining accessible keyboard controls, projected ground anchors, usable camera insets, typed outcomes, and ownership checks.
 
-This shell is an integration increment. It includes a bounded original-avatar resource importer and WebGL2 character stage, but live transport, the production world renderer and simulation remain unconnected. It changes no original C# behavior. The complete player-surface inventory and remaining integrations are recorded in [the capability map](../../docs/design/action-first/player-capability-map.md).
+This shell includes the original-avatar resource importer, character stage,
+authenticated gateway transport, source city/lot rendering and source chat
+projection. Original-server simulation remains a refresh-only presentation.
+Local MP3/WAVE audition and saved mute/group volumes are separate from the still
+unconnected active-lot audio driver. The work changes no original C# behavior.
+The complete player-surface inventory and remaining integrations are recorded in
+[the capability map](../../docs/design/action-first/player-capability-map.md).
 
 
 ## Character and Home authoring preview

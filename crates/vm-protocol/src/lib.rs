@@ -88,6 +88,27 @@ pub struct Command {
 }
 #[derive(Clone, Debug, Serialize)]
 pub enum CommandBody {
+    /// VMNetChatCmd; the high channel bit means a private direct delivery.
+    Chat {
+        message: String,
+        channel_id: u8,
+    },
+    AvatarJoin(AvatarJoin),
+    ChangePermissions {
+        target_uid: u32,
+        replace_uid: u32,
+        level: u8,
+        mode: u8,
+    },
+    SetIgnore {
+        target_uid: u32,
+        ignore: bool,
+    },
+    ChatParameters {
+        pitch: i8,
+        color: u32,
+    },
+    ChatEditChannel(snapshot::ChatChannel),
     EodMessage(EodMessage),
     StateSync {
         snapshot: Box<Snapshot>,
@@ -97,6 +118,14 @@ pub enum CommandBody {
         bytes: Vec<u8>,
     },
 }
+/// Fields needed to identify a source Sim join without executing its VM effects.
+#[derive(Clone, Debug, Serialize)]
+pub struct AvatarJoin {
+    pub name: String,
+    pub persist_id: u32,
+    pub permissions: u8,
+    pub ignored: Vec<u32>,
+}
 #[derive(Clone, Debug, Serialize)]
 pub struct SyncTraceTick {
     pub tick_id: u32,
@@ -105,6 +134,7 @@ pub struct SyncTraceTick {
 fn decimal_u64<S: serde::Serializer>(n: &u64, s: S) -> std::result::Result<S::Ok, S::Error> {
     s.serialize_str(&n.to_string())
 }
+pub mod chat;
 mod command;
 mod reader;
 pub fn decode_tick_list(bytes: &[u8], limits: &DecodeLimits) -> Result<TickList> {
