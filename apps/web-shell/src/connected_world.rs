@@ -5,7 +5,7 @@ use crate::{
     connected_adapter::state::Panel,
     connected_authoring::{AuthoringPanelKind, ConnectedAuthoringPanel, SourceAuthoringUi},
     connected_bridge::ConnectedUi,
-    live_world_adapter::{FrameError, LiveWorldIdentity, SourceFrameGate},
+    live_world_adapter::{FrameError, LiveWorldIdentity, SnapshotPickAction, SourceFrameGate},
     snapshot_avatar::SnapshotAvatarProjection,
     snapshot_world::snapshot_world,
     source_needs::{SOURCE_NEED_LABELS, source_needs},
@@ -401,18 +401,35 @@ pub fn ConnectedLotView() -> impl IntoView {
         }
     });
     let on_pick = Callback::new(move |pick: WorldPick| {
-        if stale.get_untracked() {
-            notice.set(
-                "The property has changed. Refresh its state before selecting an item to edit."
-                    .into(),
-            );
-            return;
-        }
         let Some(document) = world.get_untracked() else {
             return;
         };
-        if document.revision != pick.revision {
+        let Some(action) = gate.with_value(|gate| {
+            gate.pick_action(
+                identity.get_untracked(),
+                &document,
+                &pick,
+                stale.get_untracked(),
+            )
+        }) else {
             return;
+        };
+        match action {
+            SnapshotPickAction::InspectAvatar(avatar_id) => {
+                if let Some(avatar_id) = avatar_id {
+                    ui.select_person(avatar_id);
+                }
+                selected.set(Some(pick));
+                return;
+            }
+            SnapshotPickAction::RefreshRequired => {
+                notice.set(
+                    "The property has changed. Refresh its state before selecting an item to edit."
+                        .into(),
+                );
+                return;
+            }
+            SnapshotPickAction::Authoring => {}
         }
         match &pick.target {
             WorldPickTarget::Tile { x, y, level, .. } => {
@@ -448,13 +465,6 @@ pub fn ConnectedLotView() -> impl IntoView {
                         .as_ref()
                         .filter(|source| source.record == *record)
                 }) {
-                    if source.avatar {
-                        if source.persistent_id != 0 {
-                            ui.select_person(source.persistent_id);
-                        }
-                        selected.set(Some(pick));
-                        return;
-                    }
                     authoring.selected_entity.set(Some(EntityIdentity {
                         object_id: source.object_id,
                         incarnation: source.presentation_generation,
@@ -493,10 +503,10 @@ pub fn ConnectedLotView() -> impl IntoView {
                 }/>
             </div>
             <nav class="source-world-tools chrome" aria-label="Property controls">
-                <div class="source-control-group"><button class="chrome round small" aria-label="Rotate left" on:click=move |_|controls.update(|view|view.yaw_radians-=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise" class="icon-mirror"/></button><button class="chrome round small" aria-label="Rotate right" on:click=move |_|controls.update(|view|view.yaw_radians+=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise"/></button><button class="chrome round small" aria-label="Zoom out" on:click=move |_|controls.update(|view|view.zoom=(view.zoom/1.2).max(0.25))><Icon name="minus"/></button><button class="chrome round small" aria-label="Zoom in" on:click=move |_|controls.update(|view|view.zoom=(view.zoom*1.2).min(8.))><Icon name="plus"/></button></div>
-                <div class="source-control-group"><button class="chrome" disabled={move ||controls.get().visible_level<=1} on:click=move |_|controls.update(|view|view.visible_level=view.visible_level.saturating_sub(1).max(1))>"− Floor"</button><span>{move ||controls.get().visible_level}</span><button class="chrome" disabled=move ||world.with(|world|world.as_ref().is_none_or(|world|controls.get().visible_level>=world.lot.levels)) on:click=move |_|{let levels=world.with_untracked(|world|world.as_ref().map(|world|world.lot.levels).unwrap_or(1));controls.update(|view|view.visible_level=(view.visible_level+1).min(levels));}>"+ Floor"</button></div>
-                <div class="source-control-group">{[(WallMode::Down,"Walls down"),(WallMode::Cutaway,"Cutaway"),(WallMode::Up,"Walls up")].into_iter().map(move |(mode,label)|view!{<button class="chrome" aria-pressed=move ||(controls.get().walls==mode).to_string() on:click=move |_|controls.update(|view|view.walls=mode)>{label}</button>}).collect_view()}<button class="chrome" aria-pressed=move ||controls.get().show_roofs.to_string() on:click=move |_|controls.update(|view|view.show_roofs = !view.show_roofs)>"Roof"</button></div>
-                <div class="source-control-group"><button class="chrome" on:click=move |_|authoring_panel.set(Some(AuthoringPanelKind::Catalog))><Icon name="shopping-cart"/>"Buy"</button><button class="chrome" on:click=move |_|authoring_panel.set(Some(AuthoringPanelKind::Build))><Icon name="hammer"/>"Build"</button><button class="chrome" on:click=move |_|needs_open.update(|open|*open = !*open)>"Needs"</button></div>
+                <div class="source-control-group source-camera-controls" role="group" aria-label="Camera"><button class="chrome round small" aria-label="Rotate left" on:click=move |_|controls.update(|view|view.yaw_radians-=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise" class="icon-mirror"/></button><button class="chrome round small" aria-label="Rotate right" on:click=move |_|controls.update(|view|view.yaw_radians+=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise"/></button><button class="chrome round small" aria-label="Zoom out" on:click=move |_|controls.update(|view|view.zoom=(view.zoom/1.2).max(0.25))><Icon name="minus"/></button><button class="chrome round small" aria-label="Zoom in" on:click=move |_|controls.update(|view|view.zoom=(view.zoom*1.2).min(8.))><Icon name="plus"/></button></div>
+                <div class="source-control-group source-floor-controls" role="group" aria-label="Visible floor"><button class="chrome round small" aria-label="Floor down" disabled={move ||controls.get().visible_level<=1} on:click=move |_|controls.update(|view|view.visible_level=view.visible_level.saturating_sub(1).max(1))><Icon name="chevron-down"/></button><span>{move ||controls.get().visible_level}</span><button class="chrome round small" aria-label="Floor up" disabled=move ||world.with(|world|world.as_ref().is_none_or(|world|controls.get().visible_level>=world.lot.levels)) on:click=move |_|{let levels=world.with_untracked(|world|world.as_ref().map(|world|world.lot.levels).unwrap_or(1));controls.update(|view|view.visible_level=(view.visible_level+1).min(levels));}><Icon name="chevron-up"/></button></div>
+                <div class="source-control-group source-visibility-controls" role="group" aria-label="Wall visibility">{[(WallMode::Down,"Walls down"),(WallMode::Cutaway,"Cutaway"),(WallMode::Up,"Walls up")].into_iter().map(move |(mode,label)|view!{<button class="chrome" aria-pressed=move ||(controls.get().walls==mode).to_string() on:click=move |_|controls.update(|view|view.walls=mode)>{label}</button>}).collect_view()}<button class="chrome" aria-pressed=move ||controls.get().show_roofs.to_string() on:click=move |_|controls.update(|view|view.show_roofs = !view.show_roofs)>"Roof"</button></div>
+                <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" on:click=move |_|authoring_panel.set(Some(AuthoringPanelKind::Catalog))><Icon name="shopping-cart"/>"Buy"</button><button class="chrome" on:click=move |_|authoring_panel.set(Some(AuthoringPanelKind::Build))><Icon name="hammer"/>"Build"</button><button class="chrome" on:click=move |_|needs_open.update(|open|*open = !*open)>"Needs"</button></div>
             </nav>
             <Show when=move ||authoring_panel.get().is_some()><aside class="connected-world-authoring chrome" aria-label="Edit this property"><header><h2>{move ||match authoring_panel.get(){Some(AuthoringPanelKind::Catalog)=>"Buy objects",Some(AuthoringPanelKind::Build)=>"Build",Some(AuthoringPanelKind::Object)=>"Object actions",_=>"Wardrobe"}}</h2><button class="chrome round small" aria-label="Close property editor" on:click=move |_|authoring_panel.set(None)><Icon name="x"/></button></header>{move ||authoring_panel.get().map(|kind|view!{<ConnectedAuthoringPanel kind/>})}</aside></Show>
             <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Your Sim’s needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><p>{move ||ui.state.with(|state|state.active_entry().map(|entry|entry.name.clone()).unwrap_or_default())}</p><p>{move ||ui.state.with(|state|state.active_entry().and_then(|entry|entry.money).map(|money|format!("§ {money}")).unwrap_or_else(||"Waiting for balance".into()))}</p><div class="connected-source-needs">{SOURCE_NEED_LABELS.into_iter().enumerate().map(move |(index,label)|view!{<label><span>{label}</span>{move ||ui.state.with(|state|state.active_entry().and_then(|entry|entry.motives).map(|needs|view!{<progress max="100" value=((i32::from(needs[index])+100)/2).clamp(0,100)>{format!("{}",needs[index])}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any()))}</label>}).collect_view()}</div><button class="chrome" on:click=move |_|ui.panel(Panel::Profile)>"Open profile"</button></aside></Show>

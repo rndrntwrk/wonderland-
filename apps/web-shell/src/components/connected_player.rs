@@ -16,13 +16,15 @@ use wonderland_vm_protocol::chat::SourceChatKind;
 pub fn ConnectedPanels() -> impl IntoView {
     let ui = expect_context::<ConnectedUi>();
     let panel = Memo::new(move |_| ui.state.with(|s| s.panel.filter(|p| *p != Panel::Create)));
+    let chat_expanded = RwSignal::new(false);
     let close = move || {
         ui.state.update(|s| s.panel = None);
+        chat_expanded.set(false);
         focus("connected-menu");
     };
     view! {
-        <Show when=move ||panel.get().is_some()><section class="connected-panel chrome" aria-labelledby="connected-panel-title" on:keydown=move |e:web_sys::KeyboardEvent|if e.key()=="Escape"&&!e.is_composing(){e.prevent_default();close();}>
-            <header class="connected-panel-heading"><Icon name=Signal::derive(move ||panel.get().map(|p|p.icon()).unwrap_or("users").to_owned())/><h2 id="connected-panel-title" tabindex="-1">{move ||panel.get().map(|p|p.label())}</h2><button class="chrome round small" aria-label="Close panel" on:click=move |_|close()><Icon name="x"/></button></header>
+        <Show when=move ||panel.get().is_some()><section class="connected-panel chrome" class:connected-panel-chat=move ||panel.get()==Some(Panel::Chat) class:chat-expanded=move ||panel.get()==Some(Panel::Chat)&&chat_expanded.get() aria-labelledby="connected-panel-title" on:keydown=move |e:web_sys::KeyboardEvent|if e.key()=="Escape"&&!e.is_composing(){e.prevent_default();close();}>
+            <header class="connected-panel-heading"><Icon name=Signal::derive(move ||panel.get().map(|p|p.icon()).unwrap_or("users").to_owned())/><h2 id="connected-panel-title" tabindex="-1">{move ||panel.get().map(|p|p.label())}</h2><div class="connected-panel-heading-actions"><Show when=move ||panel.get()==Some(Panel::Chat)><button class="chrome round small" aria-label=move ||if chat_expanded.get(){"Make chat compact"}else{"Expand chat"} aria-expanded=move ||chat_expanded.get().to_string() on:click=move |_|chat_expanded.update(|expanded|*expanded = !*expanded)><Icon name=Signal::derive(move ||if chat_expanded.get(){"chevron-down"}else{"chevron-up"}.to_owned())/></button></Show><button class="chrome round small" aria-label="Close panel" on:click=move |_|close()><Icon name="x"/></button></div></header>
             <div class="connected-panel-body">{move ||match panel.get() {
                 Some(Panel::Profile)=>view!{<ProfilePanel/>}.into_any(),Some(Panel::People)=>view!{<PeoplePanel/>}.into_any(),Some(Panel::Bookmarks)=>view!{<BookmarksPanel/>}.into_any(),Some(Panel::Chat)=>view!{<ChatPanel/>}.into_any(),Some(Panel::Inbox)=>view!{<InboxPanel/>}.into_any(),Some(Panel::Property)=>view!{<PropertyPanel/>}.into_any(),Some(Panel::Neighborhood)=>view!{<NeighborhoodPanel/>}.into_any(),Some(Panel::Wardrobe)=>view!{<WardrobePanel/>}.into_any(),Some(Panel::Eods)=>view!{<EodPanel/>}.into_any(),Some(Panel::Settings)=>view!{<OptionsPanel/>}.into_any(),_=>().into_any(),
             }}</div>
@@ -130,7 +132,7 @@ fn ProfilePanel() -> impl IntoView {
             }>"Open their property"</button></Show>
             <CapabilityNote capability="private_message"/>
             <h4>"Relationships & bookmarks"</h4><CapabilityNote capability="bookmarks"/>
-            <h4>"Skills & needs"</h4><Show when=move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).is_some()) fallback=||view!{<p class="connected-muted">"Live needs have not been supplied for this Sim."</p>}><div class="connected-needs">{move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).map(|needs|crate::source_needs::SOURCE_NEED_LABELS.into_iter().zip(needs).map(|(name,value)|view!{<span><strong>{name}</strong><span>{value}</span></span>}).collect_view()))}</div></Show>
+            <h4>"Skills & needs"</h4><Show when=move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).is_some()) fallback=||view!{<p class="connected-muted">"Live needs have not been supplied for this Sim."</p>}><div class="connected-needs">{move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).map(|needs|crate::source_needs::SOURCE_NEED_LABELS.into_iter().zip(needs).map(|(name,value)|view!{<span><strong>{name}</strong><span class="connected-need-value">{value}</span></span>}).collect_view()))}</div></Show>
             <CapabilityNote capability="profile_edit"/>
             <Show when=move ||ui.state.with(|s|s.session.as_ref().and_then(|s|s.avatar_id)==id.get()&&s.roster.iter().any(|entry|Some(entry.avatar_id)==id.get()))>
                 <details class="connected-more"><summary>"Manage this Sim"</summary><p>"Retirement permanently removes this Sim from your account. The world checks whether retirement is allowed."</p><button class="chrome danger" disabled=move ||!can(ui,"retire_avatar","Retire Sim") on:click=move |_|confirm.set(true)>"Retire Sim…"</button><OperationFeedback label="Retire Sim"/></details>
@@ -370,6 +372,8 @@ fn ChatPanel() -> impl IntoView {
         }
     };
     view! {
+        <div class="connected-chat-view">
+        <div class="connected-chat-context">
         <nav class="connected-tabs" aria-label="Chat type"><button class="chrome" aria-pressed=move ||(!lot.get()).to_string() on:click=move |_|ui.state.update(|s|{s.chat_lot=false;if let Some(person)=s.ledger.selected_person{s.ledger.select_conversation(person);}})>"Private messages"</button><button class="chrome" aria-pressed=move ||lot.get().to_string() on:click=move |_|ui.state.update(|s|{s.chat_lot=true;if s.lot_chat.at_bottom{s.lot_chat.mark_read();}})>"Lot chat"<span class="connected-unread">{move ||ui.state.with(|s|{let count=s.lot_chat.unread_count();if count>0 {count.to_string()} else {String::new()}})}</span></button></nav>
         <Show when=move ||!lot.get()>
             <div class="connected-conversations"><For each=move ||ui.state.with(|s|{
@@ -382,6 +386,7 @@ fn ChatPanel() -> impl IntoView {
         <Show when=move ||lot.get()&&ui.state.with(|s|s.lot_chat.channels.len()>1)>
             <details class="connected-more"><summary>"Show channels"</summary><div class="connected-action-row"><For each=move ||ui.state.with(|s|s.lot_chat.channels.clone()) key=|channel|(channel.id,channel.name.clone(),channel.description.clone(),channel.private) children=move |channel|{let id=channel.id;view!{<button class="chrome" type="button" title=channel.description aria-pressed=move ||ui.state.with(|s|s.lot_chat.channel_shown(id)).to_string() on:click=move |_|ui.state.update(|s|{s.lot_chat.toggle_channel(id);if s.lot_chat.at_bottom{s.lot_chat.mark_read();}})>{channel.name}{if channel.private {" · Private"} else {""}}</button>}}/></div></details>
         </Show>
+        </div>
         <div node_ref=log class="connected-chat-log" role="log" aria-live="polite" aria-relevant="additions" aria-label=move ||if lot.get(){"Lot messages"}else{"Private messages"} on:scroll=move |_|{
             if lot.get_untracked()&&ui.state.with_untracked(|s|s.lot_chat.ready)&&let Some(element)=log.get_untracked(){let top=element.scroll_top();let at_bottom=element.scroll_height()-element.client_height()-top<=2;ui.state.update(|s|{s.lot_chat.set_scroll(top,at_bottom);if at_bottom{s.lot_chat.mark_read();}});}
         }>
@@ -390,7 +395,7 @@ fn ChatPanel() -> impl IntoView {
                     let message=event.message;
                     let outgoing=ui.state.with_untracked(|s|s.session.as_ref().and_then(|session|session.avatar_id)==Some(message.sender_uid));
                     if message.kind==SourceChatKind::Join {
-                        view!{<div class="connected-message"><small>{format!("{} joined the lot.",message.sender_name)}</small></div>}.into_any()
+                        view!{<div class="connected-message connected-message-notice"><small>{format!("{} joined the lot.",message.sender_name)}</small></div>}.into_any()
                     } else {
                         let channel=if message.channel_id==Some(0){String::new()}else{format!(" · {}{}",message.channel_name.unwrap_or_default(),if message.private{" (private)"}else{""})};
                         let color=format!("color:rgb({},{},{})",message.sender_color[0],message.sender_color[1],message.sender_color[2]);
@@ -412,12 +417,13 @@ fn ChatPanel() -> impl IntoView {
                 messages.into_iter().map(|(body,outgoing,status)|view!{<div class="connected-message" class:outgoing=outgoing><p>{body}</p><small>{status}</small></div>}).collect_view()
             })}
             </Show>
+            <Show when=move ||lot.get()&&source_messages.get().is_empty()><p class="connected-empty">{move ||ui.state.with(|s|if s.lot_chat.ready {"No messages have arrived in the selected lot channels yet."}else{"Lot chat is waiting for the lot’s player information."})}</p></Show>
+            <Show when=move ||!lot.get()&&target.get().is_none()><p class="connected-empty">"Choose a Sim to start a conversation."</p></Show>
         </div>
-        <Show when=move ||lot.get()&&ui.state.with(|s|!s.lot_chat.at_bottom)><button class="chrome" type="button" on:click=move |_|{if let Some(element)=log.get_untracked(){element.set_scroll_top(element.scroll_height());ui.state.update(|s|{s.lot_chat.set_scroll(element.scroll_top(),true);s.lot_chat.mark_read();});}}>"Jump to latest"{move ||ui.state.with(|s|{let count=s.lot_chat.unread_count();if count>0{format!(" ({count} new)")}else{String::new()}})}</button></Show>
-        <Show when=move ||lot.get()&&source_messages.get().is_empty()><p class="connected-empty">{move ||ui.state.with(|s|if s.lot_chat.ready {"No messages have arrived in the selected lot channels yet."}else{"Lot chat is waiting for the lot’s player information."})}</p></Show>
-        <Show when=move ||!lot.get()&&target.get().is_none()><p class="connected-empty">"Choose a Sim to start a conversation."</p></Show>
-        <form class="connected-compose" on:submit=move |event|{event.prevent_default();send();}><label for="connected-chat-message">{move ||if lot.get(){"Say something to the lot"}else{"Your message"}}</label><textarea id="connected-chat-message" rows="3" maxlength=move ||if lot.get(){200}else{1500} disabled=move ||!can_send() prop:value=move ||ui.state.with(|s|s.draft(&key())) on:input=move |event|ui.draft(&key(),event_target_value(&event))></textarea><button class="chrome primary" type="submit" disabled=move ||!can_send()||ui.state.with(|s|s.draft(&key()).trim().is_empty())>"Send"<Icon name="arrow-right"/></button></form>
-        <Show when=move ||lot.get() fallback=||view!{<OperationFeedback label="Private message"/><CapabilityNote capability="private_message"/>}><OperationFeedback label="Lot chat"/><CapabilityNote capability="lot_chat"/></Show>
+        <Show when=move ||lot.get()&&ui.state.with(|s|!s.lot_chat.at_bottom)><button class="chrome connected-chat-jump" type="button" on:click=move |_|{if let Some(element)=log.get_untracked(){element.set_scroll_top(element.scroll_height());ui.state.update(|s|{s.lot_chat.set_scroll(element.scroll_top(),true);s.lot_chat.mark_read();});}}>"Jump to latest"{move ||ui.state.with(|s|{let count=s.lot_chat.unread_count();if count>0{format!(" ({count} new)")}else{String::new()}})}</button></Show>
+        <form class="connected-compose connected-chat-compose" on:submit=move |event|{event.prevent_default();send();}><label for="connected-chat-message">{move ||if lot.get(){"Say something to the lot"}else{"Your message"}}</label><textarea id="connected-chat-message" placeholder=move ||if lot.get(){"Message the lot…"}else{"Write a message…"} rows="2" maxlength=move ||if lot.get(){200}else{1500} disabled=move ||!can_send() prop:value=move ||ui.state.with(|s|s.draft(&key())) on:input=move |event|ui.draft(&key(),event_target_value(&event))></textarea><button class="chrome primary" type="submit" disabled=move ||!can_send()||ui.state.with(|s|s.draft(&key()).trim().is_empty())><span>"Send"</span><Icon name="arrow-right"/></button></form>
+        <div class="connected-chat-feedback"><Show when=move ||lot.get() fallback=||view!{<OperationFeedback label="Private message"/><CapabilityNote capability="private_message"/>}><OperationFeedback label="Lot chat"/><CapabilityNote capability="lot_chat"/></Show></div>
+        </div>
     }
 }
 

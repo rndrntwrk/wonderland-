@@ -480,14 +480,19 @@ export function openSourceAudioControls() {
   dialog.className = 'source-audio-dialog';
   dialog.setAttribute('aria-labelledby', 'source-audio-title');
   dialog.setAttribute('aria-describedby', 'source-audio-description');
-  dialog.innerHTML = `<form method="dialog"><button class="audio-close" aria-label="Close sound settings">×</button></form>
-    <h2 id="source-audio-title">Sound</h2><p id="source-audio-description" class="audio-note">Choose original MP3 or WAVE files to listen to while you play.</p>
-    <div class="audio-actions"><button type="button" data-enable>Enable sound</button><button type="button" data-pause>Pause sound</button><label><input type="checkbox" data-mute> Mute</label></div>
-    <div class="audio-volumes">${GROUPS.map(group => `<label for="audio-volume-${group}">${LABELS[group]}<input id="audio-volume-${group}" type="range" min="0" max="100" step="1" value="100" data-group="${group}" aria-label="${LABELS[group]} volume"><output for="audio-volume-${group}">100%</output></label>`).join('')}</div>
-    <label class="audio-file-label">Original music files<input type="file" multiple accept=".mp3,.wav" data-files></label>
-    <label>Selected music<select data-playlist aria-label="Selected music"><option value="">Choose a loaded file</option></select></label>
-    <div class="audio-actions"><button type="button" data-play>Play selected music</button><button type="button" data-stop>Stop music</button><label><input type="checkbox" data-loop> Repeat on playback</label></div>
-    <p data-status role="status" aria-live="polite" aria-atomic="true"></p><p data-storage role="status" aria-live="polite" hidden></p>`;
+  dialog.innerHTML = `<header class="audio-heading">
+    <h2 id="source-audio-title"><span class="icon" aria-hidden="true" style="--icon:url('/assets/icons/volume.svg')"></span>Sound</h2>
+    <form method="dialog"><button class="chrome round audio-close" aria-label="Close sound settings"><span class="icon" aria-hidden="true" style="--icon:url('/assets/icons/x.svg')"></span></button></form>
+  </header>
+  <div class="audio-body">
+    <p id="source-audio-description" class="audio-note">Choose original MP3 or WAVE files to listen to while you play.</p>
+    <div class="audio-actions"><button class="chrome" type="button" data-enable>Enable sound</button><button class="chrome" type="button" data-pause>Pause sound</button><label class="audio-check"><input type="checkbox" data-mute> Mute all sound</label></div>
+    <fieldset class="audio-volumes"><legend>Volume</legend>${GROUPS.map(group => `<label for="audio-volume-${group}">${LABELS[group]}<input id="audio-volume-${group}" type="range" min="0" max="100" step="1" value="100" data-group="${group}" aria-label="${LABELS[group]} volume"><output for="audio-volume-${group}">100%</output></label>`).join('')}</fieldset>
+    <label class="audio-field audio-file-label" for="audio-source-files">Original music files<input id="audio-source-files" type="file" multiple accept=".mp3,.wav" data-files></label>
+    <label class="audio-field" for="audio-selected-music">Selected music<select id="audio-selected-music" data-playlist aria-label="Selected music"><option value="">Choose a loaded file</option></select></label>
+    <div class="audio-actions"><button class="chrome" type="button" aria-label="Play selected music" data-play><span class="icon" aria-hidden="true" style="--icon:url('/assets/icons/player-play.svg')"></span>Play music</button><button class="chrome" type="button" data-stop>Stop music</button><label class="audio-check"><input type="checkbox" data-loop> Repeat on playback</label></div>
+    <div class="audio-status"><p data-status role="status" aria-live="polite" aria-atomic="true"></p><p data-storage role="status" aria-live="polite" hidden></p></div>
+  </div>`;
   const query = selector => dialog.querySelector(selector);
   const enable = query('[data-enable]'), pause = query('[data-pause]'), play = query('[data-play]'), stop = query('[data-stop]');
   const files = query('[data-files]'), list = query('[data-playlist]'), mute = query('[data-mute]'), status = query('[data-status]'), storageStatus = query('[data-storage]');

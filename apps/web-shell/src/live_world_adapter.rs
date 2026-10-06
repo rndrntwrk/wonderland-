@@ -3,6 +3,7 @@
 use wonderland_vm_protocol::{
     CommandBody, DecodeLimits, EodMessage, Snapshot, decode_direct_command, decode_tick_list,
 };
+use wonderland_world_view::{WorldDocument, WorldPick, WorldPickTarget, WorldSourceKind};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct LiveWorldIdentity {
@@ -19,6 +20,13 @@ pub enum FrameError {
     StaleTick,
     InvalidProtocol,
     WrongLot,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SnapshotPickAction {
+    InspectAvatar(Option<u32>),
+    Authoring,
+    RefreshRequired,
 }
 
 #[derive(Debug)]
@@ -50,6 +58,52 @@ impl SourceFrameGate {
     }
     pub fn last_tick(&self) -> Option<u32> {
         self.last_tick
+    }
+    /// A displayed avatar's persistent identity remains useful for profile reads
+    /// after simulation advances. Snapshot edits still require a fresh view.
+    pub fn pick_action(
+        &self,
+        current: Option<LiveWorldIdentity>,
+        document: &WorldDocument,
+        pick: &WorldPick,
+        stale: bool,
+    ) -> Option<SnapshotPickAction> {
+        let current = current?;
+        if self.identity != Some(current)
+            || document.provenance.kind != WorldSourceKind::LegacySnapshot
+            || document.revision.epoch != current.source_epoch
+            || document.revision != pick.revision
+        {
+            return None;
+        }
+        if let WorldPickTarget::Object {
+            entity,
+            source_guid,
+            source_record,
+        } = &pick.target
+        {
+            let record = (*source_record)?;
+            let source = document.objects.iter().find_map(|object| {
+                (object.entity == *entity && object.source_guid == *source_guid)
+                    .then_some(object.snapshot)
+                    .flatten()
+                    .filter(|source| {
+                        source.record == record
+                            && source.presentation_generation
+                                == document.revision.architecture_revision
+                    })
+            })?;
+            if source.avatar {
+                return Some(SnapshotPickAction::InspectAvatar(
+                    (source.persistent_id != 0).then_some(source.persistent_id),
+                ));
+            }
+        }
+        Some(if stale {
+            SnapshotPickAction::RefreshRequired
+        } else {
+            SnapshotPickAction::Authoring
+        })
     }
     pub fn admit(
         &mut self,

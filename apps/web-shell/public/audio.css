@@ -1,1 +1,353 @@
-.source-audio-control{display:inline-flex;align-items:center;gap:.35rem}.source-audio-control [role=status]{font-size:.7rem;max-width:13rem}.source-audio-dialog{width:min(31rem,calc(100vw - 2rem));max-height:calc(100dvh - 3rem);overflow:auto;border:1px solid #b5c5d5;border-radius:1rem;padding:1.5rem;color:#21364a;background:#f8fbff;box-shadow:0 1rem 4rem #122a4755}.source-audio-dialog::backdrop{background:#0f244866}.source-audio-dialog h2{margin-top:0}.source-audio-dialog button,.source-audio-dialog select{border:1px solid #a8bfd4;border-radius:.6rem;background:white;color:inherit;padding:.55rem .75rem;cursor:pointer}.source-audio-dialog .audio-close{float:right;font-size:1.3rem;padding:.1rem .5rem}.audio-note,.source-audio-dialog [role=status]{font-size:.85rem;line-height:1.5;color:#425d76}.audio-actions{display:flex;flex-wrap:wrap;gap:.65rem;align-items:center;margin:1rem 0}.audio-volumes{display:grid;gap:.75rem;margin:1rem 0}.audio-volumes label{display:grid;grid-template-columns:5rem 1fr 3rem;gap:.7rem;align-items:center}.audio-volumes input{width:100%;accent-color:#176eae}.source-audio-dialog>label{display:block;margin:.8rem 0}.source-audio-dialog select{display:block;width:100%;margin-top:.4rem}.audio-file-label input{display:block;width:100%;margin-top:.5rem}.source-audio-dialog input:focus-visible,.source-audio-dialog button:focus-visible,.source-audio-dialog select:focus-visible{outline:3px solid #278dcc;outline-offset:3px}
+.source-audio-control {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
+.source-audio-control [role=status] {
+  font-size:12px;
+  line-height:1.4;
+  max-width:13rem;
+}
+
+.source-audio-control [role=status]:empty {
+  display:none;
+}
+
+.source-audio-dialog {
+  width:min(520px,calc(100vw - 32px));
+  max-width:calc(100vw - 32px);
+  max-height:calc(100vh - 32px);
+  max-height:calc(100dvh - 32px);
+  margin:auto;
+  padding:0;
+  overflow:hidden;
+  border:3px solid #82cfff;
+  border-radius:22px;
+  background:linear-gradient(155deg,#246c9b,#164e7b);
+  color:#fffbea;
+  box-shadow:0 0 0 4px #174e85,0 14px 50px #09234088;
+  font:14px/1.45 Nunito,Arial,sans-serif;
+}
+
+.source-audio-dialog[open] {
+  display:flex;
+  flex-direction:column;
+}
+
+.source-audio-dialog::backdrop {
+  background:#06204188;
+  backdrop-filter:blur(2px);
+}
+
+.source-audio-dialog .audio-heading {
+  display:flex;
+  flex:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 20px;
+  border-bottom:1px solid #bcdff052;
+  background:var(--chrome);
+}
+
+.source-audio-dialog .audio-heading h2 {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0;
+  font-size:26px;
+  font-weight:900;
+  line-height:1.2;
+}
+
+.source-audio-dialog .audio-heading form {
+  display:flex;
+  margin:0;
+}
+
+.source-audio-dialog .icon {
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+}
+
+.source-audio-dialog .audio-body {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-height:0;
+  padding:18px 20px 20px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#85b7d4 transparent;
+}
+
+.source-audio-dialog .audio-body > * {
+  flex-shrink:0;
+}
+
+.source-audio-dialog .audio-note,
+.source-audio-dialog [role=status] {
+  margin:0;
+  color:#e2f3ff;
+  font-size:13px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+.source-audio-dialog button.chrome {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width:0;
+  min-height:42px;
+  padding:8px 12px;
+  border:2px solid #67bafa;
+  border-radius:12px;
+  box-shadow:inset 0 2px 3px #b6e6ff90,inset 0 -3px 4px #07265555,0 2px 4px #03254466;
+  font:800 14px/1.25 Nunito,Arial,sans-serif;
+}
+
+.source-audio-dialog button.audio-close {
+  width:40px;
+  height:40px;
+  min-height:40px;
+  flex:none;
+  padding:8px;
+  border-radius:50%;
+}
+
+.source-audio-dialog .audio-actions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:stretch;
+  gap:10px 12px;
+  margin:0;
+}
+
+.source-audio-dialog .audio-check {
+  display:flex;
+  grid-column:1 / -1;
+  align-items:center;
+  gap:9px;
+  min-height:28px;
+  width:fit-content;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.source-audio-dialog input[type=checkbox] {
+  width:18px;
+  height:18px;
+  flex:none;
+  margin:0;
+  accent-color:#b9ee76;
+}
+
+.source-audio-dialog .audio-volumes {
+  display:grid;
+  gap:8px;
+  min-width:0;
+  margin:0;
+  padding:10px 12px 12px;
+  border:1px solid #a8d7ee66;
+  border-radius:13px;
+  background:#103e5e55;
+}
+
+.source-audio-dialog .audio-volumes legend {
+  padding:0 6px;
+  color:#fffbea;
+  font-size:13px;
+  font-weight:800;
+}
+
+.source-audio-dialog .audio-volumes label {
+  display:grid;
+  grid-template-columns:74px minmax(0,1fr) 42px;
+  align-items:center;
+  gap:10px;
+  min-height:28px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.source-audio-dialog .audio-volumes output {
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  color:#e2f3ff;
+}
+
+.source-audio-dialog input[type=range] {
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  min-width:0;
+  height:24px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  accent-color:#b9ee76;
+  cursor:pointer;
+}
+
+.source-audio-dialog input[type=range]::-webkit-slider-runnable-track {
+  height:8px;
+  border:1px solid #84bddc;
+  border-radius:999px;
+  background:#0b3155;
+  box-shadow:inset 0 1px 2px #041e39;
+}
+
+.source-audio-dialog input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  box-sizing:border-box;
+  width:18px;
+  height:18px;
+  margin-top:-6px;
+  border:2px solid #e4ffc2;
+  border-radius:50%;
+  background:linear-gradient(#c5f58b,#73b744);
+  box-shadow:0 1px 3px #06274388;
+}
+
+.source-audio-dialog input[type=range]::-moz-range-track {
+  height:6px;
+  border:1px solid #84bddc;
+  border-radius:999px;
+  background:#0b3155;
+  box-shadow:inset 0 1px 2px #041e39;
+}
+
+.source-audio-dialog input[type=range]::-moz-range-thumb {
+  box-sizing:border-box;
+  width:18px;
+  height:18px;
+  border:2px solid #e4ffc2;
+  border-radius:50%;
+  background:linear-gradient(#c5f58b,#73b744);
+  box-shadow:0 1px 3px #06274388;
+}
+
+.source-audio-dialog .audio-field {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-width:0;
+  font-size:13px;
+  font-weight:800;
+}
+
+.source-audio-dialog select,
+.source-audio-dialog input[type=file] {
+  width:100%;
+  min-width:0;
+  min-height:42px;
+  border:1px solid #a4cde7;
+  border-radius:10px;
+  background:#103e65;
+  color:#f1faff;
+  box-shadow:inset 0 2px 4px #06274a55;
+  font:600 13px/1.4 Nunito,Arial,sans-serif;
+  text-overflow:ellipsis;
+}
+
+.source-audio-dialog select {
+  padding:9px 12px;
+  cursor:pointer;
+}
+
+.source-audio-dialog input[type=file] {
+  padding:4px;
+  overflow:hidden;
+}
+
+.source-audio-dialog input[type=file]::file-selector-button {
+  min-height:32px;
+  margin:0 10px 0 0;
+  padding:5px 10px;
+  border:1px solid #8dcffa;
+  border-radius:7px;
+  background:var(--chrome);
+  color:#fffbea;
+  box-shadow:inset 0 1px 2px #b6e6ff90;
+  font:800 13px/1.4 Nunito,Arial,sans-serif;
+  cursor:pointer;
+}
+
+.source-audio-dialog .audio-status {
+  padding:11px 12px;
+  border:1px solid #acd3e744;
+  border-radius:11px;
+  background:#0c365880;
+}
+
+.source-audio-dialog [data-storage]:not([hidden]) {
+  margin-top:8px;
+  color:#fff0b3;
+}
+
+.source-audio-dialog input:focus-visible,
+.source-audio-dialog button:focus-visible,
+.source-audio-dialog select:focus-visible {
+  outline:3px solid #fff58b;
+  outline-offset:3px;
+}
+
+.source-audio-dialog input:disabled,
+.source-audio-dialog select:disabled {
+  cursor:not-allowed;
+  opacity:.72;
+}
+
+@media (max-width:420px) {
+  .source-audio-dialog {
+    width:calc(100vw - 24px);
+    max-width:calc(100vw - 24px);
+    max-height:calc(100dvh - 24px);
+    border-radius:18px;
+  }
+
+  .source-audio-dialog .audio-heading {
+    padding:12px 14px;
+  }
+
+  .source-audio-dialog .audio-body {
+    gap:14px;
+    padding:15px 14px;
+  }
+
+  .source-audio-dialog .audio-volumes {
+    padding:8px 9px 10px;
+  }
+
+  .source-audio-dialog .audio-volumes label {
+    grid-template-columns:66px minmax(0,1fr) 38px;
+    gap:7px;
+  }
+
+  .source-audio-dialog button.chrome {
+    padding:8px;
+    font-size:13px;
+  }
+}
+
+@media (max-height:620px) {
+  .source-audio-dialog .audio-heading {
+    padding-top:10px;
+    padding-bottom:10px;
+  }
+
+  .source-audio-dialog .audio-body {
+    gap:12px;
+    padding-top:14px;
+    padding-bottom:14px;
+  }
+}

@@ -1,0 +1,2158 @@
+{
+  "base_commit": "67b17cce1ff4a70bbfd5370db2ea13bbcd3362c1",
+  "checked_utc": "2026-10-06T02:28:45.244944+00:00",
+  "native": {
+    "passed": 1319,
+    "failed": 0,
+    "ignored": 5
+  },
+  "node_audio": {
+    "passed": 59,
+    "failed": 0,
+    "skipped": 0
+  },
+  "formatting": "passed",
+  "native_clippy": "passed",
+  "wasm_clippy": "passed",
+  "release_build": "passed",
+  "original_sources_and_lockfile": "unchanged",
+  "connected_viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "passed": true,
+      "checks": [
+        {
+          "name": "Page identity",
+          "evidence": {
+            "url": "http://127.0.0.1:4191/",
+            "title": "Wonderland"
+          }
+        },
+        {
+          "name": "City heading contained",
+          "evidence": {
+            "x": 20,
+            "y": 20,
+            "width": 344,
+            "height": 72.4375
+          }
+        },
+        {
+          "name": "City HUD contained",
+          "evidence": {
+            "x": 20,
+            "y": 908,
+            "width": 344,
+            "height": 72
+          }
+        },
+        {
+          "name": "Directory contained",
+          "evidence": {
+            "x": 20,
+            "y": 108,
+            "width": 344,
+            "height": 550
+          }
+        },
+        {
+          "name": "Top control alignment",
+          "evidence": [
+            {
+              "label": "Player menu",
+              "x": 1276,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Sound settings",
+              "x": 1328,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Options",
+              "x": 1380,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            }
+          ]
+        },
+        {
+          "name": "Property header contained",
+          "evidence": {
+            "x": 20,
+            "y": 20,
+            "width": 571,
+            "height": 90.734375
+          }
+        },
+        {
+          "name": "Property toolbar contained",
+          "evidence": {
+            "x": 285,
+            "y": 912,
+            "width": 870,
+            "height": 68
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 83,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 60,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Property groups do not overflow",
+          "evidence": [
+            {
+              "name": "Camera",
+              "x": 298,
+              "y": 928,
+              "width": 162,
+              "height": 36,
+              "scrollWidth": 162,
+              "clientWidth": 162
+            },
+            {
+              "name": "Visible floor",
+              "x": 472,
+              "y": 928,
+              "width": 106,
+              "height": 36,
+              "scrollWidth": 106,
+              "clientWidth": 106
+            },
+            {
+              "name": "Wall visibility",
+              "x": 590,
+              "y": 926,
+              "width": 310,
+              "height": 40,
+              "scrollWidth": 310,
+              "clientWidth": 310
+            },
+            {
+              "name": "Property actions",
+              "x": 912,
+              "y": 926,
+              "width": 230,
+              "height": 40,
+              "scrollWidth": 230,
+              "clientWidth": 230
+            }
+          ]
+        },
+        {
+          "name": "Needs panel contained",
+          "evidence": {
+            "x": 1110,
+            "y": 112,
+            "width": 310,
+            "height": 439.3125
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 83,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 60,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Eight need bars align",
+          "evidence": [
+            {
+              "label": "Energy",
+              "value": 50,
+              "x": 1217
+            },
+            {
+              "label": "Comfort",
+              "value": 80,
+              "x": 1217
+            },
+            {
+              "label": "Hunger",
+              "value": 90,
+              "x": 1217
+            },
+            {
+              "label": "Hygiene",
+              "value": 70,
+              "x": 1217
+            },
+            {
+              "label": "Bladder",
+              "value": 60,
+              "x": 1217
+            },
+            {
+              "label": "Room",
+              "value": 20,
+              "x": 1217
+            },
+            {
+              "label": "Social",
+              "value": 30,
+              "x": 1217
+            },
+            {
+              "label": "Fun",
+              "value": 40,
+              "x": 1217
+            }
+          ]
+        },
+        {
+          "name": "Player menu contained",
+          "evidence": {
+            "x": 956,
+            "y": 86,
+            "width": 360,
+            "height": 418
+          }
+        },
+        {
+          "name": "Compact chat contained",
+          "evidence": {
+            "x": 988,
+            "y": 96,
+            "width": 430,
+            "height": 500
+          }
+        },
+        {
+          "name": "Chat composer contained",
+          "evidence": {
+            "x": 1002,
+            "y": 480.609375,
+            "width": 402,
+            "height": 101.390625
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 83,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 60,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Expanded chat contained",
+          "evidence": {
+            "x": 988,
+            "y": 96,
+            "width": 430,
+            "height": 760
+          }
+        },
+        {
+          "name": "Lot draft retained after panel close/reopen",
+          "evidence": true
+        },
+        {
+          "name": "Profile panel contained",
+          "evidence": {
+            "x": 988,
+            "y": 90,
+            "width": 430,
+            "height": 800
+          }
+        }
+      ],
+      "errors": [],
+      "expectedAborts": [
+        {
+          "url": "http://127.0.0.1:18991/v1/query",
+          "message": "net::ERR_ABORTED"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "warning",
+          "message": "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "passed": true,
+      "checks": [
+        {
+          "name": "Page identity",
+          "evidence": {
+            "url": "http://127.0.0.1:4191/",
+            "title": "Wonderland"
+          }
+        },
+        {
+          "name": "City heading contained",
+          "evidence": {
+            "x": 12,
+            "y": 72,
+            "width": 366,
+            "height": 58
+          }
+        },
+        {
+          "name": "City HUD contained",
+          "evidence": {
+            "x": 12,
+            "y": 768,
+            "width": 366,
+            "height": 64
+          }
+        },
+        {
+          "name": "Directory contained",
+          "evidence": {
+            "x": 12,
+            "y": 712,
+            "width": 366,
+            "height": 46
+          }
+        },
+        {
+          "name": "Top control alignment",
+          "evidence": [
+            {
+              "label": "Player menu",
+              "x": 226,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Sound settings",
+              "x": 278,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Options",
+              "x": 330,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            }
+          ]
+        },
+        {
+          "name": "Directory Hide/Show preserves search and restores map space",
+          "evidence": {
+            "collapsedFocus": {
+              "x": 12,
+              "y": 194,
+              "width": 366,
+              "height": 508
+            },
+            "expandedFocus": {
+              "x": 12,
+              "y": 194,
+              "width": 366,
+              "height": 199.53125
+            },
+            "retainedSearch": "Retained city layout QA query",
+            "finalState": "collapsed"
+          }
+        },
+        {
+          "name": "Property header contained",
+          "evidence": {
+            "x": 12,
+            "y": 76,
+            "width": 366,
+            "height": 78.234375
+          }
+        },
+        {
+          "name": "Property toolbar contained",
+          "evidence": {
+            "x": 12,
+            "y": 672,
+            "width": 366,
+            "height": 160
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 81.234375,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 109.984375,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 110,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 109.984375,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Property groups do not overflow",
+          "evidence": [
+            {
+              "name": "Camera",
+              "x": 25,
+              "y": 686,
+              "width": 197.671875,
+              "height": 36,
+              "scrollWidth": 198,
+              "clientWidth": 198
+            },
+            {
+              "name": "Visible floor",
+              "x": 228.671875,
+              "y": 686,
+              "width": 136.3125,
+              "height": 36,
+              "scrollWidth": 136,
+              "clientWidth": 136
+            },
+            {
+              "name": "Wall visibility",
+              "x": 25,
+              "y": 730,
+              "width": 339.984375,
+              "height": 40,
+              "scrollWidth": 340,
+              "clientWidth": 340
+            },
+            {
+              "name": "Property actions",
+              "x": 25,
+              "y": 778,
+              "width": 339.984375,
+              "height": 40,
+              "scrollWidth": 340,
+              "clientWidth": 340
+            }
+          ]
+        },
+        {
+          "name": "Needs panel contained",
+          "evidence": {
+            "x": 12,
+            "y": 166,
+            "width": 366,
+            "height": 413.3125
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 81.234375,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 109.984375,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 110,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 109.984375,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Eight need bars align",
+          "evidence": [
+            {
+              "label": "Energy",
+              "value": 50,
+              "x": 117
+            },
+            {
+              "label": "Comfort",
+              "value": 80,
+              "x": 117
+            },
+            {
+              "label": "Hunger",
+              "value": 90,
+              "x": 117
+            },
+            {
+              "label": "Hygiene",
+              "value": 70,
+              "x": 117
+            },
+            {
+              "label": "Bladder",
+              "value": 60,
+              "x": 117
+            },
+            {
+              "label": "Room",
+              "value": 20,
+              "x": 117
+            },
+            {
+              "label": "Social",
+              "value": 30,
+              "x": 117
+            },
+            {
+              "label": "Fun",
+              "value": 40,
+              "x": 117
+            }
+          ]
+        },
+        {
+          "name": "Player menu contained",
+          "evidence": {
+            "x": 12,
+            "y": 72,
+            "width": 366,
+            "height": 414
+          }
+        },
+        {
+          "name": "Compact chat contained",
+          "evidence": {
+            "x": 12,
+            "y": 360,
+            "width": 366,
+            "height": 300
+          }
+        },
+        {
+          "name": "Chat composer contained",
+          "evidence": {
+            "x": 24,
+            "y": 586,
+            "width": 342,
+            "height": 62
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 81.234375,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 109.984375,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 110,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 109.984375,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Expanded chat contained",
+          "evidence": {
+            "x": 12,
+            "y": 78,
+            "width": 366,
+            "height": 582
+          }
+        },
+        {
+          "name": "Lot draft retained after panel close/reopen",
+          "evidence": true
+        },
+        {
+          "name": "Profile panel contained",
+          "evidence": {
+            "x": 12,
+            "y": 78,
+            "width": 366,
+            "height": 742
+          }
+        }
+      ],
+      "errors": [],
+      "expectedAborts": [
+        {
+          "url": "http://127.0.0.1:18991/v1/sessions",
+          "message": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:18991/v1/query",
+          "message": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:18991/v1/query",
+          "message": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:18991/v1/query",
+          "message": "net::ERR_ABORTED"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "warning",
+          "message": "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information"
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 600,
+      "passed": true,
+      "checks": [
+        {
+          "name": "Page identity",
+          "evidence": {
+            "url": "http://127.0.0.1:4191/",
+            "title": "Wonderland"
+          }
+        },
+        {
+          "name": "City heading contained",
+          "evidence": {
+            "x": 12,
+            "y": 72,
+            "width": 296,
+            "height": 58
+          }
+        },
+        {
+          "name": "City HUD contained",
+          "evidence": {
+            "x": 12,
+            "y": 524,
+            "width": 296,
+            "height": 64
+          }
+        },
+        {
+          "name": "Directory contained",
+          "evidence": {
+            "x": 12,
+            "y": 468,
+            "width": 296,
+            "height": 46
+          }
+        },
+        {
+          "name": "Top control alignment",
+          "evidence": [
+            {
+              "label": "Player menu",
+              "x": 156,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Sound settings",
+              "x": 208,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Options",
+              "x": 260,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            }
+          ]
+        },
+        {
+          "name": "Directory Hide/Show preserves search and restores map space",
+          "evidence": {
+            "collapsedFocus": {
+              "x": 12,
+              "y": 194,
+              "width": 296,
+              "height": 264
+            },
+            "expandedFocus": {
+              "x": 12,
+              "y": 194,
+              "width": 296,
+              "height": 58
+            },
+            "retainedSearch": "Retained city layout QA query",
+            "finalState": "collapsed"
+          }
+        },
+        {
+          "name": "Property header contained",
+          "evidence": {
+            "x": 12,
+            "y": 76,
+            "width": 296,
+            "height": 78.234375
+          }
+        },
+        {
+          "name": "Property toolbar contained",
+          "evidence": {
+            "x": 12,
+            "y": 428,
+            "width": 296,
+            "height": 160
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 63.734375,
+              "height": 44
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 86.671875,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Property groups do not overflow",
+          "evidence": [
+            {
+              "name": "Camera",
+              "x": 25,
+              "y": 441.328125,
+              "width": 156.234375,
+              "height": 36,
+              "scrollWidth": 156,
+              "clientWidth": 156
+            },
+            {
+              "name": "Visible floor",
+              "x": 187.234375,
+              "y": 441.328125,
+              "width": 107.75,
+              "height": 36,
+              "scrollWidth": 108,
+              "clientWidth": 108
+            },
+            {
+              "name": "Wall visibility",
+              "x": 25,
+              "y": 483.984375,
+              "width": 269.984375,
+              "height": 44,
+              "scrollWidth": 270,
+              "clientWidth": 270
+            },
+            {
+              "name": "Property actions",
+              "x": 25,
+              "y": 534.65625,
+              "width": 269.984375,
+              "height": 40,
+              "scrollWidth": 270,
+              "clientWidth": 270
+            }
+          ]
+        },
+        {
+          "name": "Needs panel contained",
+          "evidence": {
+            "x": 12,
+            "y": 166,
+            "width": 296,
+            "height": 250
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 63.734375,
+              "height": 44
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 86.671875,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Eight need bars align",
+          "evidence": [
+            {
+              "label": "Energy",
+              "value": 50,
+              "x": 117
+            },
+            {
+              "label": "Comfort",
+              "value": 80,
+              "x": 117
+            },
+            {
+              "label": "Hunger",
+              "value": 90,
+              "x": 117
+            },
+            {
+              "label": "Hygiene",
+              "value": 70,
+              "x": 117
+            },
+            {
+              "label": "Bladder",
+              "value": 60,
+              "x": 117
+            },
+            {
+              "label": "Room",
+              "value": 20,
+              "x": 117
+            },
+            {
+              "label": "Social",
+              "value": 30,
+              "x": 117
+            },
+            {
+              "label": "Fun",
+              "value": 40,
+              "x": 117
+            }
+          ]
+        },
+        {
+          "name": "Player menu contained",
+          "evidence": {
+            "x": 12,
+            "y": 72,
+            "width": 296,
+            "height": 434
+          }
+        },
+        {
+          "name": "Compact chat contained",
+          "evidence": {
+            "x": 12,
+            "y": 168,
+            "width": 296,
+            "height": 248
+          }
+        },
+        {
+          "name": "Chat composer contained",
+          "evidence": {
+            "x": 24,
+            "y": 342,
+            "width": 272,
+            "height": 62
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 63.734375,
+              "height": 44
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 86.671875,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Expanded chat contained",
+          "evidence": {
+            "x": 12,
+            "y": 78,
+            "width": 296,
+            "height": 338
+          }
+        },
+        {
+          "name": "Lot draft retained after panel close/reopen",
+          "evidence": true
+        },
+        {
+          "name": "Profile panel contained",
+          "evidence": {
+            "x": 12,
+            "y": 78,
+            "width": 296,
+            "height": 498
+          }
+        }
+      ],
+      "errors": [],
+      "expectedAborts": [
+        {
+          "url": "http://127.0.0.1:18991/v1/query",
+          "message": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:18991/v1/query",
+          "message": "net::ERR_ABORTED"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "warning",
+          "message": "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information"
+        }
+      ]
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "passed": true,
+      "checks": [
+        {
+          "name": "Page identity",
+          "evidence": {
+            "url": "http://127.0.0.1:4191/",
+            "title": "Wonderland"
+          }
+        },
+        {
+          "name": "City heading contained",
+          "evidence": {
+            "x": 12,
+            "y": 12,
+            "width": 290,
+            "height": 62.984375
+          }
+        },
+        {
+          "name": "City HUD contained",
+          "evidence": {
+            "x": 12,
+            "y": 314,
+            "width": 290,
+            "height": 64
+          }
+        },
+        {
+          "name": "Directory contained",
+          "evidence": {
+            "x": 12,
+            "y": 84,
+            "width": 290,
+            "height": 46
+          }
+        },
+        {
+          "name": "Top control alignment",
+          "evidence": [
+            {
+              "label": "Player menu",
+              "x": 680,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Sound settings",
+              "x": 732,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            },
+            {
+              "label": "Options",
+              "x": 784,
+              "y": 20,
+              "w": 40,
+              "h": 40
+            }
+          ]
+        },
+        {
+          "name": "Directory Hide/Show preserves search and restores map space",
+          "evidence": {
+            "collapsedFocus": {
+              "x": 12,
+              "y": 148,
+              "width": 820,
+              "height": 154
+            },
+            "expandedFocus": {
+              "x": 318,
+              "y": 148,
+              "width": 514,
+              "height": 154
+            },
+            "retainedSearch": "Retained city layout QA query",
+            "finalState": "collapsed"
+          }
+        },
+        {
+          "name": "Property header contained",
+          "evidence": {
+            "x": 12,
+            "y": 12,
+            "width": 489,
+            "height": 74.234375
+          }
+        },
+        {
+          "name": "Property toolbar contained",
+          "evidence": {
+            "x": 133,
+            "y": 264,
+            "width": 578,
+            "height": 114
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 83,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 60,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Property groups do not overflow",
+          "evidence": [
+            {
+              "name": "Camera",
+              "x": 146,
+              "y": 278,
+              "width": 310,
+              "height": 36,
+              "scrollWidth": 310,
+              "clientWidth": 310
+            },
+            {
+              "name": "Visible floor",
+              "x": 468,
+              "y": 278,
+              "width": 230,
+              "height": 36,
+              "scrollWidth": 230,
+              "clientWidth": 230
+            },
+            {
+              "name": "Wall visibility",
+              "x": 146,
+              "y": 324,
+              "width": 310,
+              "height": 40,
+              "scrollWidth": 310,
+              "clientWidth": 310
+            },
+            {
+              "name": "Property actions",
+              "x": 468,
+              "y": 324,
+              "width": 230,
+              "height": 40,
+              "scrollWidth": 230,
+              "clientWidth": 230
+            }
+          ]
+        },
+        {
+          "name": "Needs panel contained",
+          "evidence": {
+            "x": 522,
+            "y": 96,
+            "width": 310,
+            "height": 156
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 83,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 60,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Eight need bars align",
+          "evidence": [
+            {
+              "label": "Energy",
+              "value": 50,
+              "x": 625
+            },
+            {
+              "label": "Comfort",
+              "value": 80,
+              "x": 625
+            },
+            {
+              "label": "Hunger",
+              "value": 90,
+              "x": 625
+            },
+            {
+              "label": "Hygiene",
+              "value": 70,
+              "x": 625
+            },
+            {
+              "label": "Bladder",
+              "value": 60,
+              "x": 625
+            },
+            {
+              "label": "Room",
+              "value": 20,
+              "x": 625
+            },
+            {
+              "label": "Social",
+              "value": 30,
+              "x": 625
+            },
+            {
+              "label": "Fun",
+              "value": 40,
+              "x": 625
+            }
+          ]
+        },
+        {
+          "name": "Player menu contained",
+          "evidence": {
+            "x": 360,
+            "y": 86,
+            "width": 360,
+            "height": 292.5
+          }
+        },
+        {
+          "name": "Compact chat contained",
+          "evidence": {
+            "x": 442,
+            "y": 76,
+            "width": 390,
+            "height": 298
+          }
+        },
+        {
+          "name": "Chat composer contained",
+          "evidence": {
+            "x": 453,
+            "y": 275.609375,
+            "width": 368,
+            "height": 87.390625
+          }
+        },
+        {
+          "name": "Property controls remain exposed",
+          "evidence": [
+            {
+              "name": "Rotate left",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "clear": true,
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "clear": true,
+              "width": 93.484375,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "clear": true,
+              "width": 93.5,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "clear": true,
+              "width": 93.5,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "clear": true,
+              "width": 93.5,
+              "height": 40
+            },
+            {
+              "name": "Buy",
+              "clear": true,
+              "width": 126.65625,
+              "height": 40
+            },
+            {
+              "name": "Build",
+              "clear": true,
+              "width": 126.65625,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "clear": true,
+              "width": 126.671875,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "name": "Expand chat omitted when the short viewport has no larger panel",
+          "evidence": true
+        },
+        {
+          "name": "Lot draft retained after panel close/reopen",
+          "evidence": true
+        },
+        {
+          "name": "Profile panel contained",
+          "evidence": {
+            "x": 442,
+            "y": 83,
+            "width": 390,
+            "height": 215
+          }
+        }
+      ],
+      "errors": [],
+      "expectedAborts": [],
+      "warnings": [
+        {
+          "type": "warning",
+          "message": "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information"
+        }
+      ]
+    }
+  ],
+  "preview": {
+    "passed_viewports": 4,
+    "rendered_states": 32,
+    "viewport_sizes": [
+      [
+        1440,
+        1000
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        320,
+        600
+      ],
+      [
+        844,
+        390
+      ]
+    ],
+    "scenarios": [
+      "creator",
+      "expanded creator description",
+      "Home Live",
+      "Home Build",
+      "scrolled Build rail",
+      "Buy",
+      "catalog list",
+      "placement"
+    ],
+    "page_errors": 0,
+    "console_errors": 0
+  },
+  "avatar_pick": {
+    "fresh_profile": "passed",
+    "profile_after_ordinary_tick_43": "passed",
+    "stale_tile_edit_guard": "passed",
+    "native_stale_object_edit_guard": "passed",
+    "fixture": "Explicitly synthetic geometry and texture; original artwork not retested"
+  },
+  "audio_browser": {
+    "passed_viewports": 4,
+    "checks": [
+      "stream advances",
+      "pause freezes time",
+      "resume advances",
+      "mute reaches media volume 0",
+      "unmute restores volume 0.37",
+      "stop retires stream",
+      "close returns focus",
+      "sign-out disposes resources",
+      "reload retains volume and mute without loaded files"
+    ],
+    "fixture": "Synthetic 30-second stereo 44.1kHz PCM WAVE; original MP3 not retested"
+  },
+  "screenshots": [
+    {
+      "file": "01-city-desktop.png",
+      "sha256": "d08c477ecd26cbcdeaf8104e6b558ab5ab692ac6d681eaf33a7d51c428d587a3",
+      "bytes": 585108
+    },
+    {
+      "file": "02-city-mobile-directory.png",
+      "sha256": "067fb603b7d14cc8d34bbd143607397fb6fc611d8f80c37a795f1026e94e78f2",
+      "bytes": 257132
+    },
+    {
+      "file": "03-player-menu-mobile.png",
+      "sha256": "c7a2a356c8b8d5973bf531920f00705b35df9935ef1ad06aea06321ab7b7e7cd",
+      "bytes": 138974
+    },
+    {
+      "file": "04-chat-mobile.png",
+      "sha256": "e1411b57e17b223cd799a4358e8d0b76712dc9b85ba64ebb94866ae4aa71eebb",
+      "bytes": 150011
+    },
+    {
+      "file": "05-chat-landscape.png",
+      "sha256": "1b2a877236223b3ece77aaa7ba25381ceec48cc7765991f7d22069f3ce79c979",
+      "bytes": 186842
+    },
+    {
+      "file": "06-sound-mobile.png",
+      "sha256": "23fbca38335b908f9380ebf83f25621149c763913b5f5f90aa2e39b60b4b0452",
+      "bytes": 171109
+    },
+    {
+      "file": "07-home-buy-mobile.png",
+      "sha256": "f8fdfb450c04f09d32239f4c4d5f7790a55b00204265dd4ce6b795b146590246",
+      "bytes": 182470
+    },
+    {
+      "file": "08-home-placement-landscape.png",
+      "sha256": "46f9e32be793a91f770ebbe0124ed59f81edd7e53721d13e7f5709bfdbe8fa70",
+      "bytes": 290103
+    },
+    {
+      "file": "09-creator-mobile.png",
+      "sha256": "619af06bbcdff95fb3ce2363a13ad55ca220294f1827536330c4451290a82833",
+      "bytes": 377202
+    }
+  ],
+  "coverage_notes": [
+    "Chromium only.",
+    "Expected canceled requests are recorded separately from runtime errors.",
+    "Existing Chromium preload-integrity warning and pinned dependency future-compatibility notice remain.",
+    "Creator QA used the unloaded original-content state.",
+    "The existing continuous-VM and gameplay-provider integration boundary is unchanged."
+  ]
+}

@@ -1,5 +1,8 @@
 //! Browser presentation of original city terrain through the shared CPU renderer.
-use crate::source_city::{CityMapLot, CityViewport, SourceCity, overview_camera, supported_map};
+use crate::{
+    components::Icon,
+    source_city::{CityMapLot, CityViewport, SourceCity, overview_camera, supported_map},
+};
 use leptos::prelude::*;
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
@@ -313,7 +316,7 @@ pub fn SourceCityMap(
           </div>
           <Show when=move ||!status.get().is_empty()><div class="source-city-status" role="status"><p>{move ||status.get()}</p><Show when=move ||supported_map(&map_name.get())&&city.get().is_none()&&!status.get().starts_with("Loading")><button class="chrome" on:click=move |_|retry.update(|v|*v=v.wrapping_add(1))>"Try again"</button></Show></div></Show>
         </div>
-        <Show when=move ||city.get().is_some()&&status.get().is_empty()><div class="source-city-controls"><div class="source-city-zoom"><button class="chrome" aria-label="Zoom in" on:click=move |_|zoom_camera(camera,0.82)>"+"</button><button class="chrome" aria-label="Zoom out" on:click=move |_|zoom_camera(camera,1.2)>"−"</button><button class="chrome" on:click=move |_|reset_overview()>"Whole city"</button><button class="chrome" disabled=move ||selected.get().is_none() on:click=focus_selected>"Selected place"</button></div><span>"Drag to explore · Select a place"</span></div></Show>
+        <Show when=move ||city.get().is_some()&&status.get().is_empty()><div class="source-city-controls"><div class="source-city-zoom" role="group" aria-label="City map controls"><button class="chrome source-city-zoom-step" aria-label="Zoom in" title="Zoom in" on:click=move |_|zoom_camera(camera,0.82)><Icon name="plus"/></button><button class="chrome source-city-zoom-step" aria-label="Zoom out" title="Zoom out" on:click=move |_|zoom_camera(camera,1.2)><Icon name="minus"/></button><button class="chrome" on:click=move |_|reset_overview()>"Whole city"</button><button class="chrome" disabled=move ||selected.get().is_none() on:click=focus_selected>"Selected place"</button></div><span>"Drag to explore · Select a place"</span></div></Show>
       </section>
     }
 }
