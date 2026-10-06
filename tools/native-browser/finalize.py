@@ -16,4 +16,5 @@ replace(p,'if ready{self.live.try_set(true);self.notice.try_set(String::new());s
 p='crates/game-runtime/examples/native_browser_peer.rs'
 replace(p,'use std::io::{self, BufRead, Write};','use std::io::{self, BufRead, Read, Write};')
 replace(p,'LotModel::new(8,8,1)?','LotModel::new(8,8,1).map_err(|_|"Invalid controlled lot geometry")?')
+replace(p,'input.as_bytes().chunks_exact(2)','input.as_bytes().as_chunks::<2>().0.iter()')
 print('Strict native browser corrections assembled')
