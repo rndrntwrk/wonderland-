@@ -1,0 +1,77 @@
+name: Native live wire
+
+on:
+  push:
+    branches: [feat/native-live-wire]
+  pull_request:
+    paths:
+      - crates/game-runtime/**
+      - crates/sim-core/**
+      - crates/content-runtime-bridge/**
+      - crates/legacy-formats/**
+      - docs/design/action-first/native-live-wire.md
+      - .github/workflows/native-live-wire.yml
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-live-wire-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned compiler and browser target
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+      - name: Verify runtime tests, format and strict lint
+        run: |
+          set -euo pipefail
+          cargo test -p wonderland-game-runtime --locked 2>&1 | tee native-live-wire-tests.log
+          cargo fmt -p wonderland-game-runtime -- --check
+          cargo clippy -p wonderland-game-runtime --all-targets --locked -- -D warnings
+          cargo clippy -p wonderland-game-runtime --target wasm32-unknown-unknown --lib --locked -- -D warnings
+      - name: Execute native and actual browser-target wire conformance
+        run: |
+          set -euo pipefail
+          cargo run -p wonderland-game-runtime --example live_wire_probe --locked > native-live-wire-native.json
+          cargo build -p wonderland-game-runtime --example live_wire_probe --target wasm32-unknown-unknown --release --locked
+          node crates/game-runtime/scripts/verify-live-wire.mjs \
+            native-live-wire-native.json \
+            target/wasm32-unknown-unknown/release/examples/live_wire_probe.wasm \
+            native-live-wire-wasm.json | tee native-live-wire-comparison.json
+      - name: Retain exact source and toolchain identity
+        if: always()
+        run: |
+          git rev-parse HEAD > native-live-wire-revision.txt
+          git rev-parse 'HEAD^{tree}' >> native-live-wire-revision.txt
+          rustc -vV >> native-live-wire-revision.txt
+          node --version >> native-live-wire-revision.txt
+          sha256sum crates/game-runtime/src/live_wire.rs \
+            crates/game-runtime/src/live_wire/guard.rs \
+            crates/game-runtime/examples/live_wire_probe.rs \
+            crates/game-runtime/scripts/verify-live-wire.mjs \
+            TSOClient/FSO.Content.TSO/Content/Objects/Casino_2-Tile_Bar_CC.iff \
+            TSOClient/FSO.Content.TSO/Content/Objects/fso_christmas_flag.iff \
+            TSOClient/FSO.Content.TSO/Content/Objects/cursebook_set_permission.iff \
+            >> native-live-wire-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-live-wire-evidence
+          path: |
+            native-live-wire-tests.log
+            native-live-wire-native.json
+            native-live-wire-wasm.json
+            native-live-wire-comparison.json
+            native-live-wire-revision.txt
+          retention-days: 7
+          if-no-files-found: error
