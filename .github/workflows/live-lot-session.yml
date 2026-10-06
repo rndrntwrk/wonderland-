@@ -1,0 +1,49 @@
+name: Live lot session
+
+on:
+  pull_request:
+    paths:
+      - crates/game-runtime/**
+      - crates/sim-core/**
+      - crates/content-ir/**
+      - crates/content-runtime-bridge/**
+      - .github/workflows/live-lot-session.yml
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-lot-session-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  replica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
+      - name: Live checkpoint, replay, interaction and reconnect regressions
+        run: |
+          set -o pipefail
+          cargo test -p wonderland-game-runtime --test live_session --locked 2>&1 | tee live-session-tests.log
+      - name: Browser-target library check
+        run: cargo check -p wonderland-game-runtime --target wasm32-unknown-unknown --locked
+      - name: Retain exact revision and test output
+        if: always()
+        run: |
+          git rev-parse HEAD > live-session-revision.txt
+          git rev-parse 'HEAD^{tree}' >> live-session-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-lot-session-evidence
+          path: |
+            live-session-tests.log
+            live-session-revision.txt
+          if-no-files-found: error
+          retention-days: 7
