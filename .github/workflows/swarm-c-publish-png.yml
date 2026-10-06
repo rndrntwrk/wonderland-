@@ -32,8 +32,7 @@ jobs:
               p=Path(name)
               assert (not p.exists()) if digest is None else hashlib.sha256(p.read_bytes()).hexdigest()==digest,name
           transport=Path('tools/swarm-c/client-png.patch.zlib.b64').read_text().strip()
-          # Correct four known transcription errors in the transport only.
-          # The complete decoded patch must still equal the local SHA256 below.
+          # Transport corrections are admitted only under the full decoded SHA.
           for old,new in [('lPYfHTRj0','lPYfHRj0'),('06wZ30TQ+xHl0','06wZ30T+xHl0'),('UIq5n5bfN8Eku7','UIq5n5XN8Eku7'),('WXs7xuRcWW60','WXs7xuRcW60')]:
               assert transport.count(old)==1,old
               transport=transport.replace(old,new)
@@ -44,6 +43,12 @@ jobs:
           subprocess.run(['git','apply','--check','--unidiff-zero','--exclude=.github/workflows/*','/tmp/client-png.patch'],check=True)
           subprocess.run(['git','apply','--unidiff-zero','--exclude=.github/workflows/*','/tmp/client-png.patch'],check=True)
           PY
+          # A real import of the isolated snippet must fail before packaging repair.
+          if node --test apps/web-shell/tests/gpu/packaging.test.mjs > tests/output/png-handoff/packaging-red.log 2>&1; then
+            echo 'Expected the missing transitive snippet dependency to be detected' >&2; exit 1
+          fi
+          grep -q ERR_MODULE_NOT_FOUND tests/output/png-handoff/packaging-red.log
+          python3 tools/swarm-c/finalize-client-png.py
           node --test apps/web-shell/tests/gpu/*.test.mjs crates/audio-runtime/browser/*.test.mjs | tee tests/output/png-handoff/node.log
           node --check apps/web-shell/tests/gpu/application.mjs
           node --check apps/web-shell/tests/gpu/browser.mjs
