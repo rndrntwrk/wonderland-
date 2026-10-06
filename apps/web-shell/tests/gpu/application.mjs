@@ -126,7 +126,17 @@ try{
   await page.evaluate(()=>{const c=document.querySelector('.world-viewport canvas');window.__sourceLoss=c.getContext('webgl2').getExtension('WEBGL_lose_context');if(!window.__sourceLoss)throw new Error('Actual context-loss extension missing');window.__sourceLoss.loseContext();});
   await page.waitForFunction(()=>document.querySelector('.world-viewport canvas').dataset.gpuState==='lost');await page.getByRole('link',{name:'Save PNG',exact:true}).waitFor({state:'detached'});await revoked(importedPhoto);
   await page.evaluate(()=>window.__sourceLoss.restoreContext());await ready();await changed(beforeFailure);await page.evaluate(()=>{window.__delayPhoto=false;window.__finishPhoto();});await page.waitForTimeout(50);assert.equal(await page.getByRole('link',{name:'Save PNG',exact:true}).count(),0);report.scenarios.push({name:'actual context loss/restoration cancels pending PNG and rejects its delayed encoder callback'});
-  const beforeNarrow=await canvas().getAttribute('data-frame-generation');await page.setViewportSize({width:390,height:844});await changed(beforeNarrow);await photo('narrow-view-export');await capture('narrow-source-world');
+  const beforeNarrow=await canvas().getAttribute('data-frame-generation');await page.setViewportSize({width:390,height:844});await changed(beforeNarrow);await photo('narrow-view-export');
+  // A successful download alone must not accept a panel hidden by an import notice.
+  const narrowLayout=await page.evaluate(()=>{
+    const bounds=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom};};
+    return {inspector:bounds('.source-world-inspector'),notice:bounds('.source-world-notice'),viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+  });
+  assert.ok(narrowLayout.inspector.y>=narrowLayout.notice.bottom+8,'Photo panel overlaps the active import notice');
+  assert.ok(narrowLayout.inspector.x>=0&&narrowLayout.inspector.x+narrowLayout.inspector.width<=narrowLayout.viewport,'Photo panel escapes the narrow viewport');
+  assert.equal(narrowLayout.scrollWidth,narrowLayout.viewport,'Photo controls create horizontal page overflow');
+  report.scenarios.push({name:'narrow photo inspector clears the import notice',...narrowLayout});
+  await capture('narrow-source-world');
   await page.getByRole('button',{name:'Discard photo',exact:true}).click();await page.getByRole('link',{name:'Save PNG',exact:true}).waitFor({state:'detached'});
   await page.getByRole('button',{name:'Reset view',exact:true}).click();await ready();
   const beforeClose=await photo('before-close-export');
