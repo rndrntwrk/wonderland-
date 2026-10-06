@@ -94,7 +94,7 @@ if(!['bevy-webgpu','bevy-webgl2','fyrox-webgl2'].includes(variant))throw new Err
 const output=resolve(root,'tools/swarm-c/output',variant,'browser');
 await mkdir(output,{recursive:true});
 const report={schemaVersion:1,variant,startedAt:new Date().toISOString(),status:'running',rendererQualified:false,
-  evidenceClass:'headless Chromium with explicitly requested software graphics',physicalDevices:'pending',
+  evidenceClass:process.env.WONDERLAND_HEADED==='1'?'headed Chromium on a virtual display with explicitly requested software graphics':'headless Chromium with explicitly requested software graphics',physicalDevices:'pending',
   gpuExecutionTiming:'unavailable; submission intervals are not GPU time',gpuAsyncPickReadback:'pending; screenshot visualization readback tested here',
   tolerances:{idStableInteriorMismatches:0,colorMeanAbsoluteByteError:4,colorRootMeanSquareByteError:12,colorChannelFractionOver8:0.03},
   checks:[],scenes:[],lifecycle:[],failures:[],console:[],requests:[]};
@@ -326,7 +326,7 @@ try{
     // the shared swapchain image on this headless Linux runner.
     ['--enable-features=Vulkan','--use-gl=angle','--use-angle=swiftshader','--use-vulkan=swiftshader',
       '--use-webgpu-adapter=swiftshader','--disable-vulkan-surface','--enable-unsafe-webgpu'];
-  report.browserArgs=args;
+  report.browserArgs=args;report.headless=process.env.WONDERLAND_HEADED!=='1';
   report.browserProcesses=[];
   for(const avatars of [32,64]){
     enterPhase(`browser-launch-${avatars}`);
@@ -336,7 +336,7 @@ try{
     if(browser)await browser.close();if(browserServer)await browserServer.close();
     browser=null;browserServer=null;
     const processArgs=[...args,`--force-device-scale-factor=${dpr}`];
-    browserServer=await chromium.launchServer({channel:'chromium',headless:true,args:processArgs,host:'127.0.0.1'});
+    browserServer=await chromium.launchServer({channel:'chromium',headless:process.env.WONDERLAND_HEADED!=='1',args:processArgs,host:'127.0.0.1'});
     browserServer.process().stderr?.on('data',recordBrowserProcess);
     browser=await chromium.connect(browserServer.wsEndpoint());report.browserVersion=browser.version();
     report.browserProcesses.push({avatars,dpr,args:processArgs,version:browser.version()});

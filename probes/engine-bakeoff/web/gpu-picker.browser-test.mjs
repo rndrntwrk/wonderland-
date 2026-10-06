@@ -49,8 +49,8 @@ test(`${variant} selects from offscreen GPU IDs and rejects interrupted work`,{t
     const args=webgpu?['--enable-features=Vulkan','--use-gl=angle','--use-angle=swiftshader','--use-vulkan=swiftshader',
       '--use-webgpu-adapter=swiftshader','--disable-vulkan-surface','--enable-unsafe-webgpu']:
       ['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader'];
-    browser=await chromium.launch({headless:true,channel:'chromium',args,...(process.env.WONDERLAND_CHROMIUM?{executablePath:process.env.WONDERLAND_CHROMIUM}:{})});
-    report.browser=browser.version();report.args=args;
+    browser=await chromium.launch({headless:process.env.WONDERLAND_HEADED!=='1',channel:'chromium',args,...(process.env.WONDERLAND_CHROMIUM?{executablePath:process.env.WONDERLAND_CHROMIUM}:{})});
+    report.browser=browser.version();report.args=args;report.headless=process.env.WONDERLAND_HEADED!=='1';
     for(const avatars of [32,64]){
       const context=await browser.newContext({viewport:{width:1400,height:1100}}),page=await context.newPage();
       await page.addInitScript(()=>{
