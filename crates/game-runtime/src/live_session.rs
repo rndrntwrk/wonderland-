@@ -170,7 +170,10 @@ impl LiveReplica {
         limits: ReplayLimits,
     ) -> Result<Self, LiveError> {
         limits.validate()?;
-        if identity.browser_epoch == 0 || identity.source_epoch == 0 || identity.lot_incarnation == 0 {
+        if identity.browser_epoch == 0
+            || identity.source_epoch == 0
+            || identity.lot_incarnation == 0
+        {
             return Err(LiveError::InvalidIdentity);
         }
         if runtime.sim().role() != RuntimeRole::Replica {
@@ -253,7 +256,10 @@ impl LiveReplica {
         self.request_checkpoint(self.connection())?;
         Ok(self.connection())
     }
-    pub fn request_checkpoint(&mut self, token: ConnectionToken) -> Result<CheckpointTicket, LiveError> {
+    pub fn request_checkpoint(
+        &mut self,
+        token: ConnectionToken,
+    ) -> Result<CheckpointTicket, LiveError> {
         self.require_connection(token)?;
         if self.status == SessionStatus::Suspended {
             return Err(LiveError::NotLive);
@@ -298,19 +304,20 @@ impl LiveReplica {
         let current = self.runtime.as_ref().ok_or(LiveError::Closed)?;
         let expected = current.sim().state();
         let mut expectation = SnapshotExpectation::new(expected.lot_id, expected.authority_epoch);
-        expectation.limits.max_payload_bytes = (self.limits.max_checkpoint_bytes
-            - SNAPSHOT_HEADER_LEN
-            - SNAPSHOT_CHECKSUM_LEN) as u64;
-        let state = sim_core::snapshot::decode(checkpoint.bytes, current.sim().content(), expectation)
-            .map_err(|error| LiveError::Checkpoint(error.to_string()))?;
+        expectation.limits.max_payload_bytes =
+            (self.limits.max_checkpoint_bytes - SNAPSHOT_HEADER_LEN - SNAPSHOT_CHECKSUM_LEN) as u64;
+        let state =
+            sim_core::snapshot::decode(checkpoint.bytes, current.sim().content(), expectation)
+                .map_err(|error| LiveError::Checkpoint(error.to_string()))?;
         if state.mode != expected.mode || state.limits != expected.limits {
             return Err(LiveError::ChangedConfiguration);
         }
         if state.completed_tick != checkpoint.completed_tick {
             return Err(LiveError::CheckpointMetadata);
         }
-        let sim = SimRuntime::from_state(state, current.sim().content().clone(), RuntimeRole::Replica)
-            .map_err(|error| LiveError::Runtime(error.into()))?;
+        let sim =
+            SimRuntime::from_state(state, current.sim().content().clone(), RuntimeRole::Replica)
+                .map_err(|error| LiveError::Runtime(error.into()))?;
         let mut candidate = GameRuntime { sim };
         let checkpoint_cursor = cursor(&candidate)?;
         if checkpoint_cursor.state_hash != checkpoint.state_hash {
@@ -472,10 +479,10 @@ fn replay(
         if !outcome.effects.is_empty() {
             return Err(LiveError::UnexpectedEffects);
         }
-        if let Some(anchor) = anchor {
-            if outcome.tick == anchor.completed_tick && outcome.state_hash != anchor.state_hash {
-                return Err(LiveError::HistoryConflict);
-            }
+        if anchor.is_some_and(|anchor| {
+            outcome.tick == anchor.completed_tick && outcome.state_hash != anchor.state_hash
+        }) {
+            return Err(LiveError::HistoryConflict);
         }
         if publish && !outcome.duplicate {
             outcomes.push(outcome);
