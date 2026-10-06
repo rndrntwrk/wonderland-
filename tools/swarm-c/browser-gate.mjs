@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {deflateSync} from 'node:zlib';
 import {readPng,readPpm,colorDifference,compareIds,capturePixelBounds,extractPixels,rgbaPng,logicalSelectionPoint} from './read-png.mjs';
+import {waitForDrawableViewport} from './viewport-ready.mjs';
 
 if(process.argv.includes('--self-test')){
   // Exercise all PNG row filters against hand-specified RGB pixels.
@@ -425,13 +426,19 @@ try{
         const after=await snapshot(page);assert.deepEqual(after.selection,before.selection);assert.ok(after.pointerCancelCount>0);return after.pointerCancelCount;
       });
       await step(`resize-and-DPR-${avatars}`,async()=>{
-        const before=await snapshot(page);await page.evaluate(()=>window.__wonderlandProbe.resize(402,302));await page.waitForTimeout(250);
-        const after=await snapshot(page);assert.equal(after.sceneHash,before.sceneHash);assert.equal(Math.round(after.viewport.cssWidth),400);assert.equal(Math.round(after.viewport.cssHeight),300);
+        const before=await snapshot(page);await page.evaluate(()=>window.__wonderlandProbe.resize(402,302));
+        // CSS layout and the engine-owned backing store settle independently.
+        // Observe both; never resize the canvas here or relax physical-DPR checks.
+        const after=await waitForDrawableViewport(()=>snapshot(page),{width:400,height:300,dpr});
+        assert.equal(after.sceneHash,before.sceneHash);assert.equal(Math.round(after.viewport.cssWidth),400);assert.equal(Math.round(after.viewport.cssHeight),300);
         assert.equal(after.devicePixelRatio,dpr);
         assert.ok(Math.abs(after.viewport.width-after.viewport.cssWidth*dpr)<=1,'Canvas backing width must track CSS width times actual DPR');
         assert.ok(Math.abs(after.viewport.height-after.viewport.cssHeight*dpr)<=1,'Canvas backing height must track CSS height times actual DPR');
         await captureCanvas(page,resolve(output,`resize-${avatars}-dpr${dpr}.png`),'css',{width:400,height:300});
-        await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));return {before:before.viewport,after:after.viewport,dpr};
+        await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));
+        const restored=await waitForDrawableViewport(()=>snapshot(page),{width:640,height:480,dpr});
+        assert.equal(restored.sceneHash,before.sceneHash);
+        return {before:before.viewport,after:after.viewport,restored:restored.viewport,dpr};
       });
       await step(`presentation-suspend-${avatars}`,async()=>{
         await command(page,'suspend');const before=await snapshot(page);await page.waitForTimeout(250);const paused=await snapshot(page);
