@@ -1,0 +1,83 @@
+name: Swarm C guarded runner correction
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths: ['.github/workflows/swarm-c-publish-runner-fix.yml']
+permissions:
+  contents: read
+jobs:
+  exact-runner-fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Apply bounded replacements to the three owned test runners
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          def replace(path, old, new):
+              p=Path(path);text=p.read_text();assert text.count(old)==1,(path,old)
+              p.write_text(text.replace(old,new))
+          gate='tools/swarm-c/browser-gate.mjs'
+          picker='probes/engine-bakeoff/web/gpu-picker.browser-test.mjs'
+          replace(gate,"evidenceClass:'headless Chromium with explicitly requested software graphics'","evidenceClass:process.env.WONDERLAND_HEADED==='1'?'headed Chromium on a virtual display with explicitly requested software graphics':'headless Chromium with explicitly requested software graphics'")
+          replace(gate,"headless:true,args:processArgs","headless:process.env.WONDERLAND_HEADED!=='1',args:processArgs")
+          replace(gate,'report.browserArgs=args;','report.browserArgs=args;report.headless=process.env.WONDERLAND_HEADED!==\'1\';')
+          replace(picker,"headless:true,channel:'chromium'","headless:process.env.WONDERLAND_HEADED!=='1',channel:'chromium'")
+          replace(picker,'report.browser=browser.version();report.args=args;','report.browser=browser.version();report.args=args;report.headless=process.env.WONDERLAND_HEADED!==\'1\';')
+          p=Path('tools/swarm-c/run-browser-engine.sh');text=p.read_text()
+          old='node --test probes/engine-bakeoff/web/fixture-server.test.mjs'
+          new='''# A headed Chromium control on the same runner reproduced exact mapped and
+          # page pixels; headless WebGPU returned the document background. Never
+          # replace the ordinary screenshot check with a direct-canvas readback.
+          if [[ "${WONDERLAND_BACKEND:-}" == webgpu && "${WONDERLAND_HEADED:-}" != 1 ]]; then
+            command -v xvfb-run >/dev/null || { echo "WebGPU page verification requires xvfb-run" >&2; exit 1; }
+            exec xvfb-run -a -s '-screen 0 3000x2400x24' env WONDERLAND_HEADED=1 bash "$0"
+          fi
+          node --test probes/engine-bakeoff/web/fixture-server.test.mjs'''
+          assert text.count(old)==1;p.write_text(text.replace(old,new))
+          PY
+          node --check tools/swarm-c/browser-gate.mjs
+          node --check probes/engine-bakeoff/web/gpu-picker.browser-test.mjs
+          node tools/swarm-c/browser-gate.mjs --self-test
+          node --test probes/engine-bakeoff/web/host-core.test.mjs probes/engine-bakeoff/web/gpu-readback.test.mjs probes/engine-bakeoff/web/fixture-server.test.mjs
+          bash -n tools/swarm-c/run-browser-engine.sh
+          git diff --check
+      - name: Publish only those exact runner changes without force
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/feat/swarm-c-views-audio
+          python3 - <<'PY'
+          import subprocess
+          actual=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          assert actual=={'tools/swarm-c/browser-gate.mjs','probes/engine-bakeoff/web/gpu-picker.browser-test.mjs','tools/swarm-c/run-browser-engine.sh'},actual
+          PY
+          mkdir -p /tmp/runner-fix-evidence
+          git diff --binary > /tmp/runner-fix-evidence/runner.patch
+          git config user.name 'Wonderland verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tools/swarm-c/browser-gate.mjs probes/engine-bakeoff/web/gpu-picker.browser-test.mjs tools/swarm-c/run-browser-engine.sh
+          git commit -m 'fix(swarm-c): verify WebGPU page rendering in headed Chromium' -m 'The exact clear control passed both mapped bytes and page pixels in headed Chromium 151 on Xvfb (run 37436583753); its headless counterpart showed only page background (run 37436202450). Preserve all color/ID thresholds and test dimensions; report the actual headed profile. Full engine qualification is still required on this commit.'
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin HEAD:refs/heads/feat/swarm-c-views-audio
+          git rev-parse HEAD > /tmp/runner-fix-evidence/commit.txt
+          git rev-parse HEAD^{tree} > /tmp/runner-fix-evidence/tree.txt
+          sha256sum tools/swarm-c/browser-gate.mjs probes/engine-bakeoff/web/gpu-picker.browser-test.mjs tools/swarm-c/run-browser-engine.sh > /tmp/runner-fix-evidence/files.sha256
+      - name: Retain the exact diff and publication identity
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: headed-runner-publication-${{ github.sha }}
+          path: /tmp/runner-fix-evidence/
+          retention-days: 14
+          if-no-files-found: warn
