@@ -1,0 +1,77 @@
+name: Swarm C WebGPU launch diagnosis
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths: ['.github/workflows/swarm-c-webgpu-launch.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  launch-matrix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install the same pinned browser as the engine gate
+        run: |
+          npm ci --prefix tools/swarm-c --ignore-scripts --no-audit --no-fund
+          tools/swarm-c/node_modules/.bin/playwright install --with-deps --no-shell chromium
+      - name: Compare exact adapter, mapped bytes and page pixels without Bevy
+        run: |
+          mkdir -p tools/swarm-c/output/launch-matrix
+          cat > tools/swarm-c/launch-diagnosis.mjs <<'JS'
+          import {chromium} from 'playwright';
+          import {createServer} from 'node:http';
+          import {writeFile} from 'node:fs/promises';
+          import {readPng} from './read-png.mjs';
+          const output='tools/swarm-c/output/launch-matrix';
+          const candidates={
+            existing:['--enable-features=Vulkan','--use-gl=angle','--use-angle=swiftshader','--use-vulkan=swiftshader','--use-webgpu-adapter=swiftshader','--disable-vulkan-surface','--enable-unsafe-webgpu'],
+            minimal:['--enable-unsafe-webgpu','--use-webgpu-adapter=swiftshader'],
+            angle:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-unsafe-webgpu','--use-webgpu-adapter=swiftshader']
+          };
+          const server=createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});res.end('<!doctype html><style>body{margin:0;background:rgb(153,68,47)}canvas{display:block;width:32px;height:32px}</style><canvas width="32" height="32"></canvas>');});
+          await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+          const report={source:process.env.GITHUB_SHA,engineQualification:false,results:[]};
+          try{
+            for(const [name,args] of Object.entries(candidates)){
+              const record={name,args};report.results.push(record);let browser;
+              try{
+                browser=await chromium.launch({channel:'chromium',headless:true,args});record.browser=browser.version();
+                const page=await browser.newPage({viewport:{width:200,height:200}});record.console=[];
+                page.on('console',message=>{if(record.console.length<30)record.console.push({type:message.type(),text:message.text().slice(0,1000)});});
+                await page.goto(`http://127.0.0.1:${server.address().port}`);
+                record.gpu=await page.evaluate(async()=>{
+                  if(!navigator.gpu)return {available:false};
+                  const adapter=await navigator.gpu.requestAdapter();if(!adapter)return {available:true,adapter:null};
+                  const device=await adapter.requestDevice();const canvas=document.querySelector('canvas'),context=canvas.getContext('webgpu');
+                  context.configure({device,format:'rgba8unorm',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.COPY_SRC});
+                  const buffer=device.createBuffer({size:256*32,usage:GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ});
+                  function draw(copy){const texture=context.getCurrentTexture(),encoder=device.createCommandEncoder();const pass=encoder.beginRenderPass({colorAttachments:[{view:texture.createView(),clearValue:{r:0.25,g:0.5,b:0.75,a:1},loadOp:'clear',storeOp:'store'}]});pass.end();if(copy)encoder.copyTextureToBuffer({texture},{buffer,bytesPerRow:256},{width:32,height:32});device.queue.submit([encoder.finish()]);}
+                  draw(true);await Promise.race([buffer.mapAsync(GPUMapMode.READ),new Promise((_,reject)=>setTimeout(()=>reject(new Error('map timeout')),5000))]);
+                  const bytes=Array.from(new Uint8Array(buffer.getMappedRange()).slice(0,4));buffer.unmap();buffer.destroy();
+                  window.__frames=0;function frame(){draw(false);window.__frames++;requestAnimationFrame(frame);}requestAnimationFrame(frame);
+                  return {available:true,adapter:{vendor:adapter.info?.vendor,device:adapter.info?.device,description:adapter.info?.description},bytes};
+                });
+                if(record.gpu.adapter){await page.waitForFunction(()=>window.__frames>3);const png=await page.screenshot({path:`${output}/${name}.png`});const image=readPng(png);record.pagePixel=Array.from(image.pixels.slice((16*image.width+16)*4,(16*image.width+16)*4+4));}
+                const expected='64,128,191,255';record.passed=record.gpu.bytes?.join(',')===expected&&record.pagePixel?.join(',')===expected;
+              }catch(error){record.passed=false;record.error=String(error.stack||error);}finally{await browser?.close();}
+              console.log(JSON.stringify(record));
+            }
+          }finally{await new Promise(resolve=>server.close(resolve));await writeFile(`${output}/report.json`,JSON.stringify(report,null,2)+'\n');}
+          if(!report.results.some(result=>result.passed))process.exitCode=1;
+          JS
+          node tools/swarm-c/launch-diagnosis.mjs
+      - name: Retain all configurations including failed controls
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: webgpu-launch-${{ github.sha }}
+          path: tools/swarm-c/output/launch-matrix/
+          retention-days: 14
+          if-no-files-found: error
