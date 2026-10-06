@@ -48,7 +48,7 @@ fn layer(id: u32, width: u32, height: u32, depth: DepthInput) -> DgrpLayer {
                 height,
                 pixels: vec![[255; 4]; (width * height) as usize],
             },
-            physical_size: [(width + 3) / 4 * 4, (height + 3) / 4 * 4],
+            physical_size: [width.div_ceil(4) * 4, height.div_ceil(4) * 4],
             depth,
             mask: None,
         })),
@@ -269,8 +269,10 @@ fn malformed_images_and_depth_dimensions_fail_before_preparation() {
         &PreparePolicy::default()
     )
     .is_err());
-    let mut policy = PreparePolicy::default();
-    policy.max_sprites = 0;
+    let policy = PreparePolicy {
+        max_sprites: 0,
+        ..PreparePolicy::default()
+    };
     assert!(prepare_sprites(&p(), &instance(), &[image(vec![None])], &policy).is_err());
 }
 #[test]
@@ -390,8 +392,10 @@ fn aggregate_batch_limits_are_checked_before_geometry_copy() {
         Some(layer(1, 8, 8, DepthInput::Constant(128))),
         Some(layer(2, 8, 8, DepthInput::Constant(128))),
     ]);
-    let mut limits = RenderLimits::default();
-    limits.max_vertices = 4;
+    let limits = RenderLimits {
+        max_vertices: 4,
+        ..RenderLimits::default()
+    };
     assert!(make_batches_with_limits(&o.sprites, 10, &limits).is_err());
 }
 

@@ -2,6 +2,38 @@ use wonderland_facade_worker::*;
 use wonderland_render_core::*;
 
 #[test]
+fn source_worker_outputs_original_container_and_576_source_thumbnail() {
+    let source = source_fixture();
+    let bytes = encode_source_request(&source).unwrap();
+    let root =
+        std::env::temp_dir().join(format!("wonderland-source-worker-{}", std::process::id()));
+    let input = root.with_extension("wlcsrc");
+    std::fs::write(&input, bytes).unwrap();
+    let decoded = read_source_request(&input).unwrap();
+    assert_eq!(decoded.world, source.world);
+    let summary = render_source_to_directory(decoded, &root).unwrap();
+    assert_eq!(summary.image_count, 6);
+    let fsof = wonderland_render_core::derivatives::fsof::Fsof::decode(
+        &std::fs::read(root.join("facade.fsof")).unwrap(),
+        Default::default(),
+    )
+    .unwrap();
+    assert_eq!(
+        [fsof.floor_width, fsof.floor_height, fsof.wall_width],
+        [384, 256, 512]
+    );
+    assert!(fsof.night.is_some());
+    assert_eq!(fsof.geometry.wall.vertices.len(), 32);
+    assert!(std::fs::read_to_string(root.join("metadata.json"))
+        .unwrap()
+        .contains("fsof_sha256"));
+    let png = std::fs::read(root.join("thumbnail-day.png")).unwrap();
+    assert_eq!(u32::from_be_bytes(png[16..20].try_into().unwrap()), 576);
+    std::fs::remove_file(input).unwrap();
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn fixture_round_trips_and_renders_all_six_images() {
     let input = synthetic_fixture();
     let bytes = encode_request(&input).unwrap();

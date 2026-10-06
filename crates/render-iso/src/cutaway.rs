@@ -71,9 +71,7 @@ impl CutawayMap {
         let sn = up(-1, -1);
         let spy = up(-1, 1);
         let spx = up(1, -1);
-        let top_left = if !wall.top_left_thick || wall.top_left_style == 255 {
-            WallCut::Up
-        } else if nx {
+        let top_left = if !wall.top_left_thick || wall.top_left_style == 255 || nx {
             WallCut::Up
         } else if py || spy {
             if ny || sn {

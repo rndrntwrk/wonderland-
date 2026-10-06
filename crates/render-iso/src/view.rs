@@ -178,7 +178,7 @@ fn validate_camera(intent: CameraIntent, pose: Transform, projection: Mat4) -> R
         || intent.selected_level < 1
         || intent
             .selected
-            .map_or(false, |r| r.generation == 0 || r.object_id == 0)
+            .is_some_and(|r| r.generation == 0 || r.object_id == 0)
         || !pose.is_valid()
         || projection.cols.iter().flatten().any(|x| !x.is_finite())
     {

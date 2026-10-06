@@ -12,6 +12,89 @@ use wonderland_render_core::*;
 pub const REQUEST_MAGIC: &[u8; 8] = b"WLCFDR01";
 pub const MAX_REQUEST_BYTES: u64 = 64 * 1024 * 1024;
 pub type WorkerResult<T> = Result<T, Box<dyn std::error::Error>>;
+pub const SOURCE_REQUEST_MAGIC: &[u8; 8] = b"WLCFSR01";
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct SourceWorkerRequest {
+    pub input: DerivativeInput,
+    pub world: source::SourceWorld,
+    pub options: source::SourceFacadeOptions,
+    /// None emits day only; an unavailable night state never gets a night file.
+    pub night_light_color: Option<[u8; 4]>,
+}
+pub fn encode_source_request(request: &SourceWorkerRequest) -> WorkerResult<Vec<u8>> {
+    let size = codec().serialized_size(request)?;
+    if size > MAX_REQUEST_BYTES {
+        return Err("source request byte limit".into());
+    }
+    let mut bytes = Vec::new();
+    bytes.try_reserve_exact(size as usize + 8)?;
+    bytes.extend_from_slice(SOURCE_REQUEST_MAGIC);
+    bytes.extend(codec().serialize(request)?);
+    Ok(bytes)
+}
+pub fn read_source_request(path: &Path) -> WorkerResult<SourceWorkerRequest> {
+    let file = File::open(path)?;
+    let length = file.metadata()?.len();
+    if length > MAX_REQUEST_BYTES + 8 {
+        return Err("source request byte limit".into());
+    }
+    let mut bytes = Vec::new();
+    bytes.try_reserve_exact(length as usize + 1)?;
+    file.take(length + 1).read_to_end(&mut bytes)?;
+    if bytes.len() as u64 != length || !bytes.starts_with(SOURCE_REQUEST_MAGIC) {
+        return Err("source request magic/length".into());
+    }
+    Ok(codec().deserialize(&bytes[8..])?)
+}
+pub fn render_source_to_directory(
+    request: SourceWorkerRequest,
+    directory: &Path,
+) -> WorkerResult<WorkerSummary> {
+    let source_bytes = encode_source_request(&request)?;
+    drop(request);
+    let request: SourceWorkerRequest = codec().deserialize(&source_bytes[8..])?;
+    let limits = DerivativeRenderLimits {
+        max_draws: 8192,
+        ..DerivativeRenderLimits::default()
+    };
+    let mut prepared = request
+        .world
+        .prepare(request.input, request.options, limits)?
+        .into_request();
+    if request.night_light_color.is_none() {
+        prepared = prepared.day_only();
+    }
+    let artifact = prepared.render()?;
+    let container = artifact
+        .to_fsof(request.night_light_color.unwrap_or([0; 4]))?
+        .encode(true, fsof::FsofLimits::default())?;
+    let container_hash = Sha256::digest(&container);
+    fs::create_dir(directory)?;
+    let result = (|| -> WorkerResult<WorkerSummary> {
+        let mut image_hashes = Vec::new();
+        for image in artifact.images() {
+            let file = File::create(directory.join(image_filename(image.role)))?;
+            image_hashes.push(write_png(BufWriter::new(file), &image.image)?);
+        }
+        fs::write(directory.join("source-request.wlcsrc"), source_bytes)?;
+        fs::write(directory.join("facade.fsof"), container)?;
+        let mut metadata = metadata_json(&prepared, &artifact, &image_hashes);
+        let end = metadata.rfind('}').ok_or("metadata terminator")?;
+        metadata.insert_str(end,&format!(",\n  \"fsof_sha256\": \"{}\",\n  \"source_preparation\": \"Blueprint room topology, altitude, source WorldCamera and source facade geometry\"\n",hex(&container_hash)));
+        fs::write(directory.join("metadata.json"), metadata)?;
+        Ok(WorkerSummary {
+            key: hex(&artifact.key().0),
+            digest: hex(&artifact.digest().0),
+            image_count: artifact.images().len(),
+            reservation_bytes: prepared.reservation_bytes(),
+            work_units: prepared.work_units(),
+        })
+    })();
+    if result.is_err() {
+        let _ = fs::remove_dir_all(directory);
+    }
+    result
+}
 
 fn codec() -> impl Options {
     bincode::DefaultOptions::new()
@@ -223,8 +306,24 @@ fn metadata_json(
         hex(&prepared.input().source_provenance.0)
     )
     .unwrap();
-    for (index, light) in prepared.input().lighting.iter().enumerate() {
-        writeln!(out, "    {{\"phase\": \"{}\", \"time_of_day\": {}, \"color_multiplier\": {:?}, \"provenance\": \"{}\"}}{}", if index == 0 { "day" } else { "night" }, light.time_of_day, light.color_multiplier, hex(&light.provenance.0), if index == 0 { "," } else { "" }).unwrap();
+    let phase_count = if artifact.images().iter().any(|image| {
+        matches!(
+            image.role,
+            ImageRole::ThumbnailNight | ImageRole::FloorNight | ImageRole::WallNight
+        )
+    }) {
+        2
+    } else {
+        1
+    };
+    for (index, light) in prepared
+        .input()
+        .lighting
+        .iter()
+        .take(phase_count)
+        .enumerate()
+    {
+        writeln!(out, "    {{\"phase\": \"{}\", \"time_of_day\": {}, \"color_multiplier\": {:?}, \"provenance\": \"{}\"}}{}", if index == 0 { "day" } else { "night" }, light.time_of_day, light.color_multiplier, hex(&light.provenance.0), if index + 1 < phase_count { "," } else { "" }).unwrap();
     }
     writeln!(out, "  ],").unwrap();
     writeln!(out, "  \"reference\": \"CPU mesh rasterizer; explicit unlit or pre-baked materials; no legacy room-lighting or GPU parity claim\",\n  \"reservation_bytes\": {},\n  \"resident_bytes\": {},\n  \"work_units\": {},\n  \"images\": [", prepared.reservation_bytes(), artifact.resident_bytes(), prepared.work_units()).unwrap();
@@ -448,5 +547,78 @@ pub fn synthetic_fixture() -> DerivativeInput {
                 clear: [0; 4],
             }),
         }),
+    }
+}
+
+/// The existing synthetic two-story lot, fed through actual source-world
+/// preparation: per-tile ground, exterior room topology, roofs, cameras and FSOf.
+pub fn source_fixture() -> SourceWorkerRequest {
+    let mut input = synthetic_fixture();
+    input.draws.retain(|draw| draw.layer != DrawLayer::Floor(0));
+    let width = 77usize;
+    let area = width * width;
+    let mut tiles = vec![source::SourceTile::default(); area * 2];
+    for level in 0..2 {
+        for y in 28..49 {
+            for x in 28..49 {
+                tiles[level * area + y * width + x].floor_pattern = 1;
+            }
+        }
+        for y in 28..49 {
+            tiles[level * area + y * width + 28].walls[0] = true;
+            tiles[level * area + y * width + 49].walls[0] = true;
+        }
+        for x in 28..49 {
+            tiles[level * area + 28 * width + x].walls[1] = true;
+            tiles[level * area + 49 * width + x].walls[1] = true;
+        }
+    }
+    let mut draw_tiles: Vec<_> = input
+        .draws
+        .iter()
+        .map(|draw| match draw.layer {
+            DrawLayer::Floor(level) => Some([28, 28, level as u16 + 1]),
+            _ => None,
+        })
+        .collect();
+    let mut ground = Vec::new();
+    let mut ground_tiles = Vec::new();
+    for y in 6..70 {
+        for x in 6..70 {
+            let px = x as f32 * 3.;
+            let py = y as f32 * 3.;
+            ground.push(quad(
+                [
+                    Vec3::new(px, 0., py),
+                    Vec3::new(px + 3., 0., py),
+                    Vec3::new(px + 3., 0., py + 3.),
+                    Vec3::new(px, 0., py + 3.),
+                ],
+                0,
+                DrawLayer::Floor(0),
+            ));
+            ground_tiles.push(Some([x, y, 1]));
+        }
+    }
+    ground.extend(input.draws);
+    ground_tiles.append(&mut draw_tiles);
+    input.draws = ground;
+    SourceWorkerRequest {
+        input,
+        world: source::SourceWorld {
+            width: 77,
+            height: 77,
+            stories: 2,
+            altitude: vec![0; area],
+            base_alt: 0,
+            tiles,
+            rooms: None,
+            fine_area: None,
+        },
+        options: source::SourceFacadeOptions {
+            draw_tiles: ground_tiles,
+            ..Default::default()
+        },
+        night_light_color: Some([60, 70, 110, 255]),
     }
 }

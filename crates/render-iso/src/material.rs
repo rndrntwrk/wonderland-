@@ -77,6 +77,8 @@ pub fn shade_fragment(
     Some([rgb[0] * a, rgb[1] * a, rgb[2] * a, a])
 }
 
+// Keep the original shader coefficients verbatim for source parity review.
+#[allow(clippy::excessive_precision)]
 pub fn gamma_multiply(color: f32, light: f32, mode: GammaMode) -> f32 {
     match mode {
         GammaMode::Basic => (color.powf(2.2) * light).powf(1.0 / 2.2),

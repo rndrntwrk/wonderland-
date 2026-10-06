@@ -1,7 +1,14 @@
 //! Shared control plane. Engine objects remain private and non-authoritative.
 use serde::{Deserialize, Serialize};
-use wonderland_engine_fixture::{hash_hex, pick_at, representative_scene, FixtureScene};
-use wonderland_render_core::{frame::FrameStore, EntityRef, RenderLimits, ViewMode};
+// Shared by the Rust 1.75 harness and edition-2024 engines; those rustfmt
+// editions sort mixed type/function imports differently. Keep 1.75 ordering.
+#[rustfmt::skip]
+use wonderland_engine_fixture::{hash_hex, representative_scene, FixtureScene};
+#[rustfmt::skip]
+use wonderland_render_core::{
+    frame::{FrameStore, PickTicket},
+    EntityRef, RenderLimits, ViewMode,
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -49,6 +56,22 @@ pub struct Command {
     pub action: Action,
 }
 
+/// Disposable GPU work identity, never a game identity. Coordinates use the
+/// fixed 640x480 fixture grid, origin at the top left, independent of canvas DPR.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GpuPickRequest {
+    pub serial: u64,
+    pub command: u64,
+    pub revision: u64,
+    pub x: u32,
+    pub y: u32,
+}
+struct PendingPick {
+    request: GpuPickRequest,
+    tickets: Vec<Option<PickTicket>>,
+}
+
 pub struct State {
     pub config: Config,
     pub scene: FixtureScene,
@@ -60,6 +83,12 @@ pub struct State {
     pub last_command: u64,
     pub errors: Vec<String>,
     pub ids: Vec<EntityRef>,
+    pub pick_completed_command: u64,
+    pub pick_state: &'static str,
+    pub pick_error: Option<String>,
+    pub selection_source: &'static str,
+    pending_pick: Option<PendingPick>,
+    pick_serial: u64,
     store: FrameStore,
 }
 impl State {
@@ -87,12 +116,79 @@ impl State {
             errors: Vec::new(),
             ids,
             store,
+            pick_completed_command: 0,
+            pick_state: "idle",
+            pick_error: None,
+            selection_source: "immutable-fixture-initial-selection",
+            pending_pick: None,
+            pick_serial: 0,
         })
     }
     pub fn pick_index(&self, owner: Option<EntityRef>) -> u32 {
         owner
             .and_then(|id| self.ids.iter().position(|i| *i == id))
             .map_or(0, |i| i as u32 + 1)
+    }
+    pub fn pending_gpu_pick(&self) -> Option<GpuPickRequest> {
+        self.pending_pick.as_ref().map(|pending| pending.request)
+    }
+    fn cancel_gpu_pick(&mut self, reason: &str) {
+        if let Some(pending) = self.pending_pick.take() {
+            self.pick_completed_command = pending.request.command;
+            self.pick_state = "cancelled";
+            self.pick_error = Some(reason.into());
+        }
+    }
+    /// Admit only bytes returned by the adapter's offscreen GPU pass. The table
+    /// was frozen when the request was made; completion never makes new tickets.
+    pub fn complete_gpu_pick(
+        &mut self,
+        request: GpuPickRequest,
+        pixel: Result<[u8; 4], String>,
+    ) -> bool {
+        if self.pending_gpu_pick() != Some(request) || self.suspended {
+            return false;
+        }
+        let pending = self.pending_pick.take().unwrap();
+        self.pick_completed_command = request.command;
+        let decoded = pixel.and_then(|pixel| {
+            if pixel[3] != 255 {
+                return Err("GPU ID pixel is not opaque RGBA8".into());
+            }
+            let index = u32::from(pixel[0]) | u32::from(pixel[1]) << 8 | u32::from(pixel[2]) << 16;
+            if index as usize > pending.tickets.len() {
+                return Err("GPU ID index exceeds request table".into());
+            }
+            Ok(index)
+        });
+        let index = match decoded {
+            Ok(index) => index,
+            Err(error) => {
+                self.pick_state = "failed";
+                self.pick_error = Some(error);
+                return false;
+            }
+        };
+        let selected = if index == 0 {
+            None
+        } else if let Some(ticket) = &pending.tickets[index as usize - 1] {
+            let Some(reference) = self.store.resolve_pick(ticket) else {
+                self.pick_state = "stale";
+                self.pick_error =
+                    Some("GPU pick identity changed while readback was pending".into());
+                return false;
+            };
+            Some(reference)
+        } else {
+            self.pick_state = "failed";
+            self.pick_error = Some("GPU ID has no eligible request-time ticket".into());
+            return false;
+        };
+        self.selected = selected;
+        self.pick_state = "completed";
+        self.pick_error = None;
+        self.selection_source = "gpu-id-readback-generation-checked";
+        true
     }
     pub fn apply(&mut self, command: Command) -> bool {
         self.last_command = command.seq;
@@ -116,9 +212,28 @@ impl State {
                 if self.suspended {
                     return Err("pick is suspended".into());
                 }
-                self.selected = pick_at(&self.scene, x, y)
-                    .and_then(|id| self.store.pick_ticket(id))
-                    .and_then(|ticket| self.store.resolve_pick(&ticket));
+                let serial = self
+                    .pick_serial
+                    .checked_add(1)
+                    .ok_or("GPU pick serial exhausted")?;
+                self.cancel_gpu_pick("Superseded by a newer selection");
+                self.pick_serial = serial;
+                self.pending_pick = Some(PendingPick {
+                    request: GpuPickRequest {
+                        serial,
+                        command: self.last_command,
+                        revision: self.revision,
+                        x,
+                        y,
+                    },
+                    tickets: self
+                        .ids
+                        .iter()
+                        .map(|id| self.store.pick_ticket(*id))
+                        .collect(),
+                });
+                self.pick_state = "pending";
+                self.pick_error = None;
                 Ok(false)
             }
             Action::SetPass { pass } => {
@@ -130,6 +245,7 @@ impl State {
                 Ok(false)
             }
             Action::Suspend => {
+                self.cancel_gpu_pick("Presentation suspended");
                 self.suspended = true;
                 Ok(false)
             }
@@ -138,6 +254,7 @@ impl State {
                 Ok(false)
             }
             Action::SimulateLoss | Action::DeviceLost => {
+                self.cancel_gpu_pick("Graphics device lifetime ended");
                 self.store.device_reset();
                 self.suspended = true;
                 Ok(false)
@@ -156,6 +273,7 @@ impl State {
                 let next =
                     representative_scene(mode(&candidate.mode)?, candidate.avatars, candidate.tick)
                         .map_err(|e| e.to_string())?;
+                self.cancel_gpu_pick("Displayed fixture replaced");
                 // A user-requested fixture change is an explicit reset boundary. No wall clock advances it.
                 let mut store = FrameStore::new(RenderLimits::default());
                 store.reset(next.frame.stamp.lot_id, next.frame.stamp.epoch);
@@ -180,13 +298,15 @@ impl State {
         let value = serde_json::json!({
             "engine":engine,"ready":true,"readiness":"scene-uploaded",
             "sceneHash":hash_hex(self.scene.hash),"mode":self.config.mode,"avatars":self.config.avatars,
-            "tick":self.config.tick,"selection":self.selected,"selectionSource":"cpu-reference-generation-checked",
+            "tick":self.config.tick,"selection":self.selected,"selectionSource":self.selection_source,
+            "pickState":self.pick_state,"pickPendingCommand":self.pending_gpu_pick().map(|request|request.command),
+            "pickCompletedCommand":self.pick_completed_command,"pickError":self.pick_error,
             "pass":if self.pick_pass {"pick"} else {"color"},"idMap":ids,
             "suspended":self.suspended,"updateCount":self.update_count,"renderScheduleVisits":render_visits,
             "fixtureRevision":self.revision,"lastCommand":self.last_command,"engineErrors":self.errors,
             "meshCount":self.scene.draws.len(),"spriteCount":self.scene.sprites.len(),
             "vertexCount":self.scene.draws.iter().map(|d|d.mesh.vertices.len()).sum::<usize>(),
-            "gpuReadback":"pending","authoritativeTicksAdvanced":0
+            "gpuReadback":"offscreen-id-rgba8-async","authoritativeTicksAdvanced":0
         });
         publish(&value.to_string());
     }
@@ -280,6 +400,165 @@ pub fn fatal(value: &str) -> ! {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn selection_waits_for_gpu_completion_without_changing_the_visible_pass() {
+        let mut state = State::new(Config::default()).unwrap();
+        let selected = state.selected;
+        assert!(!state.apply(Command {
+            seq: 7,
+            action: Action::SelectAt { x: 0, y: 0 },
+        }));
+        assert_eq!(
+            state.selected, selected,
+            "a queued selection must not resolve on the CPU"
+        );
+        assert!(
+            !state.pick_pass,
+            "selection must never flash an ID pass onscreen"
+        );
+    }
+    #[test]
+    fn gpu_zero_clears_selection_and_exact_rgb_id_resolves_the_request_ticket() {
+        let mut state = State::new(Config::default()).unwrap();
+        state.apply(Command {
+            seq: 7,
+            action: Action::SelectAt { x: 11, y: 19 },
+        });
+        let request = state.pending_gpu_pick().unwrap();
+        assert_eq!((request.command, request.x, request.y), (7, 11, 19));
+        assert!(state.complete_gpu_pick(request, Ok([0, 0, 0, 255])));
+        assert_eq!(state.selected, None);
+        assert_eq!(state.pick_completed_command, 7);
+        state.apply(Command {
+            seq: 8,
+            action: Action::SelectAt { x: 0, y: 0 },
+        });
+        let request = state.pending_gpu_pick().unwrap();
+        assert!(state.complete_gpu_pick(request, Ok([1, 0, 0, 255])));
+        assert_eq!(state.selected, Some(state.ids[0]));
+        assert_eq!(state.selection_source, "gpu-id-readback-generation-checked");
+        assert!(
+            !state.complete_gpu_pick(request, Ok([0, 0, 0, 255])),
+            "completion is one-shot"
+        );
+        assert_eq!(state.selected, Some(state.ids[0]));
+    }
+    #[test]
+    fn newer_selection_cancels_old_completion_without_consuming_the_new_request() {
+        let mut state = State::new(Config::default()).unwrap();
+        state.apply(Command {
+            seq: 1,
+            action: Action::SelectAt { x: 0, y: 0 },
+        });
+        let old = state.pending_gpu_pick().unwrap();
+        state.apply(Command {
+            seq: 2,
+            action: Action::SelectAt { x: 50, y: 100 },
+        });
+        let next = state.pending_gpu_pick().unwrap();
+        assert!(!state.complete_gpu_pick(old, Ok([0, 0, 0, 255])));
+        assert_eq!(state.pending_gpu_pick(), Some(next));
+        assert!(state.complete_gpu_pick(next, Ok([2, 0, 0, 255])));
+        assert_eq!(state.selected, Some(state.ids[1]));
+    }
+    #[test]
+    fn every_display_lifetime_boundary_cancels_pending_pick_including_no_hit() {
+        for action in [
+            Action::ReloadFixture,
+            Action::SetTick { tick: 31 },
+            Action::SetMode {
+                mode: "full3d".into(),
+            },
+            Action::Suspend,
+            Action::SimulateLoss,
+            Action::DeviceLost,
+        ] {
+            let mut state = State::new(Config::default()).unwrap();
+            let selected = state.selected;
+            state.apply(Command {
+                seq: 1,
+                action: Action::SelectAt { x: 0, y: 0 },
+            });
+            let request = state.pending_gpu_pick().unwrap();
+            state.apply(Command { seq: 2, action });
+            assert_eq!(state.pending_gpu_pick(), None);
+            assert!(!state.complete_gpu_pick(request, Ok([0, 0, 0, 255])));
+            assert_eq!(state.selected, selected);
+        }
+    }
+    #[test]
+    fn content_aba_and_entity_replacement_cannot_resolve_request_time_tickets() {
+        for change in 0..4 {
+            let mut state = State::new(Config::default()).unwrap();
+            state.apply(Command {
+                seq: 1,
+                action: Action::SelectAt { x: 0, y: 0 },
+            });
+            let request = state.pending_gpu_pick().unwrap();
+            let selected = state.selected;
+            let mut next = state.store.current().unwrap().clone();
+            next.stamp.tick += 1;
+            match change {
+                0 => next.entities[0].reference.generation += 1,
+                1 => next.entities[0].visual_revision += 1,
+                2 => {
+                    next.entities[0].visible = false;
+                    next.entities[0].visual_revision += 1;
+                }
+                _ => next.stamp.content.0[0] ^= 1,
+            }
+            next.selected = None;
+            state.store.admit(next.clone()).unwrap();
+            if change == 3 {
+                next.stamp.tick += 1;
+                next.stamp.content.0[0] ^= 1;
+                state.store.admit(next).unwrap();
+            }
+            assert!(!state.complete_gpu_pick(request, Ok([1, 0, 0, 255])));
+            assert_eq!(state.selected, selected);
+            assert_eq!(state.pick_state, "stale");
+        }
+    }
+    #[test]
+    fn invalid_gpu_bytes_and_read_errors_preserve_selection() {
+        for pixel in [
+            Ok([255, 255, 255, 255]),
+            Ok([1, 0, 0, 0]),
+            Err("device lost".into()),
+        ] {
+            let mut state = State::new(Config::default()).unwrap();
+            let selected = state.selected;
+            state.apply(Command {
+                seq: 3,
+                action: Action::SelectAt { x: 0, y: 0 },
+            });
+            let request = state.pending_gpu_pick().unwrap();
+            assert!(!state.complete_gpu_pick(request, pixel));
+            assert_eq!(state.selected, selected);
+            assert_eq!(state.pick_state, "failed");
+            assert_eq!(state.pick_completed_command, 3);
+            assert!(state.pick_error.is_some());
+        }
+    }
+    #[test]
+    fn nonzero_id_without_an_eligible_request_ticket_is_not_a_no_hit() {
+        let mut state = State::new(Config::default()).unwrap();
+        let selected = state.selected;
+        let mut next = state.store.current().unwrap().clone();
+        next.stamp.tick += 1;
+        next.entities[0].selectable = false;
+        next.entities[0].visual_revision += 1;
+        next.selected = None;
+        state.store.admit(next).unwrap();
+        state.apply(Command {
+            seq: 3,
+            action: Action::SelectAt { x: 0, y: 0 },
+        });
+        let request = state.pending_gpu_pick().unwrap();
+        assert!(!state.complete_gpu_pick(request, Ok([1, 0, 0, 255])));
+        assert_eq!(state.selected, selected);
+        assert_eq!(state.pick_state, "failed");
+    }
     #[test]
     fn same_fixture_reload_invalidates_earlier_pick_ticket() {
         let mut state = State::new(Config::default()).unwrap();

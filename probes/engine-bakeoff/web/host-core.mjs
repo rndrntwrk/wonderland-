@@ -49,7 +49,11 @@ export class ProbeController {
     else if(backend==='webgl2')this.status.glDrawCalls++;
   }
   enqueue(kind,args={}){
-    if(this.queue.length>=128)throw new Error('Presentation command queue limit (128) reached');
+    if(this.queue.length>=128){
+      if(!['suspend','simulateLoss'].includes(kind))throw new Error('Presentation command queue limit (128) reached');
+      // Lifecycle cancellation must reach the renderer even under input flood.
+      this.queue=this.queue.filter(command=>command.kind==='deviceLost');
+    }
     switch(kind){
       case 'setMode':if(!modes.has(args.mode))throw new Error('Unknown view mode');break;
       case 'setTick':commandInteger(args.tick,0,Number.MAX_SAFE_INTEGER,'tick');break;
@@ -71,7 +75,7 @@ export class ProbeController {
     this.status.lossEvents.push({backend,reason,kind:'observed-context-or-device-loss'});
     if(this.status.lossEvents.length>16)this.status.lossEvents.shift();
     // Invalidate the engine's pick generation too; this is not a simulated-loss event.
-    if(this.queue.length<128)this.queue.push({seq:++this.sequence,kind:'deviceLost'});
+    this.queue=[{seq:++this.sequence,kind:'deviceLost'}];
   }
   fail(reason){this.status.errors.push(String(reason));if(this.status.errors.length>32)this.status.errors.shift();}
 }

@@ -62,3 +62,20 @@ test('partial renderer observations survive subsequent fixture-state publication
   assert.equal(c.snapshot().sceneHash,'immutable-fixture');
   assert.equal(c.snapshot().fixtureDrawCalls,8);
 });
+
+test('device loss invalidation cannot be dropped behind a saturated input queue',()=>{
+  const c=new ProbeController(parseConfig(''));
+  for(let i=0;i<128;i++)c.enqueue('selectAt',{x:i,y:0});
+  c.actualLoss('webgpu','destroyed');
+  const pending=c.drain();
+  assert.deepEqual(pending.map(command=>command.kind),['deviceLost']);
+  assert.equal(c.snapshot().suspended,true);
+});
+
+test('suspension is delivered even when ordinary presentation commands filled the queue',()=>{
+  const c=new ProbeController(parseConfig(''));
+  for(let i=0;i<128;i++)c.enqueue('selectAt',{x:i,y:0});
+  assert.doesNotThrow(()=>c.enqueue('suspend'));
+  assert.equal(c.drain().at(-1).kind,'suspend');
+  assert.equal(c.snapshot().suspended,true);
+});

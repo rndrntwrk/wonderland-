@@ -147,6 +147,16 @@ async function snapshot(page){return page.evaluate(()=>window.__wonderlandProbe.
 async function command(page,method,...args){
   const sequence=await page.evaluate(({method,args})=>window.__wonderlandProbe[method](...args),{method,args});
   if(Number.isInteger(sequence))await page.waitForFunction(seq=>window.__wonderlandProbe.snapshot().lastCommand>=seq,sequence,{timeout:20000});
+  if(method==='selectAt'&&Number.isInteger(sequence)) {
+    await page.waitForFunction(seq=>{
+      const state=window.__wonderlandProbe.snapshot();
+      return state.pickCompletedCommand>=seq||['failed','cancelled','stale'].includes(state.pickState);
+    },sequence,{timeout:20000});
+    const state=await snapshot(page);
+    if(state.pickState!=='completed'||state.pickCompletedCommand!==sequence) {
+      throw new Error(`GPU selection ${sequence} did not complete: ${state.pickState}: ${state.pickError??''}`);
+    }
+  }
   return snapshot(page);
 }
 async function renderedAfter(page,before){

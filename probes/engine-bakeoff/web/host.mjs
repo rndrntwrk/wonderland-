@@ -32,6 +32,7 @@ window.addEventListener('error',event=>fail(event.error||event.message));
 window.addEventListener('unhandledrejection',event=>fail(event.reason));
 function issue(kind,args){
   const seq=controller.enqueue(kind,args);
+  if(['setMode','setTick','setPass','reloadFixture','suspend','simulateLoss'].includes(kind))gpuReadback.cancel('Presentation command: '+kind);
   if(kind==='suspend'||kind==='simulateLoss')audioAdapter?.suspend();
   if(kind==='reloadFixture'){audioAdapter?.reset();audioGeneration++;currentVoice=null;}
   refresh();return seq;
@@ -40,7 +41,7 @@ function audioSnapshot(){return audioAdapter?.snapshot()||controller.status.audi
 function snapshot(){
   const rect=canvas.getBoundingClientRect();
   return {...controller.snapshot(),viewport:{width:canvas.width,height:canvas.height,cssWidth:rect.width,cssHeight:rect.height,cssX:rect.x,cssY:rect.y,documentX:rect.x+scrollX,documentY:rect.y+scrollY},
-    memoryBytes:wasm?.memory?.buffer?.byteLength??null,elapsedMs:performance.now()-started,audio:audioSnapshot()};
+    memoryBytes:wasm?.memory?.buffer?.byteLength??null,elapsedMs:performance.now()-started,audio:audioSnapshot(),gpuReadbackDiagnostic:gpuReadback.snapshot()};
 }
 function alignForCapture(){
   alignCanvasLayout(host,canvas,{x:scrollX,y:scrollY});
@@ -64,6 +65,7 @@ const api={
   stopAudio:()=>{if(audioAdapter&&currentVoice)audioAdapter.apply({Stop:{voice:currentVoice}});currentVoice=null;refresh();return audioSnapshot();},
   resize:(width,height)=>{
     if(![width,height].every(v=>Number.isInteger(v)&&v>=1&&v<=4096))throw new Error('Viewport must be 1..4096 CSS pixels');
+    gpuReadback.cancel('Engine viewport resized');
     host.style.width=`${width}px`;host.style.height=`${height}px`;host.style.maxWidth='100%';window.dispatchEvent(new Event('resize'));
   },
   loseContext:()=>{
@@ -114,6 +116,7 @@ function observeGpuDevice(device,details={}){
   diagnostic('webgpu-device-observed',{deviceId,...details,features:Array.from(device.features||[])});
   const originalDestroy=device.destroy.bind(device);
   device.destroy=()=>{
+    gpuReadback.deviceLost(device,'destroy requested');
     diagnostic('webgpu-device-destroy-called',{deviceId,active:device===gpuDevice,stack:new Error('GPUDevice.destroy caller').stack?.slice(0,3500)});
     return originalDestroy();
   };
@@ -121,6 +124,7 @@ function observeGpuDevice(device,details={}){
   device.queue.submit=commands=>{const result=originalSubmit(commands);controller.submission('webgpu');gpuReadback.submitted(device,originalSubmit);return result;};
   device.addEventListener('uncapturederror',event=>fail(event.error));
   device.lost.then(info=>{
+    gpuReadback.deviceLost(device,info.reason+': '+info.message);
     diagnostic('webgpu-device-lost',{deviceId,reason:info.reason,message:info.message,active:device===gpuDevice});
     if(device!==gpuDevice)return;
     controller.actualLoss('webgpu',info.reason+': '+info.message);audioAdapter?.suspend();refresh();
@@ -133,6 +137,8 @@ function observeGpuContext(context,next){
   diagnostic('webgpu-canvas-context-created');
   const configure=context.configure.bind(context);
   const getCurrentTexture=context.getCurrentTexture.bind(context);
+  const unconfigure=context.unconfigure.bind(context);
+  context.unconfigure=()=>{gpuReadback.unconfigured(context);return unconfigure();};
   context.getCurrentTexture=()=>{const texture=getCurrentTexture();gpuReadback.acquired(context,texture);return texture;};
   context.configure=configuration=>{
     const result=configure(configuration);

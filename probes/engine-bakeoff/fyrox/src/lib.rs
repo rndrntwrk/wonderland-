@@ -83,6 +83,9 @@ struct Game {
     #[visit(skip)]
     #[reflect(hidden)]
     source_frames: source_pass::FrameCounter,
+    #[visit(skip)]
+    #[reflect(hidden)]
+    picks: source_pass::PickTransport,
 }
 impl std::fmt::Debug for Game {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -120,7 +123,7 @@ pub fn run() {
 }
 impl Plugin for Game {
     fn init(&mut self, _scene_path: Option<&str>, context: PluginContext) -> GameResult {
-        source_pass::install(context.graphics_context, &self.source_frames);
+        source_pass::install(context.graphics_context, &self.source_frames, &self.picks);
         let state = bridge::initial_config()
             .and_then(bridge::State::new)
             .map_err(GameError::str)?;
@@ -132,7 +135,8 @@ impl Plugin for Game {
         Ok(())
     }
     fn on_graphics_context_initialized(&mut self, context: PluginContext) -> GameResult {
-        source_pass::install(context.graphics_context, &self.source_frames);
+        self.picks.borrow_mut().reset_device();
+        source_pass::install(context.graphics_context, &self.source_frames, &self.picks);
         Ok(())
     }
     fn update(&mut self, context: &mut PluginContext) -> GameResult {
@@ -143,6 +147,15 @@ impl Plugin for Game {
         for command in bridge::commands() {
             rebuild |= state.apply(command);
         }
+        self.picks
+            .borrow_mut()
+            .sync(state.pending_gpu_pick(), state.pick_pass);
+        if let Some((request, pixel)) = self.picks.borrow_mut().poll() {
+            state.complete_gpu_pick(request, pixel);
+        }
+        self.picks
+            .borrow_mut()
+            .sync(state.pending_gpu_pick(), state.pick_pass);
         if rebuild {
             let (scene, materials) = create_scene(state).map_err(GameError::str)?;
             let old = self.scene;
@@ -212,7 +225,10 @@ impl Plugin for Game {
             bridge::metrics(serde_json::json!({
                 "engineResourceOwnership": {
                     "materials": self.materials.len(),
-                    "fixtureScenes": usize::from(self.scene.is_some())
+                    "fixtureScenes": usize::from(self.scene.is_some()),
+                    "offscreenIdTargets": self.picks.borrow().target_count(),
+                    "pickReadbackBuffers": self.picks.borrow().target_count(),
+                    "pendingPickReadbacks": self.picks.borrow().running_count()
                 },
                 "engineRendererStatistics": {
                     "drawCalls": stats.geometry.draw_calls,

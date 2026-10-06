@@ -85,7 +85,7 @@ pub fn make_software_batches(
     for batch in batches {
         let mut run: Option<PreparedBatch> = None;
         for index in batch.sprite_indices {
-            if run.as_ref().map_or(false, |b| {
+            if run.as_ref().is_some_and(|b| {
                 b.sprite_indices
                     .iter()
                     .any(|i| sprites[*i].rect.intersects(sprites[index].rect))

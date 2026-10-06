@@ -25,7 +25,7 @@ for task_crate in fixture replay; do
   task_check "${task_cargo[@]}" fmt --manifest-path "probes/engine-bakeoff/$task_crate/Cargo.toml" --check
   task_check "${task_cargo[@]}" test --manifest-path "probes/engine-bakeoff/$task_crate/Cargo.toml" --locked
 done
-for task_manifest in crates/audio-runtime/native/Cargo.toml tools/swarm-c/facade-worker/Cargo.toml; do
+for task_manifest in crates/audio-runtime/native/Cargo.toml tools/swarm-c/facade-worker/Cargo.toml probes/engine-bakeoff/web/bridge-tests/Cargo.toml; do
   task_check "${task_cargo[@]}" fmt --manifest-path "$task_manifest" --check
   task_check "${task_cargo[@]}" test --manifest-path "$task_manifest" --locked
 done
@@ -34,7 +34,8 @@ task_verify_derivatives() {
   local task_worker_output
   "${task_cargo[@]}" build --manifest-path tools/swarm-c/facade-worker/Cargo.toml --locked --target-dir "$task_worker_target" || return
   task_worker_output=$(mktemp -d "$task_root/tools/swarm-c/output/facade-worker.XXXXXX") || return
-  python3 tools/swarm-c/facade-worker/verify.py "$task_worker_target/debug/wonderland-facade-worker" "$task_worker_output/artifacts"
+  python3 tools/swarm-c/facade-worker/verify.py "$task_worker_target/debug/wonderland-facade-worker" "$task_worker_output/artifacts" || return
+  python3 tools/swarm-c/facade-worker/verify_source.py "$task_worker_target/debug/wonderland-facade-worker" "$task_worker_output/source-artifacts"
 }
 task_check task_verify_derivatives
 task_check "${task_cargo[@]}" run --manifest-path probes/engine-bakeoff/fixture/Cargo.toml --locked --bin reference -- tools/swarm-c/output/reference

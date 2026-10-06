@@ -1,7 +1,9 @@
 //! Bevy 0.19.1 presentation adapter. All world inputs come from the frozen C fixture.
 #![forbid(unsafe_code)]
 #[cfg(all(feature = "webgpu", feature = "webgl2"))]
-compile_error!("Build Bevy WebGPU and WebGL2 as separate artifacts; Bevy overrides WebGL2 when both are enabled.");
+compile_error!(
+    "Build Bevy WebGPU and WebGL2 as separate artifacts; Bevy overrides WebGL2 when both are enabled."
+);
 #[cfg(all(
     target_arch = "wasm32",
     not(any(feature = "webgpu", feature = "webgl2"))
@@ -12,39 +14,46 @@ compile_error!("A WASM Bevy probe must select webgpu or webgl2 explicitly.");
 mod bridge;
 #[path = "../../web/math.rs"]
 mod math;
+mod picking;
 #[path = "../../web/upload.rs"]
 mod upload;
 
 use bevy::{
-    asset::{embedded_asset, RenderAssetUsages},
-    camera::{visibility::NoFrustumCulling, ScalingMode},
+    asset::{RenderAssetUsages, embedded_asset},
+    camera::{
+        RenderTarget, ScalingMode,
+        visibility::{NoFrustumCulling, RenderLayers},
+    },
     core_pipeline::tonemapping::Tonemapping,
     image::ImageSampler,
     mesh::{Indices, MeshVertexBufferLayoutRef, PrimitiveTopology},
     pbr::{MaterialPipeline, MaterialPipelineKey},
     prelude::*,
     render::{
+        Render, RenderApp, RenderSystems,
         error_handler::{RenderErrorHandler, RenderErrorPolicy},
         render_resource::*,
         renderer::RenderAdapterInfo,
-        Render, RenderApp, RenderSystems,
     },
     shader::ShaderRef,
     window::WindowResolution,
 };
 use std::sync::{
-    atomic::{AtomicU64, Ordering},
     Arc,
+    atomic::{AtomicU64, Ordering},
 };
 
 #[derive(Resource)]
 struct Probe(bridge::State);
 #[derive(Component)]
 struct FixtureNode;
+#[derive(Component)]
+struct PickCamera;
 #[derive(Resource, Default)]
 struct Ownership {
     meshes: Vec<Handle<Mesh>>,
     materials: Vec<Handle<SourceMaterial>>,
+    pick_materials: Vec<Handle<SourceMaterial>>,
     images: Vec<Handle<Image>>,
 }
 #[derive(Resource, Clone, Default)]
@@ -145,7 +154,11 @@ pub fn run() {
             }),
             ..default()
         }))
-        .add_plugins((Sources, MaterialPlugin::<SourceMaterial>::default()))
+        .add_plugins((
+            Sources,
+            MaterialPlugin::<SourceMaterial>::default(),
+            picking::PickingPlugin,
+        ))
         .add_systems(Startup, setup)
         .add_systems(Update, update);
     if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
@@ -188,6 +201,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<SourceMaterial>>,
     mut images: ResMut<Assets<Image>>,
+    mut pick_source: ResMut<picking::PickSource>,
 ) {
     if let Err(e) = spawn_scene(
         &mut commands,
@@ -196,6 +210,7 @@ fn setup(
         &mut meshes,
         &mut materials,
         &mut images,
+        &mut pick_source,
     ) {
         bridge::fatal(&e);
     }
@@ -208,8 +223,10 @@ fn spawn_scene(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<SourceMaterial>,
     images: &mut Assets<Image>,
+    pick_source: &mut picking::PickSource,
 ) -> Result<(), String> {
     let prepared = upload::prepare(state)?;
+    pick_source.expected_draws = prepared.len();
     let vp = Mat4::from_cols_array_2d(&upload::projection(state)?.cols);
     let camera = state.scene.camera;
     let eye = Vec3::new(camera.eye.x, camera.eye.y, camera.eye.z);
@@ -235,7 +252,7 @@ fn spawn_scene(
         .spawn((
             FixtureNode,
             Camera3d::default(),
-            projection,
+            projection.clone(),
             Msaa::Off,
             CompositingSpace::Srgb,
             Tonemapping::None,
@@ -251,6 +268,40 @@ fn spawn_scene(
     commands.entity(camera_entity).insert(bevy::camera::Hdr);
     #[cfg(not(feature = "webgl2"))]
     let _ = camera_entity;
+    // The ID camera owns a separate attachment and render layer. Its material
+    // flags are immutable; an ordinary selection never toggles the visible pass.
+    let mut pick_image = Image::new_target_texture(640, 480, TextureFormat::Rgba8UnormSrgb, None);
+    pick_image.texture_descriptor.usage |= TextureUsages::COPY_SRC;
+    pick_image.sampler = ImageSampler::nearest();
+    let pick_target = images.add(pick_image);
+    let pick_camera = commands
+        .spawn((
+            FixtureNode,
+            PickCamera,
+            Camera3d::default(),
+            Camera {
+                order: -1,
+                is_active: false,
+                clear_color: Color::BLACK.into(),
+                ..default()
+            },
+            RenderTarget::Image(pick_target.clone().into()),
+            projection,
+            Msaa::Off,
+            CompositingSpace::Srgb,
+            Tonemapping::None,
+            RenderLayers::layer(1),
+            Transform::from_translation(eye)
+                .looking_at(target, Vec3::new(camera.up.x, camera.up.y, camera.up.z)),
+        ))
+        .id();
+    #[cfg(feature = "webgl2")]
+    commands.entity(pick_camera).insert(bevy::camera::Hdr);
+    #[cfg(not(feature = "webgl2"))]
+    let _ = pick_camera;
+    pick_source.image = Some(pick_target.clone());
+    pick_source.revision = state.revision;
+    owned.images.push(pick_target);
     for (draw_order, draw) in prepared.into_iter().enumerate() {
         let mesh = meshes.add(
             Mesh::new(
@@ -285,16 +336,29 @@ fn spawn_scene(
             image: color.clone(),
             depth_alpha: depth.clone(),
         });
+        let mut id_material = materials.get(&material).unwrap().clone();
+        id_material.parameters.flags.x = 1.0;
+        let id_material = materials.add(id_material);
         commands.spawn((
             FixtureNode,
-            Name::new(draw.name),
+            Name::new(draw.name.clone()),
             Mesh3d(mesh.clone()),
             MeshMaterial3d(material.clone()),
             Transform::default(),
             NoFrustumCulling,
         ));
+        commands.spawn((
+            FixtureNode,
+            Name::new(format!("{}-offscreen-id", draw.name)),
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(id_material.clone()),
+            Transform::default(),
+            NoFrustumCulling,
+            RenderLayers::layer(1),
+        ));
         owned.meshes.push(mesh);
         owned.materials.push(material);
+        owned.pick_materials.push(id_material);
         owned.images.extend([color, depth]);
     }
     Ok(())
@@ -319,12 +383,14 @@ fn update(
     mut probe: ResMut<Probe>,
     visits: Res<RenderVisits>,
     nodes: Query<Entity, With<FixtureNode>>,
-    mut cameras: Query<&mut Camera, With<FixtureNode>>,
+    mut cameras: Query<(&mut Camera, Option<&PickCamera>), With<FixtureNode>>,
     mut clear: ResMut<ClearColor>,
     mut owned: ResMut<Ownership>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<SourceMaterial>>,
     mut images: ResMut<Assets<Image>>,
+    mut pick_source: ResMut<picking::PickSource>,
+    pick_results: Res<picking::PickResults>,
     keys: Res<ButtonInput<KeyCode>>,
     mut exit: MessageWriter<AppExit>,
 ) {
@@ -358,6 +424,9 @@ fn update(
         for handle in owned.materials.drain(..) {
             materials.remove(handle.id());
         }
+        for handle in owned.pick_materials.drain(..) {
+            materials.remove(handle.id());
+        }
         for handle in owned.images.drain(..) {
             images.remove(handle.id());
         }
@@ -368,10 +437,16 @@ fn update(
             &mut meshes,
             &mut materials,
             &mut images,
+            &mut pick_source,
         ) {
             bridge::fatal(&e);
         }
     }
+    if let Some((request, pixel)) = pick_results.take() {
+        probe.0.complete_gpu_pick(request, pixel);
+    }
+    pick_source.request = probe.0.pending_gpu_pick();
+    pick_results.current(pick_source.request);
     let pass = if probe.0.pick_pass { 1.0 } else { 0.0 };
     clear.0 = if probe.0.pick_pass {
         Color::BLACK
@@ -388,8 +463,9 @@ fn update(
             }
         }
     }
-    for mut camera in &mut cameras {
-        camera.is_active = !probe.0.suspended;
+    for (mut camera, pick_camera) in &mut cameras {
+        camera.is_active =
+            !probe.0.suspended && (pick_camera.is_none() || pick_source.request.is_some());
     }
     if !probe.0.suspended {
         probe.0.update_count += 1;
@@ -400,8 +476,10 @@ fn update(
         bridge::metrics(serde_json::json!({
             "engineResourceOwnership": {
                 "meshes": owned.meshes.len(),
-                "materials": owned.materials.len(),
-                "images": owned.images.len()
+                "materials": owned.materials.len() + owned.pick_materials.len(),
+                "images": owned.images.len(),
+                "offscreenIdTargets": usize::from(pick_source.image.is_some()),
+                "maximumPickReadbackBuffers": 1
             }
         }));
         probe.0.publish("bevy-0.19.1", rendered);

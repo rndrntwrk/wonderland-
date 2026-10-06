@@ -69,6 +69,32 @@ fn repeated_render_is_identical_and_day_night_are_distinct() {
 }
 
 #[test]
+fn incremental_worker_yields_between_draws_and_cancellation_releases_staging() {
+    let q = queue(QueueLimits::default());
+    let p = prepared(1, 1);
+    let expected = p.render().unwrap().digest();
+    let ticket = q.submit(p).unwrap();
+    let mut task = q.start_next().unwrap().unwrap().into_task().unwrap();
+    assert_eq!(task.step(1).unwrap(), None);
+    assert!(q.stats().unwrap().pending_bytes > 0);
+    while task.step(1).unwrap().is_none() {}
+    assert_eq!(
+        q.acquire(&ticket.key())
+            .unwrap()
+            .unwrap()
+            .artifact()
+            .digest(),
+        expected
+    );
+    let other = q.submit(prepared(1, 1)).unwrap();
+    let mut task = q.start_next().unwrap().unwrap().into_task().unwrap();
+    assert_eq!(task.step(1).unwrap(), None);
+    q.cancel(&other).unwrap();
+    assert_eq!(task.step(1).unwrap(), Some(Completion::Stale));
+    assert_eq!(q.stats().unwrap().pending_bytes, 0);
+}
+
+#[test]
 fn source_and_material_bytes_are_hashed_without_trusting_declared_provenance() {
     let a = prepared(1, 1);
     let mut changed = input(1, 1);

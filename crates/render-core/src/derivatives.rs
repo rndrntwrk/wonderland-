@@ -13,7 +13,11 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex, MutexGuard, Weak};
 
-pub const DERIVATIVE_ALGORITHM_VERSION: u32 = 1;
+pub mod fsof;
+pub mod source;
+pub mod upload;
+
+pub const DERIVATIVE_ALGORITHM_VERSION: u32 = 2;
 pub const WALL_PIXELS_PER_TILE: u32 = 8;
 pub const WALL_HEIGHT: u32 = 22;
 pub const WALL_ATLAS_WIDTH: u32 = 512;
@@ -249,6 +253,10 @@ pub struct PreparedDerivative {
     image_specs: Vec<(ImageRole, u32, u32)>,
     reservation_bytes: u64,
     work_units: u64,
+    input_bytes: u64,
+    output_bytes: u64,
+    facade_geometry: Option<fsof::FacadeGeometry>,
+    day_only: bool,
 }
 #[derive(Debug)]
 struct ViewPlan {
@@ -268,6 +276,7 @@ pub struct DerivativeArtifact {
     regions: Vec<AtlasRegion>,
     digest: AssetKey,
     resident_bytes: u64,
+    facade_geometry: Option<fsof::FacadeGeometry>,
 }
 impl DerivativeArtifact {
     pub fn key(&self) -> DerivedKey {
@@ -290,6 +299,57 @@ impl DerivativeArtifact {
     }
     pub fn resident_bytes(&self) -> u64 {
         self.resident_bytes
+    }
+    pub fn facade_geometry(&self) -> Option<&fsof::FacadeGeometry> {
+        self.facade_geometry.as_ref()
+    }
+    pub fn to_fsof(&self, night_light_color: [u8; 4]) -> Result<fsof::Fsof, DerivativeError> {
+        let geometry = self
+            .facade_geometry
+            .as_ref()
+            .ok_or(DerivativeError::Invalid(
+                "source facade geometry unavailable",
+            ))?;
+        let get = |role| {
+            self.images
+                .iter()
+                .find(|image| image.role == role)
+                .ok_or(DerivativeError::Invalid("facade atlas unavailable"))
+        };
+        let floor = &get(ImageRole::FloorDay)?.image;
+        let wall = &get(ImageRole::WallDay)?.image;
+        let bytes = |role| -> Result<Vec<u8>, DerivativeError> {
+            let image = &get(role)?.image;
+            let mut bytes = Vec::new();
+            bytes
+                .try_reserve_exact(image.pixels.len() * 4)
+                .map_err(|_| DerivativeError::Allocation)?;
+            bytes.extend(image.pixels.iter().flatten().copied());
+            Ok(bytes)
+        };
+        Ok(fsof::Fsof {
+            compression: fsof::TextureCompression::Rgba8,
+            floor_width: floor.width,
+            floor_height: floor.height,
+            wall_width: wall.width,
+            wall_height: wall.height,
+            floor_texture: bytes(ImageRole::FloorDay)?,
+            wall_texture: bytes(ImageRole::WallDay)?,
+            night: if self
+                .images
+                .iter()
+                .any(|image| image.role == ImageRole::FloorNight)
+            {
+                Some(fsof::FsofNight {
+                    floor_texture: bytes(ImageRole::FloorNight)?,
+                    wall_texture: bytes(ImageRole::WallNight)?,
+                    light_color: night_light_color,
+                })
+            } else {
+                None
+            },
+            geometry: geometry.clone(),
+        })
     }
 }
 impl PreparedDerivative {
@@ -415,20 +475,13 @@ impl PreparedDerivative {
                 } else {
                     draw.model
                 };
-                // Check the bound before walking all transformed vertices. A
-                // vertex-only mesh still incurs work, and clipping may expand
-                // one input triangle to a seven-triangle fan.
-                let triangle_cost = pixels
-                    .checked_mul(7)
-                    .and_then(|n| n.checked_add(64))
-                    .and_then(|n| n.checked_mul(2))
-                    .ok_or(DerivativeError::Limit("render work"))?;
-                let cost = (draw.mesh.indices.len() as u64 / 3)
-                    .checked_mul(triangle_cost)
-                    .and_then(|n| n.checked_add((draw.mesh.vertices.len() as u64).checked_mul(3)?))
-                    .ok_or(DerivativeError::Limit("render work"))?;
+                // Charge vertex preparation before walking any vertices.
                 work_units = work_units
-                    .checked_add(cost)
+                    .checked_add(
+                        (draw.mesh.vertices.len() as u64)
+                            .checked_mul(3)
+                            .ok_or(DerivativeError::Limit("render work"))?,
+                    )
                     .ok_or(DerivativeError::Limit("render work"))?;
                 if work_units > limits.max_work_units {
                     return Err(DerivativeError::Limit("render work"));
@@ -437,15 +490,26 @@ impl PreparedDerivative {
                 if !clip.is_finite() {
                     return Err(DerivativeError::Invalid("combined matrix"));
                 }
-                for vertex in &draw.mesh.vertices {
-                    let p = vertex.position;
-                    if !clip
-                        .transform_vec4([p.x, p.y, p.z, 1.])
-                        .iter()
-                        .all(|v| v.is_finite())
-                    {
-                        return Err(DerivativeError::Invalid("transformed vertex"));
-                    }
+                // Source PreparedWorld uses individual tile meshes. Bounding
+                // their actual projected raster region avoids charging an
+                // entire 576-square thumbnail for every two-triangle tile.
+                // Positive homogeneous W preserves these convex bounds through
+                // clipping; eye-plane crossings conservatively use all pixels.
+                let raster_pixels =
+                    projected_pixels(&draw.mesh, clip, plan.region.rect[2], plan.region.rect[3])?;
+                let triangle_cost = raster_pixels
+                    .checked_mul(7)
+                    .and_then(|n| n.checked_add(64))
+                    .and_then(|n| n.checked_mul(2))
+                    .ok_or(DerivativeError::Limit("render work"))?;
+                let cost = (draw.mesh.indices.len() as u64 / 3)
+                    .checked_mul(triangle_cost)
+                    .ok_or(DerivativeError::Limit("render work"))?;
+                work_units = work_units
+                    .checked_add(cost)
+                    .ok_or(DerivativeError::Limit("render work"))?;
+                if work_units > limits.max_work_units {
+                    return Err(DerivativeError::Limit("render work"));
                 }
                 plan.commands
                     .try_reserve(1)
@@ -504,10 +568,32 @@ impl PreparedDerivative {
             image_specs,
             reservation_bytes,
             work_units,
+            input_bytes,
+            output_bytes,
+            facade_geometry: None,
+            day_only: false,
         })
     }
     pub fn key(&self) -> DerivedKey {
         self.key
+    }
+    /// Use when the source has no independently prepared night state. The
+    /// unavailable phase is neither rendered nor exported under a night label.
+    pub fn day_only(mut self) -> Self {
+        if !self.day_only {
+            let mut hash = Sha256::new();
+            hash.update(b"derivative-day-only-v1\0");
+            hash.update(self.source_digest.0);
+            self.source_digest = AssetKey(hash.finalize().into());
+            self.key = DerivedKey::new(
+                self.input.source_provenance,
+                self.input.frame.stamp.content,
+                DERIVATIVE_ALGORITHM_VERSION,
+                &self.source_digest.0,
+            );
+            self.day_only = true;
+        }
+        self
     }
     pub fn source_digest(&self) -> AssetKey {
         self.source_digest
@@ -537,88 +623,24 @@ impl PreparedDerivative {
         if !current() {
             return Err(DerivativeError::Stale);
         }
-        let mut images = Vec::new();
-        images
-            .try_reserve_exact(self.image_specs.len())
-            .map_err(|_| DerivativeError::Allocation)?;
-        for &(role, width, height) in &self.image_specs {
-            let count = RgbaImage::checked_pixel_count(width, height, &self.limits.render)?;
-            let mut pixels = Vec::new();
-            pixels
-                .try_reserve_exact(count)
-                .map_err(|_| DerivativeError::Allocation)?;
-            pixels.resize(count, [0; 4]);
-            images.push(DerivativeImage {
-                role,
-                image: RgbaImage {
-                    width,
-                    height,
-                    pixels,
-                },
-            });
-        }
-        for plan in &self.plans {
-            for phase in 0..2 {
-                if !current() {
-                    return Err(DerivativeError::Stale);
-                }
-                let [x, y, width, height] = plan.region.rect;
-                let mut surface = ReferenceSurface::new(width, height, &self.limits.render)?;
-                // Source facade rendering selects DepthStencilState.Default:
-                // later coplanar floors, masks and materials pass LessEqual.
-                surface.set_depth_comparison(DepthComparison::LessEqual);
-                surface.clear(plan.clear);
-                for &(draw_index, clip) in &plan.commands {
-                    if !current() {
-                        return Err(DerivativeError::Stale);
-                    }
-                    let draw = &self.input.draws[draw_index];
-                    let material = &self.input.materials[draw.material as usize];
-                    let pass = if phase == 0 {
-                        &material.day
-                    } else {
-                        &material.night
-                    };
-                    let light = self.input.lighting[phase].color_multiplier;
-                    let mut mesh = draw.mesh.clone();
-                    for vertex in &mut mesh.vertices {
-                        for (i, multiplier) in light.iter().enumerate() {
-                            vertex.color[i] *= pass.tint[i] * multiplier;
-                        }
-                        vertex.color[3] *= pass.tint[3];
-                    }
-                    let options = FragmentOptions {
-                        depth_test: true,
-                        write_depth: material.write_depth,
-                        write_id: false,
-                        alpha_cutoff: material.alpha_cutoff,
-                    };
-                    if let Some(texture) = &pass.texture {
-                        surface.draw_textured_mesh(
-                            &mesh,
-                            clip,
-                            texture,
-                            None,
-                            options,
-                            &self.limits.render,
-                        )?;
-                    } else {
-                        surface.draw_mesh(&mesh, clip, None, options, &self.limits.render)?;
-                    }
-                }
-                let target = &mut images[plan.image_base + phase].image;
-                for row in plan.inset..height - plan.inset {
-                    let source = row as usize * width as usize;
-                    let dest = (row + y) as usize * target.width as usize + x as usize;
-                    let start = plan.inset as usize;
-                    let end = (width - plan.inset) as usize;
-                    target.pixels[dest + start..dest + end]
-                        .copy_from_slice(&surface.image().pixels[source + start..source + end]);
-                }
-                if plan.bleed {
-                    bleed(target, plan.region.rect);
-                }
+        let mut state = DerivativeRenderState::new(self)?;
+        loop {
+            if let Some(artifact) = state.step(self, 128, &mut current)? {
+                return Ok(artifact);
             }
+        }
+    }
+    fn finish_images(
+        &self,
+        mut images: Vec<DerivativeImage>,
+    ) -> Result<DerivativeArtifact, DerivativeError> {
+        if self.day_only {
+            images.retain(|image| {
+                matches!(
+                    image.role,
+                    ImageRole::ThumbnailDay | ImageRole::FloorDay | ImageRole::WallDay
+                )
+            });
         }
         let regions: Vec<_> = self.plans.iter().map(|p| p.region.clone()).collect();
         let mut resident_bytes = std::mem::size_of::<DerivativeArtifact>() as u64;
@@ -644,6 +666,34 @@ impl PreparedDerivative {
                 hash.update(pixel);
             }
         }
+        let facade_geometry = self.facade_geometry.clone();
+        if let Some(geometry) = &facade_geometry {
+            resident_bytes = resident_bytes
+                .checked_add(geometry.resident_bytes())
+                .ok_or(DerivativeError::Limit("resident bytes"))?;
+            hash.update(b"source-facade-geometry\0");
+            for mesh in [&geometry.floor, &geometry.wall] {
+                hash.update((mesh.vertices.len() as u64).to_le_bytes());
+                for v in &mesh.vertices {
+                    for f in [
+                        v.position.x,
+                        v.position.y,
+                        v.position.z,
+                        v.uv.x,
+                        v.uv.y,
+                        v.normal.x,
+                        v.normal.y,
+                        v.normal.z,
+                    ] {
+                        hash.update(f.to_bits().to_le_bytes());
+                    }
+                }
+                hash.update((mesh.indices.len() as u64).to_le_bytes());
+                for &index in &mesh.indices {
+                    hash.update(index.to_le_bytes());
+                }
+            }
+        }
         Ok(DerivativeArtifact {
             key: self.key,
             source_digest: self.source_digest,
@@ -652,8 +702,191 @@ impl PreparedDerivative {
             regions,
             digest: AssetKey(hash.finalize().into()),
             resident_bytes,
+            facade_geometry,
         })
     }
+}
+
+struct DerivativeRenderState {
+    images: Vec<DerivativeImage>,
+    surface: Option<ReferenceSurface>,
+    view: usize,
+    phase: usize,
+    command: usize,
+}
+impl DerivativeRenderState {
+    fn new(request: &PreparedDerivative) -> Result<Self, DerivativeError> {
+        let mut images = Vec::new();
+        images
+            .try_reserve_exact(request.image_specs.len())
+            .map_err(|_| DerivativeError::Allocation)?;
+        for &(role, width, height) in &request.image_specs {
+            let count = RgbaImage::checked_pixel_count(width, height, &request.limits.render)?;
+            let mut pixels = Vec::new();
+            pixels
+                .try_reserve_exact(count)
+                .map_err(|_| DerivativeError::Allocation)?;
+            pixels.resize(count, [0; 4]);
+            images.push(DerivativeImage {
+                role,
+                image: RgbaImage {
+                    width,
+                    height,
+                    pixels,
+                },
+            });
+        }
+        Ok(Self {
+            images,
+            surface: None,
+            view: 0,
+            phase: 0,
+            command: 0,
+        })
+    }
+    fn clear(&mut self) {
+        self.images.clear();
+        self.surface = None;
+    }
+    fn step(
+        &mut self,
+        request: &PreparedDerivative,
+        max_draws: usize,
+        current: &mut impl FnMut() -> bool,
+    ) -> Result<Option<DerivativeArtifact>, DerivativeError> {
+        let mut remaining = max_draws;
+        while self.view < request.plans.len() {
+            if !current() {
+                return Err(DerivativeError::Stale);
+            }
+            let plan = &request.plans[self.view];
+            let [x, y, width, height] = plan.region.rect;
+            if self.surface.is_none() {
+                let mut surface = ReferenceSurface::new(width, height, &request.limits.render)?;
+                surface.set_depth_comparison(DepthComparison::LessEqual);
+                surface.clear(plan.clear);
+                self.surface = Some(surface);
+            }
+            let surface = self
+                .surface
+                .as_mut()
+                .ok_or(DerivativeError::Invalid("derivative surface"))?;
+            while self.command < plan.commands.len() {
+                if !current() {
+                    return Err(DerivativeError::Stale);
+                }
+                if remaining == 0 {
+                    return Ok(None);
+                }
+                let (draw_index, clip) = plan.commands[self.command];
+                let draw = &request.input.draws[draw_index];
+                let material = &request.input.materials[draw.material as usize];
+                let pass = if self.phase == 0 {
+                    &material.day
+                } else {
+                    &material.night
+                };
+                let light = request.input.lighting[self.phase].color_multiplier;
+                let mut mesh = draw.mesh.clone();
+                for vertex in &mut mesh.vertices {
+                    for (i, &multiplier) in light.iter().enumerate() {
+                        vertex.color[i] *= pass.tint[i] * multiplier;
+                    }
+                    vertex.color[3] *= pass.tint[3];
+                }
+                let options = FragmentOptions {
+                    depth_test: true,
+                    write_depth: material.write_depth,
+                    write_id: false,
+                    alpha_cutoff: material.alpha_cutoff,
+                };
+                if let Some(texture) = &pass.texture {
+                    surface.draw_textured_mesh(
+                        &mesh,
+                        clip,
+                        texture,
+                        None,
+                        options,
+                        &request.limits.render,
+                    )?;
+                } else {
+                    surface.draw_mesh(&mesh, clip, None, options, &request.limits.render)?;
+                }
+                self.command += 1;
+                remaining -= 1;
+            }
+            let target = &mut self.images[plan.image_base + self.phase].image;
+            for row in plan.inset..height - plan.inset {
+                let source = row as usize * width as usize;
+                let dest = (row + y) as usize * target.width as usize + x as usize;
+                let start = plan.inset as usize;
+                let end = (width - plan.inset) as usize;
+                target.pixels[dest + start..dest + end]
+                    .copy_from_slice(&surface.image().pixels[source + start..source + end]);
+            }
+            if plan.bleed {
+                bleed(target, plan.region.rect);
+            }
+            self.surface = None;
+            self.command = 0;
+            self.phase += 1;
+            if self.phase == if request.day_only { 1 } else { 2 } {
+                self.phase = 0;
+                self.view += 1;
+            }
+            if remaining == 0 {
+                return Ok(None);
+            }
+        }
+        if !current() {
+            return Err(DerivativeError::Stale);
+        }
+        request
+            .finish_images(std::mem::take(&mut self.images))
+            .map(Some)
+    }
+}
+
+fn projected_pixels(
+    mesh: &Mesh,
+    clip: Mat4,
+    width: u32,
+    height: u32,
+) -> Result<u64, DerivativeError> {
+    let mut low = [f64::INFINITY; 2];
+    let mut high = [f64::NEG_INFINITY; 2];
+    let mut positive = true;
+    for vertex in &mesh.vertices {
+        let p = vertex.position;
+        let v = clip.transform_vec4([p.x, p.y, p.z, 1.]);
+        if v.iter().any(|f| !f.is_finite()) {
+            return Err(DerivativeError::Invalid("transformed vertex"));
+        }
+        if v[3] <= 0. {
+            positive = false;
+            continue;
+        }
+        for i in 0..2 {
+            let value = v[i] as f64 / v[3] as f64;
+            low[i] = low[i].min(value);
+            high[i] = high[i].max(value);
+        }
+    }
+    if !positive {
+        return Ok(width as u64 * height as u64);
+    }
+    if mesh.vertices.is_empty() {
+        return Ok(0);
+    }
+    let mut sizes = [0; 2];
+    for (i, dimension) in [width, height].into_iter().enumerate() {
+        // Outward padding covers f32 screen conversion and floor/ceil bounds.
+        let a = (((low[i].clamp(-1., 1.) + 1.) * 0.5 * dimension as f64).floor() - 2.).max(0.);
+        let b = (((high[i].clamp(-1., 1.) + 1.) * 0.5 * dimension as f64).ceil() + 2.)
+            .min(dimension as f64);
+        sizes[i] = (b - a).max(0.) as u64;
+    }
+    Ok(sizes[0] * sizes[1])
 }
 
 fn normalized(values: &[f32], name: &'static str) -> Result<(), DerivativeError> {
@@ -724,10 +957,13 @@ fn add_thumbnail(
     ));
     Ok(())
 }
+/// Ordered view commands and output image allocations for one derivative.
+type DerivativeLayout = (Vec<ViewPlan>, Vec<(ImageRole, u32, u32)>);
+
 fn layout(
     output: &DerivativeOutput,
     limits: &DerivativeRenderLimits,
-) -> Result<(Vec<ViewPlan>, Vec<(ImageRole, u32, u32)>), DerivativeError> {
+) -> Result<DerivativeLayout, DerivativeError> {
     let mut plans = Vec::new();
     let mut images = Vec::new();
     match output {
@@ -1579,6 +1815,13 @@ impl DerivativeJob {
     pub fn request(&self) -> &PreparedDerivative {
         &self.request
     }
+    pub fn into_task(self) -> Result<DerivativeTask, DerivativeError> {
+        let state = DerivativeRenderState::new(&self.request)?;
+        Ok(DerivativeTask {
+            job: Some(self),
+            state,
+        })
+    }
     pub fn is_cancelled(&self) -> bool {
         self.state
             .upgrade()
@@ -1625,6 +1868,51 @@ impl Drop for DerivativeJob {
         }
     }
 }
+/// A cooperatively scheduled worker. Each call processes at most `max_draws`
+/// mesh draws, keeping staging memory under the job's existing reservation.
+pub struct DerivativeTask {
+    job: Option<DerivativeJob>,
+    state: DerivativeRenderState,
+}
+impl DerivativeTask {
+    pub fn step(&mut self, max_draws: usize) -> Result<Option<Completion>, DerivativeError> {
+        if max_draws == 0 {
+            return Err(DerivativeError::Invalid("zero derivative step"));
+        }
+        let job = self
+            .job
+            .as_ref()
+            .ok_or(DerivativeError::Invalid("finished derivative task"))?;
+        match self
+            .state
+            .step(&job.request, max_draws, &mut || !job.is_cancelled())
+        {
+            Ok(Some(artifact)) => self
+                .job
+                .take()
+                .ok_or(DerivativeError::Invalid("derivative job"))?
+                .complete(artifact)
+                .map(Some),
+            Ok(None) => Ok(None),
+            Err(DerivativeError::Stale) => {
+                self.state.clear();
+                self.job.take();
+                Ok(Some(Completion::Stale))
+            }
+            Err(error) => {
+                self.state.clear();
+                self.job.take();
+                Err(error)
+            }
+        }
+    }
+}
+impl Drop for DerivativeTask {
+    fn drop(&mut self) {
+        self.state.clear();
+        self.job.take();
+    }
+}
 pub struct DerivativeLease {
     state: Weak<Mutex<QueueState>>,
     key: DerivedKey,
@@ -1634,6 +1922,21 @@ pub struct DerivativeLease {
 impl DerivativeLease {
     pub fn artifact(&self) -> &DerivativeArtifact {
         &self.artifact
+    }
+    /// A held lease remains memory-owned after invalidation, but is no longer
+    /// eligible for upload or display. This distinction closes A/B/A races.
+    pub fn is_current(&self) -> bool {
+        self.state
+            .upgrade()
+            .and_then(|state| {
+                state.lock().ok().map(|state| {
+                    state
+                        .resident
+                        .get(&self.key)
+                        .is_some_and(|entry| entry.serial == self.serial)
+                })
+            })
+            .unwrap_or(false)
     }
 }
 impl Drop for DerivativeLease {

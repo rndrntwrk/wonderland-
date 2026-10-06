@@ -1,6 +1,17 @@
 use crate::*;
 use wonderland_render_core::{AssetKey, EntityRef, Vec2, Vec3};
 
+mod rooms;
+pub use rooms::*;
+mod shadows;
+pub use shadows::*;
+mod scene;
+pub use scene::*;
+mod projected;
+pub use projected::*;
+mod wcrc;
+pub use wcrc::*;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct LightingResources {
     pub ambient: Option<AssetKey>,
@@ -179,16 +190,16 @@ pub fn evaluate_room_light(input: &RoomLightInput, max_points: usize) -> Result<
     let minimum = input.minimum.map(|v| f32::from(v) / 255.);
     let outside = input.outside.map(|v| f32::from(v) / 255.);
     let mut atlas = [minimum[3]; 4];
-    for i in 0..4 {
-        atlas[i] += input.outdoor_contribution[i];
+    for (value, contribution) in atlas.iter_mut().zip(input.outdoor_contribution) {
+        *value += contribution;
     }
     for p in &input.points {
         validate_point(*p)?;
     }
     for outdoors in [true, false] {
         if !outdoors {
-            for i in 0..3 {
-                atlas[i] *= outside[i];
+            for (value, factor) in atlas[..3].iter_mut().zip(outside) {
+                *value *= factor;
             }
             atlas[3] *= (outside[0] + outside[1] + outside[2]) / 3.;
         }
@@ -201,8 +212,8 @@ pub fn evaluate_room_light(input: &RoomLightInput, max_points: usize) -> Result<
             }
             let average = (p.color[0] + p.color[1] + p.color[2]) / 3.;
             let mut color = [p.color[0], p.color[1], p.color[2], average];
-            for i in 0..4 {
-                color[i] *= intensity * if outdoors { 1. - minimum[i] } else { 0.70 };
+            for (value, minimum) in color.iter_mut().zip(minimum) {
+                *value *= intensity * if outdoors { 1. - minimum } else { 0.70 };
             }
             let c = point_light(
                 color,
@@ -211,8 +222,8 @@ pub fn evaluate_room_light(input: &RoomLightInput, max_points: usize) -> Result<
                 p.floor_shadow,
                 [1.; 2],
             );
-            for i in 0..4 {
-                atlas[i] += c[i];
+            for (value, contribution) in atlas.iter_mut().zip(c) {
+                *value += contribution;
             }
         }
     }
@@ -375,7 +386,7 @@ pub fn prepare_occlusion(
     if inputs.len() > max_inputs {
         return Err(IsoError::Limit("occlusion inputs"));
     }
-    if floor >= 6 || light_bounds.map_or(false, |b| !valid_rect(b)) {
+    if floor >= 6 || light_bounds.is_some_and(|b| !valid_rect(b)) {
         return Err(IsoError::Invalid("occlusion selection"));
     }
     let mut groups = std::collections::BTreeSet::new();
@@ -397,7 +408,7 @@ pub fn prepare_occlusion(
                 "duplicate multitile occluder main source",
             ));
         }
-        if light_bounds.map_or(false, |b| !b.intersects(i.footprint_sixteenths)) {
+        if light_bounds.is_some_and(|b| !b.intersects(i.footprint_sixteenths)) {
             continue;
         }
         out.push(*i);
