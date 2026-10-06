@@ -104,19 +104,19 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
                 </label>
             </header>
             <nav class="source-world-tools chrome" aria-label="World view controls">
-                <div class="source-control-group" role="group" aria-label="Camera">
+                <div class="source-control-group source-camera-controls" role="group" aria-label="Camera">
                     <button class="chrome round small" aria-label="Rotate left" on:click=move |_| controls.update(|view| view.yaw_radians -= std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise" class="icon-mirror"/></button>
                     <button class="chrome round small" aria-label="Rotate right" on:click=move |_| controls.update(|view| view.yaw_radians += std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise"/></button>
                     <button class="chrome round small" aria-label="Zoom out" on:click=move |_| controls.update(|view| view.zoom = (view.zoom / 1.2).max(0.25))><Icon name="minus"/></button>
                     <button class="chrome round small" aria-label="Zoom in" on:click=move |_| controls.update(|view| view.zoom = (view.zoom * 1.2).min(12.))><Icon name="plus"/></button>
                     <button class="chrome" on:click=move |_| controls.set(ViewportControls::default())>"Reset view"</button>
                 </div>
-                <div class="source-control-group" role="group" aria-label="Visible floor">
+                <div class="source-control-group source-floor-controls" role="group" aria-label="Visible floor">
                     <button class="chrome round small" aria-label="Floor down" disabled={move || controls.get().visible_level <= 1} on:click=move |_| controls.update(|view| view.visible_level = view.visible_level.saturating_sub(1).max(1))><Icon name="chevron-down"/></button>
                     <span>{move || format!("Floor {}", controls.get().visible_level)}</span>
                     <button class="chrome round small" aria-label="Floor up" disabled={move || controls.get().visible_level >= world.with(|world| world.lot.levels)} on:click=move |_| { let max = world.with_untracked(|world| world.lot.levels); controls.update(|view| view.visible_level = (view.visible_level + 1).min(max)); }><Icon name="chevron-up"/></button>
                 </div>
-                <div class="source-control-group" role="group" aria-label="Wall visibility">
+                <div class="source-control-group source-visibility-controls" role="group" aria-label="Wall visibility">
                     {[(WallMode::Up,"Walls up"),(WallMode::Cutaway,"Cutaway"),(WallMode::Down,"Walls down")].into_iter().map(move |(mode,label)| view! {
                         <button class="chrome" aria-pressed=move || (controls.get().walls == mode).to_string() on:click=move |_| controls.update(|view| view.walls = mode)>{label}</button>
                     }).collect_view()}
