@@ -1,0 +1,63 @@
+name: Native live wire
+
+on:
+  push:
+    branches: [feat/native-live-wire]
+  pull_request:
+    paths:
+      - crates/game-runtime/**
+      - .github/workflows/native-live-wire.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-live-wire-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned compiler and browser target
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+      - name: Fetch locked dependencies
+        run: cargo fetch --locked
+      - name: Verify runtime and browser-target compilation
+        run: |
+          set -o pipefail
+          cargo test -p wonderland-game-runtime --locked 2>&1 | tee native-live-wire-tests.log
+          cargo check -p wonderland-game-runtime --target wasm32-unknown-unknown --locked
+      - name: Package exact public source and offline tools
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          mkdir -p offline-workspace
+          git archive --format=tar HEAD > offline-workspace/source.tar
+          git rev-parse HEAD > offline-workspace/revision.txt
+          git rev-parse 'HEAD^{tree}' >> offline-workspace/revision.txt
+          rustc -vV >> offline-workspace/revision.txt
+          TOOLCHAIN="$(rustup run 1.99.0 rustc --print sysroot)"
+          tar -czf offline-workspace/compiler.tar.gz -C "$TOOLCHAIN" .
+          # Only public registry sources/index/cache, never credentials or config.
+          tar -czf offline-workspace/registry.tar.gz -C "${CARGO_HOME:-$HOME/.cargo}" registry
+          sha256sum offline-workspace/*.tar* > offline-workspace/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push'
+        with:
+          name: native-live-offline-workspace
+          path: offline-workspace/
+          retention-days: 2
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-live-wire-tests
+          path: native-live-wire-tests.log
+          retention-days: 7
+          if-no-files-found: warn
