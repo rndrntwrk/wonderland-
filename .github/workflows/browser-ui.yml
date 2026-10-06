@@ -43,6 +43,8 @@ jobs:
         run: cargo test --workspace --locked
       - name: Browser audio bridge tests
         run: node --test crates/audio-runtime/browser/*.test.mjs
+      - name: Source GPU and PNG capture regression tests
+        run: node --test apps/web-shell/tests/gpu/*.test.mjs
       - name: Native clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Browser clippy

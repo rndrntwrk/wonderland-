@@ -33,10 +33,10 @@ jobs:
         run: |
           set -o pipefail
           cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings 2>&1 | tee tests/output/source-gpu/wasm-clippy.log
-      - name: Run protocol and actual WebGL2 source rendering
+      - name: Run protocol, capture, packaging and actual WebGL2 source rendering
         run: |
           set -o pipefail
-          node --test apps/web-shell/tests/gpu/protocol.test.mjs | tee tests/output/source-gpu/node-tests.log
+          node --test apps/web-shell/tests/gpu/*.test.mjs | tee tests/output/source-gpu/node-tests.log
           npm install --prefix /tmp/source-gpu-playwright --ignore-scripts --no-audit --no-fund playwright@1.62.1
           /tmp/source-gpu-playwright/node_modules/.bin/playwright install --with-deps --no-shell chromium
           WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-gpu-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/browser.mjs
