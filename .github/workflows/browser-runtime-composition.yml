@@ -1,0 +1,53 @@
+name: Browser runtime composition sources
+
+on:
+  push:
+    branches: [feat/browser-runtime-composition]
+    paths: [.github/workflows/browser-runtime-composition.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-source-pack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Export immutable source inputs without credentials or working state
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p composition-inputs
+          base22=dbc08f1f0ce0c65a6cad9ef9f7fd34fef3c2c522
+          head22=9fe3a7cd404f4aca35cd3dd6db557fe555c5eb17
+          base23=a318581f33770540808aefcf132018255a3a1d94
+          head23=102c789bb3d0bd073b68e54c00a51abbbda90da1
+          for revision in "$base22" "$head22" "$base23" "$head23"; do
+            git fetch --no-tags --depth=1 origin "$revision"
+          done
+          git archive --format=tar.gz HEAD > composition-inputs/source.tar.gz
+          git ls-tree -r -z HEAD > composition-inputs/source-tree.nul
+          mapfile -d '' runtime < <(git diff --name-only -z "$base22" "$head22")
+          mapfile -d '' graphics < <(git diff --name-only -z "$base23" "$head23")
+          test "${#runtime[@]}" -gt 0
+          test "${#graphics[@]}" -gt 0
+          git archive --format=tar.gz "$head22" -- "${runtime[@]}" > composition-inputs/runtime-overlay.tar.gz
+          git archive --format=tar.gz "$head23" -- "${graphics[@]}" > composition-inputs/gpu-overlay.tar.gz
+          git ls-tree -r -z "$head22" -- "${runtime[@]}" > composition-inputs/runtime-tree.nul
+          git ls-tree -r -z "$head23" -- "${graphics[@]}" > composition-inputs/gpu-tree.nul
+          git diff --name-status "$base22" "$head22" > composition-inputs/runtime-paths.txt
+          git diff --name-status "$base23" "$head23" > composition-inputs/gpu-paths.txt
+          printf 'ingress_base=df6b8abcbcb48b1a63717b186fc4e6ec8e0d0674\nruntime=%s\ngpu=%s\nexport=%s\n' "$head22" "$head23" "$(git rev-parse HEAD)" > composition-inputs/source-pins.txt
+          cd composition-inputs
+          sha256sum *.tar.gz *.nul *-paths.txt source-pins.txt > SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wonderland-composition-inputs-${{ github.sha }}
+          path: composition-inputs/
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
