@@ -232,22 +232,34 @@ pub fn WorldViewport(
                 Ok(value) => value.as_string(),
                 Err(reason) => {
                     let cancelled = js_sys::Reflect::get(&reason, &JsValue::from_str("name"))
-                        .ok().and_then(|value| value.as_string()).is_some_and(|name| name == "AbortError");
+                        .ok()
+                        .and_then(|value| value.as_string())
+                        .is_some_and(|name| name == "AbortError");
                     if !cancelled {
                         error.set(js_message(reason));
                     }
                     return;
                 }
             };
-            let Some(encoded) = encoded.filter(|value| value.len() <= 512) else { return; };
-            let Ok(receipt) = serde_json::from_str::<GpuPickReceipt>(&encoded) else { return; };
-            let Ok(generation) = receipt.generation.parse::<u64>() else { return; };
-            if receipt.x != x || receipt.y != y { return; }
-            let picked = runtime.try_with_value(|slot| {
-                slot.as_ref().and_then(|renderer| {
-                    renderer.resolve_gpu_pick(generation, receipt.index, x, y)
+            let Some(encoded) = encoded.filter(|value| value.len() <= 512) else {
+                return;
+            };
+            let Ok(receipt) = serde_json::from_str::<GpuPickReceipt>(&encoded) else {
+                return;
+            };
+            let Ok(generation) = receipt.generation.parse::<u64>() else {
+                return;
+            };
+            if receipt.x != x || receipt.y != y {
+                return;
+            }
+            let picked = runtime
+                .try_with_value(|slot| {
+                    slot.as_ref().and_then(|renderer| {
+                        renderer.resolve_gpu_pick(generation, receipt.index, x, y)
+                    })
                 })
-            }).flatten();
+                .flatten();
             if let Some(picked) = picked {
                 on_pick.run(picked);
             }

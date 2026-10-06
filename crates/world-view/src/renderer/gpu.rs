@@ -38,7 +38,8 @@ pub(super) struct DisplayedGpu {
     pub height: u32,
 }
 fn reserve(bytes: &mut usize, amount: usize) -> Result<(), WorldError> {
-    *bytes = bytes.checked_add(amount)
+    *bytes = bytes
+        .checked_add(amount)
         .filter(|total| *total <= MAX_UPLOAD_BYTES)
         .ok_or_else(|| WorldError("source GPU upload budget exceeded".into()))?;
     Ok(())
@@ -51,8 +52,12 @@ impl WorldRenderer {
         height: u32,
     ) -> Result<(WorldGpuFrame, WorldRenderStats), WorldError> {
         crate::scene::validate_controls(&self.document, controls)?;
-        if width == 0 || height == 0 || width > 4096 || height > 4096
-            || u64::from(width) * u64::from(height) > 1_048_576 {
+        if width == 0
+            || height == 0
+            || width > 4096
+            || height > 4096
+            || u64::from(width) * u64::from(height) > 1_048_576
+        {
             return Err(WorldError("source GPU surface budget exceeded".into()));
         }
         let rebuild = self.prepared.as_ref().is_none_or(|(previous, _)| {
@@ -68,11 +73,18 @@ impl WorldRenderer {
         }
         let scene = &self.prepared.as_ref().expect("prepared source scene").1;
         let projection = camera_projection(&self.document, controls, width as f32 / height as f32)?;
-        let generation = self.generation.checked_add(1)
+        let generation = self
+            .generation
+            .checked_add(1)
             .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
         let mut packet = WorldGpuFrame {
-            schema: 1, width, height, generation: generation.to_string(),
-            meshes: vec![], textures: vec![], draws: vec![],
+            schema: 1,
+            width,
+            height,
+            generation: generation.to_string(),
+            meshes: vec![],
+            textures: vec![],
+            draws: vec![],
         };
         // Pointer keys are disposable deduplication only, never serialized IDs.
         let mut meshes = BTreeMap::<*const Mesh, usize>::new();
@@ -95,17 +107,29 @@ impl WorldRenderer {
             let mesh = match meshes.get(&Arc::as_ptr(&part.mesh)) {
                 Some(index) => *index,
                 None => {
-                    reserve(&mut bytes, part.mesh.vertices.len() * 36 + part.mesh.indices.len() * 4)?;
+                    reserve(
+                        &mut bytes,
+                        part.mesh.vertices.len() * 36 + part.mesh.indices.len() * 4,
+                    )?;
                     let index = packet.meshes.len();
                     let mut vertices = Vec::with_capacity(part.mesh.vertices.len() * 9);
                     for vertex in &part.mesh.vertices {
                         vertices.extend_from_slice(&[
-                            vertex.position.x, vertex.position.y, vertex.position.z,
-                            vertex.uv.x, vertex.uv.y,
-                            vertex.color[0], vertex.color[1], vertex.color[2], vertex.color[3],
+                            vertex.position.x,
+                            vertex.position.y,
+                            vertex.position.z,
+                            vertex.uv.x,
+                            vertex.uv.y,
+                            vertex.color[0],
+                            vertex.color[1],
+                            vertex.color[2],
+                            vertex.color[3],
                         ]);
                     }
-                    packet.meshes.push(WorldGpuMesh { vertices, indices: part.mesh.indices.clone() });
+                    packet.meshes.push(WorldGpuMesh {
+                        vertices,
+                        indices: part.mesh.indices.clone(),
+                    });
                     meshes.insert(Arc::as_ptr(&part.mesh), index);
                     index
                 }
@@ -114,7 +138,10 @@ impl WorldRenderer {
                 Some(match textures.get(&Arc::as_ptr(image)) {
                     Some(index) => *index,
                     None => {
-                        if image.width > 4096 || image.height > 4096 || packet.textures.len() >= 65_535 {
+                        if image.width > 4096
+                            || image.height > 4096
+                            || packet.textures.len() >= 65_535
+                        {
                             return Err(WorldError("source GPU texture budget exceeded".into()));
                         }
                         reserve(&mut bytes, image.pixels.len() * 4)?;
@@ -124,41 +151,76 @@ impl WorldRenderer {
                         index
                     }
                 })
-            } else { None };
+            } else {
+                None
+            };
             let pick_id = match pick_target(&self.document, part, controls) {
-                Some(target) => { hits.push(target); hits.len() as u32 },
+                Some(target) => {
+                    hits.push(target);
+                    hits.len() as u32
+                }
                 None => 0,
             };
             packet.draws.push(WorldGpuDraw {
-                mesh, texture, matrix: std::array::from_fn(|i| matrix.cols[i / 4][i % 4]),
-                pick_id, depth_equal: part.object.is_some(),
+                mesh,
+                texture,
+                matrix: std::array::from_fn(|i| matrix.cols[i / 4][i % 4]),
+                pick_id,
+                depth_equal: part.object.is_some(),
             });
             triangles += part.mesh.indices.len() / 3;
         }
         let stats = WorldRenderStats {
-            width, height, parts: packet.draws.len(), triangles, diagnostics: scene.diagnostics.clone(),
+            width,
+            height,
+            parts: packet.draws.len(),
+            triangles,
+            diagnostics: scene.diagnostics.clone(),
         };
         self.generation = generation;
         self.raster = None;
         self.gpu = Some(DisplayedGpu {
-            hits, revision: self.document.revision, generation, width, height,
+            hits,
+            revision: self.document.revision,
+            generation,
+            width,
+            height,
         });
         Ok((packet, stats))
     }
 
     /// The browser must supply the actual offscreen RGB24 readback for this frame.
     /// This resolves a visual selection only; the server still validates actions.
-    pub fn resolve_gpu_pick(&self, generation: u64, index: u32, x: u32, y: u32) -> Option<WorldPick> {
+    pub fn resolve_gpu_pick(
+        &self,
+        generation: u64,
+        index: u32,
+        x: u32,
+        y: u32,
+    ) -> Option<WorldPick> {
         let displayed = self.gpu.as_ref()?;
-        if generation != self.generation || generation != displayed.generation
-            || displayed.revision != self.document.revision || x >= displayed.width || y >= displayed.height {
+        if generation != self.generation
+            || generation != displayed.generation
+            || displayed.revision != self.document.revision
+            || x >= displayed.width
+            || y >= displayed.height
+        {
             return None;
         }
         let target = displayed.hits.get(index.checked_sub(1)? as usize)?.clone();
-        if let WorldPickTarget::Object { entity: Some(entity), .. } = &target {
+        if let WorldPickTarget::Object {
+            entity: Some(entity),
+            ..
+        } = &target
+        {
             let frames = self.frames.as_ref()?;
             frames.resolve_pick(&frames.pick_ticket(*entity)?)?;
         }
-        Some(WorldPick { revision: displayed.revision, frame_generation: generation, target, screen: [x, y] })
+        Some(WorldPick {
+            revision: displayed.revision,
+            frame_generation: generation,
+            target,
+            screen: [x, y],
+        })
     }
 }

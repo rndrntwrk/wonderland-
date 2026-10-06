@@ -337,34 +337,38 @@ fn outside_frustum(mesh: &wonderland_render_core::Mesh, matrix: Mat4) -> bool {
     outside.into_iter().any(|value| value)
 }
 
-fn pick_target(document: &WorldDocument, part: &ScenePart, controls: ViewportControls) -> Option<WorldPickTarget> {
+fn pick_target(
+    document: &WorldDocument,
+    part: &ScenePart,
+    controls: ViewportControls,
+) -> Option<WorldPickTarget> {
     if let Some(index) = part.object {
-                let object = &document.objects[index];
-                object.selectable.then_some(WorldPickTarget::Object {
-                    entity: object.entity,
-                    source_guid: object.source_guid,
-                    source_record: object
-                        .blueprint
-                        .map(|source| source.record)
-                        .or_else(|| object.snapshot.map(|source| source.record)),
-                })
-            } else if let (Some((x, y, level)), Some(surface)) = (part.tile, part.surface) {
-                (level == controls.visible_level
-                    && matches!(
-                        surface,
-                        WorldSurface::Terrain
-                            | WorldSurface::Floor
-                            | WorldSurface::Water
-                            | WorldSurface::Pool
-                            | WorldSurface::BuildSupport
-                    ))
-                .then_some(WorldPickTarget::Tile {
-                    x,
-                    y,
-                    level,
-                    surface,
-                })
-            } else {
-                None
-            }
+        let object = &document.objects[index];
+        object.selectable.then_some(WorldPickTarget::Object {
+            entity: object.entity,
+            source_guid: object.source_guid,
+            source_record: object
+                .blueprint
+                .map(|source| source.record)
+                .or_else(|| object.snapshot.map(|source| source.record)),
+        })
+    } else if let (Some((x, y, level)), Some(surface)) = (part.tile, part.surface) {
+        (level == controls.visible_level
+            && matches!(
+                surface,
+                WorldSurface::Terrain
+                    | WorldSurface::Floor
+                    | WorldSurface::Water
+                    | WorldSurface::Pool
+                    | WorldSurface::BuildSupport
+            ))
+        .then_some(WorldPickTarget::Tile {
+            x,
+            y,
+            level,
+            surface,
+        })
+    } else {
+        None
+    }
 }

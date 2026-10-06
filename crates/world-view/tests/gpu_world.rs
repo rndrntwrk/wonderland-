@@ -31,11 +31,23 @@ fn gpu_results_are_frame_scoped_bounded_and_invalidated_on_redraw_or_loss() {
     let mut renderer = WorldRenderer::new(fixture()).unwrap();
     let (frame, _) = renderer.prepare_gpu(Default::default(), 128, 96).unwrap();
     let generation = frame.generation.parse().unwrap();
-    let id = frame.draws.iter().find(|draw| draw.pick_id > 0).unwrap().pick_id;
+    let id = frame
+        .draws
+        .iter()
+        .find(|draw| draw.pick_id > 0)
+        .unwrap()
+        .pick_id;
     let pick = renderer.resolve_gpu_pick(generation, id, 64, 48).unwrap();
-    assert!(matches!(pick.target, WorldPickTarget::Tile { level: 1, .. }));
+    assert!(matches!(
+        pick.target,
+        WorldPickTarget::Tile { level: 1, .. }
+    ));
     assert!(renderer.resolve_gpu_pick(generation, 0, 64, 48).is_none());
-    assert!(renderer.resolve_gpu_pick(generation, u32::MAX, 64, 48).is_none());
+    assert!(
+        renderer
+            .resolve_gpu_pick(generation, u32::MAX, 64, 48)
+            .is_none()
+    );
     assert!(renderer.resolve_gpu_pick(generation, id, 128, 48).is_none());
     renderer.prepare_gpu(Default::default(), 256, 192).unwrap();
     assert!(renderer.resolve_gpu_pick(generation, id, 64, 48).is_none());
@@ -52,8 +64,10 @@ fn reference_raster_and_gpu_frames_cannot_reuse_each_others_hits() {
     let generation = frame.generation.parse().unwrap();
     renderer.render(Default::default(), 128, 96).unwrap();
     assert!(renderer.resolve_gpu_pick(generation, 1, 64, 48).is_none());
-    let cpu_pick = (0..96).flat_map(|y| (0..128).map(move |x| (x,y)))
-        .find_map(|(x,y)| renderer.pick(x,y)).unwrap();
+    let cpu_pick = (0..96)
+        .flat_map(|y| (0..128).map(move |x| (x, y)))
+        .find_map(|(x, y)| renderer.pick(x, y))
+        .unwrap();
     renderer.prepare_gpu(Default::default(), 128, 96).unwrap();
     assert!(renderer.resolve_pick(&cpu_pick).is_none());
 }
@@ -62,7 +76,11 @@ fn reference_raster_and_gpu_frames_cannot_reuse_each_others_hits() {
 fn gpu_surface_limits_fail_without_admitting_a_partial_frame() {
     let mut renderer = WorldRenderer::new(fixture()).unwrap();
     for (width, height) in [(0, 96), (128, 0), (4097, 1), (1025, 1024)] {
-        assert!(renderer.prepare_gpu(Default::default(), width, height).is_err());
+        assert!(
+            renderer
+                .prepare_gpu(Default::default(), width, height)
+                .is_err()
+        );
     }
     let (frame, _) = renderer.prepare_gpu(Default::default(), 128, 96).unwrap();
     assert_eq!(frame.generation, "1");
