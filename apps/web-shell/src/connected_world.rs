@@ -1,24 +1,90 @@
 //! The original server's accepted snapshot, with explicitly separate VM playback.
 use crate::{
+    avatar_content::ContentUi,
     components::Icon,
     connected_adapter::state::Panel,
     connected_authoring::{AuthoringPanelKind, ConnectedAuthoringPanel, SourceAuthoringUi},
     connected_bridge::ConnectedUi,
     live_world_adapter::{FrameError, LiveWorldIdentity, SourceFrameGate},
+    snapshot_avatar::SnapshotAvatarProjection,
     snapshot_world::snapshot_world,
+    source_needs::{SOURCE_NEED_LABELS, source_needs},
     world_renderer::WorldViewport,
 };
 use leptos::prelude::*;
-use std::sync::Arc;
+use std::{collections::BTreeMap, sync::Arc};
+use wonderland_avatar_content::ImportedContent;
 use wonderland_game_services::{GatewayOperation, SessionState};
 use wonderland_player_authoring::{EntityIdentity, Placement};
+use wonderland_render_core::{AssetKey, RenderLimits, RgbaImage};
 use wonderland_vm_protocol::{
     Snapshot,
     snapshot::{Appearance, EntityPlatform},
 };
 use wonderland_world_view::{
-    ViewportControls, WallMode, WorldDocument, WorldPick, WorldPickTarget,
+    ViewportControls, WallMode, WorldDiagnostic, WorldDocument, WorldPick, WorldPickTarget,
 };
+
+async fn decode_texture(
+    content: &ImportedContent,
+    key: AssetKey,
+    remaining: usize,
+) -> Result<RgbaImage, String> {
+    use wasm_bindgen::JsValue;
+    let source = content
+        .textures
+        .get(&key)
+        .ok_or("Original avatar texture is absent.")?;
+    let limits = RenderLimits::default();
+    let promise = crate::avatar_renderer::decode_avatar_texture(
+        &js_sys::Uint8Array::from(source.bytes.as_slice()),
+        source.mime,
+        remaining.min(limits.max_texture_pixels) as u32,
+        limits.max_image_dimension,
+    );
+    let value = wasm_bindgen_futures::JsFuture::from(promise)
+        .await
+        .map_err(|error| {
+            js_sys::Reflect::get(&error, &JsValue::from_str("message"))
+                .ok()
+                .and_then(|value| value.as_string())
+                .or_else(|| error.as_string())
+                .unwrap_or_else(|| "Original avatar texture could not be decoded.".into())
+        })?;
+    let field = |name: &str| {
+        js_sys::Reflect::get(&value, &JsValue::from_str(name))
+            .map_err(|_| "Invalid original texture decoder result.".to_string())
+    };
+    let dimension = |name: &str| -> Result<u32, String> {
+        let number = field(name)?
+            .as_f64()
+            .ok_or("Invalid original texture dimensions.")?;
+        if !number.is_finite()
+            || number <= 0.
+            || number.fract() != 0.
+            || number > f64::from(limits.max_image_dimension)
+        {
+            return Err("Invalid original texture dimensions.".into());
+        }
+        Ok(number as u32)
+    };
+    let (width, height) = (dimension("width")?, dimension("height")?);
+    let bytes = js_sys::Uint8Array::new(&field("pixels")?);
+    let count = RgbaImage::checked_pixel_count(width, height, &limits)
+        .map_err(|issue| issue.to_string())?;
+    if count > remaining || bytes.length() as usize != count * 4 {
+        return Err("Original texture pixels do not match the bounded dimensions.".into());
+    }
+    let image = RgbaImage {
+        width,
+        height,
+        pixels: bytes.to_vec().as_chunks::<4>().0.to_vec(),
+    };
+    content
+        .validate_decoded_texture(key, &image)
+        .map_err(|issue| issue.to_string())?;
+    Ok(image)
+}
 
 #[derive(Clone)]
 struct QueueCard {
@@ -61,10 +127,14 @@ fn own_queue(snapshot: &Snapshot, avatar: u32) -> Option<Vec<QueueCard>> {
 #[component]
 pub fn ConnectedLotView() -> impl IntoView {
     let ui = expect_context::<ConnectedUi>();
+    let content = expect_context::<ContentUi>();
     let authoring = expect_context::<SourceAuthoringUi>();
     let gate = StoredValue::new(SourceFrameGate::default());
     let world = RwSignal::new(None::<Arc<WorldDocument>>);
+    let accepted_world = RwSignal::new(None::<Arc<WorldDocument>>);
     let snapshot = RwSignal::new(None::<Arc<Snapshot>>);
+    let resource_generation = StoredValue::new(0u64);
+    let texture_cache = StoredValue::new(BTreeMap::<AssetKey, RgbaImage>::new());
     let controls = RwSignal::new(ViewportControls::default());
     let selected = RwSignal::new(None::<WorldPick>);
     let stale = RwSignal::new(false);
@@ -96,6 +166,7 @@ pub fn ConnectedLotView() -> impl IntoView {
             gate.update_value(|gate| gate.reset(current));
             authoring.invalidate_world_projection();
             world.set(None);
+            accepted_world.set(None);
             snapshot.set(None);
             selected.set(None);
             stale.set(false);
@@ -146,7 +217,7 @@ pub fn ConnectedLotView() -> impl IntoView {
                             controls.update(|controls| {
                                 controls.visible_level = controls.visible_level.clamp(1, levels)
                             });
-                            world.set(Some(Arc::new(document)));
+                            accepted_world.set(Some(Arc::new(document)));
                             selected.set(None);
                             if let Some(entity) = source
                                 .entities
@@ -157,8 +228,7 @@ pub fn ConnectedLotView() -> impl IntoView {
                                     Appearance::Avatar(avatar),
                                 ) = (&entity.platform, &entity.appearance)
                             {
-                                let motives = [5, 6, 7, 8, 9, 13, 14, 15]
-                                    .map(|index| avatar.motives.get(index).copied());
+                                let motives = source_needs(&avatar.motives);
                                 ui.state.update(|state| {
                                     if state.ledger.epoch != current.browser_epoch
                                         || state.session.as_ref().is_none_or(|session| {
@@ -176,10 +246,7 @@ pub fn ConnectedLotView() -> impl IntoView {
                                         .find(|entry| entry.avatar_id == current.avatar_id)
                                     {
                                         entry.money = Some(i64::from(*budget));
-                                        entry.motives = motives
-                                            .into_iter()
-                                            .collect::<Option<Vec<_>>>()
-                                            .and_then(|values| values.try_into().ok());
+                                        entry.motives = motives;
                                     }
                                 });
                             }
@@ -219,7 +286,100 @@ pub fn ConnectedLotView() -> impl IntoView {
             }
         }
     });
+    // Resource work has its own cancellation fence. It never re-admits a VM
+    // frame or changes source object/architecture generations when files load.
+    Effect::new(move |_| {
+        let source = snapshot.get();
+        let accepted = accepted_world.get();
+        let bank = content.imported.get();
+        let owner = identity.get();
+        resource_generation.update_value(|value| *value = value.wrapping_add(1));
+        let generation = resource_generation.get_value();
+        selected.set(None);
+        let (Some(source), Some(accepted)) = (source, accepted) else {
+            world.set(None);
+            return;
+        };
+        world.set(Some(Arc::clone(&accepted)));
+        let Some(bank) = bank else {
+            texture_cache.update_value(BTreeMap::clear);
+            return;
+        };
+        let projection = match SnapshotAvatarProjection::prepare(&source, &accepted, &bank) {
+            Ok(projection) => projection,
+            Err(issue) => {
+                let mut document = (*accepted).clone();
+                document.diagnostics.push(WorldDiagnostic {
+                    code: "unsupported_avatar_projection".into(),
+                    resource: "avatars".into(),
+                    message: issue.to_string(),
+                });
+                world.set(Some(Arc::new(document)));
+                return;
+            }
+        };
+        texture_cache
+            .update_value(|cache| cache.retain(|key, _| projection.texture_keys().contains(key)));
+        let mut decoded = texture_cache.get_value();
+        wasm_bindgen_futures::spawn_local(async move {
+            let mut issues = vec![];
+            let mut pixels = decoded
+                .values()
+                .map(|image| image.pixels.len())
+                .sum::<usize>();
+            for &key in projection.texture_keys() {
+                if resource_generation.try_with_value(|value| *value) != Some(generation) {
+                    return;
+                }
+                if decoded.contains_key(&key) {
+                    continue;
+                }
+                match decode_texture(
+                    &bank,
+                    key,
+                    RenderLimits::default()
+                        .max_texture_pixels
+                        .saturating_sub(pixels),
+                )
+                .await
+                {
+                    Ok(image) => {
+                        pixels += image.pixels.len();
+                        decoded.insert(key, image);
+                    }
+                    Err(message) => issues.push(WorldDiagnostic {
+                        code: "missing_avatar_texture".into(),
+                        resource: format!("texture:{key:?}"),
+                        message,
+                    }),
+                }
+            }
+            if resource_generation.try_with_value(|value| *value) != Some(generation)
+                || identity.try_get_untracked() != Some(owner)
+            {
+                return;
+            }
+            texture_cache.set_value(decoded.clone());
+            let mut document = (*accepted).clone();
+            match projection.apply(&mut document, &bank, &decoded) {
+                Ok(()) => {
+                    document.diagnostics.extend(issues);
+                    world.set(Some(Arc::new(document)));
+                }
+                Err(issue) => {
+                    let mut document = (*accepted).clone();
+                    document.diagnostics.push(WorldDiagnostic {
+                        code: "unsupported_avatar_projection".into(),
+                        resource: "avatars".into(),
+                        message: issue.to_string(),
+                    });
+                    world.set(Some(Arc::new(document)));
+                }
+            }
+        });
+    });
     on_cleanup(move || {
+        resource_generation.try_update_value(|value| *value = value.wrapping_add(1));
         if let Some(owner) = gate.try_with_value(|gate| gate.identity()).flatten() {
             ui.state.try_update(|state| {
                 // A new incarnation may already have supplied its own values.
@@ -288,6 +448,13 @@ pub fn ConnectedLotView() -> impl IntoView {
                         .as_ref()
                         .filter(|source| source.record == *record)
                 }) {
+                    if source.avatar {
+                        if source.persistent_id != 0 {
+                            ui.select_person(source.persistent_id);
+                        }
+                        selected.set(Some(pick));
+                        return;
+                    }
                     authoring.selected_entity.set(Some(EntityIdentity {
                         object_id: source.object_id,
                         incarnation: source.presentation_generation,
@@ -332,7 +499,7 @@ pub fn ConnectedLotView() -> impl IntoView {
                 <div class="source-control-group"><button class="chrome" on:click=move |_|authoring_panel.set(Some(AuthoringPanelKind::Catalog))><Icon name="shopping-cart"/>"Buy"</button><button class="chrome" on:click=move |_|authoring_panel.set(Some(AuthoringPanelKind::Build))><Icon name="hammer"/>"Build"</button><button class="chrome" on:click=move |_|needs_open.update(|open|*open = !*open)>"Needs"</button></div>
             </nav>
             <Show when=move ||authoring_panel.get().is_some()><aside class="connected-world-authoring chrome" aria-label="Edit this property"><header><h2>{move ||match authoring_panel.get(){Some(AuthoringPanelKind::Catalog)=>"Buy objects",Some(AuthoringPanelKind::Build)=>"Build",Some(AuthoringPanelKind::Object)=>"Object actions",_=>"Wardrobe"}}</h2><button class="chrome round small" aria-label="Close property editor" on:click=move |_|authoring_panel.set(None)><Icon name="x"/></button></header>{move ||authoring_panel.get().map(|kind|view!{<ConnectedAuthoringPanel kind/>})}</aside></Show>
-            <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Your Sim’s needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><p>{move ||ui.state.with(|state|state.active_entry().map(|entry|entry.name.clone()).unwrap_or_default())}</p><p>{move ||ui.state.with(|state|state.active_entry().and_then(|entry|entry.money).map(|money|format!("§ {money}")).unwrap_or_else(||"Waiting for balance".into()))}</p><div class="connected-source-needs">{["Energy","Comfort","Hunger","Hygiene","Bladder","Room","Social","Fun"].into_iter().enumerate().map(move |(index,label)|view!{<label><span>{label}</span>{move ||ui.state.with(|state|state.active_entry().and_then(|entry|entry.motives).map(|needs|view!{<progress max="100" value=((i32::from(needs[index])+100)/2).clamp(0,100)>{format!("{}",needs[index])}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any()))}</label>}).collect_view()}</div><button class="chrome" on:click=move |_|ui.panel(Panel::Profile)>"Open profile"</button></aside></Show>
+            <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Your Sim’s needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><p>{move ||ui.state.with(|state|state.active_entry().map(|entry|entry.name.clone()).unwrap_or_default())}</p><p>{move ||ui.state.with(|state|state.active_entry().and_then(|entry|entry.money).map(|money|format!("§ {money}")).unwrap_or_else(||"Waiting for balance".into()))}</p><div class="connected-source-needs">{SOURCE_NEED_LABELS.into_iter().enumerate().map(move |(index,label)|view!{<label><span>{label}</span>{move ||ui.state.with(|state|state.active_entry().and_then(|entry|entry.motives).map(|needs|view!{<progress max="100" value=((i32::from(needs[index])+100)/2).clamp(0,100)>{format!("{}",needs[index])}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any()))}</label>}).collect_view()}</div><button class="chrome" on:click=move |_|ui.panel(Panel::Profile)>"Open profile"</button></aside></Show>
         </section>
     }
 }

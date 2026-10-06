@@ -5,10 +5,12 @@ use crate::{
     connected_adapter::{state::*, *},
     connected_bridge::{ConnectedUi, focus},
 };
+use leptos::leptos_dom::helpers::request_animation_frame;
 use leptos::prelude::*;
 use serde_json::Value;
 use wonderland_contracts::authoring::{AppearanceSelection, ContentKey};
 use wonderland_game_services::*;
+use wonderland_vm_protocol::chat::SourceChatKind;
 
 #[component]
 pub fn ConnectedPanels() -> impl IntoView {
@@ -122,13 +124,13 @@ fn ProfilePanel() -> impl IntoView {
             <div class="connected-profile-hero"><span class="connected-profile-portrait"><Icon name="users"/></span><div><h3>{move ||source_text(&profile.get(),"name")}</h3><p>{move ||ui.state.with(|s|s.shards.iter().find(|shard|Some(shard.id)==source_u32(&profile.get(),"shard_id")).map(|shard|shard.name.clone()).unwrap_or_default())}</p></div></div>
             <p class="connected-description">{move ||{let text=source_text(&profile.get(),"description");if text.is_empty(){"No description yet.".into()}else{text}}}</p>
             <dl class="connected-facts"><dt>"Gender"</dt><dd>{move ||source_enum(&profile.get(),"gender",&["Male","Female"])}</dd><dt>"Current job"</dt><dd>{move ||match source_u32(&profile.get(),"current_job"){Some(0)=>"No current job".to_owned(),Some(_)=>"Job title has not been supplied".to_owned(),None=>"Not supplied".to_owned()}}</dd><dt>"Joined"</dt><dd>{move ||date_seconds(&profile.get(),"date")}</dd></dl>
-            <div class="connected-action-row"><button class="chrome primary" disabled=move ||!can(ui,"private_message","Private message") on:click=move |_|{if let Some(id)=id.get_untracked(){ui.state.update(|s|{s.ledger.select_conversation(id);s.panel=Some(Panel::Chat);});}}>"Message"</button><button class="chrome" disabled=move ||!can(ui,"mail","Send mail") on:click=move |_|{if let Some(id)=id.get_untracked(){ui.state.update(|s|{s.ledger.selected_person=Some(id);s.panel=Some(Panel::Inbox);});ui.draft("mail:recipient",id.to_string());}}>"Write mail"</button><button class="chrome" disabled=move ||!can(ui,"city","Find Sim") on:click=move |_|if let Some(id)=id.get_untracked(){ui.send(GatewayOperation::FindAvatar {avatar_id:id},"Find Sim",None);}>"Find in world"</button></div>
+            <div class="connected-action-row"><button class="chrome primary" disabled=move ||!can(ui,"private_message","Private message") on:click=move |_|{if let Some(id)=id.get_untracked(){ui.state.update(|s|s.select_private_conversation(id));}}>"Message"</button><button class="chrome" disabled=move ||!can(ui,"mail","Send mail") on:click=move |_|{if let Some(id)=id.get_untracked(){ui.state.update(|s|{s.ledger.selected_person=Some(id);s.panel=Some(Panel::Inbox);});ui.draft("mail:recipient",id.to_string());}}>"Write mail"</button><button class="chrome" disabled=move ||!can(ui,"city","Find Sim") on:click=move |_|if let Some(id)=id.get_untracked(){ui.send(GatewayOperation::FindAvatar {avatar_id:id},"Find Sim",None);}>"Find in world"</button></div>
             <OperationFeedback label="Find Sim"/><Show when=move ||found_location.get().is_some()><button class="chrome" on:click=move |_|{
                 let location=found_location.get_untracked();let shard=ui.state.with_untracked(|s|s.shard().map(|s|s.id));if let (Some(location),Some(shard_id))=(location,shard){ui.query("property",DirectoryQuery::LotByLocation {shard_id,location});ui.state.update(|s|s.panel=Some(Panel::Property));}
             }>"Open their property"</button></Show>
             <CapabilityNote capability="private_message"/>
             <h4>"Relationships & bookmarks"</h4><CapabilityNote capability="bookmarks"/>
-            <h4>"Skills & needs"</h4><Show when=move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).is_some()) fallback=||view!{<p class="connected-muted">"Live needs have not been supplied for this Sim."</p>}><div class="connected-needs">{move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).map(|needs|["Hunger","Comfort","Hygiene","Bladder","Energy","Fun","Social","Room"].into_iter().zip(needs).map(|(name,value)|view!{<span><strong>{name}</strong><span>{value}</span></span>}).collect_view()))}</div></Show>
+            <h4>"Skills & needs"</h4><Show when=move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).is_some()) fallback=||view!{<p class="connected-muted">"Live needs have not been supplied for this Sim."</p>}><div class="connected-needs">{move ||ui.state.with(|s|s.roster.iter().find(|entry|Some(entry.avatar_id)==id.get()).and_then(|entry|entry.motives).map(|needs|crate::source_needs::SOURCE_NEED_LABELS.into_iter().zip(needs).map(|(name,value)|view!{<span><strong>{name}</strong><span>{value}</span></span>}).collect_view()))}</div></Show>
             <CapabilityNote capability="profile_edit"/>
             <Show when=move ||ui.state.with(|s|s.session.as_ref().and_then(|s|s.avatar_id)==id.get()&&s.roster.iter().any(|entry|Some(entry.avatar_id)==id.get()))>
                 <details class="connected-more"><summary>"Manage this Sim"</summary><p>"Retirement permanently removes this Sim from your account. The world checks whether retirement is allowed."</p><button class="chrome danger" disabled=move ||!can(ui,"retire_avatar","Retire Sim") on:click=move |_|confirm.set(true)>"Retire Sim…"</button><OperationFeedback label="Retire Sim"/></details>
@@ -279,11 +281,44 @@ fn OptionsPanel() -> impl IntoView {
 #[component]
 fn ChatPanel() -> impl IntoView {
     let ui = expect_context::<ConnectedUi>();
-    let lot = RwSignal::new(false);
+    let lot = Memo::new(move |_| ui.state.with(|s| s.chat_lot));
+    let log = NodeRef::<leptos::html::Div>::new();
+    let source_messages = Memo::new(move |_| ui.state.with(|s| s.lot_chat.visible_messages()));
+    let source_revision =
+        Memo::new(move |_| ui.state.with(|s| (s.chat_lot, s.lot_chat.display_revision)));
+    Effect::new(move |_| {
+        let (is_lot, _) = source_revision.get();
+        if !is_lot || log.get().is_none() {
+            return;
+        }
+        let key = ui.state.with_untracked(|s| s.lot_chat.draft_key());
+        request_animation_frame(move || {
+            let Some((top, at_bottom)) = ui
+                .state
+                .try_with_untracked(|s| {
+                    (s.chat_lot && s.panel == Some(Panel::Chat) && s.lot_chat.draft_key() == key)
+                        .then_some((s.lot_chat.scroll_top, s.lot_chat.at_bottom))
+                })
+                .flatten()
+            else {
+                return;
+            };
+            if let Some(element) = log.get_untracked() {
+                element.set_scroll_top(if at_bottom {
+                    element.scroll_height()
+                } else {
+                    top
+                });
+                if at_bottom {
+                    ui.state.try_update(|s| s.lot_chat.mark_read());
+                }
+            }
+        });
+    });
     let target = Memo::new(move |_| ui.state.with(|s| s.ledger.selected_person));
     let key = move || {
         if lot.get() {
-            "lot:chat".to_owned()
+            ui.state.with(|s| s.lot_chat.draft_key())
         } else {
             format!("private:{}", target.get().unwrap_or(0))
         }
@@ -295,6 +330,9 @@ fn ChatPanel() -> impl IntoView {
             return;
         }
         if lot.get_untracked() {
+            if !ui.state.with_untracked(|s| s.lot_chat.ready) {
+                return;
+            }
             ui.send(
                 GatewayOperation::LotChat { message: body },
                 "Lot chat",
@@ -312,22 +350,60 @@ fn ChatPanel() -> impl IntoView {
             );
         }
     };
+    let can_send = move || {
+        can(
+            ui,
+            if lot.get() {
+                "lot_chat"
+            } else {
+                "private_message"
+            },
+            if lot.get() {
+                "Lot chat"
+            } else {
+                "Private message"
+            },
+        ) && if lot.get() {
+            ui.state.with(|s| s.lot_chat.ready)
+        } else {
+            target.get().is_some()
+        }
+    };
     view! {
-        <nav class="connected-tabs" aria-label="Chat type"><button class="chrome" aria-pressed=move ||(!lot.get()).to_string() on:click=move |_|lot.set(false)>"Private messages"</button><button class="chrome" aria-pressed=move ||lot.get().to_string() on:click=move |_|lot.set(true)>"Lot chat"</button></nav>
+        <nav class="connected-tabs" aria-label="Chat type"><button class="chrome" aria-pressed=move ||(!lot.get()).to_string() on:click=move |_|ui.state.update(|s|{s.chat_lot=false;if let Some(person)=s.ledger.selected_person{s.ledger.select_conversation(person);}})>"Private messages"</button><button class="chrome" aria-pressed=move ||lot.get().to_string() on:click=move |_|ui.state.update(|s|{s.chat_lot=true;if s.lot_chat.at_bottom{s.lot_chat.mark_read();}})>"Lot chat"<span class="connected-unread">{move ||ui.state.with(|s|{let count=s.lot_chat.unread_count();if count>0 {count.to_string()} else {String::new()}})}</span></button></nav>
         <Show when=move ||!lot.get()>
             <div class="connected-conversations"><For each=move ||ui.state.with(|s|{
                 let mut people=std::collections::BTreeSet::new();
                 for event in &s.events {if event.family=="instant_message"&& let Some(id)=source_u32(&event.data,"from"){people.insert(id);}}
                 for operation in s.sent.values(){if let GatewayOperation::PrivateMessage {target_avatar_id,..}=operation{people.insert(*target_avatar_id);}}
                 if let Some(id)=s.ledger.selected_person{people.insert(id);}people.into_iter().collect::<Vec<_>>()
-            }) key=|id|*id children=move |id|view!{<button class="chrome" aria-pressed=move ||(target.get()==Some(id)).to_string() on:click=move |_|ui.state.update(|s|s.ledger.select_conversation(id))>{move ||person_name(&ui.state.get(),id)}<span class="connected-unread">{move ||ui.state.with(|s|s.ledger.unread.get(&id).copied().filter(|n|*n>0).map(|n|n.to_string()).unwrap_or_default())}</span></button>}/><button class="chrome" on:click=move |_|ui.panel(Panel::People)><Icon name="plus"/>"Choose a Sim"</button></div>
+            }) key=|id|*id children=move |id|view!{<button class="chrome" aria-pressed=move ||(target.get()==Some(id)).to_string() on:click=move |_|ui.state.update(|s|s.select_private_conversation(id))>{move ||person_name(&ui.state.get(),id)}<span class="connected-unread">{move ||ui.state.with(|s|s.ledger.unread.get(&id).copied().filter(|n|*n>0).map(|n|n.to_string()).unwrap_or_default())}</span></button>}/><button class="chrome" on:click=move |_|ui.panel(Panel::People)><Icon name="plus"/>"Choose a Sim"</button></div>
         </Show>
-        <div class="connected-chat-log" role="log" aria-live="polite" aria-label="Messages">
+        <Show when=move ||lot.get()&&ui.state.with(|s|s.lot_chat.channels.len()>1)>
+            <details class="connected-more"><summary>"Show channels"</summary><div class="connected-action-row"><For each=move ||ui.state.with(|s|s.lot_chat.channels.clone()) key=|channel|(channel.id,channel.name.clone(),channel.description.clone(),channel.private) children=move |channel|{let id=channel.id;view!{<button class="chrome" type="button" title=channel.description aria-pressed=move ||ui.state.with(|s|s.lot_chat.channel_shown(id)).to_string() on:click=move |_|ui.state.update(|s|{s.lot_chat.toggle_channel(id);if s.lot_chat.at_bottom{s.lot_chat.mark_read();}})>{channel.name}{if channel.private {" · Private"} else {""}}</button>}}/></div></details>
+        </Show>
+        <div node_ref=log class="connected-chat-log" role="log" aria-live="polite" aria-relevant="additions" aria-label=move ||if lot.get(){"Lot messages"}else{"Private messages"} on:scroll=move |_|{
+            if lot.get_untracked()&&ui.state.with_untracked(|s|s.lot_chat.ready)&&let Some(element)=log.get_untracked(){let top=element.scroll_top();let at_bottom=element.scroll_height()-element.client_height()-top<=2;ui.state.update(|s|{s.lot_chat.set_scroll(top,at_bottom);if at_bottom{s.lot_chat.mark_read();}});}
+        }>
+            <Show when=move ||lot.get()>
+                <For each=move ||source_messages.get() key=|event|event.id.clone() children=move |event|{
+                    let message=event.message;
+                    let outgoing=ui.state.with_untracked(|s|s.session.as_ref().and_then(|session|session.avatar_id)==Some(message.sender_uid));
+                    if message.kind==SourceChatKind::Join {
+                        view!{<div class="connected-message"><small>{format!("{} joined the lot.",message.sender_name)}</small></div>}.into_any()
+                    } else {
+                        let channel=if message.channel_id==Some(0){String::new()}else{format!(" · {}{}",message.channel_name.unwrap_or_default(),if message.private{" (private)"}else{""})};
+                        let color=format!("color:rgb({},{},{})",message.sender_color[0],message.sender_color[1],message.sender_color[2]);
+                        view!{<div class="connected-message" class:outgoing=outgoing><small><strong style=color>{message.sender_name}</strong>{channel}</small><p>{message.text}</p></div>}.into_any()
+                    }
+                }/>
+            </Show>
+            <Show when=move ||!lot.get()>
             {move ||ui.state.with(|s|{
                 let mut messages=Vec::new();
                 if !lot.get(){for event in &s.events {if event.family=="instant_message"&&source_u32(&event.data,"from")==target.get(){messages.push((source_text(&event.data,"message"),false,"Received".to_owned()));}}}
                 for (id,operation) in &s.sent {
-                    let body=match operation {GatewayOperation::PrivateMessage {target_avatar_id,message,..} if !lot.get()&&Some(*target_avatar_id)==target.get()=>Some(message),GatewayOperation::LotChat {message} if lot.get()=>Some(message),_=>None};
+                    let body=match operation {GatewayOperation::PrivateMessage {target_avatar_id,message,..} if !lot.get()&&Some(*target_avatar_id)==target.get()=>Some(message),_=>None};
                     if let Some(body)=body {
                         let status=s.ledger.operations.get(id).map(|o|match &o.status {OperationStatus::Accepted(_)=>"Delivered",OperationStatus::Rejected(_)=>"Not delivered",OperationStatus::Unknown(_)=>"Delivery unknown",_=>"Sending…"}).unwrap_or("Delivery unknown");
                         messages.push((body.clone(),true,status.into()));
@@ -335,9 +411,12 @@ fn ChatPanel() -> impl IntoView {
                 }
                 messages.into_iter().map(|(body,outgoing,status)|view!{<div class="connected-message" class:outgoing=outgoing><p>{body}</p><small>{status}</small></div>}).collect_view()
             })}
+            </Show>
         </div>
+        <Show when=move ||lot.get()&&ui.state.with(|s|!s.lot_chat.at_bottom)><button class="chrome" type="button" on:click=move |_|{if let Some(element)=log.get_untracked(){element.set_scroll_top(element.scroll_height());ui.state.update(|s|{s.lot_chat.set_scroll(element.scroll_top(),true);s.lot_chat.mark_read();});}}>"Jump to latest"{move ||ui.state.with(|s|{let count=s.lot_chat.unread_count();if count>0{format!(" ({count} new)")}else{String::new()}})}</button></Show>
+        <Show when=move ||lot.get()&&source_messages.get().is_empty()><p class="connected-empty">{move ||ui.state.with(|s|if s.lot_chat.ready {"No messages have arrived in the selected lot channels yet."}else{"Lot chat is waiting for the lot’s player information."})}</p></Show>
         <Show when=move ||!lot.get()&&target.get().is_none()><p class="connected-empty">"Choose a Sim to start a conversation."</p></Show>
-        <form class="connected-compose" on:submit=move |event|{event.prevent_default();send();}><label for="connected-chat-message">{move ||if lot.get(){"Say something to the lot"}else{"Your message"}}</label><textarea id="connected-chat-message" rows="3" maxlength="1500" disabled=move ||!can(ui,if lot.get(){"lot_chat"}else{"private_message"},if lot.get(){"Lot chat"}else{"Private message"})||(!lot.get()&&target.get().is_none()) prop:value=move ||ui.state.with(|s|s.draft(&key())) on:input=move |event|ui.draft(&key(),event_target_value(&event))></textarea><button class="chrome primary" type="submit" disabled=move ||!can(ui,if lot.get(){"lot_chat"}else{"private_message"},if lot.get(){"Lot chat"}else{"Private message"})||ui.state.with(|s|s.draft(&key()).trim().is_empty())||(!lot.get()&&target.get().is_none())>"Send"<Icon name="arrow-right"/></button></form>
+        <form class="connected-compose" on:submit=move |event|{event.prevent_default();send();}><label for="connected-chat-message">{move ||if lot.get(){"Say something to the lot"}else{"Your message"}}</label><textarea id="connected-chat-message" rows="3" maxlength=move ||if lot.get(){200}else{1500} disabled=move ||!can_send() prop:value=move ||ui.state.with(|s|s.draft(&key())) on:input=move |event|ui.draft(&key(),event_target_value(&event))></textarea><button class="chrome primary" type="submit" disabled=move ||!can_send()||ui.state.with(|s|s.draft(&key()).trim().is_empty())>"Send"<Icon name="arrow-right"/></button></form>
         <Show when=move ||lot.get() fallback=||view!{<OperationFeedback label="Private message"/><CapabilityNote capability="private_message"/>}><OperationFeedback label="Lot chat"/><CapabilityNote capability="lot_chat"/></Show>
     }
 }

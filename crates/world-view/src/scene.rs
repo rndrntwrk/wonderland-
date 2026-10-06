@@ -7,7 +7,7 @@ use wonderland_render_3d::{
     lot, objects as source_objects,
     reconstruction::MaskType,
 };
-use wonderland_render_core::{EntityRef, Mat4, Mesh, RgbaImage, Vec2, Vec3, Vertex};
+use wonderland_render_core::{EntityRef, Mat4, Mesh, Quat, RgbaImage, Vec2, Vec3, Vertex};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -556,6 +556,7 @@ pub fn build_scene_with_budget(
     // prevents a coplanar terrain triangle from overwriting that source floor.
     parts.sort_by_key(|part| part.surface == Some(WorldSurface::Terrain));
     let mut prepared_models = BTreeMap::new();
+    let mut prepared_avatars = BTreeMap::<usize, (Vec<Arc<Mesh>>, Vec<Arc<RgbaImage>>)>::new();
     for (index, object) in document.objects.iter().enumerate() {
         if !object.visible || object.level == 0 || object.level > controls.visible_level {
             continue;
@@ -564,6 +565,59 @@ pub fn build_scene_with_budget(
             continue;
         };
         let model = &document.models[model_index];
+        if matches!(model.context, ModelContext::Vitaboy) {
+            let (meshes, images) = prepared_avatars.entry(model_index).or_insert_with(|| {
+                (
+                    model.groups[0]
+                        .iter()
+                        .map(|part| Arc::new(part.mesh.clone()))
+                        .collect(),
+                    model
+                        .textures
+                        .iter()
+                        .map(|texture| Arc::new(texture.image.clone()))
+                        .collect(),
+                )
+            });
+            // AvatarComponent.Draw: Scale * RotationY(pi-direction) * World.
+            // The normalized posed mesh already includes the source scale;
+            // avatars receive raw tile centers, with no FSOm +1.5 translation.
+            let rotation =
+                Quat::from_axis_angle(Vec3::Y, std::f32::consts::PI - object.yaw_radians)
+                    .ok_or_else(|| WorldError("invalid source avatar yaw".into()))?;
+            let position = object.position_tiles;
+            let transform = Mat4::from_translation(Vec3::new(
+                position.x * 3.,
+                position.z * 3.,
+                position.y * 3.,
+            )) * Mat4::from_quat(rotation);
+            if images.iter().any(|image| {
+                image
+                    .pixels
+                    .iter()
+                    .any(|pixel| pixel[3] > 0 && pixel[3] < 255)
+            }) || meshes.iter().any(|mesh| {
+                mesh.vertices
+                    .iter()
+                    .any(|vertex| vertex.color[3] > 0. && vertex.color[3] < 1.)
+            }) {
+                diagnostics.push(WorldDiagnostic { code: "software_alpha_approximation".into(), resource: format!("avatar:record:{index}"), message: "The source avatar has translucent texels or display tint; software uses straight alpha compositing, without the original avatar material passes.".into() });
+            }
+            diagnostics.push(WorldDiagnostic { code: "unresolved_avatar_lighting".into(), resource: format!("avatar:record:{index}"), message: "Original avatar geometry and textures are displayed. Source room lighting, lightmaps and avatar shadows require the original lighting providers.".into() });
+            diagnostics.push(WorldDiagnostic { code: "software_avatar_sampling".into(), resource: format!("avatar:record:{index}"), message: "Original avatar UVs use the source wrap addressing. The software renderer uses nearest texture filtering rather than the original linear/mipmap filtering.".into() });
+            for (part_index, part) in model.groups[0].iter().enumerate() {
+                parts.push(ScenePart {
+                    mesh: Arc::clone(&meshes[part_index]),
+                    transform,
+                    surface: None,
+                    tile: None,
+                    object: Some(index),
+                    material: part.texture as u32,
+                    texture: Some(Arc::clone(&images[part.texture])),
+                });
+            }
+            continue;
+        }
         if model.depth_mask.is_some() {
             diagnostics.push(WorldDiagnostic { code: "unsupported_object_depth_mask".into(), resource: format!("object:{:08X}", object.source_guid), message: "This source model needs an original normal/portal stencil pass that the software adapter cannot display yet.".into() });
             continue;
@@ -685,6 +739,11 @@ fn prepare_model(model: &WorldModel) -> Result<source_objects::PreparedFsom, Wor
                 effective_content: model.effective_content,
             },
             context: match model.context {
+                ModelContext::Vitaboy => {
+                    return Err(WorldError(
+                        "avatar model cannot use object-model preparation".into(),
+                    ));
+                }
                 ModelContext::Standalone => source_objects::FsomContext::Standalone,
                 ModelContext::Dgrp {
                     effective_iff,

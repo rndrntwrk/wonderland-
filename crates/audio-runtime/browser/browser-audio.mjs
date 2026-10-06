@@ -4,7 +4,9 @@
  * Accepts the Rust MixerIntent JSON shape. `loadSample(assetKey, {signal})`
  * resolves an authorized provider entry: either {pcm:{sampleRate,channels,
  * samples:Int16Array|Float32Array}}, or {encoded:ArrayBuffer,format:'wav'|'mp3',
- * decodedBytes:<declared float32 AudioBuffer bytes>}. XA/UTK must first be
+ * decodedBytes:<declared float32 AudioBuffer bytes>}. Encoded resources with
+ * source sampleRate/frames/channels reserve for the device's resampling rate
+ * and keep seek positions in source frames. XA/UTK must first be
  * cooked by the bounded Rust decoder. No arbitrary URL fetch occurs here.
  *
  * All callbacks and clocks below belong exclusively to presentation. The
@@ -28,13 +30,13 @@ export class BrowserAudio {
   constructor({contextFactory=()=>new (globalThis.AudioContext??globalThis.webkitAudioContext)(),loadSample,maxVoices=128,maxPendingDecodes=16,maxPcmBytes=64*1024*1024,maxEncodedBytes=4*1024*1024}={}) {
     if(typeof loadSample!=='function'||typeof contextFactory!=='function')throw Error('audio provider and context factory required');
     this._factory=contextFactory;this._load=loadSample;this._maxVoices=positive(maxVoices,'voice');this._maxDecodes=positive(maxPendingDecodes,'decode');this._maxPcm=positive(maxPcmBytes,'PCM');this._maxEncoded=positive(maxEncodedBytes,'encoded');
-    this.state='locked';this._context=null;this._epoch=0;this._voices=new Map();this._queue=[];this._completed=[];this._cache=new Map();this._inflight=new Map();this._requests=new Set();this._pcmBytes=0;this._reserved=0;this._generation=null;this._serial=0n;this._lastError=null;this._errors=0;this._unlocking=false;this._change=()=>this._stateChanged();
+    this.state='locked';this._context=null;this._epoch=0;this._voices=new Map();this._queue=[];this._completed=[];this._cache=new Map();this._inflight=new Map();this._requests=new Set();this._pcmBytes=0;this._reserved=0;this._generation=null;this._serial=0n;this._lastError=null;this._errors=0;this._operation=0;this._unlocking=null;this._desiredState='locked';this._needsGesture=false;this._change=()=>this._stateChanged();
   }
   _live(){if(this.state==='disposed')throw Error('audio adapter disposed');}
   async unlockFromGesture() {
     this._live();
     if(globalThis.navigator?.userActivation && !globalThis.navigator.userActivation.isActive)throw Error('audio unlock requires a user gesture');
-    this._unlocking=true;
+    const operation=++this._operation;this._unlocking=operation;this._desiredState='running';
     try {
       if(this._context?.state==='closed'){this._context.removeEventListener?.('statechange',this._change);this._context=null;}
       if(!this._context){
@@ -43,12 +45,12 @@ export class BrowserAudio {
         this._context=context;context.addEventListener?.('statechange',this._change);
       }
       const context=this._context;await context.resume();
-      if(this.state==='disposed'||this._context!==context)throw Error('audio unlock cancelled');
+      if(this.state==='disposed'||this._context!==context||this._operation!==operation)throw Error('audio unlock cancelled');
       if(context.state!=='running')throw Error(`audio context ${context.state}`);
-      this.state='running';this._pump();this._flush();
+      this._needsGesture=false;this._lastError=null;this.state='running';this._pump();this._flush();
     }
-    catch(error){this._error(error);if(this.state!=='disposed'&&this.state!=='suspended'&&this.state!=='interrupted')this.state='locked';throw error;}
-    finally{this._unlocking=false;}
+    catch(error){if(this._operation===operation&&this.state!=='disposed'){this._error(error);if(this.state!=='suspended'&&this.state!=='interrupted'){this.state='locked';this._desiredState='locked';}}throw error;}
+    finally{if(this._unlocking===operation)this._unlocking=null;}
   }
   async resumeFromGesture(){return this.unlockFromGesture();}
   applyAll(intents){this._live();if(!Array.isArray(intents)||intents.length>this._maxVoices*8)throw Error('audio intent batch budget');for(const intent of intents)this.apply(intent);}
@@ -104,7 +106,7 @@ export class BrowserAudio {
         if(!this._ownsRequest(request))return;
         const bytes=buffer.length*buffer.numberOfChannels*4;
         this._validateBuffer(buffer);this._releaseReservation(request);this._evictFor(bytes);
-        this._cache.set(request.key,{buffer,bytes});this._pcmBytes+=bytes;
+        this._cache.set(request.key,{buffer,bytes,sourceSampleRate:request.sourceSampleRate??buffer.sampleRate,sourceFrames:request.sourceFrames??buffer.length});this._pcmBytes+=bytes;
         for(const v of this._voices.values())if(v.key===request.key&&v.epoch===request.epoch)v.status='ready';
       }).catch(error=>{
         if(this._ownsRequest(request)){
@@ -125,6 +127,23 @@ export class BrowserAudio {
     if(this._cache.size>=this._maxVoices*2)throw Error('PCM cache entry budget exceeded');
   }
   _releaseReservation(request){if(request.reserved){this._reserved-=request.reserved;request.reserved=0;}}
+  _encodedBytes(resource){
+    let bytes=positive(resource.decodedBytes,'declared decoded PCM');
+    if(resource.sampleRate!==undefined||resource.frames!==undefined||resource.channels!==undefined){
+      const {sampleRate,frames,channels}=resource;
+      if(!Number.isSafeInteger(sampleRate)||sampleRate<1||sampleRate>384000||!Number.isSafeInteger(frames)||frames<1||![1,2].includes(channels)||!Number.isSafeInteger(frames*channels*4)||bytes<frames*channels*4)throw Error('invalid encoded source PCM metadata');
+      const rate=this._context?.sampleRate??sampleRate;
+      if(!Number.isSafeInteger(rate)||rate<1||rate>384000)throw Error('invalid audio context sample rate');
+      const framesAtDevice=(BigInt(frames)*BigInt(rate)+BigInt(sampleRate)-1n)/BigInt(sampleRate);
+      const resampledBytes=framesAtDevice*BigInt(channels)*4n;
+      if(resampledBytes>BigInt(Number.MAX_SAFE_INTEGER))throw Error('PCM memory budget exceeded');
+      bytes=Math.max(bytes,Number(resampledBytes));
+    }
+    return bytes;
+  }
+  requiresStreaming(resource){
+    return !!resource?.encoded&&(resource.encoded.byteLength>this._maxEncoded||this._encodedBytes(resource)>this._maxPcm);
+  }
   async _decode(resource,request){
     if(resource?.pcm){
       const {sampleRate,channels,samples}=resource.pcm;
@@ -136,9 +155,10 @@ export class BrowserAudio {
     }
     if(!resource||!['wav','mp3'].includes(resource.format)||!(resource.encoded instanceof ArrayBuffer))throw Error('unsupported provider encoding; XA/UTK require cooked PCM');
     if(resource.encoded.byteLength<1||resource.encoded.byteLength>this._maxEncoded)throw Error('encoded audio budget exceeded');
-    positive(resource.decodedBytes,'declared decoded PCM');this._evictFor(resource.decodedBytes);request.reserved=resource.decodedBytes;this._reserved+=request.reserved;
+    const bytes=this._encodedBytes(resource);this._evictFor(bytes);request.reserved=bytes;this._reserved+=request.reserved;
+    request.sourceSampleRate=resource.sampleRate;request.sourceFrames=resource.frames;
     const buffer=await this._context.decodeAudioData(resource.encoded.slice(0));
-    this._validateBuffer(buffer);if(buffer.length*buffer.numberOfChannels*4>request.reserved)throw Error('decoded PCM exceeds provider declaration');return buffer;
+    this._validateBuffer(buffer);if(resource.channels!==undefined&&buffer.numberOfChannels!==resource.channels)throw Error('decoded PCM channel mismatch');if(buffer.length*buffer.numberOfChannels*4>request.reserved)throw Error('decoded PCM exceeds provider declaration');return buffer;
   }
   _flush(){
     if(this.state!=='running')return;
@@ -151,7 +171,7 @@ export class BrowserAudio {
     const item=this._cache.get(voice.key);if(!item)return;
     try{
       const buffer=item.buffer;
-      if(voice.seek!==null){let frame=voice.seek;if(voice.looped)frame%=BigInt(buffer.length);if(frame>=BigInt(buffer.length))throw Error('seek beyond sample');voice.offset=Number(frame)/buffer.sampleRate;voice.seek=null;}
+      if(voice.seek!==null){let frame=voice.seek;if(voice.looped)frame%=BigInt(item.sourceFrames);if(frame>=BigInt(item.sourceFrames))throw Error('seek beyond sample');voice.offset=Number(frame)/item.sourceSampleRate;voice.seek=null;}
       if(voice.offset>=buffer.duration){if(voice.looped)voice.offset%=buffer.duration;else{this._finish(voice,false,true);return;}}
       if(typeof this._context.createStereoPanner!=='function')throw Error('StereoPanner capability unavailable');
       const node=this._context.createBufferSource(),gain=this._context.createGain(),pan=this._context.createStereoPanner();voice.node=node;voice.gainNode=gain;voice.panNode=pan;
@@ -180,12 +200,21 @@ export class BrowserAudio {
     if(this.state==='disposed'||!this._context)return;
     const state=this._context.state;
     if(state==='interrupted'||state==='closed'){
-      this.state='interrupted';
+      this._needsGesture=true;this.state='interrupted';
       for(const voice of [...this._voices.values()]){if(!voice.looped){this._finish(voice,true,true);}else if(voice.node){this._savePhase(voice);this._releaseNodes(voice,true);voice.status='ready';if(!this._queue.includes(voice.id))this._queue.push(voice.id);}}
-    }else if(state==='suspended'){this.state='suspended';}
-    else if(state==='running'&&(this.state!=='interrupted'||this._unlocking)){this.state='running';this._pump();this._flush();}
+    }else if(state==='suspended'){this.state=this._needsGesture&&this._desiredState!=='suspended'?'interrupted':'suspended';}
+    else if(state==='running'){
+      if(this._desiredState==='suspended'){
+        this.state='suspended';
+        // A resume which was already pending when Pause was pressed may finish
+        // late. Keep new voices gated and restore the requested device state.
+        const context=this._context,operation=this._operation;
+        Promise.resolve(context.suspend()).catch(error=>{if(this._context===context&&this._operation===operation&&this.state!=='disposed')this._error(error);});
+      }else if(this._needsGesture&&this._unlocking===null){this.state='interrupted';}
+      else if(this._desiredState==='running'){this.state='running';this._pump();this._flush();}
+    }
   }
-  async suspend(){this._live();if(!this._context)return;const context=this._context;await context.suspend();if(this.state!=='disposed'&&this._context===context)this.state='suspended';}
+  async suspend(){this._live();const operation=++this._operation;this._unlocking=null;this._desiredState='suspended';this.state='suspended';if(!this._context)return;const context=this._context;await context.suspend();if(this.state!=='disposed'&&this._context===context&&this._operation===operation)this.state='suspended';}
   reset(){
     this._live();this._epoch++;
     for(const voice of [...this._voices.values()])this._finish(voice,true);
@@ -193,7 +222,7 @@ export class BrowserAudio {
     // Outstanding decoder reservations remain charged until those asynchronous
     // requests actually settle; reset storms cannot evade the decode budget.
   }
-  async dispose(){if(this.state==='disposed')return;this.reset();this.state='disposed';if(this._context){this._context.removeEventListener?.('statechange',this._change);const context=this._context;try{await context.close();}finally{if(this._context===context)this._context=null;}}}
+  async dispose(){if(this.state==='disposed')return;this.reset();this._operation++;this._unlocking=null;this.state='disposed';if(this._context){this._context.removeEventListener?.('statechange',this._change);const context=this._context;try{await context.close();}finally{if(this._context===context)this._context=null;}}}
   async settled(){while(this._requests.size){await Promise.all([...this._requests].map(r=>r.promise));}this._flush();}
   snapshot(){return {state:this.state,activeVoices:this._voices.size,queuedEntries:this._queue.length,completedVoices:this._completed.length,pendingStarts:this._queue.filter(id=>this._voices.has(id)).length,pendingDecodes:this._requests.size,cachedSamples:this._cache.size,pcmBytes:this._pcmBytes,reservedPcmBytes:this._reserved,errors:this._errors,lastError:this._lastError};}
 }

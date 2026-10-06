@@ -190,11 +190,9 @@ pub fn snapshot_world(
         let altitude = if off_world {
             0.
         } else {
-            source_contact_altitude(
-                architecture,
-                x + 0.5 - center_offset,
-                y + 0.5 - center_offset,
-            )
+            // AvatarComponent samples its raw tile center. The object's
+            // VisualPosition -.5 and object-contact +.5 also cancel here.
+            source_contact_altitude(architecture, x, y)
         };
         let hidden = entity
             .object_data

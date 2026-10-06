@@ -6,3 +6,4 @@ pub mod upstream;
 pub use server::app;
 mod actor;
 pub mod eod;
+pub mod lot_chat;

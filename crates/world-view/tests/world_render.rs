@@ -94,6 +94,120 @@ fn object_pick(renderer: &WorldRenderer) -> Option<WorldPick> {
         })
 }
 
+// A source-skinned Vitaboy part is Y-up graphics geometry, unlike FSOm's
+// centered object pose. The asymmetric vertex catches pi/sign/center errors.
+#[test]
+fn vitaboy_pose_uses_avatar_transform_and_snapshot_identity_in_depth_picking() {
+    let mut document = with_live_object();
+    document.provenance.kind = WorldSourceKind::LegacySnapshot;
+    document.revision.lot_id = None;
+    let object = &mut document.objects[0];
+    object.entity = None;
+    object.snapshot = Some(SnapshotObject {
+        record: 19,
+        object_id: 42,
+        persistent_id: 4_000_000_001,
+        x: 24,
+        y: 32,
+        level: 1,
+        avatar: true,
+        presentation_generation: 7,
+    });
+    object.yaw_radians = std::f32::consts::FRAC_PI_2;
+    object.position_tiles.z = 0.25;
+    document.models[0].context = ModelContext::Vitaboy;
+    document.models[0].format_version = 1;
+    let scene = build_scene(&document, ViewportControls::default()).unwrap();
+    let part = scene
+        .parts
+        .iter()
+        .find(|part| part.object == Some(0))
+        .unwrap();
+    let origin = part.transform.transform_point3(Vec3::ZERO);
+    assert_eq!(origin, Vec3::new(4.5, 0.75, 6.));
+    let right = part.transform.transform_point3(Vec3::X) - origin;
+    assert!((right - Vec3::new(0., 0., -1.)).length() < 0.00001);
+    let up = part.transform.transform_point3(Vec3::Y) - origin;
+    assert!((up - Vec3::Y).length() < 0.00001);
+
+    let mut renderer = WorldRenderer::new(Arc::new(document.clone())).unwrap();
+    renderer
+        .render(ViewportControls::default(), 240, 200)
+        .unwrap();
+    let pick =
+        object_pick(&renderer).expect("source avatar geometry must receive depth-tested picks");
+    assert_eq!(
+        pick.target,
+        WorldPickTarget::Object {
+            entity: None,
+            source_guid: 0x313D2F9A,
+            source_record: Some(19)
+        }
+    );
+    document.models[0].textures[0].image.pixels[0][3] = 0;
+    document.revision.architecture_revision += 1;
+    renderer.replace_document(Arc::new(document)).unwrap();
+    assert!(renderer.resolve_pick(&pick).is_none());
+    renderer
+        .render(ViewportControls::default(), 240, 200)
+        .unwrap();
+    assert!(
+        object_pick(&renderer).is_none(),
+        "transparent avatar texels must not create an invisible selection box"
+    );
+}
+
+#[test]
+fn vitaboy_model_rejects_object_sprite_groups_and_non_avatar_source_records() {
+    let mut document = with_live_object();
+    document.models[0].context = ModelContext::Vitaboy;
+    document.models[0].format_version = 1;
+    document.models[0].groups.push(vec![]);
+    assert!(document.validate().is_err());
+    document.models[0].groups.pop();
+    document.objects[0].entity = None;
+    document.objects[0].blueprint = Some(BlueprintObject {
+        record: 0,
+        x: 1,
+        y: 2,
+        level: 1,
+        direction: 0,
+        group: 0,
+    });
+    assert!(document.validate().is_err());
+}
+
+#[test]
+fn source_avatar_wrap_addressing_controls_texture_alpha_and_depth_picks() {
+    for (context, expected_pick) in [
+        (ModelContext::Vitaboy, true),
+        (ModelContext::Standalone, false),
+    ] {
+        let mut document = with_live_object();
+        document.models[0].context = context;
+        document.models[0].format_version = if context == ModelContext::Vitaboy {
+            1
+        } else {
+            2
+        };
+        document.models[0].textures[0].image = RgbaImage {
+            width: 2,
+            height: 1,
+            pixels: vec![[255, 0, 0, 255], [0, 0, 255, 0]],
+        };
+        for vertex in &mut document.models[0].groups[0][0].mesh.vertices {
+            vertex.uv = Vec2::new(1.25, 0.25);
+        }
+        let mut renderer = WorldRenderer::new(Arc::new(document)).unwrap();
+        renderer.render(Default::default(), 240, 200).unwrap();
+        assert_eq!(
+            object_pick(&renderer).is_some(),
+            expected_pick,
+            "Avatar textures wrap, while existing FSOm textures retain their clamp default."
+        );
+    }
+}
+
 fn repeated_model(count: usize) -> WorldDocument {
     let mut document = with_live_object();
     let object = document.objects[0].clone();
@@ -484,6 +598,55 @@ fn snapshot_refresh_requires_a_new_presentation_generation() {
     renderer.replace_document(Arc::new(changed)).unwrap();
     assert!(renderer.resolve_pick(&pick).is_none());
     assert!(renderer.replace_document(Arc::new(document)).is_err());
+}
+
+#[test]
+fn snapshot_resource_resolution_changes_only_content_and_expires_existing_picks() {
+    let mut document = with_live_object();
+    document.provenance.kind = WorldSourceKind::LegacySnapshot;
+    document.revision.lot_id = None;
+    document.objects[0].entity = None;
+    document.objects[0].snapshot = Some(SnapshotObject {
+        record: 0,
+        object_id: 42,
+        persistent_id: 42,
+        x: 24,
+        y: 32,
+        level: 1,
+        avatar: true,
+        presentation_generation: 1,
+    });
+    document.models[0].context = ModelContext::Vitaboy;
+    document.models[0].format_version = 1;
+    let mut renderer = WorldRenderer::new(Arc::new(document.clone())).unwrap();
+    renderer.render(Default::default(), 128, 96).unwrap();
+    let old = object_pick(&renderer).unwrap();
+    let mut resources = document.clone();
+    resources.models[0].textures[0].image.pixels[0] = [20, 20, 220, 255];
+    assert!(
+        renderer
+            .replace_document(Arc::new(resources.clone()))
+            .is_err(),
+        "changed resources need a new content fingerprint"
+    );
+    resources.revision.content = AssetKey([77; 32]);
+    renderer
+        .replace_document(Arc::new(resources.clone()))
+        .unwrap();
+    assert!(renderer.resolve_pick(&old).is_none());
+    let mut wrong_source = resources.clone();
+    wrong_source.objects[0].position_tiles.x += 0.25;
+    wrong_source.revision.content = AssetKey([78; 32]);
+    assert!(
+        renderer.replace_document(Arc::new(wrong_source)).is_err(),
+        "content availability is not permission to move a source avatar"
+    );
+    resources.diagnostics.push(WorldDiagnostic {
+        code: "test_diagnostic".into(),
+        resource: "test".into(),
+        message: "Resource diagnostic only".into(),
+    });
+    renderer.replace_document(Arc::new(resources)).unwrap();
 }
 
 // Catches rendering the original 77-square source with the fixture geometry,

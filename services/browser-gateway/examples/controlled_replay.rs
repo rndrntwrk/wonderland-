@@ -28,6 +28,7 @@ type ReplayResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 const TOKEN: &str = "controlled-account-token";
 const CITY_TICKET: &[u8] = b"11111111111111111111111111111111";
 const LOT_TICKET: &[u8] = b"22222222222222222222222222222222";
+const LOT_LOCATION: u32 = (256 << 16) | 256;
 
 #[tokio::main]
 async fn main() -> ReplayResult<()> {
@@ -104,10 +105,10 @@ fn upstream() -> Router {
         }))
         .route("/cityselector/app/AvatarDataServlet",get(|headers:HeaderMap|async move {
             if !authenticated(&headers){return StatusCode::UNAUTHORIZED.into_response();}
-            "<The-Sims-Online><Avatar-Data><AvatarID>42</AvatarID><Name>Controlled Alice</Name><Shard-Name>Controlled City</Shard-Name><Description>Synthetic browser replay account</Description><LotId>1</LotId><LotName>Controlled Source Lot</LotName><LotLocation>55</LotLocation></Avatar-Data></The-Sims-Online>".into_response()
+            format!("<The-Sims-Online><Avatar-Data><AvatarID>42</AvatarID><Name>Controlled Alice</Name><Shard-Name>Controlled City</Shard-Name><Description>Synthetic browser replay account</Description><Head>{}</Head><Body>{}</Body><Appearance>Light</Appearance><LotId>1</LotId><LotName>Controlled Source Lot</LotName><LotLocation>{LOT_LOCATION}</LotLocation></Avatar-Data></The-Sims-Online>",0x0000_03a1_0000_000du64,0x0000_024a_0000_000du64).into_response()
         }))
         .route("/cityselector/shard-status.jsp",get(||async{
-            "<Shard-Status-List><Shard-Status><Id>7</Id><Name>Controlled City</Name><Rank>1</Rank><Map>0001</Map><Status>Up</Status></Shard-Status></Shard-Status-List>"
+            "<Shard-Status-List><Shard-Status><Id>7</Id><Name>Controlled City</Name><Rank>1</Rank><Map>0100</Map><Status>Up</Status></Shard-Status></Shard-Status-List>"
         }))
         .route("/cityselector/app/ShardSelectorServlet",get(|headers:HeaderMap,Query(query):Query<HashMap<String,String>>|async move {
             if !authenticated(&headers){return StatusCode::UNAUTHORIZED.into_response();}
@@ -126,10 +127,10 @@ fn authenticated(headers: &HeaderMap) -> bool {
         == Some("Bearer controlled-account-token")
 }
 fn avatar() -> Value {
-    json!({"avatar_id":42,"shard_id":7,"name":"Controlled Alice","gender":"female","date":0,"description":"Synthetic browser replay account","current_job":0,"mayor_nhood":null})
+    json!({"avatar_id":42,"shard_id":7,"name":"Controlled Alice","gender":"male","date":0,"description":"Synthetic browser replay account","current_job":0,"mayor_nhood":null})
 }
 fn lot() -> Value {
-    json!({"lot_id":1,"location":55,"name":"Controlled Source Lot","description":"Synthetic golden source-v38 snapshot; refresh presentation only","shard_id":7,"owner_id":42,"roommates":[42],"neighborhood_id":99,"category":"residential","admit_mode":0,"skill_mode":0,"created_date":0})
+    json!({"lot_id":1,"location":LOT_LOCATION,"name":"Controlled Source Lot","description":"Test-only source-v38 avatar snapshot; refresh presentation only","shard_id":7,"owner_id":42,"roommates":[42],"neighborhood_id":99,"category":"residential","admit_mode":0,"skill_mode":0,"created_date":0})
 }
 fn neighborhood() -> Value {
     json!({"neighborhood_id":99,"name":"Controlled Neighborhood","description":"Test-only original directory result","color":3368601,"town_hall_id":null,"icon_url":null,"mayor_id":null,"mayor_elected_date":0,"election_cycle_id":null})
@@ -140,9 +141,10 @@ async fn directory(request: Request) -> Response {
         "/userapi/avatars/42" => avatar(),
         "/userapi/avatars" => json!({"avatars":[avatar()]}),
         "/userapi/avatars/online" => {
-            json!({"avatars_online_count":1,"avatars":[{"avatar_id":42,"name":"Controlled Alice","privacy_mode":0,"location":55}]})
+            json!({"avatars_online_count":1,"avatars":[{"avatar_id":42,"name":"Controlled Alice","privacy_mode":0,"location":LOT_LOCATION}]})
         }
-        "/userapi/lots/1" | "/userapi/city/7/lots/location/55" => lot(),
+        "/userapi/lots/1" => lot(),
+        path if path == format!("/userapi/city/7/lots/location/{LOT_LOCATION}") => lot(),
         "/userapi/lots" | "/userapi/city/7/lots/neighborhood/99" => json!({"lots":[lot()]}),
         "/userapi/city/7/lots/online" => json!({"lots":[lot()]}),
         "/userapi/city/7/avatars/neighborhood/99" => json!({"avatars":[avatar()]}),
@@ -209,7 +211,7 @@ async fn city_peer(mut stream: TcpStream) -> ReplayResult<()> {
                 5 => {
                     let location = u32::from_be_bytes(packet.body[..4].try_into()?);
                     let mut found = Vec::new();
-                    found.extend(if location == 55 { 0u16 } else { 3u16 }.to_be_bytes());
+                    found.extend(if location == LOT_LOCATION { 0u16 } else { 3u16 }.to_be_bytes());
                     found.extend(location.to_be_bytes());
                     found.push(32);
                     found.extend(LOT_TICKET);
@@ -229,7 +231,8 @@ async fn city_peer(mut stream: TcpStream) -> ReplayResult<()> {
                 }
                 10 => {
                     let mut body = packet.body;
-                    body.extend([0, 0, 0, 0, 0, 55]);
+                    body.extend(0u16.to_be_bytes());
+                    body.extend(LOT_LOCATION.to_be_bytes());
                     stream.write_all(&encode_packet(1000, 11, &body)?).await?;
                 }
                 12 => {
@@ -268,11 +271,55 @@ async fn city_peer(mut stream: TcpStream) -> ReplayResult<()> {
         }
     }
 }
-async fn snapshot(stream: &mut TcpStream) -> ReplayResult<()> {
-    let mut bytes =
-        include_bytes!("../../../crates/vm-protocol/tests/fixtures/source-v38-state-sync-tick.bin")
-            .to_vec();
-    bytes[0] = 0;
+fn tick_bytes(id: u32, commands: &[Vec<u8>]) -> Vec<u8> {
+    let mut bytes = vec![0]; // Broadcast tick list; not an immediate command.
+    bytes.extend(1i32.to_le_bytes());
+    bytes.extend(id.to_le_bytes());
+    bytes.extend(99u64.to_le_bytes());
+    bytes.extend((commands.len() as i32).to_le_bytes());
+    for command in commands {
+        bytes.extend(command);
+    }
+    bytes
+}
+fn snapshot_command() -> Vec<u8> {
+    let mut command = vec![12]; // StateSync has no ActorUID prefix.
+    command.extend(include_bytes!(
+        "fixtures/test-only-synthetic-avatar-v38.fsov"
+    ));
+    command.push(0); // No trace list.
+    command
+}
+fn source_string(value: &str) -> Vec<u8> {
+    assert!(
+        value.len() < 128,
+        "Fixture strings use one .NET length byte"
+    );
+    [vec![value.len() as u8], value.as_bytes().to_vec()].concat()
+}
+fn greeting_commands() -> Vec<Vec<u8>> {
+    // Original VMNetSimJoinCmd version 5 supplies the sender identity. These
+    // synthetic bytes exercise the native observer, not injected browser events.
+    let join = [
+        vec![0],
+        99u32.to_le_bytes().to_vec(),
+        vec![0xee, 0xff],
+        5i32.to_le_bytes().to_vec(),
+        source_string("Controlled Bob"),
+        99u32.to_le_bytes().to_vec(),
+        vec![0; 24 + 1 + 8 + 16 + 6 + 86 + 12],
+    ]
+    .concat();
+    let chat = [
+        vec![4],
+        99u32.to_le_bytes().to_vec(),
+        source_string("Hello from the controlled lot."),
+        vec![0],
+    ]
+    .concat();
+    vec![join, chat]
+}
+async fn send_tick(stream: &mut TcpStream, bytes: &[u8]) -> ReplayResult<()> {
     let mut body = (bytes.len() as u32).to_be_bytes().to_vec();
     body.extend(bytes);
     stream.write_all(&encode_packet(1000, 7, &body)?).await?;
@@ -280,7 +327,10 @@ async fn snapshot(stream: &mut TcpStream) -> ReplayResult<()> {
 }
 async fn lot_peer(mut stream: TcpStream) -> ReplayResult<()> {
     handshake(&mut stream, LOT_TICKET).await?;
-    snapshot(&mut stream).await?;
+    let mut tick = 42;
+    send_tick(&mut stream, &tick_bytes(tick, &[snapshot_command()])).await?;
+    // Source SendState tags its snapshot with the NEXT ordinary tick ID.
+    send_tick(&mut stream, &tick_bytes(tick, &greeting_commands())).await?;
     loop {
         for Packet {
             channel,
@@ -289,9 +339,60 @@ async fn lot_peer(mut stream: TcpStream) -> ReplayResult<()> {
         } in native::read_packets(&mut stream).await?
         {
             if channel == 1000 && packet_type == 9 && body.get(4) == Some(&13) {
-                snapshot(&mut stream).await?;
+                tick += 1;
+                send_tick(&mut stream, &tick_bytes(tick, &[snapshot_command()])).await?;
             }
             // Other commands deliberately make no fixture mutation or fake receipt.
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wonderland_browser_gateway::lot_chat::LotChatGate;
+    use wonderland_vm_protocol::{CommandBody, decode_tick_list, snapshot::Appearance};
+
+    #[test]
+    fn controlled_browser_snapshot_has_an_interior_avatar_and_distinct_source_needs() {
+        let bytes = tick_bytes(42, &[snapshot_command()]);
+        let list = decode_tick_list(&bytes, &Default::default()).unwrap();
+        assert_eq!(list.consumed, bytes.len());
+        let CommandBody::StateSync { snapshot, .. } = &list.ticks[0].commands[0].body else {
+            panic!("The browser fixture must start with an original StateSync");
+        };
+        assert_eq!(snapshot.platform.lot_id, LOT_LOCATION);
+        assert_eq!(snapshot.context.architecture.width, 8);
+        assert_eq!(snapshot.context.architecture.height, 8);
+        let entity = &snapshot.entities[0];
+        assert_eq!(entity.persist_id, 42);
+        assert_eq!(entity.position.x, 64);
+        assert_eq!(entity.position.y, 64);
+        let Appearance::Avatar(avatar) = &entity.appearance else {
+            panic!("The browser fixture must contain its account avatar");
+        };
+        assert_eq!(avatar.motives[5], 0);
+        assert_eq!(avatar.motives[7], 80);
+        assert_eq!(avatar.motives[13], -60);
+    }
+
+    #[test]
+    fn controlled_greeting_is_projected_from_original_native_commands() {
+        let mut gate = LotChatGate::new(42, LOT_LOCATION, 1);
+        gate.observe(false, &tick_bytes(42, &[snapshot_command()]))
+            .unwrap();
+        let delivery = gate
+            .observe(false, &tick_bytes(42, &greeting_commands()))
+            .unwrap()
+            .unwrap();
+        let message = delivery
+            .projection
+            .messages
+            .iter()
+            .find(|message| message.kind == wonderland_vm_protocol::chat::SourceChatKind::Message)
+            .expect("The native greeting must reach the visible chat projection");
+        assert_eq!(message.sender_uid, 99);
+        assert_eq!(message.sender_name, "Controlled Bob");
+        assert_eq!(message.text, "Hello from the controlled lot.");
     }
 }
