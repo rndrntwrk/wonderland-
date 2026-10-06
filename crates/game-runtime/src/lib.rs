@@ -8,6 +8,7 @@ use wonderland_content_runtime_bridge::{
     content::{ImportedContent, ImportedInteraction},
     cooked::LoadedRelease,
 };
+pub mod live_session;
 mod world_projection;
 
 pub use sim_core;
