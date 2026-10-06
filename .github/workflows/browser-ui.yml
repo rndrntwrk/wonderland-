@@ -60,6 +60,24 @@ jobs:
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
+      - name: Install pinned browser regression tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/wonderland-browser-qa" --no-audit --no-fund --ignore-scripts --package-lock=false playwright@1.56.1
+          node "$RUNNER_TEMP/wonderland-browser-qa/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Test deferred and overloaded VM delivery in the actual browser
+        run: |
+          cargo build -p wonderland-browser-gateway --example controlled_replay --locked
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/wonderland-browser-qa/node_modules/playwright/index.mjs" \
+          WONDERLAND_QA_OUTPUT="$RUNNER_TEMP/wonderland-vm-ingress" \
+          node apps/web-shell/scripts/check-vm-ingress.mjs
+      - name: Retain browser delivery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderland-vm-ingress-evidence
+          path: ${{ runner.temp }}/wonderland-vm-ingress/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Report required formatting and dependency-lock changes
         if: failure()
         run: |
