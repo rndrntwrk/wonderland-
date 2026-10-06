@@ -18,12 +18,12 @@ jobs:
           node-version: '22'
       - name: Install pinned Rust
         run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
-      - name: Record formatting without hiding source changes
+      - name: Verify formatting without modifying the tested source
         run: |
           mkdir -p tests/output/source-gpu
-          cargo fmt --all
-          git diff --binary > tests/output/source-gpu/required-formatting.patch
-          tar -czf tests/output/source-gpu/formatted-inputs.tar.gz crates/world-view/src/renderer.rs crates/world-view/src/renderer/gpu.rs crates/world-view/tests/gpu_world.rs crates/world-view/examples/gpu_fixture.rs apps/web-shell/src/world_renderer.rs
+          git rev-parse HEAD > tests/output/source-gpu/source-commit.txt
+          git rev-parse HEAD^{tree} > tests/output/source-gpu/source-tree.txt
+          cargo fmt --all --check
       - name: Verify native source rendering and produce independent browser fixture
         run: |
           set -o pipefail
@@ -40,6 +40,13 @@ jobs:
           npm install --prefix /tmp/source-gpu-playwright --ignore-scripts --no-audit --no-fund playwright@1.62.1
           /tmp/source-gpu-playwright/node_modules/.bin/playwright install --with-deps --no-shell chromium
           WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-gpu-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/browser.mjs
+      - name: Retain complete committed client inputs and verify no mutation
+        if: always()
+        run: |
+          mkdir -p tests/output/source-gpu
+          git archive --format=tar.gz HEAD -- .github .gitignore Cargo.toml Cargo.lock rust-toolchain.toml apps crates docs fixtures tests tools services > tests/output/source-gpu/source-input.tar.gz
+          sha256sum tests/output/source-gpu/source-input.tar.gz > tests/output/source-gpu/source-input.sha256
+          git diff --exit-code
       - name: Preserve all results, including failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
