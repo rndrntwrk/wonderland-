@@ -7,6 +7,8 @@ on:
       - crates/sim-core/**
       - crates/content-ir/**
       - crates/content-runtime-bridge/**
+      - crates/legacy-formats/**
+      - TSOClient/FSO.Content.TSO/Content/Objects/**
       - .github/workflows/live-lot-session.yml
       - Cargo.toml
       - Cargo.lock
@@ -25,19 +27,39 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install the pinned Rust toolchain
         run: rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
       - name: Live checkpoint, replay, interaction and reconnect regressions
         run: |
           set -o pipefail
           cargo test -p wonderland-game-runtime --test live_session --locked 2>&1 | tee live-session-tests.log
-      - name: Browser-target library check
-        run: cargo check -p wonderland-game-runtime --target wasm32-unknown-unknown --locked
-      - name: Retain exact revision and test output
+      - name: Execute the native source-runtime conformance probe
+        run: cargo run -p wonderland-game-runtime --example live_session_probe --locked > live-session-native.json
+      - name: Build the ordinary browser-target probe
+        run: cargo build -p wonderland-game-runtime --example live_session_probe --target wasm32-unknown-unknown --release --locked
+      - name: Compare native and actual WASM execution, including negative controls
+        run: |
+          set -o pipefail
+          node crates/game-runtime/scripts/verify-live-session.mjs \
+            live-session-native.json \
+            target/wasm32-unknown-unknown/release/examples/live_session_probe.wasm \
+            live-session-wasm.json | tee live-session-comparison.json
+      - name: Retain exact revision, inputs and output identity
         if: always()
         run: |
           git rev-parse HEAD > live-session-revision.txt
           git rev-parse 'HEAD^{tree}' >> live-session-revision.txt
+          rustc -vV >> live-session-revision.txt
+          node --version >> live-session-revision.txt
+          sha256sum crates/game-runtime/src/live_session.rs \
+            crates/game-runtime/examples/live_session_probe.rs \
+            crates/game-runtime/scripts/verify-live-session.mjs \
+            TSOClient/FSO.Content.TSO/Content/Objects/Casino_2-Tile_Bar_CC.iff \
+            TSOClient/FSO.Content.TSO/Content/Objects/fso_christmas_flag.iff \
+            TSOClient/FSO.Content.TSO/Content/Objects/cursebook_set_permission.iff \
+            >> live-session-revision.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -45,5 +67,8 @@ jobs:
           path: |
             live-session-tests.log
             live-session-revision.txt
+            live-session-native.json
+            live-session-wasm.json
+            live-session-comparison.json
           if-no-files-found: error
           retention-days: 7

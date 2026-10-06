@@ -4,11 +4,13 @@
 //! decoding. Tokens belong to socket callbacks, not to fields supplied by peers.
 //! This module never executes local intents or translates FreeSO FSOv/VMNet data.
 use crate::{
-    AcceptedTick, EntityRef, GameRuntime, GameRuntimeError, InteractionIntent, OfferBatch,
-    PrincipalKey, QueryOptions, RuntimeProjection, RuntimeRole, SimRuntime, TickOutcome,
+    AcceptedTick, ActionId, CancelIntent, EntityRef, GameRuntime, GameRuntimeError,
+    InteractionIntent, OfferBatch, PrincipalKey, QueryOptions, RuntimeProjection, RuntimeRole,
+    SimRuntime, TickOutcome,
 };
+use bincode::Options;
 use serde::Serialize;
-use sim_core::interactions::InteractionKey;
+use sim_core::interactions::{EntityVersion, InteractionKey};
 use sim_core::snapshot::{
     MAX_SNAPSHOT_PAYLOAD_BYTES, SNAPSHOT_CHECKSUM_LEN, SNAPSHOT_HEADER_LEN, SnapshotExpectation,
 };
@@ -117,6 +119,15 @@ pub struct InteractionSelection {
     pub command_sequence: u64,
 }
 
+/// An exact visible queue item, never its display position or target object ID.
+#[derive(Clone, Copy, Debug)]
+pub struct CancelSelection {
+    pub principal: PrincipalKey,
+    pub actor: EntityRef,
+    pub action: ActionId,
+    pub command_sequence: u64,
+}
+
 #[derive(Debug)]
 pub enum LiveError {
     InvalidIdentity,
@@ -137,6 +148,7 @@ pub enum LiveError {
     UnexpectedEffects,
     SelectionUnavailable,
     MissingQueue,
+    ReplayedSequence { received: u64, last: u64 },
     RollbackFailed,
     Runtime(GameRuntimeError),
 }
@@ -170,7 +182,10 @@ impl LiveReplica {
         limits: ReplayLimits,
     ) -> Result<Self, LiveError> {
         limits.validate()?;
-        if identity.browser_epoch == 0 || identity.source_epoch == 0 || identity.lot_incarnation == 0 {
+        if identity.browser_epoch == 0
+            || identity.source_epoch == 0
+            || identity.lot_incarnation == 0
+        {
             return Err(LiveError::InvalidIdentity);
         }
         if runtime.sim().role() != RuntimeRole::Replica {
@@ -253,7 +268,10 @@ impl LiveReplica {
         self.request_checkpoint(self.connection())?;
         Ok(self.connection())
     }
-    pub fn request_checkpoint(&mut self, token: ConnectionToken) -> Result<CheckpointTicket, LiveError> {
+    pub fn request_checkpoint(
+        &mut self,
+        token: ConnectionToken,
+    ) -> Result<CheckpointTicket, LiveError> {
         self.require_connection(token)?;
         if self.status == SessionStatus::Suspended {
             return Err(LiveError::NotLive);
@@ -298,19 +316,24 @@ impl LiveReplica {
         let current = self.runtime.as_ref().ok_or(LiveError::Closed)?;
         let expected = current.sim().state();
         let mut expectation = SnapshotExpectation::new(expected.lot_id, expected.authority_epoch);
-        expectation.limits.max_payload_bytes = (self.limits.max_checkpoint_bytes
-            - SNAPSHOT_HEADER_LEN
-            - SNAPSHOT_CHECKSUM_LEN) as u64;
-        let state = sim_core::snapshot::decode(checkpoint.bytes, current.sim().content(), expectation)
-            .map_err(|error| LiveError::Checkpoint(error.to_string()))?;
-        if state.mode != expected.mode || state.limits != expected.limits {
+        expectation.limits.max_payload_bytes =
+            (self.limits.max_checkpoint_bytes - SNAPSHOT_HEADER_LEN - SNAPSHOT_CHECKSUM_LEN) as u64;
+        let state =
+            sim_core::snapshot::decode(checkpoint.bytes, current.sim().content(), expectation)
+                .map_err(|error| LiveError::Checkpoint(error.to_string()))?;
+        if state.mode != expected.mode
+            || state.limits != expected.limits
+            || state.effects.namespace() != expected.effects.namespace()
+            || state.effects.limits() != expected.effects.limits()
+        {
             return Err(LiveError::ChangedConfiguration);
         }
         if state.completed_tick != checkpoint.completed_tick {
             return Err(LiveError::CheckpointMetadata);
         }
-        let sim = SimRuntime::from_state(state, current.sim().content().clone(), RuntimeRole::Replica)
-            .map_err(|error| LiveError::Runtime(error.into()))?;
+        let sim =
+            SimRuntime::from_state(state, current.sim().content().clone(), RuntimeRole::Replica)
+                .map_err(|error| LiveError::Runtime(error.into()))?;
         let mut candidate = GameRuntime { sim };
         let checkpoint_cursor = cursor(&candidate)?;
         if checkpoint_cursor.state_hash != checkpoint.state_hash {
@@ -402,6 +425,7 @@ impl LiveReplica {
         token: ConnectionToken,
         selection: InteractionSelection,
     ) -> Result<InteractionIntent, LiveError> {
+        self.require_live(token)?;
         if selection.command_sequence == 0 {
             return Err(LiveError::SelectionUnavailable);
         }
@@ -426,6 +450,7 @@ impl LiveReplica {
             .interaction_queues
             .get(&selection.actor.object_id)
             .ok_or(LiveError::MissingQueue)?;
+        check_sequence(selection.command_sequence, queue.last_command_sequence())?;
         Ok(InteractionIntent {
             principal: selection.principal,
             seen: batch.seen,
@@ -435,8 +460,68 @@ impl LiveReplica {
             param0: selection.param0,
         })
     }
+    /// Prepare cancellation against the CURRENT visible queue and actor version.
+    /// Cancellation is not an optimistic deletion; the accepted stream owns its
+    /// source cancellation/idle notification and eventual frame completion.
+    pub fn prepare_cancel(
+        &self,
+        token: ConnectionToken,
+        selection: CancelSelection,
+    ) -> Result<CancelIntent, LiveError> {
+        self.require_live(token)?;
+        let state = self
+            .runtime
+            .as_ref()
+            .ok_or(LiveError::Closed)?
+            .sim()
+            .state();
+        if selection.command_sequence == 0 || !state.ids.is_live(selection.actor) {
+            return Err(LiveError::SelectionUnavailable);
+        }
+        let actor = state
+            .entities
+            .get(&selection.actor.object_id)
+            .filter(|entity| entity.info.reference == selection.actor && !entity.info.dead)
+            .ok_or(LiveError::SelectionUnavailable)?;
+        if !state
+            .interaction_access
+            .get(&selection.actor)
+            .is_some_and(|access| access.principal == selection.principal)
+        {
+            return Err(LiveError::SelectionUnavailable);
+        }
+        let queue = state
+            .interaction_queues
+            .get(&selection.actor.object_id)
+            .ok_or(LiveError::MissingQueue)?;
+        if !queue.entries().iter().enumerate().any(|(index, entry)| {
+            entry.id == selection.action && queue.entry_visible(index) == Some(true)
+        }) {
+            return Err(LiveError::SelectionUnavailable);
+        }
+        check_sequence(selection.command_sequence, queue.last_command_sequence())?;
+        Ok(CancelIntent {
+            principal: selection.principal,
+            world_revision: state.completed_tick,
+            actor: EntityVersion {
+                key: crate::entity_key(selection.actor),
+                revision: actor.revision,
+            },
+            queue_revision: queue.revision(),
+            command_sequence: selection.command_sequence,
+            action: selection.action,
+        })
+    }
 }
 
+fn check_sequence(received: u64, last: Option<u64>) -> Result<(), LiveError> {
+    if let Some(last) = last
+        && received <= last
+    {
+        return Err(LiveError::ReplayedSequence { received, last });
+    }
+    Ok(())
+}
 fn cursor(runtime: &GameRuntime) -> Result<ReplicaCursor, LiveError> {
     let state = runtime.sim().state();
     Ok(ReplicaCursor {
@@ -472,10 +557,11 @@ fn replay(
         if !outcome.effects.is_empty() {
             return Err(LiveError::UnexpectedEffects);
         }
-        if let Some(anchor) = anchor {
-            if outcome.tick == anchor.completed_tick && outcome.state_hash != anchor.state_hash {
-                return Err(LiveError::HistoryConflict);
-            }
+        if let Some(anchor) = anchor
+            && outcome.tick == anchor.completed_tick
+            && outcome.state_hash != anchor.state_hash
+        {
+            return Err(LiveError::HistoryConflict);
         }
         if publish && !outcome.duplicate {
             outcomes.push(outcome);
@@ -485,8 +571,9 @@ fn replay(
 }
 
 // Size counting streams directly into a bounded sink: it never allocates a
-// complete JSON copy merely to measure nested command payloads. This is an
-// admission budget for already decoded inputs, not a network wire specification.
+// complete binary copy merely to measure nested command payloads. The fixed
+// integer, little-endian encoding matches A's native serializer and accepts
+// tuple map keys. This measures decoded inputs; it is not a network decoder.
 fn preflight(frames: &[TickFrame], limits: ReplayLimits) -> Result<(), LiveError> {
     if frames.len() > limits.max_batch_ticks {
         return Err(LiveError::Limit("batch ticks"));
@@ -499,7 +586,12 @@ fn preflight(frames: &[TickFrame], limits: ReplayLimits) -> Result<(), LiveError
             .ok_or(LiveError::Limit("batch commands"))?;
     }
     let mut sink = BudgetWriter(limits.max_batch_bytes);
-    serde_json::to_writer(&mut sink, frames).map_err(|_| LiveError::Limit("batch bytes"))?;
+    bincode::DefaultOptions::new()
+        .with_fixint_encoding()
+        .with_little_endian()
+        .with_limit(limits.max_batch_bytes as u64)
+        .serialize_into(&mut sink, frames)
+        .map_err(|_| LiveError::Limit("batch bytes"))?;
     Ok(())
 }
 struct BudgetWriter(usize);

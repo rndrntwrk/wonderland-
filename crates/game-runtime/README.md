@@ -36,6 +36,19 @@ an account, infer server permission or decode a FreeSO VM network packet.
 `GameRuntime::sim()` exposes read-only source state and content for richer
 integrations. `sim_core` and `content_bridge` are reexports of the real crates.
 
+## Native live-session lifecycle
+
+`live_session::LiveReplica` wraps a replica-role `GameRuntime` with correlated
+checkpoint recovery, generation-fenced callbacks, atomic accepted batches and
+post-tick hash validation. It exposes live-only projections/source offers and
+prepares interaction/cancellation intents without executing them locally.
+Recovery suppresses historical presentation outcomes; stale/uncertain commands
+are not automatically replayed. The transport still owns authentication,
+pre-decode bounds, pending command sequences and actual browser/scene wiring.
+
+See [the contract, tests and integration handoff](../../docs/design/action-first/live-lot-runtime-session.md).
+This native protocol is not a translation of the legacy FreeSO refresh lane.
+
 ## Original-content requirements
 
 The adapter needs the effective local resource, its explicitly identified

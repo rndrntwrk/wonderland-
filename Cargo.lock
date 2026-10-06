@@ -2836,6 +2836,7 @@ dependencies = [
 name = "wonderland-game-runtime"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "serde",
  "serde_json",
  "sha2",

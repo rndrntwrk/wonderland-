@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "base": {
+    "pr": 21,
+    "sha": "dbc08f1f0ce0c65a6cad9ef9f7fd34fef3c2c522",
+    "tree": "648938670dac5c361c62a1f01d83cd113a4cf945"
+  },
+  "scope": "Native A live replica lifecycle and source-interaction preparation; not connected browser gameplay",
+  "toolchain": {
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "llvm": "23.1.1",
+    "host": "x86_64-unknown-linux-gnu",
+    "wasm_target": "wasm32-unknown-unknown",
+    "execution": "Node v22.16.0 WebAssembly"
+  },
+  "workspace": {
+    "passed": 1350,
+    "failed": 0,
+    "ignored": 5,
+    "live_session_tests_included": 31,
+    "summary_count": 203,
+    "ignored_tests": [
+      "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+      "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+      "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+      "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+      "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+    ]
+  },
+  "audio": {
+    "passed": 59,
+    "failed": 0,
+    "skipped": 0
+  },
+  "gates": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "cargo test --workspace --locked",
+      "exit": 0,
+      "log_sha256": "6da3c00cebe33e38230436f52e3ec116aa8cc0f9a4a045480305c8c210e73245"
+    },
+    {
+      "command": "node --test crates/audio-runtime/browser/*.test.mjs",
+      "exit": 0,
+      "log_sha256": "b77953e3cac6744180b0ee388245c18bd5d50df26e82bb60c008c7ba140f3f24"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit": 0,
+      "log_sha256": "965c4960b43c1703c78ce38449a78bccdd707a93d2eded4dcae7855dc673b5a2"
+    },
+    {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings",
+      "exit": 0,
+      "log_sha256": "dfdd703d184c02b65094d957ebb8fb76aece995dfc0ac9d5c4554c31a697b3d4"
+    }
+  ],
+  "native_wasm": {
+    "result": "pass",
+    "schema": 1,
+    "native_wasm_equal": true,
+    "complete_record_bytes": 56785,
+    "output_sha256": "52591f996aa045dd36914f23a374ace54683c747cc115dc56d2c4cb90f3428df",
+    "wasm_sha256": "f2ef25bca43b818eb9ee1705e55241b7d93005727376e02604ecc34a707ae609",
+    "wasm_imports": 0,
+    "shared_memory": false,
+    "semantic_negative_controls": 6,
+    "changed_output_negative_controls": 1,
+    "repeated_reads": "equal",
+    "complete_outputs": "Retained as live-session-native.json and live-session-wasm.json in the Live lot session workflow artifact; common-output.json.gz is also included in the conversation verification bundle."
+  },
+  "verified_files_sha256": {
+    "Cargo.toml": "4fb9c3a00f7a8eff7d09a4c81c3a69101248018d716ac7fb82a8bd09be81e91d",
+    "Cargo.lock": "535523549acc3469da30a9c142dab27dee779f810a4e0cbb6faabb161a702f78",
+    "rust-toolchain.toml": "71081a748b809f774fed4a89c12d6ceaa6b6488814cbc97875c26cfe9f6597b4",
+    ".github/workflows/live-lot-session.yml": "776d6f7ab36a9f64c32a6702e9e0b0dab54160e107ba5bde7e02839384fb8e33",
+    "crates/game-runtime/Cargo.toml": "29ca7dc38151c7b2ee81ba93cefe5e4f8df63ce3b4178aced284c43aa35f97ef",
+    "crates/game-runtime/src/lib.rs": "72d4c88ecaea68b84d2937362f58ea75bf0a21d1a3eafa6e7d1ff442884e48ee",
+    "crates/game-runtime/src/live_session.rs": "07a2e102c7fb394c9200887783e43306eb6c5a49510bdb8fcd4906837af59600",
+    "crates/game-runtime/tests/live_session.rs": "e5ce33e4ac4081ff124030cc5fa2ad25be32f9115aa359eff18a6dedb9b361c9",
+    "crates/game-runtime/tests/live_session/recovery.rs": "5b79bb91e81b48539fb3750d469f92003f949720b76495adfda6ca57d4f25c99",
+    "crates/game-runtime/tests/live_session/source.rs": "834e4f288df65ca617f7a29c3df3781d67e4d743ac71598b75aca87bcc13d464",
+    "crates/game-runtime/tests/live_session/support.rs": "9ecd0e37338d98adb709c25c5c108ff8bd64944024497fdb2201f02707d8b14c",
+    "crates/game-runtime/examples/live_session_probe.rs": "5dfadab0f9017c120e1fa01ddc5ee134339ffa2aae4f0fa40c9455592ea8caa7",
+    "crates/game-runtime/scripts/verify-live-session.mjs": "7e61d71a50e31fbb505e39e3a065abaabd710329e9c3876b817d9ce3095c1f32",
+    "TSOClient/FSO.Content.TSO/Content/Objects/Casino_2-Tile_Bar_CC.iff": "20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865",
+    "TSOClient/FSO.Content.TSO/Content/Objects/fso_christmas_flag.iff": "d12dcf5254b1381c7ad8f4549c6365c4d2f31f1170a5fd96a5fdf037a195f188",
+    "TSOClient/FSO.Content.TSO/Content/Objects/cursebook_set_permission.iff": "fab1a27e78532339eb42ebceda39eaa2a17cff9a4c16226e66ec2a1048938f91"
+  },
+  "evidence_files_sha256": {
+    "docs/design/action-first/evidence/live-session-2026-10-06/effect-config-red.log.gz": "63ceb0e945a9982e185287afc0cf5d42e270a5aeb3c1ad270ad346801b454e7b",
+    "docs/design/action-first/evidence/live-session-2026-10-06/extended-first.log.gz": "2160860514ff89ea7aaf318dedfd15b40128650f1b70be940ab4c31b46582af0",
+    "docs/design/action-first/evidence/live-session-2026-10-06/extended-fixed.log.gz": "8b0a7d6cb9c10af129ce08a41c162e01af2d180007d83236fcc7fcedc2c0682a",
+    "docs/design/action-first/evidence/live-session-2026-10-06/recovery-green.log.gz": "e1edf6089978d1a8a99e8e63f62e8d56ee94d9e93baaec6e5eaaa1c8e556904f",
+    "docs/design/action-first/evidence/live-session-2026-10-06/sequence-green.log.gz": "0e005618dfcf2dc4324d83e0eabd61c5218818dee767867a0767ccc63262bde9",
+    "docs/design/action-first/evidence/live-session-2026-10-06/sequence-red.log.gz": "70e1c03957d685dc0342f2eae591d3fd321c78971e5e74c005ce3b3ed75761da"
+  },
+  "historical_red": {
+    "missing_module": {
+      "commit": "03b87756c565a1cbb54f784ce9df3cfd080bf74c",
+      "workflow_run": 37424887087,
+      "job": 112142194382,
+      "result": "expected compiler E0432 before implementation"
+    },
+    "behavioral": [
+      "native tuple-key map was wrongly rejected by JSON measurement",
+      "already accepted command sequence could be prepared again",
+      "changed effect namespace or limits were accepted in checkpoint handoff"
+    ],
+    "formatting": {
+      "workflow_run": 37425793087,
+      "result": "failed; formatting corrected using the pinned rustfmt"
+    }
+  },
+  "limits": {
+    "fixture": "Unchanged embedded BHAV bytecode with declared harness metadata and local test authority",
+    "production_services_tested": false,
+    "browser_ui_interactions_tested": false,
+    "physical_device_qualification": false,
+    "original_FSOv_to_A_conversion_implemented": false,
+    "independent_code_review_performed": false,
+    "full_gameplay_complete": false
+  }
+}

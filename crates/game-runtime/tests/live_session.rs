@@ -25,7 +25,12 @@ fn identity() -> StreamIdentity {
 }
 
 fn client() -> LiveReplica {
-    LiveReplica::new(runtime(RuntimeRole::Replica), identity(), ReplayLimits::default()).unwrap()
+    LiveReplica::new(
+        runtime(RuntimeRole::Replica),
+        identity(),
+        ReplayLimits::default(),
+    )
+    .unwrap()
 }
 
 fn advance(server: &mut GameRuntime) -> TickFrame {
@@ -74,14 +79,19 @@ fn two_replicas_follow_the_same_real_runtime_ticks() {
         let frame = advance(&mut server);
         for replica in [&mut a, &mut b] {
             let token = replica.connection();
-            let outcomes = replica.apply_batch(token, std::slice::from_ref(&frame)).unwrap();
+            let outcomes = replica
+                .apply_batch(token, std::slice::from_ref(&frame))
+                .unwrap();
             assert_eq!(outcomes.len(), 1);
             assert!(outcomes[0].effects.is_empty());
             assert_eq!(outcomes[0].state_hash, frame.state_hash);
             assert_eq!(replica.projection().unwrap(), server.projection());
         }
     }
-    assert_eq!(a.runtime().unwrap().snapshot().unwrap(), b.runtime().unwrap().snapshot().unwrap());
+    assert_eq!(
+        a.runtime().unwrap().snapshot().unwrap(),
+        b.runtime().unwrap().snapshot().unwrap()
+    );
 }
 
 #[test]
@@ -93,7 +103,11 @@ fn invalid_later_tick_cannot_publish_an_earlier_prefix() {
     let first = advance(&mut server);
     let mut second = advance(&mut server);
     second.accepted.rng_before ^= 1;
-    assert!(client.apply_batch(client.connection(), &[first, second]).is_err());
+    assert!(
+        client
+            .apply_batch(client.connection(), &[first, second])
+            .is_err()
+    );
     assert_eq!(client.runtime().unwrap().snapshot().unwrap(), before);
     assert_eq!(client.status(), SessionStatus::AwaitingCheckpoint);
     assert!(client.projection().is_err());
@@ -119,7 +133,9 @@ fn exact_duplicate_does_not_emit_another_outcome() {
     install(&mut client, &server, &[]);
     let frame = advance(&mut server);
     let token = client.connection();
-    client.apply_batch(token, std::slice::from_ref(&frame)).unwrap();
+    client
+        .apply_batch(token, std::slice::from_ref(&frame))
+        .unwrap();
     let before = client.runtime().unwrap().snapshot().unwrap();
     assert!(client.apply_batch(token, &[frame]).unwrap().is_empty());
     assert_eq!(client.runtime().unwrap().snapshot().unwrap(), before);
@@ -136,12 +152,24 @@ fn old_socket_callbacks_and_checkpoint_tickets_cannot_restore_after_reconnect() 
     client.reconnect().unwrap();
     let current_ticket = client.checkpoint_ticket().unwrap();
     let bytes = server.snapshot().unwrap();
-    assert!(client.install_checkpoint(old_ticket, Checkpoint {
-        completed_tick: 0,
-        state_hash: server.sim().state_hash().unwrap(),
-        bytes: &bytes,
-    }, &[]).is_err());
-    assert!(client.apply_batch(old_token, &[advance(&mut server)]).is_err());
+    assert!(
+        client
+            .install_checkpoint(
+                old_ticket,
+                Checkpoint {
+                    completed_tick: 0,
+                    state_hash: server.sim().state_hash().unwrap(),
+                    bytes: &bytes,
+                },
+                &[]
+            )
+            .is_err()
+    );
+    assert!(
+        client
+            .apply_batch(old_token, &[advance(&mut server)])
+            .is_err()
+    );
     assert!(client.suspend(old_token).is_err());
     assert_eq!(client.checkpoint_ticket(), Some(current_ticket));
     install(&mut client, &server, &[]);
@@ -159,11 +187,19 @@ fn recovery_cannot_move_the_committed_tick_backwards() {
     let before = client.runtime().unwrap().snapshot().unwrap();
     client.request_checkpoint(client.connection()).unwrap();
     let ticket = client.checkpoint_ticket().unwrap();
-    assert!(client.install_checkpoint(ticket, Checkpoint {
-        completed_tick: 0,
-        state_hash: old_hash,
-        bytes: &old_bytes,
-    }, &[]).is_err());
+    assert!(
+        client
+            .install_checkpoint(
+                ticket,
+                Checkpoint {
+                    completed_tick: 0,
+                    state_hash: old_hash,
+                    bytes: &old_bytes,
+                },
+                &[]
+            )
+            .is_err()
+    );
     assert_eq!(client.runtime().unwrap().snapshot().unwrap(), before);
 }
 
@@ -178,3 +214,11 @@ fn closed_session_drops_runtime_and_cannot_be_reopened() {
     assert!(client.reconnect().is_err());
     assert!(client.request_checkpoint(token).is_err());
 }
+
+#[path = "live_session/recovery.rs"]
+mod recovery;
+#[path = "live_session/source.rs"]
+mod source;
+
+#[path = "live_session/support.rs"]
+mod support;
