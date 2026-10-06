@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-06",
+  "sourceBaseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "previousPublishedC": "a4c8bbaacde50cc5b1b271639b5fe454ac317e02",
+  "evidenceScope": "Final local C source snapshot; runtime input hashes in toolchain-artifacts.json. Native engine/physical and ordinary WebGPU page acceptance are separate.",
+  "reference": {
+    "passed": true,
+    "rustPassed": 441,
+    "rustFailed": 0,
+    "rustIgnored": 0,
+    "nodeAudio": 19,
+    "nodeHost": 8,
+    "nodeReadback": 9,
+    "derivativeValidators": [
+      "synthetic verify.py",
+      "original-source verify_source.py"
+    ],
+    "formatManifests": 10
+  },
+  "nativeWasm": {
+    "evidence": "synthetic-native-wasm-algorithms",
+    "passed": true,
+    "scenarios": 18,
+    "imports": 0,
+    "sharedMemory": false,
+    "wasmSha256": "d9b9752b6b3fb555c9ecfb07e8234a1d92a865d98e5bf722b0321b25d2c5c8ad",
+    "elapsedMs": 2620.241485,
+    "memoryBytes": 21299200
+  },
+  "auxiliary": {
+    "passed": true,
+    "compiler": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)\nbinary: rustc\ncommit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112\ncommit-date: 2023-12-21\nhost: x86_64-unknown-linux-gnu\nrelease: 1.75.0\nLLVM version: 17.0.6\n",
+    "authority": {
+      "pin": "8a0e251d19e222a0a6833d7408ca629f674e1729",
+      "rustTests": 1,
+      "presentationHz": [
+        30,
+        60,
+        120
+      ],
+      "authorityTicks": 60,
+      "stateHashesEqual": true,
+      "eventsEqual": true,
+      "cuesPerRun": 2,
+      "duplicateCues": 0
+    },
+    "audio": {
+      "pythonTests": 11,
+      "sourceDifferentialCases": 32,
+      "sourceBytesEqual": true
+    },
+    "executables": {
+      "authorityProbe": {
+        "bytes": 32606000,
+        "sha256": "cfa0e47ebb2757db7fee94dda604087c4efda97cd7e1a63922460f20927985bf",
+        "buildProfile": "dev debug0",
+        "cacheRetained": false
+      },
+      "audioDecoder": {
+        "bytes": 13506568,
+        "sha256": "f359a55c7fd9150f952852c74461ae5b114920b4eb1b0cce033176203dace954",
+        "buildProfile": "dev debug0",
+        "cacheRetained": false
+      }
+    }
+  },
+  "webgpuLauncher": {
+    "passed": true,
+    "actualMappedCopies": 12,
+    "exactRgba": true,
+    "deviceCancellation": true,
+    "browser": "141.0.7390.37",
+    "adapter": "Google SwiftShader",
+    "fullChromiumChannelForNoShellCI": true,
+    "localExplicitExecutableOverride": true
+  },
+  "files": {
+    "audio-codecs.log": {
+      "bytes": 2163,
+      "sha256": "b75d13a548b373fe8f947220d21248471e68ee74ae983e41da8a37fbdc82514f"
+    },
+    "audio-source-differential.json": {
+      "bytes": 11504,
+      "sha256": "350b899c39547c8288d09bc9d71261cb2aee75a827f14783ee39d7a17b65e461"
+    },
+    "auxiliary.json": {
+      "bytes": 1091,
+      "sha256": "067118691a647e12c10541f1fa249a9cfb572a01b60fc9849e5eba4b48075348"
+    },
+    "native-wasm.json": {
+      "bytes": 8602,
+      "sha256": "1f3779ff42e1d7e129862d0c57c21301d8f64ec21aecd45d8c15d595af5cbe80"
+    },
+    "native.jsonl": {
+      "bytes": 6549,
+      "sha256": "903c08ad20947d30d1a9f031f67de3b37cb28f812e954dc36db1107c65091bda"
+    },
+    "pinned-authority.log": {
+      "bytes": 1407,
+      "sha256": "131d48703603b302b5a077208083706b7559060d937b33a09010d4a321c01e10"
+    },
+    "reference.log": {
+      "bytes": 60364,
+      "sha256": "c2455e265b693ad12fdc1330b9ff464e5b48b80d37314699eb3e45058d8413c5"
+    },
+    "toolchain-artifacts.json": {
+      "bytes": 11780,
+      "sha256": "fbc4ffd4d8c170153e8bfaf01d35ae7d3d3ed492121e492dfc3fdd8e63de79b2"
+    },
+    "wasm-build.log": {
+      "bytes": 1778,
+      "sha256": "f6a9ccf3524f2be37254085d6cb09b6040704c670e3fdea262e35879e31d4fa6"
+    },
+    "webgpu-launcher.log": {
+      "bytes": 455,
+      "sha256": "282fc2d699e513593512d29f9309933b63918a348004ed3c02c55ac45c335d97"
+    }
+  },
+  "implementationCommit": "242b4b81541eb7b223b5e815f1fb3dbf652b6da5",
+  "implementationTree": "7413d1cb6840d810ce0253dfccc1d70dbeb6ebf2",
+  "logNormalization": "The pinned-authority log retains all output lines with one final newline; one extra blank line at EOF was removed.",
+  "testedLocalCommit": "3de429f2d70a8fbf7310b9da9932a230d2572fa1",
+  "publicationMethod": "Authenticated GitHub Git-data connector; every blob and exact source tree verified against the local tested commit."
+}

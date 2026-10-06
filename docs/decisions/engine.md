@@ -23,22 +23,72 @@ a cross-origin-isolation requirement.
 
 ## What the available comparison establishes
 
-The reviewed follow-up is published at
+### Current continuation: asynchronous selection and raw readback
+
+The continuation implements genuine offscreen GPU selection for both engine
+adapters. Each request captures private `FrameStore` tickets; a returned RGB24
+index resolves only against those tickets and the current generation/content
+state. Completion is asynchronous, and cancellation rejects late results after
+scene replacement, suspension, reset or device loss. Interactive selection
+does not change the visible color pass. The
+[implementation contract and reproducible commands](../../probes/engine-bakeoff/web/GPU-PICKING.md)
+describe the shared protocol and backend ownership.
+
+All three rebuilt browser variants have actual continuation evidence on
+Chromium `141.0.7390.37` with SwiftShader, Rust `1.95.0`, and ordinary WASM without
+shared memory or cross-origin isolation. The builds use dev optimization level 1
+with debug information disabled; these runs establish correctness and lifecycle
+behavior, not release performance.
+
+| Browser candidate | Current offscreen selection evidence | Current raw canvas evidence |
+|---|---|---|
+| [Bevy WebGPU](../../probes/engine-bakeoff/web/evidence/bevy-webgpu-final-picker.json) | All six scenes; 60 exact picks; 18 interruptions after actual GPU map completion was held; no console errors. | All 12 copies mapped in 191–348 ms; 20,319 ID samples with zero mismatches, including 6,560 ownerless samples; all six color comparisons pass unchanged thresholds. |
+| [Bevy WebGL2](../../probes/engine-bakeoff/web/evidence/bevy-webgl2-picker.json) | All six scenes; 60 exact picks; 18 interruptions after actual PBO transfer with fence completion held; no console errors. | This continuation run checks offscreen selection. Its ordinary color/physical-ID screenshot evidence remains the separate historical gate below. |
+| [Fyrox WebGL2](../../probes/engine-bakeoff/web/evidence/fyrox-webgl2-picker.json) | All six scenes; 60 exact picks; 18 interruptions after actual PBO transfer with fence completion held; no console errors. | This continuation run checks offscreen selection. Its ordinary color/physical-ID screenshot evidence remains the separate historical gate below. |
+
+The final Bevy WebGPU artifact includes the corrected source-view pipeline
+readiness and one-shot readback buffer ownership. Readiness checks every draw
+pipeline and the output pipeline for the ID camera; an unrelated optional
+`sparse buffer update pipeline` remaining queued on WebGL cannot stall that
+camera. Exclusive buffer ownership prevents successful completion and later
+cleanup from unmapping the same buffer twice. The
+[build record](../../probes/engine-bakeoff/web/evidence/bevy-webgpu-build.json)
+retains the exact compiled, metadata-stripped and packaged WASM hashes. Removing
+name/debug metadata to fit local binder memory left every executable section
+byte-for-byte unchanged.
+
+The raw-copy diagnostic now records bounded acquisition, submission, copy,
+validation and mapping stages, with request-local cancellation and cleanup.
+The final raw comparisons have maximum color mean error 0.19410 bytes, RMS
+3.13382 bytes, and channel fraction over eight bytes 0.006157; acceptance stays
+at 4, 12, and 0.03 with zero permitted ID mismatches.
+
+These passes do **not** qualify ordinary Bevy WebGPU page presentation. The
+historical hosted-browser presentation failure remains recorded separately;
+the local headed-browser experiment could not reach graphics because its
+AF_UNIX socket creation was denied by the environment. The current adapters
+were built and executed in browser WASM; native engine execution below remains
+historical and is not relabeled as a run of these new readback changes. No
+production engine or physical-device backend has been selected by these results.
+
+### Published baseline at d247ebb
+
+The previous reviewed follow-up was published at
 `d247ebb94d1d4de79247983b4f62fffb7e06427d`, exercised by
 [run 37358255818](https://github.com/rndrntwrk/wonderland-/actions/runs/37358255818).
 Its complete reference passed 377 Rust tests, including the 16-test fixture
 suite, and all 18 native/WASM records. Both native engine jobs and the locked
 CPAL/null-stream job also passed. Both Bevy and Fyrox WebGL2 passed all six
 color/physical-ID scenes and lifecycle checks with zero failures. Bevy WebGPU
-remains failed: its ordinary scene images failed and nine of twelve raw GPU
+failed at that revision: its ordinary scene images failed and nine of twelve raw GPU
 copies timed out. All six direct engine-canvas ID snapshots passed, and a minimal
 clear reproduced a hosted-browser page-presentation failure without Bevy. Each
 outcome is recorded independently; these
 hosted-software passes do not select a production engine or qualify a device.
 
-This revision corrects the synthetic crowd's unintended physical overlap using
+That revision corrected the synthetic crowd's unintended physical overlap using
 its full animation footprint, preserves existing source/coplanar regressions,
-and removes fractional host transforms. It also adds a reviewed diagnostic that
+and removed fractional host transforms. It also added a reviewed diagnostic that
 distinguishes engine-texture copies, direct canvas snapshots and page capture.
 The [fixture review](../swarm-c/evidence/fixture-v2-review.json) and
 [readback protocol review](../swarm-c/evidence/gpu-readback-protocol.json) establish
@@ -103,13 +153,17 @@ of those earlier checks without rewriting their recorded failures.
 The fixture supplies the same CPU geometry, source-depth/alpha sprites, synthetic
 skinned avatar instances, camera and tick to both adapters. It has all three view
 modes and 32/64 workloads. GPU color and ID visualization are compared with the
-CPU reference. The interactive pick path remains a generation-checked CPU pick.
+independent CPU reference. The interactive pick path now uses the engine's
+offscreen GPU ID pass and asynchronous, generation-checked request tickets;
+CPU reference images are an oracle for tests and are not a selection fallback.
 Full advanced lighting, production content, day/night facade atlas integration
 and the live city client are outside this small fixture. The separate CPU
 derivative worker does produce normalized day/night PNG atlases, and the
 normalized FSOm adapter emits ordered multi-material/stencil commands. Their
-library/source tests do not implement the corresponding engine passes or
-complete world-view composition.
+library/source tests do not implement those passes inside these small engine
+probes. Production source-material, lighting, avatar and source-isometric
+composition in the separate existing client is independently implemented and
+verified; it does not expand the workload exercised by this engine comparison.
 
 The native run is bounded and reports successful scene state, errors and
 authoritative ticks advanced. Bevy render-schedule visits and Fyrox draw
@@ -139,16 +193,17 @@ raw evidence.
 The `d247ebb` run closes the prior fixture discrepancies for both WebGL2
 adapters, with all six version 2 scenes passing the unchanged color/exact-ID and
 lifecycle gates. It does not prove arbitrary coplanar production scenes.
-Add bounded per-stage progress to the WebGPU raw-copy diagnostic: the current
-deadlines do not identify acquisition, copy submission, validation settlement or
-mapping as the stalled stage. Use that evidence to complete the diagnostic and
-establish passing ordinary scene
-presentation in a supported environment, retaining the independently reproduced
-hosted-browser presentation failure. Use the committed engine/npm locks and unchanged
-acceptance thresholds. Complete C's lighting/material/picking/client
-composition, integrate real provider/content inputs, and run the physical-device
-matrix. These are concrete remaining implementation and acceptance conditions;
-the passed synthetic reference and OS null-audio results do not close them.
+The continuation closes bounded diagnostic stages, asynchronous GPU selection,
+and all twelve actual raw WebGPU copies for its recorded browser and artifact.
+Ordinary scene presentation still requires a passing run in a supported
+environment, retaining the independently reproduced hosted-browser presentation
+failure. Continue using committed engine/npm locks and unchanged acceptance
+thresholds. Production engine adoption also requires representative real
+provider/content workloads, complete production-pass integration for the chosen
+adapter, release performance comparison, and the physical-device matrix.
+The separate existing-client implementation and its gates are recorded by the
+global integration owner. Synthetic engine fixtures and OS null-audio results
+do not substitute for those engine-selection acceptance conditions.
 
 The eventual selection record should name the chosen engine and supported
 backend policy, link the exact builds/locks and captures, compare correctness,

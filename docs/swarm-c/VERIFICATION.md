@@ -5,7 +5,115 @@ separates historical local evidence, commit-specific CI, synthetic reference
 comparisons and physical acceptance. Do not carry a passing result over to a
 modified commit without rerunning the affected checks.
 
-## Recorded evidence
+## Completed source continuation, 2026-10-06
+
+The published implementation commit is
+[`242b4b81541eb7b223b5e815f1fb3dbf652b6da5`](https://github.com/rndrntwrk/wonderland-/commit/242b4b81541eb7b223b5e815f1fb3dbf652b6da5),
+on top of the C checkpoint `a4c8bbaacde50cc5b1b271639b5fe454ac317e02`.
+Its tree `7413d1cb6840d810ce0253dfccc1d70dbeb6ebf2` exactly matches the verified
+local implementation commit `3de429f2d70a8fbf7310b9da9932a230d2572fa1`.
+Publication used the authenticated GitHub connector because direct Git push had
+no credentials; every uploaded blob and the resulting tree matched locally.
+The accompanying documentation/evidence commit changes no implementation.
+The original baseline remains `4c6b3e8f5835b228723caea3c9f683c62f244f73`.
+
+This continuation implements source room/light/shadow and environment preparation,
+the explicit WCRC sunlight path, source thumbnail/facade extraction and original
+FSOf serialization, CPU/GPU derivative ownership, and actual asynchronous private
+GPU picking in both engine adapters. The existing client consumes these modules
+on the separate [client integration branch](https://github.com/rndrntwrk/wonderland-/tree/feat/swarm-c-client-integration)
+based on PR18. Its assembled verification belongs to the
+[client guide](https://github.com/rndrntwrk/wonderland-/blob/feat/swarm-c-client-integration/docs/swarm-c/CLIENT_INTEGRATION.md).
+
+### Final reference and authority gates
+
+The [evidence index](evidence/continuation-2026-10-06/index.json) retains complete
+logs, all native/WASM observations, artifact digests, toolchain identity and 87
+source/manifest/lock hashes. Every recorded source hash was checked against the
+implementation before publication.
+
+| Gate | Final local result |
+| --- | --- |
+| Rust 1.75 reference suites | **441 passed; zero failed; zero ignored.** Core 92, iso 87, geometry/environment 113, avatar 35, audio 59, fixture 16, native transport 25, facade worker 5, browser bridge 9. All ten reference-manifest formatting checks passed. |
+| Browser protocol tests | **19 audio, 8 host and 9 GPU-readback Node tests passed.** The independent PNG/ID comparator self-test also passed. |
+| Derivative worker | Both independent validators passed: actual normalized PNG output and source PNG/FSOf extraction, decoding, byte layout and bounded failure behavior. Checked-in [normalized](../../tools/swarm-c/facade-worker/fixtures/synthetic-verification.json) and [source](../../tools/swarm-c/facade-worker/fixtures/source-verification.json) reports retain their separate fixtures. |
+| Native/ordinary WASM | **All 18 complete records exactly equal**, zero host imports, non-shared linear memory. The run used 21,299,200 bytes and took 2.620 seconds; these are synthetic algorithm observations, not GPU performance. |
+| Pinned A authority | **Passed** at `8a0e251d19e222a0a6833d7408ca629f674e1729`: 60 genuine ticks with C absent and at 30/60/120 Hz preserve every state hash and ordered event. Each cadence receives two genuine cues and zero duplicates. |
+| Source audio codecs | **11 Python tests and all 32 unchanged-C# XA/UTK complete-WAV comparisons passed.** |
+
+The WASM SHA-256 is
+`d9b9752b6b3fb555c9ecfb07e8234a1d92a865d98e5bf722b0321b25d2c5c8ad`.
+Both compilers identify as Rust 1.75.0, commit
+`82e1608dfa6e0b5569232559e3d385fea5a93112`, LLVM 17.0.6. The
+[toolchain record](evidence/continuation-2026-10-06/toolchain-artifacts.json)
+distinguishes the native `/usr` source-tarball build from the official rustup WASM
+compiler. The retained native executable was rerun and its eighteen records
+matched the fresh native output byte-for-byte before comparison.
+
+The local environment initially lacked the 1.75 WASM standard library and had
+lost executable bits on two restored test binaries. The successful gates ran
+after installing the official target and restoring those cache permissions;
+no test was skipped or assertion changed to bypass these infrastructure issues.
+
+### Actual engine GPU picking and raw copies
+
+The [GPU picking guide](../../probes/engine-bakeoff/web/GPU-PICKING.md) records
+reproduction and exact artifacts. Interactive selections come from request-time
+RGB24 ID renders and retain source/device/view generations. The browser harness
+delays completion after real GPU work, so interruption tests exercise actual
+pending transfers.
+
+| Variant | Current actual browser result |
+| --- | --- |
+| [Bevy WebGPU](../../probes/engine-bakeoff/web/evidence/bevy-webgpu-final-picker.json) | Six scenes, **60 exact picks and 18 interrupted-transfer cases pass**. All **12 raw copies complete**: 20,319 exact sampled IDs including 6,560 ownerless samples, plus all six color comparisons within unchanged limits. |
+| [Bevy WebGL2](../../probes/engine-bakeoff/web/evidence/bevy-webgl2-picker.json) | Six scenes, **60 exact picks and 18 interrupted-transfer cases pass**, with no reported browser errors. |
+| [Fyrox WebGL2](../../probes/engine-bakeoff/web/evidence/fyrox-webgl2-picker.json) | Six scenes, **60 exact picks and 18 interrupted-transfer cases pass**, with no reported browser errors. |
+
+Bevy now waits for the actual ID-view draw pipelines and gives one owner
+responsibility for retiring a mapped buffer, avoiding unrelated queued pipelines
+and double unmapping during completion/cancellation. Diagnostics identify
+acquisition, submission, validation and mapping separately. Review inspected
+synchronous cancellation in the pinned GPU implementation.
+
+The runs used Chromium 141.0.7390.37 and Google SwiftShader, ordinary WASM and
+non-isolated pages. WebGPU color maxima were MAE 0.194097, RMS 3.133817 and fraction
+over eight 0.006157, within unchanged limits 4, 12 and 0.03. IDs retain zero
+mismatches. The corrected CI launcher also passed a separate
+[twelve-copy protocol run](evidence/continuation-2026-10-06/webgpu-launcher.log)
+with exact RGBA and device-loss cancellation.
+
+**Ordinary Bevy WebGPU page presentation remains unqualified.** Its last ordinary
+page-image gate failed at the historical revision below. Current successful raw
+copies do not promote that result. The retained
+[headed retry](../../probes/engine-bakeoff/web/evidence/bevy-webgpu-headed-blocked.json)
+failed before graphics initialization because the container rejected an AF_UNIX
+process-singleton socket. Native-engine pixel parity, physical GPUs and measured
+target-device performance remain separate acceptance work.
+
+### Source review and publication boundary
+
+The [closed independent review](evidence/source-completion-review.md) covers WCRC
+capture ordering, four quantized PCF stages, stage-two blue/alpha-only writes,
+source noise mips, SSAA, indoor bleed, identity and allocation ownership. Two
+actual client WebGL2 cases each match all 4,096 final RGBA bytes; supplied
+512×512 noise produces ten source mips and selects mip 7 exactly.
+
+The standard sparse 64×64×5 fixtures stay under the unchanged 250-million-work-unit
+default: normal 41,690,764 and Ultra 164,997,309. The allocation regression measures
+26,773,926 peak bytes under 30 million and retains exactly the payload getters'
+reported bytes. These fixtures do not establish worst-case lot performance.
+
+The final audit preserves original `TSOClient`/`Other`, authoritative A and shared
+contracts, C's 1.75 pin and the isolated engines' 1.95 pin. Generated binaries and
+build/dependency caches are excluded. Strict checks, failure propagation and
+image thresholds are retained. These local results are distinct from new GitHub
+Actions runs; hosted CI status must be read from the published head.
+
+Native CPAL/ALSA-null and native engine results below remain historical. No fresh
+physical-speaker, hot-unplug, live endpoint/account, complete original-asset
+corpus or production-engine acceptance is claimed by this continuation.
+
+## Historical recorded evidence
 
 Evidence snapshot: 2026-10-05. Source baseline:
 `4c6b3e8f5835b228723caea3c9f683c62f244f73`.
@@ -17,8 +125,8 @@ The combined reference job still failed because the already-reviewed audio-test
 and formatting corrections were not part of that renderer-only checkpoint.
 The library correction batch resolved those failures and received the successful
 combined CI result recorded below. The later adapters received the expanded
-reference and native-device successes recorded below. The current published
-verification revision is `d247ebb94d1d4de79247983b4f62fffb7e06427d`.
+reference and native-device successes recorded below. The published verification
+revision at that checkpoint was `d247ebb94d1d4de79247983b4f62fffb7e06427d`.
 
 ## Reference and native execution at d247ebb
 

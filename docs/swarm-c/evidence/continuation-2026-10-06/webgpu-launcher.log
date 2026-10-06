@@ -1,0 +1,10 @@
+{"browser":"141.0.7390.37","copies":12,"exactRgba":true,"deviceCancellation":true,"adapter":{"vendor":"google","architecture":"swiftshader"},"evidence":"Actual WebGPU protocol execution, independent of engine rendering and browser page presentation"}
+✔ actual WebGPU repeats mapped canvas copies and retires a lost device (963.412675ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1110.819155

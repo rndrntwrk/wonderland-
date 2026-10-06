@@ -1,214 +1,241 @@
-# Thumbnail and facade derivatives: source mapping and limits
+# Thumbnail and facade derivatives: source mapping and ownership
 
-## Implemented boundary
+## Implemented path
 
-`crates/render-core/src/derivatives.rs` now prepares immutable normalized render
-requests, produces real day/night thumbnail and facade atlas pixels through the
-CPU reference rasterizer, and schedules those requests with bounded queued,
-running and resident lifetimes. `tools/swarm-c/facade-worker` is a Rust 1.75
-library/CLI that reads a bounded normalized request and writes PNGs plus complete
-reproduction/provenance metadata. No authoritative simulation state is changed.
+The derivative path prepares immutable source-world geometry and cameras,
+renders bounded day/night image jobs, writes the original `FSOf` v1 container,
+reads legacy RGBA/DXT5 containers, and owns CPU and GPU lifetimes across source,
+lot, content, and device changes. The core and standalone worker remain Rust
+1.75 and have no engine or simulation dependency.
 
-The adapter accepts source-prepared colors/textures or explicitly unlit materials.
-Its uniform lighting multiplier is stated in the request. This is a usable CPU
-derivative producer, not a claim that legacy room lights, shadows, reconstructed
-sprite materials, GPU sampling or licensed content have already been reproduced.
+The implementation is split into:
 
-## Source ownership and mappings
+- [`derivatives.rs`](../../crates/render-core/src/derivatives.rs): validated
+  materials and draws, camera/atlas planning, CPU rendering, incremental tasks,
+  queue admission, cancellation, result installation, and held leases.
+- [`derivatives/source.rs`](../../crates/render-core/src/derivatives/source.rs):
+  Blueprint altitude, room/exterior extraction, bounded topology fallback,
+  original thumbnail camera/crop, and ground/floor/overlay/roof/wall geometry.
+- [`derivatives/fsof.rs`](../../crates/render-core/src/derivatives/fsof.rs):
+  original container field order, bounded raw/gzip decode/write, BC3 texture
+  decoding, and safe mesh conversion.
+- [`derivatives/upload.rs`](../../crates/render-core/src/derivatives/upload.rs):
+  backend resource ownership, pending/resident/retained budgets, source and device
+  generation checks, and stale upload disposal.
+- [`city/facade.rs`](../../crates/render-3d/src/city/facade.rs): original container
+  admission into separate textured floor and wall meshes using the existing city
+  transform. FSOf vertices are already in tile units and are not divided by three
+  a second time.
+- [`facade-worker`](../../tools/swarm-c/facade-worker/README.md): portable source
+  requests, actual PNG/FSOf output, deterministic replay, and independent decoder
+  verification.
 
-| Source | Behavior carried into the adapter | Boundary retained |
+The client adapter consumes its actual `WorldDocument`/`PreparedWorld`. Exact
+`WorldDerivativeSourceMetadata` may supply room base aliases, source wall/fence
+lines, and FineArea; missing exact metadata stays absent. Static XML objects
+remain scene draws rather than invented live entities. Floor and roof levels
+come from each prepared source part. The adapter orders terrain before coplanar
+authored flooring for the derivative's LessEqual depth contract.
+
+Night rendering requires explicit source-prepared material passes and outside
+color. The companion is bound to both the external revision and the complete
+source-document digest. Missing night data produces three day images, no night
+image files, no night metadata phase, and an FSOf with its night flag clear.
+Neither the worker nor the UI changes simulation time or manufactures room-light
+color from a visual tile ID.
+
+## Original source mapping
+
+| Source | Implemented behavior | Required source input |
 | --- | --- | --- |
-| [`LotFacadeGenerator.GenerateWalls`](../../TSOClient/tso.world/Facade/LotFacadeGenerator.cs) | Source wall lengths, first-fit bins, camera height/distance, outside-side flip, atlas rectangles, one-pixel displacement and edge bleed | Caller supplies exterior room/fence classification and midpoint terrain altitude |
-| [`LotFacadeGenerator.GenerateFloor`](../../TSOClient/tso.world/Facade/LotFacadeGenerator.cs) | Top-down camera, 3×2 atlas cells, one-pixel scissor inset, layer/object/roof selection and generated overlay slot | Caller supplies the actual normalized floor, terrain mask, object and roof meshes |
-| [`LotThumbContent`](../../TSOClient/tso.client/Rendering/City/LotThumbContent.cs) | Separate disposable derivative identities, bounded residency, dead-request rejection, last-use eviction and held resources | API/CDN fetch and decode are outside this CPU worker |
-| [`CityFacadeLock`](../../TSOClient/tso.client/Rendering/City/CityFacadeLock.cs) | Owned pin/lease lifetime for a specific installed facade | City visibility, neighborhood spatial queries and GPU uploads remain in the city client |
-| [`FSOFacadeWorker.Program`](../../TSOClient/FSOFacadeWorker/Program.cs) | Separate daytime/nighttime prepared states, bounded standalone artifact production | No save loading, service authentication, simulation light mutation, service upload or deployment is invented |
-| [`WorldPlatform3D.GetLotThumb`](../../TSOClient/tso.world/Platform/WorldPlatform3D.cs) and [`WorldPlatform2D.GetLotThumb`](../../TSOClient/tso.world/Platform/WorldPlatform2D.cs) | Immutable camera/material inputs and explicit thumbnail output | Source camera centering, buildable-area selection and 2D sprite preparation still have to be supplied by the world-view adapters |
+| [`LotFacadeGenerator.GenerateWalls`](../../TSOClient/tso.world/Facade/LotFacadeGenerator.cs) | Exterior base-room lines followed by fences, room-map side test, midpoint altitude, wall camera, first-fit bins, gaps and bleed | Exact room tables/lines when available; otherwise validated source wall tiles |
+| [`LotFacadeGenerator.GenerateFloor/GetFSOF`](../../TSOClient/tso.world/Facade/LotFacadeGenerator.cs) | Top-down selection, one-pixel inset, ground subdivisions and averaging, copied floors, raised overlay, source roof/wall UVs | Actual prepared terrain, floor, object and roof meshes/materials |
+| [`Blueprint`](../../TSOClient/tso.world/Model/Blueprint.cs) | Raw altitude interpolation, base altitude, rooms, floor-use detection, FineArea/buildable bounds, thumbnail center | Source altitude and optional exact masks |
+| [`WorldCamera`](../../TSOClient/tso.world/Utils/WorldCamera.cs) and camera controller | Far/TopLeft TSO and TS1 thumbnail size/zoom, center quantization, source view/projection | Lot dimensions, altitude and optional FineArea |
+| [`FSOF`](../../TSOClient/tso.files/RC/FSOF.cs) | Header/body order, gzip, RGBA/DXT5 textures, day/night flag/color, two 32-byte vertex streams and index arrays | Original bytes or validated generated images/geometry |
+| [`LotThumbContent`](../../TSOClient/tso.client/Rendering/City/LotThumbContent.cs) and [`CityFacadeLock`](../../TSOClient/tso.client/Rendering/City/CityFacadeLock.cs) | Disposable identities, bounded residency, held lifetimes, dead-result rejection | Requested lots and actual backend resource objects |
+| [`FSOFacadeWorker.Program`](../../TSOClient/FSOFacadeWorker/Program.cs) | Separate day/night states, floor size/resolution, worker subdivisions and standalone output | Admitted world/materials; authoritative save admission and publishing remain external |
+
+### Source rooms and terrain
+
+`SourceRooms.rooms` is indexed by original room ID including sentinel zero. Each
+room preserves `id`, `base`, zero-based floor, outside classification, wall lines
+and fence lines in integral sixteenths. The packed map keeps both low/high u16
+halves. Only outside rooms whose base equals their own ID emit facade lines.
+The side test samples a point 0.6 tiles along the midpoint normal, reads the
+map's first room half, resolves its base room, and reverses the wall when needed.
+
+Documents without exact room records use a bounded two-half-tile connectivity
+pass over supplied walls and diagonals, permeable fences, outer edges, and
+explicit indoor flags. Adjacent collinear exterior segments are merged. Floor
+paint alone does not establish an enclosed room. This fallback does not claim to
+recover original room IDs or base aliases.
+
+Raw `Blueprint.Altitude` contains width × height i16 samples. A client with
+(width+1) × (height+1) corner storage extracts the first width entries of each of
+the first height rows. Interpolation uses the original base/next-cell clamps,
+fractional remainder, base altitude and 3/160 terrain factor. Floor use is the
+highest story with patterns or wall segments, with a minimum of one; objects and
+roofs do not invent a used architectural floor.
 
 ### Wall atlas equations
 
-The constants retain the source defaults: eight pixels per tile, 22-pixel wall
-height, maximum wall width 64 tiles (512 atlas pixels), and one-pixel edge gaps.
-For endpoints in 1/16-tile coordinates, physical length is their Euclidean
-distance divided by 16. The pixel length is source round-to-nearest-even of
-`physical_length × 8`, capped at 512. Degenerate or subpixel segments are rejected
-instead of issuing an empty scissor rectangle.
+Defaults remain eight pixels per tile, 22 pixels high, 512 atlas pixels wide,
+and one-pixel gaps. Tile length is sixteenth-coordinate Euclidean length divided
+by 16. Pixel length is round-to-nearest-even of length × 8, capped at 512.
+Degenerate segments fail before scissor allocation. First-fit bins charge a
+leading gap only on nonempty rows; the trailing gap is charged after the fit
+check. Rows advance by 24 pixels. Height is
+`ceil_to_four(max(1, row_count × 24 − 2))`; an empty atlas is 512 × 4.
 
-The first-fit bin check adds a leading gap only when a row already contains a
-wall. The trailing gap is charged after the fit check, matching the source rule
-that no extra space is required after a wall reaching the texture edge. A row
-advances by `22 + 2 × 1 = 24` pixels. Texture height is
-`ceil_to_four(max(1, row_count × 24 − 2))`; an empty wall atlas is therefore 512×4.
-All dimensions, view counts and output bytes are checked before rendering.
+The midpoint is `(p0+p1)/32` tiles. The eye sits one tile outside, converted to
+graphics units by three. Camera height is
+`(floor+0.5) × 2.95 × 3 + midpoint_altitude × 3 + 0.2`. Orthographic width is
+`3 × tile_length`, height is `2.90 × 3`, and near/far are 0 and 6. The source
+`+2/atlas_height` Y translation remains `+2/22` on each local surface, displacing
+rendered walls upward one pixel. Available bordering pixels, including corners,
+receive the nearest edge value. Disjoint strips are rendered separately and
+copied into the planned atlas, preserving the original viewport/scissor equations.
 
-The source midpoint is `(p0 + p1) / 32` tiles. The caller supplies the result of
-the room-map outside test, which reverses both the wall normal and horizontal
-projection when required. The eye is one tile outside the midpoint, converted
-to graphics units with a factor of three. Camera height is
-`(floor + 0.5) × 2.95 × 3 + midpoint_altitude × 3 + 0.2`.
-The orthographic width is `3 × physical_length`, height `2.90 × 3`, and near/far
-planes are 0 and 6 graphics units.
+### Floors, overlay and roof geometry
 
-The source atlas translation includes a `+2 / atlas_height` term in clip Y. The
-local wall surface retains the equivalent `+2 / 22` clip offset, which moves the
-image upward by one output pixel. This term is not silently removed as a presumed
-half-pixel workaround. After rendering, the nearest edge pixel is copied to each
-available surrounding row/column, including corners, matching `BleedRect`.
+Defaults 64 floor tiles × 2 pixels per tile produce six 128 × 128 cells in a
+384 × 256 atlas. Slot `i` occupies `(i % 3, i / 3)`. The eye is
+`(lot_width × 1.5, 200, lot_height × 1.5)`, looking down to Y=0 with +Z up.
+Projection width/height are floor tiles × 3 and depth is 0..400. Ground X is
+reversed; ground Z points up. Each cell retains the one-pixel scissor inset.
 
-The CPU implementation renders each disjoint wall cell separately and copies it
-into its recorded atlas rectangle. This preserves the viewport/scissor equations
-without requiring an entire GPU atlas surface for each wall. Reference clipping,
-nearest clamped texture sampling, two-sided triangles, straight byte RGBA blending
-and the source `LessEqual` depth test remain explicit. Exact GPU rasterization and
-premultiplied/bilinear facade-consumer equivalence are separate checks.
+Floor `i` draws its terrain/floor, the source ground mask on floor zero, objects
+on one-based level `i+1`, and source-selected roofs. The object-only cell draws
+first-floor objects. Wall strips include objects above the source floor
+threshold. Invisible frame-owned objects are omitted.
 
-The blend equations are deliberately named as well: the normalized CPU output
-uses straight-RGBA Porter–Duff source-over, with alpha
-`source_alpha + destination_alpha × (1 − source_alpha)` and RGB divided by the
-resulting alpha. The repository's MonoGame `BlendState.NonPremultiplied` uses
-SourceAlpha / InverseSourceAlpha factors for **both RGB and alpha**, without that
-RGB normalization; its alpha therefore includes `source_alpha²`. Partially
-transparent source GPU render targets need not equal these normalized PNG bytes.
-An independent probe of the unchanged MonoGame assembly confirmed those blend
-factors and the default LessEqual depth function. Exact legacy blend/storage
-conversion remains separate from this supported CPU output contract.
+The worker subdivision default is five, matching `FSOFacadeWorker`; the original
+generator class alone defaults to ten. The 64-tile square starts at
+`(lot_size−64)/2`, so a 77-tile lot spans 6.5..70.5. Vertices near inside cells
+average those source altitudes; others use source interpolation. The base mesh
+is copied at 2.95-tile story increments, plus an overlay at half a story. Roof
+vertices convert graphics units to tiles once and receive source atlas UVs.
+Wall rectangles produce four vertices and six indices per strip.
 
-### Floor atlas and layer selection
+Two original defects remain explicit:
 
-Cell size is `floor_resolution_per_tile × floor_tiles`; the default 64×2 produces
-a 384×256 atlas with six 128×128 cells. Source slot `i` occupies column `i % 3`,
-row `i / 3`. The camera eye is `(lot_width × 1.5, 200, lot_height × 1.5)`, looking
-vertically downward to Y=0 with +Z as the up vector. Orthographic width and height
-are `floor_tiles × 3`, with depth range 0..400. The resulting top-down image
-reverses ground X and uses ground Z as camera up, matching the source equations.
+1. `GenerateFloor` places the object texture in slot `stories`, whereas `GetFSOF`
+   points the raised overlay at slot 5. For fewer than five stories these differ.
+   Both source conventions are preserved, rather than silently moving atlas cells.
+2. The texture-only night wall call does not replace `WallTarget`, and a bleed
+   X increment also sits inside the non-texture-only branch. This implementation
+   owns independent night images and fixes those target/bleed lifetime errors
+   rather than copying retained daytime wall pixels into night.
 
-Each cell retains its one-pixel scissor inset. Ordinary floor `i` draws normalized
-terrain floor `i`, the ground mask for floor zero, objects on one-based level
-`i + 1`, and source-selected roof levels when `roof_on_floor` is enabled. The
-object-only overlay draws level-one objects. Wall cells draw wall meshes plus
-objects meeting the source floor threshold; homogeneous clipping supplies the
-visible-region rejection. Draw insertion order is preserved, so callers can
-supply source world ordering. Invisible frame-owned objects are omitted.
+The original combined-floor normal generation indexes only initial floor
+indices. Generated geometry computes finite normals over all faces. Legacy
+FSOf reading preserves normal float bits, including NaNs; explicit conversion
+to a render mesh repairs invalid/zero normals.
 
-Two source issues are kept visible rather than hidden behind a parity claim:
+### Original thumbnail camera
 
-1. `GenerateFloor` places its object-only overlay in slot `stories` when that
-   slot is reached. The separate `GetFSOF` raised-floor mesh points to slot 5.
-   For fewer than five stories these are different slots. This worker describes
-   the **generated** layout in `AtlasRegion` metadata and does not write an FSOF
-   mesh/container that would imply the separate UV convention has been resolved.
-2. `GenerateWalls(..., justTexture: true)` allocates/renders a new target but only
-   assigns `WallTarget` inside the `!justTexture` branch. `GetFSOF` then reads
-   `WallTarget` for the night wall bytes. The CPU adapter deliberately owns and
-   emits separate daytime/nighttime wall images; it does not reproduce that
-   retained-daytime-target lifetime defect. The source's second wall-bleed loop
-   also advances its X position only in the non-texture-only branch, which this
-   immutable per-phase implementation avoids.
+Both source platforms force the 2D camera, Far zoom, TopLeft rotation and highest
+story. TSO is 576 × 576 at precise zoom 0.25; TS1 uses lot width × 16 and precise
+zoom 0.5. Source Far half-tile dimensions are 16 × 8. Center quantization,
+Y half-pixel adjustment, two-pixel test-vector correction, 315° Y and 30° X
+angles, projection scale and signed near/far constants are preserved.
 
-### Thumbnail scope
+Without FineArea, the buildable rectangle is `(6,6,width−13,height−13)` and the
+center is the integer lot midpoint. FineArea uses inclusive mask bounds and the
+original far-camera altitude correction. Floor/terrain draws use source tile
+placements; multi-tile batches must declare one. Objects are filtered by FineArea
+when present. Walls and roofs retain source inclusion. The normalized fixture
+still uses its explicit 256 × 256 camera; `source-fixture` exercises 576 × 576.
 
-Both original world platforms force the 2D camera, Far zoom, TopLeft rotation and
-the highest story. The source uses 576×576 pixels for TSO, with different TS1
-size/zoom behavior, computes `GetThumbCenterTile`, and applies buildable-area
-cropping. The new thumbnail accepts its complete clip matrix and ordered
-normalized geometry explicitly. Its procedural fixture uses a 256×256
-orthographic camera; this is a declared fixture choice, not a replacement claim
-for the source centering/cropping algorithm or a full 2D sprite thumbnail.
+## FSOf format and bounds
 
-## Generation, completion and memory ownership
+The header is `FSOf`, little-endian version 1, and a raw/gzip byte. The body is
+compression type, floor width/height, wall width/height, night flag, counted day
+textures, optional counted night textures and packed RGBA light color, then the
+floor and wall meshes. A vertex is position XYZ, UV XY, normal XYZ: eight
+little-endian f32 values. Signed i32 wire indices must reference their own mesh.
 
-The queue admits frames through the existing validated `FrameStore`. Invalid
-frame/entity data cannot replace a good frame. Every accepted frame change or
-explicit reset advances a monotonic derivative lifetime. Equality of a content
-hash is insufficient to validate a callback: A→B→A changes, same-boundary resets,
-same-key supersession and a different queue instance all reject old work.
+RGBA mode 0 and BC3/DXT5 mode 1 support reading and preserving/writing encoded
+containers. New artifacts use lossless RGBA inside gzip; there is no new BC3
+encoder. BC3 decoding implements both alpha palettes, its always-four-color
+color palette, and partial edge blocks.
 
-A ticket contains an opaque queue identity, a frame lifetime, a request serial
-and its derived key. Queue identity uses an owned allocation rather than a
-caller-chosen integer that could collide after recreating a controller. Request
-serials never reset. Counter exhaustion fails admission instead of wrapping.
-Prepared requests and artifacts expose only shared immutable references; public
-input structs must pass validation again to become a new prepared request.
+Default limits: 128 MiB encoded, 128 MiB decoded, 4096 per dimension, 32 million
+combined texture pixels, two million combined vertices, six million combined
+indices. Counts and exact texture sizes are checked before reservation.
+Streaming gzip bounds expansion and checks checksum/end, rejecting appended or
+concatenated members and trailing body fields. Writing validates before output
+and bounds the stream.
 
-Cancellation, explicit eviction, LRU eviction and reset remove queued payloads
-immediately. They invalidate running work without erasing its count or byte
-reservation. The owned running handle acknowledges final release through
-completion or `Drop`. A late failure/completion only clears its own serial, so it
-cannot remove the replacement request. The renderer checks cancellation between
-views and draws; one already-running reference draw is bounded by admission work
-limits and completes before the next check.
+## Scheduling, invalidation and GPU handoff
 
-Cache admission preflights both bytes and entry count before mutating any existing
-entry. Unpinned least-recently-used entries are eligible for deterministic
-eviction. A lease pins an exact installed generation, including when several
-same-key generations overlap. Reset or replacement moves held entries to a
-retired table, removes them from lookup, and retains their bytes until the final
-lease drops. This avoids the source's shared mutable hold counters and the
-`ReleaseLotThumb` dictionary-selection defect, while retaining intended ownership.
+Validated `FrameStore` admission establishes a monotonic lifetime. Changed actual
+bytes, A→B→A transitions, explicit same-boundary reset, same-key supersession,
+and new queue instances reject old work. Tickets bind opaque queue identity,
+lifetime, monotonically increasing attempt and key. Exhausted counters fail
+admission. Keys hash actual source topology, masks, altitude, geometry, textures,
+camera, draw order, frame/entity generations, lighting and algorithm version 2.
 
-Pending reservations include input vector capacities, textures, view commands,
-the artifact/image/region records, output pixels, the largest reference surface,
-shaded/transformed mesh scratch and an 8 KiB clipping cushion. Resident accounting
-includes owned RGBA vectors and artifact metadata. Allocator bookkeeping, thread
-stacks and separately cloned caller data are not represented as payload bytes.
-Neither queue contains GPU handles or claims GPU memory measurements.
+`DerivativeJob::execute` is synchronous. Browsers use `into_task()` and
+`DerivativeTask::step(max_draws)` to yield between bounded draw batches.
+Cancellation checks occur between views/draws. Cancellation/reset removes queued
+payloads immediately but retains executing tasks' counts/bytes until completion
+or Drop. Failed or stale attempts cannot remove replacements.
 
-## Validation and remaining algorithms
+Images and source geometry remain pinned by exact-generation CPU leases. Reset
+hides old entries while their bytes remain charged until the last lease drops.
+Admission preflights byte/entry limits before evicting an unpinned LRU entry.
+A stale lease retains immutable owned bytes, reports `is_current()==false`, and
+cannot be uploaded.
 
-The final Rust 1.75 run passed **73 core tests**: the existing 46, two explicit
-depth-comparison tests, and 25 new derivative tests. The worker passed four tests.
-The actual six-image CLI fixture and encoded-request rerun produced eight
-byte-identical files. Its artifact SHA-256 is
-`99796348fce39734e1e89f44e3c4eacf9a05e94fc58f26cc79fe3c19b3fc2800`.
-The normalized request reserves 3,732,912 payload bytes, produces 1,607,144
-resident bytes, and admits 31,788,844 deterministic work units. These figures are
-synthetic fixture measurements, not runtime/client performance claims.
+`DerivativeGpuCache<T>` takes the actual backend resource type, reserves packed,
+aligned and staging allocations before upload, and pins the CPU lease for the
+GPU lifetime. Tokens bind source digest, frame stamp, key, attempt and device
+generation. Completion rechecks lifetimes before installation; rejected objects
+run their real destructor. Pending jobs and retained leases remain charged after
+reset. The client owns a separate WebGL2 facade canvas, uploads actual textures
+and 32-byte geometry, waits on a real fence, and deletes texture, buffer,
+framebuffer and program handles through Rust ownership.
 
-Independent review approved the implementation after six additional
-lifecycle/decode/depth challenges, including a real coplanar red→green check.
-A C# comparison against the repository's unchanged MonoGame math checked 23 wall
-rectangles, 368 matrix coefficients and 115 transformed points. Maximum atlas
-position difference was 0.000040875 pixels against a 0.001-pixel tolerance.
-Independent Pillow decoding checked all six PNGs, the eight identical output
-files, 4,982 bleed pixels and every used floor-cell border. The small text
-[`synthetic-verification.json`](../../tools/swarm-c/facade-worker/fixtures/synthetic-verification.json)
-records these results and each actual PNG hash; the CLI/verifier reproduce the
-image files without committing binary build artifacts.
+Budgets include vector capacities, output pixels and geometry, image/region
+records, largest reference surface, transformed mesh scratch and clipping
+cushion. Work bounds use conservative projected rectangles, up to seven clipped
+triangles and vertex traversal; eye-plane crossings use the full surface.
+Browser upload reserves GPU payload, both staging copies and preview surfaces.
+Allocator metadata, thread stacks, opaque driver storage and unrelated caller
+copies are not claimed as exact process/GPU memory measurements.
 
-The implementation is covered by source-equation, deterministic-render,
-frame/owner/material validation, malformed geometry, dimension/work/byte limit,
-supersession, stale completion, cancellation, reset, eviction and held-residency
-regressions. The standalone verifier renders all six fixture images twice,
-compares eight output files byte-for-byte, and independently checks PNG CRCs,
-zlib termination, dimensions, decoded RGBA hashes and distinct day/night outputs.
-It also requires graceful rejection of five malformed request forms and preserves
-an existing output directory. The committed verification manifest records the
-actual final-run hashes and counts.
+## Evidence and practical limits
 
-An independent allocator challenge with 512 tiny views measured 439,104 bytes of
-owned/peak memory against a 448,832-byte reservation after artifact metadata and
-clipping scratch were included. This is a specific synthetic accounting check,
-not a universal process-RSS or GPU memory benchmark.
+Focused suites cover 26 renderer/queue tests, five original-container tests,
+nine source-world/camera/topology tests, and four GPU ownership tests. The worker
+has five tests and the city consumer has a source-container transform test.
+The source verifier independently reads actual FSOf using Python struct/bounded
+gzip and decodes each PNG with CRC-checked zlib. It compares nine replay files,
+container pixels against decoded PNGs, source geometry/camera dimensions,
+day-only absence, five malformed requests, and existing-directory preservation.
 
-The following source algorithms still require separate implementation or
-integration; successful synthetic PNG generation does not close them:
+Current hashes and measured reservation/work counts are recorded in
+[`source-verification.json`](../../tools/swarm-c/facade-worker/fixtures/source-verification.json)
+and [`synthetic-verification.json`](../../tools/swarm-c/facade-worker/fixtures/synthetic-verification.json).
+These are synthetic evidence, not licensed-content or GPU pixel identity proof.
+The earlier independent MonoGame matrix comparison checked 23 rectangles,
+368 coefficients and 115 points; its maximum atlas difference was 0.000040875
+pixels against a 0.001-pixel tolerance. Historic review/allocator measurements
+are labeled separately from current algorithm measurements.
 
-- Legacy room/outside light-map evaluation, per-room shadowing, object light
-  enablement and the complete day/night color pipeline. The original worker
-  prepares noon with lights off and midnight with lights on; this adapter consumes
-  those states as explicit material/light inputs.
-- Source room/fence exterior extraction, room-map side classification,
-  `InterpAltitude`, source draw ordering, fine/buildable-area masks and complete
-  source terrain/object/roof material conversion. The normalized request records
-  the supplied decisions and hashes the actual resulting geometry/textures.
-- Normalized FSOM/depth-mask material composition and the renderer-specific
-  techniques needed for reconstructed sprite geometry. That adapter is separate
-  from this worker and must supply supported normalized meshes/materials.
-- `GetFSOF` floor/roof geometry assembly, its raised-floor/overlay UV convention,
-  DXT5 compression, binary container writing and the consumer's premultiply /
-  bilinear / divide-out / alpha-threshold behavior. Output here is RGBA PNG plus
-  exact camera/atlas metadata.
-- Live city/neighborhood scheduling policy, service fetch/admission, GPU texture
-  upload and device-loss ownership, and independent licensed-content visual
-  comparison. The queue/library provides lifecycle building blocks without
-  inventing those client/provider integrations.
+CPU output specifies nearest-clamped sampling, two-sided triangles, LessEqual
+depth and normalized straight-RGBA Porter–Duff source-over. MonoGame
+`NonPremultiplied` applies SourceAlpha/InverseSourceAlpha to both RGB and alpha,
+so its target alpha includes source_alpha². Partially transparent bytes can
+differ. The city consumer has its own premultiplication, bilinear filtering and
+alpha-threshold behavior. A valid source container and preview do not prove
+original GPU bit/pixel parity.
+
+Room/point/shadow lighting and material-specific shaders belong to the source
+presentation producer. This adapter accepts prepared states; it does not infer
+an unavailable night shader from room averages. Stencil/forced-depth source
+passes require their supported backend or an explicit unavailable diagnostic.
+Service authentication, save admission, city visibility policy and publishing
+remain with their authoritative owners.

@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "compiler": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)\nbinary: rustc\ncommit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112\ncommit-date: 2023-12-21\nhost: x86_64-unknown-linux-gnu\nrelease: 1.75.0\nLLVM version: 17.0.6\n",
+  "authority": {
+    "pin": "8a0e251d19e222a0a6833d7408ca629f674e1729",
+    "rustTests": 1,
+    "presentationHz": [
+      30,
+      60,
+      120
+    ],
+    "authorityTicks": 60,
+    "stateHashesEqual": true,
+    "eventsEqual": true,
+    "cuesPerRun": 2,
+    "duplicateCues": 0
+  },
+  "audio": {
+    "pythonTests": 11,
+    "sourceDifferentialCases": 32,
+    "sourceBytesEqual": true
+  },
+  "executables": {
+    "authorityProbe": {
+      "bytes": 32606000,
+      "sha256": "cfa0e47ebb2757db7fee94dda604087c4efda97cd7e1a63922460f20927985bf",
+      "buildProfile": "dev debug0",
+      "cacheRetained": false
+    },
+    "audioDecoder": {
+      "bytes": 13506568,
+      "sha256": "f359a55c7fd9150f952852c74461ae5b114920b4eb1b0cce033176203dace954",
+      "buildProfile": "dev debug0",
+      "cacheRetained": false
+    }
+  }
+}

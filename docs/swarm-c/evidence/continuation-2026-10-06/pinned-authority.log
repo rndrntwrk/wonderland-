@@ -1,0 +1,25 @@
+A pin 8a0e251d19e222a0a6833d7408ca629f674e1729; repaired 0 restored ELF modes in this invocation
+rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)
+binary: rustc
+commit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112
+commit-date: 2023-12-21
+host: x86_64-unknown-linux-gnu
+release: 1.75.0
+LLVM version: 17.0.6
+   Compiling wonderland-c-avatar-a-boundary-probe v0.1.0 (/workspace/scratch/cb8e2814717b/wonderland-c-completion/tools/swarm-c/output/avatar-a-completion)
+    Finished test [unoptimized] target(s) in 1.94s
+     Running unittests src/lib.rs (/workspace/scratch/cb8e2814717b/target-c-final/debug/deps/wonderland_c_avatar_a_boundary_probe-c6ed349632e2b5bc)
+
+running 1 test
+A8a0e251 hz=30 ticks=60 hashes=equal events=equal cues=2 duplicate_cues=0 synthetic_bones=14 vertices=312 triangles=156
+A8a0e251 hz=60 ticks=60 hashes=equal events=equal cues=2 duplicate_cues=0 synthetic_bones=14 vertices=312 triangles=156
+A8a0e251 hz=120 ticks=60 hashes=equal events=equal cues=2 duplicate_cues=0 synthetic_bones=14 vertices=312 triangles=156
+test tests::actual_a_state_hash_and_ordered_events_are_equal_with_absent_30_60_120hz_c ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.76s
+
+   Doc-tests wonderland-c-avatar-a-boundary-probe
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
