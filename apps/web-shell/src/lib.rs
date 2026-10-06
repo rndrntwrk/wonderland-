@@ -31,6 +31,7 @@ pub mod source_city;
 pub mod source_identity;
 pub mod source_needs;
 pub mod startup;
+pub mod vm_delivery;
 pub mod world_draft;
 
 #[cfg(target_arch = "wasm32")]

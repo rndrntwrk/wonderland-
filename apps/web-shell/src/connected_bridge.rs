@@ -1,20 +1,13 @@
 //! Memory-only browser transport for the configured gateway.
 use crate::connected_adapter::{state::*, *};
+use crate::vm_delivery::{DeliveryIdentity, VmDeliveryQueue};
+pub use crate::vm_delivery::VmDelivery;
 use leptos::prelude::*;
 use serde::de::DeserializeOwned;
 use std::{cell::Cell, collections::BTreeMap, rc::Rc};
 use wasm_bindgen::{JsCast, JsValue, closure::Closure};
 use wasm_bindgen_futures::{JsFuture, spawn_local};
 use wonderland_game_services::*;
-
-#[derive(Clone, Debug)]
-pub struct VmDelivery {
-    pub browser_epoch: u64,
-    pub source_epoch: u64,
-    pub lot_incarnation: Option<u64>,
-    pub direct: bool,
-    pub data: Vec<u8>,
-}
 
 struct Socket {
     ws: web_sys::WebSocket,
@@ -41,12 +34,14 @@ struct Resources {
     generation: u64,
     requests: BTreeMap<u64, web_sys::AbortController>,
     next_request: u64,
+    vm_queue: VmDeliveryQueue,
 }
 
 impl Resources {
     fn disconnect(&mut self) {
         self.generation = self.generation.wrapping_add(1);
         self.socket.take();
+        self.vm_queue.clear();
     }
     fn clear(&mut self) {
         self.disconnect();
@@ -61,8 +56,8 @@ impl Resources {
 pub struct ConnectedUi {
     pub state: RwSignal<ConnectedState>,
     pub reduced_motion: RwSignal<bool>,
-    /// Only original validated bytes; a runtime adapter must decode these before rendering.
-    pub latest_vm: RwSignal<Option<VmDelivery>>,
+    /// Notification only: effects may coalesce, but queued VM deliveries must not.
+    pub vm_delivery_wake: RwSignal<()>,
     resources: StoredValue<Resources, LocalStorage>,
 }
 
@@ -73,7 +68,7 @@ impl ConnectedUi {
         let this = Self {
             state,
             reduced_motion: RwSignal::new(false),
-            latest_vm: RwSignal::new(None),
+            vm_delivery_wake: RwSignal::new(()),
             resources: StoredValue::new_local(Resources {
                 base: base.clone().unwrap_or_default(),
                 token: None,
@@ -81,6 +76,7 @@ impl ConnectedUi {
                 generation: 0,
                 requests: BTreeMap::new(),
                 next_request: 0,
+                vm_queue: VmDeliveryQueue::default(),
             }),
         };
         on_cleanup(move || {
@@ -197,7 +193,8 @@ impl ConnectedUi {
             .resources
             .with_value(|r| (r.base.clone(), r.token.clone()));
         self.resources.update_value(Resources::clear);
-        self.latest_vm.set(None);
+        self.resources.update_value(|r| r.vm_queue.clear());
+        self.vm_delivery_wake.set(());
         self.state.update(|s| {
             let health = s.health.clone();
             s.ledger.logout();
@@ -363,7 +360,7 @@ impl ConnectedUi {
                         source_epoch: envelope.epoch,
                         lot_incarnation: Some(*lot_incarnation),
                         direct: *direct,
-                        data: data.clone(),
+                        data: data.clone().into_boxed_slice(),
                     })
                 }
                 _ => None,
@@ -371,7 +368,11 @@ impl ConnectedUi {
             let session_changed = match &envelope.event {
                 GatewayEvent::Session { session } => self.state.with_untracked(|s| {
                     s.session.as_ref().is_none_or(|old| {
-                        old.epoch != session.epoch || old.lot_incarnation != session.lot_incarnation
+                        old.epoch != session.epoch
+                            || old.lot_incarnation != session.lot_incarnation
+                            || old.lot_location != session.lot_location
+                            || old.avatar_id != session.avatar_id
+                            || old.state != session.state
                     })
                 }),
                 _ => false,
@@ -381,12 +382,37 @@ impl ConnectedUi {
                 .try_update(|s| s.receive(local_epoch, envelope))
                 .unwrap_or(false);
             if applied {
-                if session_changed {
-                    self.latest_vm.set(None);
-                }
+                let identity = self.state.with_untracked(|state| {
+                    let session = state.session.as_ref()?;
+                    (state.ledger.authenticated
+                        && state.ledger.transport_ready
+                        && session.state == SessionState::LotReady)
+                        .then_some(DeliveryIdentity {
+                            browser_epoch: local_epoch,
+                            source_epoch: session.epoch,
+                            lot_incarnation: session.lot_incarnation?,
+                        })
+                });
+                self.resources.update_value(|resources| {
+                    if session_changed {
+                        resources.vm_queue.clear();
+                    }
+                    resources.vm_queue.bind(identity);
+                });
                 if let Some(frame) = vm {
-                    self.latest_vm.set(Some(frame));
+                    let admitted = self
+                        .resources
+                        .try_update_value(|resources| resources.vm_queue.push(frame));
+                    if !matches!(admitted, Some(Ok(()))) {
+                        self.disconnected(
+                            local_epoch,
+                            generation,
+                            "World updates could not be retained safely. Reconnect before continuing; unconfirmed actions have an unknown result.",
+                        );
+                        return;
+                    }
                 }
+                self.vm_delivery_wake.set(());
                 if refresh && accepted {
                     self.refresh_roster();
                 }
@@ -445,7 +471,8 @@ impl ConnectedUi {
             s.socket_connecting = false;
             s.notice = message.into();
         });
-        self.latest_vm.set(None);
+        self.resources.update_value(|r| r.vm_queue.clear());
+        self.vm_delivery_wake.set(());
         // A malformed or closed socket cannot later restore this transport with another callback.
         // Defer dropping its callback closures until the current browser callback has returned.
         self.resources
@@ -458,6 +485,21 @@ impl ConnectedUi {
                 }
             });
         });
+    }
+
+    /// A single active lot consumer drains accepted bytes in receive order.
+    /// Reading this queue is untracked; subscribe to `vm_delivery_wake` first.
+    pub fn next_vm_delivery(self) -> Option<VmDelivery> {
+        self.resources
+            .try_update_value(|resources| resources.vm_queue.pop())
+            .flatten()
+    }
+
+    /// Native decoding failure cannot leave later queued frames eligible.
+    pub fn reject_vm_delivery(self, message: &str) {
+        let epoch = self.state.with_untracked(|state| state.ledger.epoch);
+        let generation = self.resources.with_value(|resources| resources.generation);
+        self.disconnected(epoch, generation, message);
     }
 
     pub fn refresh_roster(self) {
@@ -649,6 +691,8 @@ impl ConnectedUi {
             })
         });
         if !sent {
+            self.resources.update_value(|r| r.vm_queue.clear());
+            self.vm_delivery_wake.set(());
             self.state.update(|s| {s.ledger.receive_operation(&stamp,OperationStatus::Unknown("Could not confirm that the world received this action. Refresh before trying it again.".into()));s.ledger.close_transport(stamp.epoch,"Connection interrupted.");s.clear_live_hud();s.cancel_home_intent();});
             return None;
         }
