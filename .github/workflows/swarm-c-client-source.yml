@@ -1,0 +1,34 @@
+name: Swarm C client source handoff
+on:
+  push:
+    branches: [feat/swarm-c-client-integration]
+    paths:
+      - .github/workflows/swarm-c-client-source.yml
+      - apps/web-shell/**
+      - crates/world-view/**
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Archive only tracked implementation inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/client-source
+          git archive --format=tar.gz HEAD -- .github .gitignore Cargo.toml Cargo.lock rust-toolchain.toml LICENSE.md README.md apps crates services docs fixtures tests tools > /tmp/client-source/client-input.tar.gz
+          git rev-parse HEAD > /tmp/client-source/commit.txt
+          git rev-parse 'HEAD^{tree}' > /tmp/client-source/tree.txt
+          sha256sum /tmp/client-source/client-input.tar.gz > /tmp/client-source/archive.sha256
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: client-source-${{ github.sha }}
+          path: /tmp/client-source/
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0
