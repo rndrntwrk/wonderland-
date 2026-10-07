@@ -1,5 +1,5 @@
 //! Explicit native lot view. Legacy source snapshots never enter this decoder.
-use crate::{avatar_content::ContentUi, native_avatar::NativeAvatarProjection};
+use crate::{avatar_content::ContentUi, native_avatar::NativeAvatarHistory};
 use crate::{components::Icon, connected_bridge::ConnectedUi, world_renderer::WorldViewport};
 use leptos::prelude::*;
 use std::{
@@ -66,6 +66,7 @@ struct Resources {
     frame: Option<Closure<dyn FnMut(js_sys::Uint8Array) -> JsValue>>,
     state: Option<Closure<dyn FnMut(String)>>,
     last_request: u64,
+    pose_checkpoint: u64,
 }
 impl Resources {
     fn stop_socket(&mut self) {
@@ -230,6 +231,12 @@ impl Controller {
                             // only durable presentation history may enter a signal.
                             let update = player.receive_update(&payload)?;
                             receipt = matches!(update, PlayerUpdate::Receipt(_));
+                            if matches!(update, PlayerUpdate::Checkpoint(_)) {
+                                r.pose_checkpoint = r
+                                    .pose_checkpoint
+                                    .checked_add(1)
+                                    .ok_or("Native pose checkpoint lifetime exhausted")?;
+                            }
                         } else {
                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
                         }
@@ -434,6 +441,8 @@ struct AvatarResources {
     presentation_revision: u64,
     generation: u64,
     connection: u64,
+    checkpoint: u64,
+    history: NativeAvatarHistory,
     bank: Option<Arc<ImportedContent>>,
     decoded: BTreeMap<AssetKey, RgbaImage>,
     failed: BTreeSet<AssetKey>,
@@ -446,16 +455,22 @@ fn project_avatars(
     frame: &wonderland_game_runtime::AvatarVisualFrame,
     world: &mut WorldDocument,
 ) {
-    let connection = ctl.resources.with_value(|r| r.generation);
+    let (connection, checkpoint) = ctl
+        .resources
+        .with_value(|r| (r.generation, r.pose_checkpoint));
     state.update_value(|cache| {
-        if cache.connection != connection
-            || cache.bank.as_ref().is_none_or(|b| !Arc::ptr_eq(b, &bank))
-        {
+        let replaced = cache.connection != connection
+            || cache.bank.as_ref().is_none_or(|b| !Arc::ptr_eq(b, &bank));
+        if replaced || cache.checkpoint != checkpoint {
             let Some(next) = cache.presentation_revision.checked_add(1) else {
                 ctl.fail("Native avatar resource lifetime exhausted.");
                 return;
             };
             cache.presentation_revision = next;
+            cache.history.clear();
+            cache.checkpoint = checkpoint;
+        }
+        if replaced {
             cache.generation = cache.generation.saturating_add(1);
             cache.connection = connection;
             cache.bank = Some(Arc::clone(&bank));
@@ -464,7 +479,7 @@ fn project_avatars(
             cache.loading = false;
         }
     });
-    let projection = match NativeAvatarProjection::prepare(frame, world, &bank) {
+    let projection = match state.with_value(|cache| cache.history.prepare(frame, world, &bank)) {
         Ok(value) => value,
         Err(issue) => {
             world
@@ -497,8 +512,9 @@ fn project_avatars(
             Some((cache.generation, missing))
         })
         .flatten();
-    let result = state.with_value(|cache| projection.apply(world, &bank, &cache.decoded));
-    if let Err(issue) = result {
+    let result =
+        state.try_update_value(|cache| cache.history.apply(projection, world, &cache.decoded));
+    if let Some(Err(issue)) = result {
         world
             .diagnostics
             .push(wonderland_world_view::WorldDiagnostic {
@@ -612,6 +628,7 @@ pub fn NativeLot() -> impl IntoView {
                         }
                         cache.generation = cache.generation.saturating_add(1);
                         cache.bank = None;
+                        cache.history.clear();
                         cache.decoded.clear();
                         cache.failed.clear();
                         cache.loading = false;
