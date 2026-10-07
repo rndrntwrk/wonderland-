@@ -1,0 +1,471 @@
+diff --git a/.github/workflows/native-pose-retention.yml b/.github/workflows/native-pose-retention.yml
+new file mode 100644
+index 0000000000000000000000000000000000000000..efbcba1036229e388cdc9305ea0f36d04a8ef03f
+--- /dev/null
++++ b/.github/workflows/native-pose-retention.yml
+@@ -0,0 +1,85 @@
++name: Native pose retention
++
++on:
++  pull_request:
++    paths:
++      - apps/web-shell/src/native_avatar.rs
++      - apps/web-shell/src/native_avatar/**
++      - apps/web-shell/src/native_lot.rs
++      - apps/web-shell/tests/native_avatar_retention.rs
++      - apps/web-shell/tests/support/native_avatar_bank.rs
++      - apps/web-shell/examples/native_pose_retention_probe.rs
++      - apps/web-shell/scripts/verify-native-pose-retention.mjs
++      - crates/game-runtime/**
++      - crates/sim-core/**
++      - crates/avatar-view/**
++      - crates/avatar-content/**
++      - crates/world-view/**
++      - Cargo.toml
++      - Cargo.lock
++      - rust-toolchain.toml
++      - .github/workflows/native-pose-retention.yml
++
++permissions:
++  contents: read
++
++concurrency:
++  group: native-pose-retention-${{ github.event.pull_request.number }}
++  cancel-in-progress: true
++
++jobs:
++  conformance:
++    runs-on: ubuntu-latest
++    timeout-minutes: 20
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          persist-credentials: false
++          show-progress: false
++      - name: Install the pinned compiler
++        run: rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
++      - name: Execute retained-pose and accepted-frame regressions
++        run: |
++          set -o pipefail
++          mkdir -p pose-evidence
++          cargo test -p wonderland-web-shell --test native_avatar_retention --locked 2>&1 | tee pose-evidence/retention.log
++          cargo test -p wonderland-game-runtime --test avatar_replay --test native_player --lib --locked 2>&1 | tee pose-evidence/replay.log
++      - name: Run the native production-source conformance probe
++        run: cargo run -p wonderland-web-shell --example native_pose_retention_probe --locked > pose-evidence/native.json
++      - name: Build the ordinary WASM production-source probe
++        run: cargo build -p wonderland-web-shell --example native_pose_retention_probe --target wasm32-unknown-unknown --release --locked
++      - name: Compare complete native and WASM results with negative controls
++        run: |
++          set -o pipefail
++          node apps/web-shell/scripts/verify-native-pose-retention.mjs \
++            pose-evidence/native.json \
++            target/wasm32-unknown-unknown/release/examples/native_pose_retention_probe.wasm \
++            pose-evidence/wasm.json | tee pose-evidence/comparison.json
++      - name: Bind results to tracked source without rewriting it
++        if: always()
++        run: |
++          mkdir -p pose-evidence
++          git rev-parse HEAD > pose-evidence/revision.txt
++          git rev-parse 'HEAD^{tree}' >> pose-evidence/revision.txt
++          rustc -vV >> pose-evidence/revision.txt
++          node --version >> pose-evidence/revision.txt
++          sha256sum apps/web-shell/src/native_avatar.rs \
++            apps/web-shell/src/native_avatar/history.rs \
++            apps/web-shell/src/native_lot.rs \
++            apps/web-shell/examples/native_pose_retention_probe.rs \
++            apps/web-shell/scripts/verify-native-pose-retention.mjs \
++            apps/web-shell/tests/support/native_avatar_bank.rs \
++            crates/avatar-view/src/animation.rs \
++            crates/game-runtime/src/avatar_projection.rs \
++            crates/game-runtime/src/live_session.rs \
++            crates/game-runtime/src/live_wire.rs \
++            crates/game-runtime/src/live_wire/player.rs \
++            Cargo.lock >> pose-evidence/revision.txt
++          git diff --exit-code
++      - uses: actions/upload-artifact@v4
++        if: always()
++        with:
++          name: native-pose-retention-evidence
++          path: pose-evidence/
++          if-no-files-found: error
++          retention-days: 7
+ diff --git a/apps/web-shell/examples/native_pose_retention_probe.rs b/apps/web-shell/examples/native_pose_retention_probe.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..82b9238b420e75eaa5d6aa7499a17e117c78eb76
+--- /dev/null
++++ b/apps/web-shell/examples/native_pose_retention_probe.rs
+@@ -0,0 +1,251 @@
++//! Portable conformance for the real native wire + retained Vitaboy presentation.
++//! The tiny geometry/content metadata below are explicitly synthetic fixtures.
++#[path = "../tests/support/native_avatar_bank.rs"]
++mod bank;
++use serde_json::{Value, json};
++use sha2::{Digest, Sha256};
++use std::sync::{Arc, OnceLock};
++use wonderland_game_runtime::live_session::{Checkpoint, TickFrame};
++use wonderland_game_runtime::live_wire::{
++    WireLimits, encode_checkpoint, encode_ticks,
++    player::{Bootstrap, NativePlayer, PlayerBinding, PlayerUpdate, encode_bootstrap},
++};
++use wonderland_game_runtime::sim_core::{
++    avatars::{
++        outfits::OutfitReference,
++        timeline::{AnimationMetadata, AnimationState},
++    },
++    state::{AnimationKey, ContentSet, ObjectDefinition, TuningSet},
++    vm::RoutineStore,
++};
++use wonderland_game_runtime::{
++    AcceptedCommand, Facing, GameRuntime, LotModel, PersistentId, RuntimeConfig, RuntimeEvent,
++    RuntimeRole, SpawnSpec, TilePos, VmMode,
++};
++// Compile the exact DOM-free production source, not the complete web-shell
++// library: its unrelated wasm-bindgen browser exports require JavaScript glue.
++#[allow(dead_code)]
++#[path = "../src/native_avatar.rs"]
++mod native_avatar;
++use native_avatar::{NativeAvatarPoseHistory, NativeAvatarProjection};
++use wonderland_world_view::WorldDocument;
++const ADULT: u32 = 0x7FD96B54;
++fn hash<T: serde::Serialize>(value: &T) -> String {
++    hex(&Sha256::digest(serde_json::to_vec(value).unwrap()))
++}
++fn hex(bytes: &[u8]) -> String {
++    use std::fmt::Write;
++    let mut out = String::new();
++    for b in bytes {
++        write!(out, "{b:02x}").unwrap();
++    }
++    out
++}
++fn setup() -> (GameRuntime, NativePlayer) {
++    let animation = AnimationMetadata {
++        resource: "base.anim".into(),
++        num_frames: 2,
++        time_properties: vec![],
++    };
++    let content = ContentSet::new(
++        RoutineStore::new(),
++        vec![ObjectDefinition::new(ADULT, 0)],
++        vec![(
++            AnimationKey {
++                owner: ADULT,
++                scope: 0,
++                id: 1,
++            },
++            animation.clone(),
++        )],
++        TuningSet::default(),
++    )
++    .unwrap();
++    let mut server = GameRuntime::new(
++        content,
++        LotModel::new(8, 8, 1).unwrap(),
++        RuntimeConfig::new(VmMode::Ts1, 11, 7, 123),
++        RuntimeRole::Authority,
++    )
++    .unwrap();
++    let spawned = server
++        .advance(vec![AcceptedCommand::Spawn(SpawnSpec {
++            guid: ADULT,
++            position: TilePos::new(3, 3, 1).center(),
++            facing: Facing::NORTH,
++            persistent_id: PersistentId(42),
++            avatar: true,
++        })])
++        .unwrap();
++    let actor = spawned
++        .events
++        .iter()
++        .find_map(|event| {
++            if let RuntimeEvent::Spawned(actor) = event {
++                Some(*actor)
++            } else {
++                None
++            }
++        })
++        .unwrap();
++    let mut state = server.sim().state().clone();
++    let avatar = state
++        .entities
++        .get_mut(&actor.object_id)
++        .unwrap()
++        .avatar
++        .as_mut()
++        .unwrap();
++    avatar.outfits.head = Some(OutfitReference::Id(bank::HEAD));
++    avatar.outfits.body = Some(OutfitReference::Id(bank::BODY));
++    let mut animation = AnimationState::new(animation, false).unwrap();
++    animation.speed = 0.25;
++    avatar.animations.animations.push(animation);
++    let bytes = wonderland_game_runtime::sim_core::snapshot::encode(&state, server.sim().content())
++        .unwrap();
++    server.restore(&bytes).unwrap();
++    let state = server.sim().state();
++    let binding = PlayerBinding {
++        source_epoch: 3,
++        lot_incarnation: 4,
++        lot_location: 55,
++        avatar_id: 42,
++    };
++    let bootstrap = Bootstrap {
++        binding,
++        principal: wonderland_game_runtime::PrincipalKey(42),
++        actor,
++        content: server.sim().content().clone(),
++        appearance: WorldDocument::from_blueprint_xml(
++            "<house><size>8</size><world><floors/><walls/></world><objects/></house>",
++            "test:pose-history",
++            "synthetic fixture",
++        )
++        .unwrap(),
++        lot: state.world.lot.clone(),
++        mode: state.mode,
++        lot_id: state.lot_id,
++        authority_epoch: state.authority_epoch,
++        effect_namespace: state.effects.namespace(),
++        limits: state.limits.clone(),
++        effect_limits: state.effects.limits(),
++    };
++    (
++        server,
++        NativePlayer::open(&encode_bootstrap(&bootstrap).unwrap(), binding, 2).unwrap(),
++    )
++}
++fn install(
++    p: &mut NativePlayer,
++    server: &GameRuntime,
++    history: &mut NativeAvatarPoseHistory,
++    bank: &Arc<wonderland_avatar_content::ImportedContent>,
++) {
++    let bytes = server.snapshot().unwrap();
++    let packet = encode_checkpoint(
++        p.checkpoint_request().unwrap().id,
++        Checkpoint {
++            completed_tick: server.sim().state().completed_tick,
++            state_hash: server.sim().state_hash().unwrap(),
++            bytes: &bytes,
++        },
++        &[],
++        WireLimits::default(),
++    )
++    .unwrap();
++    let (update, frames) = p.receive_presented(&packet).unwrap();
++    assert!(matches!(update, PlayerUpdate::Checkpoint(_)));
++    history.clear();
++    for frame in frames.unwrap() {
++        history.observe(&frame, Arc::clone(bank)).unwrap();
++    }
++}
++fn picture(
++    p: &NativePlayer,
++    history: &NativeAvatarPoseHistory,
++    bank: &Arc<wonderland_avatar_content::ImportedContent>,
++) -> WorldDocument {
++    let mut world = p.world().unwrap();
++    let frame = p.avatar_visual_frame().unwrap();
++    NativeAvatarProjection::prepare_retained(&frame, &world, bank, history)
++        .unwrap()
++        .apply(&mut world, bank, &bank::pixels(bank))
++        .unwrap();
++    assert_eq!(world.models.len(), 1);
++    world
++}
++fn run(batch_size: usize) -> Value {
++    let (mut server, mut p) = setup();
++    let bank = Arc::new(bank::bank());
++    let mut history = NativeAvatarPoseHistory::default();
++    install(&mut p, &server, &mut history, &bank);
++    let initial = picture(&p, &history, &bank);
++    let mut frames = Vec::new();
++    let mut trace = Vec::new();
++    for _ in 0..18 {
++        let accepted = server.sim().next_tick(vec![]).unwrap();
++        let result = server.apply_accepted(&accepted).unwrap();
++        frames.push(TickFrame {
++            accepted,
++            state_hash: result.state_hash,
++        });
++    }
++    for batch in frames.chunks(batch_size) {
++        let (update, visuals) = p
++            .receive_presented(&encode_ticks(batch, WireLimits::default()).unwrap())
++            .unwrap();
++        assert!(matches!(update,PlayerUpdate::Ticks(ref o) if o.len()==batch.len()));
++        for frame in visuals.unwrap() {
++            trace.push(json!({"tick":frame.revision.tick,"avatars":frame.avatars}));
++            history.observe(&frame, Arc::clone(&bank)).unwrap();
++        }
++        let _ = picture(&p, &history, &bank);
++    }
++    let final_world = picture(&p, &history, &bank);
++    assert_ne!(
++        initial.models[0].groups, final_world.models[0].groups,
++        "an ended clip must retain its last accepted translation"
++    );
++    let (_, duplicate) = p
++        .receive_presented(&encode_ticks(&frames[17..], WireLimits::default()).unwrap())
++        .unwrap();
++    assert!(duplicate.unwrap().is_empty());
++    let model = hash(&final_world.models[0]);
++    for _ in 0..120 {
++        assert_eq!(hash(&picture(&p, &history, &bank).models[0]), model);
++    }
++    let server_hash = hex(&server.sim().state_hash().unwrap());
++    p.disconnect();
++    assert!(p.avatar_visual_frame().is_err());
++    p.reconnect().unwrap();
++    install(&mut p, &server, &mut history, &bank);
++    let cold = picture(&p, &history, &bank);
++    assert_eq!(
++        cold.models[0].groups, initial.models[0].groups,
++        "unknown pre-checkpoint bone history is not fabricated"
++    );
++    json!({"trace":trace,"retained_model":final_world.models[0],"retained_sha256":model,"checkpoint_reset_model":cold.models[0],"server_hash":server_hash,"tick":server.sim().state().completed_tick,"duplicate_frames":0,"repeat_draws":120})
++}
++fn output() -> Vec<u8> {
++    let ordinary = run(1);
++    assert_eq!(ordinary, run(3));
++    assert_eq!(ordinary, run(18));
++    serde_json::to_vec(&json!({"schema":1,"scope":"synthetic original-format geometry with actual native accepted ticks","equal_batch_sizes":[1,3,18],"result":ordinary})).unwrap()
++}
++static OUTPUT: OnceLock<Vec<u8>> = OnceLock::new();
++// SAFETY: probe-only exports of an immutable process-lifetime buffer; no host
++// pointers are accepted or dereferenced and no production symbol is replaced.
++#[unsafe(no_mangle)]
++pub extern "C" fn wonderland_pose_probe_ptr() -> *const u8 {
++    OUTPUT.get_or_init(output).as_ptr()
++}
++#[unsafe(no_mangle)]
++pub extern "C" fn wonderland_pose_probe_len() -> usize {
++    OUTPUT.get_or_init(output).len()
++}
++fn main() {
++    println!(
++        "{}",
++        std::str::from_utf8(OUTPUT.get_or_init(output)).unwrap()
++    );
++}
+diff --git a/apps/web-shell/scripts/verify-native-pose-retention.mjs b/apps/web-shell/scripts/verify-native-pose-retention.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..7d4f80df92e62856a17e194d1577322c10eec303
+--- /dev/null
++++ b/apps/web-shell/scripts/verify-native-pose-retention.mjs
+@@ -0,0 +1,117 @@
++#!/usr/bin/env node
++// Execute an ordinary, import-free WASM probe and compare COMPLETE output bytes.
++// This is runtime/geometry conformance, not rendered-browser or original-art QA.
++import assert from 'node:assert/strict';
++import {readFile, stat, writeFile} from 'node:fs/promises';
++import {createHash} from 'node:crypto';
++
++const MAX_RECORD = 4 * 1024 * 1024, MAX_MODULE = 32 * 1024 * 1024;
++const digest = bytes => createHash('sha256').update(bytes).digest('hex');
++async function bounded(path, maximum) {
++  const info = await stat(path);
++  assert.ok(info.isFile() && info.size > 0 && info.size <= maximum, `Invalid input size/type: ${path}`);
++  const bytes = await readFile(path);
++  assert.ok(bytes.length <= maximum, 'Input grew past its budget');
++  return bytes;
++}
++function validate(text) {
++  const data = JSON.parse(text), result = data.result;
++  assert.equal(data.schema, 1);
++  assert.equal(data.scope, 'synthetic original-format geometry with actual native accepted ticks');
++  assert.deepEqual(data.equal_batch_sizes, [1, 3, 18]);
++  assert.equal(result.tick, 19);
++  assert.equal(result.duplicate_frames, 0);
++  assert.equal(result.repeat_draws, 120);
++  assert.match(result.server_hash, /^[0-9a-f]{64}$/);
++  assert.match(result.retained_sha256, /^[0-9a-f]{64}$/);
++  assert.equal(result.trace.length, 18);
++  for (const [index, frame] of result.trace.entries()) {
++    assert.equal(frame.tick, index + 2);
++    assert.equal(frame.avatars.length, 1);
++    const avatar = frame.avatars[0], layer = avatar.animations.layers[0];
++    assert.deepEqual(avatar.entity, {generation: 1, object_id: 1});
++    assert.equal(avatar.guid, 0x7FD96B54);
++    assert.equal(avatar.animations.layers.length, 1);
++    assert.equal(layer.resource, 'base.anim');
++    assert.equal(layer.current_frame, Math.min((index + 1) / 4, 2));
++    assert.equal(layer.end_reached, index >= 7);
++  }
++  const retained = result.retained_model, reset = result.checkpoint_reset_model;
++  for (const model of [retained, reset]) {
++    assert.equal(model.context.kind, 'vitaboy');
++    assert.equal(model.groups.length, 1);
++    assert.equal(model.groups[0].length, 4);
++  }
++  // The fixture's final translated bone retains x=-4 in source coordinates.
++  // Recovery without a bone checkpoint intentionally starts again at bind x=0.
++  for (let part = 0; part < 4; part++) {
++    const a = retained.groups[0][part].mesh, b = reset.groups[0][part].mesh;
++    assert.deepEqual(a.indices, [0, 1, 2]);
++    assert.deepEqual(b.indices, a.indices);
++    assert.equal(a.vertices.length, 3);
++    assert.equal(b.vertices.length, 3);
++    for (let vertex = 0; vertex < 3; vertex++) {
++      assert.equal(a.vertices[vertex].position.x, b.vertices[vertex].position.x - 4);
++      assert.equal(a.vertices[vertex].position.y, b.vertices[vertex].position.y);
++      assert.equal(a.vertices[vertex].position.z, b.vertices[vertex].position.z);
++      assert.deepEqual(a.vertices[vertex].normal, b.vertices[vertex].normal);
++      assert.deepEqual(a.vertices[vertex].uv, b.vertices[vertex].uv);
++    }
++  }
++  assert.deepEqual(reset.groups[0][0].mesh.vertices.map(v => v.position), [
++    {x: 0.5, y: 0, z: 0}, {x: -0.5, y: 0, z: 0}, {x: 0, y: 4, z: 0},
++  ]);
++  return data;
++}
++function compare(native, wasm) {
++  validate(native); validate(wasm);
++  assert.equal(wasm, native, 'Native/WASM complete output bytes differ');
++}
++const [nativePath, wasmPath, outputPath, ...extra] = process.argv.slice(2);
++assert.ok(nativePath && wasmPath && !extra.length,
++  'Usage: verify-native-pose-retention.mjs native.json probe.wasm [wasm.json]');
++const decoder = new TextDecoder('utf-8', {fatal: true});
++const native = decoder.decode(await bounded(nativePath, MAX_RECORD)).replace(/\r?\n$/, '');
++validate(native);
++const moduleBytes = await bounded(wasmPath, MAX_MODULE);
++const module = await WebAssembly.compile(moduleBytes);
++assert.deepEqual(WebAssembly.Module.imports(module), [], 'Unexpected host imports');
++const {exports} = await WebAssembly.instantiate(module, {});
++assert.ok(exports.memory instanceof WebAssembly.Memory);
++assert.equal(typeof exports.wonderland_pose_probe_ptr, 'function');
++assert.equal(typeof exports.wonderland_pose_probe_len, 'function');
++const start = exports.wonderland_pose_probe_ptr() >>> 0;
++const size = exports.wonderland_pose_probe_len() >>> 0;
++assert.ok(size > 0 && size <= MAX_RECORD);
++assert.ok(start <= exports.memory.buffer.byteLength && size <= exports.memory.buffer.byteLength - start);
++assert.ok(!(exports.memory.buffer instanceof SharedArrayBuffer));
++const wasm = decoder.decode(new Uint8Array(exports.memory.buffer, start, size));
++compare(native, wasm);
++assert.equal(exports.wonderland_pose_probe_ptr() >>> 0, start);
++assert.equal(exports.wonderland_pose_probe_len() >>> 0, size);
++assert.equal(decoder.decode(new Uint8Array(exports.memory.buffer, start, size)), wasm);
++const mutations = [
++  record => {record.result.trace.splice(4, 1);},
++  record => {record.result.retained_model = record.result.checkpoint_reset_model;},
++  record => {record.result.trace.at(-1).avatars[0].entity.generation++;},
++  record => {record.result.trace.at(-1).avatars[0].animations.layers[0].end_reached = false;},
++  record => {record.result.duplicate_frames = 1;},
++  record => {record.result.checkpoint_reset_model = record.result.retained_model;},
++  record => {record.equal_batch_sizes = [1, 3];},
++];
++for (const mutation of mutations) {
++  const record = JSON.parse(native); mutation(record);
++  const bad = JSON.stringify(record);
++  assert.throws(() => compare(bad, bad), 'Equal-but-wrong result was admitted');
++}
++const different = JSON.parse(native);
++different.result.server_hash = '00'.repeat(32);
++assert.throws(() => compare(native, JSON.stringify(different)), 'Changed authority hash was admitted');
++if (outputPath) await writeFile(outputPath, wasm + '\n', {flag: 'wx'});
++console.log(JSON.stringify({
++  result: 'pass', complete_record_bytes: size, output_sha256: digest(Buffer.from(wasm)),
++  wasm_sha256: digest(moduleBytes), native_wasm_equal: true, wasm_imports: 0,
++  equal_batch_sizes: [1, 3, 18], accepted_avatar_frames: 18, repeated_draws: 120,
++  semantic_negative_controls: mutations.length, changed_output_negative_controls: 1,
++  shared_memory: false, browser_interaction_test: false,
++}, null, 2));
