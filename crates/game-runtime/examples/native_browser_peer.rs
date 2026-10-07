@@ -3,7 +3,7 @@
 //! object/lot/grant metadata and the account identity are declared fixtures.
 #[allow(dead_code)]
 #[path = "../tests/live_session/support.rs"]
-mod support;
+pub(crate) mod support;
 use serde_json::{Value, json};
 use std::io::{self, BufRead, Read, Write};
 use wonderland_game_runtime::live_session::{Checkpoint, TickFrame};
@@ -46,8 +46,80 @@ fn unhex(input: &str) -> Result<Vec<u8>> {
         .map(|s| Ok(u8::from_str_radix(std::str::from_utf8(s)?, 16)?))
         .collect()
 }
-fn source() -> Result<(GameRuntime, EntityRef)> {
-    let content = support::content("cursebook_set_permission.iff", 4107, false);
+// Explicitly authored waiting harness for cancellation QA. The needs action still
+// uses its unchanged checked-in BHAV; these two routines are NOT original assets.
+fn fixture_content() -> wonderland_game_runtime::sim_core::state::ContentSet {
+    use wonderland_game_runtime::sim_core::{
+        interactions::{
+            ActionFlags, InteractionDefinition, InteractionKey, InteractionScope, PermissionFlags,
+            RoutineBinding,
+        },
+        state::ContentSet,
+        vm::{RoutineKey, RoutineScope, VmInstruction, VmRoutine},
+    };
+    let original = support::content("cursebook_set_permission.iff", 4107, false);
+    let mut routines = original.routines().clone();
+    for id in [4998, 4999] {
+        let finish = if id == 4998 { 254 } else { 0 };
+        routines
+            .insert(
+                RoutineKey {
+                    scope: RoutineScope::Private(support::OWNER),
+                    id,
+                },
+                VmRoutine::new(
+                    id,
+                    0,
+                    4,
+                    vec![
+                        VmInstruction {
+                            opcode: 2,
+                            true_pointer: 1,
+                            false_pointer: 1,
+                            operand: [0, 0, 0x28, 0x23, 0, 5, 9, 7],
+                        }, // Parameter0 = 9000 ticks.
+                        VmInstruction {
+                            opcode: 17,
+                            true_pointer: finish,
+                            false_pointer: finish,
+                            operand: [0, 0, u8::from(id == 4999), 0, 0, 0, 0, 0],
+                        },
+                    ],
+                )
+                .unwrap(),
+            )
+            .unwrap();
+    }
+    let mut object = original.object(support::OWNER).unwrap().clone();
+    object.entry_points.insert(
+        1,
+        RoutineKey {
+            scope: RoutineScope::Private(support::OWNER),
+            id: 4999,
+        },
+    );
+    let mut table = original.interaction_table(support::OWNER).unwrap().clone();
+    table.definitions.push(InteractionDefinition {
+        key: InteractionKey {
+            tta_index: 8,
+            scope: InteractionScope::Local,
+        },
+        action: RoutineBinding {
+            routine_id: 4998,
+            code_owner_guid: support::OWNER,
+        },
+        check: None,
+        flags: ActionFlags(ActionFlags::ALLOW_VISITORS),
+        permissions: PermissionFlags::default(),
+        label: Some("Wait (test harness)".into()),
+    });
+    ContentSet::new(routines, vec![object], vec![], original.tuning().clone())
+        .unwrap()
+        .with_interaction_tables(vec![(support::OWNER, table)])
+        .unwrap()
+}
+pub(crate) fn source() -> Result<(GameRuntime, EntityRef)> {
+    let content = fixture_content();
     let mut runtime = GameRuntime::new(
         content,
         LotModel::new(8, 8, 1).map_err(|_| "Invalid controlled lot geometry")?,
@@ -79,10 +151,12 @@ fn source() -> Result<(GameRuntime, EntityRef)> {
     reset_needs(&mut runtime, actor)?;
     Ok((runtime, actor))
 }
-fn reset_needs(runtime: &mut GameRuntime, actor: EntityRef) -> Result<Value> {
+pub(crate) fn reset_needs(runtime: &mut GameRuntime, actor: EntityRef) -> Result<Value> {
     tick(
         runtime,
-        [5, 7, 8]
+        // Original BHAV4107 randomly fills E/H/H or Bladder/Social/Fun.
+        // Reset both groups so either unmodified source branch is observable.
+        [5, 7, 8, 9, 14, 15]
             .into_iter()
             .map(|index| AcceptedCommand::WriteMemory {
                 address: MemoryAddress::Entity {

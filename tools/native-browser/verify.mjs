@@ -64,11 +64,49 @@ async function usableControls(page){
   }
   return controls.buttons.map(({name,width,height})=>({name,width,height}));
 }
+async function usableQueueControls(page){
+  const rows=await page.locator('.native-lot .connected-world-action').evaluateAll(rows=>rows.map(row=>{
+    const label=row.querySelector(':scope > span'),button=row.querySelector('button');
+    const rect=r=>({x:r.x,y:r.y,width:r.width,height:r.height});
+    const range=document.createRange();range.selectNodeContents(label);
+    return {id:row.dataset.actionId,label:label.textContent,card:rect(row.getBoundingClientRect()),
+      cancel:rect(button.getBoundingClientRect()),text:[...range.getClientRects()].map(rect),
+      style:{whiteSpace:getComputedStyle(label).whiteSpace,paddingRight:getComputedStyle(row).paddingRight,overflowWrap:getComputedStyle(label).overflowWrap}};
+  }));
+  assert.equal(rows.length,1,'Only the running action is left after queue cancellation');
+  for(const row of rows){
+    assert.ok(row.cancel.width>=28&&row.cancel.height>=28,'Cancel target must retain its existing minimum size');
+    for(const text of row.text){
+      const width=Math.min(text.x+text.width,row.cancel.x+row.cancel.width)-Math.max(text.x,row.cancel.x);
+      const height=Math.min(text.y+text.height,row.cancel.y+row.cancel.height)-Math.max(text.y,row.cancel.y);
+      assert.ok(width<=0||height<=0,`Queue label overlaps cancel button: ${JSON.stringify(row)}`);
+      assert.ok(text.x>=row.card.x&&text.x+text.width<=row.card.x+row.card.width,'Queue text must stay within its card');
+    }
+  }
+  return rows;
+}
 async function waitNeed(page,name,value){
   await page.waitForFunction(({name,value})=>[...document.querySelectorAll('.connected-source-needs label')].some(label=>label.querySelector('span')?.textContent===name&&label.querySelector('progress')?.value===value),{name,value});
 }
+const sourceNeedNames=['Energy','Hunger','Hygiene','Bladder','Social','Fun'];
+async function resetSourceNeeds(fixture,pages){
+  await fixture.reset();
+  for(const page of pages)for(const name of sourceNeedNames)await waitNeed(page,name,50);
+}
+async function waitSourceNeeds(page){
+  // Unchanged source BHAV4107 chooses one of two groups via RandomNumber(3).
+  // Accept exactly those two complete results, not any arbitrary need increase.
+  const handle=await page.waitForFunction(names=>{
+    const values=names.map(name=>[...document.querySelectorAll('.connected-source-needs label')]
+      .find(label=>label.querySelector('span')?.textContent===name)?.querySelector('progress')?.value);
+    const valid=[[100,100,100,50,50,50],[50,50,50,100,100,100]]
+      .some(expected=>expected.every((value,i)=>values[i]===value));
+    return valid?values:false;
+  },sourceNeedNames);
+  try{return await handle.jsonValue();}finally{await handle.dispose();}
+}
 async function setNeeds(page){if(!await page.getByRole('button',{name:'Close needs',exact:true}).isVisible())await page.getByRole('button',{name:'Needs',exact:true}).click();}
-async function sourceMenu(page){if(!await page.locator('.native-source-action').isVisible())await page.getByRole('button',{name:'Your Sim',exact:true}).click();await page.locator('.native-source-action').waitFor();}
+async function sourceMenu(page){if(!await page.locator('.native-source-action').first().isVisible())await page.getByRole('button',{name:'Your Sim',exact:true}).click();await page.locator('.native-source-action').first().waitFor();}
 async function closeMenus(page){for(const name of ['Close needs','Close source actions']){const button=page.getByRole('button',{name,exact:true});if(await button.isVisible())await button.click();}}
 
 try{
@@ -83,20 +121,29 @@ try{
   const first=await page.locator('#native-tick').textContent();await delay(500);
   assert.notEqual(await page.locator('#native-tick').textContent(),first);
   await page.locator('.native-lot canvas').evaluate(canvas=>canvas.setAttribute('data-stability-probe','same-canvas'));
-  await setNeeds(page);await fixture.reset();await waitNeed(page,'Hunger',50);
+  await setNeeds(page);await resetSourceNeeds(fixture,[page]);
   await page.getByRole('button',{name:'Close needs',exact:true}).click();
   await sourceMenu(page);await page.locator('.native-source-action').first().click();
   await page.getByText('Accepted by the server',{exact:true}).waitFor();
   await page.getByRole('button',{name:'Close source actions',exact:true}).click();
-  await setNeeds(page);await waitNeed(page,'Hunger',100);await waitNeed(page,'Energy',100);await waitNeed(page,'Hygiene',100);
+  await setNeeds(page);const firstNeeds=await waitSourceNeeds(page);
   assert.equal(await page.locator('.native-lot canvas').getAttribute('data-stability-probe'),'same-canvas');
-  record('Accepted original source action updates needs',{accepted:fixture.stats.accepted,canvasRetained:true,hunger:100,serverTicksDuringAction:3});
+  await page.getByRole('button',{name:'Close needs',exact:true}).click();
+  await sourceMenu(page);
+  await page.locator('.native-action-feedback').filter({hasText:/Action #[0-9]+ completed/}).waitFor({timeout:3000});
+  record('Runtime completion is shown separately from server acceptance',{completion:await page.locator('.native-action-feedback').textContent(),history:await page.locator('.native-action-history li').count()});
+  assert.equal(await page.locator('.native-action-history li').count(),1);
+  await closeMenus(page);await setNeeds(page);
+  record('Accepted original source action updates needs',{accepted:fixture.stats.accepted,canvasRetained:true,names:sourceNeedNames,values:firstNeeds,serverTicksDuringAction:3});
   await capture(page,'01-desktop-native-needs');await closeMenus(page);
   const otherContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
-  const other=await otherContext.newPage();watch(other);await enter(other);await fixture.reset();
-  await setNeeds(page);await setNeeds(other);await waitNeed(page,'Hunger',50);await waitNeed(other,'Hunger',50);
+  const other=await otherContext.newPage();watch(other);await enter(other);
+  await setNeeds(page);await setNeeds(other);await resetSourceNeeds(fixture,[page,other]);
   await closeMenus(page);await sourceMenu(page);await page.locator('.native-source-action').first().click();await page.getByText('Accepted by the server',{exact:true}).waitFor();
-  await waitNeed(other,'Hunger',100);record('Independent browser receives the same accepted need change',{independentBrowserContexts:2,sharedAuthority:true});
+  await closeMenus(page);await setNeeds(page);
+  const primaryNeeds=await waitSourceNeeds(page),otherNeeds=await waitSourceNeeds(other);
+  assert.deepEqual(otherNeeds,primaryNeeds,'Both browser contexts must show the same actual source-selected group');
+  record('Independent browser receives the same accepted need change',{independentBrowserContexts:2,sharedAuthority:true,names:sourceNeedNames,values:otherNeeds});
   await capture(other,'02-mobile-native-needs');await closeMenus(page);
   await fixture.reset();fixture.dropNextReceipt();const count=fixture.stats.actions;
   await sourceMenu(page);await page.locator('.native-source-action').first().click();
@@ -120,6 +167,40 @@ try{
     await sourceMenu(page);await contained(page,'.native-lot .connected-world-authoring');await closeMenus(page);
     record('Native responsive panels',{width,height,header,toolbar,controls,pageOverflow:false});
   }
+  // Explicitly authored wait behavior exercises real queue/runtime cancellation;
+  // it is not presented as an original object-family qualification.
+  await page.setViewportSize({width:1440,height:1000});
+  await sourceMenu(page);
+  const wait=page.getByRole('button',{name:'Wait (test harness)',exact:true});
+  await wait.click();await page.getByText('Accepted by the server',{exact:true}).waitFor();
+  await page.locator('.native-queue-state').filter({hasText:/^Running$/}).waitFor();
+  await wait.click();await page.getByText('Accepted by the server',{exact:true}).waitFor();
+  await page.waitForFunction(()=>document.querySelectorAll('.native-lot .connected-world-action').length===2);
+  const pendingRow=page.locator('.native-lot .connected-world-action[data-active="false"]');
+  const cancelledId=await pendingRow.getAttribute('data-action-id');
+  assert.ok(cancelledId);
+  await pendingRow.getByRole('button',{name:'Cancel this action',exact:true}).click();
+  await page.waitForFunction(id=>!document.querySelector(`.native-lot .connected-world-action[data-action-id="${id}"]`),cancelledId);
+  await page.locator('.native-action-feedback').filter({hasText:`Action #${cancelledId} cancelled`}).waitFor();
+  assert.equal(await page.locator('.native-lot .connected-world-action').count(),1,'Cancelling one queue item must not delete its running sibling');
+  await other.waitForFunction(()=>document.querySelectorAll('.native-lot .connected-world-action').length===1);
+  const retainedHistory=await page.locator('.native-action-history li').allTextContents();
+  const retainedMessage=await page.locator('.native-action-feedback').textContent();
+  const actionCount=fixture.stats.actions;
+  await page.getByRole('button',{name:'Reconnect',exact:true}).click();
+  await page.locator('.native-lot[data-native-live="true"]').waitFor();await sourceMenu(page);
+  assert.deepEqual(await page.locator('.native-action-history li').allTextContents(),retainedHistory,'Recovery must not fabricate or duplicate action completion');
+  assert.equal(await page.locator('.native-action-feedback').textContent(),retainedMessage);
+  assert.equal(fixture.stats.actions,actionCount,'Recovery must not send another cancellation');
+  record('Queued cancellation and terminal history follow accepted source state',{cancelledId,remainingQueue:1,historyPreserved:true,noRetry:true});
+  await capture(page,'05-native-cancelled-action');
+  await closeMenus(page);
+  for(const [width,height] of [[1440,1000],[390,844],[320,600],[844,390]]){
+    await page.setViewportSize({width,height});
+    record('Queue labels remain separate from cancellation controls',{width,height,rows:await usableQueueControls(page)});
+    await capture(page,`06-native-queue-${width}x${height}`);
+  }
+
   await page.getByRole('button',{name:'Return to city',exact:true}).click();
   await page.getByRole('heading',{name:'Controlled City',exact:true}).waitFor();
   assert.equal(await page.locator('.native-lot').count(),0);
