@@ -140,6 +140,13 @@ jobs:
           $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
           python -S "$out/source/tools/replay/run_interpreter.py" --root "$out/source" --output "$out/interpreter-evidence"
           if ($LASTEXITCODE) { throw 'Interpreter differential failed' }
+      - name: Compare original native and WASM placed-object behavior
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          python -B -S "$out/source/tools/replay/run_placement.py" --root "$out/source" --output "$out/placement-evidence"
+          if ($LASTEXITCODE) { throw 'Placement differential failed' }
       - name: Verify original source bytes remain unchanged after build and execution
         if: always()
         shell: pwsh
@@ -174,5 +181,6 @@ jobs:
             ${{ runner.temp }}/swarm-f-vm/vm-trace-*.stderr
             ${{ runner.temp }}/swarm-f-vm/vm-execution.json
             ${{ runner.temp }}/swarm-f-vm/interpreter-evidence/
+            ${{ runner.temp }}/swarm-f-vm/placement-evidence/
           if-no-files-found: error
           retention-days: 7
