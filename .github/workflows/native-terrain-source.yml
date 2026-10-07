@@ -1,0 +1,33 @@
+name: Native terrain source
+on:
+  push:
+    branches: [feat/native-terrain-contact]
+    paths: [.github/workflows/native-terrain-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 13580dd2d0e2fefbefb73e4d0011032f80c06fb0
+          persist-credentials: false
+          show-progress: false
+      - name: Preserve exact source delta
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 705530c1c99721ff9055ff1c44bd2cfb24e2097e
+          mkdir -p /tmp/native-terrain-source
+          git diff --binary 705530c1c99721ff9055ff1c44bd2cfb24e2097e HEAD > /tmp/native-terrain-source/source.patch
+          git ls-tree -rz HEAD > /tmp/native-terrain-source/tree.bin
+          git rev-parse HEAD > /tmp/native-terrain-source/revision.txt
+          git rev-parse 'HEAD^{tree}' >> /tmp/native-terrain-source/revision.txt
+          sha256sum /tmp/native-terrain-source/source.patch /tmp/native-terrain-source/tree.bin > /tmp/native-terrain-source/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-terrain-source
+          path: /tmp/native-terrain-source/
+          retention-days: 3
+          if-no-files-found: error
