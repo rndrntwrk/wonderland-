@@ -495,3 +495,82 @@ fn native_avatar_visual_frame_is_read_only_and_bound_to_live_admission() {
     client.disconnect();
     assert!(client.avatar_visual_frame().is_err());
 }
+
+#[test]
+fn presented_wire_batch_contains_every_step_but_checkpoint_contains_only_its_final_state() {
+    use wonderland_game_runtime::live_wire::player::PlayerUpdate;
+    use wonderland_game_runtime::sim_core::vm::{EntityField, MemoryAddress};
+    let (mut server, value) = setup();
+    let mut p = player(&server, &value);
+    let mut frames = Vec::new();
+    let mut expected = Vec::new();
+    for scale in [25, 50, 75] {
+        let accepted = server
+            .sim()
+            .next_tick(vec![AcceptedCommand::WriteMemory {
+                address: MemoryAddress::Entity {
+                    entity: value.actor,
+                    field: EntityField::PersonData,
+                    index: 63,
+                },
+                value: scale,
+            }])
+            .unwrap();
+        let outcome = server.apply_accepted(&accepted).unwrap();
+        frames.push(TickFrame {
+            accepted,
+            state_hash: outcome.state_hash,
+        });
+        expected.push(server.avatar_visual_frame());
+    }
+    let (update, actual) = p
+        .receive_presented(&encode_ticks(&frames, WireLimits::default()).unwrap())
+        .unwrap();
+    assert!(matches!(update,PlayerUpdate::Ticks(ref outcomes) if outcomes.len()==3));
+    assert_eq!(actual.unwrap(), expected);
+    let (_, duplicate) = p
+        .receive_presented(&encode_ticks(&frames[2..], WireLimits::default()).unwrap())
+        .unwrap();
+    assert!(duplicate.unwrap().is_empty());
+    p.disconnect();
+    p.reconnect().unwrap();
+    let bytes = server.snapshot().unwrap();
+    let checkpoint = encode_checkpoint(
+        p.checkpoint_request().unwrap().id,
+        Checkpoint {
+            completed_tick: server.sim().state().completed_tick,
+            state_hash: server.sim().state_hash().unwrap(),
+            bytes: &bytes,
+        },
+        &[],
+        WireLimits::default(),
+    )
+    .unwrap();
+    let (update, recovered) = p.receive_presented(&checkpoint).unwrap();
+    assert!(matches!(update, PlayerUpdate::Checkpoint(_)));
+    assert_eq!(recovered.unwrap(), vec![server.avatar_visual_frame()]);
+}
+#[test]
+fn a_receipt_cannot_advance_or_reseed_avatar_pose_history() {
+    use wonderland_game_runtime::live_wire::player::PlayerUpdate;
+    let (mut server, value) = setup();
+    let mut p = player(&server, &value);
+    let request = prepare(&mut p);
+    let tick = accept(&mut server, &mut p, &request);
+    let before = p.avatar_visual_frame().unwrap();
+    let (update, frames) = p
+        .receive_presented(
+            &encode_receipt(&ActionReceipt {
+                request,
+                accepted_tick: Some(tick),
+            })
+            .unwrap(),
+        )
+        .unwrap();
+    assert!(matches!(
+        update,
+        PlayerUpdate::Receipt(ActionStatus::Accepted)
+    ));
+    assert!(frames.is_none());
+    assert_eq!(p.avatar_visual_frame().unwrap(), before);
+}

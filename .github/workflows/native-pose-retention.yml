@@ -1,0 +1,85 @@
+name: Native pose retention
+
+on:
+  pull_request:
+    paths:
+      - apps/web-shell/src/native_avatar.rs
+      - apps/web-shell/src/native_avatar/**
+      - apps/web-shell/src/native_lot.rs
+      - apps/web-shell/tests/native_avatar_retention.rs
+      - apps/web-shell/tests/support/native_avatar_bank.rs
+      - apps/web-shell/examples/native_pose_retention_probe.rs
+      - apps/web-shell/scripts/verify-native-pose-retention.mjs
+      - crates/game-runtime/**
+      - crates/sim-core/**
+      - crates/avatar-view/**
+      - crates/avatar-content/**
+      - crates/world-view/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - .github/workflows/native-pose-retention.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-pose-retention-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Install the pinned compiler
+        run: rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
+      - name: Execute retained-pose and accepted-frame regressions
+        run: |
+          set -o pipefail
+          mkdir -p pose-evidence
+          cargo test -p wonderland-web-shell --test native_avatar_retention --locked 2>&1 | tee pose-evidence/retention.log
+          cargo test -p wonderland-game-runtime --test avatar_replay --test native_player --lib --locked 2>&1 | tee pose-evidence/replay.log
+      - name: Run the native production-source conformance probe
+        run: cargo run -p wonderland-web-shell --example native_pose_retention_probe --locked > pose-evidence/native.json
+      - name: Build the ordinary WASM production-source probe
+        run: cargo build -p wonderland-web-shell --example native_pose_retention_probe --target wasm32-unknown-unknown --release --locked
+      - name: Compare complete native and WASM results with negative controls
+        run: |
+          set -o pipefail
+          node apps/web-shell/scripts/verify-native-pose-retention.mjs \
+            pose-evidence/native.json \
+            target/wasm32-unknown-unknown/release/examples/native_pose_retention_probe.wasm \
+            pose-evidence/wasm.json | tee pose-evidence/comparison.json
+      - name: Bind results to tracked source without rewriting it
+        if: always()
+        run: |
+          mkdir -p pose-evidence
+          git rev-parse HEAD > pose-evidence/revision.txt
+          git rev-parse 'HEAD^{tree}' >> pose-evidence/revision.txt
+          rustc -vV >> pose-evidence/revision.txt
+          node --version >> pose-evidence/revision.txt
+          sha256sum apps/web-shell/src/native_avatar.rs \
+            apps/web-shell/src/native_avatar/history.rs \
+            apps/web-shell/src/native_lot.rs \
+            apps/web-shell/examples/native_pose_retention_probe.rs \
+            apps/web-shell/scripts/verify-native-pose-retention.mjs \
+            apps/web-shell/tests/support/native_avatar_bank.rs \
+            crates/avatar-view/src/animation.rs \
+            crates/game-runtime/src/avatar_projection.rs \
+            crates/game-runtime/src/live_session.rs \
+            crates/game-runtime/src/live_wire.rs \
+            crates/game-runtime/src/live_wire/player.rs \
+            Cargo.lock >> pose-evidence/revision.txt
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-pose-retention-evidence
+          path: pose-evidence/
+          if-no-files-found: error
+          retention-days: 7
