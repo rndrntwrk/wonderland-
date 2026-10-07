@@ -193,8 +193,12 @@ fn source_mode(visual: bool) -> Result<(GameRuntime, EntityRef)> {
         avatar.outfits.body = Some(OutfitReference::Id(0x002000020000000d));
         let mut animation =
             AnimationState::new(visual_animation(), false).map_err(|e| format!("{e:?}"))?;
-        animation.looping = true;
-        animation.speed = 0.25;
+        // PR #37's slow one-shot witness, plus a separately selected burst witness.
+        // Both are server fixture timelines; browser code and clocks stay unchanged.
+        let once = std::env::var("WONDERLAND_NATIVE_AVATAR_ONCE").as_deref() == Ok("1");
+        let burst = std::env::var("WONDERLAND_NATIVE_AVATAR_BURST").as_deref() == Ok("1");
+        animation.looping = !(once || burst);
+        animation.speed = if once && !burst { 1. / 32. } else { 0.25 };
         avatar.animations.animations.push(animation);
         let bytes =
             wonderland_game_runtime::sim_core::snapshot::encode(&state, runtime.sim().content())
@@ -234,6 +238,24 @@ fn tick(runtime: &mut GameRuntime, commands: Vec<AcceptedCommand>) -> Result<Val
     Ok(
         json!({"packet":hex(&bytes),"tick":result.tick.to_string(),"hash":hex(&result.state_hash),"events":format!("{:?}",result.events)}),
     )
+}
+fn burst(runtime: &mut GameRuntime, count: usize) -> Result<Value> {
+    if !(1..=64).contains(&count) {
+        return Err("Controlled tick batch must contain 1 to 64 ticks".into());
+    }
+    let mut frames = Vec::with_capacity(count);
+    for _ in 0..count {
+        let accepted = runtime.sim().next_tick(vec![])?;
+        let outcome = runtime.apply_accepted(&accepted)?;
+        frames.push(TickFrame {
+            accepted,
+            state_hash: outcome.state_hash,
+        });
+    }
+    let bytes = encode_ticks(&frames, WireLimits::default())?;
+    Ok(json!({"packet":hex(&bytes),"count":count,
+        "tick":runtime.sim().state().completed_tick.to_string(),
+        "hash":hex(&runtime.sim().state_hash()?)}))
 }
 fn process(runtime: &mut GameRuntime, actor: EntityRef, input: Value) -> Result<Value> {
     match input["op"].as_str().ok_or("Missing controlled operation")? {
@@ -292,6 +314,10 @@ fn process(runtime: &mut GameRuntime, actor: EntityRef, input: Value) -> Result<
             )
         }
         "tick" => tick(runtime, vec![]),
+        "burst" => burst(
+            runtime,
+            usize::try_from(input["count"].as_u64().ok_or("Missing batch length")?)?,
+        ),
         "reset_needs" => reset_needs(runtime, actor),
         "action" => {
             let bytes = unhex(input["request"].as_str().ok_or("Missing action")?)?;
@@ -328,6 +354,7 @@ fn process(runtime: &mut GameRuntime, actor: EntityRef, input: Value) -> Result<
             let projection = runtime.projection();
             Ok(
                 json!({"tick":projection.tick.to_string(),"hash":hex(&runtime.sim().state_hash()?),
+                "avatars":runtime.avatar_visual_frame().avatars,
                 "projection":{"lot_id":projection.lot_id,"epoch":projection.epoch,"tick":projection.tick,
                     "entities":projection.entities,"queues":projection.queues}}),
             )

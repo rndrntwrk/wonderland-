@@ -340,7 +340,13 @@ impl LiveReplica {
             return Err(LiveError::CheckpointMetadata);
         }
         check_anchor(checkpoint_cursor, self.anchor)?;
-        replay(&mut candidate, tail, self.anchor, false)?;
+        replay(
+            &mut candidate,
+            tail,
+            self.anchor,
+            false,
+            &mut crate::avatar_projection::AvatarCapture::new(false),
+        )?;
         let completed = cursor(&candidate)?;
         if self
             .anchor
@@ -363,24 +369,46 @@ impl LiveReplica {
         token: ConnectionToken,
         frames: &[TickFrame],
     ) -> Result<Vec<TickOutcome>, LiveError> {
+        self.apply_batch_inner(token, frames, false)
+            .map(|(outcomes, _)| outcomes)
+    }
+
+    /// Optional read-only per-tick avatar inputs are published only after the
+    /// entire accepted batch validates. A None trace exceeds its presentation
+    /// budget and requires a visual reset; it never drops simulation commands.
+    pub fn apply_batch_with_avatar_frames(
+        &mut self,
+        token: ConnectionToken,
+        frames: &[TickFrame],
+    ) -> Result<(Vec<TickOutcome>, Option<Vec<crate::AvatarVisualFrame>>), LiveError> {
+        self.apply_batch_inner(token, frames, true)
+    }
+
+    fn apply_batch_inner(
+        &mut self,
+        token: ConnectionToken,
+        frames: &[TickFrame],
+        capture: bool,
+    ) -> Result<(Vec<TickOutcome>, Option<Vec<crate::AvatarVisualFrame>>), LiveError> {
         self.require_live(token)?;
         if let Err(error) = preflight(frames, self.limits) {
             self.request_checkpoint(token)?;
             return Err(error);
         }
         if frames.is_empty() {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), capture.then(Vec::new)));
         }
+        let mut capture = crate::avatar_projection::AvatarCapture::new(capture);
         let runtime = self.runtime.as_mut().ok_or(LiveError::Closed)?;
         let before = runtime.sim().state().clone();
-        let result = replay(runtime, frames, None, true).and_then(|outcomes| {
+        let result = replay(runtime, frames, None, true, &mut capture).and_then(|outcomes| {
             let completed = cursor(runtime)?;
             Ok((outcomes, completed))
         });
         match result {
             Ok((outcomes, completed)) => {
                 self.anchor = Some(completed);
-                Ok(outcomes)
+                Ok((outcomes, capture.finish()))
             }
             Err(error) => {
                 let restored = SimRuntime::from_state(
@@ -547,6 +575,7 @@ fn replay(
     frames: &[TickFrame],
     anchor: Option<ReplicaCursor>,
     publish: bool,
+    capture: &mut crate::avatar_projection::AvatarCapture,
 ) -> Result<Vec<TickOutcome>, LiveError> {
     let mut outcomes = Vec::new();
     for frame in frames {
@@ -564,6 +593,7 @@ fn replay(
             return Err(LiveError::HistoryConflict);
         }
         if publish && !outcome.duplicate {
+            capture.observe(runtime);
             outcomes.push(outcome);
         }
     }
