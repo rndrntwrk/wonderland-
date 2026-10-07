@@ -57,16 +57,20 @@ jobs:
       - name: Exercise the built source-world application and actual GPU recovery
         run: |
           set -euo pipefail
+          cargo run -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu
           node --check apps/web-shell/tests/gpu/application.mjs
           npm install --prefix /tmp/source-app-playwright --ignore-scripts --no-audit --no-fund playwright@1.62.1
           /tmp/source-app-playwright/node_modules/.bin/playwright install --with-deps --no-shell chromium
+          WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/browser.mjs
           WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/application.mjs
       - name: Preserve exact application observations, including failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: source-application-${{ github.sha }}
-          path: tests/output/source-application/
+          path: |
+            tests/output/source-application/
+            tests/output/source-gpu/
           if-no-files-found: warn
           retention-days: 14
       - name: Upload the verified browser preview bundle
