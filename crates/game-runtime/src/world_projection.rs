@@ -1,12 +1,17 @@
 //! Simulation geometry and live identities, with source appearance supplied by
 //! the rendering/content owner. A missing model remains a missing model.
 use crate::{GameRuntime, GameRuntimeError};
-use sim_core::world::{Cardinal, Diagonal, TilePos};
+use sim_core::world::{Cardinal, Diagonal, LotModel, LotPosition, TilePos};
 use wonderland_render_core::{AssetKey, EntityRef, Vec3};
 use wonderland_world_view::{
     TerrainBoundary, WorldDiagnostic, WorldDiagonal, WorldDocument, WorldObject, WorldRevision,
     WorldSourceKind, WorldTile, source_terrain,
 };
+
+// Original Blueprint.TerrainFactor / EntityComponent story units, also used by
+// render-3d::lot. Keep the projection independent of renderer implementation.
+const TERRAIN_FACTOR: f32 = 3. / 160.;
+const STORY_UNITS: f32 = 2.95;
 
 impl GameRuntime {
     pub fn world_document(
@@ -89,8 +94,9 @@ impl GameRuntime {
                 grass.push(lot.grass(x as i16, y as i16).expect("bounded grass cell"));
             }
         }
-        // Source center altitude uses wrapped width*height neighbors. A also
-        // supplies the explicit right/bottom corners consumed by its geometry.
+        // Legacy imported terrain has wrapped center samples, but the native
+        // lot owns explicit right/bottom vertices. Centers, surfaces and entity
+        // contact must all sample that same accepted native boundary.
         let mut terrain = source_terrain(
             lot.width(),
             lot.height(),
@@ -105,6 +111,16 @@ impl GameRuntime {
                 terrain
                     .corners
                     .push(lot.terrain_vertex(x, y).expect("bounded terrain corner"));
+            }
+        }
+        for y in 0..lot.height() {
+            for x in 0..lot.width() {
+                let corners = lot
+                    .terrain_corners(TilePos::new(x as i16, y as i16, 1))
+                    .expect("bounded native terrain cell");
+                terrain.altitude_centers
+                    [usize::from(y) * usize::from(lot.width()) + usize::from(x)] =
+                    (corners.into_iter().map(i32::from).sum::<i32>() / 4) as i16;
             }
         }
         terrain.grass = grass;
@@ -131,7 +147,9 @@ impl GameRuntime {
                 GameRuntimeError::Content("live entity has no world projection".into())
             })?;
             let in_world = !placed.position.is_out_of_world();
-            let visible = in_world && !info.dead && entity.object_data[34] != 1;
+            // VMEntity.SetValue/Load use Hidden == 0 for rendering. The pie-menu
+            // test's separate Hidden == 1 rule must not leak invisible geometry.
+            let visible = in_world && !info.dead && entity.object_data[34] == 0;
             let model = if info.is_avatar {
                 None
             } else {
@@ -172,7 +190,8 @@ impl GameRuntime {
                 Vec3::new(
                     placed.position.x as f32 / 16. - offset,
                     placed.position.y as f32 / 16. - offset,
-                    f32::from(placed.position.level - 1) * 2.95,
+                    ground_height(lot, placed.position, document.lot.terrain.base_alt)?
+                        + f32::from(placed.position.level - 1) * STORY_UNITS,
                 )
             } else {
                 Vec3::ZERO
@@ -208,4 +227,25 @@ impl GameRuntime {
             .map_err(|e| GameRuntimeError::Content(e.to_string()))?;
         Ok(document)
     }
+}
+
+/// Presentation-only interpolation at the accepted 1/16-tile position.
+/// The FSOm mesh's half-tile offset is not a shift of the contact point.
+/// Native lots expose explicit boundary vertices (unlike legacy wrapped input).
+fn ground_height(
+    lot: &LotModel,
+    position: LotPosition,
+    base_alt: i16,
+) -> Result<f32, GameRuntimeError> {
+    let corners = position
+        .tile()
+        .and_then(|tile| lot.terrain_corners(tile))
+        .ok_or_else(|| {
+            GameRuntimeError::Content("Live terrain contact is outside the lot.".into())
+        })?;
+    let [nw, ne, sw, se] = corners.map(f32::from);
+    let u = position.x.rem_euclid(16) as f32 / 16.;
+    let v = position.y.rem_euclid(16) as f32 / 16.;
+    let height = (nw * (1. - u) + ne * u) * (1. - v) + (sw * (1. - u) + se * u) * v;
+    Ok((height - f32::from(base_alt)) * TERRAIN_FACTOR)
 }

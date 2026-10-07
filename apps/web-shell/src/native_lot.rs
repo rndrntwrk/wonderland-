@@ -14,12 +14,10 @@ use wonderland_game_runtime::live_wire::{
     player::{ActionStatus, NativePlayer, PlayerBinding, activity::ActionActivity},
 };
 use wonderland_game_runtime::sim_core::interactions::InteractionKey;
-use wonderland_game_runtime::{EntityRef, ObjectId, RuntimeProjection};
+use wonderland_game_runtime::{EntityRef, RuntimeProjection};
 use wonderland_game_services::{GatewayOperation, SessionState};
 use wonderland_render_core::{AssetKey, RenderLimits, RgbaImage};
-use wonderland_world_view::{
-    ViewportControls, WallMode, WorldDocument, WorldPick, WorldPickTarget,
-};
+use wonderland_world_view::{ViewportControls, WallMode, WorldDocument, WorldPick};
 
 #[wasm_bindgen(inline_js = r#"
 export async function openNativePlayerSocket(url,ticket,frame,state,origin,resume,signal) {
@@ -365,39 +363,12 @@ impl Controller {
         if !self.live.get_untracked() {
             return;
         }
-        let valid = self.world.with_untracked(|w| {
-            w.as_ref().is_some_and(|w| {
-                w.revision.lot_id == pick.revision.lot_id
-                    && w.revision.epoch == pick.revision.epoch
-                    && w.revision.content == pick.revision.content
-            })
+        let target = self.world.with_untracked(|w| {
+            w.as_ref()
+                .and_then(|world| crate::native_avatar::native_pick_entity(world, &pick))
         });
-        if !valid {
-            return;
-        }
-        if let WorldPickTarget::Object {
-            entity: Some(entity),
-            source_guid,
-            ..
-        } = pick.target
-        {
-            let Ok(id) = i16::try_from(entity.object_id) else {
-                return;
-            };
-            let target = EntityRef {
-                object_id: ObjectId(id),
-                generation: entity.generation,
-            };
-            let exists = self.projection.with_untracked(|p| {
-                p.as_ref().is_some_and(|p| {
-                    p.entities
-                        .iter()
-                        .any(|e| e.reference == target && e.guid == source_guid)
-                })
-            });
-            if exists {
-                self.select(target);
-            }
+        if let Some(target) = target {
+            self.select(target);
         }
     }
     fn submit(self, choice: Option<Choice>, cancel: Option<u64>) {

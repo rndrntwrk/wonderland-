@@ -125,6 +125,7 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
   return {
     origin,stats,
     reset:()=>transact(async()=>broadcast(await execute({op:'reset_needs'}))),
+    setHidden:value=>transact(async()=>broadcast(await execute({op:'hidden',value}))),
     dropNextReceipt:()=>{dropNext=true;},
     loseNextReceipt:()=>{loseNext=true;},
     disconnect:()=>{for(const ws of clients)ws.close(1012);},
