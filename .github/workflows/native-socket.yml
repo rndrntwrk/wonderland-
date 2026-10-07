@@ -1,0 +1,46 @@
+name: Native socket
+
+on:
+  pull_request:
+    paths:
+      - apps/web-shell/public/native-socket.mjs
+      - apps/web-shell/scripts/native-*.test.mjs
+      - .github/workflows/native-socket.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-socket-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Run published native socket code without browser dependencies
+        run: |
+          set -o pipefail
+          node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs 2>&1 | tee native-socket-tests.log
+      - name: Record exact source
+        if: always()
+        run: |
+          git rev-parse HEAD > native-socket-revision.txt
+          git rev-parse 'HEAD^{tree}' >> native-socket-revision.txt
+          sha256sum apps/web-shell/public/native-socket.mjs apps/web-shell/scripts/native-*.test.mjs >> native-socket-revision.txt
+          node --version >> native-socket-revision.txt
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-socket-evidence
+          path: |
+            native-socket-tests.log
+            native-socket-revision.txt
+          retention-days: 7
+          if-no-files-found: error
