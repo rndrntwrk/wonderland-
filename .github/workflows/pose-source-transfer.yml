@@ -1,0 +1,67 @@
+name: Pose source transfer
+on:
+  pull_request:
+    paths:
+      - .pose-transfer/**
+      - .github/workflows/pose-source-transfer.yml
+permissions:
+  contents: read
+jobs:
+  source:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'fix/native-avatar-pose-retention'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          show-progress: false
+      - name: Validate locally verified source and store blobs only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import base64,gzip,hashlib,io,json,os,pathlib,subprocess,urllib.request
+          parts=''.join(pathlib.Path(f'.pose-transfer/{i}.b64').read_text().strip() for i in range(4))
+          assert len(parts)==23068
+          packed=base64.b64decode(parts,validate=True)
+          assert hashlib.sha256(packed).hexdigest()=='e6301a56f5a86cb66ba6b12012651ce2a0b7b673415845fe2cc067ce78b3aecb'
+          with gzip.GzipFile(fileobj=io.BytesIO(packed)) as stream:raw=stream.read(1000001)
+          assert len(raw)<=1000000
+          value=json.loads(raw)
+          assert value['base']=='13580dd2d0e2fefbefb73e4d0011032f80c06fb0'
+          allowed={'apps/web-shell/src/native_avatar.rs','apps/web-shell/src/native_avatar/history.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/tests/native_avatar_history.rs','crates/game-runtime/examples/native_browser_peer.rs','tools/native-browser/verify-pose-retention.mjs','docs/design/action-first/native-pose-retention.md','.github/workflows/native-browser.yml'}
+          assert len(value['files'])==8 and {r['path'] for r in value['files']}==allowed
+          def blob(data):return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          for row in value['files']:
+              path=pathlib.Path(row['path'])
+              if row['base_blob'] is None:assert not path.exists()
+              else:assert path.is_file() and not path.is_symlink() and blob(path.read_bytes())==row['base_blob'],str(path)
+          patch=value['patch'].encode()
+          subprocess.run(['git','apply','--check','-'],input=patch,check=True)
+          subprocess.run(['git','apply','-'],input=patch,check=True)
+          def api(path,data):
+              req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/'+path,data=json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=30) as response:return json.load(response)
+          entries=[]
+          for row in value['files']:
+              path=pathlib.Path(row['path']);assert path.is_file() and not path.is_symlink()
+              data=path.read_bytes();assert len(data)<200000
+              assert blob(data)==row['blob'] and hashlib.sha256(data).hexdigest()==row['sha256'],str(path)
+              result=api('git/blobs',{'content':base64.b64encode(data).decode(),'encoding':'base64'})
+              assert result['sha']==row['blob']
+              entries.append({'path':str(path),'mode':'100644','type':'blob','sha':result['sha']})
+          record={'base':value['base'],'files':entries,'sha256':{r['path']:r['sha256'] for r in value['files']},'note':'Source transport only. No branch moved; no runtime/browser verification claimed.'}
+          pathlib.Path('pose-source-blobs.json').write_text(json.dumps(record,indent=2))
+          print(json.dumps(record,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pose-source-blobs
+          path: pose-source-blobs.json
+          retention-days: 3
+          if-no-files-found: error
