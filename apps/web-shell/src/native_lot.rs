@@ -219,13 +219,11 @@ impl Controller {
                 let processed = self.resources.try_update_value(
                     |r| -> Result<(Option<Vec<u8>>, bool), &'static str> {
                         if let Some(player) = r.player.as_mut() {
+                            use wonderland_game_runtime::live_wire::player::PlayerUpdate;
                             // Process this complete accepted batch synchronously;
                             // only durable presentation history may enter a signal.
                             let update = player.receive_update(&payload)?;
-                            receipt = matches!(
-                                update,
-                                wonderland_game_runtime::live_wire::player::PlayerUpdate::Receipt(_)
-                            );
+                            receipt = matches!(update, PlayerUpdate::Receipt(_));
                         } else {
                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
                         }
@@ -403,7 +401,7 @@ impl Controller {
         let result = self.resources.try_update_value(|r| {
             let player = r.player.as_mut().ok_or("Native player is unavailable")?;
             let bytes = if let Some(choice) = choice {
-                player.prepare(choice.target, choice.key, choice.param0)?
+                player.prepare(choice.target, choice.key,choice.param0)?
             } else {
                 player.prepare_cancel(cancel.ok_or("No selected action")?)?
             };
