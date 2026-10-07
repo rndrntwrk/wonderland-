@@ -92,5 +92,37 @@ class InterpreterEvidence(unittest.TestCase):
         self.assertEqual(len(parse_trace(changed)),128)
         self.assertFalse(compare(valid(),changed)["passed"])
 
+    def test_native_state_hash_rows_are_complete_and_bound_to_cohort_keys(self):
+        from compare_interpreter import parse_state_hashes
+        import hashlib
+        rows = ["case\tts1\ttick\tstate_sha256"]
+        for i, row in enumerate(parse_trace(valid())):
+            rows.append("\t".join(map(str,row[:3]))+"\t"+hashlib.sha256(str(i).encode()).hexdigest())
+        data = ("\n".join(rows)+"\n").encode()
+        parsed = parse_state_hashes(data)
+        self.assertEqual(len(parsed),128)
+        self.assertEqual(parsed[0][:3],["source4110",1,1])
+        self.assertEqual(parsed[-1][:3],["authored",0,32])
+
+    def test_native_state_hashes_reject_empty_partial_reordered_and_malformed(self):
+        from compare_interpreter import parse_state_hashes
+        import hashlib
+        lines = ["case\tts1\ttick\tstate_sha256"]
+        for i, row in enumerate(parse_trace(valid())):
+            lines.append("\t".join(map(str,row[:3]))+"\t"+hashlib.sha256(str(i).encode()).hexdigest())
+        data = ("\n".join(lines)+"\n").encode()
+        examples = [
+            b"",data[:-1],data+b"\n",data.replace(b"\n",b"\r\n"),
+            ("\n".join(lines[:-1])+"\n").encode(),
+            ("\n".join(lines[:2]+[lines[1]]+lines[3:])+"\n").encode(),
+            data.replace(b"source4110\t1\t1\t",b"source4110\t1\t01\t",1),
+            data.replace(b"5feceb",b"5Feceb",1),
+            data.replace(b"5feceb",b"5geceb",1),
+            b"x"*(1024*1024+1),
+        ]
+        for value in examples:
+            with self.subTest(length=len(value)), self.assertRaises(ValueError):
+                parse_state_hashes(value)
+
 if __name__ == "__main__":
     unittest.main()

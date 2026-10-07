@@ -8,7 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tomllib
-from compare_interpreter import compare, parse_trace
+from compare_interpreter import compare, parse_trace, parse_state_hashes
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -175,6 +175,7 @@ def run(root: Path, output: Path) -> int:
                                 and provenance["imports"]==[], "WASM execution provenance")
                         record["executables"][target+"-"+flavor][f"execution_{repeat}"] = provenance
                     parse_trace(trace.read_bytes())
+                    parse_state_hashes(hashes.read_bytes())
                     runs.append((trace,hashes))
                     result = compare(reference_traces[0].read_bytes(),trace.read_bytes())
                     if flavor == "normal":

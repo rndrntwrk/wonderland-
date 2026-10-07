@@ -102,6 +102,30 @@ def compare(reference: bytes, candidate: bytes) -> dict:
                 return result
     return result
 
+
+def parse_state_hashes(data: bytes) -> list[list[str | int]]:
+    """Validate every shipping-runtime hash row before native/WASM equality."""
+    if not isinstance(data, bytes) or not 0 < len(data) <= MAX_BYTES:
+        raise ValueError("state hash byte limit")
+    try:
+        text = data.decode("ascii")
+    except UnicodeDecodeError as error:
+        raise ValueError("state hashes must be ASCII without BOM") from error
+    if "\r" in text or not text.endswith("\n") or text.endswith("\n\n"):
+        raise ValueError("state hash framing")
+    lines = text[:-1].split("\n")
+    if lines[0] != "case\tts1\ttick\tstate_sha256" or len(lines) != 129:
+        raise ValueError("state hash schema or row count")
+    result = []
+    for n, line in enumerate(lines[1:]):
+        parts = line.split("\t")
+        key = [CASES[n // (2*TICKS)], str(MODES[(n // TICKS) % 2]), str(n % TICKS + 1)]
+        if len(parts) != 4 or parts[:3] != key or re.fullmatch(r"[0-9a-f]{64}",parts[3]) is None:
+            raise ValueError(f"invalid, duplicate, or out-of-order state hash at row {n+1}")
+        result.append([parts[0],int(parts[1]),int(parts[2]),parts[3]])
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("reference", type=pathlib.Path)
