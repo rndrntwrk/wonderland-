@@ -1,0 +1,48 @@
+name: Avatar session source inputs
+on:
+  pull_request:
+    paths:
+      - .github/workflows/avatar-session-source.yml
+permissions:
+  contents: read
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          show-progress: false
+      - name: Capture exact changed source and the parallel receipt correction
+        run: |
+          python3 - <<'PY'
+          import hashlib,io,json,pathlib,subprocess,tarfile
+          run=lambda *args:subprocess.check_output(['git',*args])
+          base='ce0127597c2a3be9efe3576590780a5af8d1ec78'
+          head=run('rev-parse','HEAD').decode().strip()
+          paths=run('diff','--name-only','--no-renames',base,head).decode().splitlines()
+          records=[]
+          with tarfile.open('avatar-inputs.tar.gz','w:gz') as tar:
+              for path in paths:
+                  if path.startswith(('TSOClient/','Other/')):raise SystemExit('Original source unexpectedly changed')
+                  exists=subprocess.run(['git','cat-file','-e',head+':'+path],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+                  if not exists:records.append({'path':path,'deleted':True});continue
+                  data=run('show',head+':'+path)
+                  if len(data)>20000000:raise SystemExit('Unexpected large changed file')
+                  info=tarfile.TarInfo('source/'+path);info.size=len(data);info.mode=0o644;tar.addfile(info,io.BytesIO(data))
+                  records.append({'path':path,'sha256':hashlib.sha256(data).hexdigest()})
+              patch=run('diff','--binary','0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16','03e3fb8697c7e1a06447681536e0333810ccbab4')
+              info=tarfile.TarInfo('receipt.patch');info.size=len(patch);tar.addfile(info,io.BytesIO(patch))
+              data=json.dumps({'base':base,'head':head,'tree':run('rev-parse','HEAD^{tree}').decode().strip(),'files':records},indent=2).encode()
+              info=tarfile.TarInfo('manifest.json');info.size=len(data);tar.addfile(info,io.BytesIO(data))
+          print('Captured',len(records),'paths; original source untouched')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: avatar-session-source-inputs
+          path: avatar-inputs.tar.gz
+          retention-days: 3
+          if-no-files-found: error
