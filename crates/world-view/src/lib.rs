@@ -4,7 +4,9 @@
 mod assets;
 mod blueprint;
 mod document;
+mod lighting;
 mod materials;
+pub use lighting::*;
 mod renderer;
 mod scene;
 pub use assets::*;

@@ -2894,6 +2894,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "wonderland-render-iso"
+version = "0.1.0"
+dependencies = [
+ "wonderland-render-core",
+]
+
+[[package]]
 name = "wonderland-vm-protocol"
 version = "0.1.0"
 dependencies = [
@@ -2940,6 +2947,7 @@ dependencies = [
  "sha2",
  "wonderland-render-3d",
  "wonderland-render-core",
+ "wonderland-render-iso",
 ]
 
 [[package]]

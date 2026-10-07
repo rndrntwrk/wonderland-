@@ -4,7 +4,9 @@
 //! object passes can opt into less-or-equal depth. No gamma transfer is applied.
 use crate::*;
 use sha2::{Digest, Sha256};
+mod lightmap;
 mod pipeline;
+pub use lightmap::*;
 pub use pipeline::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -234,13 +236,15 @@ impl ReferenceSurface {
         id: Option<EntityRef>,
         options: FragmentOptions,
     ) -> Result<usize, ReferenceError> {
-        self.triangle(vertices, [Vec2::ZERO; 3], None, id, options)
+        self.triangle(vertices, [Vec2::ZERO; 3], None, None, id, options)
     }
+    #[allow(clippy::too_many_arguments)]
     fn triangle(
         &mut self,
         mut vertices: [RasterVertex; 3],
         mut uvs: [Vec2; 3],
         texture: Option<&RgbaImage>,
+        mut lighting: Option<(ReferenceLightmap<'_>, [Vec2; 3])>,
         id: Option<EntityRef>,
         options: FragmentOptions,
     ) -> Result<usize, ReferenceError> {
@@ -268,6 +272,9 @@ impl ReferenceSurface {
         if area < 0. {
             vertices.swap(1, 2);
             uvs.swap(1, 2);
+            if let Some((_, uvs)) = &mut lighting {
+                uvs.swap(1, 2);
+            }
             area = -area;
         }
         let min_x = vertices
@@ -336,6 +343,18 @@ impl ReferenceSurface {
                         normalized[c] *= texel[c] as f64 / 255.;
                     }
                 }
+                if let Some((light, light_uvs)) = lighting {
+                    let mut uv = [0f64; 2];
+                    for i in 0..3 {
+                        let w = weights[i] * vertices[i].reciprocal_w as f64;
+                        uv[0] += w * light_uvs[i].x as f64;
+                        uv[1] += w * light_uvs[i].y as f64;
+                    }
+                    let sampled = light.sample_valid(uv[0] / divisor, uv[1] / divisor);
+                    for c in 0..3 {
+                        normalized[c] *= sampled[c] as f64;
+                    }
+                }
                 let rgba = normalized.map(|c| (c * 255.).round() as u8);
                 if self.write_oriented_fragment(
                     x,
@@ -361,7 +380,7 @@ impl ReferenceSurface {
         options: FragmentOptions,
         limits: &RenderLimits,
     ) -> Result<usize, ReferenceError> {
-        self.mesh(mesh, clip_from_model, None, id, options, limits)
+        self.mesh(mesh, clip_from_model, None, None, id, options, limits)
     }
     /// Nearest, clamped normalized UVs; vertex color multiplies straight RGBA texture.
     pub fn draw_textured_mesh(
@@ -374,13 +393,49 @@ impl ReferenceSurface {
         limits: &RenderLimits,
     ) -> Result<usize, ReferenceError> {
         texture.validate(limits)?;
-        self.mesh(mesh, clip_from_model, Some(texture), id, options, limits)
+        self.mesh(
+            mesh,
+            clip_from_model,
+            Some(texture),
+            None,
+            id,
+            options,
+            limits,
+        )
     }
+    /// Source room illumination is interpolated per fragment, independently of
+    /// object UVs. All inputs and transformed vertices validate before any write.
+    #[allow(clippy::too_many_arguments)]
+    pub fn draw_lit_mesh(
+        &mut self,
+        mesh: &Mesh,
+        clip_from_model: Mat4,
+        texture: Option<&RgbaImage>,
+        lighting: ReferenceLightmap<'_>,
+        id: Option<EntityRef>,
+        options: FragmentOptions,
+        limits: &RenderLimits,
+    ) -> Result<usize, ReferenceError> {
+        if let Some(texture) = texture {
+            texture.validate(limits)?;
+        }
+        self.mesh(
+            mesh,
+            clip_from_model,
+            texture,
+            Some(lighting),
+            id,
+            options,
+            limits,
+        )
+    }
+    #[allow(clippy::too_many_arguments)]
     fn mesh(
         &mut self,
         mesh: &Mesh,
         clip_from_model: Mat4,
         texture: Option<&RgbaImage>,
+        lighting: Option<ReferenceLightmap<'_>>,
         id: Option<EntityRef>,
         options: FragmentOptions,
         limits: &RenderLimits,
@@ -404,7 +459,22 @@ impl ReferenceSurface {
             if !p.iter().all(|n| n.is_finite()) {
                 return Err(ReferenceError::Invalid("transformed vertex"));
             }
+            let light_uv = if let Some(light) = lighting {
+                let p = light.model_to_uv.transform_vec4([
+                    v.position.x,
+                    v.position.y,
+                    v.position.z,
+                    1.,
+                ]);
+                if !p.iter().all(|n| n.is_finite()) {
+                    return Err(ReferenceError::Invalid("transformed lightmap vertex"));
+                }
+                [p[0] as f64, p[1] as f64]
+            } else {
+                [0.; 2]
+            };
             transformed.push(ClipVertex {
+                light_uv,
                 clip: p.map(|n| n as f64),
                 color: v.color.map(|n| n as f64),
                 uv: [v.uv.x as f64, v.uv.y as f64],
@@ -443,6 +513,7 @@ impl ReferenceSurface {
                             color: v.color.map(|c| c as f32),
                         },
                         Vec2::new(v.uv[0] as f32, v.uv[1] as f32),
+                        Vec2::new(v.light_uv[0] as f32, v.light_uv[1] as f32),
                     )
                 })
                 .collect();
@@ -451,6 +522,7 @@ impl ReferenceSurface {
                     [projected[0].0, projected[i].0, projected[i + 1].0],
                     [projected[0].1, projected[i].1, projected[i + 1].1],
                     texture,
+                    lighting.map(|l| (l, [projected[0].2, projected[i].2, projected[i + 1].2])),
                     id,
                     options,
                 )?;
@@ -581,6 +653,7 @@ struct ClipVertex {
     clip: [f64; 4],
     color: [f64; 4],
     uv: [f64; 2],
+    light_uv: [f64; 2],
 }
 fn plane_distance(v: ClipVertex, plane: usize) -> f64 {
     match plane {
@@ -617,6 +690,7 @@ fn clip_polygon(input: &[ClipVertex], plane: usize) -> Vec<ClipVertex> {
                 }
                 for i in 0..2 {
                     v.uv[i] = intersect(previous.uv[i], current.uv[i]);
+                    v.light_uv[i] = intersect(previous.light_uv[i], current.light_uv[i]);
                 }
                 v
             };

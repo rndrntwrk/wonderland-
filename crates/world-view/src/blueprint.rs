@@ -347,6 +347,7 @@ pub(crate) fn parse(xml: &str, origin: &str, revision: &str) -> Result<WorldDocu
     let effective_source = AssetKey(Sha256::digest(xml.as_bytes()).into());
     let document = WorldDocument {
         schema_version: WORLD_SCHEMA_VERSION,
+        lighting: None,
         provenance: WorldProvenance {
             kind: WorldSourceKind::OriginalXml,
             origin: origin.into(),

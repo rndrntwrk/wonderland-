@@ -31,7 +31,10 @@ pub fn cube() -> Mesh {
 pub fn masked(kind: ModelMaskKind) -> WorldDocument {
     let mut document = WorldDocument::from_blueprint_xml(
         "<house><size>4</size><world><floors/><walls/></world><objects/></house>",
-        "tests:source mask fixture",
+        match kind {
+            ModelMaskKind::Normal => "tests:source normal mask fixture",
+            ModelMaskKind::Portal => "tests:source portal mask fixture",
+        },
         "mask-v1",
     )
     .unwrap();
@@ -109,5 +112,29 @@ pub fn masked(kind: ModelMaskKind) -> WorldDocument {
         bounds: Aabb::new(Vec3::new(-0.4, 0., -0.7), Vec3::new(0.4, 1., 0.7)).unwrap(),
         depth_mask: Some(ModelDepthMask { kind, mesh: mask }),
     });
+    bind_content(&mut document);
     document
+}
+
+/// Synthetic pack identities include the actual material bytes, not only the
+/// empty blueprint shared by several intentionally different fixtures.
+pub fn bind_content(document: &mut WorldDocument) {
+    use sha2::{Digest, Sha256};
+    let mut models = document.models.clone();
+    for model in &mut models {
+        model.effective_content = AssetKey([0; 32]);
+    }
+    let bytes = serde_json::to_vec(&(
+        "source-material-fixture-v2",
+        &document.provenance.origin,
+        &document.lot,
+        &models,
+        &document.materials,
+    ))
+    .unwrap();
+    let content = AssetKey(Sha256::digest(bytes).into());
+    document.revision.content = content;
+    for model in &mut document.models {
+        model.effective_content = content;
+    }
 }

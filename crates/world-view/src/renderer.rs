@@ -5,7 +5,7 @@ use wonderland_render_core::{
     AssetKey, EntityProjection, EntityRef, FrameStamp, Mat4, Quat, RenderFrame, RenderLimits,
     RgbaImage, Transform, Vec3,
     frame::FrameStore,
-    reference::{DepthComparison, FragmentOptions, ReferenceSurface},
+    reference::{DepthComparison, FragmentOptions, ReferenceLightmap, ReferenceSurface},
 };
 
 #[derive(Clone, Debug, Default)]
@@ -35,29 +35,19 @@ pub struct WorldRenderer {
     raster: Option<DisplayedRaster>,
     gpu: Option<gpu::DisplayedGpu>,
     generation: u64,
+    lighting: Option<Arc<PreparedWorldLighting>>,
+    lighting_preparations: u64,
 }
 impl WorldRenderer {
     pub fn new(document: Arc<WorldDocument>) -> Result<Self, WorldError> {
         document.validate()?;
-        let frames = if let Some(lot_id) = document.revision.lot_id {
-            let mut frames = FrameStore::new(RenderLimits::default());
-            frames.reset(lot_id, document.revision.epoch);
-            frames
-                .admit(render_frame(&document)?)
-                .map_err(|error| WorldError(error.to_string()))?;
-            Some(frames)
-        } else {
-            if document
-                .objects
-                .iter()
-                .any(|object| object.entity.is_some())
-            {
-                return Err(WorldError(
-                    "live entity references require an admitted lot identity".into(),
-                ));
-            }
-            None
-        };
+        let lighting = document
+            .lighting
+            .as_ref()
+            .map(|recipe| recipe.prepare(&document).map(Arc::new))
+            .transpose()?;
+        let frames = initial_frames(&document)?;
+        let lighting_preparations = u64::from(lighting.is_some());
         Ok(Self {
             document,
             frames,
@@ -65,6 +55,8 @@ impl WorldRenderer {
             raster: None,
             gpu: None,
             generation: 0,
+            lighting,
+            lighting_preparations,
         })
     }
     pub fn replace_document(&mut self, document: Arc<WorldDocument>) -> Result<(), WorldError> {
@@ -72,6 +64,12 @@ impl WorldRenderer {
         if Arc::ptr_eq(&self.document, &document) || *self.document == *document {
             return Ok(());
         }
+        // Resolve every fallible operation before changing admitted state.
+        let generation = self
+            .generation
+            .checked_add(1)
+            .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
+        let light_changed = document.lighting != self.document.lighting;
         let same_boundary = (document.revision.lot_id, document.revision.epoch)
             == (self.document.revision.lot_id, self.document.revision.epoch)
             && document.provenance.origin == self.document.provenance.origin;
@@ -85,7 +83,38 @@ impl WorldRenderer {
                 "snapshot presentation generation must increase on refresh".into(),
             ));
         }
+        if same_boundary
+            && document.revision.lot_id.is_some()
+            && let (Some(previous), Some(next)) = (&self.document.lighting, &document.lighting)
+            && light_changed
+            && next.revision <= previous.revision
+        {
+            return Err(WorldError(
+                "live lighting changed without a new lighting revision".into(),
+            ));
+        }
+        let next_lighting = if light_changed {
+            document
+                .lighting
+                .as_ref()
+                .map(|recipe| recipe.prepare(&document).map(Arc::new))
+                .transpose()?
+        } else {
+            self.lighting.clone()
+        };
+        let light_preparations = self
+            .lighting_preparations
+            .checked_add(u64::from(light_changed && next_lighting.is_some()))
+            .ok_or_else(|| WorldError("lighting preparation counter exhausted".into()))?;
         if same_boundary && document.revision.lot_id.is_some() {
+            if document.revision.content == self.document.revision.content
+                && (document.models != self.document.models
+                    || document.materials != self.document.materials)
+            {
+                return Err(WorldError(
+                    "live source resource bytes changed without new content identity".into(),
+                ));
+            }
             if document.revision.architecture_revision
                 == self.document.revision.architecture_revision
                 && document.lot != self.document.lot
@@ -121,17 +150,15 @@ impl WorldRenderer {
                 .admit(render_frame(&document)?)
                 .map_err(|error| WorldError(error.to_string()))?;
         } else {
-            let replacement = Self::new(Arc::clone(&document))?;
-            self.frames = replacement.frames;
+            self.frames = initial_frames(&document)?;
         }
         self.document = document;
         self.prepared = None;
         self.raster = None;
         self.gpu = None;
-        self.generation = self
-            .generation
-            .checked_add(1)
-            .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
+        self.generation = generation;
+        self.lighting = next_lighting;
+        self.lighting_preparations = light_preparations;
         Ok(())
     }
     pub fn render(
@@ -198,11 +225,25 @@ impl WorldRenderer {
                 alpha_cutoff: 2,
                 ..Default::default()
             };
-            if let Some(texture) = &part.texture {
+            let light = self.light_for_part(part)?;
+            if let Some((image, uv)) = light {
+                color.draw_lit_mesh(
+                    &part.mesh,
+                    matrix,
+                    part.texture.as_deref(),
+                    ReferenceLightmap::new(image, uv, &limits)?,
+                    entity,
+                    options,
+                    &limits,
+                )?;
+            } else if let Some(texture) = &part.texture {
                 color.draw_textured_mesh(&part.mesh, matrix, texture, entity, options, &limits)?;
-                hit_ids.draw_textured_mesh(&part.mesh, matrix, texture, hit, options, &limits)?;
             } else {
                 color.draw_mesh(&part.mesh, matrix, entity, options, &limits)?;
+            }
+            if let Some(texture) = &part.texture {
+                hit_ids.draw_textured_mesh(&part.mesh, matrix, texture, hit, options, &limits)?;
+            } else {
                 hit_ids.draw_mesh(&part.mesh, matrix, hit, options, &limits)?;
             }
             triangles += part.mesh.indices.len() / 3;
@@ -228,6 +269,31 @@ impl WorldRenderer {
             triangles,
             diagnostics: scene.diagnostics.clone(),
         })
+    }
+    /// Diagnostic only; never a tick or game-state revision.
+    pub fn lighting_preparations(&self) -> u64 {
+        self.lighting_preparations
+    }
+    fn light_for_part(&self, part: &ScenePart) -> Result<Option<(&RgbaImage, Mat4)>, WorldError> {
+        let Some(light) = &self.lighting else {
+            return Ok(None);
+        };
+        if part
+            .pipeline
+            .is_some_and(|p| p.blend == wonderland_render_core::reference::FragmentBlend::NoColor)
+            || part
+                .object
+                .is_some_and(|i| self.document.objects[i].room == 65535)
+        {
+            return Ok(None);
+        }
+        let level = part
+            .object
+            .map(|i| self.document.objects[i].level)
+            .or_else(|| part.tile.map(|t| t.2))
+            .unwrap_or(1);
+        let uv = light.model_to_uv(part.transform, level.saturating_sub(1))?;
+        Ok(Some((light.image(), uv)))
     }
     pub fn image(&self) -> Option<&RgbaImage> {
         self.raster.as_ref().map(|raster| raster.color.image())
@@ -375,4 +441,27 @@ fn pick_target(
     } else {
         None
     }
+}
+
+fn initial_frames(document: &WorldDocument) -> Result<Option<FrameStore>, WorldError> {
+    let frames = if let Some(lot_id) = document.revision.lot_id {
+        let mut frames = FrameStore::new(RenderLimits::default());
+        frames.reset(lot_id, document.revision.epoch);
+        frames
+            .admit(render_frame(document)?)
+            .map_err(|error| WorldError(error.to_string()))?;
+        Some(frames)
+    } else {
+        if document
+            .objects
+            .iter()
+            .any(|object| object.entity.is_some())
+        {
+            return Err(WorldError(
+                "live entity references require an admitted lot identity".into(),
+            ));
+        }
+        None
+    };
+    Ok(frames)
 }
