@@ -1,0 +1,123 @@
+name: Swarm C guarded material publication
+on:
+  push:
+    branches: [work/swarm-c-source-materials]
+    paths: [.github/workflows/swarm-c-materials-publish.yml]
+permissions:
+  contents: read
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Decode only the reviewed patch and check exact path ownership
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = rndrntwrk/wonderland-
+          test "$GITHUB_REF" = refs/heads/work/swarm-c-source-materials
+          mkdir -p /tmp/material-evidence
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,gzip,hashlib,json,subprocess
+          payload=''.join(''.join(Path(f'.github/materials-transport.part{i}').read_text().split()) for i in (1,2,3))
+          assert len(payload)==30404, len(payload)
+          compressed=base64.b64decode(payload,validate=True)
+          assert hashlib.sha256(compressed).hexdigest()=='5ad59ce99b5979ad7dcacea489152c297745535c6300c5f0555cae80d1fe4f4b'
+          patch=gzip.decompress(compressed)
+          assert len(patch)==82514
+          assert hashlib.sha256(patch).hexdigest()=='83a3168f9d5885e40077034e4c904c0a7dcb091c7498f0a3c8ad71ea72320ff5'
+          manifest={
+            '.github/workflows/browser-ui.yml':'386f96bfd58f00f661afae1b1af4cd2da92686694a8896ec5b8b4a4fda8c3404',
+            '.github/workflows/swarm-c-client.yml':'3da9ae17c57521b8dbe6788860585947be13ebb4ee5f83f96ccabc63aa0caf0b',
+            'apps/web-shell/public/world-gpu.mjs':'052c73e15553450901b4eadb65db7887ae62cfb6e94b4739e569ecfd414becf8',
+            'apps/web-shell/tests/gpu/application.mjs':'2a54188c1b6955d417a3521f7e39ddce0437bb56d1bf01d678c547c950e93a56',
+            'apps/web-shell/tests/gpu/browser.mjs':'8bbe89070163eed0edd0599a5bcd29556dec73d208c19fe7d06837cbe157b1fa',
+            'apps/web-shell/tests/gpu/materials.test.mjs':'3ab6500bf6a10f0b2cdc7b440f9740dc0da30107e3fad0b50f50f6a7ebe04e87',
+            'crates/render-core/src/reference.rs':'e41f8f98aa3b0143fcd57f9f4b82d711fec671d3278f144f27229f28f30f33fa',
+            'crates/render-core/src/reference/pipeline.rs':'52d1c6095b4806e199f1366e3c66a6fafe25bda6bf54cc1ae96a86142b60bcbc',
+            'crates/render-core/tests/material_pipeline.rs':'ab164e3cf4b3b8abd7be8b4d42cdaf289613cb1b72b5e6b5b133f19f4a3758a1',
+            'crates/world-view/examples/gpu_fixture.rs':'bfc40f3f0bad0701521a3c417e01e69b9e6c0973a76172818b1007851d7c5766',
+            'crates/world-view/examples/support/masked.rs':'792c163b150a0662320bf7ccfc1cbdcbdb1dbfb57107a7c277ae00471966d6c8',
+            'crates/world-view/src/lib.rs':'cb2571aa83d4f4ac521308f138f819456ace2f9a117698ff602d53cd6746ecb0',
+            'crates/world-view/src/materials.rs':'a72ca504ab738fd1a1de77ef0f68a516f2725d95e37ee8d6ffd585338675b5c6',
+            'crates/world-view/src/renderer.rs':'0bf32c8b0dd1b1f95bee6bcb30a52ef7e73c5b2795187566a1c25ad8d77edcb1',
+            'crates/world-view/src/renderer/gpu.rs':'7488d9d528bb0c161e27f5ad2c7b8d9928fc413ce275095d0caecbecac462d29',
+            'crates/world-view/src/scene.rs':'8df09af47246f04be9a1132cade91a8ebdc48115dd10990d892aa8534bc79441',
+            'crates/world-view/src/scene/material_tests.rs':'a374e1cf11aac374c4e31c05901a947c09100cc13770ab78d20974237f380ae7',
+            'crates/world-view/tests/gpu_world.rs':'93d7c0ba5a0dfe304c0a3922f4207291ce9bb37951a74c997398b9296ac5eb75',
+            'crates/world-view/tests/material_passes.rs':'f43ff06ee1496535842d572ac4fcf7e62c537c188da3664241ee50bf4302c4ea',
+            'docs/swarm-c/CLIENT_MATERIALS.md':'f32e8bf195197f540982a70b005320031add95413b7425937a77089e0b9f947b'}
+          target=Path('/tmp/material-evidence/implementation.patch');target.write_bytes(patch)
+          names=subprocess.check_output(['git','apply','--numstat',str(target)],text=True)
+          assert {row.split('\t',2)[2] for row in names.splitlines()}==set(manifest)
+          subprocess.run(['git','apply','--check',str(target)],check=True)
+          subprocess.run(['git','apply','--whitespace=error',str(target)],check=True)
+          for path,digest in manifest.items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest,path
+          Path('/tmp/material-evidence/source-sha256.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          print('Exact reviewed patch and all 20 resulting source files verified.')
+          PY
+      - name: Verify pinned native and WASM source without mutation
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          cargo +1.99.0 fmt --all -- --check 2>&1 | tee /tmp/material-evidence/format.log
+          cargo +1.99.0 test -p wonderland-render-core -p wonderland-render-3d -p wonderland-world-view --locked 2>&1 | tee /tmp/material-evidence/native-tests.log
+          cargo +1.99.0 clippy -p wonderland-render-core -p wonderland-render-3d -p wonderland-world-view --all-targets --locked -- -D warnings 2>&1 | tee /tmp/material-evidence/native-clippy.log
+          cargo +1.99.0 clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings 2>&1 | tee /tmp/material-evidence/wasm-clippy.log
+          node --test apps/web-shell/tests/gpu/*.test.mjs | tee /tmp/material-evidence/node-tests.log
+          cargo +1.99.0 run -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu 2>&1 | tee /tmp/material-evidence/fixture.log
+          node --check apps/web-shell/tests/gpu/browser.mjs
+          node --check apps/web-shell/tests/gpu/application.mjs
+          git diff --check
+      - name: Remove transport and publish only the reviewed feature branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/work/swarm-c-source-materials
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,subprocess
+          manifest=json.loads(Path('/tmp/material-evidence/source-sha256.json').read_text())
+          for path,digest in manifest.items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest,path
+          # Mark only the allowed new source files; generated output stays untracked.
+          subprocess.run(['git','add','--intent-to-add','--',*manifest],check=True)
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          assert changed==set(manifest),changed.symmetric_difference(manifest)
+          temporary=['.github/workflows/swarm-c-materials-publish.yml','.github/workflows/swarm-c-materials-tooling.yml',*[f'.github/materials-transport.part{i}' for i in (1,2,3)]]
+          for path in temporary: Path(path).unlink()
+          subprocess.run(['git','add','--',*manifest,*temporary],check=True)
+          staged=set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())
+          assert staged==set(manifest)|set(temporary)
+          PY
+          git diff --cached --check
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          REMOTE="$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" ls-remote origin refs/heads/work/swarm-c-source-materials | cut -f1)"
+          test "$REMOTE" = "$GITHUB_SHA"
+          git config user.name 'Wonderland verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(swarm-c): execute source object masks and material passes in the actual client'
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin HEAD:refs/heads/work/swarm-c-source-materials
+          git rev-parse HEAD > /tmp/material-evidence/tested-commit.txt
+          git rev-parse HEAD^{tree} > /tmp/material-evidence/tested-tree.txt
+          printf '%s\n' "$GITHUB_SHA" > /tmp/material-evidence/workflow-trigger.txt
+          git diff --exit-code
+      - name: Preserve source identities and verification receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: material-publication-${{ github.sha }}
+          path: /tmp/material-evidence/
+          retention-days: 14
+          if-no-files-found: error
