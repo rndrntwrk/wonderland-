@@ -103,6 +103,68 @@ try {
  await page.getByRole('button',{name:'Reconnect',exact:true}).click();
  await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
  report.checks.push({name:'Reconnect restores original-format avatar resources'});
+
+ // This is the combined PR31/PR33 boundary, not two independent passing builds.
+ // Leave the native animation running while its next real action receipt is lost.
+ await page.getByRole('button',{name:'Walls down',exact:true}).click();
+ await page.getByRole('button',{name:'Your Sim',exact:true}).click();
+ await page.locator('.native-source-action').first().click();
+ await page.getByText('Accepted by the server',{exact:true}).waitFor();
+ const actionsBefore=fixture.stats.actions;
+ const historyBefore=await page.locator('.native-action-history li').count();
+ fixture.loseNextReceipt();
+ const sentAt=performance.now();
+ await page.locator('.native-source-action').first().click();
+ await page.getByText('Sent · awaiting server acceptance',{exact:true}).waitFor();
+ await page.waitForFunction(count=>document.querySelectorAll('.native-action-history li').length===count,historyBefore+1);
+ assert.equal(fixture.stats.silentReceipts,1);
+ const pendingFrames=new Set();
+ for(let i=0;i<10;i++){pendingFrames.add(await canvas.evaluate(c=>c.toDataURL()));await delay(120);}
+ assert.ok(pendingFrames.size>=2,'Receipt uncertainty must not stop still-accepted animation frames');
+ assert.equal(fixture.active(),1,'The test authority keeps this connection open');
+ assert.equal(fixture.stats.unknownDrops,0,'No server close may simulate the receipt deadline');
+ report.checks.push({name:'Avatar animation and source completion continue while only the receipt is withheld',
+  distinctCanvasFrames:pendingFrames.size,actions:fixture.stats.actions,historyEntries:historyBefore+1});
+ await shot(page,'native-avatar-pending-receipt');
+ const timeoutMessage='The server did not confirm this action in time. Its result is unknown. Reconnect to continue; it will not be retried.';
+ await page.getByText(timeoutMessage,{exact:true}).waitFor({timeout:25000});
+ const elapsed=performance.now()-sentAt;
+ assert.ok(elapsed>=14000&&elapsed<30000,'Unchanged real 15s receipt deadline, with scheduling allowance');
+ assert.equal(await page.locator('.native-lot').getAttribute('data-native-live'),'false');
+ assert.equal(await page.locator('.native-lot').getAttribute('data-native-avatar-models'),'1');
+ const timeoutFrame=await canvas.evaluate(c=>c.toDataURL());await delay(400);
+ assert.equal(await canvas.evaluate(c=>c.toDataURL()),timeoutFrame,'Timeout freezes the actual last accepted avatar pose');
+ assert.equal(fixture.stats.actions,actionsBefore+1,'No automatic replay from the avatar component');
+ assert.equal(fixture.active(),0);
+ report.checks.push({name:'Independent receipt timeout freezes the resource-backed avatar without dropping its model',
+  elapsedMilliseconds:Math.round(elapsed),models:1,automaticRetries:0});
+ await shot(page,'native-avatar-timeout');
+ await page.getByRole('button',{name:'Reconnect',exact:true}).click();
+ await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
+ assert.equal(await page.getByRole('button',{name:'Walls down',exact:true}).getAttribute('aria-pressed'),'true',
+  'Rebuilding the resource viewport cannot reset player camera/visibility controls');
+ const recoveredFrames=new Set();
+ for(let i=0;i<10;i++){recoveredFrames.add(await canvas.evaluate(c=>c.toDataURL()));await delay(120);}
+ assert.ok(recoveredFrames.size>=2,'Recovered avatar animation must resume on accepted frames');
+ await page.getByRole('button',{name:'Your Sim',exact:true}).click();
+ await page.getByText('Previous action result unknown · not retried',{exact:true}).waitFor();
+ assert.equal(await page.locator('.native-action-history li').count(),historyBefore+1,'Recovery cannot replay visual action history');
+ assert.ok(await page.locator('.native-source-action').evaluateAll(buttons=>buttons.every(button=>button.disabled)));
+ assert.equal(fixture.stats.actions,actionsBefore+1);
+ await shot(page,'native-avatar-recovered-unknown');
+ await page.getByRole('button',{name:'Dismiss unknown result without retrying',exact:true}).click();
+ assert.equal(fixture.stats.actions,actionsBefore+1,'Dismissing uncertainty is not transmission');
+ await page.locator('.native-source-action').first().click();
+ await page.getByText('Accepted by the server',{exact:true}).waitFor();
+ assert.equal(fixture.stats.actions,actionsBefore+2);
+ report.checks.push({name:'Avatar resources, selected controls and unknown results survive the same reconnect',
+  distinctRecoveredFrames:recoveredFrames.size,historyReplay:false,explicitNewActionAccepted:true});
+ await page.getByRole('button',{name:'Return to city',exact:true}).click();
+ await page.getByRole('heading',{name:'Controlled City',exact:true}).waitFor();
+ for(let i=0;i<30&&fixture.active()!==0;i++)await delay(50);
+ assert.equal(fixture.active(),0);
+ assert.equal(await page.locator('.native-lot canvas').count(),0);
+ report.checks.push({name:'Leaving the animated lot disposes its session and viewport',activeNativeSockets:0});
  assert.deepEqual(report.errors,[]);
  report.passed=true;
 } catch(error) {report.failure=error.stack;process.exitCode=1;

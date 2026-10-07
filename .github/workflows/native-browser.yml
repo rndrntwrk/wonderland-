@@ -3,11 +3,13 @@ on:
   pull_request:
     paths:
       - apps/web-shell/**
-      - crates/game-runtime/**
-      - crates/sim-core/**
+      - crates/**
+      - services/browser-gateway/**
       - .github/workflows/native-browser.yml
       - tools/native-browser/**
       - Cargo.lock
+      - Cargo.toml
+      - rust-toolchain.toml
 permissions:
   contents: read
 concurrency:
@@ -29,14 +31,15 @@ jobs:
           mkdir -p /tmp/wonderland-native-browser-evidence
           cargo fmt --all -- --check
           cargo test --workspace --locked > /tmp/wonderland-native-browser-evidence/workspace.log 2>&1 || { tail -100 /tmp/wonderland-native-browser-evidence/workspace.log; exit 1; }
-          node --test apps/web-shell/scripts/native-socket.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
-          node --test crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
+          node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
+          node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
           cargo clippy --workspace --all-targets --locked -- -D warnings
           cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
       - name: Build actual browser and controlled authority
         run: |
           cargo install trunk --version 0.21.14 --locked --quiet
           (cd apps/web-shell && trunk build --release --locked)
+          cmp apps/web-shell/public/native-socket.mjs apps/web-shell/dist/native-socket.mjs
           cargo build -q -p wonderland-browser-gateway --example controlled_replay --locked
           cargo build -q -p wonderland-game-runtime --example native_browser_peer --locked
       - name: Execute the browser action, latency and reconnect journey
@@ -49,13 +52,35 @@ jobs:
           cargo run -q -p wonderland-web-shell --example native_avatar_resources --locked -- target/native-avatar-fixtures
           mkdir -p /tmp/wonderland-native-browser-evidence/avatars
           WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/avatars timeout 120s node tools/native-browser/verify-avatars.mjs > /tmp/wonderland-native-browser-evidence/avatars/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/avatars/browser.log; exit 1; }
+      - name: Verify receipt deadlines and cleanup with actual browser timers
+        run: |
+          set -o pipefail
+          timeout 150s node tools/native-browser/verify-receipt-deadline.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/receipt-deadline.log
       - name: Verify source identity after testing
         if: always()
         run: |
+          mkdir -p /tmp/wonderland-native-browser-evidence
           git rev-parse HEAD > /tmp/wonderland-native-browser-evidence/revision.txt
           git rev-parse 'HEAD^{tree}' >> /tmp/wonderland-native-browser-evidence/revision.txt
           rustc -vV >> /tmp/wonderland-native-browser-evidence/revision.txt
           node --version >> /tmp/wonderland-native-browser-evidence/revision.txt
+          python3 - <<'PYREPORT'
+          import hashlib,json,pathlib,re,subprocess
+          out=pathlib.Path('/tmp/wonderland-native-browser-evidence')
+          digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          log=(out/'workspace.log').read_text() if (out/'workspace.log').exists() else ''
+          counts=re.findall(r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;',log)
+          files=['apps/web-shell/src/native_lot.rs','apps/web-shell/src/native_avatar.rs','apps/web-shell/public/native-socket.mjs','tools/native-browser/verify-avatars.mjs','tools/native-browser/verify-receipt-deadline.mjs','tools/native-browser/peer.mjs','Cargo.lock']
+          report={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'native_summaries':{'passed':sum(int(r[0]) for r in counts),'failed':sum(int(r[1]) for r in counts),'ignored':sum(int(r[2]) for r in counts)},'source_sha256':{p:digest(pathlib.Path(p)) for p in files},'wasm_sha256':{p.name:digest(p) for p in pathlib.Path('apps/web-shell/dist').glob('*.wasm')}}
+          report['browser']={}
+          for name in ['results.json','avatars/report.json','receipt-deadline/results.json']:
+              path=out/name
+              if path.exists():
+                  result=json.loads(path.read_text());report['browser'][name]={'passed':result.get('passed'),'checks':len(result.get('checks',[])),'errors':result.get('errors',[]),'screenshots':len(result.get('screenshots',[]))}
+          report['evidence_sha256']={str(p.relative_to(out)):digest(p) for p in out.rglob('*') if p.is_file() and p.name!='verification-summary.json'}
+          (out/'verification-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('VERIFICATION_SUMMARY='+json.dumps(report))
+          PYREPORT
           git diff --exit-code
       - uses: actions/upload-artifact@v4
         if: always()
