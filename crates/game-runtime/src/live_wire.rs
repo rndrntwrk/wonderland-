@@ -467,6 +467,25 @@ impl NativeWire {
         error
     }
     pub fn receive(&mut self, token: ConnectionToken, bytes: &[u8]) -> Result<Received, WireError> {
+        self.receive_inner(token, bytes, false)
+            .map(|(update, _)| update)
+    }
+    /// Like receive, plus bounded per-tick avatar projections for a presentation
+    /// consumer. Checkpoints contain only the final recovered frame, never a
+    /// speculative replay of pre-checkpoint visual history.
+    pub fn receive_with_avatar_frames(
+        &mut self,
+        token: ConnectionToken,
+        bytes: &[u8],
+    ) -> Result<(Received, Option<Vec<crate::AvatarVisualFrame>>), WireError> {
+        self.receive_inner(token, bytes, true)
+    }
+    fn receive_inner(
+        &mut self,
+        token: ConnectionToken,
+        bytes: &[u8],
+        capture: bool,
+    ) -> Result<(Received, Option<Vec<crate::AvatarVisualFrame>>), WireError> {
         // Stale callbacks cannot parse or suspend a replacement connection.
         self.check_token(token)?;
         let (kind, id, _) = header(bytes, self.limits).map_err(|e| self.fault(token, e))?;
@@ -489,10 +508,20 @@ impl NativeWire {
                     .install_checkpoint(ticket, checkpoint, &tail)
                     .map_err(|e| self.fault(token, e.into()))?;
                 self.pending = None;
-                Ok(Received::Checkpoint(cursor))
+                let mut visuals = crate::avatar_projection::AvatarCapture::new(capture);
+                if let Some(runtime) = self.replica.runtime() {
+                    visuals.observe(runtime);
+                }
+                Ok((Received::Checkpoint(cursor), visuals.finish()))
             }
-            Packet::Ticks(frames) => match self.replica.apply_batch(token, &frames) {
-                Ok(outcomes) => Ok(Received::Ticks(outcomes)),
+            Packet::Ticks(frames) => match if capture {
+                self.replica.apply_batch_with_avatar_frames(token, &frames)
+            } else {
+                self.replica
+                    .apply_batch(token, &frames)
+                    .map(|outcomes| (outcomes, None))
+            } {
+                Ok((outcomes, frames)) => Ok((Received::Ticks(outcomes), frames)),
                 Err(error) => {
                     self.bind_request()?;
                     Err(error.into())

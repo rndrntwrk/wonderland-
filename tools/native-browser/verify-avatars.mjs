@@ -95,6 +95,17 @@ try {
    await shot(page,'native-elevated-contact');
    await fixture.setHidden(2);
    await page.locator('.native-lot[data-native-avatar-models="0"]').waitFor();
+   // Model admission is synchronous, but the existing viewport paints on the
+   // next animation frame. Wait for the actual completed draw, not its model
+   // counter; a permanently stale visible image still fails this bounded check.
+   await page.waitForFunction(()=>{
+    const lot=document.querySelector('.native-lot[data-native-avatar-models="0"]');
+    const view=lot?.querySelector('.world-viewport'),c=view?.querySelector('canvas');
+    if(!c||view.classList.contains('world-busy'))return false;
+    const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+    for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)return false;
+    return true;
+   },null,{timeout:5000});
    const hiddenPixels=await canvas.evaluate(c=>{
     const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;
     for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)n++;

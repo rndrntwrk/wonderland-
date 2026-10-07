@@ -304,6 +304,22 @@ impl NativePlayer {
     /// Return outcomes only after the complete message and admitted actor validate.
     /// Consume each returned vector once; there is no last-value event mailbox.
     pub fn receive_update(&mut self, bytes: &[u8]) -> Result<PlayerUpdate> {
+        self.receive_inner(bytes, false).map(|(update, _)| update)
+    }
+    /// Presentation entry point: frames for every nonduplicate accepted tick,
+    /// never a last-value mailbox. Consume once, before coalescing render wakes.
+    /// A None trace requests an explicit visual reset, without altering gameplay.
+    pub fn receive_presented(
+        &mut self,
+        bytes: &[u8],
+    ) -> Result<(PlayerUpdate, Option<Vec<crate::AvatarVisualFrame>>)> {
+        self.receive_inner(bytes, true)
+    }
+    fn receive_inner(
+        &mut self,
+        bytes: &[u8],
+        capture: bool,
+    ) -> Result<(PlayerUpdate, Option<Vec<crate::AvatarVisualFrame>>)> {
         if bytes.starts_with(RECEIPT) {
             self.validate_actor()?;
             let receipt: ActionReceipt = decode(RECEIPT, bytes, MAX_ACTION_BYTES + 64)?;
@@ -326,22 +342,30 @@ impl NativePlayer {
             } else {
                 ActionStatus::Rejected
             };
-            return Ok(PlayerUpdate::Receipt(self.status));
+            return Ok((PlayerUpdate::Receipt(self.status), None));
         }
-        let result = self.wire.receive(self.wire.connection(), bytes);
+        let result = if capture {
+            self.wire
+                .receive_with_avatar_frames(self.wire.connection(), bytes)
+        } else {
+            self.wire
+                .receive(self.wire.connection(), bytes)
+                .map(|update| (update, None))
+        };
         match result {
-            Ok(update) => {
+            Ok((update, frames)) => {
                 if self.validate_actor().is_err() {
                     self.close();
                     return Err("Native actor no longer matches admission");
                 }
-                Ok(match update {
+                let update = match update {
                     Received::Checkpoint(cursor) => PlayerUpdate::Checkpoint(cursor),
                     Received::Ticks(outcomes) => {
                         self.activity.observe(&outcomes);
                         PlayerUpdate::Ticks(outcomes)
                     }
-                })
+                };
+                Ok((update, frames))
             }
             Err(_) => Err("Native stream requires recovery"),
         }

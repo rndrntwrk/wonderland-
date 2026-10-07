@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "feat/connected-player-integration",
+  "inputs": {
+    "audio_pr": 38,
+    "audio_commit": "8b2d6a7197b8b57fa59060f89e3c740b95a540ab",
+    "audio_tree": "dd4aeee0124b7ff0451cfb7ac0bdfc9f35f66785",
+    "pose_pr": 39,
+    "pose_commit": "015f00e0955a791286f0013868fa0ab399821686",
+    "pose_tree": "10f800f16b9997fbe41300212d46233661830b4f",
+    "pose_alternative_pr37_imported": false,
+    "original_source_files": 5384,
+    "original_files_changed": [],
+    "lockfile_changed": false
+  },
+  "native_workspace": {
+    "passed": 1466,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 212,
+    "ignored_names": [
+      "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+      "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+      "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+      "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+      "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+    ]
+  },
+  "node": {
+    "socket_device": {
+      "tests": 27,
+      "pass": 27,
+      "fail": 0,
+      "skipped": 0
+    },
+    "audio": {
+      "tests": 59,
+      "pass": 59,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "gates": {
+    "workspace": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log": "integrated-workspace.log",
+      "log_sha256": "cba6a36b005b4ea2f656d7e8ce6c382d7ac7338868021900ad6bfc9838aaceea"
+    },
+    "native_lint": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log": "final-native-clippy.log",
+      "log_sha256": "99d05e8eaf359287d0f3620bab2fb25b6e7256311ab4acdadf79b12ec7caa26d"
+    },
+    "wasm_lint": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log": "final-wasm-clippy.log",
+      "log_sha256": "ee912c1a5cb61fa38aa3f84e99df8138c09869f8a52b9e81775a45b9d24ca96f"
+    },
+    "socket_device_tests": {
+      "command": "node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs",
+      "exit_code": 0,
+      "log": "final-node-socket.log",
+      "log_sha256": "b245c67de0a2443ba70c93c891a4cdc44e2cf1491731648d7212156cfbad0d98"
+    },
+    "audio_tests": {
+      "command": "node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log": "final-node-audio.log",
+      "log_sha256": "1ca82c6cb2ed146ab8ad4f25aef3cf411863240daa1d46dd660c6e0eb8011f1f"
+    },
+    "format": {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": "final-fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "optimized_build": {
+      "command": "trunk build --release --locked --offline",
+      "exit_code": 0,
+      "log": "combined-build.log",
+      "log_sha256": "a76901779c2021c56e72f77eec0508ade698d35d719046dd12660561cda3bc1f"
+    }
+  },
+  "native_wasm_pose": {
+    "result": "pass",
+    "complete_record_bytes": 18973,
+    "output_sha256": "bf0faa0388f8b205ac5b3bf419ef8c36ffc8c6f4580a9b0f55487bc9b375c546",
+    "wasm_sha256": "073ddefee470e2e5831cffb24452595a5e26238d1171ca89d35e7f3d14a0fbcf",
+    "native_wasm_equal": true,
+    "wasm_imports": 0,
+    "equal_batch_sizes": [
+      1,
+      3,
+      18
+    ],
+    "accepted_avatar_frames": 18,
+    "repeated_draws": 120,
+    "semantic_negative_controls": 7,
+    "changed_output_negative_controls": 1,
+    "shared_memory": false,
+    "browser_interaction_test": false
+  },
+  "browser": {
+    "actions": {
+      "report": "final-standard/results.json",
+      "report_sha256": "5a9db82d772dc7576301e950e013b9320bad7f47d2f93d61d8a288d5741f930a",
+      "passed": true,
+      "check_records": 16,
+      "screenshots": [
+        {
+          "file": "final-standard/01-desktop-native-needs.png",
+          "sha256": "9f75d0aa6f4bf9734bc03e47994730e281be1d5d2965c1ec9395fe5b7431cf9a"
+        },
+        {
+          "file": "final-standard/02-mobile-native-needs.png",
+          "sha256": "9b66647150855310e053963c6db62446f998978077ab040789e175f78ccba36b"
+        },
+        {
+          "file": "final-standard/03-reconnected-unknown-result.png",
+          "sha256": "68070dc9886cd24553ff9ae056b798da2ea9c933c66974afe80dfcce6df3d719"
+        },
+        {
+          "file": "final-standard/04-native-1440x1000.png",
+          "sha256": "3fcb5612367e02f5d30529449644e2a97371e11c34764aeef81a1f2656728396"
+        },
+        {
+          "file": "final-standard/04-native-390x844.png",
+          "sha256": "a807f5b17f5959e8ba56edba40562d55f8c96ad55948f86704d0aff0bc853052"
+        },
+        {
+          "file": "final-standard/04-native-320x600.png",
+          "sha256": "42075d1bf99ec2bbc9d6832e556ad1638bc5715a7083d0a52346bd31e6a06bcb"
+        },
+        {
+          "file": "final-standard/04-native-844x390.png",
+          "sha256": "6808418593bff85fe2c744398eae4957e6ea7ae508aad98099d0338b55b80c2d"
+        },
+        {
+          "file": "final-standard/05-native-cancelled-action.png",
+          "sha256": "8b56d101bf2a1211b3b3dd221887ab926e55a015f06eb307d76a8e295ad08d8f"
+        },
+        {
+          "file": "final-standard/06-native-queue-1440x1000.png",
+          "sha256": "6d5d9d602a2baf98dc9fd00d7bf8c6c917958fc13dd741bf7dd9778f9907a6e0"
+        },
+        {
+          "file": "final-standard/06-native-queue-390x844.png",
+          "sha256": "9383529ec64d34fb58dcb06d2f00a91fd5309a2756cdb7f552c2d230e4a7a848"
+        },
+        {
+          "file": "final-standard/06-native-queue-320x600.png",
+          "sha256": "0e256fdcdfd8629f01c0b389b6205ee0f1b10de7fa91c2571b5f4bd9a3de09a3"
+        },
+        {
+          "file": "final-standard/06-native-queue-844x390.png",
+          "sha256": "2bc6ba7ce700292ba7b6c3d8507810c3d24d20303c17be6833652eb58e83b079"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "avatars": {
+      "report": "final-flat-avatar/report.json",
+      "report_sha256": "9c3aaa68d033ed3a04d240e542685b4aba5e90c84a3de4f5f13b8c55d9a6efbf",
+      "passed": true,
+      "check_records": 10,
+      "screenshots": [
+        {
+          "file": "final-flat-avatar/native-avatar-desktop.png",
+          "sha256": "b56046a1e1b9c7333cb269fe3ad323dfc24add4f13c58e44147b2d57a18f4848"
+        },
+        {
+          "file": "final-flat-avatar/native-avatar-mobile.png",
+          "sha256": "cf0e57eed1ac029196df27df7c56e774f1b2b5eadff164a7b1cac51a725adef3"
+        },
+        {
+          "file": "final-flat-avatar/native-avatar-mobile-scene.png",
+          "sha256": "f2686118720c1f87caad3f942cdc8ca0e6e254c3e52978cd859097c2b99f91ee"
+        },
+        {
+          "file": "final-flat-avatar/native-avatar-pending-receipt.png",
+          "sha256": "e1c761c97dbbe9fe25b21662fdbfe3efbf9e498a0cac733c6f5643ae8bb68b10"
+        },
+        {
+          "file": "final-flat-avatar/native-avatar-timeout.png",
+          "sha256": "e3c201340f284893201099e681267eb9d985c1b91f4f9cedcc26b8fd3e8ea10c"
+        },
+        {
+          "file": "final-flat-avatar/native-avatar-recovered-unknown.png",
+          "sha256": "1e09d8aa4dffbf199471d3ad168db9b18cd8d384410f2681124a8fa0c2a28f78"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "terrain": {
+      "report": "final-terrain-rechecked/report.json",
+      "report_sha256": "85c1642095f3aa2f71d724761bfc7faeeb234774c5ff799f01b5a93ea6488f2b",
+      "passed": true,
+      "check_records": 12,
+      "screenshots": [
+        {
+          "file": "final-terrain-rechecked/native-elevated-contact.png",
+          "sha256": "d91303405f42d3d9a425d096facba7402399fd85bcb2d92dbf98a4b4f158e96f"
+        },
+        {
+          "file": "final-terrain-rechecked/native-avatar-desktop.png",
+          "sha256": "6f8cd6344aae73fa1a7ac9674a90104d5869f1ec8f2f8c5082768034e08a21e6"
+        },
+        {
+          "file": "final-terrain-rechecked/native-avatar-mobile.png",
+          "sha256": "593a21719b5ba3ea5afc704f12656099ac6777965c89565dd689a3233dc445d2"
+        },
+        {
+          "file": "final-terrain-rechecked/native-avatar-mobile-scene.png",
+          "sha256": "4180db87c84f40814e9fb0c3861b1c60b6a34313ad19ed2bd58733772988edc7"
+        },
+        {
+          "file": "final-terrain-rechecked/native-avatar-pending-receipt.png",
+          "sha256": "6204d43d06bcc40b57b934d1abc3e02d8edd5acdb537d91176f3f90b7475c4cd"
+        },
+        {
+          "file": "final-terrain-rechecked/native-avatar-timeout.png",
+          "sha256": "16c38512f0e1f58dcbca56a7dc2d522e1083452bdbc495886c8a5b5ca100ec53"
+        },
+        {
+          "file": "final-terrain-rechecked/native-avatar-recovered-unknown.png",
+          "sha256": "30765ecb86e56d527e51cf9e34771e7854ca76728d791822941a924a6682549c"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "ended_pose": {
+      "report": "final-pose-retention/report.json",
+      "report_sha256": "2ab458d21c0143644672d5a7fa3f52b3b61d230a68d2a5e91dfd995afc2a7429",
+      "passed": true,
+      "check_records": 6,
+      "screenshots": [
+        {
+          "file": "final-pose-retention/01-before-animation-end.png",
+          "sha256": "35f5f95b2209f0eda29acfa24d252cc8f8f0f97fd97b2bf25c72029a554d8648"
+        },
+        {
+          "file": "final-pose-retention/02-retained-ended-pose.png",
+          "sha256": "7b0f3b9ccd118876e82182a77114b715db7a70b1bca111b66b6f9a5c0187c4f9"
+        },
+        {
+          "file": "final-pose-retention/03-retained-mobile.png",
+          "sha256": "cad33fe1a78e145afda82914885501e3e3073adce146400f21fd0a33e3aee88b"
+        },
+        {
+          "file": "final-pose-retention/04-checkpoint-reset.png",
+          "sha256": "ec98f8c372eeb6d916f1e9891b7bc2c9398335d3b965a0780cc25a4ce46f0f70"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "pose_batches": {
+      "report": "final-pose-batches/report.json",
+      "report_sha256": "a0cb0ce0bd5f90041b8cc6fdb54dab9b897e3f851d2849a7ff682aa277961022",
+      "passed": true,
+      "check_records": 8,
+      "screenshots": [
+        {
+          "file": "final-pose-batches/01-retained-batch-1.png",
+          "sha256": "0e1c3ccf8af7b51721c486224c9b016e6845b36e4ec8a5d5995b925fc5a60ae0"
+        },
+        {
+          "file": "final-pose-batches/01-retained-batch-3.png",
+          "sha256": "0e1c3ccf8af7b51721c486224c9b016e6845b36e4ec8a5d5995b925fc5a60ae0"
+        },
+        {
+          "file": "final-pose-batches/01-retained-batch-18.png",
+          "sha256": "0e1c3ccf8af7b51721c486224c9b016e6845b36e4ec8a5d5995b925fc5a60ae0"
+        },
+        {
+          "file": "final-pose-batches/02-batched-checkpoint-reset.png",
+          "sha256": "ccee250c0b0a815eed7c1bf8fc39c06324994db989daedc0d93d997fcd6a6b26"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "receipt_deadlines": {
+      "report": "final-deadline/receipt-deadline/results.json",
+      "report_sha256": "919e3740463643269d491199c8c4f5b6ccc82556000ea0f8915cba8118da0dc6",
+      "passed": true,
+      "check_records": 7,
+      "screenshots": [
+        {
+          "file": "final-deadline/receipt-deadline/01-pending-with-live-ticks.png",
+          "sha256": "33eecb5c350f1ef7f5de3d25c2301fc63ee8775f3e1484b4b3d27e39d21167b4"
+        },
+        {
+          "file": "final-deadline/receipt-deadline/02-receipt-timeout.png",
+          "sha256": "4be3e8375e74bfca967927ee8a2f72cc7acb3a6b33db187b1be0c9d913745286"
+        },
+        {
+          "file": "final-deadline/receipt-deadline/03-recovered-unknown-result.png",
+          "sha256": "393d1d4a5d9249d0d3222c673ebcbf9fd21aa8c46dd2c07a704e207e40cd22d2"
+        },
+        {
+          "file": "final-deadline/receipt-deadline/04-confirmed-after-deadline.png",
+          "sha256": "307dc81a13d70f94c6a8e85462a68cc53f24c7487b9bba6455cfd09cc666176b"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "audio": {
+      "report": "final-audio/report.json",
+      "report_sha256": "bcf45972f4670d116aff280d88ba3ae0bb574278047bbcdec2927abae70b64d6",
+      "passed": true,
+      "check_records": 14,
+      "screenshots": [
+        {
+          "file": "final-audio/01-native-game-sound.png",
+          "sha256": "b00a3b723e74a4d3204bf494dc926b69e55154a7c122f04d9c454a1e6145868e"
+        },
+        {
+          "file": "final-audio/02-mobile-native-game-sound.png",
+          "sha256": "b1b83d4d346edf64120060495b8557d3acaf0b477d65078c2c37e3dd88e24b3c"
+        },
+        {
+          "file": "final-audio/03-city-after-game-audio.png",
+          "sha256": "8a51d845d2491c55fc199f1215ddfa3b3c49890db44f9906493cbda0540e8769"
+        }
+      ],
+      "recorded_errors": []
+    },
+    "combined": {
+      "report": "final-combined-repeat/report.json",
+      "report_sha256": "271e589a2f5212d92b82be129b29437cd32fe93c58597a2af67b2f4d8c4054ad",
+      "passed": true,
+      "check_records": 18,
+      "screenshots": [
+        {
+          "file": "final-combined-repeat/01-native-game-sound.png",
+          "sha256": "2331a0d40edb317d7f60a223b65a2bb1d30b44a82e840f623c1610c855696b24"
+        },
+        {
+          "file": "final-combined-repeat/02-mobile-native-game-sound.png",
+          "sha256": "221235b0a9866433e55be5011c73dfe8d9fcb5cff4bd3d8027dc22bae5f74c26"
+        },
+        {
+          "file": "final-combined-repeat/03-city-after-game-audio.png",
+          "sha256": "8a51d845d2491c55fc199f1215ddfa3b3c49890db44f9906493cbda0540e8769"
+        }
+      ],
+      "recorded_errors": []
+    }
+  },
+  "browser_summary": {
+    "all_passed": true,
+    "check_records": 91,
+    "screenshots": 43,
+    "chromium": "141.0.7390.37",
+    "playwright": "1.56.1",
+    "overlapping_paths_not_independent_feature_count": true
+  },
+  "audio_measurements": [
+    {
+      "name": "Real content UI imports the explicit local HIT/EVT/TRK/PCM/FWAV cohort",
+      "selectedFiles": 6
+    },
+    {
+      "name": "Unactivated playback discards accepted cues, not game actions",
+      "accepted": 1,
+      "voices": 0
+    },
+    {
+      "name": "Real gesture unlock does not replay pre-activation history",
+      "voices": 0
+    },
+    {
+      "name": "Accepted source primitive reaches real nonzero WebAudio output",
+      "voiceId": "1:1",
+      "rms": 0.08805492178419361,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0.32429710030555725,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Visible event-loop delay preserves the active game sound",
+      "visibility": "visible",
+      "elapsedMs": 400.0999999998603,
+      "voices": 1
+    },
+    {
+      "name": "Existing mute controls silence the actual game voice",
+      "voiceId": "1:1",
+      "rms": 0,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Existing effects volume scales real game output",
+      "voiceId": "1:1",
+      "rms": 0.022073298643014876,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0.08107427507638931,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Real device suspension still disposes native playback",
+      "voices": 0,
+      "state": "suspended"
+    },
+    {
+      "name": "Resuming the real device does not replay old cues",
+      "voices": 0
+    },
+    {
+      "name": "Accepted StopSound releases the exact owning sound",
+      "voices": 0
+    },
+    {
+      "name": "Disconnect releases voices and imported native resource residency",
+      "voices": 0,
+      "samples": 0,
+      "actions": 5
+    },
+    {
+      "name": "Recovery checkpoint does not replay sound or commands",
+      "voices": 0,
+      "actions": 5
+    },
+    {
+      "name": "An explicit new action plays after reconnect",
+      "voiceId": "2:1",
+      "rms": 0.0882929066608671,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0.32429710030555725,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Route exit disposes native voices and samples",
+      "voices": 0,
+      "samples": 0
+    }
+  ],
+  "combined_measurements": [
+    {
+      "name": "Real content UI imports the explicit local HIT/EVT/TRK/PCM/FWAV cohort",
+      "selectedFiles": 17
+    },
+    {
+      "name": "One admitted player combines raised terrain, mesh picking and all eighteen pose transitions",
+      "tick": "21",
+      "canvasSha256": "1950545e4977ec1abde24c45ba46e9031cdacfd40273d61121fe3ee5b0477ac0",
+      "visiblePixels": 89
+    },
+    {
+      "name": "Terrain visibility repair coexists with retained pose history",
+      "hiddenValue": 2,
+      "restored": true
+    },
+    {
+      "name": "Unactivated playback discards accepted cues, not game actions",
+      "accepted": 1,
+      "voices": 0
+    },
+    {
+      "name": "Real gesture unlock does not replay pre-activation history",
+      "voices": 0
+    },
+    {
+      "name": "Accepted source primitive reaches real nonzero WebAudio output",
+      "voiceId": "1:1",
+      "rms": 0.08959717275171404,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0.3299023509025574,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Visible event-loop delay preserves the active game sound",
+      "visibility": "visible",
+      "elapsedMs": 400,
+      "voices": 1
+    },
+    {
+      "name": "Existing mute controls silence the actual game voice",
+      "voiceId": "1:1",
+      "rms": 0,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Existing effects volume scales real game output",
+      "voiceId": "1:1",
+      "rms": 0.02246367398706748,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0.08247558772563934,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Real device suspension still disposes native playback",
+      "voices": 0,
+      "state": "suspended"
+    },
+    {
+      "name": "Resuming the real device does not replay old cues",
+      "voices": 0
+    },
+    {
+      "name": "Accepted StopSound releases the exact owning sound",
+      "voices": 0
+    },
+    {
+      "name": "Sound actions and UI scheduling preserve the retained terrain-backed avatar",
+      "sameCanvas": true
+    },
+    {
+      "name": "Disconnect releases voices and imported native resource residency",
+      "voices": 0,
+      "samples": 0,
+      "actions": 5
+    },
+    {
+      "name": "Recovery checkpoint does not replay sound or commands",
+      "voices": 0,
+      "actions": 5
+    },
+    {
+      "name": "Combined reconnect retains resources but never invents missing pose or sound history",
+      "avatarModels": 1,
+      "soundVoices": 0
+    },
+    {
+      "name": "An explicit new action plays after reconnect",
+      "voiceId": "2:1",
+      "rms": 0.08958012880186496,
+      "context": "AudioContext",
+      "state": "running",
+      "gain": 0.3299023509025574,
+      "pan": 0,
+      "looped": true
+    },
+    {
+      "name": "Route exit disposes native voices and samples",
+      "voices": 0,
+      "samples": 0
+    }
+  ],
+  "release": {
+    "wasm": "wonderland-web-shell-fd157ab52c6e6d5c_bg.wasm",
+    "bytes": 12367590,
+    "sha256": "4fe90273d2bacb0ed345137970328855d1aa01fc8b7db1a8914daa0fb9af5139"
+  },
+  "source_sha256": {
+    ".github/workflows/native-browser.yml": "7c18061f68590272fe0f43c801206ae20f599ba9d145fc3a20121c1bbf90871f",
+    ".github/workflows/native-pose-retention.yml": "434e90ef02f2e1a580e5b042a8efa1be148308f11d7deb40e7cf3edd00e978b3",
+    "apps/web-shell/examples/native_pose_retention_probe.rs": "3bc4fdccb199e9704e0d870bcb4f996c5d631154c22bef43ff9ba4e258b076a9",
+    "apps/web-shell/scripts/verify-native-pose-retention.mjs": "0c2e7c1062793b224e9fc72a698c1d59178ccfa47f385c2f8a8e0ed9762ccb89",
+    "apps/web-shell/src/native_audio_browser.rs": "ea4d03153ddc9ff1bfedc483594b9cd4ddc950c4e9d287272bc5461ee2992dea",
+    "apps/web-shell/src/native_avatar.rs": "7ebb5c513e4e336f9450776c09113cc6c0270fecf4e9c2ee3b9c078bab0e5bc6",
+    "apps/web-shell/src/native_avatar/history.rs": "23aa73f89aff60cd68838ac7c5f9bb34a658d717fca2ab9dad326a414380b378",
+    "apps/web-shell/src/native_lot.rs": "9c429c1629cec996430a6078116c5573d8958914d105a29565a668655e3d4f8c",
+    "apps/web-shell/tests/native_avatar_retention.rs": "5478dfa0fe8ea88ff8555fc5eb9a432e1fddabd5705560d560f6b36cf61d5ecb",
+    "crates/game-runtime/examples/native_browser_peer.rs": "bfd6c883dd1b6423e2b3df27c4b66f67afdb1288f8120b01d4b19e80d4fb084e",
+    "crates/game-runtime/src/avatar_projection.rs": "363b8e24967829576898c0c180384c1de0f8f0d763abba4502169ff42acffa65",
+    "crates/game-runtime/src/live_session.rs": "eb1f1c475cc0779497afd1354d44a36c56a88fe2df5560484671200e3d83ae6f",
+    "crates/game-runtime/src/live_wire.rs": "92e4028506295e5190b4312ce0e60f341c5f1f6106dc301ad5e33b24b037584f",
+    "crates/game-runtime/src/live_wire/player.rs": "0d64b255bbaad622528757f674f00f2675125d9a66210d880c8eca172c49b013",
+    "crates/game-runtime/tests/avatar_replay.rs": "befaff94cca7837979e691c10ece0132980319716c43fbafd58d204a78055aa3",
+    "crates/game-runtime/tests/native_player.rs": "5d4df6db1b49e9b95e013258797a5a23c610f9aa29fba967853492ffe7369349",
+    "tools/native-browser/peer.mjs": "52d82424ac8b7083955b9ac1e446e9ff09f1417100ab68a40e4de7920efa6347",
+    "tools/native-browser/verify-audio.mjs": "c0f1d6b804bcaf735a367b5998efd5a50fcc5b5c18e8c9837424bf4a9509ed7c",
+    "tools/native-browser/verify-avatars.mjs": "7daf38902fa1389a1ec6e0a5feb6d31050d5904d05fcf6ebe09339d9392cee92",
+    "tools/native-browser/verify-pose-batches.mjs": "330369cd13bcaf8f2763d27cb81b81576bc47f1dea2bc283f4e24adf831250ee",
+    "tools/native-browser/verify-pose-retention.mjs": "401e9105a31f2aaff6dea827d17fde7216cdf07ae3d2f2c61aa3e4a3ba2d7ae7"
+  },
+  "regressions": {
+    "visible_foreground_stall": {
+      "baseline": "PR38 actual hosted optimized app",
+      "task_ms": 400,
+      "exit_code": 1,
+      "log_sha256": "3909efc8394c35a7c4e44c0026f3387598e58ebb55733c05faf0b2bce3433ca1",
+      "root_cause": "elapsed>250 ms branch silenced accepted voices even with visible document and running AudioContext",
+      "correction": "Remove inferred suspension; retain cadence cap and real visibility/device/lifecycle guards"
+    },
+    "complete_packet_pose": {
+      "baseline": "Rebuilt audio-fixed app before importing PR39",
+      "accepted_ticks_in_packet": 18,
+      "exit_code": 1,
+      "log_sha256": "faf384f1cf968043e3f6ec2890652b58cd61167b21df6d81f7eb3fb59fe03d1e",
+      "result": "Final rendered image remained initial bind pose"
+    },
+    "terrain_draw_race": {
+      "initial_report_sha256": "ce407fd823bf19db7a92d0263a0005142d929dca805b458063c5b12d6475a0c0",
+      "initial_hidden_pixels": 89,
+      "model_count": 0,
+      "diagnostic_unchanged_rerun_passed": true,
+      "test_correction": "Wait bounded 5 seconds for existing nonbusy drawn canvas and zero avatar pixels; threshold unchanged; no renderer modification"
+    }
+  },
+  "qualification": {
+    "actual_rebuilt_application": true,
+    "real_native_runtime_controlled_services": true,
+    "real_webaudio_signal": true,
+    "real_foreground_delay": true,
+    "real_timers": true,
+    "clock_modification": false,
+    "synthetic_avatar_and_tone": true,
+    "production_server": false,
+    "distinct_real_players": false,
+    "full_original_art": false,
+    "complete_game": false,
+    "physical_device": false,
+    "independent_review": false,
+    "parent_or_main_updated": false,
+    "deployment": false,
+    "hosted_execution_on_new_head": "pending-publication"
+  },
+  "notes": [
+    "Twenty pose/replay regressions are imported PR39 tests included in the total, not new additional tests.",
+    "Combined browser passed twice on unchanged application; only final repeat included in summary.",
+    "Original optional tests, future-Rust dependency and browser preload warnings remain.",
+    "Checkpoint recovery intentionally resets unavailable historic bone state and does not restart historical audio loops.",
+    "Local reconstructed commit identities are not upstream hashes; raw input Git trees were verified exactly.",
+    "Temporary transfer, if used, is byte validation/storage, not execution evidence."
+  ]
+}
