@@ -64,9 +64,18 @@ struct Resources {
     frame: Option<Closure<dyn FnMut(js_sys::Uint8Array) -> JsValue>>,
     state: Option<Closure<dyn FnMut(String)>>,
     last_request: u64,
+    audio: Option<crate::native_audio_browser::AudioHandle>,
+    audio_bank: Option<Arc<wonderland_audio_content::pack::AudioPack>>,
+    audio_loading: bool,
 }
 impl Resources {
+    fn stop_audio(&mut self) {
+        self.audio.take();
+        self.audio_bank = None;
+        self.audio_loading = false;
+    }
     fn stop_socket(&mut self) {
+        self.stop_audio();
         if let Some(abort) = self.abort.take() {
             abort.abort();
         }
@@ -92,11 +101,13 @@ struct Controller {
     world: RwSignal<Option<Arc<WorldDocument>>>,
     projection: RwSignal<Option<Arc<RuntimeProjection>>>,
     choices: RwSignal<Vec<Choice>>,
+    needs_open: RwSignal<bool>,
     live: RwSignal<bool>,
     status: RwSignal<ActionStatus>,
     activity: RwSignal<Vec<ActionActivity>>,
     notice: RwSignal<String>,
     wake: RwSignal<u64>,
+    sound_notice: RwSignal<String>,
 }
 fn scope(ui: ConnectedUi) -> Option<(u64, PlayerBinding)> {
     ui.state
@@ -143,10 +154,13 @@ impl Controller {
             })
     }
     fn fail(self, message: &str) {
+        self.sound_notice
+            .try_set("Game sounds stopped until the native connection recovers.".into());
         self.live.try_set(false);
         self.notice.try_set(message.into());
         self.choices.try_set(Vec::new());
         self.resources.try_update_value(|r| {
+            r.stop_audio();
             if let Some(player) = r.player.as_mut() {
                 player.disconnect();
                 self.status.try_set(player.status());
@@ -220,6 +234,7 @@ impl Controller {
                 }
                 let payload = bytes.to_vec();
                 let mut receipt = false;
+                let mut audio_update = None;
                 let processed = self.resources.try_update_value(
                     |r| -> Result<(Option<Vec<u8>>, bool), &'static str> {
                         if let Some(player) = r.player.as_mut() {
@@ -228,6 +243,7 @@ impl Controller {
                             // only durable presentation history may enter a signal.
                             let update = player.receive_update(&payload)?;
                             receipt = matches!(update, PlayerUpdate::Receipt(_));
+                            audio_update = Some(update);
                         } else {
                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
                         }
@@ -261,6 +277,24 @@ impl Controller {
                             self.host("settled", None);
                         }
                         if ready {
+                            // The runtime borrow has ended. Audio consumes only
+                            // complete validated outcomes; a receipt is not a cue.
+                            if let Some(update) = audio_update {
+                                let sound=self.resources.with_value(|r| {
+                                    let Some(audio)=&r.audio else {return Ok(());};
+                                    match update {
+                                        wonderland_game_runtime::live_wire::player::PlayerUpdate::Ticks(outcomes)=> {
+                                            let projection=r.player.as_ref().ok_or("No accepted sound state")?.projection()?;
+                                            audio.accept(&outcomes,&projection)
+                                        },
+                                        wonderland_game_runtime::live_wire::player::PlayerUpdate::Checkpoint(cursor)=> {audio.checkpoint(cursor.completed_tick);Ok(())},
+                                        _=>Ok(()),
+                                    }
+                                });
+                                if let Err(message) = sound {
+                                    self.sound_notice.try_set(message);
+                                }
+                            }
                             let was_live = self.live.get_untracked();
                             self.live.try_set(true);
                             if !was_live {
@@ -268,6 +302,9 @@ impl Controller {
                                 self.host("ready", None);
                             }
                             self.wake.try_update(|n| *n = n.saturating_add(1));
+                        } else {
+                            self.live.try_set(false);
+                            self.resources.try_update_value(Resources::stop_audio);
                         }
                         reply
                             .map(|v| JsValue::from(js_sys::Uint8Array::from(v.as_slice())))
@@ -344,18 +381,23 @@ impl Controller {
                 .and_then(|p| p.offers(target))
         });
         match result {
-            Ok(batch) => self.choices.set(
-                batch
-                    .offers
-                    .into_iter()
-                    .map(|offer| Choice {
-                        target,
-                        key: offer.interaction,
-                        param0: offer.param0,
-                        label: offer.label,
-                    })
-                    .collect(),
-            ),
+            Ok(batch) => {
+                if !batch.offers.is_empty() {
+                    self.needs_open.set(false);
+                }
+                self.choices.set(
+                    batch
+                        .offers
+                        .into_iter()
+                        .map(|offer| Choice {
+                            target,
+                            key: offer.interaction,
+                            param0: offer.param0,
+                            label: offer.label,
+                        })
+                        .collect(),
+                );
+            }
             Err(message) => self.notice.set(message.into()),
         }
     }
@@ -535,17 +577,21 @@ pub fn NativeLot() -> impl IntoView {
         world: RwSignal::new(None),
         projection: RwSignal::new(None),
         choices: RwSignal::new(Vec::new()),
+        needs_open: RwSignal::new(false),
         live: RwSignal::new(false),
         status: RwSignal::new(ActionStatus::Idle),
         activity: RwSignal::new(Vec::new()),
         notice: RwSignal::new(String::new()),
         wake: RwSignal::new(0),
+        sound_notice: RwSignal::new(
+            "Load an optional wonderland-audio.json sound cohort in Game content.".into(),
+        ),
     };
     let content = expect_context::<ContentUi>();
     let avatar_resources = StoredValue::new_local(AvatarResources::default());
     let controls = RwSignal::new(ViewportControls::default());
     let presentation_revision = RwSignal::new(0u64);
-    let needs_open = RwSignal::new(false);
+    let needs_open = ctl.needs_open;
     Effect::new(move |_| {
         ui.state.track();
         let current = scope(ui);
@@ -596,6 +642,98 @@ pub fn NativeLot() -> impl IntoView {
             Err(message) => ctl.fail(message),
         }
     });
+    Effect::new(move |_| {
+        let live = ctl.live.get();
+        let bank = content.audio.get();
+        ctl.wake.track();
+        if !live {
+            return;
+        }
+        let Some(bank) = bank else {
+            ctl.resources.update_value(Resources::stop_audio);
+            ctl.sound_notice
+                .set("Load an optional wonderland-audio.json sound cohort in Game content.".into());
+            return;
+        };
+        let task = ctl
+            .resources
+            .try_update_value(|r| {
+                if r.audio_bank
+                    .as_ref()
+                    .is_some_and(|old| Arc::ptr_eq(old, &bank))
+                {
+                    return None;
+                }
+                r.stop_audio();
+                r.audio_bank = Some(bank.clone());
+                r.audio_loading = true;
+                Some(r.generation)
+            })
+            .flatten();
+        let Some(connection) = task else {
+            return;
+        };
+        ctl.sound_notice
+            .set("Preparing imported game sounds…".into());
+        spawn_local(async move {
+            let module = JsFuture::from(crate::native_audio_browser::load_module()).await;
+            let current = ctl.current(connection)
+                && ctl.live.try_get_untracked() == Some(true)
+                && ctl.resources.try_with_value(|r| {
+                    r.audio_loading
+                        && r.audio_bank
+                            .as_ref()
+                            .is_some_and(|old| Arc::ptr_eq(old, &bank))
+                }) == Some(true);
+            if !current {
+                return;
+            }
+            let result = module
+                .map_err(|_| "Game sound module could not load".to_owned())
+                .and_then(|module| {
+                    let projection = ctl
+                        .resources
+                        .with_value(|r| {
+                            r.player
+                                .as_ref()
+                                .ok_or("Native player unavailable")?
+                                .projection()
+                        })
+                        .map_err(str::to_owned)?;
+                    crate::native_audio_browser::AudioHandle::open(
+                        &module,
+                        bank,
+                        &projection,
+                        move || {
+                            let world = ctl.world.try_get_untracked().flatten()?;
+                            let controls = controls.try_get_untracked()?;
+                            let window = web_sys::window()?;
+                            let width = window.inner_width().ok()?.as_f64()? as f32;
+                            let height = window.inner_height().ok()?.as_f64()? as f32;
+                            Some((world, controls, width / height.max(1.)))
+                        },
+                        move |notice| {
+                            ctl.sound_notice.try_set(notice);
+                        },
+                    )
+                });
+            ctl.resources.update_value(|r| {
+                r.audio_loading = false;
+                match result {
+                    Ok(audio) => {
+                        r.audio = Some(audio);
+                        ctl.sound_notice.set(
+                            "Game sounds ready. Use Sound to enable playback or adjust volume."
+                                .into(),
+                        );
+                    }
+                    Err(message) => {
+                        ctl.sound_notice.set(message);
+                    }
+                }
+            });
+        });
+    });
     on_cleanup(move || {
         ctl.resources.try_update_value(Resources::close);
     });
@@ -613,7 +751,7 @@ pub fn NativeLot() -> impl IntoView {
                 <div class="source-control-group source-camera-controls" role="group" aria-label="Camera"><button class="chrome round small" aria-label="Rotate left" on:click=move |_|controls.update(|v|v.yaw_radians-=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise" class="icon-mirror"/></button><button class="chrome round small" aria-label="Rotate right" on:click=move |_|controls.update(|v|v.yaw_radians+=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise"/></button><button class="chrome round small" aria-label="Zoom out" on:click=move |_|controls.update(|v|v.zoom=(v.zoom/1.2).max(0.25))><Icon name="minus"/></button><button class="chrome round small" aria-label="Zoom in" on:click=move |_|controls.update(|v|v.zoom=(v.zoom*1.2).min(8.))><Icon name="plus"/></button></div>
                 <div class="source-control-group source-floor-controls" role="group" aria-label="Visible floor"><button class="chrome round small" aria-label="Floor down" disabled=move ||controls.get().visible_level<=1 on:click=move |_|controls.update(|v|v.visible_level=v.visible_level.saturating_sub(1).max(1))><Icon name="chevron-down"/></button><span>{move ||controls.get().visible_level}</span><button class="chrome round small" aria-label="Floor up" disabled=move ||ctl.world.with(|w|w.as_ref().is_none_or(|w|controls.get().visible_level>=w.lot.levels)) on:click=move |_|{let n=ctl.world.with_untracked(|w|w.as_ref().map(|w|w.lot.levels).unwrap_or(1));controls.update(|v|v.visible_level=v.visible_level.saturating_add(1).min(n));}><Icon name="chevron-up"/></button></div>
                 <div class="source-control-group source-visibility-controls" role="group" aria-label="Wall visibility">{[(WallMode::Down,"Walls down"),(WallMode::Cutaway,"Cutaway"),(WallMode::Up,"Walls up")].into_iter().map(move |(mode,label)|view!{<button class="chrome" aria-pressed=move ||(controls.get().walls==mode).to_string() on:click=move |_|controls.update(|v|v.walls=mode)>{label}</button>}).collect_view()}<button class="chrome" aria-pressed=move ||controls.get().show_roofs.to_string() on:click=move |_|controls.update(|v|v.show_roofs = !v.show_roofs)>"Roof"</button></div>
-                <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" disabled=move ||!ctl.live.get() on:click=move |_|{if let Some(actor)=ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor())){ctl.select(actor);}}>"Your Sim"</button><button class="chrome" on:click=move |_|needs_open.update(|v|*v = !*v)>"Needs"</button><button class="chrome" disabled=true title="Native construction provider is not connected">"Buy / Build"</button></div>
+                <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" disabled=move ||!ctl.live.get() on:click=move |_|{if let Some(actor)=ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor())){ctl.select(actor);}}>"Your Sim"</button><button class="chrome" on:click=move |_|{if !needs_open.get_untracked(){ctl.choices.set(Vec::new());}needs_open.update(|v|*v = !*v);}>"Needs"</button><button class="chrome" disabled=true title="Native construction provider is not connected">"Buy / Build"</button></div>
             </nav>
             <Show when=move ||!ctl.choices.get().is_empty()><aside class="connected-world-authoring chrome" aria-label="Source actions"><header><h2>"Actions"</h2><button class="chrome round small" aria-label="Close source actions" on:click=move |_|ctl.choices.set(Vec::new())><Icon name="x"/></button></header>{move ||ctl.choices.get().into_iter().map(move |choice|{let label=choice.label.clone();view!{<button class="chrome native-source-action" disabled=move ||!ctl.live.get()||matches!(ctl.status.get(),ActionStatus::Pending|ActionStatus::Unknown) on:click=move |_|ctl.submit(Some(choice.clone()),None)>{label}</button>}}).collect_view()}<p role="status">{move ||match ctl.status.get(){ActionStatus::Idle=>"Choose a source action.",ActionStatus::Pending=>"Sent · awaiting server acceptance",ActionStatus::Accepted=>"Accepted by the server",ActionStatus::Rejected=>"The server rejected this action",ActionStatus::Unknown=>"Previous action result unknown · not retried"}}</p><Show when=move ||!ctl.activity.get().is_empty()><p class="native-action-feedback" role="status" aria-live="polite">{move ||ctl.activity.with(|items|items.last().map(ActionActivity::message))}</p><details class="native-action-history"><summary>"Recent activity"</summary><ol><For each=move ||{ctl.activity.get().into_iter().rev().collect::<Vec<_>>()} key=|item|(item.tick,item.event_sequence) children=move |item|{view!{<li data-action-id=item.action.to_string()>{item.message()}</li>}}/></ol></details></Show><Show when=move ||ctl.live.get()&&ctl.status.get()==ActionStatus::Unknown><button class="chrome" on:click=move |_|{ctl.resources.update_value(|r|{if let Some(p)=r.player.as_mut() && p.dismiss_unknown().is_ok(){ctl.status.set(p.status());}});}>"Dismiss unknown result without retrying"</button></Show></aside></Show>
             <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Live native needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><p class="native-avatar-status" role="status">{move ||ctl.world.with(|w|w.as_ref().map(|w| {
@@ -621,7 +759,7 @@ pub fn NativeLot() -> impl IntoView {
                 if ready>0 {format!("{ready} avatar appearance(s) sampled from original resources at the accepted frame.")}
                 else {w.diagnostics.iter().find(|d|d.code.starts_with("native_avatar_")).map(|d|d.message.clone())
                     .unwrap_or_else(||"Original avatar resources are not loaded. Load Game content from Choose your Sim.".into())}
-            })).unwrap_or_default()}</p><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==scope(ui).map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
+            })).unwrap_or_default()}</p><p class="native-audio-status" role="status">{move ||ctl.sound_notice.get()}</p><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==scope(ui).map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
                 [("Energy",Some(n.energy)),("Comfort",Some(n.comfort)),("Hunger",Some(n.hunger)),("Hygiene",Some(n.hygiene)),("Bladder",Some(n.bladder)),("Social",Some(n.social)),("Fun",Some(n.fun)),("Room",n.room)].into_iter().map(|(name,value)|view!{<label><span>{name}</span>{value.map(|value|view!{<progress max="100" value=value>{value}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any())}</label>}).collect_view()
             })}</div></aside></Show>
         </section>

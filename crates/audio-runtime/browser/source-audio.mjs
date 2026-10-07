@@ -143,6 +143,8 @@ export class SourceAudioPlayer {
     this.completed = [];
     this.auditionVoice = null;
   }
+  // Stop one presentation lifetime without changing sound preferences or user music.
+  resetVoices() { this._live(); this._clearVoices(); }
   applyAll(items) {
     this._live();
     if (!Array.isArray(items) || items.length > 1024) throw Error('source audio intent batch budget');

@@ -41,6 +41,7 @@ pub struct AvatarMotion(pub Signal<bool>);
 #[derive(Clone, Copy)]
 pub struct ContentUi {
     pub imported: RwSignal<Option<Arc<ImportedContent>>>,
+    pub audio: RwSignal<Option<Arc<wonderland_audio_content::pack::AudioPack>>>,
     pub choices: RwSignal<Option<AppearanceContent>>,
     files: StoredValue<SourceFiles>,
     generation: RwSignal<u64>,
@@ -55,6 +56,7 @@ impl ContentUi {
     pub fn new() -> Self {
         let s = Self {
             imported: RwSignal::new(None),
+            audio: RwSignal::new(None),
             choices: RwSignal::new(None),
             files: StoredValue::new(Arc::new(vec![])),
             generation: RwSignal::new(0),
@@ -199,6 +201,14 @@ impl ContentUi {
                 .set("Choose original files or a game folder first.".into());
             return;
         }
+        let audio = match crate::native_audio::selected_audio_pack(&files) {
+            Ok(audio) => audio,
+            Err(error) => {
+                self.notice
+                    .set(format!("{error}. Previous content is preserved."));
+                return;
+            }
+        };
         let skeleton = self.skeleton.get_untracked();
         let mut collections = vec![];
         for (name, role) in [
@@ -247,10 +257,13 @@ impl ContentUi {
                 match target.install.run(metadata.clone()) {
                     Ok(()) => {
                         self.generation.update(|g| *g = g.wrapping_add(1));
+                        let sounds = audio.as_ref().map_or(0, |pack| pack.samples.len());
+                        self.audio.set(audio);
                         self.imported.set(Some(Arc::new(imported)));
                         self.choices.set(Some(metadata));
-                        self.notice
-                            .set(format!("{heads} heads · {bodies} bodies ready"));
+                        self.notice.set(format!(
+                            "{heads} heads · {bodies} bodies ready · {sounds} game sound samples"
+                        ));
                     }
                     Err(e) => self.notice.set(e.to_string()),
                 }
