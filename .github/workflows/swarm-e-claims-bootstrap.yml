@@ -1,0 +1,162 @@
+name: Swarm E claim bootstrap and database verification
+on:
+  push:
+    branches: [work/swarm-e-ownership-claims]
+    paths: [.github/workflows/swarm-e-claims-bootstrap.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    outputs:
+      tested: ${{ steps.publish.outputs.tested }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Recover the exact six-file source patch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = rndrntwrk/wonderland-
+          test "$GITHUB_REF" = refs/heads/work/swarm-e-ownership-claims
+          mkdir -p /tmp/e-source
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,json,base64,gzip,hashlib
+          blobs=['640cad1896fb631d91ba3b2074c49234199b615c','4ea8035ff0465cf0483216e5d42903b7b796f807','7afd5d6bf0fa22322c9b3ec2aa43edc26885b143','eb5836450025718673649956d500ed241cc9f73b']
+          chunks=[]
+          for sha in blobs:
+              obj=json.loads(subprocess.check_output(['gh','api',f'repos/rndrntwrk/wonderland-/git/blobs/{sha}']))
+              data=base64.b64decode(obj['content']);assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha
+              chunks.append(data)
+          compressed=b''.join(chunks)
+          assert hashlib.sha256(compressed).hexdigest()=='e0a64980b7d30056de5763bc486205790604b81e719a26c7f54b4f0ece23e172'
+          patch=gzip.decompress(compressed)
+          assert len(patch)==33602 and hashlib.sha256(patch).hexdigest()=='197cab7de4814c72ba9b8efb01619269c18ee26f5f1e909b0fa10e67460ae864'
+          allowed=['crates/persistence/Cargo.toml','crates/persistence/migrations/0001_claims.sql','crates/persistence/src/lib.rs','crates/persistence/src/policy.rs','crates/persistence/tests/claims_mysql.rs','docs/swarm-e/OWNERSHIP_CLAIMS.md']
+          p=Path('/tmp/e-source/implementation.patch');p.write_bytes(patch)
+          names=subprocess.check_output(['git','apply','--numstat',str(p)],text=True)
+          assert {line.split('\t',2)[2] for line in names.splitlines()}==set(allowed)
+          subprocess.run(['git','apply','--check',str(p)],check=True)
+          subprocess.run(['git','apply','--whitespace=error',str(p)],check=True)
+          Path('/tmp/e-source/source-sha256.json').write_text(json.dumps({p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in allowed},indent=2)+'\n')
+          PY
+      - name: Resolve the isolated lockfile and compile actual SQLx code
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.0 --profile minimal --component clippy --component rustfmt
+          cargo +1.99.0 generate-lockfile --manifest-path crates/persistence/Cargo.toml
+          cargo +1.99.0 fmt --manifest-path crates/persistence/Cargo.toml -- --check
+          cargo +1.99.0 test --manifest-path crates/persistence/Cargo.toml --locked --lib 2>&1 | tee /tmp/e-source/unit.log
+          cargo +1.99.0 clippy --manifest-path crates/persistence/Cargo.toml --all-targets --locked -- -D warnings 2>&1 | tee /tmp/e-source/clippy.log
+          cp crates/persistence/src/policy.rs /tmp/e-source/policy.original
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('crates/persistence/src/policy.rs');s=p.read_text();a=s.index('    if epoch == 0');b=s.index('\n}\npub(crate) fn next_epoch',a)
+          p.write_text(s[:a]+'    let _ = (actual_owner, actual_epoch, until, owner, epoch, now);\n    Ok(())'+s[b:])
+          PY
+          set +e
+          cargo +1.99.0 test --manifest-path crates/persistence/Cargo.toml --locked --lib policy::tests::exact_current_live_credential_only > /tmp/e-source/mutation-red.log 2>&1
+          RED=$?
+          set -e
+          cp /tmp/e-source/policy.original crates/persistence/src/policy.rs
+          test "$RED" -ne 0
+          grep -q 'test result: FAILED' /tmp/e-source/mutation-red.log
+          cargo +1.99.0 test --manifest-path crates/persistence/Cargo.toml --locked --lib 2>&1 | tee /tmp/e-source/restored-green.log
+      - name: Publish only immutable source and its resolved lockfile
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,json,hashlib
+          m=json.loads(Path('/tmp/e-source/source-sha256.json').read_text())
+          for p,h in m.items(): assert hashlib.sha256(Path(p).read_bytes()).hexdigest()==h,p
+          allowed=[*m,'crates/persistence/Cargo.lock']
+          subprocess.run(['git','add','--',*allowed],check=True)
+          assert set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())==set(allowed)
+          subprocess.run(['git','diff','--exit-code'],check=True)
+          PY
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          REMOTE="$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" ls-remote origin refs/heads/work/swarm-e-ownership-claims | cut -f1)"
+          test "$REMOTE" = "$GITHUB_SHA"
+          git config user.name 'Wonderland verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(swarm-e): add native MySQL ownership claims and fenced transactions'
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin HEAD:refs/heads/work/swarm-e-ownership-claims
+          SHA=$(git rev-parse HEAD)
+          echo "tested=$SHA" >> "$GITHUB_OUTPUT"
+          echo "$SHA" > /tmp/e-source/tested-commit.txt
+          git rev-parse HEAD^{tree} > /tmp/e-source/tested-tree.txt
+          git archive --format=tar.gz HEAD -- crates/persistence docs/swarm-e > /tmp/e-source/source.tar.gz
+          cp crates/persistence/Cargo.lock /tmp/e-source/Cargo.lock
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: claims-source-${{ github.sha }}
+          path: /tmp/e-source/
+          retention-days: 14
+          if-no-files-found: error
+  database:
+    needs: source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: mysql
+            image: mysql:8.4
+            health: mysqladmin ping --silent -h127.0.0.1 -pclaim-ci-only
+          - engine: mariadb
+            image: mariadb:11.4
+            health: healthcheck.sh --connect --innodb_initialized
+    services:
+      db:
+        image: ${{ matrix.image }}
+        env:
+          MYSQL_ROOT_PASSWORD: claim-ci-only
+          MYSQL_ROOT_HOST: '%'
+          MYSQL_DATABASE: wonderland_claimstest
+        ports: ['3306/tcp']
+        options: >-
+          --health-cmd "${{ matrix.health }}"
+          --health-interval 5s --health-timeout 5s --health-retries 30
+    env:
+      DATABASE_URL: mysql://root:claim-ci-only@127.0.0.1:${{ job.services.db.ports[3306] }}/wonderland_claimstest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.source.outputs.tested }}
+          persist-credentials: false
+      - name: Verify actual transactional ownership and stale-writer behavior
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/e-db
+          git rev-parse HEAD > /tmp/e-db/tested-commit.txt
+          git rev-parse HEAD^{tree} > /tmp/e-db/tested-tree.txt
+          docker image inspect '${{ matrix.image }}' --format '{{json .RepoDigests}}' > /tmp/e-db/image-digests.json
+          docker inspect '${{ job.services.db.id }}' --format '{{.Image}}' > /tmp/e-db/image-id.txt
+          docker exec '${{ job.services.db.id }}' sh -c 'if command -v mariadb >/dev/null; then mariadb -uroot -pclaim-ci-only -e "SELECT VERSION(), @@transaction_isolation"; else mysql -uroot -pclaim-ci-only -e "SELECT VERSION(), @@transaction_isolation"; fi' > /tmp/e-db/server.txt 2>&1 || docker exec '${{ job.services.db.id }}' mariadb -uroot -pclaim-ci-only -e 'SELECT VERSION(), @@tx_isolation' >> /tmp/e-db/server.txt 2>&1
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+          rustc +1.99.0 -Vv > /tmp/e-db/compiler.txt
+          cargo +1.99.0 fmt --manifest-path crates/persistence/Cargo.toml -- --check
+          cargo +1.99.0 test --manifest-path crates/persistence/Cargo.toml --locked -- --test-threads=1 2>&1 | tee /tmp/e-db/database-tests.log
+          cargo +1.99.0 clippy --manifest-path crates/persistence/Cargo.toml --locked --all-targets -- -D warnings 2>&1 | tee /tmp/e-db/clippy.log
+          sha256sum crates/persistence/Cargo.lock > /tmp/e-db/lock.sha256
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: claims-${{ matrix.engine }}-${{ needs.source.outputs.tested }}
+          path: /tmp/e-db/
+          retention-days: 14
+          if-no-files-found: error
