@@ -2,7 +2,7 @@ name: Player integration source transfer
 on:
   push:
     branches: [feat/connected-player-integration]
-    paths: [tools/native-browser/integration-delivery.json]
+    paths: [tools/native-browser/integration-delivery.json, .github/workflows/player-integration-inputs.yml]
 permissions:
   contents: read
 jobs:
@@ -29,8 +29,14 @@ jobs:
           allowed={'.github/workflows/native-browser.yml','.github/workflows/native-pose-retention.yml','apps/web-shell/examples/native_pose_retention_probe.rs','apps/web-shell/scripts/verify-native-pose-retention.mjs','apps/web-shell/src/native_audio_browser.rs','apps/web-shell/src/native_avatar.rs','apps/web-shell/src/native_avatar/history.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/tests/native_avatar_retention.rs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/src/avatar_projection.rs','crates/game-runtime/src/live_session.rs','crates/game-runtime/src/live_wire.rs','crates/game-runtime/src/live_wire/player.rs','crates/game-runtime/tests/avatar_replay.rs','crates/game-runtime/tests/native_player.rs','docs/design/action-first/native-avatar-pose-retention.md','docs/design/action-first/native-pose-replay-publication.md','docs/design/action-first/connected-player-integration.md','docs/design/action-first/connected-player-integration-verification.json','tools/native-browser/peer.mjs','tools/native-browser/verify-audio.mjs','tools/native-browser/verify-avatars.mjs','tools/native-browser/verify-pose-batches.mjs','tools/native-browser/verify-pose-retention.mjs'}
           assert set(doc['paths'])==allowed and len(doc['copy_from_pose'])==15
           assert set(doc['copy_from_pose'])<=allowed
+          # Repair the single known transcription insertion, not product source.
+          # The independently recorded patch checksum and final tree remain exact.
+          encoded=doc['patch_xz_base64']
+          assert encoded.count('ZR+j+leLJJhx3')==1
+          encoded=encoded.replace('ZR+j+leLJJhx3','ZR+j+leLJhx3',1)
+          assert len(encoded)==29080
           dec=lzma.LZMADecompressor(memlimit=128*1024*1024)
-          patch=dec.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=500001)
+          patch=dec.decompress(base64.b64decode(encoded,validate=True),max_length=500001)
           assert dec.eof and not dec.unused_data and len(patch)<=500000
           assert hashlib.sha256(patch).hexdigest()==doc['patch_sha256']=='6bac16fda5b6abf2f6b92b97e78ce3a060237d9310ad6be3d31b301875017fac'
           subprocess.run(['git','fetch','--depth=1','origin',base,pose],check=True)
