@@ -45,6 +45,8 @@ impl Default for ViewportControls {
 
 #[derive(Clone, Debug)]
 pub struct ScenePart {
+    /// One-based source floor, including tile-less roof geometry.
+    pub level: u8,
     /// None for architecture; Some preserves each source object material pass.
     pub pipeline: Option<wonderland_render_core::reference::FragmentPipeline>,
     pub mesh: Arc<Mesh>,
@@ -565,6 +567,7 @@ pub fn build_scene_with_budget(
         }
         shade(&mut mesh, tint);
         parts.push(ScenePart {
+            level: part.level,
             pipeline: None,
             mesh: Arc::new(mesh),
             transform: Mat4::IDENTITY,
@@ -634,6 +637,7 @@ pub fn build_scene_with_budget(
                 )
             };
             parts.push(ScenePart {
+                level: object.level,
                 pipeline: Some(crate::materials::pipeline(draw.pipeline)),
                 mesh,
                 transform: scene.world,

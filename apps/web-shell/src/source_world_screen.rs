@@ -8,6 +8,7 @@ use wonderland_world_view::{
 
 use crate::{
     components::Icon,
+    world_facade::WorldFacadePanel,
     world_renderer::{WorldCaptureControls, WorldCapturePanel, WorldViewport},
 };
 
@@ -140,6 +141,7 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
                     <button class="chrome" on:click=move |_| selected.set(None)>"Clear selection"</button>
                 </Show>
                 <WorldCapturePanel capture/>
+                <WorldFacadePanel world=Signal::derive(move || world.get())/>
                 <p class="source-world-mode">"Local source view"</p>
             </aside>
             <Show when=move || !notice.get().is_empty()><p class="source-world-notice chrome" role="status">{move || notice.get()}</p></Show>

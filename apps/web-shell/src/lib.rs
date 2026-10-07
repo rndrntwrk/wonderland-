@@ -48,3 +48,6 @@ pub mod source_world_screen;
 pub mod startup_view;
 #[cfg(target_arch = "wasm32")]
 pub mod world_renderer;
+
+#[cfg(target_arch = "wasm32")]
+pub mod world_facade;

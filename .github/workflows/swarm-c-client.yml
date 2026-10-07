@@ -1,7 +1,7 @@
 name: Swarm C client recovery
 on:
   push:
-    branches: [feat/swarm-c-client-integration, work/swarm-c-source-materials, work/swarm-c-client-recovery]
+    branches: [feat/swarm-c-client-integration, work/swarm-c-source-materials, work/swarm-c-client-recovery, work/swarm-c-loaded-facades]
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,7 +27,7 @@ jobs:
       - name: Verify native source rendering and produce independent browser fixture
         run: |
           set -o pipefail
-          cargo test -p wonderland-render-core -p wonderland-render-iso -p wonderland-render-3d -p wonderland-world-view --locked 2>&1 | tee tests/output/source-gpu/native-tests.log
+          cargo test -p wonderland-render-core -p wonderland-render-iso -p wonderland-render-3d -p wonderland-world-view --all-targets --locked 2>&1 | tee tests/output/source-gpu/native-tests.log
           cargo run -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu
       - name: Verify the actual WASM client bindings
         run: |

@@ -287,13 +287,49 @@ impl WorldRenderer {
         {
             return Ok(None);
         }
-        let level = part
-            .object
-            .map(|i| self.document.objects[i].level)
-            .or_else(|| part.tile.map(|t| t.2))
-            .unwrap_or(1);
+        // Tile-less architecture (notably roofs) also has an explicit source
+        // level. Falling back to the ground floor samples the wrong atlas cell.
+        let level = part.level;
         let uv = light.model_to_uv(part.transform, level.saturating_sub(1))?;
         Ok(Some((light.image(), uv)))
+    }
+    /// Render one immutable scene command for C-owned derivatives without
+    /// changing live frame generations, picking, or simulation state.
+    pub(crate) fn draw_derivative_part(
+        &self,
+        surface: &mut ReferenceSurface,
+        part: &ScenePart,
+        camera: Mat4,
+    ) -> Result<(), WorldError> {
+        let limits = RenderLimits::default();
+        let matrix = camera * part.transform;
+        surface.set_pipeline(part.pipeline)?;
+        surface.set_depth_comparison(if part.object.is_some() {
+            DepthComparison::LessEqual
+        } else {
+            DepthComparison::Less
+        });
+        let options = FragmentOptions {
+            alpha_cutoff: 2,
+            write_id: false,
+            ..Default::default()
+        };
+        if let Some((image, uv)) = self.light_for_part(part)? {
+            surface.draw_lit_mesh(
+                &part.mesh,
+                matrix,
+                part.texture.as_deref(),
+                ReferenceLightmap::new(image, uv, &limits)?,
+                None,
+                options,
+                &limits,
+            )?;
+        } else if let Some(texture) = &part.texture {
+            surface.draw_textured_mesh(&part.mesh, matrix, texture, None, options, &limits)?;
+        } else {
+            surface.draw_mesh(&part.mesh, matrix, None, options, &limits)?;
+        }
+        Ok(())
     }
     pub fn image(&self) -> Option<&RgbaImage> {
         self.raster.as_ref().map(|raster| raster.color.image())
