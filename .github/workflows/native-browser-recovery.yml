@@ -1,176 +1,75 @@
-name: Native browser candidate verification
+name: Store canonical native browser candidate
 on:
   push:
     branches: [fix/native-browser-action-admission]
-    paths:
-      - .github/workflows/native-browser-recovery.yml
-      - tools/native-browser/recovery-patch.json
+    paths: [tools/native-browser/canonical-delivery.json]
 permissions:
   contents: read
-concurrency:
-  group: native-browser-candidate-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
-  candidate:
+  transfer:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 5
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
           show-progress: false
-      - name: Install pinned Rust and recover inherited call sites once
-        run: |
-          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
-          python3 tools/native-browser/finalize.py
-          cargo metadata --quiet --format-version 1 > /dev/null
-          cargo fmt -p wonderland-game-runtime -p wonderland-web-shell
-      - name: Apply exact bounded source correction
-        run: |
-          mkdir -p /tmp/wonderland-native-browser-evidence
-          python3 - <<'PY'
-          import base64, hashlib, json, lzma, pathlib, subprocess
-          p=pathlib.Path('tools/native-browser/recovery-patch.json')
-          assert p.is_file() and p.stat().st_size < 200000
-          doc=json.loads(p.read_text())
-          assert doc['source']=='8a5f6770a2d924e2012b8c66877ba7322d1a08ca'
-          packed=base64.b64decode(doc['patch_xz_base64'],validate=True)
-          decoder=lzma.LZMADecompressor(memlimit=128*1024*1024)
-          patch=decoder.decompress(packed,max_length=1024*1024+1)
-          assert decoder.eof and not decoder.unused_data and len(patch)<=1024*1024
-          assert hashlib.sha256(patch).hexdigest()==doc['sha256']
-          subprocess.run(['git','apply','--check','-'],input=patch,check=True)
-          subprocess.run(['git','apply','-'],input=patch,check=True)
-          for path in ['.github/workflows/native-browser-evidence-read.yml','tools/native-browser/assemble.py','tools/native-browser/finalize.py','tools/native-browser/admission-method.rs.txt']:
-              pathlib.Path(path).unlink()
-          allowed=set(doc['paths'])
-          assert len(allowed)==23 and all(not x.startswith(('TSOClient/','Other/')) for x in allowed)
-          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
-          assert changed | untracked == allowed, (changed|untracked)^allowed
-          pathlib.Path('/tmp/wonderland-native-browser-evidence/source-correction.patch').write_bytes(patch)
-          pathlib.Path('/tmp/native-candidate-paths.json').write_text(json.dumps(sorted(allowed)))
-          subprocess.run(['git','add','-A','--',*sorted(allowed)],check=True)
-          # Compute the canonical source tree without temporary transfer files.
-          subprocess.run(['git','update-index','--force-remove','.github/workflows/native-browser-recovery.yml','tools/native-browser/recovery-patch.json'],check=True)
-          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
-          assert tree=='03c197985a3e671edf93be948b17d4b53be597a5',tree
-          print('Exact local candidate tree:',tree)
-          PY
-      - name: Verify native application and socket regressions
-        run: |
-          set -euo pipefail
-          cargo fmt --all -- --check
-          cargo test --workspace --locked > /tmp/wonderland-native-browser-evidence/workspace.log 2>&1 || { tail -100 /tmp/wonderland-native-browser-evidence/workspace.log; exit 1; }
-          node --test apps/web-shell/scripts/native-socket.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
-          node --test crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
-          cargo clippy -q --workspace --all-targets --locked -- -D warnings
-          cargo clippy -q -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
-      - name: Build actual application and controlled native services
-        run: |
-          set -euo pipefail
-          cargo install trunk --version 0.21.14 --locked --quiet
-          (cd apps/web-shell && trunk build --release --locked)
-          cargo build -q -p wonderland-browser-gateway --example controlled_replay --locked
-          cargo build -q -p wonderland-game-runtime --example native_browser_peer --locked
-      - name: Exercise real browser actions and reconnect across tick latency
-        run: |
-          set -euo pipefail
-          npm --prefix tools/native-browser install --ignore-scripts --no-audit --no-fund
-          tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
-          timeout 240s node tools/native-browser/verify.mjs > /tmp/wonderland-native-browser-evidence/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/browser.log; exit 1; }
-      - name: Freeze tested code and remove transfer-only files
-        env:
-          SOURCE_HEAD: ${{ github.sha }}
-        run: |
-          python3 - <<'PY'
-          import base64,hashlib,json,os,pathlib,subprocess
-          paths=set(json.loads(pathlib.Path('/tmp/native-candidate-paths.json').read_text()))
-          paths.add('tools/native-browser/package-lock.json')
-          for temporary in ['.github/workflows/native-browser-recovery.yml','tools/native-browser/recovery-patch.json']:
-              pathlib.Path(temporary).unlink()
-              paths.add(temporary)
-          files=[]
-          for path in sorted(paths):
-              p=pathlib.Path(path)
-              assert '..' not in p.parts and not p.is_absolute() and not p.is_symlink()
-              if not p.exists(): files.append({'path':path,'delete':True}); continue
-              assert p.is_file() and p.stat().st_size<=300000
-              data=p.read_bytes()
-              files.append({'path':path,'content':base64.b64encode(data).decode(),'sha256':hashlib.sha256(data).hexdigest()})
-          subprocess.run(['git','add','-A','--',*sorted(paths)],check=True)
-          subprocess.run(['git','diff','--cached','--check'],check=True)
-          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
-          pathlib.Path('native-candidate.json').write_text(json.dumps({'base':os.environ['SOURCE_HEAD'],'tested_tree':tree,'files':files}))
-          pathlib.Path('/tmp/wonderland-native-browser-evidence/tested-tree.txt').write_text(tree+'\n')
-          print('Tested canonical tree:',tree)
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: native-canonical-source
-          path: native-candidate.json
-          retention-days: 3
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: native-browser-evidence
-          path: /tmp/wonderland-native-browser-evidence/
-          retention-days: 7
-          if-no-files-found: warn
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: native-browser-preview
-          path: apps/web-shell/dist/
-          retention-days: 3
-          if-no-files-found: warn
-  store:
-    needs: candidate
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      actions: read
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: native-canonical-source
-      - name: Store verified blobs without changing a branch
+      - name: Check exact local candidate and store its public code blobs
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-          SOURCE_HEAD: ${{ github.sha }}
+          DELIVERY_HEAD: ${{ github.sha }}
         run: |
           python3 - <<'PY'
-          import base64,hashlib,json,os,pathlib,urllib.request
-          doc=json.loads(pathlib.Path('native-candidate.json').read_text())
-          assert doc['base']==os.environ['SOURCE_HEAD']
-          allowed={'.github/workflows/native-browser-evidence-read.yml','.github/workflows/native-browser.yml','.github/workflows/native-browser-recovery.yml','Cargo.lock','apps/web-shell/Cargo.toml','apps/web-shell/index.html','apps/web-shell/public/native-socket.mjs','apps/web-shell/src/connected.rs','apps/web-shell/src/connected_bridge.rs','apps/web-shell/src/lib.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/src/startup.rs','apps/web-shell/src/startup_view.rs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/src/live_wire.rs','crates/game-runtime/src/live_wire/player.rs','crates/game-runtime/src/live_wire/player/admission.rs','crates/game-runtime/tests/native_player.rs','crates/game-runtime/tests/native_player_admission.rs','tools/native-browser/admission-method.rs.txt','tools/native-browser/assemble.py','tools/native-browser/finalize.py','tools/native-browser/peer.mjs','tools/native-browser/verify.mjs','tools/native-browser/package-lock.json','tools/native-browser/recovery-patch.json'}
-          assert {f['path'] for f in doc['files']}==allowed
+          import base64,hashlib,json,lzma,os,pathlib,subprocess,urllib.request
+          p=pathlib.Path('tools/native-browser/canonical-delivery.json')
+          assert p.is_file() and p.stat().st_size<200000
+          doc=json.loads(p.read_text())
+          source='8a5f6770a2d924e2012b8c66877ba7322d1a08ca'
+          assert doc['source']==source
+          allowed={'.github/workflows/native-browser-evidence-read.yml','.github/workflows/native-browser.yml','Cargo.lock','apps/web-shell/Cargo.toml','apps/web-shell/index.html','apps/web-shell/public/native-socket.mjs','apps/web-shell/src/connected.rs','apps/web-shell/src/connected_bridge.rs','apps/web-shell/src/lib.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/src/startup.rs','apps/web-shell/src/startup_view.rs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/src/live_wire.rs','crates/game-runtime/src/live_wire/player.rs','crates/game-runtime/src/live_wire/player/admission.rs','crates/game-runtime/tests/native_player.rs','crates/game-runtime/tests/native_player_admission.rs','tools/native-browser/admission-method.rs.txt','tools/native-browser/assemble.py','tools/native-browser/finalize.py','tools/native-browser/peer.mjs','tools/native-browser/verify.mjs','tools/native-browser/package-lock.json','docs/design/action-first/native-browser-admission.md','docs/design/action-first/native-browser-admission-verification.json'}
+          assert set(doc['paths'])==allowed
+          decoder=lzma.LZMADecompressor(memlimit=128*1024*1024)
+          patch=decoder.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=1024*1024+1)
+          assert decoder.eof and not decoder.unused_data and len(patch)<=1024*1024
+          assert hashlib.sha256(patch).hexdigest()==doc['sha256']
+          subprocess.run(['git','fetch','--depth=1','origin',source],check=True)
+          subprocess.run(['git','checkout','--detach',source],check=True)
+          subprocess.run(['git','apply','--check','--index','-'],input=patch,check=True)
+          subprocess.run(['git','apply','--index','-'],input=patch,check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          changed=set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())
+          assert changed==allowed,changed^allowed
+          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          assert tree==doc['tree'],(tree,doc['tree'])
           def api(path,data=None):
               req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/'+path,data=None if data is None else json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
-              with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+              with urllib.request.urlopen(req,timeout=30) as reply:return json.load(reply)
           entries=[]
-          for f in doc['files']:
-              path=f['path']
-              if f.get('delete'):
+          for path in sorted(changed):
+              assert not path.startswith('/') and '..' not in path.split('/')
+              indexed=subprocess.check_output(['git','ls-files','--stage','--',path],text=True).strip()
+              if not indexed:
                   entries.append({'path':path,'mode':'100644','type':'blob','sha':None});continue
-              data=base64.b64decode(f['content'],validate=True)
-              assert len(data)<=300000 and hashlib.sha256(data).hexdigest()==f['sha256']
-              sha=api('git/blobs',{'content':f['content'],'encoding':'base64'})['sha']
-              assert sha==hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
-              entries.append({'path':path,'mode':'100644','type':'blob','sha':sha})
-          base=api('git/commits/'+doc['base'])['tree']['sha']
-          tree=api('git/trees',{'base_tree':base,'tree':entries})['sha']
-          assert tree==doc['tested_tree'],(tree,doc['tested_tree'])
-          result={'base':doc['base'],'tested_tree':tree,'files':entries}
-          pathlib.Path('native-candidate-tree.json').write_text(json.dumps(result,indent=2))
+              mode,expected,stage=indexed.split('\t')[0].split()
+              assert mode=='100644' and stage=='0'
+              data=subprocess.check_output(['git','show',':'+path])
+              assert len(data)<=300000
+              actual=api('git/blobs',{'content':base64.b64encode(data).decode(),'encoding':'base64'})['sha']
+              assert actual==expected
+              entries.append({'path':path,'mode':mode,'type':'blob','sha':actual})
+          base=api('git/commits/'+source)['tree']['sha']
+          stored=api('git/trees',{'base_tree':base,'tree':entries})['sha']
+          assert stored==tree
+          result={'source':source,'delivery_head':os.environ['DELIVERY_HEAD'],'tree':tree,'patch_sha256':doc['sha256'],'files':entries,'branch_updated':False,'tests_executed_by_this_transfer':False}
+          pathlib.Path('canonical-native-browser-tree.json').write_text(json.dumps(result,indent=2)+'\n')
           print(json.dumps(result,indent=2))
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: native-candidate-tree
-          path: native-candidate-tree.json
+          name: canonical-native-browser-tree
+          path: canonical-native-browser-tree.json
           retention-days: 3
           if-no-files-found: error
