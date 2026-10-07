@@ -1,0 +1,55 @@
+name: Native browser local tools
+on:
+  push:
+    branches: [fix/native-browser-action-admission]
+    paths: [.github/workflows/native-browser-local-tools.yml]
+permissions:
+  contents: read
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Recover pinned browser binaries
+        run: |
+          set -euo pipefail
+          npm --prefix tools/native-browser install --ignore-scripts --no-audit --no-fund
+          tools/native-browser/node_modules/.bin/playwright install chromium
+          mkdir -p /tmp/native-tools
+          tar -czf /tmp/native-tools/browser.tar.gz -C tools/native-browser node_modules -C "$HOME" .cache/ms-playwright
+          sha256sum /tmp/native-tools/browser.tar.gz > /tmp/native-tools/browser.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-browser-local-tools
+          path: |
+            /tmp/native-tools/browser.tar.gz
+            /tmp/native-tools/browser.sha256
+          compression-level: 0
+          retention-days: 2
+          if-no-files-found: error
+      - name: Recover pinned build tools without account configuration
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
+          cargo install trunk --version 0.21.14 --locked --quiet
+          export BINDGEN_VERSION=$(python3 -c "import tomllib;d=tomllib.load(open('Cargo.lock','rb'));print(next(p['version'] for p in d['package'] if p['name']=='wasm-bindgen'))")
+          mkdir -p /tmp/native-tool-probe/src
+          printf '[package]\nname="native-tool-probe"\nversion="0.1.0"\nedition="2024"\n[dependencies]\nwasm-bindgen="=%s"\n' "$BINDGEN_VERSION" > /tmp/native-tool-probe/Cargo.toml
+          printf 'fn main() {}\n' > /tmp/native-tool-probe/src/main.rs
+          printf '<!doctype html><html><head><link data-trunk rel="rust"></head><body></body></html>\n' > /tmp/native-tool-probe/index.html
+          (cd /tmp/native-tool-probe && RUSTUP_TOOLCHAIN=1.99.0 trunk build --release)
+          tar -czf /tmp/native-tools/build.tar.gz -C "${CARGO_HOME:-$HOME/.cargo}" bin/trunk -C "$HOME" .cache/trunk
+          sha256sum /tmp/native-tools/build.tar.gz > /tmp/native-tools/build.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-browser-build-tools
+          path: |
+            /tmp/native-tools/build.tar.gz
+            /tmp/native-tools/build.sha256
+          compression-level: 0
+          retention-days: 2
+          if-no-files-found: error
