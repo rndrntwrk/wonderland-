@@ -1,0 +1,34 @@
+name: Native browser source recovery
+on:
+  push:
+    branches: [fix/native-browser-action-admission]
+    paths: [.github/workflows/native-browser-recovery.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8a5f6770a2d924e2012b8c66877ba7322d1a08ca
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+      - name: Export exact delta against retained offline source
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 705530c1c99721ff9055ff1c44bd2cfb24e2097e
+          mkdir -p recovery
+          git diff --binary 705530c1c99721ff9055ff1c44bd2cfb24e2097e HEAD > recovery/source.patch
+          git ls-tree -rz HEAD > recovery/tree.bin
+          git rev-parse HEAD > recovery/revision.txt
+          git rev-parse 'HEAD^{tree}' >> recovery/revision.txt
+          sha256sum recovery/source.patch recovery/tree.bin > recovery/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-browser-source-recovery
+          path: recovery/
+          retention-days: 3
+          if-no-files-found: error
