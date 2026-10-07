@@ -8,7 +8,7 @@ use wonderland_world_view::{WorldDocument, WorldFacadeJob};
 #[wasm_bindgen(module = "/public/facade-links.mjs")]
 extern "C" {
     #[wasm_bindgen(catch,js_name=makeFacadeLinks)]
-    fn make_links(bytes: &[u8], metadata: &str, key: &str) -> Result<js_sys::Array, JsValue>;
+    fn make_links(bytes: &[u8], metadata: &str, key: &str) -> Result<js_sys::Promise, JsValue>;
     #[wasm_bindgen(js_name=releaseFacadeLinks)]
     fn release_links(file: &str, metadata: &str);
     #[wasm_bindgen(js_name=yieldFacade)]
@@ -88,11 +88,16 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
                         return Ok(None);
                     }
                     if let Some(output) = job.step(4).map_err(|e| e.to_string())? {
-                        let values =
+                        let promise =
                             make_links(&output.bytes, &output.metadata_json, &output.source_hash)
                                 .map_err(|_| {
                                 "The facade download could not be prepared.".to_string()
                             })?;
+                        let values: js_sys::Array = JsFuture::from(promise)
+                            .await
+                            .map_err(|_| "Facade integrity verification failed.".to_string())?
+                            .dyn_into()
+                            .map_err(|_| "Invalid facade download result.".to_string())?;
                         let file = values.get(0).as_string().ok_or("Missing facade URL.")?;
                         let metadata = values
                             .get(1)

@@ -1,7 +1,7 @@
 //! C-owned, disposable visual derivatives of a validated loaded world.
 //! The FSOf stores the supplied lighting state only, not gameplay or a save.
 use crate::*;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
     io::{self, Write},
@@ -17,7 +17,8 @@ const MAX_WORK: u64 = 100_000_000;
 const MAX_PART_TRIANGLES: usize = 8192;
 const MAX_DRAW_WORK: u64 = 2_000_000;
 
-#[derive(Clone, Copy, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FacadeExportOptions {
     pub pixels_per_tile: u16,
 }
@@ -84,31 +85,39 @@ impl Write for Fingerprint {
         Ok(())
     }
 }
+/// Fingerprint the exact normalized source and export options without rendering.
+/// This is a cache/provenance key, never an authenticated lot or actor identity.
+pub fn facade_source_hash(
+    world: &WorldDocument,
+    options: FacadeExportOptions,
+) -> Result<AssetKey, WorldError> {
+    world.validate()?;
+    if world.provenance.origin.len() > 4096 || world.provenance.source_revision.len() > 256 {
+        return Err(error("source provenance byte budget"));
+    }
+    if !(1..=8).contains(&options.pixels_per_tile)
+        || world.lot.width > 128
+        || world.lot.height > 128
+    {
+        return Err(error("resolution or lot budget"));
+    }
+    let mut fingerprint = Fingerprint {
+        hash: Sha256::new(),
+        bytes: 0,
+    };
+    fingerprint
+        .write_all(b"wonderland-loaded-facade-v1\0")
+        .map_err(error)?;
+    serde_json::to_writer(&mut fingerprint, world).map_err(error)?;
+    serde_json::to_writer(&mut fingerprint, &options).map_err(error)?;
+    Ok(AssetKey(fingerprint.hash.finalize().into()))
+}
 impl WorldFacadeJob {
     pub fn new(
         world: Arc<WorldDocument>,
         options: FacadeExportOptions,
     ) -> Result<Self, WorldError> {
-        world.validate()?;
-        if world.provenance.origin.len() > 4096 || world.provenance.source_revision.len() > 256 {
-            return Err(error("source provenance byte budget"));
-        }
-        if !(1..=8).contains(&options.pixels_per_tile)
-            || world.lot.width > 128
-            || world.lot.height > 128
-        {
-            return Err(error("resolution or lot budget"));
-        }
-        let mut fingerprint = Fingerprint {
-            hash: Sha256::new(),
-            bytes: 0,
-        };
-        fingerprint
-            .write_all(b"wonderland-loaded-facade-v1\0")
-            .map_err(error)?;
-        serde_json::to_writer(&mut fingerprint, world.as_ref()).map_err(error)?;
-        serde_json::to_writer(&mut fingerprint, &options).map_err(error)?;
-        let key = AssetKey(fingerprint.hash.finalize().into());
+        let key = facade_source_hash(&world, options)?;
         let hash = hex(&key.0);
         let source = source_world(&world);
         let layout_options = source::SourceFacadeOptions {
@@ -483,3 +492,6 @@ fn bleed(bytes: &mut [u8], width: u32, height: u32, [x, y, w, h]: [u32; 4]) {
         }
     }
 }
+
+mod admission;
+pub use admission::verify_world_facade;
