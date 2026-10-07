@@ -12,6 +12,7 @@ await mkdir(output,{recursive:true});
 const gateway=spawn(resolve('target/debug/examples/controlled_replay'),[],{
  env:{...process.env,WONDERLAND_REPLAY_BIND:'127.0.0.1:18787',WONDERLAND_REPLAY_BROWSER_ORIGINS:'http://127.0.0.1:18888'},
  stdio:['ignore','ignore','pipe']});
+const terrain = process.env.WONDERLAND_NATIVE_TERRAIN_FIXTURE === '1';
 let fixture,browser;const report={passed:false,scope:'Synthetic standalone-format avatar assets, real Rust native runtime and real browser content loader',checks:[],errors:[],screenshots:[]};
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 async function shot(page,name) {const file=resolve(output,name+'.png');await page.screenshot({path:file});report.screenshots.push({file:name+'.png',sha256:createHash('sha256').update(await readFile(file)).digest('hex')});}
@@ -67,7 +68,7 @@ try {
  report.checks.push({name:'Accepted animation changes render real pixels',distinctCanvasFrames:frames.size});
  assert.equal(await page.locator('.world-view-error').count(),0,'No renderer admission error');
  // Find real rendered synthetic red geometry, then use ordinary pointer events.
- let picked=false;
+ let picked=false,selectedPoint=null;
  for(let attempt=0;attempt<8&&!picked;attempt++){
   const point=await canvas.evaluate(c=>{
    const ctx=c.getContext('2d'),rgba=ctx.getImageData(0,0,c.width,c.height).data,samples=[];
@@ -79,6 +80,7 @@ try {
    return {x:b.left+x*b.width/c.width,y:b.top+y*b.height/c.height,pixels:samples.length};
   });
   assert.ok(point&&point.pixels>0,'Synthetic avatar geometry must have visible pixels');
+  selectedPoint=point;
   await page.mouse.click(point.x,point.y);
   await delay(70);
   picked=await page.getByRole('heading',{name:'Actions',exact:true}).isVisible();
@@ -86,6 +88,27 @@ try {
  assert.ok(picked,'Rendered native avatar must open its source action menu when selected');
  report.checks.push({name:'Depth-tested avatar selection opens actual source actions'});
  await page.getByRole('button',{name:'Close source actions',exact:true}).click();
+  if (terrain) {
+   // Raised plane deliberately occludes the unfixed floor-height avatar.
+   report.checks.push({name:'Resource-backed avatar remains visible and pickable on elevated sloped terrain',
+    terrainCorners:'160 + 8*x + 16*y', nativePosition:[3.5,3.5], expectedHeightTiles:4.575});
+   await shot(page,'native-elevated-contact');
+   await fixture.setHidden(2);
+   await page.locator('.native-lot[data-native-avatar-models="0"]').waitFor();
+   const hiddenPixels=await canvas.evaluate(c=>{
+    const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;
+    for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)n++;
+    return n;
+   });
+   assert.equal(hiddenPixels,0,'Hidden=2 cannot keep rendering a selectable avatar');
+   await page.mouse.click(selectedPoint.x,selectedPoint.y);await delay(100);
+   assert.equal(await page.getByRole('heading',{name:'Actions',exact:true}).count(),0,
+    'An old mesh coordinate cannot open source actions while the avatar is hidden');
+   await fixture.setHidden(0);
+   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
+   report.checks.push({name:'Accepted non-boolean Hidden suppresses the original-format model until explicitly restored', hiddenValue:2,hiddenPixels});
+  }
+
 
  await page.getByRole('button',{name:'Needs',exact:true}).click();
  await page.locator('.native-avatar-status').getByText(/sampled from original resources/).waitFor();

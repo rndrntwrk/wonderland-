@@ -147,9 +147,19 @@ pub(crate) fn source() -> Result<(GameRuntime, EntityRef)> {
 }
 fn source_mode(visual: bool) -> Result<(GameRuntime, EntityRef)> {
     let content = fixture_content(visual);
+    let mut lot = LotModel::new(8, 8, 1).map_err(|_| "Invalid controlled lot geometry")?;
+    if visual && std::env::var("WONDERLAND_NATIVE_TERRAIN_FIXTURE").as_deref() == Ok("1") {
+        // TEST ONLY: elevated plane. An uncorrected avatar is occluded below it.
+        for y in 0..=8 {
+            for x in 0..=8 {
+                lot.set_terrain_vertex(x, y, (160 + 8 * x + 16 * y) as i16)
+                    .map_err(|_| "Invalid controlled terrain vertex")?;
+            }
+        }
+    }
     let mut runtime = GameRuntime::new(
         content,
-        LotModel::new(8, 8, 1).map_err(|_| "Invalid controlled lot geometry")?,
+        lot,
         RuntimeConfig::new(VmMode::Ts1, 11, 7, 123),
         RuntimeRole::Authority,
     )?;
@@ -293,6 +303,23 @@ fn process(runtime: &mut GameRuntime, actor: EntityRef, input: Value) -> Result<
         }
         "tick" => tick(runtime, vec![]),
         "reset_needs" => reset_needs(runtime, actor),
+        "hidden" => {
+            let value = input["value"]
+                .as_i64()
+                .and_then(|n| i16::try_from(n).ok())
+                .ok_or("Invalid hidden value")?;
+            tick(
+                runtime,
+                vec![AcceptedCommand::WriteMemory {
+                    address: MemoryAddress::Entity {
+                        entity: actor,
+                        field: EntityField::ObjectData,
+                        index: 34,
+                    },
+                    value,
+                }],
+            )
+        }
         "action" => {
             let bytes = unhex(input["request"].as_str().ok_or("Missing action")?)?;
             let action = decode_action(&bytes)?;

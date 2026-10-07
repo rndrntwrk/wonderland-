@@ -307,3 +307,58 @@ fn native_pose_frames_admit_through_real_frame_store_and_expire_previous_picks()
         .render(ViewportControls::default(), 240, 240)
         .unwrap();
 }
+
+fn native_pick(world: &WorldDocument) -> WorldPick {
+    WorldPick {
+        revision: world.revision,
+        frame_generation: 1,
+        screen: [10, 10],
+        target: WorldPickTarget::Object {
+            entity: world.objects[0].entity,
+            source_guid: world.objects[0].source_guid,
+            source_record: None,
+        },
+    }
+}
+#[test]
+fn a_newer_hidden_or_unselectable_scene_cannot_accept_a_previous_visible_mesh_pick() {
+    use wonderland_web_shell::native_avatar::native_pick_entity;
+    let (world, _) = scene();
+    let pick = native_pick(&world);
+    for (visible, selectable) in [(false, false), (true, false), (false, true)] {
+        let mut current = world.clone();
+        current.revision.tick += 1;
+        current.objects[0].visible = visible;
+        current.objects[0].selectable = selectable;
+        assert_eq!(native_pick_entity(&current, &pick), None);
+    }
+}
+#[test]
+fn current_visible_mesh_selection_keeps_identity_across_ordinary_tick_latency() {
+    use wonderland_web_shell::native_avatar::native_pick_entity;
+    let (mut world, frame) = scene();
+    let pick = native_pick(&world);
+    world.revision.tick += 2;
+    assert_eq!(
+        native_pick_entity(&world, &pick),
+        Some(frame.avatars[0].entity)
+    );
+}
+#[test]
+fn native_mesh_selection_rejects_replaced_entity_and_source_lifetimes() {
+    use wonderland_web_shell::native_avatar::native_pick_entity;
+    let (world, _) = scene();
+    let pick = native_pick(&world);
+    for case in 0..6 {
+        let mut current = world.clone();
+        match case {
+            0 => current.revision.epoch += 1,
+            1 => current.revision.lot_id = Some(99),
+            2 => current.revision.content = AssetKey([99; 32]),
+            3 => current.objects[0].entity.as_mut().unwrap().generation += 1,
+            4 => current.objects[0].source_guid += 1,
+            _ => current.objects.clear(),
+        }
+        assert_eq!(native_pick_entity(&current, &pick), None, "case {case}");
+    }
+}

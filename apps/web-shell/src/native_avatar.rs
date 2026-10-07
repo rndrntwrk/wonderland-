@@ -464,3 +464,34 @@ fn prepare_parts(
     }
     Ok(parts)
 }
+
+/// Revalidate a renderer-admitted mesh pick against the latest native scene.
+/// FrameStore remains responsible for the rendered frame/generation ticket.
+pub fn native_pick_entity(
+    world: &WorldDocument,
+    pick: &wonderland_world_view::WorldPick,
+) -> Option<wonderland_game_runtime::EntityRef> {
+    use wonderland_world_view::WorldPickTarget;
+    if world.provenance.kind != WorldSourceKind::LiveSession
+        || world.revision.lot_id != pick.revision.lot_id
+        || world.revision.epoch != pick.revision.epoch
+        || world.revision.content != pick.revision.content
+    {
+        return None;
+    }
+    let WorldPickTarget::Object {
+        entity: Some(entity),
+        source_guid,
+        ..
+    } = pick.target
+    else {
+        return None;
+    };
+    world.objects.iter().find(|o| {
+        o.entity == Some(entity) && o.source_guid == source_guid && o.visible && o.selectable
+    })?;
+    Some(wonderland_game_runtime::EntityRef {
+        object_id: wonderland_game_runtime::ObjectId(i16::try_from(entity.object_id).ok()?),
+        generation: entity.generation,
+    })
+}
