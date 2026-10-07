@@ -1,0 +1,48 @@
+name: Swarm C isolated material tooling
+on:
+  push:
+    branches: [work/swarm-c-source-materials]
+    paths: [.github/workflows/swarm-c-materials-tooling.yml]
+permissions:
+  contents: read
+jobs:
+  tooling:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Prepare pinned compiler and locked offline dependencies
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          mkdir -p /tmp/material-tools /tmp/material-dependencies
+          cargo +1.99.0 vendor --locked /tmp/material-dependencies/vendor > /tmp/material-dependencies/config.toml
+          rustc +1.99.0 --version --verbose > /tmp/material-tools/compiler.txt
+          git rev-parse HEAD > /tmp/material-tools/source.txt
+          tar -C "$HOME/.rustup/toolchains/1.99.0-x86_64-unknown-linux-gnu" -czf /tmp/material-tools/compiler.tar.gz bin lib
+          tar -C /tmp/material-dependencies -czf /tmp/material-tools/dependencies.tar.gz vendor config.toml
+          cd /tmp/material-tools
+          sha256sum *.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: material-compiler-${{ github.sha }}
+          path: |
+            /tmp/material-tools/compiler.tar.gz
+            /tmp/material-tools/compiler.txt
+            /tmp/material-tools/source.txt
+            /tmp/material-tools/SHA256SUMS
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: material-dependencies-${{ github.sha }}
+          path: |
+            /tmp/material-tools/dependencies.tar.gz
+            /tmp/material-tools/source.txt
+            /tmp/material-tools/SHA256SUMS
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
