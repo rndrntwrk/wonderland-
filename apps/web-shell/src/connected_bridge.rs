@@ -1106,3 +1106,82 @@ pub fn focus(id: &str) {
         }
     });
 }
+
+// Native admission uses the configured gateway's existing memory-only bearer.
+// The server returns an opaque one-use ticket, never a new destination URL.
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct NativeLotAdmission {
+    ticket: String,
+}
+impl ConnectedUi {
+    pub async fn admit_native_lot(
+        self,
+        browser_epoch: u64,
+        binding: wonderland_game_runtime::live_wire::player::PlayerBinding,
+    ) -> Result<(String, String, String), String> {
+        let matches = || {
+            self.state
+                .try_with_untracked(|state| {
+                    state.ledger.authenticated
+                        && state.ledger.transport_ready
+                        && state.ledger.epoch == browser_epoch
+                        && state.session.as_ref().is_some_and(|session| {
+                            session.state == SessionState::LotReady
+                                && session.epoch == binding.source_epoch
+                                && session.lot_incarnation == Some(binding.lot_incarnation)
+                                && session.lot_location == Some(binding.lot_location)
+                                && session.avatar_id == Some(binding.avatar_id)
+                        })
+                })
+                .unwrap_or(false)
+        };
+        if !matches() {
+            return Err("This property session has changed.".into());
+        }
+        let body = serde_json::json!({
+            "source_epoch":binding.source_epoch.to_string(),
+            "lot_incarnation":binding.lot_incarnation.to_string(),
+            "lot_location":binding.lot_location,
+            "avatar_id":binding.avatar_id,
+        })
+        .to_string();
+        let response = self
+            .http::<NativeLotAdmission>("POST", "/v1/native-lot/admit", Some(body), true)
+            .await
+            .map_err(|_| {
+                "This world’s native property service is unavailable. Contact the world operator."
+                    .to_string()
+            })?;
+        if !matches() {
+            return Err("This property session has changed.".into());
+        }
+        if response.ticket.is_empty()
+            || response.ticket.len() > 4096
+            || response.ticket.chars().any(char::is_control)
+        {
+            return Err("The native admission response was invalid.".into());
+        }
+        let base = self
+            .resources
+            .try_with_value(|resources| resources.base.clone())
+            .ok_or("This session is closed.")?;
+        let origin = web_sys::window()
+            .and_then(|window| window.location().origin().ok())
+            .ok_or("Invalid browser origin.")?;
+        let root = url::Url::parse(&origin).map_err(|_| "Invalid browser origin.")?;
+        let mut socket = root
+            .join(&format!("{base}/v1/native-lot/stream"))
+            .map_err(|_| "Invalid native endpoint.")?;
+        let allowed = socket.origin().ascii_serialization();
+        let scheme = match socket.scheme() {
+            "https" => "wss",
+            "http" => "ws",
+            _ => return Err("Invalid native endpoint.".into()),
+        };
+        socket
+            .set_scheme(scheme)
+            .map_err(|_| "Invalid native endpoint.")?;
+        Ok((socket.into(), allowed, response.ticket))
+    }
+}

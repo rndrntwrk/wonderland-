@@ -25,6 +25,8 @@ pub mod avatar_content;
 pub mod avatar_renderer;
 pub mod connected_adapter;
 pub mod live_world_adapter;
+#[cfg(target_arch = "wasm32")]
+pub mod native_lot;
 pub mod snapshot_avatar;
 pub mod snapshot_world;
 pub mod source_city;

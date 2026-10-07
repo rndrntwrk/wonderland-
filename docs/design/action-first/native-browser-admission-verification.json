@@ -1,0 +1,820 @@
+{
+  "schema": 1,
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "fix/native-browser-action-admission",
+  "base_pr": 27,
+  "base_commit": "8a5f6770a2d924e2012b8c66877ba7322d1a08ca",
+  "base_tree": "306a2a96e19409027762d8040f2dd35abee986e9",
+  "native_workspace": {
+    "passed": 1397,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 206
+  },
+  "admission_regressions": {
+    "passed": 10,
+    "included_in_native_workspace": true
+  },
+  "native_player_regressions": {
+    "passed": 11,
+    "included_in_native_workspace": true
+  },
+  "socket_node": {
+    "passed": 10,
+    "failed": 0
+  },
+  "audio_node": {
+    "passed": 59,
+    "failed": 0
+  },
+  "ignored": [
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s",
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test burn_busy_flag_is_ignored_and_ghosts_fireproof_and_other_floors_are_not_marked ... ok",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test ignored_inventory_mode_still_resolves_zero_guid_and_owner_before_switch ... ok",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s",
+    "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+    "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.84s",
+    "test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.01s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s",
+    "test duplicate_ignored_entity_references_are_rejected_instead_of_coalesced ... ok",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.29s",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test recovery::superseded_checkpoint_is_ignored_without_invalidating_the_new_request ... ok",
+    "test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s",
+    "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s",
+    "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test result: ok. 12 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test source_names_and_ignored_sets_cannot_accumulate_without_a_cross_frame_budget ... ok",
+    "test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 38 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.58s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture",
+    "test result: ok. 9 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s",
+    "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+  ],
+  "browser": {
+    "passed": true,
+    "environment": {
+      "runner": "Playwright 1.56.1",
+      "scope": "Controlled original gateway + real native runtime; declared original-BHAV fixtures",
+      "chromium": "141.0.7390.37"
+    },
+    "checks": [
+      {
+        "name": "Full browser admission",
+        "evidence": {
+          "url": "http://127.0.0.1:18888/",
+          "title": "Wonderland",
+          "nativeConnections": 1
+        }
+      },
+      {
+        "name": "Accepted original source action updates needs",
+        "evidence": {
+          "accepted": 1,
+          "canvasRetained": true,
+          "hunger": 100,
+          "serverTicksDuringAction": 3
+        }
+      },
+      {
+        "name": "Independent browser receives the same accepted need change",
+        "evidence": {
+          "independentBrowserContexts": 2,
+          "sharedAuthority": true
+        }
+      },
+      {
+        "name": "Unconfirmed action survives recovery without automatic replay",
+        "evidence": {
+          "sentOnce": true,
+          "unknownResults": 1,
+          "checkpoints": 3
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 1440,
+          "height": 1000,
+          "header": {
+            "x": 20,
+            "y": 20,
+            "width": 374,
+            "height": 90.734375
+          },
+          "toolbar": {
+            "x": 285,
+            "y": 912,
+            "width": 870,
+            "height": 68
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Your Sim",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 60,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 85,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 390,
+          "height": 844,
+          "header": {
+            "x": 12,
+            "y": 76,
+            "width": 366,
+            "height": 78.234375
+          },
+          "toolbar": {
+            "x": 12,
+            "y": 672,
+            "width": 366,
+            "height": 160
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 81.234375,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Your Sim",
+              "width": 109.984375,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 110,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 109.984375,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 320,
+          "height": 600,
+          "header": {
+            "x": 12,
+            "y": 76,
+            "width": 296,
+            "height": 78.234375
+          },
+          "toolbar": {
+            "x": 12,
+            "y": 428,
+            "width": 296,
+            "height": 160
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 63.734375,
+              "height": 44
+            },
+            {
+              "name": "Cutaway",
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Walls up",
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Roof",
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Your Sim",
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 86.671875,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 844,
+          "height": 390,
+          "header": {
+            "x": 12,
+            "y": 12,
+            "width": 344,
+            "height": 74.234375
+          },
+          "toolbar": {
+            "x": 133,
+            "y": 264,
+            "width": 578,
+            "height": 114
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Your Sim",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 60,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 85,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native sockets disposed after route exit and browser closure",
+        "evidence": {
+          "active": 0
+        }
+      },
+      {
+        "name": "Console and framework health",
+        "evidence": {
+          "pageErrors": 0,
+          "consoleErrors": 0
+        }
+      }
+    ],
+    "screenshots": [
+      {
+        "file": "01-desktop-native-needs.png",
+        "sha256": "1e68d9f19a4f594593ba8efa0068e764fdf011a6bf87ea4aa6d433d6256eecb8"
+      },
+      {
+        "file": "02-mobile-native-needs.png",
+        "sha256": "19fada9ead50d7817b238ea6aa5e52d92b6c92a14f0b910ec1e7dc5596217d5c"
+      },
+      {
+        "file": "03-reconnected-unknown-result.png",
+        "sha256": "c447d5a836dd8a627d63cd1bfb6e103a3fbe32eb968b654d352f295bd4331787"
+      },
+      {
+        "file": "04-native-1440x1000.png",
+        "sha256": "217f6a23374dfa307435e14ee60677d43f0be71f73bcb5f26f8d3ea2ed07b646"
+      },
+      {
+        "file": "04-native-390x844.png",
+        "sha256": "f7e7448b7161b7c536d58ff108b7633f77d21b944b930737bb04cdb922418b33"
+      },
+      {
+        "file": "04-native-320x600.png",
+        "sha256": "0e97950ac5fe6bd887ecebb69f40d6fd060b9aedf068cdd40ffafb2df2640f78"
+      },
+      {
+        "file": "04-native-844x390.png",
+        "sha256": "5f42145aeba1e7086e62734ddbe656fe8dd59fda80464094ac75938caf7797f1"
+      }
+    ],
+    "errors": [],
+    "warnings": [
+      "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information",
+      "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information"
+    ],
+    "stats": {
+      "admissions": 3,
+      "opens": 3,
+      "checkpoints": 3,
+      "actions": 4,
+      "accepted": 4,
+      "unknownDrops": 1,
+      "ticks": 93
+    }
+  },
+  "release_wasm": {
+    "name": "wonderland-web-shell-96d2ecd83da30f8c_bg.wasm",
+    "bytes": 11892251,
+    "sha256": "c1519f6019058aa7b8628fdc9ab4ca0753a3cfb2911190ea0f1caf784eb2f6e0"
+  },
+  "commands": {
+    "workspace-delivery": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "71718526c703a27800cb09674981812d9e2987a840d15feda54e21a79f14951e"
+    },
+    "native-clippy-delivery": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "968694eb2dcf057f0b793892b3309e93c43d784f6c9588d49e7b6eeeaad76702"
+    },
+    "wasm-clippy-controls": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "socket-delivery": {
+      "command": "node --test apps/web-shell/scripts/native-socket.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "2414e80c5c6bf882053d407c35d371f267968cde2e8e0ca73ad10fd36f994d1e"
+    },
+    "audio-delivery": {
+      "command": "node --test crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "9d40f2ca9f564f2fe8ba16b9d9093a6f4c0e74c141ab9339f0d96a5107456137"
+    },
+    "fmt-delivery": {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "browser-build-final": {
+      "command": "trunk build --release --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "98144f0570507be02d19e3af7f63f50f19a7d86e5e32fe1a65e9cf6e359fb300"
+    },
+    "browser-final": {
+      "command": "node tools/native-browser/verify.mjs",
+      "exit_code": 0,
+      "log_sha256": "19c8feb26a3f52cdd67a244fab27d6df8393da38f0623080d1221e1589abb112"
+    }
+  },
+  "source_inputs_sha256": {
+    ".github/workflows/native-browser.yml": "b87d95344d6a181499a2166b3f461e6d092d82933889722571c5fdcc862ace15",
+    "Cargo.lock": "a9f197f493440ded0af8507efa80c33e7b1e1fdb36d34e822510bac6c66af153",
+    "apps/web-shell/Cargo.toml": "dec880f0a983bff1265d29684cc7e23f6cbe1fe4d55ce98f7c90c4abdbc26768",
+    "apps/web-shell/index.html": "8ae954f27aa62747e3fc068069e946bf8442ade3a19422d237d6c5ff2728e238",
+    "apps/web-shell/public/native-socket.mjs": "36ee0577f6b2d2a3011b083d2dda8f8a654f530190b46e89d94f4bb0b5c6d0c0",
+    "apps/web-shell/src/connected.rs": "a7d190e0514669d3db65f55e9bb98fa5fda30332dd618a63e71e215ec2bbda2a",
+    "apps/web-shell/src/connected_bridge.rs": "c68f9677dd077775e484800519054c9a7666157aa8a39f376e93173e152b2941",
+    "apps/web-shell/src/lib.rs": "7276ab66d573086d6218ad63c28e75d79aed832d3938f382a0e2568828ee778b",
+    "apps/web-shell/src/native_lot.rs": "4b4b5c60f5ea2334b8dac4b995358e37118da8da89129dc262846b802f850bf6",
+    "apps/web-shell/src/startup.rs": "7f0837650494443e4bcd7ad4008e36a2557a76107cfbecfcc1ca098df58a521b",
+    "apps/web-shell/src/startup_view.rs": "71c9aa075dd087ad53b19b82a6ea95e2b35009f1af879ce2af0a50deac8fd20e",
+    "crates/game-runtime/examples/native_browser_peer.rs": "e363718820f74586487f4c9452d939f45e7a4458fd58da893a089bcc8eb02c35",
+    "crates/game-runtime/src/live_wire.rs": "876a76dbcd6e6d396a2f798337d3afe218d626d7118fef975092f04a0565ac8e",
+    "crates/game-runtime/src/live_wire/player.rs": "a3201b5ba41d673c3deb411f8f4c579b0efc7026f6d6812f1d8343da54d12c4c",
+    "crates/game-runtime/src/live_wire/player/admission.rs": "e8aa449f2d38910f9b4323b969ccfbc8a5e828cfa4e2c7f852b6375709528244",
+    "crates/game-runtime/tests/native_player.rs": "5e11e4352d1958e126c97c75a82a6bc3eafd856903426c06ab4dfc7013c24c91",
+    "crates/game-runtime/tests/native_player_admission.rs": "d3343208ccad28598593bba4d85b0892292cad783b5d53fec532aaae56c3c4f5",
+    "tools/native-browser/package-lock.json": "d668b1d6e388a0bbb2fe32c2834e19f7951c2966bd050583a1a4733179b35490",
+    "tools/native-browser/peer.mjs": "f789da6362500da6c548b99eeba4cfba77b5747f5000128266960eec0c4c619f",
+    "tools/native-browser/verify.mjs": "b4d748a72e46333ea37ad0bbd94c20840536cb4445f8cda583404ff8110d8577"
+  },
+  "original_source": {
+    "files": 5384,
+    "changed": [],
+    "scope": [
+      "TSOClient",
+      "Other"
+    ]
+  },
+  "lockfile": "Adds the already-versioned game-runtime to web-shell; no dependency version changes",
+  "browser_lock": "Playwright1.56.1 / ws8.18.3 exact versions plus integrity/optional platform entries",
+  "red_before_green": {
+    "missing_module": "Historical compilation failure, not a behavioral RED test",
+    "passthrough_admission": {
+      "failed": 5,
+      "log_sha256": "83ee6ea0360bc2f5db6ce5f25dda64a36851fe42089aed9c756f8952e91f5a26"
+    },
+    "toolbar": {
+      "initial_ci_build_run": 37552368078,
+      "failed_width": 22.59375,
+      "viewport_width": 390,
+      "log_sha256": "7e939c3317b270319a30435f5e7661a80f8b0b83cf7f7f059b365b45d812f3a0"
+    }
+  },
+  "initial_hosted_candidate": {
+    "run": 37552368078,
+    "candidate_source_tree": "03c197985a3e671edf93be948b17d4b53be597a5",
+    "native_and_lints": "pass",
+    "actual_browser_build": "pass",
+    "initial_browser_journey": "pass",
+    "subsequent_source_packaging": "failure",
+    "overall": "failure"
+  },
+  "qualification": {
+    "actual_built_browser": true,
+    "real_native_runtime_and_websocket_fixture": true,
+    "controlled_gateway_authentication": true,
+    "two_browser_contexts_same_test_actor": true,
+    "production_admission_service": false,
+    "distinct_real_players": false,
+    "complete_original_asset_corpus": false,
+    "original_fsov_vmnet_translation": false,
+    "walking_and_contact_animation": false,
+    "synchronized_game_audio": false,
+    "physical_device": false,
+    "independent_review": false,
+    "merge": false,
+    "deployment": false
+  },
+  "notes": [
+    "Temporary source and tooling recovery jobs are not product qualification.",
+    "One local build attempt timed out; cache-path/optimizer recovery errors are preserved separately.",
+    "The final optimized build and browser journey passed on unchanged code.",
+    "Native source action uses unchanged cursebook BHAV4107 with declared lot/actor/content metadata.",
+    "Additional dynamic-menu tests use unchanged Christmas flag BHAV4108.",
+    "Cancellation harness is explicitly authored test-only behavior."
+  ]
+}
