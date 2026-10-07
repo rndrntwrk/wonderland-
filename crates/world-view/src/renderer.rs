@@ -169,7 +169,9 @@ impl WorldRenderer {
         let mut drawn_parts = 0;
         for part in &scene.parts {
             let matrix = projection * part.transform;
-            if outside_frustum(&part.mesh, matrix) {
+            if part.pipeline.and_then(|p| p.forced_depth).is_none()
+                && outside_frustum(&part.mesh, matrix)
+            {
                 continue;
             }
             let target = pick_target(&self.document, part, controls);
@@ -188,6 +190,8 @@ impl WorldRenderer {
             } else {
                 DepthComparison::Less
             };
+            color.set_pipeline(part.pipeline)?;
+            hit_ids.set_pipeline(part.pipeline)?;
             color.set_depth_comparison(depth);
             hit_ids.set_depth_comparison(depth);
             let options = FragmentOptions {

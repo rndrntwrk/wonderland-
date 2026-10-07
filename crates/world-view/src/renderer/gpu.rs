@@ -13,6 +13,7 @@ pub struct WorldGpuMesh {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct WorldGpuDraw {
+    pub pipeline: Option<wonderland_render_core::reference::FragmentPipeline>,
     pub mesh: usize,
     pub texture: Option<usize>,
     pub matrix: [f32; 16],
@@ -78,7 +79,7 @@ impl WorldRenderer {
             .checked_add(1)
             .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
         let mut packet = WorldGpuFrame {
-            schema: 1,
+            schema: 2,
             width,
             height,
             generation: generation.to_string(),
@@ -91,10 +92,13 @@ impl WorldRenderer {
         let mut textures = BTreeMap::<*const RgbaImage, usize>::new();
         let mut bytes = width as usize * height as usize * 8;
         let mut hits = vec![];
+        let mut object_hits = BTreeMap::<usize, u32>::new();
         let mut triangles = 0;
         for part in &scene.parts {
             let matrix = projection * part.transform;
-            if outside_frustum(&part.mesh, matrix) {
+            if part.pipeline.and_then(|p| p.forced_depth).is_none()
+                && outside_frustum(&part.mesh, matrix)
+            {
                 continue;
             }
             if !matrix.cols.iter().flatten().all(|value| value.is_finite()) {
@@ -103,7 +107,7 @@ impl WorldRenderer {
             if packet.draws.len() >= 262_144 {
                 return Err(WorldError("source GPU draw budget exceeded".into()));
             }
-            reserve(&mut bytes, 96)?;
+            reserve(&mut bytes, 192)?;
             let mesh = match meshes.get(&Arc::as_ptr(&part.mesh)) {
                 Some(index) => *index,
                 None => {
@@ -154,19 +158,36 @@ impl WorldRenderer {
             } else {
                 None
             };
-            let pick_id = match pick_target(&self.document, part, controls) {
+            let target = if part.pipeline.is_some_and(|p| {
+                p.blend == wonderland_render_core::reference::FragmentBlend::NoColor
+            }) {
+                None
+            } else {
+                pick_target(&self.document, part, controls)
+            };
+            let pick_id = match target {
                 Some(target) => {
-                    hits.push(target);
-                    hits.len() as u32
+                    if let Some(object) = part.object {
+                        *object_hits.entry(object).or_insert_with(|| {
+                            hits.push(target);
+                            hits.len() as u32
+                        })
+                    } else {
+                        hits.push(target);
+                        hits.len() as u32
+                    }
                 }
                 None => 0,
             };
             packet.draws.push(WorldGpuDraw {
+                pipeline: part.pipeline,
                 mesh,
                 texture,
                 matrix: std::array::from_fn(|i| matrix.cols[i / 4][i % 4]),
                 pick_id,
-                depth_equal: part.object.is_some(),
+                depth_equal: part.pipeline.map_or(part.object.is_some(), |p| {
+                    p.depth_compare == DepthComparison::LessEqual
+                }),
             });
             triangles += part.mesh.indices.len() / 3;
         }

@@ -1,6 +1,8 @@
 //! Synthetic source document and independent CPU pixels for the browser GPU gate.
 use std::{fs, path::PathBuf, sync::Arc};
 use wonderland_world_view::*;
+#[path = "support/masked.rs"]
+mod mask_fixture;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output = PathBuf::from(
         std::env::args()
@@ -15,18 +17,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     source.provenance.kind = WorldSourceKind::TestFixture;
     source.source_counts = None;
+    let mut mixed = mask_fixture::masked(ModelMaskKind::Portal);
+    let mut unmasked = mixed.models[0].clone();
+    unmasked.effective_source = wonderland_render_core::AssetKey([33; 32]);
+    unmasked.depth_mask = None;
+    unmasked.textures[0].effective_asset = wonderland_render_core::AssetKey([34; 32]);
+    unmasked.textures[0].image.pixels[0] = [220, 20, 20, 160];
+    mixed.models.push(unmasked);
+    let mut other = mixed.objects[0].clone();
+    other.entity.as_mut().unwrap().object_id = 43;
+    other.model = Some(1);
+    other.position_tiles = wonderland_render_core::Vec3::new(2.5, 1.5, 0.);
+    other.yaw_radians = 1.2;
+    mixed.objects.push(other);
     let document = Arc::new(source);
-    let mut renderer = WorldRenderer::new(Arc::clone(&document))?;
-    let mut cpu = WorldRenderer::new(document)?;
     let mut scenes = vec![];
-    for (name, controls) in [
-        ("default", ViewportControls::default()),
+    for (name, controls, document) in [
+        (
+            "default",
+            ViewportControls::default(),
+            Arc::clone(&document),
+        ),
         (
             "rotated",
             ViewportControls {
                 yaw_radians: 0.8,
                 ..Default::default()
             },
+            Arc::clone(&document),
         ),
         (
             "cutaway",
@@ -34,8 +52,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 walls: WallMode::Down,
                 ..Default::default()
             },
+            Arc::clone(&document),
         ),
+        (
+            "normal-mask",
+            ViewportControls::default(),
+            Arc::new(mask_fixture::masked(ModelMaskKind::Normal)),
+        ),
+        (
+            "portal-mask",
+            ViewportControls::default(),
+            Arc::new(mask_fixture::masked(ModelMaskKind::Portal)),
+        ),
+        ("mixed-mask", ViewportControls::default(), Arc::new(mixed)),
     ] {
+        fs::write(
+            output.join(format!("{name}.world.json")),
+            serde_json::to_vec(document.as_ref())?,
+        )?;
+        let mut renderer = WorldRenderer::new(Arc::clone(&document))?;
+        let mut cpu = WorldRenderer::new(document)?;
         let (frame, stats) = renderer.prepare_gpu(controls, 256, 192)?;
         cpu.render(controls, 256, 192)?;
         let image = cpu.image().ok_or("CPU reference missing")?;
@@ -62,6 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }) {
                     continue;
                 }
+                let object = matches!(target, Some(WorldPickTarget::Object { .. }));
                 let index = if let Some(target) = target {
                     frame
                         .draws
@@ -77,7 +114,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ownerless += 1;
                     0
                 };
-                picks.push(serde_json::json!({"x": x, "y": y, "index": index}));
+                let color = image.pixels[(y * 256 + x) as usize];
+                let portal_final = color[2] > 100 && color[2] > color[0].saturating_mul(2);
+                picks.push(serde_json::json!({"x": x, "y": y, "index": index, "object": object, "portal_final": portal_final}));
             }
         }
         scenes.push(
