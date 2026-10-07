@@ -14,13 +14,19 @@ jobs:
         with:
           persist-credentials: false
           show-progress: false
-      - name: Export exact sibling changes
+      - name: Export pinned every-tick pose source and commit identities
         run: |
           set -euo pipefail
-          git fetch --depth=1 origin 13580dd2d0e2fefbefb73e4d0011032f80c06fb0 194e998d021c5ce894753222a57c8518162ffc32
+          base=13580dd2d0e2fefbefb73e4d0011032f80c06fb0
+          pose=015f00e0955a791286f0013868fa0ab399821686
+          audio=8b2d6a7197b8b57fa59060f89e3c740b95a540ab
+          git fetch --depth=1 origin "$base" "$pose" "$audio"
           mkdir -p /tmp/player-integration-inputs
-          git diff --binary 13580dd2d0e2fefbefb73e4d0011032f80c06fb0 194e998d021c5ce894753222a57c8518162ffc32 > /tmp/player-integration-inputs/pose.patch
-          git ls-tree -rz 194e998d021c5ce894753222a57c8518162ffc32 > /tmp/player-integration-inputs/pose-tree.bin
+          git diff --binary "$base" "$pose" > /tmp/player-integration-inputs/pose.patch
+          git ls-tree -rz "$pose" > /tmp/player-integration-inputs/pose-tree.bin
+          for ref in "$base" "$pose" "$audio" "$GITHUB_SHA"; do
+            git cat-file commit "$ref" > "/tmp/player-integration-inputs/$ref.commit"
+          done
           sha256sum /tmp/player-integration-inputs/* > /tmp/player-integration-inputs/SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
