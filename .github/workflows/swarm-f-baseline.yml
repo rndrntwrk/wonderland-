@@ -1,0 +1,62 @@
+name: Swarm F baseline
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/swarm-f-baseline.yml
+      - .gitmodules
+      - TSOClient/**
+      - Other/**
+      - crates/**
+      - services/browser-gateway/**
+      - tools/replay/**
+      - tests/parity/**
+      - docs/compat/**
+      - docs/contracts/**
+      - docs/swarm-f/**
+      - docs/verification/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-f-baseline-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          show-progress: false
+          submodules: false
+      - name: Exercise source, mapping and Git-provenance negative cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version | tee "$RUNNER_TEMP/swarm-f-toolchain.txt"
+          git --version | tee -a "$RUNNER_TEMP/swarm-f-toolchain.txt"
+          python3 -B -m unittest discover -s tests/parity -p test_baseline.py -v 2>&1 | tee "$RUNNER_TEMP/swarm-f-tests.log"
+      - name: Verify the exact tracked source and observed contract map
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/replay/baseline.py --require-git --output "$RUNNER_TEMP/swarm-f-audit" | tee "$RUNNER_TEMP/swarm-f-gate.json"
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: swarm-f-baseline-evidence
+          path: |
+            ${{ runner.temp }}/swarm-f-audit/
+            ${{ runner.temp }}/swarm-f-tests.log
+            ${{ runner.temp }}/swarm-f-toolchain.txt
+            ${{ runner.temp }}/swarm-f-gate.json
+          if-no-files-found: error
+          retention-days: 7
