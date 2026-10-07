@@ -12,7 +12,14 @@ pub struct WorldGpuMesh {
     pub indices: Vec<u32>,
 }
 #[derive(Clone, Debug, Serialize)]
+pub struct WorldGpuLight {
+    pub texture: usize,
+    pub matrix: [f32; 16],
+}
+#[derive(Clone, Debug, Serialize)]
 pub struct WorldGpuDraw {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub light: Option<WorldGpuLight>,
     pub pipeline: Option<wonderland_render_core::reference::FragmentPipeline>,
     pub mesh: usize,
     pub texture: Option<usize>,
@@ -79,7 +86,7 @@ impl WorldRenderer {
             .checked_add(1)
             .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
         let mut packet = WorldGpuFrame {
-            schema: 2,
+            schema: if self.lighting.is_some() { 3 } else { 2 },
             width,
             height,
             generation: generation.to_string(),
@@ -91,6 +98,18 @@ impl WorldRenderer {
         let mut meshes = BTreeMap::<*const Mesh, usize>::new();
         let mut textures = BTreeMap::<*const RgbaImage, usize>::new();
         let mut bytes = width as usize * height as usize * 8;
+        let light_texture = if let Some(light) = &self.lighting {
+            let image = light.image();
+            image
+                .validate(&RenderLimits::default())
+                .map_err(|e| WorldError(e.to_string()))?;
+            reserve(&mut bytes, image.pixels.len() * 4)?;
+            packet.textures.push(image.clone());
+            Some(0)
+        } else {
+            None
+        };
+
         let mut hits = vec![];
         let mut object_hits = BTreeMap::<usize, u32>::new();
         let mut triangles = 0;
@@ -179,7 +198,26 @@ impl WorldRenderer {
                 }
                 None => 0,
             };
+            let light = if let Some((_, uv)) = self.light_for_part(part)? {
+                for v in &part.mesh.vertices {
+                    if !uv
+                        .transform_vec4([v.position.x, v.position.y, v.position.z, 1.])
+                        .iter()
+                        .all(|n| n.is_finite())
+                    {
+                        return Err(WorldError("source light UV is not finite".into()));
+                    }
+                }
+                reserve(&mut bytes, 80)?;
+                Some(WorldGpuLight {
+                    texture: light_texture.expect("prepared light texture"),
+                    matrix: std::array::from_fn(|i| uv.cols[i / 4][i % 4]),
+                })
+            } else {
+                None
+            };
             packet.draws.push(WorldGpuDraw {
+                light,
                 pipeline: part.pipeline,
                 mesh,
                 texture,

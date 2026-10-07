@@ -8,11 +8,11 @@ function exactKeys(value,keys,name){
   if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(key=>!Object.hasOwn(value,key)))invalid(name+' shape');
 }
 export function validateWorldGpuFrame(frame){
-  if(!frame||![1,2].includes(frame.schema))invalid('unsupported schema');
+  if(!frame||![1,2,3].includes(frame.schema))invalid('unsupported schema');
   if(!integer(frame.width,1,4096)||!integer(frame.height,1,4096)||frame.width*frame.height>1048576)invalid('surface budget');
   if(typeof frame.generation!=='string'||!(/^[1-9][0-9]{0,19}$/).test(frame.generation)||BigInt(frame.generation)>18446744073709551615n)invalid('generation');
   if(!Array.isArray(frame.meshes)||!Array.isArray(frame.textures)||!Array.isArray(frame.draws)||frame.draws.length>262144||frame.meshes.length>262144||frame.textures.length>65535)invalid('collection budget');
-  let bytes=frame.width*frame.height*8+frame.draws.length*(frame.schema===2?192:96),vertices=0,indices=0;
+  let bytes=frame.width*frame.height*8+frame.draws.length*(frame.schema===3?272:frame.schema===2?192:96),vertices=0,indices=0;
   function reserve(amount){bytes+=amount;if(!Number.isSafeInteger(bytes)||bytes>MAX_BYTES)invalid('upload budget');}
   for(const mesh of frame.meshes){
     if(!mesh||!Array.isArray(mesh.vertices)||mesh.vertices.length%9||!Array.isArray(mesh.indices)||mesh.indices.length%3)invalid('mesh shape');
@@ -31,6 +31,13 @@ export function validateWorldGpuFrame(frame){
     if(!draw||!integer(draw.mesh,0,frame.meshes.length-1)||(draw.texture!==null&&!integer(draw.texture,0,frame.textures.length-1)))invalid('draw reference');
     if(!Array.isArray(draw.matrix)||draw.matrix.length!==16||draw.matrix.some(value=>!Number.isFinite(value)||Math.abs(value)>3.4028234663852886e38))invalid('matrix');
     if(!integer(draw.pick_id,0,0xffffff)||typeof draw.depth_equal!=='boolean')invalid('draw state');
+    if(frame.schema<3&&Object.hasOwn(draw,'light'))invalid('light needs schema 3');
+    if(frame.schema===3&&draw.light!==undefined&&draw.light!==null){
+      exactKeys(draw.light,['texture','matrix'],'light');
+      if(!integer(draw.light.texture,0,frame.textures.length-1))invalid('light texture reference');
+      if(!Array.isArray(draw.light.matrix)||draw.light.matrix.length!==16||draw.light.matrix.some(value=>!Number.isFinite(value)||Math.abs(value)>3.4028234663852886e38))invalid('light matrix');
+      if(draw.pipeline?.blend==='no_color')invalid('invisible mask light');
+    }
     if(frame.schema===1){if(Object.hasOwn(draw,'pipeline'))invalid('pipeline needs schema 2');}
     else{
       if(!Object.hasOwn(draw,'pipeline'))invalid('missing pipeline');
@@ -61,20 +68,36 @@ layout(location=0) in vec3 aPosition;
 layout(location=1) in vec2 aUv;
 layout(location=2) in vec4 aColor;
 uniform mat4 uMatrix;
+uniform mat4 uLightMatrix;
+out vec2 vLightUv;
 uniform float uForcedDepth;
 out vec2 vUv;
 out vec4 vColor;
-void main(){vec4 p=uMatrix*vec4(aPosition,1.0);if(uForcedDepth>=0.0)p.z=uForcedDepth*p.w;p.z=2.0*p.z-p.w;gl_Position=p;vUv=aUv;vColor=aColor;}`;
+void main(){vec4 p=uMatrix*vec4(aPosition,1.0);if(uForcedDepth>=0.0)p.z=uForcedDepth*p.w;p.z=2.0*p.z-p.w;gl_Position=p;vUv=aUv;vColor=aColor;vLightUv=(uLightMatrix*vec4(aPosition,1.0)).xy;}`;
 const fragmentSource=`#version 300 es
 precision highp float;
 in vec2 vUv;
 in vec4 vColor;
 uniform sampler2D uImage;
+uniform sampler2D uLight;
+uniform bool uHasLight;
+in vec2 vLightUv;
 uniform bool uPick;
 uniform vec3 uId;
 out vec4 outputColor;
+vec3 lightSample(vec2 uv){
+  ivec2 size=textureSize(uLight,0);
+  vec2 p=clamp(uv,0.0,1.0)*vec2(size)-vec2(0.5);
+  ivec2 a=ivec2(floor(p));vec2 f=fract(p);
+  vec3 c00=texelFetch(uLight,clamp(a,ivec2(0),size-1),0).rgb;
+  vec3 c10=texelFetch(uLight,clamp(a+ivec2(1,0),ivec2(0),size-1),0).rgb;
+  vec3 c01=texelFetch(uLight,clamp(a+ivec2(0,1),ivec2(0),size-1),0).rgb;
+  vec3 c11=texelFetch(uLight,clamp(a+ivec2(1,1),ivec2(0),size-1),0).rgb;
+  return mix(mix(c00,c10,f.x),mix(c01,c11,f.x),f.y);
+}
 void main(){
   vec4 c=clamp(vColor,0.0,1.0)*texture(uImage,vUv);
+  if(uHasLight&&!uPick)c.rgb*=lightSample(vLightUv);
   c=floor(c*255.0+0.5)/255.0;
   if(c.a<=2.0/255.0)discard;
   outputColor=uPick?vec4(uId,1.0):c;
@@ -198,6 +221,12 @@ class WorldGpuOwner{
     for(const draw of scene.frame.draws){
       const mesh=scene.meshes[draw.mesh];gl.bindVertexArray(mesh.vao);gl.bindTexture(gl.TEXTURE_2D,draw.texture===null?scene.white:scene.images[draw.texture]);
       gl.uniformMatrix4fv(gl.getUniformLocation(this.program,'uMatrix'),false,new Float32Array(draw.matrix));
+      // Restore lighting state for every draw, including unlit stencil commands.
+      const light=draw.light??null;
+      gl.uniform1i(gl.getUniformLocation(this.program,'uHasLight'),light?1:0);
+      gl.uniformMatrix4fv(gl.getUniformLocation(this.program,'uLightMatrix'),false,new Float32Array(light?.matrix??[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));
+      gl.uniform1i(gl.getUniformLocation(this.program,'uLight'),1);
+      gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,light?scene.images[light.texture]:scene.white);gl.activeTexture(gl.TEXTURE0);
       gl.uniform3f(gl.getUniformLocation(this.program,'uId'),(draw.pick_id&255)/255,((draw.pick_id>>>8)&255)/255,((draw.pick_id>>>16)&255)/255);
       applySourceMaterialState(gl,this.program,draw,picking);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_INT,0);
     }

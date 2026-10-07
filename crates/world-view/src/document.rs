@@ -249,6 +249,8 @@ pub struct BlueprintSound {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct WorldDocument {
     pub schema_version: u16,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lighting: Option<crate::WorldLighting>,
     pub provenance: WorldProvenance,
     pub revision: WorldRevision,
     pub lot: WorldLot,
@@ -274,10 +276,16 @@ impl WorldDocument {
     }
     pub fn validate(&self) -> Result<(), WorldError> {
         let invalid = |message: &str| WorldError(message.into());
-        if self.schema_version != WORLD_SCHEMA_VERSION {
+        if self.schema_version != WORLD_SCHEMA_VERSION
+            && !(self.schema_version == crate::LIGHTING_WORLD_SCHEMA_VERSION
+                && self.lighting.is_some())
+        {
             return Err(invalid("unsupported world document schema version"));
         }
         let area = checked_area(self.lot.width, self.lot.height)?;
+        if let Some(lighting) = &self.lighting {
+            lighting.validate(self)?;
+        }
         let cells = area * usize::from(self.lot.levels);
         if self.lot.levels == 0 || self.lot.levels > 16 || cells > 262_144 {
             return Err(invalid(
@@ -541,7 +549,7 @@ pub fn source_terrain(
     })
 }
 
-mod decimal {
+pub(crate) mod decimal {
     use serde::{Deserialize, Deserializer, Serializer};
     pub fn serialize<S: Serializer>(value: &u64, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&value.to_string())

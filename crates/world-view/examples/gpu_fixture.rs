@@ -1,6 +1,8 @@
 //! Synthetic source document and independent CPU pixels for the browser GPU gate.
 use std::{fs, path::PathBuf, sync::Arc};
 use wonderland_world_view::*;
+#[path = "support/lighting.rs"]
+mod lighting_fixture;
 #[path = "support/masked.rs"]
 mod mask_fixture;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,6 +33,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     other.yaw_radians = 1.2;
     mixed.objects.push(other);
     let document = Arc::new(source);
+    let shadowed = lighting_fixture::lit_world();
+    let mut unshadowed = shadowed.clone();
+    unshadowed.lighting.as_mut().unwrap().geometry[0]
+        .walls
+        .clear();
     let mut scenes = vec![];
     for (name, controls, document) in [
         (
@@ -65,6 +72,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Arc::new(mask_fixture::masked(ModelMaskKind::Portal)),
         ),
         ("mixed-mask", ViewportControls::default(), Arc::new(mixed)),
+        (
+            "room-lit",
+            ViewportControls::default(),
+            Arc::new(unshadowed),
+        ),
+        (
+            "room-shadow",
+            ViewportControls::default(),
+            Arc::new(shadowed),
+        ),
     ] {
         fs::write(
             output.join(format!("{name}.world.json")),

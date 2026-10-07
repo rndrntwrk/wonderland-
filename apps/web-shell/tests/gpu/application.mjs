@@ -177,6 +177,44 @@ try{
     report.scenarios.push({name:'source materials '+name,redPixels:red,portalPixels:blue,selected,sourceSha256:sha(source),restorationIdentical:true});
     await capture(name+'-application');
   }
+  // Source room lighting must travel through the real JSON import and WASM
+  // viewport, not merely a standalone shader host. Compare a wall-shadow recipe
+  // against the identical unshadowed control; an all-black fallback cannot pass.
+  const litSource=JSON.parse(await readFile(resolve(root,'tests/output/source-gpu/room-lit.world.json'),'utf8'));
+  const shadowSource=JSON.parse(await readFile(resolve(root,'tests/output/source-gpu/room-shadow.world.json'),'utf8'));
+  shadowSource.lighting.revision='2';
+  const importLighting=async(name,world)=>{
+    await page.locator('.source-open-lot input').setInputFiles({name:name+'.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(world))});
+    await page.getByRole('heading',{name:name+'.json',exact:true}).waitFor();await ready();
+  };
+  await importLighting('room-lit',litSource);await photo('room-lit-application-export');
+  const litImage=png(await readFile(resolve(output,'room-lit-application-export.png')));
+  await importLighting('room-shadow',shadowSource);const shadowPhoto=await photo('room-shadow-application-export');
+  const shadowImage=png(await readFile(resolve(output,'room-shadow-application-export.png')));
+  assert.equal(litImage.width,shadowImage.width);assert.equal(litImage.height,shadowImage.height);
+  let shadowPixels=0,litPixels=0;
+  for(let i=0;i<litImage.pixels.length;i+=4){
+    if(litImage.pixels[i]+litImage.pixels[i+1]+litImage.pixels[i+2]>30)litPixels++;
+    if(litImage.pixels[i]+litImage.pixels[i+1]+litImage.pixels[i+2]>shadowImage.pixels[i]+shadowImage.pixels[i+1]+shadowImage.pixels[i+2]+12)shadowPixels++;
+  }
+  assert.ok(litPixels>100&&shadowPixels>100,'Room lighting or the supplied wall shadow did not reach the real source viewport');
+  const beforeBadLight=await canvas().getAttribute('data-frame-generation');
+  const malformed=structuredClone(shadowSource);malformed.lighting.geometry[0].walls[0][1]=malformed.lighting.geometry[0].walls[0][0];
+  await page.locator('.source-open-lot input').setInputFiles({name:'invalid-light.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(malformed))});
+  await page.getByRole('status').filter({hasText:'This lot contains invalid or unsupported world data.'}).waitFor();
+  assert.equal(await canvas().getAttribute('data-frame-generation'),beforeBadLight);
+  assert.equal(await page.getByRole('link',{name:'Save PNG',exact:true}).getAttribute('href'),shadowPhoto.image,'Rejected lighting discarded the admitted photo');
+  await canvas().focus();await page.keyboard.press('Enter');
+  await page.waitForFunction(()=>document.querySelector('.source-world-inspector strong')?.textContent.startsWith('Tile '));
+  const selectedLit=await page.locator('.source-world-inspector strong').innerText();
+  await page.evaluate(()=>{const gl=document.querySelector('.world-viewport canvas').getContext('webgl2');window.__lightingLoss=gl.getExtension('WEBGL_lose_context');if(!window.__lightingLoss)throw new Error('Missing real lighting context loss');window.__lightingLoss.loseContext();});
+  await page.waitForFunction(()=>document.querySelector('.world-viewport canvas').dataset.gpuState==='lost');
+  await page.evaluate(()=>window.__lightingLoss.restoreContext());await changed(beforeBadLight);
+  await photo('room-shadow-restored-export');
+  assert.deepEqual(png(await readFile(resolve(output,'room-shadow-restored-export.png'))).pixels,shadowImage.pixels,'Lighting changed after actual GPU restoration');
+  assert.equal(await page.locator('.source-world-inspector strong').innerText(),selectedLit);
+  report.scenarios.push({name:'source room lighting, rejected malformed shadow, and actual context recovery',litPixels,shadowPixels,selected:selectedLit,restorationIdentical:true});
+  await capture('room-shadow-application');
   const beforeClose=await photo('before-close-export');
   await page.getByRole('button',{name:'Back to your Sims',exact:true}).click();await page.locator('.source-world-screen').waitFor({state:'detached'});await revoked(beforeClose);
   await page.getByRole('button',{name:'Original lot',exact:true}).click();await ready();report.scenarios.push({name:'close and reopen creates a fresh GPU owner'});

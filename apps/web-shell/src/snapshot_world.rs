@@ -243,6 +243,7 @@ pub fn snapshot_world(
     let effective_source = AssetKey(Sha256::digest(&snapshot.source_body).into());
     let document = WorldDocument {
         schema_version: WORLD_SCHEMA_VERSION,
+        lighting: None,
         provenance: WorldProvenance {
             kind: WorldSourceKind::LegacySnapshot,
             origin: format!("FSOv38:packed-location/{:08X}", snapshot.platform.lot_id),
