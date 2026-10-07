@@ -1,0 +1,33 @@
+name: Native continuation source
+on:
+  push:
+    branches: [feat/native-player-continuation]
+    paths: [.github/workflows/native-continuation-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ce54857000c253249f0bdd7b880038f9227e6cbc
+          persist-credentials: false
+          show-progress: false
+      - name: Export exact pinned source delta
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 705530c1c99721ff9055ff1c44bd2cfb24e2097e
+          mkdir -p /tmp/native-continuation-source
+          git diff --binary 705530c1c99721ff9055ff1c44bd2cfb24e2097e HEAD > /tmp/native-continuation-source/source.patch
+          git ls-tree -rz HEAD > /tmp/native-continuation-source/tree.bin
+          git rev-parse HEAD > /tmp/native-continuation-source/revision.txt
+          git rev-parse 'HEAD^{tree}' >> /tmp/native-continuation-source/revision.txt
+          sha256sum /tmp/native-continuation-source/source.patch /tmp/native-continuation-source/tree.bin > /tmp/native-continuation-source/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-continuation-source
+          path: /tmp/native-continuation-source/
+          retention-days: 3
+          if-no-files-found: error
