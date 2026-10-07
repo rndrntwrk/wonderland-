@@ -10,36 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          show-progress: false
-      - name: Retrieve pinned public release binaries
+      - name: Retrieve Trunk 0.21.14 default optimizer
         run: |
           set -euo pipefail
-          mkdir -p /tmp/native-tools/bin /tmp/native-tools/cache/trunk/wasm-bindgen-0.2.129
-          cd /tmp/native-tools
-          curl --fail --location --retry 2 -o trunk.tar.gz https://github.com/trunk-rs/trunk/releases/download/v0.21.14/trunk-x86_64-unknown-linux-gnu.tar.gz
-          curl --fail --location --retry 2 -o trunk.sha256 https://github.com/trunk-rs/trunk/releases/download/v0.21.14/trunk-x86_64-unknown-linux-gnu.tar.gz.sha256
-          printf '%s  trunk.tar.gz\n' "$(cat trunk.sha256 | cut -d' ' -f1)" | sha256sum -c -
-          tar -xzf trunk.tar.gz -C bin
-          curl --fail --location --retry 2 -o bindgen.tar.gz https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz
-          tar -xzf bindgen.tar.gz --strip-components=1 -C cache/trunk/wasm-bindgen-0.2.129
-          bin/trunk --version > versions.txt
-          cache/trunk/wasm-bindgen-0.2.129/wasm-bindgen --version >> versions.txt
-          sha256sum trunk.tar.gz bindgen.tar.gz > release-sha256.txt
-      - name: Resolve the pinned browser test lockfile
-        run: |
-          npm --prefix tools/native-browser install --ignore-scripts --no-audit --no-fund
-          cp tools/native-browser/package-lock.json /tmp/native-tools/package-lock.json
-          tar -czf /tmp/native-build-tools.tar.gz -C /tmp/native-tools bin cache versions.txt release-sha256.txt package-lock.json
-          sha256sum /tmp/native-build-tools.tar.gz > /tmp/native-build-tools.sha256
+          mkdir -p /tmp/native-optimizer
+          cd /tmp/native-optimizer
+          curl --fail --location --retry 2 -o binaryen.tar.gz https://github.com/WebAssembly/binaryen/releases/download/version_123/binaryen-version_123-x86_64-linux.tar.gz
+          tar -xzf binaryen.tar.gz --strip-components=1
+          bin/wasm-opt --version > versions.txt
+          sha256sum binaryen.tar.gz bin/wasm-opt > SHA256SUMS
+          tar -czf /tmp/native-optimizer.tar.gz bin/wasm-opt versions.txt SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
-          name: native-browser-build-tools
-          path: |
-            /tmp/native-build-tools.tar.gz
-            /tmp/native-build-tools.sha256
+          name: native-browser-optimizer
+          path: /tmp/native-optimizer.tar.gz
           compression-level: 0
           retention-days: 2
           if-no-files-found: error
