@@ -226,7 +226,11 @@ def run(root,output):
                 destination=build/('probe-'+flavor+('.wasm' if target=='wasm' else ''))
                 args=['rustc','--edition=2024','--crate-name','swarm_f_reference','-D','warnings','-C','opt-level=2',
                       '--extern','sim_core='+str(library/'libsim_core.rlib'),'-L','dependency='+str(library/'deps')]
-                if target=='wasm':args+=['--target','wasm32-unknown-unknown','--crate-type','cdylib']
+                if target=='wasm':
+                    # Cross-target serde metadata also references host-built
+                    # proc-macro dependencies, kept in Cargo's host deps folder.
+                    args+=['--target','wasm32-unknown-unknown','--crate-type','cdylib',
+                           '-L','dependency='+str(build/'cargo/debug/deps')]
                 if flavor!='normal':args+=['--cfg','reference_fault_'+flavor]
                 args += [probe,'-o',destination]
                 runner.run('compile-'+target+'-'+flavor,args,timeout=120)
