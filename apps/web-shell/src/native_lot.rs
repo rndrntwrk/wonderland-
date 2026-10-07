@@ -6,7 +6,7 @@ use wasm_bindgen::{JsCast, prelude::*};
 use wasm_bindgen_futures::{JsFuture, spawn_local};
 use wonderland_game_runtime::live_wire::{
     encode_checkpoint_request,
-    player::{ActionStatus, NativePlayer, PlayerBinding},
+    player::{ActionStatus, NativePlayer, PlayerBinding, activity::ActionActivity},
 };
 use wonderland_game_runtime::sim_core::interactions::InteractionKey;
 use wonderland_game_runtime::{EntityRef, ObjectId, RuntimeProjection};
@@ -90,6 +90,7 @@ struct Controller {
     choices: RwSignal<Vec<Choice>>,
     live: RwSignal<bool>,
     status: RwSignal<ActionStatus>,
+    activity: RwSignal<Vec<ActionActivity>>,
     notice: RwSignal<String>,
     wake: RwSignal<u64>,
 }
@@ -155,6 +156,7 @@ impl Controller {
             self.world.set(None);
             self.projection.set(None);
             self.choices.set(Vec::new());
+            self.activity.set(Vec::new());
             return;
         };
         let Some((generation, resume)) = self.resources.try_update_value(|r| {
@@ -170,6 +172,7 @@ impl Controller {
                 self.world.set(None);
                 self.projection.set(None);
                 self.status.set(ActionStatus::Idle);
+                self.activity.set(Vec::new());
             }
             if let Some(player) = r.player.as_mut() {
                 player.disconnect();
@@ -215,12 +218,18 @@ impl Controller {
                 let processed = self.resources.try_update_value(
                     |r| -> Result<(Option<Vec<u8>>, bool), &'static str> {
                         if let Some(player) = r.player.as_mut() {
-                            player.receive(&payload)?;
+                            // Process this complete accepted batch synchronously;
+                            // only durable presentation history may enter a signal.
+                            let _update = player.receive_update(&payload)?;
                         } else {
                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
                         }
                         let player = r.player.as_ref().ok_or("Native player is unavailable")?;
                         self.status.try_set(player.status());
+                        let activity = player.activity().cloned().collect::<Vec<_>>();
+                        if self.activity.get_untracked() != activity {
+                            self.activity.try_set(activity);
+                        }
                         if let Some(request) = player.checkpoint_request() {
                             if r.last_request != request.id {
                                 r.last_request = request.id;
@@ -411,6 +420,7 @@ pub fn NativeLot() -> impl IntoView {
         choices: RwSignal::new(Vec::new()),
         live: RwSignal::new(false),
         status: RwSignal::new(ActionStatus::Idle),
+        activity: RwSignal::new(Vec::new()),
         notice: RwSignal::new(String::new()),
         wake: RwSignal::new(0),
     };
@@ -450,7 +460,7 @@ pub fn NativeLot() -> impl IntoView {
             <header class="source-world-header chrome"><button class="chrome round small" aria-label="Return to city" on:click=move |_|ui.send(GatewayOperation::LeaveLot,"Leave property",None)><Icon name="chevron-left"/></button><div><span class="eyebrow">"CONNECTED PROPERTY"</span><h1>"Property"</h1><p id="native-tick">{move ||ctl.projection.with(|p|p.as_ref().map(|p|format!("{} · Tick {}",if ctl.live.get(){"Live native simulation"}else{"Last accepted state"},p.tick)).unwrap_or_else(||"Waiting for native admission".into()))}</p></div><button class="chrome" on:click=move |_|ctl.begin(scope(ui))><Icon name="refresh"/>"Reconnect"</button></header>
             <Show when=move ||!ctl.notice.get().is_empty()><p class="source-world-notice chrome" role="status">{move ||ctl.notice.get()}</p></Show>
             <div class="connected-world-queue" aria-label="Your action queue"><For each=move ||ctl.projection.with(|p|p.as_ref().map(|p|p.queues.iter().filter(|q|Some(q.actor)==ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor()))).flat_map(|q|q.entries.clone()).collect::<Vec<_>>()).unwrap_or_default()) key=|item|item.id children=move |item|{
-                let id=item.id;view!{<div class="connected-world-action chrome"><span>{item.label.unwrap_or_else(||"Source action".into())}</span><button class="chrome round small" aria-label="Cancel this action" disabled=move ||!ctl.live.get()||ctl.status.get()==ActionStatus::Pending on:click=move |_|ctl.submit(None,Some(id))><Icon name="x"/></button></div>}
+                let id=item.id;view!{<NativeQueueAction ctl id/>}
             }/></div>
             <nav class="source-world-tools chrome" aria-label="Property controls">
                 <div class="source-control-group source-camera-controls" role="group" aria-label="Camera"><button class="chrome round small" aria-label="Rotate left" on:click=move |_|controls.update(|v|v.yaw_radians-=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise" class="icon-mirror"/></button><button class="chrome round small" aria-label="Rotate right" on:click=move |_|controls.update(|v|v.yaw_radians+=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise"/></button><button class="chrome round small" aria-label="Zoom out" on:click=move |_|controls.update(|v|v.zoom=(v.zoom/1.2).max(0.25))><Icon name="minus"/></button><button class="chrome round small" aria-label="Zoom in" on:click=move |_|controls.update(|v|v.zoom=(v.zoom*1.2).min(8.))><Icon name="plus"/></button></div>
@@ -458,11 +468,47 @@ pub fn NativeLot() -> impl IntoView {
                 <div class="source-control-group source-visibility-controls" role="group" aria-label="Wall visibility">{[(WallMode::Down,"Walls down"),(WallMode::Cutaway,"Cutaway"),(WallMode::Up,"Walls up")].into_iter().map(move |(mode,label)|view!{<button class="chrome" aria-pressed=move ||(controls.get().walls==mode).to_string() on:click=move |_|controls.update(|v|v.walls=mode)>{label}</button>}).collect_view()}<button class="chrome" aria-pressed=move ||controls.get().show_roofs.to_string() on:click=move |_|controls.update(|v|v.show_roofs = !v.show_roofs)>"Roof"</button></div>
                 <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" disabled=move ||!ctl.live.get() on:click=move |_|{if let Some(actor)=ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor())){ctl.select(actor);}}>"Your Sim"</button><button class="chrome" on:click=move |_|needs_open.update(|v|*v = !*v)>"Needs"</button><button class="chrome" disabled=true title="Native construction provider is not connected">"Buy / Build"</button></div>
             </nav>
-            <Show when=move ||!ctl.choices.get().is_empty()><aside class="connected-world-authoring chrome" aria-label="Source actions"><header><h2>"Actions"</h2><button class="chrome round small" aria-label="Close source actions" on:click=move |_|ctl.choices.set(Vec::new())><Icon name="x"/></button></header>{move ||ctl.choices.get().into_iter().map(move |choice|{let label=choice.label.clone();view!{<button class="chrome native-source-action" disabled=move ||!ctl.live.get()||matches!(ctl.status.get(),ActionStatus::Pending|ActionStatus::Unknown) on:click=move |_|ctl.submit(Some(choice.clone()),None)>{label}</button>}}).collect_view()}<p role="status">{move ||match ctl.status.get(){ActionStatus::Idle=>"Choose a source action.",ActionStatus::Pending=>"Sent · awaiting server acceptance",ActionStatus::Accepted=>"Accepted by the server",ActionStatus::Rejected=>"The server rejected this action",ActionStatus::Unknown=>"Previous action result unknown · not retried"}}</p><Show when=move ||ctl.live.get()&&ctl.status.get()==ActionStatus::Unknown><button class="chrome" on:click=move |_|{ctl.resources.update_value(|r|{if let Some(p)=r.player.as_mut() && p.dismiss_unknown().is_ok(){ctl.status.set(p.status());}});}>"Dismiss unknown result without retrying"</button></Show></aside></Show>
+            <Show when=move ||!ctl.choices.get().is_empty()><aside class="connected-world-authoring chrome" aria-label="Source actions"><header><h2>"Actions"</h2><button class="chrome round small" aria-label="Close source actions" on:click=move |_|ctl.choices.set(Vec::new())><Icon name="x"/></button></header>{move ||ctl.choices.get().into_iter().map(move |choice|{let label=choice.label.clone();view!{<button class="chrome native-source-action" disabled=move ||!ctl.live.get()||matches!(ctl.status.get(),ActionStatus::Pending|ActionStatus::Unknown) on:click=move |_|ctl.submit(Some(choice.clone()),None)>{label}</button>}}).collect_view()}<p role="status">{move ||match ctl.status.get(){ActionStatus::Idle=>"Choose a source action.",ActionStatus::Pending=>"Sent · awaiting server acceptance",ActionStatus::Accepted=>"Accepted by the server",ActionStatus::Rejected=>"The server rejected this action",ActionStatus::Unknown=>"Previous action result unknown · not retried"}}</p><Show when=move ||!ctl.activity.get().is_empty()><p class="native-action-feedback" role="status" aria-live="polite">{move ||ctl.activity.with(|items|items.last().map(ActionActivity::message))}</p><details class="native-action-history"><summary>"Recent activity"</summary><ol><For each=move ||{ctl.activity.get().into_iter().rev().collect::<Vec<_>>()} key=|item|(item.tick,item.event_sequence) children=move |item|{view!{<li data-action-id=item.action.to_string()>{item.message()}</li>}}/></ol></details></Show><Show when=move ||ctl.live.get()&&ctl.status.get()==ActionStatus::Unknown><button class="chrome" on:click=move |_|{ctl.resources.update_value(|r|{if let Some(p)=r.player.as_mut() && p.dismiss_unknown().is_ok(){ctl.status.set(p.status());}});}>"Dismiss unknown result without retrying"</button></Show></aside></Show>
             <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Live native needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==scope(ui).map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
                 [("Energy",Some(n.energy)),("Comfort",Some(n.comfort)),("Hunger",Some(n.hunger)),("Hygiene",Some(n.hygiene)),("Bladder",Some(n.bladder)),("Social",Some(n.social)),("Fun",Some(n.fun)),("Room",n.room)].into_iter().map(|(name,value)|view!{<label><span>{name}</span>{value.map(|value|view!{<progress max="100" value=value>{value}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any())}</label>}).collect_view()
             })}</div></aside></Show>
         </section>
+    }
+}
+#[component]
+fn NativeQueueAction(ctl: Controller, id: u64) -> impl IntoView {
+    // Keep the row keyed by the real action ID while its source state changes;
+    // copying the initial For item would leave cancellation/active flags stale.
+    let entry = Signal::derive(move || {
+        let actor = ctl
+            .resources
+            .with_value(|r| r.player.as_ref().map(NativePlayer::actor));
+        ctl.projection.with(|p| {
+            p.as_ref().and_then(|p| {
+                p.queues
+                    .iter()
+                    .find(|q| Some(q.actor) == actor)
+                    .and_then(|q| q.entries.iter().find(|entry| entry.id == id).cloned())
+            })
+        })
+    });
+    // Reserve the actual 36px round-button width plus its inset and a text gap.
+    // Generic round-button rules are wider than the legacy 28px queue rule.
+    view! {
+        <div class="connected-world-action chrome" style="padding-right:52px" data-action-id=id.to_string()
+            data-active=move ||entry.with(|e|e.as_ref().is_some_and(|e|e.active)).to_string()>
+            <span style="min-width:0;overflow-wrap:anywhere">{move ||entry.with(|e|e.as_ref().and_then(|e|e.label.clone())).unwrap_or_else(||"Source action".into())}</span>
+            <small class="native-queue-state">{move ||entry.with(|e|match e.as_ref() {
+                Some(e) if e.cancellation_requested => "Cancelling…",
+                Some(e) if e.active => "Running",
+                Some(_) => "Queued",
+                None => "",
+            })}</small>
+            <button class="chrome round small" aria-label="Cancel this action"
+                disabled=move ||!ctl.live.get() || matches!(ctl.status.get(), ActionStatus::Pending | ActionStatus::Unknown)
+                    || entry.with(|e|e.as_ref().is_none_or(|e|e.cancellation_requested))
+                on:click=move |_|ctl.submit(None,Some(id))><Icon name="x"/></button>
+        </div>
     }
 }
 #[component]

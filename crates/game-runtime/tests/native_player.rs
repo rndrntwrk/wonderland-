@@ -1,7 +1,5 @@
-// This harness intentionally uses only the avatar subset of shared fixtures.
-#[allow(dead_code)]
-#[path = "live_session/support.rs"]
-mod support;
+// Share the browser fixture's source loader rather than compiling it twice.
+use browser_peer::support;
 use wonderland_game_runtime::live_session::{Checkpoint, TickFrame};
 use wonderland_game_runtime::live_wire::player::{
     ActionReceipt, ActionStatus, Bootstrap, NativePlayer, PlayerAction, PlayerBinding,
@@ -306,4 +304,177 @@ fn closed_native_player_cannot_expose_state_or_reconnect() {
     assert!(player.world().is_err());
     assert!(player.offers(value.actor).is_err());
     assert!(player.reconnect().is_err());
+}
+
+#[test]
+fn accepted_updates_preserve_the_entire_ordered_runtime_event_batch() {
+    use wonderland_game_runtime::live_wire::player::PlayerUpdate;
+    let (mut server, value) = setup();
+    let mut player = player(&server, &value);
+    let request = prepare(&mut player);
+    let PlayerAction::Invoke(intent) = decode_action(&request).unwrap() else {
+        unreachable!()
+    };
+    let accepted = server
+        .sim()
+        .next_tick(vec![AcceptedCommand::QueueInteraction(intent)])
+        .unwrap();
+    let outcome = server.apply_accepted(&accepted).unwrap();
+    assert!(
+        !outcome.events.is_empty(),
+        "The source behavior must actually emit events"
+    );
+    let bytes = encode_ticks(
+        &[TickFrame {
+            accepted,
+            state_hash: outcome.state_hash,
+        }],
+        WireLimits::default(),
+    )
+    .unwrap();
+    let PlayerUpdate::Ticks(outcomes) = player.receive_update(&bytes).unwrap() else {
+        panic!("Expected live outcomes")
+    };
+    assert_eq!(outcomes, vec![outcome]);
+    assert_eq!(player.activity().count(), 1);
+    assert_eq!(
+        player.activity().next().unwrap().result,
+        wonderland_game_runtime::live_wire::player::activity::ActionResult::Completed
+    );
+    assert_eq!(
+        player.status(),
+        ActionStatus::Pending,
+        "Completion and transport receipt are distinct facts"
+    );
+    let PlayerUpdate::Ticks(duplicate) = player.receive_update(&bytes).unwrap() else {
+        panic!("Expected duplicate suppression")
+    };
+    assert!(
+        duplicate.is_empty(),
+        "Repeated latest ticks cannot replay presentation"
+    );
+    assert_eq!(player.activity().count(), 1);
+    let history = player.activity().cloned().collect::<Vec<_>>();
+    player.disconnect();
+    player.reconnect().unwrap();
+    install(&mut player, &server);
+    assert_eq!(player.activity().cloned().collect::<Vec<_>>(), history);
+    player.close();
+    assert_eq!(player.activity().count(), 0);
+}
+
+#[test]
+fn checkpoint_recovery_is_distinct_from_live_events_or_action_acceptance() {
+    use wonderland_game_runtime::live_wire::player::PlayerUpdate;
+    let (server, value) = setup();
+    let mut player =
+        NativePlayer::open(&encode_bootstrap(&value).unwrap(), value.binding, 2).unwrap();
+    let bytes = server.snapshot().unwrap();
+    let packet = encode_checkpoint(
+        player.checkpoint_request().unwrap().id,
+        Checkpoint {
+            completed_tick: server.sim().state().completed_tick,
+            state_hash: server.sim().state_hash().unwrap(),
+            bytes: &bytes,
+        },
+        &[],
+        WireLimits::default(),
+    )
+    .unwrap();
+    let PlayerUpdate::Checkpoint(cursor) = player.receive_update(&packet).unwrap() else {
+        panic!("Recovery must not be relabelled as live events")
+    };
+    assert_eq!(cursor.completed_tick, server.sim().state().completed_tick);
+    assert_eq!(player.status(), ActionStatus::Idle);
+}
+
+#[test]
+fn a_bad_later_tick_exposes_no_partial_events_or_activity() {
+    let (mut server, value) = setup();
+    let mut player = player(&server, &value);
+    let before = player.projection().unwrap();
+    let request = prepare(&mut player);
+    let PlayerAction::Invoke(intent) = decode_action(&request).unwrap() else {
+        unreachable!()
+    };
+    let accepted = server
+        .sim()
+        .next_tick(vec![AcceptedCommand::QueueInteraction(intent)])
+        .unwrap();
+    let outcome = server.apply_accepted(&accepted).unwrap();
+    let next = server.sim().next_tick(vec![]).unwrap();
+    let mut wrong_hash = server.apply_accepted(&next).unwrap().state_hash;
+    wrong_hash[0] ^= 1;
+    let packet = encode_ticks(
+        &[
+            TickFrame {
+                accepted,
+                state_hash: outcome.state_hash,
+            },
+            TickFrame {
+                accepted: next,
+                state_hash: wrong_hash,
+            },
+        ],
+        WireLimits::default(),
+    )
+    .unwrap();
+    assert!(player.receive_update(&packet).is_err());
+    assert!(player.projection().is_err());
+    assert_eq!(
+        player
+            .checkpoint_request()
+            .unwrap()
+            .cursor
+            .unwrap()
+            .completed_tick,
+        before.tick
+    );
+    assert_eq!(player.activity().count(), 0);
+}
+
+// Reuse the actual opted-in browser authority fixture, not a second reset model.
+#[allow(dead_code)]
+#[path = "../examples/native_browser_peer.rs"]
+mod browser_peer;
+
+#[test]
+fn browser_fixture_observes_both_unmodified_source_motive_branches() {
+    use std::collections::BTreeSet;
+    let (mut server, actor) = browser_peer::source().unwrap();
+    let mut value = setup().1;
+    value.actor = actor;
+    value.binding.avatar_id = 42;
+    value.content = server.sim().content().clone();
+    let values = |p: &NativePlayer| {
+        let n = p.projection().unwrap().entities[0].needs.clone().unwrap();
+        [n.energy, n.hunger, n.hygiene, n.bladder, n.social, n.fun]
+    };
+    let expected = BTreeSet::from([[100, 100, 100, 50, 50, 50], [50, 50, 50, 100, 100, 100]]);
+    let mut observed = BTreeSet::new();
+    for _ in 0..32 {
+        browser_peer::reset_needs(&mut server, actor).unwrap();
+        let mut p = player(&server, &value);
+        assert_eq!(
+            values(&p),
+            [50; 6],
+            "Both original source paths need an observable baseline"
+        );
+        let request = prepare(&mut p);
+        accept(&mut server, &mut p, &request);
+        let result = values(&p);
+        assert!(
+            expected.contains(&result),
+            "Original motive branch result: {result:?}"
+        );
+        assert_eq!(
+            p.activity().last().unwrap().result,
+            wonderland_game_runtime::live_wire::player::activity::ActionResult::Completed
+        );
+        observed.insert(result);
+    }
+    assert_eq!(
+        observed, expected,
+        "Exercise both branches, without replacing the original random instruction"
+    );
 }

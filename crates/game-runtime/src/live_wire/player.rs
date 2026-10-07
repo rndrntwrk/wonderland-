@@ -143,6 +143,15 @@ pub fn encode_receipt(value: &ActionReceipt) -> Result<Vec<u8>> {
     encode(RECEIPT, value, MAX_ACTION_BYTES + 64)
 }
 
+/// A validated input result. Live tick outcomes are owned and ordered; a recovery
+/// checkpoint never carries historical effects. Receipt acceptance is not action completion.
+#[derive(Debug, PartialEq)]
+pub enum PlayerUpdate {
+    Checkpoint(crate::live_session::ReplicaCursor),
+    Ticks(Vec<crate::TickOutcome>),
+    Receipt(ActionStatus),
+}
+
 pub struct NativePlayer {
     wire: NativeWire,
     appearance: WorldDocument,
@@ -153,6 +162,7 @@ pub struct NativePlayer {
     pending_after: u64,
     pending: Option<Vec<u8>>,
     status: ActionStatus,
+    activity: activity::ActivityLog,
 }
 impl NativePlayer {
     pub fn open(bytes: &[u8], expected: PlayerBinding, browser_epoch: u64) -> Result<Self> {
@@ -205,6 +215,7 @@ impl NativePlayer {
             pending_after: 0,
             pending: None,
             status: ActionStatus::Idle,
+            activity: activity::ActivityLog::new(value.actor),
         })
     }
     pub fn checkpoint_request(&self) -> Option<CheckpointRequest> {
@@ -212,6 +223,11 @@ impl NativePlayer {
     }
     pub fn status(&self) -> ActionStatus {
         self.status
+    }
+    /// Recent terminal outcomes for the admitted actor only. Kept across matching
+    /// reconnects, never rebuilt from historical recovery ticks or receipts.
+    pub fn activity(&self) -> impl DoubleEndedIterator<Item = &activity::ActionActivity> {
+        self.activity.entries()
     }
     pub fn actor(&self) -> EntityRef {
         self.actor
@@ -269,7 +285,14 @@ impl NativePlayer {
             )
             .map_err(|_| "Source actions are unavailable")
     }
+    /// Compatibility state-only entry point. Presentation consumers must use
+    /// `receive_update` so accepted events are not lost between transport and UI.
     pub fn receive(&mut self, bytes: &[u8]) -> Result<()> {
+        self.receive_update(bytes).map(|_| ())
+    }
+    /// Return outcomes only after the complete message and admitted actor validate.
+    /// Consume each returned vector once; there is no last-value event mailbox.
+    pub fn receive_update(&mut self, bytes: &[u8]) -> Result<PlayerUpdate> {
         if bytes.starts_with(RECEIPT) {
             self.validate_actor()?;
             let receipt: ActionReceipt = decode(RECEIPT, bytes, MAX_ACTION_BYTES + 64)?;
@@ -292,16 +315,22 @@ impl NativePlayer {
             } else {
                 ActionStatus::Rejected
             };
-            return Ok(());
+            return Ok(PlayerUpdate::Receipt(self.status));
         }
         let result = self.wire.receive(self.wire.connection(), bytes);
         match result {
-            Ok(Received::Checkpoint(_) | Received::Ticks(_)) => {
+            Ok(update) => {
                 if self.validate_actor().is_err() {
                     self.close();
                     return Err("Native actor no longer matches admission");
                 }
-                Ok(())
+                Ok(match update {
+                    Received::Checkpoint(cursor) => PlayerUpdate::Checkpoint(cursor),
+                    Received::Ticks(outcomes) => {
+                        self.activity.observe(&outcomes);
+                        PlayerUpdate::Ticks(outcomes)
+                    }
+                })
             }
             Err(_) => Err("Native stream requires recovery"),
         }
@@ -414,9 +443,11 @@ impl NativePlayer {
     }
     pub fn close(&mut self) {
         self.wire.close();
+        self.activity.clear();
         self.pending = None;
         self.status = ActionStatus::Unknown;
     }
 }
 
+pub mod activity;
 pub mod admission;
