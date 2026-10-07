@@ -1,0 +1,67 @@
+name: Swarm F reference replay
+
+on:
+  pull_request:
+    paths:
+      - tools/reference-csharp/**
+      - tools/replay/**
+      - fixtures/reference/**
+      - tests/parity/**
+      - docs/verification/swarm-f-reference.md
+      - .github/workflows/swarm-f-reference.yml
+      - crates/sim-core/**
+      - TSOClient/tso.simantics/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-f-reference-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          show-progress: false
+          submodules: false
+      - name: Reference comparator regression specifications
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s tests/parity -p test_reference_trace.py -v 2>&1 | tee "$RUNNER_TEMP/swarm-f-reference-tests.log"
+          node --check tools/replay/run_reference_wasm.mjs
+      - name: Prepare isolated reference toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq > "$RUNNER_TEMP/swarm-f-reference-install.log" 2>&1
+          sudo apt-get install -y --no-install-recommends mono-mcs >> "$RUNNER_TEMP/swarm-f-reference-install.log" 2>&1
+          rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
+      - name: Execute original source, native Rust and actual WASM with fault controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/replay/run_reference.py --output "$RUNNER_TEMP/swarm-f-reference" | tee "$RUNNER_TEMP/swarm-f-reference-run.log"
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-f-reference-evidence
+          path: |
+            ${{ runner.temp }}/swarm-f-reference/evidence/
+            ${{ runner.temp }}/swarm-f-reference-tests.log
+            ${{ runner.temp }}/swarm-f-reference-install.log
+            ${{ runner.temp }}/swarm-f-reference-run.log
+          if-no-files-found: error
+          retention-days: 7
