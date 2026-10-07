@@ -19,14 +19,19 @@ jobs:
         with:
           persist-credentials: false
           show-progress: false
-      - name: Apply exact bounded source patch
+      - name: Install pinned Rust and recover inherited call sites once
+        run: |
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          python3 tools/native-browser/finalize.py
+          cargo metadata --quiet --format-version 1 > /dev/null
+          cargo fmt -p wonderland-game-runtime -p wonderland-web-shell
+      - name: Apply exact bounded source correction
         run: |
           mkdir -p /tmp/wonderland-native-browser-evidence
           python3 - <<'PY'
           import base64, hashlib, json, lzma, pathlib, subprocess
           p=pathlib.Path('tools/native-browser/recovery-patch.json')
-          if not p.is_file(): raise SystemExit('Candidate payload not uploaded yet')
-          assert p.stat().st_size < 200000
+          assert p.is_file() and p.stat().st_size < 200000
           doc=json.loads(p.read_text())
           assert doc['source']=='8a5f6770a2d924e2012b8c66877ba7322d1a08ca'
           packed=base64.b64decode(doc['patch_xz_base64'],validate=True)
@@ -36,17 +41,22 @@ jobs:
           assert hashlib.sha256(patch).hexdigest()==doc['sha256']
           subprocess.run(['git','apply','--check','-'],input=patch,check=True)
           subprocess.run(['git','apply','-'],input=patch,check=True)
+          for path in ['.github/workflows/native-browser-evidence-read.yml','tools/native-browser/assemble.py','tools/native-browser/finalize.py','tools/native-browser/admission-method.rs.txt']:
+              pathlib.Path(path).unlink()
           allowed=set(doc['paths'])
           assert len(allowed)==23 and all(not x.startswith(('TSOClient/','Other/')) for x in allowed)
           changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
           untracked=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
           assert changed | untracked == allowed, (changed|untracked)^allowed
-          pathlib.Path('/tmp/wonderland-native-browser-evidence/source.patch').write_bytes(patch)
+          pathlib.Path('/tmp/wonderland-native-browser-evidence/source-correction.patch').write_bytes(patch)
           pathlib.Path('/tmp/native-candidate-paths.json').write_text(json.dumps(sorted(allowed)))
-          print('Applied exact candidate SHA256',doc['sha256'])
+          subprocess.run(['git','add','-A','--',*sorted(allowed)],check=True)
+          # Compute the canonical source tree without temporary transfer files.
+          subprocess.run(['git','update-index','--force-remove','.github/workflows/native-browser-recovery.yml','tools/native-browser/recovery-patch.json'],check=True)
+          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          assert tree=='03c197985a3e671edf93be948b17d4b53be597a5',tree
+          print('Exact local candidate tree:',tree)
           PY
-      - name: Install pinned Rust
-        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
       - name: Verify native application and socket regressions
         run: |
           set -euo pipefail
