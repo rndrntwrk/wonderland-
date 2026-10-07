@@ -8,7 +8,11 @@ on:
       - tools/replay/**
       - tests/parity/**
       - fixtures/reference/**
-      - docs/swarm-f/ORIGINAL_VM_BOOTSTRAP.md
+      - docs/swarm-f/**
+      - crates/sim-core/**
+      - crates/content-runtime-bridge/**
+      - crates/legacy-formats/**
+      - TSOClient/tso.simantics/**
 
 permissions:
   contents: read
@@ -19,7 +23,7 @@ concurrency:
 jobs:
   original:
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -129,6 +133,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
           & "$out/source/tools/reference-csharp/run-original-vm.ps1" -Output $out
+      - name: Compare real original native and WASM interpreters
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          python -S "$out/source/tools/replay/run_interpreter.py" --root "$out/source" --output "$out/interpreter-evidence"
+          if ($LASTEXITCODE) { throw 'Interpreter differential failed' }
       - name: Verify original source bytes remain unchanged after build and execution
         if: always()
         shell: pwsh
@@ -162,5 +173,6 @@ jobs:
             ${{ runner.temp }}/swarm-f-vm/vm-trace-*.tsv
             ${{ runner.temp }}/swarm-f-vm/vm-trace-*.stderr
             ${{ runner.temp }}/swarm-f-vm/vm-execution.json
+            ${{ runner.temp }}/swarm-f-vm/interpreter-evidence/
           if-no-files-found: error
           retention-days: 7
