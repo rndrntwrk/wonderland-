@@ -25,6 +25,9 @@ pub mod avatar_content;
 pub mod avatar_renderer;
 pub mod connected_adapter;
 pub mod live_world_adapter;
+pub mod native_audio;
+#[cfg(target_arch = "wasm32")]
+mod native_audio_browser;
 pub mod native_avatar;
 #[cfg(target_arch = "wasm32")]
 pub mod native_lot;

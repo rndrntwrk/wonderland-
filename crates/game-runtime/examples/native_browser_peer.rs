@@ -113,6 +113,54 @@ fn fixture_content(visual: bool) -> wonderland_game_runtime::sim_core::state::Co
         permissions: PermissionFlags::default(),
         label: Some("Wait (test harness)".into()),
     });
+    if std::env::var("WONDERLAND_NATIVE_AUDIO_FIXTURE").as_deref() == Ok("1") {
+        // Explicit test-only primitive actions. Never an original-object claim.
+        for (index, id, opcode, operand, label) in [
+            (
+                9,
+                5000,
+                23,
+                [5, 0, 0, 0, 1 | 4 | 8, 0, 0, 0],
+                "Play sound (test harness)",
+            ),
+            (10, 5001, 48, [0; 8], "Stop sound (test harness)"),
+        ] {
+            routines
+                .insert(
+                    RoutineKey {
+                        scope: RoutineScope::Private(support::OWNER),
+                        id,
+                    },
+                    VmRoutine::new(
+                        id,
+                        0,
+                        4,
+                        vec![VmInstruction {
+                            opcode,
+                            true_pointer: 254,
+                            false_pointer: 255,
+                            operand,
+                        }],
+                    )
+                    .unwrap(),
+                )
+                .unwrap();
+            table.definitions.push(InteractionDefinition {
+                key: InteractionKey {
+                    tta_index: index,
+                    scope: InteractionScope::Local,
+                },
+                action: RoutineBinding {
+                    routine_id: id,
+                    code_owner_guid: support::OWNER,
+                },
+                check: None,
+                flags: ActionFlags(ActionFlags::ALLOW_VISITORS),
+                permissions: PermissionFlags::default(),
+                label: Some(label.into()),
+            });
+        }
+    }
     let mut objects = vec![object.clone()];
     let mut tables = vec![(support::OWNER, table.clone())];
     let mut animations = vec![];

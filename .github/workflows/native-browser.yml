@@ -60,6 +60,12 @@ jobs:
         run: |
           set -o pipefail
           timeout 150s node tools/native-browser/verify-receipt-deadline.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/receipt-deadline.log
+      - name: Verify accepted gameplay audio output and device cleanup
+        run: |
+          mkdir -p /tmp/wonderland-native-browser-evidence/game-audio
+          cmp apps/web-shell/public/audio/source-audio.mjs crates/audio-runtime/browser/source-audio.mjs
+          cmp apps/web-shell/public/native-audio.mjs apps/web-shell/dist/native-audio.mjs
+          WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/game-audio timeout 150s node tools/native-browser/verify-audio.mjs > /tmp/wonderland-native-browser-evidence/game-audio/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/game-audio/browser.log; exit 1; }
       - name: Verify source identity after testing
         if: always()
         run: |
@@ -74,10 +80,10 @@ jobs:
           digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
           log=(out/'workspace.log').read_text() if (out/'workspace.log').exists() else ''
           counts=re.findall(r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;',log)
-          files=['apps/web-shell/src/native_lot.rs','apps/web-shell/src/native_avatar.rs','apps/web-shell/public/native-socket.mjs','tools/native-browser/verify-avatars.mjs','tools/native-browser/verify-receipt-deadline.mjs','tools/native-browser/peer.mjs','Cargo.lock']
+          files=['apps/web-shell/src/native_lot.rs','apps/web-shell/src/native_avatar.rs','apps/web-shell/public/native-socket.mjs','tools/native-browser/verify-avatars.mjs','tools/native-browser/verify-receipt-deadline.mjs','tools/native-browser/peer.mjs','apps/web-shell/src/native_audio.rs','apps/web-shell/src/native_audio_browser.rs','apps/web-shell/public/native-audio.mjs','crates/audio-content/src/pack.rs','tools/native-browser/audio-fixture.mjs','tools/native-browser/verify-audio.mjs','Cargo.lock']
           report={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'native_summaries':{'passed':sum(int(r[0]) for r in counts),'failed':sum(int(r[1]) for r in counts),'ignored':sum(int(r[2]) for r in counts)},'source_sha256':{p:digest(pathlib.Path(p)) for p in files},'wasm_sha256':{p.name:digest(p) for p in pathlib.Path('apps/web-shell/dist').glob('*.wasm')}}
           report['browser']={}
-          for name in ['results.json','avatars/report.json','terrain/report.json','receipt-deadline/results.json']:
+          for name in ['results.json','avatars/report.json','terrain/report.json','receipt-deadline/results.json','game-audio/report.json']:
               path=out/name
               if path.exists():
                   result=json.loads(path.read_text());report['browser'][name]={'passed':result.get('passed'),'checks':len(result.get('checks',[])),'errors':result.get('errors',[]),'screenshots':len(result.get('screenshots',[]))}

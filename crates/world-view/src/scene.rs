@@ -802,11 +802,14 @@ fn prepare_model(model: &WorldModel) -> Result<source_objects::PreparedFsom, Wor
     .map_err(|error| WorldError(error.to_string()))
 }
 
-pub fn camera_projection(
+pub fn orbit_camera(
     document: &WorldDocument,
     controls: ViewportControls,
     aspect: f32,
-) -> Result<Mat4, WorldError> {
+) -> Result<OrbitCamera, WorldError> {
+    if !aspect.is_finite() || aspect <= 0. {
+        return Err(WorldError("invalid viewport aspect".into()));
+    }
     validate_controls(document, controls)?;
     crate::document::checked_area(document.lot.width, document.lot.height)?;
     let extent = f32::from(document.lot.width.max(document.lot.height));
@@ -834,7 +837,17 @@ pub fn camera_projection(
         cam_height: (f32::from(ground) - f32::from(document.lot.terrain.base_alt)) * 9. / 160.
             + f32::from(controls.visible_level - 1) * 8.85,
     };
+    Ok(camera)
+}
+
+/// Projection and positional sound share one validated camera calculation.
+pub fn camera_projection(
+    document: &WorldDocument,
+    controls: ViewportControls,
+    aspect: f32,
+) -> Result<Mat4, WorldError> {
+    let camera = orbit_camera(document, controls, aspect)?;
     let mut pose = camera.pose()?;
-    pose.far = (extent * 48.).max(800.);
+    pose.far = (f32::from(document.lot.width.max(document.lot.height)) * 48.).max(800.);
     pose.view_projection(aspect).map_err(Into::into)
 }

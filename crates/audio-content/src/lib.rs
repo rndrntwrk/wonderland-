@@ -148,3 +148,5 @@ impl FwavProvider for SourceFwav {
         self.globals.get(&id).cloned()
     }
 }
+
+pub mod pack;
