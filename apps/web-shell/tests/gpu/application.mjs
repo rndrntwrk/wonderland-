@@ -7,6 +7,7 @@ import {resolve,relative,sep,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {inflateSync} from 'node:zlib';
+import {materialPixel} from './material-pixels.mjs';
 const root=fileURLToPath(new URL('../../../../',import.meta.url));
 const dist=resolve(process.env.WONDERLAND_DIST||resolve(root,'apps/web-shell/dist'));
 const output=resolve(process.env.WONDERLAND_APPLICATION_REPORT||resolve(root,'tests/output/source-application'));
@@ -149,7 +150,7 @@ try{
     await page.getByRole('heading',{name:name+'.json',exact:true}).waitFor();await ready();
     await photo(name+'-application-export');
     const image=png(await readFile(resolve(output,name+'-application-export.png')));
-    const colored=(x,y,channel)=>{const p=(y*image.width+x)*4;return image.pixels[p+channel]>100&&image.pixels[p+channel]>2*image.pixels[p+(channel===0?2:0)];};
+    const colored=(x,y,channel)=>materialPixel(image,x,y,channel);
     let red=0,blue=0,target;
     for(let y=2;y<image.height-2;y++)for(let x=2;x<image.width-2;x++){
       red+=colored(x,y,0)?1:0;blue+=colored(x,y,2)?1:0;
