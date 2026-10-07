@@ -1,0 +1,166 @@
+name: Swarm F original VM
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/swarm-f-vm-bootstrap.yml
+      - tools/reference-csharp/**
+      - tools/replay/**
+      - tests/parity/**
+      - fixtures/reference/**
+      - docs/swarm-f/ORIGINAL_VM_BOOTSTRAP.md
+
+permissions:
+  contents: read
+concurrency:
+  group: swarm-f-vm-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  original:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          show-progress: false
+          submodules: false
+      - name: Prepare exact temporary source copy and inspect dependency closure
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          New-Item -ItemType Directory -Path $out | Out-Null
+          $src = Join-Path $out 'source'
+          New-Item -ItemType Directory -Path $src | Out-Null
+          git -c core.autocrlf=false archive --format=tar -o "$out/source.tar" HEAD
+          if ($LASTEXITCODE) { throw 'Source archive failed' }
+          tar -xf "$out/source.tar" -C $src
+          if ($LASTEXITCODE) { throw 'Source extraction failed' }
+          $env:VM_BUILD_ROOT = $src
+          $env:VM_EVIDENCE_ROOT = $out
+          @'
+          import hashlib,json,os,pathlib,subprocess,sys,xml.etree.ElementTree as E
+          root=pathlib.Path(os.environ['VM_BUILD_ROOT']);out=pathlib.Path(os.environ['VM_EVIDENCE_ROOT'])
+          entries=subprocess.check_output(['git','ls-tree','-rz','HEAD'])
+          verified={}
+          process=subprocess.Popen(['git','cat-file','--batch'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+          try:
+              for row in entries.split(b'\0'):
+                  if not row:continue
+                  meta,name=row.split(b'\t',1);mode,kind,digest=meta.decode().split();name=name.decode()
+                  if kind!='blob':continue
+                  path=root/name
+                  if path.is_symlink() or not path.is_file():raise ValueError('Nonregular archive member: '+name)
+                  data=path.read_bytes();actual=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+                  if actual!=digest:
+                      process.stdin.write(digest.encode()+b'\n');process.stdin.flush()
+                      header=process.stdout.readline().decode().split()
+                      if len(header)!=3 or header[0]!=digest or header[1]!='blob':raise ValueError('Invalid Git blob response')
+                      size=int(header[2]);data=process.stdout.read(size)
+                      if len(data)!=size or process.stdout.read(1)!=b'\n':raise ValueError('Truncated Git blob response')
+                      if hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()!=digest:raise ValueError('Corrupt Git source input')
+                      path.write_bytes(data)
+                  verified[name]={'git_blob':digest,'sha256':hashlib.sha256(data).hexdigest()}
+          finally:
+              process.stdin.close();process.stdout.close();process.wait(timeout=10)
+          (out/'source-identity.json').write_text(json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'files':verified},indent=2))
+          sys.path.insert(0,str(root/'tools/replay'))
+          from baseline import canonical_path
+          seen=set();ordered=[]
+          def visit(name):
+              if name in seen:return
+              seen.add(name)
+              if len(seen)>64:raise ValueError('Project closure limit')
+              path=root/name;data=path.read_bytes();tree=E.fromstring(data)
+              if tree.get('Sdk'):raise ValueError('Unexpected SDK project: '+name)
+              deps=[];refs=[]
+              for node in tree.iter():
+                  tag=node.tag.rsplit('}',1)[-1]
+                  if tag=='ProjectReference':
+                      child=canonical_path(node.attrib['Include'],str(pathlib.PurePosixPath(name).parent))
+                      deps.append(child);visit(child)
+                  if tag=='Reference':
+                      hint=next((c.text for c in node if c.tag.rsplit('}',1)[-1]=='HintPath'),None)
+                      refs.append({'identity':node.attrib.get('Include'),'hint':hint})
+              config=path.with_name('packages.config')
+              ordered.append({'path':name,'sha256':hashlib.sha256(data).hexdigest(),'dependencies':deps,'references':refs,
+                              'framework':next((n.text for n in tree.iter() if n.tag.rsplit('}',1)[-1]=='TargetFrameworkVersion'),None),
+                              'profile':next((n.text for n in tree.iter() if n.tag.rsplit('}',1)[-1]=='TargetFrameworkProfile'),None),
+                              'packages':str(config.relative_to(root)).replace('\\','/') if config.exists() else None})
+          visit('TSOClient/tso.simantics/FSO.SimAntics.csproj')
+          (out/'closure.json').write_text(json.dumps(ordered,indent=2))
+          print(json.dumps([{k:v for k,v in p.items() if k!='references'} for p in ordered],indent=2))
+          '@ | python -
+          if ($LASTEXITCODE) { throw 'Dependency census failed' }
+      - name: Restore only declared packages and isolated framework reference assemblies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          $src = Join-Path $out 'source'
+          $packages = Join-Path $src 'TSOClient/packages'
+          foreach ($project in (Get-Content "$out/closure.json" -Raw | ConvertFrom-Json)) {
+            if ($project.packages) {
+              nuget restore (Join-Path $src $project.packages) -PackagesDirectory $packages -Source https://api.nuget.org/v3/index.json -NonInteractive -Verbosity quiet 2>&1 | Tee-Object -FilePath "$out/restore.log" -Append
+              if ($LASTEXITCODE) { throw "Package restore failed: $($project.path)" }
+            }
+          }
+          nuget install Microsoft.NETFramework.ReferenceAssemblies.net45 -Version 1.0.3 -OutputDirectory "$out/framework" -Source https://api.nuget.org/v3/index.json -NonInteractive -Verbosity quiet
+          if ($LASTEXITCODE) { throw 'Framework reference restoration failed' }
+          & "$src/tools/reference-csharp/prepare-portable-references.ps1" -Output $out
+      - name: Build the actual original assembly without replacing source classes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          $src = Join-Path $out 'source'
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $msbuild = & $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild/**/Bin/MSBuild.exe | Select-Object -First 1
+          if (-not $msbuild) { throw 'MSBuild unavailable' }
+          $framework = "$out/framework/Microsoft.NETFramework.ReferenceAssemblies.net45.1.0.3/build/"
+          & $msbuild "$src/TSOClient/tso.simantics/FSO.SimAntics.csproj" /t:Build /p:Configuration=Release /p:Platform=AnyCPU "/p:TargetFrameworkRootPath=$framework" /v:minimal /nologo 2>&1 | Tee-Object -FilePath "$out/build.log"
+          if ($LASTEXITCODE) { throw 'Original assembly build failed' }
+          Get-FileHash "$src/TSOClient/tso.simantics/bin/Release/FSO.SimAntics.dll" -Algorithm SHA256 | Format-List | Out-String | Tee-Object -FilePath "$out/assembly.txt"
+      - name: Execute real original VM initialization and scheduled behavior twice
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          & "$out/source/tools/reference-csharp/run-original-vm.ps1" -Output $out
+      - name: Verify original source bytes remain unchanged after build and execution
+        if: always()
+        shell: pwsh
+        run: |
+          $env:VM_EVIDENCE_ROOT = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          @'
+          import hashlib,json,os,pathlib
+          out=pathlib.Path(os.environ['VM_EVIDENCE_ROOT']);root=out/'source'
+          before=json.loads((out/'source-identity.json').read_text())
+          changed=[name for name,pin in before['files'].items() if not (root/name).is_file() or hashlib.sha256((root/name).read_bytes()).hexdigest()!=pin['sha256']]
+          report={'schema':1,'passed':not changed,'inputs':len(before['files']),'changed':changed}
+          (out/'source-after.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
+          if changed:raise SystemExit(1)
+          '@ | python -
+          if ($LASTEXITCODE) { throw 'Original source changed during verification' }
+          git diff --exit-code
+          if ($LASTEXITCODE) { throw 'Tracked verification checkout changed' }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-f-original-vm-evidence
+          path: |
+            ${{ runner.temp }}/swarm-f-vm/closure.json
+            ${{ runner.temp }}/swarm-f-vm/source-identity.json
+            ${{ runner.temp }}/swarm-f-vm/source-after.json
+            ${{ runner.temp }}/swarm-f-vm/restore.log
+            ${{ runner.temp }}/swarm-f-vm/portable-references.json
+            ${{ runner.temp }}/swarm-f-vm/build.log
+            ${{ runner.temp }}/swarm-f-vm/assembly.txt
+            ${{ runner.temp }}/swarm-f-vm/witness-compile.log
+            ${{ runner.temp }}/swarm-f-vm/vm-trace-*.tsv
+            ${{ runner.temp }}/swarm-f-vm/vm-trace-*.stderr
+            ${{ runner.temp }}/swarm-f-vm/vm-execution.json
+          if-no-files-found: error
+          retention-days: 7
