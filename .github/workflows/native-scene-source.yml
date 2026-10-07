@@ -29,8 +29,13 @@ jobs:
           assert doc['sha256']=='15106816478e952ad6a037e14319e11f3b19ca7573182feba740b0c6be0bdc8c'
           allowed={'.github/workflows/native-browser.yml','.github/workflows/native-socket.yml','apps/web-shell/public/native-socket.mjs','apps/web-shell/src/native_lot.rs','apps/web-shell/scripts/native-receipt-deadline.test.mjs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/src/world_projection.rs','crates/game-runtime/tests/native_scene_contact.rs','tools/native-browser/peer.mjs','tools/native-browser/verify-avatars.mjs','tools/native-browser/verify-receipt-deadline.mjs','tools/native-browser/verify-scene-contact.mjs','docs/design/action-first/native-receipt-deadlines.md','docs/design/action-first/native-scene-contact.md','docs/design/action-first/native-scene-contact-verification.json'}
           assert set(doc['paths'])==allowed
+          parts=[]
+          for i in range(2):
+              p=pathlib.Path(f'tools/native-browser/scene-delivery-{i}.txt')
+              assert p.is_file() and not p.is_symlink() and p.stat().st_size<20000
+              parts.append(p.read_text().strip())
           decoder=lzma.LZMADecompressor(memlimit=128*1024*1024)
-          patch=decoder.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=200001)
+          patch=decoder.decompress(base64.b64decode(''.join(parts),validate=True),max_length=200001)
           assert decoder.eof and not decoder.unused_data and len(patch)<=200000
           assert hashlib.sha256(patch).hexdigest()==doc['sha256']
           subprocess.run(['git','fetch','--depth=1','origin',base],check=True)
