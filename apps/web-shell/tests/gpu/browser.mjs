@@ -52,6 +52,13 @@ try{
     assert.ok(color.mae<=4&&color.rms<=12&&color.fractionOver8<=.03,JSON.stringify(color));
     // Keep sample cost bounded while retaining background plus multiple tiles.
     const targets=scene.picks.filter((_,index)=>index%Math.max(1,Math.floor(scene.picks.length/24))===0);
+    // Always test a masked body and portal-final region, not only sparse terrain.
+    for(const key of ['object','portal_final']){
+      const point=scene.picks.find(point=>point[key]);
+      if(point&&!targets.includes(point))targets.push(point);
+    }
+    if(scene.name.endsWith('-mask'))assert.ok(targets.some(point=>point.object),'Masked object has no interior pick sample');
+    if(scene.name==='portal-mask')assert.ok(targets.some(point=>point.portal_final),'Portal final pass is not visibly exercised');
     assert.ok(targets.some(point=>point.index>0));assert.ok(targets.some(point=>point.index===0));
     for(const point of targets){
       const pick=await page.evaluate(async point=>JSON.parse(await window.sourceGpu.pickSourceWorld(window.canvas,point.x,point.y)),point);
@@ -81,7 +88,7 @@ try{
     await writeFile(resolve(output,scene.name+'-export.png'),photoBytes);
     report.lifecycle.push({name:'exact PNG and sidecar from '+scene.name,pixels:scene.width*scene.height,concurrentPickPreserved:true,generation:frame.generation});
     await page.locator('canvas').screenshot({path:resolve(output,scene.name+'.png')});
-    report.scenes.push({name:scene.name,triangles:scene.triangles,color,picks:targets.length,renderer:observed.renderer,version:observed.version,stats:observed.stats,frameSha256:createHash('sha256').update(JSON.stringify(frame)).digest('hex')});
+    report.scenes.push({name:scene.name,triangles:scene.triangles,color,picks:targets.length,objectSamples:targets.filter(p=>p.object).length,portalFinalSamples:targets.filter(p=>p.portal_final).length,renderer:observed.renderer,version:observed.version,stats:observed.stats,frameSha256:createHash('sha256').update(JSON.stringify(frame)).digest('hex')});
   }
   await page.evaluate(async()=>{
     const api=window.sourceGpu,canvas=window.canvas,frame=window.frame;

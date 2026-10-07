@@ -17,7 +17,7 @@ fn gpu_frame_prepares_source_geometry_without_a_software_raster() {
     let (frame, stats) = renderer.prepare_gpu(Default::default(), 256, 192).unwrap();
     assert!(renderer.image().is_none());
     assert!(stats.triangles > 0);
-    assert_eq!(frame.schema, 1);
+    assert_eq!(frame.schema, 2);
     assert_eq!(frame.draws.len(), stats.parts);
     assert!(frame.meshes.iter().all(|mesh| mesh.vertices.len() % 9 == 0));
     assert!(frame.draws.iter().any(|draw| draw.pick_id > 0));

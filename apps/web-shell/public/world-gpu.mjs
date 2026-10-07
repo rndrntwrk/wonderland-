@@ -4,12 +4,15 @@ const owners=new WeakMap();
 const MAX_BYTES=128*1024*1024;
 function invalid(message){throw new Error('Source GPU frame: '+message);}
 function integer(value,min,max){return Number.isSafeInteger(value)&&value>=min&&value<=max;}
+function exactKeys(value,keys,name){
+  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(key=>!Object.hasOwn(value,key)))invalid(name+' shape');
+}
 export function validateWorldGpuFrame(frame){
-  if(!frame||frame.schema!==1)invalid('unsupported schema');
+  if(!frame||![1,2].includes(frame.schema))invalid('unsupported schema');
   if(!integer(frame.width,1,4096)||!integer(frame.height,1,4096)||frame.width*frame.height>1048576)invalid('surface budget');
   if(typeof frame.generation!=='string'||!(/^[1-9][0-9]{0,19}$/).test(frame.generation)||BigInt(frame.generation)>18446744073709551615n)invalid('generation');
   if(!Array.isArray(frame.meshes)||!Array.isArray(frame.textures)||!Array.isArray(frame.draws)||frame.draws.length>262144||frame.meshes.length>262144||frame.textures.length>65535)invalid('collection budget');
-  let bytes=frame.width*frame.height*8+frame.draws.length*96,vertices=0,indices=0;
+  let bytes=frame.width*frame.height*8+frame.draws.length*(frame.schema===2?192:96),vertices=0,indices=0;
   function reserve(amount){bytes+=amount;if(!Number.isSafeInteger(bytes)||bytes>MAX_BYTES)invalid('upload budget');}
   for(const mesh of frame.meshes){
     if(!mesh||!Array.isArray(mesh.vertices)||mesh.vertices.length%9||!Array.isArray(mesh.indices)||mesh.indices.length%3)invalid('mesh shape');
@@ -28,6 +31,27 @@ export function validateWorldGpuFrame(frame){
     if(!draw||!integer(draw.mesh,0,frame.meshes.length-1)||(draw.texture!==null&&!integer(draw.texture,0,frame.textures.length-1)))invalid('draw reference');
     if(!Array.isArray(draw.matrix)||draw.matrix.length!==16||draw.matrix.some(value=>!Number.isFinite(value)||Math.abs(value)>3.4028234663852886e38))invalid('matrix');
     if(!integer(draw.pick_id,0,0xffffff)||typeof draw.depth_equal!=='boolean')invalid('draw state');
+    if(frame.schema===1){if(Object.hasOwn(draw,'pipeline'))invalid('pipeline needs schema 2');}
+    else{
+      if(!Object.hasOwn(draw,'pipeline'))invalid('missing pipeline');
+      if(draw.pipeline!==null){
+        const p=draw.pipeline;
+        exactKeys(p,['depth_compare','depth_write','forced_depth','stencil','blend'],'pipeline');
+        if(!['less','less_equal','always'].includes(p.depth_compare)||typeof p.depth_write!=='boolean'
+          ||(p.forced_depth!==null&&(!Number.isFinite(p.forced_depth)||p.forced_depth<0||p.forced_depth>1))
+          ||!['source_over','non_premultiplied','no_color'].includes(p.blend)
+          ||draw.depth_equal!==(p.depth_compare==='less_equal'))invalid('pipeline state');
+        if(p.stencil!==null){
+          exactKeys(p.stencil,['reference','clockwise','counterclockwise'],'stencil');
+          if(!integer(p.stencil.reference,0,255))invalid('stencil reference');
+          for(const face of [p.stencil.clockwise,p.stencil.counterclockwise]){
+            exactKeys(face,['compare','pass','fail','depth_fail'],'stencil face');
+            if(!['always','equal'].includes(face.compare)||[face.pass,face.fail,face.depth_fail].some(op=>!['keep','zero','replace'].includes(op)))invalid('stencil operation');
+          }
+        }
+        if(p.blend==='no_color'&&(draw.texture!==null||draw.pick_id!==0||p.stencil===null))invalid('invisible mask texture/identity');
+      }
+    }
   }
   return frame;
 }
@@ -37,9 +61,10 @@ layout(location=0) in vec3 aPosition;
 layout(location=1) in vec2 aUv;
 layout(location=2) in vec4 aColor;
 uniform mat4 uMatrix;
+uniform float uForcedDepth;
 out vec2 vUv;
 out vec4 vColor;
-void main(){vec4 p=uMatrix*vec4(aPosition,1.0);p.z=2.0*p.z-p.w;gl_Position=p;vUv=aUv;vColor=aColor;}`;
+void main(){vec4 p=uMatrix*vec4(aPosition,1.0);if(uForcedDepth>=0.0)p.z=uForcedDepth*p.w;p.z=2.0*p.z-p.w;gl_Position=p;vUv=aUv;vColor=aColor;}`;
 const fragmentSource=`#version 300 es
 precision highp float;
 in vec2 vUv;
@@ -54,6 +79,32 @@ void main(){
   if(c.a<=2.0/255.0)discard;
   outputColor=uPick?vec4(uId,1.0):c;
 }`;
+// Every draw restores all relevant state; a portal's cleanup must not leak into
+// later architecture, the ID pass, PNG capture, or the next admitted frame.
+export function applySourceMaterialState(gl,program,draw,picking){
+  const p=draw.pipeline??null;
+  const noColor=p?.blend==='no_color';
+  gl.frontFace(gl.CCW);
+  gl.depthFunc(p?({less:gl.LESS,less_equal:gl.LEQUAL,always:gl.ALWAYS})[p.depth_compare]:(draw.depth_equal?gl.LEQUAL:gl.LESS));
+  gl.depthMask(p?.depth_write??true);
+  gl.uniform1f(gl.getUniformLocation(program,'uForcedDepth'),p?.forced_depth??-1);
+  gl.colorMask(!noColor,!noColor,!noColor,!noColor);
+  if(p?.stencil){
+    gl.enable(gl.STENCIL_TEST);gl.stencilMask(0xff);
+    const operations={keep:gl.KEEP,zero:gl.ZERO,replace:gl.REPLACE};
+    // Source winding is measured before the CPU rasterizer canonicalizes it.
+    // GL's positive-area CCW front matches the source counterclockwise face.
+    for(const [which,face] of [[gl.FRONT,p.stencil.counterclockwise],[gl.BACK,p.stencil.clockwise]]){
+      gl.stencilFuncSeparate(which,face.compare==='equal'?gl.EQUAL:gl.ALWAYS,p.stencil.reference,0xff);
+      gl.stencilOpSeparate(which,operations[face.fail],operations[face.depth_fail],operations[face.pass]);
+    }
+  }else gl.disable(gl.STENCIL_TEST);
+  if(picking||noColor)gl.disable(gl.BLEND);
+  else{
+    gl.enable(gl.BLEND);gl.blendEquation(gl.FUNC_ADD);
+    gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,p?.blend==='non_premultiplied'?gl.SRC_ALPHA:gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  }
+}
 function abort(message){return new DOMException(message,'AbortError');}
 function required(value,name){if(!value)throw new Error('Cannot allocate source GPU '+name);return value;}
 function compile(gl,type,source){
@@ -99,6 +150,8 @@ class WorldGpuOwner{
   }
   install(frame){
     this.check();const gl=this.gl,candidate=emptyResources(),meshes=[],images=[];
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    if(frame.draws.some(draw=>draw.pipeline?.stencil)&&gl.getParameter(gl.STENCIL_BITS)<8)throw new Error('Source material masks require an 8-bit stencil surface');
     try{
       if(!this.program)this.program=program(gl);
       for(const mesh of frame.meshes){
@@ -146,9 +199,9 @@ class WorldGpuOwner{
       const mesh=scene.meshes[draw.mesh];gl.bindVertexArray(mesh.vao);gl.bindTexture(gl.TEXTURE_2D,draw.texture===null?scene.white:scene.images[draw.texture]);
       gl.uniformMatrix4fv(gl.getUniformLocation(this.program,'uMatrix'),false,new Float32Array(draw.matrix));
       gl.uniform3f(gl.getUniformLocation(this.program,'uId'),(draw.pick_id&255)/255,((draw.pick_id>>>8)&255)/255,((draw.pick_id>>>16)&255)/255);
-      gl.depthFunc(draw.depth_equal?gl.LEQUAL:gl.LESS);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_INT,0);
+      applySourceMaterialState(gl,this.program,draw,picking);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_INT,0);
     }
-    this.check();gl.bindVertexArray(null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    this.check();gl.colorMask(true,true,true,true);gl.depthMask(true);gl.disable(gl.STENCIL_TEST);gl.bindVertexArray(null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
   }
   cancel(message){
     const pending=this.pending;if(!pending)return;this.pending=null;clearTimeout(pending.timer);

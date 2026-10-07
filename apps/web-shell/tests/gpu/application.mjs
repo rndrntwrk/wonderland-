@@ -139,6 +139,43 @@ try{
   await capture('narrow-source-world');
   await page.getByRole('button',{name:'Discard photo',exact:true}).click();await page.getByRole('link',{name:'Save PNG',exact:true}).waitFor({state:'detached'});
   await page.getByRole('button',{name:'Reset view',exact:true}).click();await ready();
+  // Import normalized source materials through the real Rust application's file
+  // control. These intentionally synthetic documents exercise nonempty masks;
+  // they are not redistributed original-game assets or proof of corpus parity.
+  await page.setViewportSize({width:1364,height:936});await ready();
+  for(const name of ['normal-mask','portal-mask']){
+    const source=await readFile(resolve(root,'tests/output/source-gpu',name+'.world.json'));
+    await page.locator('.source-open-lot input').setInputFiles({name:name+'.json',mimeType:'application/json',buffer:source});
+    await page.getByRole('heading',{name:name+'.json',exact:true}).waitFor();await ready();
+    await photo(name+'-application-export');
+    const image=png(await readFile(resolve(output,name+'-application-export.png')));
+    const colored=(x,y,channel)=>{const p=(y*image.width+x)*4;return image.pixels[p+channel]>100&&image.pixels[p+channel]>2*image.pixels[p+(channel===0?2:0)];};
+    let red=0,blue=0,target;
+    for(let y=2;y<image.height-2;y++)for(let x=2;x<image.width-2;x++){
+      red+=colored(x,y,0)?1:0;blue+=colored(x,y,2)?1:0;
+      const channel=name==='portal-mask'?2:0;
+      if(!target&&[-2,-1,0,1,2].every(dy=>[-2,-1,0,1,2].every(dx=>colored(x+dx,y+dy,channel))))target={x,y};
+    }
+    assert.ok(red>20,'Masked source body was omitted');
+    if(name==='portal-mask')assert.ok(blue>20,'The portal final-group stencil was never exercised');
+    else assert.equal(blue,0,'An inactive dynamic group became visible');
+    assert.ok(target,'No unambiguous source-object interior for picking');
+    const box=await canvas().boundingBox();
+    await page.mouse.click(box.x+(target.x+.5)*box.width/image.width,box.y+(target.y+.5)*box.height/image.height);
+    await page.waitForFunction(()=>document.querySelector('.source-world-inspector strong')?.textContent.startsWith('Object '));
+    const selected=await page.locator('.source-world-inspector strong').innerText();
+    assert.match(selected,/^Object /);
+    const before=await canvas().getAttribute('data-frame-generation');
+    await page.evaluate(()=>{const gl=document.querySelector('.world-viewport canvas').getContext('webgl2');window.__materialLoss=gl.getExtension('WEBGL_lose_context');if(!window.__materialLoss)throw new Error('Missing real context loss');window.__materialLoss.loseContext();});
+    await page.waitForFunction(()=>document.querySelector('.world-viewport canvas').dataset.gpuState==='lost');
+    await page.evaluate(()=>window.__materialLoss.restoreContext());await changed(before);
+    await photo(name+'-restored-export');
+    const restored=png(await readFile(resolve(output,name+'-restored-export.png')));
+    assert.deepEqual(restored.pixels,image.pixels,'Restoration changed ordered source material pixels');
+    assert.equal(await page.locator('.source-world-inspector strong').innerText(),selected);
+    report.scenarios.push({name:'source materials '+name,redPixels:red,portalPixels:blue,selected,sourceSha256:sha(source),restorationIdentical:true});
+    await capture(name+'-application');
+  }
   const beforeClose=await photo('before-close-export');
   await page.getByRole('button',{name:'Back to your Sims',exact:true}).click();await page.locator('.source-world-screen').waitFor({state:'detached'});await revoked(beforeClose);
   await page.getByRole('button',{name:'Original lot',exact:true}).click();await ready();report.scenarios.push({name:'close and reopen creates a fresh GPU owner'});
