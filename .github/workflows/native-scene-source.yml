@@ -1,33 +1,82 @@
-name: Native scene source
+name: Native scene checked source
 on:
   push:
     branches: [feat/native-scene-continuation]
-    paths: [.github/workflows/native-scene-source.yml]
+    paths: [tools/native-browser/scene-delivery.json]
 permissions:
   contents: read
 jobs:
-  source:
+  blobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 5aa879438076dfe077254212fb0326350b09927c
           persist-credentials: false
           show-progress: false
-      - name: Export pinned source deltas
+      - name: Validate exact bounded source delta without executing application code
         run: |
-          set -euo pipefail
-          git fetch --depth=1 origin 0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16 03e3fb8697c7e1a06447681536e0333810ccbab4
-          mkdir -p /tmp/native-scene-source
-          git diff --binary 0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16 5aa879438076dfe077254212fb0326350b09927c > /tmp/native-scene-source/avatar.patch
-          git diff --binary 0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16 03e3fb8697c7e1a06447681536e0333810ccbab4 > /tmp/native-scene-source/receipts.patch
-          git ls-tree -rz 5aa879438076dfe077254212fb0326350b09927c > /tmp/native-scene-source/tree.bin
-          git rev-parse HEAD 'HEAD^{tree}' > /tmp/native-scene-source/revision.txt
-          cd /tmp/native-scene-source && sha256sum *.patch tree.bin > SHA256SUMS
+          python3 - <<'PY'
+          import base64,hashlib,json,lzma,pathlib,subprocess
+          p=pathlib.Path('tools/native-browser/scene-delivery.json')
+          assert p.is_file() and p.stat().st_size<100000
+          doc=json.loads(p.read_text())
+          base='5aa879438076dfe077254212fb0326350b09927c'
+          assert doc['base']==base
+          assert doc['tree']=='bb1f8246ceb93e030ed902b30e65e79fce2554ec'
+          assert doc['sha256']=='15106816478e952ad6a037e14319e11f3b19ca7573182feba740b0c6be0bdc8c'
+          allowed={'.github/workflows/native-browser.yml','.github/workflows/native-socket.yml','apps/web-shell/public/native-socket.mjs','apps/web-shell/src/native_lot.rs','apps/web-shell/scripts/native-receipt-deadline.test.mjs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/src/world_projection.rs','crates/game-runtime/tests/native_scene_contact.rs','tools/native-browser/peer.mjs','tools/native-browser/verify-avatars.mjs','tools/native-browser/verify-receipt-deadline.mjs','tools/native-browser/verify-scene-contact.mjs','docs/design/action-first/native-receipt-deadlines.md','docs/design/action-first/native-scene-contact.md','docs/design/action-first/native-scene-contact-verification.json'}
+          assert set(doc['paths'])==allowed
+          decoder=lzma.LZMADecompressor(memlimit=128*1024*1024)
+          patch=decoder.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=200001)
+          assert decoder.eof and not decoder.unused_data and len(patch)<=200000
+          assert hashlib.sha256(patch).hexdigest()==doc['sha256']
+          subprocess.run(['git','fetch','--depth=1','origin',base],check=True)
+          subprocess.run(['git','checkout','--detach',base],check=True)
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='ee3cc73a88a3905e644e1abcce29c364cd734a0c'
+          subprocess.run(['git','apply','--check','--index','-'],input=patch,check=True)
+          subprocess.run(['git','apply','--index','-'],input=patch,check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          assert set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())==allowed
+          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          assert tree==doc['tree'],tree
+          files=[]
+          for path in sorted(allowed):
+              stage=subprocess.check_output(['git','ls-files','--stage','--',path],text=True).strip()
+              mode,expected,index=stage.split('\t')[0].split()
+              assert mode=='100644' and index=='0'
+              data=subprocess.check_output(['git','show',':'+path])
+              assert len(data)<=100000
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==expected
+              files.append({'path':path,'mode':mode,'sha':expected,'content':base64.b64encode(data).decode()})
+          pathlib.Path('checked-scene-files.json').write_text(json.dumps({'base':base,'tree':tree,'files':files}))
+          print('Exact locally tested tree reconstructed:',tree)
+          PY
+      - name: Store checked code blobs only, without publishing a ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,urllib.request
+          doc=json.loads(pathlib.Path('checked-scene-files.json').read_text())
+          files=[]
+          for f in doc['files']:
+              req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/git/blobs',data=json.dumps({'content':f['content'],'encoding':'base64'}).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=30) as r:sha=json.load(r)['sha']
+              assert sha==f['sha']
+              files.append({'path':f['path'],'mode':f['mode'],'type':'blob','sha':sha})
+          doc['files']=files
+          doc['tests_executed_by_transfer']=False
+          doc['branch_updated']=False
+          pathlib.Path('checked-scene-tree.json').write_text(json.dumps(doc,indent=2)+'\n')
+          print(json.dumps(doc,indent=2))
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: native-scene-source
-          path: /tmp/native-scene-source/
+          name: native-scene-checked-tree
+          path: checked-scene-tree.json
           retention-days: 3
           if-no-files-found: error
