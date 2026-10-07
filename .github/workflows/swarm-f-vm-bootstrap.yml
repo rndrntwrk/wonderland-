@@ -45,8 +45,6 @@ jobs:
           root=pathlib.Path(os.environ['VM_BUILD_ROOT']);out=pathlib.Path(os.environ['VM_EVIDENCE_ROOT'])
           entries=subprocess.check_output(['git','ls-tree','-rz','HEAD'])
           verified={}
-          # Compare raw Git blobs, never assume platform-filtered archive bytes.
-          # One persistent Git reader avoids thousands of Windows process starts.
           process=subprocess.Popen(['git','cat-file','--batch'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
           try:
               for row in entries.split(b'\0'):
@@ -67,7 +65,7 @@ jobs:
                   verified[name]={'git_blob':digest,'sha256':hashlib.sha256(data).hexdigest()}
           finally:
               process.stdin.close();process.stdout.close();process.wait(timeout=10)
-          (out/'source-identity.json').write_text(json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'files':verified},indent=2))
+          (out/'source-identity.json').write_text(json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'files':verified},indent=2))
           sys.path.insert(0,str(root/'tools/replay'))
           from baseline import canonical_path
           seen=set();ordered=[]
@@ -125,6 +123,29 @@ jobs:
           & $msbuild "$src/TSOClient/tso.simantics/FSO.SimAntics.csproj" /t:Build /p:Configuration=Release /p:Platform=AnyCPU "/p:TargetFrameworkRootPath=$framework" /v:minimal /nologo 2>&1 | Tee-Object -FilePath "$out/build.log"
           if ($LASTEXITCODE) { throw 'Original assembly build failed' }
           Get-FileHash "$src/TSOClient/tso.simantics/bin/Release/FSO.SimAntics.dll" -Algorithm SHA256 | Format-List | Out-String | Tee-Object -FilePath "$out/assembly.txt"
+      - name: Execute real original VM initialization and scheduled behavior twice
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          & "$out/source/tools/reference-csharp/run-original-vm.ps1" -Output $out
+      - name: Verify original source bytes remain unchanged after build and execution
+        if: always()
+        shell: pwsh
+        run: |
+          $env:VM_EVIDENCE_ROOT = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          @'
+          import hashlib,json,os,pathlib
+          out=pathlib.Path(os.environ['VM_EVIDENCE_ROOT']);root=out/'source'
+          before=json.loads((out/'source-identity.json').read_text())
+          changed=[name for name,pin in before['files'].items() if not (root/name).is_file() or hashlib.sha256((root/name).read_bytes()).hexdigest()!=pin['sha256']]
+          report={'schema':1,'passed':not changed,'inputs':len(before['files']),'changed':changed}
+          (out/'source-after.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
+          if changed:raise SystemExit(1)
+          '@ | python -
+          if ($LASTEXITCODE) { throw 'Original source changed during verification' }
+          git diff --exit-code
+          if ($LASTEXITCODE) { throw 'Tracked verification checkout changed' }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -132,9 +153,14 @@ jobs:
           path: |
             ${{ runner.temp }}/swarm-f-vm/closure.json
             ${{ runner.temp }}/swarm-f-vm/source-identity.json
+            ${{ runner.temp }}/swarm-f-vm/source-after.json
             ${{ runner.temp }}/swarm-f-vm/restore.log
             ${{ runner.temp }}/swarm-f-vm/portable-references.json
             ${{ runner.temp }}/swarm-f-vm/build.log
             ${{ runner.temp }}/swarm-f-vm/assembly.txt
+            ${{ runner.temp }}/swarm-f-vm/witness-compile.log
+            ${{ runner.temp }}/swarm-f-vm/vm-trace-*.tsv
+            ${{ runner.temp }}/swarm-f-vm/vm-trace-*.stderr
+            ${{ runner.temp }}/swarm-f-vm/vm-execution.json
           if-no-files-found: error
           retention-days: 7
