@@ -1,0 +1,108 @@
+name: Swarm F original VM
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/swarm-f-vm-bootstrap.yml
+      - tools/reference-csharp/**
+      - tools/replay/**
+      - tests/parity/**
+      - fixtures/reference/**
+      - docs/swarm-f/ORIGINAL_VM_BOOTSTRAP.md
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-f-vm-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  original:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          show-progress: false
+          submodules: false
+      - name: Prepare exact temporary source copy and inspect dependency closure
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          New-Item -ItemType Directory -Path $out | Out-Null
+          $src = Join-Path $out 'source'
+          New-Item -ItemType Directory -Path $src | Out-Null
+          git archive --format=tar -o "$out/source.tar" HEAD
+          if ($LASTEXITCODE) { throw 'Source archive failed' }
+          tar -xf "$out/source.tar" -C $src
+          if ($LASTEXITCODE) { throw 'Source extraction failed' }
+          $env:VM_BUILD_ROOT = $src
+          $env:VM_EVIDENCE_ROOT = $out
+          @'
+          import hashlib,json,os,pathlib,sys,xml.etree.ElementTree as E
+          root=pathlib.Path(os.environ['VM_BUILD_ROOT']);out=pathlib.Path(os.environ['VM_EVIDENCE_ROOT'])
+          sys.path.insert(0,str(root/'tools/replay'))
+          from baseline import canonical_path
+          seen=set();ordered=[]
+          def visit(name):
+              if name in seen:return
+              seen.add(name)
+              if len(seen)>64:raise ValueError('Project closure limit')
+              path=root/name;data=path.read_bytes();tree=E.fromstring(data)
+              if tree.get('Sdk'):raise ValueError('Unexpected SDK project: '+name)
+              deps=[];refs=[]
+              for node in tree.iter():
+                  tag=node.tag.rsplit('}',1)[-1]
+                  if tag=='ProjectReference':
+                      child=canonical_path(node.attrib['Include'],str(pathlib.PurePosixPath(name).parent))
+                      deps.append(child);visit(child)
+                  if tag=='Reference':
+                      hint=next((c.text for c in node if c.tag.rsplit('}',1)[-1]=='HintPath'),None)
+                      refs.append({'identity':node.attrib.get('Include'),'hint':hint})
+              config=path.with_name('packages.config')
+              ordered.append({'path':name,'sha256':hashlib.sha256(data).hexdigest(),'dependencies':deps,'references':refs,
+                              'packages':str(config.relative_to(root)).replace('\\','/') if config.exists() else None})
+          visit('TSOClient/tso.simantics/FSO.SimAntics.csproj')
+          (out/'closure.json').write_text(json.dumps(ordered,indent=2))
+          print(json.dumps(ordered,indent=2))
+          '@ | python -
+          if ($LASTEXITCODE) { throw 'Dependency census failed' }
+      - name: Restore only declared package configurations
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          $src = Join-Path $out 'source'
+          $packages = Join-Path $src 'TSOClient/packages'
+          foreach ($project in (Get-Content "$out/closure.json" -Raw | ConvertFrom-Json)) {
+            if ($project.packages) {
+              nuget restore (Join-Path $src $project.packages) -PackagesDirectory $packages -Source https://api.nuget.org/v3/index.json -NonInteractive -Verbosity quiet 2>&1 | Tee-Object -FilePath "$out/restore.log" -Append
+              if ($LASTEXITCODE) { throw "Package restore failed: $($project.path)" }
+            }
+          }
+      - name: Build the actual original assembly without replacing source classes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'swarm-f-vm'
+          $src = Join-Path $out 'source'
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $msbuild = & $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild/**/Bin/MSBuild.exe | Select-Object -First 1
+          if (-not $msbuild) { throw 'MSBuild unavailable' }
+          & $msbuild "$src/TSOClient/tso.simantics/FSO.SimAntics.csproj" /t:Build /p:Configuration=Release /p:Platform=AnyCPU /v:minimal /nologo 2>&1 | Tee-Object -FilePath "$out/build.log"
+          if ($LASTEXITCODE) { throw 'Original assembly build failed' }
+          Get-FileHash "$src/TSOClient/tso.simantics/bin/Release/FSO.SimAntics.dll" -Algorithm SHA256 | Format-List | Out-String | Tee-Object -FilePath "$out/assembly.txt"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-f-original-vm-evidence
+          path: |
+            ${{ runner.temp }}/swarm-f-vm/closure.json
+            ${{ runner.temp }}/swarm-f-vm/restore.log
+            ${{ runner.temp }}/swarm-f-vm/build.log
+            ${{ runner.temp }}/swarm-f-vm/assembly.txt
+          if-no-files-found: error
+          retention-days: 7
