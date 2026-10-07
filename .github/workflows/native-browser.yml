@@ -29,14 +29,15 @@ jobs:
           mkdir -p /tmp/wonderland-native-browser-evidence
           cargo fmt --all -- --check
           cargo test --workspace --locked > /tmp/wonderland-native-browser-evidence/workspace.log 2>&1 || { tail -100 /tmp/wonderland-native-browser-evidence/workspace.log; exit 1; }
-          node --test apps/web-shell/scripts/native-socket.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
-          node --test crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
+          node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/socket.log; exit 1; }
+          node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
           cargo clippy --workspace --all-targets --locked -- -D warnings
           cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
       - name: Build actual browser and controlled authority
         run: |
           cargo install trunk --version 0.21.14 --locked --quiet
           (cd apps/web-shell && trunk build --release --locked)
+          cmp apps/web-shell/public/native-socket.mjs apps/web-shell/dist/native-socket.mjs
           cargo build -q -p wonderland-browser-gateway --example controlled_replay --locked
           cargo build -q -p wonderland-game-runtime --example native_browser_peer --locked
       - name: Execute the browser action, latency and reconnect journey
@@ -44,13 +45,35 @@ jobs:
           npm --prefix tools/native-browser ci --ignore-scripts --no-audit --no-fund
           tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
           timeout 240s node tools/native-browser/verify.mjs > /tmp/wonderland-native-browser-evidence/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/browser.log; exit 1; }
+      - name: Verify lost receipts with continuing ticks and real production deadlines
+        run: |
+          set -o pipefail
+          timeout 150s node tools/native-browser/verify-receipt-deadline.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/receipt-deadline.log
       - name: Verify source identity after testing
         if: always()
         run: |
+          mkdir -p /tmp/wonderland-native-browser-evidence
           git rev-parse HEAD > /tmp/wonderland-native-browser-evidence/revision.txt
           git rev-parse 'HEAD^{tree}' >> /tmp/wonderland-native-browser-evidence/revision.txt
           rustc -vV >> /tmp/wonderland-native-browser-evidence/revision.txt
           node --version >> /tmp/wonderland-native-browser-evidence/revision.txt
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re,subprocess
+          root=pathlib.Path('/tmp/wonderland-native-browser-evidence')
+          log=(root/'workspace.log').read_text() if (root/'workspace.log').exists() else ''
+          counts=re.findall(r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;',log)
+          def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+          files=['apps/web-shell/src/native_lot.rs','apps/web-shell/public/native-socket.mjs','apps/web-shell/scripts/native-receipt-deadline.test.mjs','tools/native-browser/peer.mjs','tools/native-browser/verify-receipt-deadline.mjs']
+          report={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'counts_from_completed_native_summaries':{'passed':sum(int(r[0]) for r in counts),'failed':sum(int(r[1]) for r in counts),'ignored':sum(int(r[2]) for r in counts)},'source_sha256':{p:digest(pathlib.Path(p)) for p in files},'evidence_sha256':{str(p.relative_to(root)):digest(p) for p in root.rglob('*') if p.is_file()}}
+          dist=pathlib.Path('apps/web-shell/dist')
+          report['wasm_sha256']={p.name:digest(p) for p in dist.glob('*.wasm')}
+          for path in ['results.json','receipt-deadline/results.json']:
+              p=root/path
+              if p.exists():
+                  result=json.loads(p.read_text());report[path]={'passed':result.get('passed'),'checks':len(result.get('checks',[])),'screenshots':len(result.get('screenshots',[])),'errors':result.get('errors',[])}
+          (root/'verification-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('VERIFICATION_SUMMARY='+json.dumps(report))
+          PY
           git diff --exit-code
       - uses: actions/upload-artifact@v4
         if: always()

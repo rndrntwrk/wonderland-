@@ -401,7 +401,7 @@ impl Controller {
         let result = self.resources.try_update_value(|r| {
             let player = r.player.as_mut().ok_or("Native player is unavailable")?;
             let bytes = if let Some(choice) = choice {
-                player.prepare(choice.target, choice.key,choice.param0)?
+                player.prepare(choice.target, choice.key, choice.param0)?
             } else {
                 player.prepare_cancel(cancel.ok_or("No selected action")?)?
             };
