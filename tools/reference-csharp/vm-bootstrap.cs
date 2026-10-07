@@ -65,6 +65,15 @@ internal static class OriginalVmBootstrap
         SetPrivate(typeof(Content), null, "INSTANCE", content);
         return content;
     }
+    private static void CheckAttributes(VMGameObject entity, string boundary)
+    {
+        // This original three-instruction behavior clears 0/1/3; it DOES NOT
+        // assign attribute 2. Reuse A/B's [10,20,30,40] input, preserving 30.
+        Require(entity.GetAttribute(0) == 0 && entity.GetAttribute(1) == 0 &&
+            entity.GetAttribute(2) == 30 && entity.GetAttribute(3) == 0,
+            boundary + " attribute result: " + entity.GetAttribute(0) + "," +
+            entity.GetAttribute(1) + "," + entity.GetAttribute(2) + "," + entity.GetAttribute(3));
+    }
     public static int Main(string[] args)
     {
         try
@@ -91,7 +100,7 @@ internal static class OriginalVmBootstrap
             Require(Digest(File.ReadAllBytes(path)) == "20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865", "Original BHAV resource hash mismatch");
             var original = new IffFile(path); original.MarkThrowaway();
             var routine = original.Get<BHAV>(4110);
-            Require(routine != null && routine.Instructions.Length > 0, "Original behavior must be decoded");
+            Require(routine != null && routine.Instructions.Length == 3, "Original three-instruction behavior must be decoded");
             var local = new IffFile(); local.MarkThrowaway(); local.AddChunk(routine);
             var definition = new OBJD {
                 GUID = 0xf00d0044, ObjectType = OBJDType.Normal,
@@ -100,18 +109,21 @@ internal static class OriginalVmBootstrap
             };
             var resource = new GameObjectResource(local, null, null, "swarm-f-original-4110", content);
             var entity = new VMGameObject(new GameObject { GUID = definition.GUID, OBJ = definition, Resource = resource }, null);
-            for (int i = 0; i < 4; i++) entity.SetAttribute(i, 0);
+            for (int i = 0; i < 4; i++) entity.SetAttribute(i, (short)((i + 1) * 10));
             entity.MultitileGroup = new VMMultitileGroup(); entity.MultitileGroup.AddObject(entity);
             vm.AddEntity(entity); entity.Init(context);
             Require(entity.Thread != null && entity.Thread.GetType() == typeof(VMThread), "Real original interpreter thread required");
-            Require(entity.GetAttribute(2) == 30, "Original init BHAV did not execute");
+            CheckAttributes(entity, "Original init BHAV");
             Console.WriteLine("tick\tobject_id\tattribute_2\tstack_count\tclock_ticks\trng\tentities");
             for (int tick = 1; tick <= 16; tick++)
             {
-                entity.SetAttribute(2, (short)-tick); vm.Tick();
+                entity.SetAttribute(0, (short)-tick);
+                entity.SetAttribute(1, (short)(tick + 100));
+                entity.SetAttribute(3, (short)(tick + 200));
+                vm.Tick();
                 Require(vm.Ready && context.Clock.Ticks == tick, "Original VM driver/clock did not advance");
-                Require(entity.GetAttribute(2) == 30 && !entity.Dead, "Original scheduled BHAV did not restore its literal value");
-                Require(entity.Thread.Stack.Count == 0 && driver.LastTick == tick, "Original frame return/tick completion mismatch");
+                CheckAttributes(entity, "Original scheduled BHAV tick " + tick);
+                Require(!entity.Dead && entity.Thread.Stack.Count == 0 && driver.LastTick == tick, "Original frame return/tick completion mismatch");
                 Console.WriteLine(tick + "\t" + entity.ObjectID + "\t" + entity.GetAttribute(2) + "\t" + entity.Thread.Stack.Count + "\t" + context.Clock.Ticks + "\t" + context.RandomSeed + "\t" + vm.Entities.Count);
             }
             return 0;
