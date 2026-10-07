@@ -2923,6 +2923,7 @@ dependencies = [
  "wonderland-avatar-view",
  "wonderland-client-app",
  "wonderland-contracts",
+ "wonderland-game-runtime",
  "wonderland-game-services",
  "wonderland-player-authoring",
  "wonderland-render-3d",

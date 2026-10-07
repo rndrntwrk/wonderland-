@@ -13,6 +13,7 @@ use crate::{AcceptedTick, TickOutcome};
 use bincode::Options;
 
 mod guard;
+pub mod player;
 pub const HEADER_LEN: usize = 32;
 pub const MAGIC: [u8; 8] = *b"WLR1\r\n\x1a\n";
 const CHECKPOINT: u8 = 1;

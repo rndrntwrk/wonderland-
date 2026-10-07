@@ -9,8 +9,9 @@ import { createInterface } from 'node:readline';
 import { randomBytes } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
 
-export async function createFixture({dist, gateway, runtimeExecutable, port=18888}) {
+export async function createFixture({dist, gateway, runtimeExecutable, port=18888, actionDelayTicks=0}) {
   assert.equal(new URL(gateway).hostname,'127.0.0.1');
+  assert.ok(Number.isInteger(actionDelayTicks) && actionDelayTicks>=0 && actionDelayTicks<=128);
   const root=resolve(dist), origin=`http://127.0.0.1:${port}`;
   const child=spawn(runtimeExecutable,[],{env:{...process.env,WONDERLAND_NATIVE_PEER_TEST_ONLY:'1'},stdio:['pipe','pipe','inherit']});
   const requests=[];let poisoned=false;
@@ -103,6 +104,9 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
             const result=await execute({op:'checkpoint',request:data.toString('hex')});send(ws,packet(result));ws.live=true;stats.checkpoints++;clearTimeout(timeout);
           } else if(magic==='WLC1') {
             assert.ok(ws.live);stats.actions++;
+            // Deterministically reproduce ordinary server ticks while a chosen
+            // browser action is in flight. The original bytes remain unchanged.
+            for(let i=0;i<actionDelayTicks;i++){broadcast(await execute({op:'tick'}));stats.ticks++;}
             const result=await execute({op:'action',request:data.toString('hex')});broadcast(result.transition);if(result.accepted)stats.accepted++;
             if(dropNext){dropNext=false;stats.unknownDrops++;ws.close(1012);return;}
             send(ws,Buffer.from(result.receipt,'hex'));

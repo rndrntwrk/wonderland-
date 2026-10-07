@@ -9,6 +9,7 @@ license.workspace = true
 wonderland-contracts.workspace = true
 wonderland-client-app.workspace = true
 wonderland-game-services.workspace = true
+wonderland-game-runtime.workspace = true
 wonderland-player-authoring.workspace = true
 wonderland-vm-protocol.workspace = true
 wonderland-world-view.workspace = true

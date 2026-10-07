@@ -17,7 +17,10 @@ use wonderland_contracts::authoring::{AppearanceSelection, ContentKey};
 use wonderland_game_services::*;
 
 #[component]
-pub fn ConnectedGame(#[prop(into)] gateway_url: String) -> impl IntoView {
+pub fn ConnectedGame(
+    #[prop(into)] gateway_url: String,
+    #[prop(default = false)] native_lots: bool,
+) -> impl IntoView {
     let ui = ConnectedUi::new(gateway_url);
     let content = ContentUi::new();
     provide_context(ui);
@@ -56,7 +59,7 @@ pub fn ConnectedGame(#[prop(into)] gateway_url: String) -> impl IntoView {
     view! {
         <main class="game-shell connected-shell" class:reduce-motion=move ||ui.reduced_motion.get()>
             <Show when=move ||ui.state.with(|s|s.ledger.authenticated) fallback=||view!{<ConnectedLogin/>}>
-                {move ||match route.get() {3=>view!{<crate::connected_world::ConnectedLotView/>}.into_any(),2=>view!{<player::ConnectedCreator/>}.into_any(),1=>view!{<ConnectedCity/>}.into_any(),_=>view!{<ConnectedRoster/>}.into_any()}}
+                {move ||match route.get() {3=>if native_lots {view!{<crate::native_lot::NativeLot/>}.into_any()} else {view!{<crate::connected_world::ConnectedLotView/>}.into_any()},2=>view!{<player::ConnectedCreator/>}.into_any(),1=>view!{<ConnectedCity/>}.into_any(),_=>view!{<ConnectedRoster/>}.into_any()}}
                 <ConnectedPlayerMenu/>
                 <div class="top-tools"><crate::audio_bridge::SourceAudioControls/><button class="chrome round" aria-label="Options" on:click=move |_|ui.panel(Panel::Settings)><Icon name="settings"/></button></div>
                 <player::ConnectedPanels/>

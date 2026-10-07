@@ -4,6 +4,7 @@ on:
     paths:
       - apps/web-shell/**
       - crates/game-runtime/**
+      - crates/sim-core/**
       - .github/workflows/native-browser.yml
       - tools/native-browser/**
       - Cargo.lock
@@ -13,124 +14,54 @@ concurrency:
   group: native-browser-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  candidate:
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/native-browser-runtime'
+  player:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
           show-progress: false
       - name: Install pinned compiler
         run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
-      - name: Assemble guarded player call sites and canonical formatting
+      - name: Verify tracked source without generating call sites
         run: |
           mkdir -p /tmp/wonderland-native-browser-evidence
-          python3 tools/native-browser/finalize.py
-          cargo metadata --quiet --format-version 1 > /dev/null
-          cargo fmt -p wonderland-game-runtime -p wonderland-web-shell
           cargo fmt --all -- --check
-      - name: Browser socket regression suite
-        run: node --test apps/web-shell/scripts/native-socket.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/socket.log; exit 1; }
-      - name: Native player regression suite
-        run: cargo test -q -p wonderland-game-runtime --test native_player --locked > /tmp/wonderland-native-browser-evidence/native-player.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/native-player.log; exit 1; }
-      - name: Native runtime lint
-        run: cargo clippy -q -p wonderland-game-runtime --all-targets --locked -- -D warnings
-      - name: Compile actual browser call sites
-        run: cargo clippy -q -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
-      - name: Full native and audio regression suites
-        run: |
           cargo test --workspace --locked > /tmp/wonderland-native-browser-evidence/workspace.log 2>&1 || { tail -100 /tmp/wonderland-native-browser-evidence/workspace.log; exit 1; }
+          node --test apps/web-shell/scripts/native-socket.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
           node --test crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
-      - name: Build the real application and controlled services
+          cargo clippy --workspace --all-targets --locked -- -D warnings
+          cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
+      - name: Build actual browser and controlled authority
         run: |
           cargo install trunk --version 0.21.14 --locked --quiet
           (cd apps/web-shell && trunk build --release --locked)
           cargo build -q -p wonderland-browser-gateway --example controlled_replay --locked
           cargo build -q -p wonderland-game-runtime --example native_browser_peer --locked
-      - name: Execute the actual browser player journey
+      - name: Execute the browser action, latency and reconnect journey
         run: |
-          npm --prefix tools/native-browser install --ignore-scripts --no-audit --no-fund
+          npm --prefix tools/native-browser ci --ignore-scripts --no-audit --no-fund
           tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
           timeout 240s node tools/native-browser/verify.mjs > /tmp/wonderland-native-browser-evidence/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/browser.log; exit 1; }
-      - name: Retain candidate source changes
-        env:
-          SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
+      - name: Verify source identity after testing
+        if: always()
         run: |
-          python3 - <<'PY'
-          import base64, hashlib, json, os, pathlib, subprocess
-          paths = subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()
-          if pathlib.Path('tools/native-browser/package-lock.json').exists():paths.append('tools/native-browser/package-lock.json')
-          fixed={'Cargo.lock','apps/web-shell/Cargo.toml','apps/web-shell/index.html','apps/web-shell/public/native-socket.mjs','apps/web-shell/src/lib.rs','apps/web-shell/src/startup.rs','apps/web-shell/src/startup_view.rs','apps/web-shell/src/connected.rs','apps/web-shell/src/connected_bridge.rs','crates/game-runtime/src/live_wire.rs','tools/native-browser/package-lock.json'}
-          files=[]
-          for path in sorted(set(paths)):
-              if path not in fixed and not path.startswith(('crates/game-runtime/src/live_wire/player','crates/game-runtime/tests/native_player','apps/web-shell/src/native_lot','crates/game-runtime/examples/native_browser_peer')):raise SystemExit('Unexpected candidate mutation: '+path)
-              p=pathlib.Path(path)
-              if p.is_symlink() or not p.is_file(): raise SystemExit('Not a regular source file')
-              data=p.read_bytes()
-              if len(data)>300000: raise SystemExit('Source size limit')
-              files.append({'path':path,'content':base64.b64encode(data).decode(),'sha256':hashlib.sha256(data).hexdigest()})
-          pathlib.Path('native-candidate.json').write_text(json.dumps({'base':os.environ['SOURCE_HEAD'],'files':files}))
-          print('Canonical source files:',paths)
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: native-canonical-source
-          path: native-candidate.json
-          if-no-files-found: error
-          retention-days: 3
+          git rev-parse HEAD > /tmp/wonderland-native-browser-evidence/revision.txt
+          git rev-parse 'HEAD^{tree}' >> /tmp/wonderland-native-browser-evidence/revision.txt
+          rustc -vV >> /tmp/wonderland-native-browser-evidence/revision.txt
+          node --version >> /tmp/wonderland-native-browser-evidence/revision.txt
+          git diff --exit-code
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: native-browser-evidence
           path: /tmp/wonderland-native-browser-evidence/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
-  blobs:
-    needs: candidate
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/native-browser-runtime'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      actions: read
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: native-canonical-source
-      - name: Store tested source blobs without moving any branch
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
-          REPOSITORY: ${{ github.repository }}
-        run: |
-          python3 - <<'PY'
-          import base64,hashlib,json,os,pathlib,urllib.request
-          doc=json.loads(pathlib.Path('native-candidate.json').read_text())
-          assert doc['base']==os.environ['SOURCE_HEAD']
-          fixed={'Cargo.lock','apps/web-shell/Cargo.toml','apps/web-shell/index.html','apps/web-shell/public/native-socket.mjs','apps/web-shell/src/lib.rs','apps/web-shell/src/startup.rs','apps/web-shell/src/startup_view.rs','apps/web-shell/src/connected.rs','apps/web-shell/src/connected_bridge.rs','crates/game-runtime/src/live_wire.rs','tools/native-browser/package-lock.json'}
-          def api(path,data=None):
-              req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/'+path,data=None if data is None else json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
-              with urllib.request.urlopen(req,timeout=30) as reply:return json.load(reply)
-          entries=[]
-          for file in doc['files']:
-              path=file['path']
-              assert '..' not in path.split('/') and not path.startswith('/')
-              assert path in fixed or path.startswith(('crates/game-runtime/src/live_wire/player','crates/game-runtime/tests/native_player','apps/web-shell/src/native_lot','crates/game-runtime/examples/native_browser_peer'))
-              data=base64.b64decode(file['content'],validate=True)
-              assert len(data)<=300000 and hashlib.sha256(data).hexdigest()==file['sha256']
-              blob=api('git/blobs',{'content':file['content'],'encoding':'base64'})
-              entries.append({'path':path,'mode':'100644','type':'blob','sha':blob['sha']})
-          base=api('git/commits/'+doc['base'])['tree']['sha']
-          tree=api('git/trees',{'base_tree':base,'tree':entries})['sha'] if entries else base
-          result={'base':doc['base'],'tested_tree':tree,'files':entries}
-          pathlib.Path('native-candidate-tree.json').write_text(json.dumps(result,indent=2))
-          print(json.dumps(result,indent=2))
-          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: native-candidate-tree
-          path: native-candidate-tree.json
-          retention-days: 3
+          name: native-browser-preview
+          path: apps/web-shell/dist/
+          if-no-files-found: error
+          retention-days: 7

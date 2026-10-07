@@ -16,6 +16,8 @@ pub struct RuntimeConfiguration {
     pub version: u32,
     pub mode: ClientMode,
     pub gateway_url: Option<String>,
+    #[serde(default)]
+    pub native_lots: bool,
 }
 
 pub fn parse_configuration(input: &str) -> Result<RuntimeConfiguration, String> {
@@ -36,6 +38,9 @@ pub fn parse_configuration(input: &str) -> Result<RuntimeConfiguration, String> 
                     .into(),
             );
         }
+    }
+    if config.native_lots && config.mode != ClientMode::Connected {
+        return Err("Native lots require connected mode.".into());
     }
     Ok(config)
 }
@@ -141,6 +146,31 @@ mod tests {
             let error = parse_configuration(&input).unwrap_err();
             assert!(!error.contains("secret"));
         }
+    }
+
+    #[test]
+    fn native_player_is_opt_in_and_cannot_run_in_preview_mode() {
+        let legacy =
+            parse_configuration(r#"{"version":1,"mode":"connected","gateway_url":"/gateway"}"#)
+                .unwrap();
+        assert!(!legacy.native_lots);
+        let native = parse_configuration(
+            r#"{"version":1,"mode":"connected","gateway_url":"/gateway","native_lots":true}"#,
+        )
+        .unwrap();
+        assert!(native.native_lots);
+        assert!(
+            parse_configuration(
+                r#"{"version":1,"mode":"preview","gateway_url":null,"native_lots":true}"#
+            )
+            .is_err()
+        );
+        assert!(
+            parse_configuration(
+                r#"{"version":1,"mode":"connected","gateway_url":"/gateway","native_lots":"true"}"#
+            )
+            .is_err()
+        );
     }
 
     #[test]

@@ -1,5 +1,5 @@
 // Runs the built application with real browser clicks and a real Rust authority.
-// Browser plugin is absent in this environment; hosted Playwright is the runner.
+// Runs locally with supplied browser binaries or in the read-only hosted workflow.
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
@@ -41,6 +41,29 @@ async function contained(page,selector){
   assert.ok(box&&box.x>=-1&&box.y>=-1&&box.x+box.width<=size.width+1&&box.y+box.height<=size.height+1,`${selector} outside viewport: ${JSON.stringify(box)}`);
   return box;
 }
+async function usableControls(page){
+  const controls=await page.locator('.native-lot .source-world-tools').evaluate(toolbar=>{
+    const bounds=toolbar.getBoundingClientRect();
+    return {toolbar:{x:bounds.x,y:bounds.y,width:bounds.width,height:bounds.height},buttons:[...toolbar.querySelectorAll('button')].map(button=>{
+      const r=button.getBoundingClientRect();
+      return {name:button.getAttribute('aria-label')||button.textContent.trim(),x:r.x,y:r.y,width:r.width,height:r.height};
+    })};
+  });
+  const b=controls.toolbar;
+  assert.equal(controls.buttons.length,13,'Every original native view/action control stays reachable');
+  for(const r of controls.buttons){
+    assert.ok(r.name.length>0,'Property button needs an accessible label');
+    assert.ok(r.width>=30&&r.height>=30,`Unusable property control ${r.name}: ${JSON.stringify(r)}`);
+    assert.ok(r.x>=b.x-1&&r.y>=b.y-1&&r.x+r.width<=b.x+b.width+1&&r.y+r.height<=b.y+b.height+1,`Property control outside toolbar: ${JSON.stringify(r)}`);
+  }
+  for(let i=0;i<controls.buttons.length;i++)for(let j=i+1;j<controls.buttons.length;j++){
+    const a=controls.buttons[i],c=controls.buttons[j];
+    const width=Math.min(a.x+a.width,c.x+c.width)-Math.max(a.x,c.x);
+    const height=Math.min(a.y+a.height,c.y+c.height)-Math.max(a.y,c.y);
+    assert.ok(width<=1||height<=1,`Property controls overlap: ${a.name} / ${c.name}`);
+  }
+  return controls.buttons.map(({name,width,height})=>({name,width,height}));
+}
 async function waitNeed(page,name,value){
   await page.waitForFunction(({name,value})=>[...document.querySelectorAll('.connected-source-needs label')].some(label=>label.querySelector('span')?.textContent===name&&label.querySelector('progress')?.value===value),{name,value});
 }
@@ -50,7 +73,7 @@ async function closeMenus(page){for(const name of ['Close needs','Close source a
 
 try{
   for(let n=0;n<100;n++){try{if((await fetch('http://127.0.0.1:18787/health')).ok)break;}catch{}if(n===99)throw Error('Controlled gateway failed: '+gatewayLog);await delay(50);}
-  fixture=await createFixture({dist,gateway:'http://127.0.0.1:18787',runtimeExecutable:resolve('target/debug/examples/native_browser_peer')});
+  fixture=await createFixture({dist,gateway:'http://127.0.0.1:18787',runtimeExecutable:resolve('target/debug/examples/native_browser_peer'),actionDelayTicks:3});
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   results.environment.chromium=browser.version();
   const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
@@ -67,7 +90,7 @@ try{
   await page.getByRole('button',{name:'Close source actions',exact:true}).click();
   await setNeeds(page);await waitNeed(page,'Hunger',100);await waitNeed(page,'Energy',100);await waitNeed(page,'Hygiene',100);
   assert.equal(await page.locator('.native-lot canvas').getAttribute('data-stability-probe'),'same-canvas');
-  record('Accepted original source action updates needs',{accepted:fixture.stats.accepted,canvasRetained:true,hunger:100});
+  record('Accepted original source action updates needs',{accepted:fixture.stats.accepted,canvasRetained:true,hunger:100,serverTicksDuringAction:3});
   await capture(page,'01-desktop-native-needs');await closeMenus(page);
   const otherContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   const other=await otherContext.newPage();watch(other);await enter(other);await fixture.reset();
@@ -91,10 +114,11 @@ try{
     await page.setViewportSize({width,height});
     const header=await contained(page,'.native-lot .source-world-header');
     const toolbar=await contained(page,'.native-lot .source-world-tools');
+    const controls=await usableControls(page);
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);assert.equal(overflow,false);
     await setNeeds(page);await contained(page,'.native-lot .connected-world-needs');await capture(page,`04-native-${width}x${height}`);await closeMenus(page);
     await sourceMenu(page);await contained(page,'.native-lot .connected-world-authoring');await closeMenus(page);
-    record('Native responsive panels',{width,height,header,toolbar,pageOverflow:false});
+    record('Native responsive panels',{width,height,header,toolbar,controls,pageOverflow:false});
   }
   await page.getByRole('button',{name:'Return to city',exact:true}).click();
   await page.getByRole('heading',{name:'Controlled City',exact:true}).waitFor();

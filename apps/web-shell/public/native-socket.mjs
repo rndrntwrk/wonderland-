@@ -60,7 +60,7 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
   ws.onopen = () => {
     if (dead) return;
     try {
-      ws.send(JSON.stringify({type: 'native_auth', ticket}));
+      ws.send(JSON.stringify(options.resume === true ? {type: 'native_auth', ticket, resume: true} : {type: 'native_auth', ticket}));
       ticket = ''; authenticated = true; notify('connected'); arm();
     } catch { finish('failed'); }
   };
