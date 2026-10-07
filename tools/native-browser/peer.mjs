@@ -25,8 +25,8 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
     requests.push({resolve,reject});child.stdin.write(JSON.stringify(value)+'\n');
   });
   const tickets=new Map(), clients=new Set(), relays=new Set();
-  const stats={admissions:0,opens:0,checkpoints:0,actions:0,accepted:0,unknownDrops:0,ticks:0};
-  let serial=Promise.resolve(), dropNext=false;
+  const stats={admissions:0,opens:0,checkpoints:0,actions:0,accepted:0,unknownDrops:0,ticks:0,silentReceipts:0};
+  let serial=Promise.resolve(), dropNext=false, loseNext=false;
   const transact=fn=>{const result=serial.then(fn);serial=result.catch(()=>{});return result;};
   const packet=result=>Buffer.from(result.packet,'hex');
   const send=(ws,bytes)=>{if(ws.readyState===1){if(ws.bufferedAmount>2*1024*1024)ws.close(1013);else ws.send(bytes,{binary:true});}};
@@ -109,6 +109,9 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
             for(let i=0;i<actionDelayTicks;i++){broadcast(await execute({op:'tick'}));stats.ticks++;}
             const result=await execute({op:'action',request:data.toString('hex')});broadcast(result.transition);if(result.accepted)stats.accepted++;
             if(dropNext){dropNext=false;stats.unknownDrops++;ws.close(1012);return;}
+            // Test-only loss of a receipt while the same socket remains open.
+            // Accepted state/events and subsequent ticks are still delivered.
+            if(loseNext){loseNext=false;stats.silentReceipts++;return;}
             send(ws,Buffer.from(result.receipt,'hex'));
           } else throw Error('Unexpected native client protocol');
         }catch(error){console.error('Native fixture rejected:',error.message);ws.close(1008);}
@@ -123,6 +126,7 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
     origin,stats,
     reset:()=>transact(async()=>broadcast(await execute({op:'reset_needs'}))),
     dropNextReceipt:()=>{dropNext=true;},
+    loseNextReceipt:()=>{loseNext=true;},
     disconnect:()=>{for(const ws of clients)ws.close(1012);},
     state:()=>transact(()=>execute({op:'state'})),
     active:()=>clients.size,

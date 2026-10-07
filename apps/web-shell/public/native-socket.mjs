@@ -3,6 +3,7 @@
 const MAX_PACKET = 80 * 1024 * 1024;
 const MAX_WRITE = 65536;
 const MAX_BUFFERED = 131072;
+const DEADLINE_MS = 15000;
 const INVALID = 'Invalid native connection';
 
 function address(value, origin) {
@@ -22,6 +23,11 @@ function address(value, origin) {
  * Own a single socket. A fresh connection requires a fresh server-issued ticket.
  * onFrame is synchronous and returns null, a binary recovery request, or false
  * to fail closed. ready() is called only after WASM installs a valid checkpoint.
+ * settled() is called only after WASM validates a correlated action decision;
+ * ordinary ticks, completed actions and checkpoints do not settle a receipt.
+ * A successfully sent action has its own deadline, not extended by live traffic.
+ * Expiry closes this socket and emits receipt-timeout. Rust retains Unknown state;
+ * this module never retries, fabricates a rejection or claims action completion.
  * dispose() is terminal; reconnect belongs to the Rust session owner.
  * Browser WebSocket has no pre-buffer receive limit: the server MUST cap frames.
  */
@@ -38,18 +44,31 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
   const cancel = options.clearTimeout ?? globalThis.clearTimeout;
   const ws = new Socket(destination);
   ws.binaryType = 'arraybuffer';
-  let dead = false, live = false, authenticated = false, timer = null;
-  const clearTimer = () => { if (timer !== null) { cancel(timer); timer = null; } };
+  let dead = false, live = false, authenticated = false;
+  let timer = null, timerOwner = null, receiptTimer = null, receiptOwner = null;
+  function clearTimer() {
+    timerOwner = null;
+    if (timer !== null) { cancel(timer); timer = null; }
+  }
+  function clearReceipt() {
+    receiptOwner = null;
+    if (receiptTimer !== null) { cancel(receiptTimer); receiptTimer = null; }
+  }
   const notify = value => { try { onState(value); } catch { /* Do not leak exception payloads. */ } };
   function finish(state) {
     if (dead) return;
-    dead = true; live = false; ticket = ''; clearTimer();
+    dead = true; live = false; ticket = ''; clearTimer(); clearReceipt();
     ws.onopen = null; ws.onmessage = null; ws.onclose = null; ws.onerror = null;
     try { ws.close(); } catch { /* Terminal even if the browser cannot send close. */ }
     if (state) notify(state);
     onFrame = null; onState = null;
   }
-  function arm() { clearTimer(); timer = schedule(() => finish('failed'), 15000); }
+  function arm() {
+    clearTimer();
+    const owner = {};
+    timerOwner = owner;
+    timer = schedule(() => { if (timerOwner === owner) finish('failed'); }, DEADLINE_MS);
+  }
   function write(bytes, requireLive) {
     if (dead || !authenticated || (requireLive && !live) || ws.readyState !== 1 ||
         !(bytes instanceof Uint8Array) || bytes.byteLength < 1 || bytes.byteLength > MAX_WRITE ||
@@ -76,7 +95,7 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
       const reply = onFrame(new Uint8Array(event.data));
       if (dead) return;
       if (reply === false || (reply != null && !write(reply, false))) { finish('failed'); return; }
-      if (live) arm(); // During handshake, malformed traffic cannot extend the deadline.
+      if (live) arm(); // Receipt deadline remains independent of this liveness refresh.
     } catch { finish('failed'); }
   };
   ws.onerror = () => finish('failed');
@@ -89,7 +108,23 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
     },
     // Only generated protocol-control packets should use this before readiness.
     control(bytes) { return write(bytes, false); },
-    send(bytes) { return write(bytes, true); },
+    send(bytes) {
+      if (receiptOwner !== null || !write(bytes, true)) return false;
+      const owner = {};
+      receiptOwner = owner;
+      try {
+        receiptTimer = schedule(() => {
+          if (receiptOwner === owner) finish('receipt-timeout');
+        }, DEADLINE_MS);
+      } catch { finish('failed'); return false; }
+      return true;
+    },
+    // Validation/correlation belongs exclusively to the Rust owner. Returning
+    // false is harmless for a recovered unknown decision with no new local send.
+    settled() {
+      if (dead || receiptOwner === null) return false;
+      clearReceipt(); return true;
+    },
     dispose() { finish(null); },
   });
 }
