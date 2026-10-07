@@ -9,9 +9,10 @@ import { createInterface } from 'node:readline';
 import { randomBytes } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
 
-export async function createFixture({dist, gateway, runtimeExecutable, port=18888, actionDelayTicks=0}) {
+export async function createFixture({dist, gateway, runtimeExecutable, port=18888, actionDelayTicks=0, manualTicks=false}) {
   assert.equal(new URL(gateway).hostname,'127.0.0.1');
   assert.ok(Number.isInteger(actionDelayTicks) && actionDelayTicks>=0 && actionDelayTicks<=128);
+  assert.equal(typeof manualTicks,'boolean');
   const root=resolve(dist), origin=`http://127.0.0.1:${port}`;
   const child=spawn(runtimeExecutable,[],{env:{...process.env,WONDERLAND_NATIVE_PEER_TEST_ONLY:'1'},stdio:['pipe','pipe','inherit']});
   const requests=[];let poisoned=false;
@@ -25,7 +26,7 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
     requests.push({resolve,reject});child.stdin.write(JSON.stringify(value)+'\n');
   });
   const tickets=new Map(), clients=new Set(), relays=new Set();
-  const stats={admissions:0,opens:0,checkpoints:0,actions:0,accepted:0,unknownDrops:0,ticks:0,silentReceipts:0};
+  const stats={admissions:0,opens:0,checkpoints:0,actions:0,accepted:0,unknownDrops:0,ticks:0,silentReceipts:0,bursts:0};
   let serial=Promise.resolve(), dropNext=false, loseNext=false;
   const transact=fn=>{const result=serial.then(fn);serial=result.catch(()=>{});return result;};
   const packet=result=>Buffer.from(result.packet,'hex');
@@ -121,15 +122,22 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
     ws.on('close',()=>{clearTimeout(timeout);clients.delete(ws);});ws.on('error',()=>ws.close());
   });
   await new Promise(resolve=>server.listen(port,'127.0.0.1',resolve));
-  const timer=setInterval(()=>{if([...clients].some(ws=>ws.live))transact(async()=>{broadcast(await execute({op:'tick'}));stats.ticks++;}).catch(()=>{});},100);
+  const timer=manualTicks?null:setInterval(()=>{if([...clients].some(ws=>ws.live))transact(async()=>{broadcast(await execute({op:'tick'}));stats.ticks++;}).catch(()=>{});},100);
   return {
     origin,stats,
     reset:()=>transact(async()=>broadcast(await execute({op:'reset_needs'}))),
+    // Test harness control only, never an HTTP route or browser-side state edit.
+    burst:count=>transact(async()=>{
+      assert.ok(manualTicks && Number.isInteger(count) && count>=1 && count<=64);
+      const result=await execute({op:'burst',count});assert.equal(result.count,count);
+      broadcast(result);stats.ticks+=count;stats.bursts++;
+      return {count,tick:result.tick,hash:result.hash,packetSha256:await import('node:crypto').then(m=>m.createHash('sha256').update(packet(result)).digest('hex'))};
+    }),
     dropNextReceipt:()=>{dropNext=true;},
     loseNextReceipt:()=>{loseNext=true;},
     disconnect:()=>{for(const ws of clients)ws.close(1012);},
     state:()=>transact(()=>execute({op:'state'})),
     active:()=>clients.size,
-    close:async()=>{clearInterval(timer);for(const ws of [...clients,...relays])ws.terminate();native.close();legacy.close();child.kill();await new Promise(resolve=>server.close(resolve));},
+    close:async()=>{if(timer!==null)clearInterval(timer);for(const ws of [...clients,...relays])ws.terminate();native.close();legacy.close();child.kill();await new Promise(resolve=>server.close(resolve));},
   };
 }
