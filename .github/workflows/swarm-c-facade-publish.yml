@@ -1,0 +1,135 @@
+name: Swarm C guarded facade publication
+on:
+  push:
+    branches: [work/swarm-c-loaded-facades]
+    paths: [.github/workflows/swarm-c-facade-publish.yml]
+permissions:
+  contents: read
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Restore only the exact checked facade implementation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = rndrntwrk/wonderland-
+          test "$GITHUB_REF" = refs/heads/work/swarm-c-loaded-facades
+          mkdir -p /tmp/facade-evidence
+          python3 - <<'PY'
+          import subprocess,json,base64,gzip,hashlib
+          from pathlib import Path
+          blobs=['afdbc60bb54acaa46c3ff660ea2181289434fe9c','d607c0ff251ec1829566540eb20b445b811c1254','354b9a917a236ab1e1eeaaaa83230eb40ea05a92']
+          parts=[]
+          for sha in blobs:
+              obj=json.loads(subprocess.check_output(['gh','api',f'repos/rndrntwrk/wonderland-/git/blobs/{sha}']))
+              assert obj['encoding']=='base64'
+              data=base64.b64decode(''.join(obj['content'].split()),validate=True)
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha
+              parts.append(data)
+          compressed=b''.join(parts)
+          assert len(compressed)==23809
+          assert hashlib.sha256(compressed).hexdigest()=='ba1df388df22ca43e2f8cf1cd1cd0f6206f425d2ce744c51bcce3e5785f76625'
+          patch=gzip.decompress(compressed)
+          assert len(patch)==77201
+          assert hashlib.sha256(patch).hexdigest()=='2ad792d32e4cb8bf47b332e86a654870a7dc4b5acb5cabbe2bbb658810e80784'
+          manifest={
+            'Cargo.lock':'e08ab7b02b80461212b8032c90c92c4f7badabddfec9c395845b51f0334c1e9b',
+            'apps/web-shell/public/facade-links.mjs':'a8e1eee82559ed97b17c58a3f57fca486c9331c8e4285ebfda514888d1a44a86',
+            'apps/web-shell/src/lib.rs':'358cdc9c21118dc73d4595d9f8b72cf49d35bcb2bb7828387b30dab903aebbe7',
+            'apps/web-shell/src/source_world_screen.rs':'8cf27759fde769197014e73e0e325ede172825c8984d31d352c8b1dcf2e5a898',
+            'apps/web-shell/src/world_facade.rs':'00fdbe81d6a4e7c96ebe1f35874b99e85d0ef09af5fe461b2e7496ac288810b7',
+            'apps/web-shell/tests/gpu/application.mjs':'b674b105cc723b51b50c83798bcf8fbb137891c7d2a23f6b73438d0d3b89e084',
+            'apps/web-shell/tests/gpu/facade.test.mjs':'d40b370d2f698d40a4b076e7d4f94df33df5686d6927d1f4e626c136fb063be0',
+            'crates/render-core/Cargo.toml':'1e55e4b0789d1abd7e1e5b13428c24a6c566c95e698f609083bb900bf7bfa3d1',
+            'crates/render-core/src/lib.rs':'b0ba85f3701109fdb4ba14b866e857d595a188104cc3140788bc4dcdefb7ae29',
+            'crates/world-view/examples/facade_export.rs':'8e74584e0d000bfe5ec81a7bb571a772c8cb25718eac3b7bffab3e196b49d92c',
+            'crates/world-view/src/facade.rs':'dbaad064a51e02dbfdc869c68a5ba0748b2f763844da631229c2b8422b04e73a',
+            'crates/world-view/src/lib.rs':'93ce200f39dbc4db31bf240e7fa7bb5a7bdb571a62bba33a8fcb80eb49b77aeb',
+            'crates/world-view/src/renderer.rs':'f6f012e0b6e2a314e68e398b8b78bd8d0f0617bcaa1e10a78b08261b711b1c03',
+            'crates/world-view/src/scene.rs':'17d4ab0a2ce1c656a037b7a109009790865580bb255f3777e203dfab18e0f873',
+            'crates/world-view/tests/facade_export.rs':'9a233f3c63c399addbf1ddc98d6aa32139b31837ba60d40d353e3e0b669ac0eb',
+            'crates/world-view/tests/lighting_client.rs':'66b739473afa354bf1e3f0d7f98d4fa3f93f66edec4f71b1a49d88f295c06d5a',
+            'docs/swarm-c/CLIENT_FACADES.md':'9a0f9ecfb8dffc5d4809005748ba0b52e8c7e3c7e451edec626aaa366f80b6ad',
+            'docs/swarm-c/FACADE_LEDGER.md':'0784fd9ce1480b77616d47128c855403ea79204dd7839b21ef5c2fd807b9388a',
+            'docs/swarm-e/C_HANDOFF.md':'513f53d1be258a3a23290ad0d2e9de73f5c8e92c73f4973e58ed6a7b07cb5793'}
+          restored={
+            'crates/render-core/src/derivatives.rs':'fcfa6eeebfc5e0795da088588e08e40bd05b665c',
+            'crates/render-core/src/derivatives/fsof.rs':'85883d40fecc2f8820681bceb6ddcb999c3b7ec9',
+            'crates/render-core/src/derivatives/source.rs':'30a2ceeac2afbaa8bbc4efbf3d189a91569dd6dc',
+            'crates/render-core/src/derivatives/upload.rs':'a7688dd31a180b5ef7fbaaca7562b670fbd1722c',
+            'crates/render-core/tests/derivative_fsof.rs':'9a1cade25942f36abdf75cf17667d631f0beb91a',
+            'crates/render-core/tests/derivative_source.rs':'cf5546a57228793e5b649d4558dc2351987bd6e6',
+            'crates/render-core/tests/derivative_upload.rs':'659386859692c50449a28a5992f046176314bd75',
+            'crates/render-core/tests/derivatives.rs':'ffa6c61d6a21beaf39d47cdddf691a657b9c28b4'}
+          for path,sha in restored.items():
+              assert subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()==sha,path
+          target=Path('/tmp/facade-evidence/implementation.patch');target.write_bytes(patch)
+          names=subprocess.check_output(['git','apply','--numstat',str(target)],text=True)
+          assert {line.split('\t',2)[2] for line in names.splitlines()}==set(manifest)
+          subprocess.run(['git','apply','--check',str(target)],check=True)
+          subprocess.run(['git','apply','--whitespace=error',str(target)],check=True)
+          for path,digest in manifest.items(): assert hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest,path
+          Path('/tmp/facade-evidence/source-sha256.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          Path('/tmp/facade-evidence/restored-blobs.json').write_text(json.dumps(restored,indent=2)+'\n')
+          PY
+      - name: Verify native and actual WASM source
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          cargo +1.99.0 fmt --all -- --check 2>&1 | tee /tmp/facade-evidence/format.log
+          cargo +1.99.0 test -p wonderland-render-core -p wonderland-render-iso -p wonderland-render-3d -p wonderland-world-view --all-targets --locked 2>&1 | tee /tmp/facade-evidence/native-tests.log
+          cargo +1.99.0 clippy -p wonderland-render-core -p wonderland-world-view --all-targets --locked -- -D warnings 2>&1 | tee /tmp/facade-evidence/native-clippy.log
+          cargo +1.99.0 clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings 2>&1 | tee /tmp/facade-evidence/wasm-clippy.log
+          node --test apps/web-shell/tests/gpu/*.test.mjs | tee /tmp/facade-evidence/node-tests.log
+          node --check apps/web-shell/tests/gpu/application.mjs
+          git diff --check
+      - name: Publish checked source only without force or workflow mutation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/work/swarm-c-loaded-facades
+          python3 - <<'PY'
+          import subprocess,json,hashlib
+          from pathlib import Path
+          manifest=json.loads(Path('/tmp/facade-evidence/source-sha256.json').read_text())
+          for path,digest in manifest.items(): assert hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest,path
+          subprocess.run(['git','add','--intent-to-add','--',*manifest],check=True)
+          assert set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())==set(manifest)
+          subprocess.run(['git','add','--',*manifest],check=True)
+          assert set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())==set(manifest)
+          PY
+          git diff --cached --check
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          REMOTE="$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" ls-remote origin refs/heads/work/swarm-c-loaded-facades | cut -f1)"
+          test "$REMOTE" = "$GITHUB_SHA"
+          git config user.name 'Wonderland verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(swarm-c): export loaded-world FSOf facades with bounded jobs and native worker'
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin HEAD:refs/heads/work/swarm-c-loaded-facades
+          git rev-parse HEAD > /tmp/facade-evidence/tested-commit.txt
+          git rev-parse HEAD^{tree} > /tmp/facade-evidence/tested-tree.txt
+          printf '%s\n' "$GITHUB_SHA" > /tmp/facade-evidence/workflow-trigger.txt
+          git archive --format=tar.gz HEAD -- .github Cargo.toml Cargo.lock rust-toolchain.toml apps crates docs fixtures tests tools services > /tmp/facade-evidence/source-input.tar.gz
+          sha256sum /tmp/facade-evidence/source-input.tar.gz > /tmp/facade-evidence/archive.sha256
+          git diff --exit-code
+      - name: Preserve exact source and verification receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: facade-publication-${{ github.sha }}
+          path: /tmp/facade-evidence/
+          retention-days: 14
+          if-no-files-found: error
