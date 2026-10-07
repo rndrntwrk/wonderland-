@@ -1,0 +1,546 @@
+diff --git a/apps/web-shell/src/native_avatar.rs b/apps/web-shell/src/native_avatar.rs
+index 6b77cca0c9673c1a94c172a493bb2119b0a77a15..6434a675ceb8ea6a914c4d49381fc9f5a442ebdb 100644
+--- a/apps/web-shell/src/native_avatar.rs
++++ b/apps/web-shell/src/native_avatar.rs
+@@ -1,8 +1,9 @@
+ //! Original Vitaboy resources sampled at the accepted native tick.
+ //!
+-//! This does not predict simulation, consume marker events, or reconstruct a
+-//! pre-checkpoint visual skeleton. Each current timeline is sampled from the
+-//! original bind pose. Missing rig/attachments/resources stay diagnosed.
++//! This does not predict simulation or consume gameplay markers. The live player
++//! commits retained source bone channels once per accepted tick, independently of
++//! rendering. Checkpoints and resource discontinuities start from the bind pose;
++//! no pre-checkpoint visual history is invented.
+ use sha2::{Digest, Sha256};
+ use std::collections::{BTreeMap, BTreeSet};
+ use wonderland_avatar_content::{self as content, ImportedContent};
+@@ -15,6 +16,10 @@ use wonderland_world_view::{
+     WorldError, WorldModel, WorldObject, WorldRevision, WorldSourceKind,
+ };
+ 
++#[path = "native_avatar/history.rs"]
++mod history;
++pub use history::NativeAvatarPoseHistory;
++
+ const ADULT: u32 = 0x7FD96B54;
+ struct Prepared {
+     record: usize,
+@@ -30,6 +35,7 @@ pub struct NativeAvatarProjection {
+     identities: Vec<(usize, WorldObject)>,
+     textures: BTreeSet<AssetKey>,
+     diagnostics: Vec<WorldDiagnostic>,
++    retained: bool,
+ }
+ fn issue(code: &str, resource: String, message: impl Into<String>) -> WorldDiagnostic {
+     WorldDiagnostic {
+@@ -70,6 +76,25 @@ impl NativeAvatarProjection {
+         frame: &AvatarVisualFrame,
+         world: &WorldDocument,
+         bank: &ImportedContent,
++    ) -> Result<Self, WorldError> {
++        Self::prepare_inner(frame, world, bank, None)
++    }
++
++    pub fn prepare_retained(
++        frame: &AvatarVisualFrame,
++        world: &WorldDocument,
++        bank: &ImportedContent,
++        history: &NativeAvatarPoseHistory,
++    ) -> Result<Self, WorldError> {
++        history.validate_frame(frame, bank)?;
++        Self::prepare_inner(frame, world, bank, Some(history))
++    }
++
++    fn prepare_inner(
++        frame: &AvatarVisualFrame,
++        world: &WorldDocument,
++        bank: &ImportedContent,
++        history: Option<&NativeAvatarPoseHistory>,
+     ) -> Result<Self, WorldError> {
+         world.validate()?;
+         if world.provenance.kind != WorldSourceKind::LiveSession || world.revision != frame.revision
+@@ -92,6 +117,7 @@ impl NativeAvatarProjection {
+             identities: vec![],
+             textures: BTreeSet::new(),
+             diagnostics: vec![],
++            retained: history.is_some(),
+         };
+         let limits = RenderLimits::default();
+         let (mut vertices, mut indices) = (0usize, 0usize);
+@@ -116,7 +142,13 @@ impl NativeAvatarProjection {
+             if !object.visible {
+                 continue;
+             }
+-            match prepare_parts(avatar, bank) {
++            let parts = match history {
++                Some(history) => history
++                    .pose(avatar)
++                    .and_then(|pose| prepare_parts(avatar, bank, Some(pose))),
++                None => prepare_parts(avatar, bank, None),
++            };
++            match parts {
+                 Ok(parts) => {
+                     let added_v = parts.iter().map(|p| p.mesh.vertices.len()).sum::<usize>();
+                     let added_i = parts.iter().map(|p| p.mesh.indices.len()).sum::<usize>();
+@@ -327,8 +359,13 @@ impl NativeAvatarProjection {
+             next.objects[avatar.record].model = Some(next.models.len());
+             next.models.push(model);
+             // Preserve diagnostics for other missing instances, including a shared GUID.
+-            next.diagnostics.push(issue("native_avatar_current_pose",name,
+-                "Original resources sampled at the accepted animation frame. Historical bone retention, head seeking and container/bone attachments are not reconstructed."));
++            let message = if self.retained {
++                "Original resources with bone channels retained across observed accepted ticks. Checkpoint/resource boundaries start from bind pose; head seeking and container/bone attachments are not reconstructed."
++            } else {
++                "Original resources sampled from bind pose at the current accepted frame; no historical bone retention, head seeking or container/bone attachments are reconstructed."
++            };
++            next.diagnostics
++                .push(issue("native_avatar_current_pose", name, message));
+         }
+         let unavailable = next
+             .objects
+@@ -346,6 +383,7 @@ impl NativeAvatarProjection {
+ fn prepare_parts(
+     avatar: &AvatarVisual,
+     bank: &ImportedContent,
++    retained: Option<&wonderland_avatar_view::Pose>,
+ ) -> Result<Vec<content::RenderablePart>, String> {
+     if avatar.container.is_some() {
+         return Err("Container-bound avatars require original SLOT/bone attachment data; no grounded substitute is shown.".into());
+@@ -364,36 +402,14 @@ fn prepare_parts(
+     if avatar.animations.layers.len() > 64 || avatar.animations.bound_appearances.len() > 128 {
+         return Err("The native avatar animation/attachment budget was exceeded.".into());
+     }
+-    let resolve = |state: &wonderland_game_runtime::AvatarAnimation| {
+-        let clip = bank.animation(&state.resource).map_err(|e| e.to_string())?;
+-        if !clip.matches_projection(&state.resource, state.num_frames, clip.key) {
+-            return Err(
+-                "Original animation metadata differs from the accepted runtime resource."
+-                    .to_string(),
+-            );
+-        }
+-        Ok(clip)
++    let pose = if let Some(retained) = retained {
++        retained.clone()
++    } else {
++        let timeline = resolve_timeline(avatar, bank)?;
++        let mut pose = rig.bind_pose();
++        sample_timeline(rig, &mut pose, &timeline, 0.).map_err(|e| e.to_string())?;
++        pose
+     };
+-    let mut timeline = Timeline::default();
+-    for state in &avatar.animations.layers {
+-        timeline.layers.push(TimelineLayer {
+-            clip: resolve(state)?,
+-            current_frame: state.current_frame,
+-            speed: state.speed,
+-            weight: state.weight,
+-            backwards: state.backwards,
+-            end_reached: state.end_reached,
+-            looping: state.looping,
+-        });
+-    }
+-    if let Some(state) = &avatar.animations.carry {
+-        timeline.carry = Some(CarryPose {
+-            clip: resolve(state)?,
+-            frame: state.current_frame,
+-        });
+-    }
+-    let mut pose = rig.bind_pose();
+-    sample_timeline(rig, &mut pose, &timeline, 0.).map_err(|e| e.to_string())?;
+     let mut accessories = avatar
+         .animations
+         .bound_appearances
+@@ -464,3 +480,38 @@ fn prepare_parts(
+     }
+     Ok(parts)
+ }
++
++fn resolve_timeline(avatar: &AvatarVisual, bank: &ImportedContent) -> Result<Timeline, String> {
++    if avatar.animations.layers.len() > 64 || avatar.animations.bound_appearances.len() > 128 {
++        return Err("The native avatar animation/attachment budget was exceeded.".into());
++    }
++    let resolve = |state: &wonderland_game_runtime::AvatarAnimation| {
++        let clip = bank.animation(&state.resource).map_err(|e| e.to_string())?;
++        if !clip.matches_projection(&state.resource, state.num_frames, clip.key) {
++            return Err(
++                "Original animation metadata differs from the accepted runtime resource."
++                    .to_string(),
++            );
++        }
++        Ok(clip)
++    };
++    let mut timeline = Timeline::default();
++    for state in &avatar.animations.layers {
++        timeline.layers.push(TimelineLayer {
++            clip: resolve(state)?,
++            current_frame: state.current_frame,
++            speed: state.speed,
++            weight: state.weight,
++            backwards: state.backwards,
++            end_reached: state.end_reached,
++            looping: state.looping,
++        });
++    }
++    if let Some(state) = &avatar.animations.carry {
++        timeline.carry = Some(CarryPose {
++            clip: resolve(state)?,
++            frame: state.current_frame,
++        });
++    }
++    Ok(timeline)
++}
+diff --git a/apps/web-shell/src/native_avatar/history.rs b/apps/web-shell/src/native_avatar/history.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..d38edbe627a630cbfe040bebc58d9d9661fe4f8f
+--- /dev/null
++++ b/apps/web-shell/src/native_avatar/history.rs
+@@ -0,0 +1,195 @@
++//! Retained presentation state, never authoritative simulation state. The caller
++//! feeds EVERY accepted frame, including frames not drawn and invisible avatars.
++use super::{ADULT, resolve_timeline};
++use sha2::{Digest, Sha256};
++use std::{
++    collections::{BTreeMap, BTreeSet},
++    sync::Arc,
++};
++use wonderland_avatar_content::ImportedContent;
++use wonderland_avatar_view::{Pose, PosePlayer};
++use wonderland_game_runtime::{AvatarVisual, AvatarVisualFrame, EntityRef};
++use wonderland_render_core::AssetKey;
++use wonderland_world_view::{WorldError, WorldRevision};
++
++/// Presentation budgets, not player/admission limits. Resource failures diagnose
++/// the affected appearance rather than changing any authoritative game outcome.
++const MAX_RETAINED_AVATARS: usize = 1024;
++const MAX_RETAINED_BONES: usize = 65_536;
++#[derive(Clone)]
++struct Entry {
++    guid: u32,
++    pose: Result<PosePlayer, String>,
++}
++#[derive(Default)]
++pub struct NativeAvatarPoseHistory {
++    bank: Option<Arc<ImportedContent>>,
++    revision: Option<WorldRevision>,
++    fingerprint: Option<AssetKey>,
++    entries: BTreeMap<EntityRef, Entry>,
++}
++fn identity(frame: &AvatarVisualFrame) -> Result<AssetKey, WorldError> {
++    let mut seen = BTreeSet::new();
++    let mut hash = Sha256::new();
++    if frame.avatars.len() > MAX_RETAINED_AVATARS {
++        return Err(WorldError(
++            "Native retained avatar record budget exceeded.".into(),
++        ));
++    }
++    for avatar in &frame.avatars {
++        if avatar.entity.object_id.0 <= 0
++            || avatar.entity.generation == 0
++            || !seen.insert(avatar.entity)
++        {
++            return Err(WorldError(
++                "Invalid or duplicate retained avatar identity.".into(),
++            ));
++        }
++        hash.update(
++            serde_json::to_vec(avatar)
++                .map_err(|_| WorldError("Invalid retained avatar data.".into()))?,
++        );
++    }
++    Ok(AssetKey(hash.finalize().into()))
++}
++fn same_scope(a: WorldRevision, b: WorldRevision) -> bool {
++    (a.lot_id, a.epoch, a.content) == (b.lot_id, b.epoch, b.content)
++}
++impl NativeAvatarPoseHistory {
++    pub fn clear(&mut self) {
++        *self = Self::default();
++    }
++
++    /// Commit once per tick from the ordered accepted trace. Repeated renders or
++    /// texture notifications at that tick cannot compound blends. Missing ticks,
++    /// changed content/rig/lot and explicit checkpoints reset unknown history.
++    pub fn observe(
++        &mut self,
++        frame: &AvatarVisualFrame,
++        bank: Arc<ImportedContent>,
++    ) -> Result<(), WorldError> {
++        let fingerprint = identity(frame)?;
++        let same_bank = self
++            .bank
++            .as_ref()
++            .is_some_and(|old| Arc::ptr_eq(old, &bank));
++        let same_source = self
++            .revision
++            .is_some_and(|old| same_scope(old, frame.revision));
++        if same_bank
++            && same_source
++            && let Some(old) = self.revision
++        {
++            if frame.revision.tick < old.tick {
++                return Err(WorldError("Stale retained avatar tick.".into()));
++            }
++            if frame.revision.tick == old.tick {
++                return if self.revision == Some(frame.revision)
++                    && self.fingerprint == Some(fingerprint)
++                {
++                    Ok(())
++                } else {
++                    Err(WorldError(
++                        "Retained avatar state changed at the same accepted tick.".into(),
++                    ))
++                };
++            }
++        }
++        let contiguous = same_bank
++            && same_source
++            && self
++                .revision
++                .is_some_and(|old| old.tick.checked_add(1) == Some(frame.revision.tick));
++        let mut next = BTreeMap::new();
++        let mut bones = 0usize;
++        for avatar in &frame.avatars {
++            let pose = (|| {
++                let rig = bank
++                    .rig
++                    .as_ref()
++                    .ok_or("The original avatar skeleton is not loaded.")?;
++                if avatar.guid != ADULT || !rig.source().name.eq_ignore_ascii_case("adult") {
++                    return Err(
++                        "This avatar requires its original OBJD-to-skeleton mapping.".into(),
++                    );
++                }
++                if avatar.container.is_some() {
++                    return Err(
++                        "Container-bound avatars require their original attachment adapter.".into(),
++                    );
++                }
++                let count = rig.source().bones.len();
++                if count > MAX_RETAINED_BONES.saturating_sub(bones) {
++                    return Err("Native retained bone budget exceeded.".into());
++                }
++                let timeline = resolve_timeline(avatar, &bank)?;
++                let mut player = if contiguous {
++                    self.entries
++                        .get(&avatar.entity)
++                        .filter(|e| e.guid == avatar.guid)
++                        .and_then(|e| e.pose.as_ref().ok())
++                        .cloned()
++                } else {
++                    None
++                }
++                .unwrap_or_else(|| {
++                    PosePlayer::new(
++                        wonderland_render_core::EntityRef {
++                            object_id: avatar.entity.object_id.0 as u32,
++                            generation: avatar.entity.generation,
++                        },
++                        rig,
++                    )
++                });
++                player
++                    .commit(frame.revision.tick, rig, timeline)
++                    .map_err(|e| e.to_string())?;
++                bones += count;
++                Ok(player)
++            })();
++            next.insert(
++                avatar.entity,
++                Entry {
++                    guid: avatar.guid,
++                    pose,
++                },
++            );
++        }
++        // Atomic replacement also drops disappeared entities and obsolete clip handles.
++        self.entries = next;
++        self.bank = Some(bank);
++        self.revision = Some(frame.revision);
++        self.fingerprint = Some(fingerprint);
++        Ok(())
++    }
++    pub(super) fn validate_frame(
++        &self,
++        frame: &AvatarVisualFrame,
++        bank: &ImportedContent,
++    ) -> Result<(), WorldError> {
++        if self.revision != Some(frame.revision)
++            || self
++                .bank
++                .as_ref()
++                .is_none_or(|old| !std::ptr::eq(Arc::as_ptr(old), bank))
++            || self.fingerprint != Some(identity(frame)?)
++        {
++            return Err(WorldError(
++                "Retained pose does not belong to the current frame and content bank.".into(),
++            ));
++        }
++        Ok(())
++    }
++    pub(super) fn pose(&self, avatar: &AvatarVisual) -> Result<&Pose, String> {
++        let entry = self
++            .entries
++            .get(&avatar.entity)
++            .filter(|e| e.guid == avatar.guid)
++            .ok_or("Retained avatar pose is unavailable.")?;
++        entry
++            .pose
++            .as_ref()
++            .map(PosePlayer::retained)
++            .map_err(Clone::clone)
++    }
++}
+diff --git a/apps/web-shell/src/native_lot.rs b/apps/web-shell/src/native_lot.rs
+index 37d420e9e19752a146771e9a1f181bf2a516c326..3b2e10d788cca8466c32f4a25b825e8bcc3aac62 100644
+--- a/apps/web-shell/src/native_lot.rs
++++ b/apps/web-shell/src/native_lot.rs
+@@ -1,5 +1,8 @@
+ //! Explicit native lot view. Legacy source snapshots never enter this decoder.
+-use crate::{avatar_content::ContentUi, native_avatar::NativeAvatarProjection};
++use crate::{
++    avatar_content::ContentUi,
++    native_avatar::{NativeAvatarPoseHistory, NativeAvatarProjection},
++};
+ use crate::{components::Icon, connected_bridge::ConnectedUi, world_renderer::WorldViewport};
+ use leptos::prelude::*;
+ use std::{
+@@ -66,6 +69,8 @@ struct Resources {
+     frame: Option<Closure<dyn FnMut(js_sys::Uint8Array) -> JsValue>>,
+     state: Option<Closure<dyn FnMut(String)>>,
+     last_request: u64,
++    poses: NativeAvatarPoseHistory,
++    pose_issue: Option<String>,
+ }
+ impl Resources {
+     fn stop_socket(&mut self) {
+@@ -85,11 +90,14 @@ impl Resources {
+         }
+         self.player = None;
+         self.scope = None;
++        self.poses.clear();
++        self.pose_issue = None;
+     }
+ }
+ #[derive(Clone, Copy)]
+ struct Controller {
+     ui: ConnectedUi,
++    content: ContentUi,
+     resources: StoredValue<Resources, LocalStorage>,
+     world: RwSignal<Option<Arc<WorldDocument>>>,
+     projection: RwSignal<Option<Arc<RuntimeProjection>>>,
+@@ -167,6 +175,8 @@ impl Controller {
+         };
+         let Some((generation, resume)) = self.resources.try_update_value(|r| {
+             r.stop_socket();
++            r.poses.clear();
++            r.pose_issue = None;
+             let Some(next) = r.generation.checked_add(1) else {
+                 r.close();
+                 return (u64::MAX, false);
+@@ -221,6 +231,7 @@ impl Controller {
+                     return JsValue::FALSE;
+                 }
+                 let payload = bytes.to_vec();
++                let pose_bank = self.content.imported.get_untracked();
+                 let mut receipt = false;
+                 let processed = self.resources.try_update_value(
+                     |r| -> Result<(Option<Vec<u8>>, bool), &'static str> {
+@@ -228,8 +239,30 @@ impl Controller {
+                             use wonderland_game_runtime::live_wire::player::PlayerUpdate;
+                             // Process this complete accepted batch synchronously;
+                             // only durable presentation history may enter a signal.
+-                            let update = player.receive_update(&payload)?;
++                            let (update, avatar_frames) = if pose_bank.is_some() {
++                                player.receive_presented(&payload)?
++                            } else { (player.receive_update(&payload)?, None) };
+                             receipt = matches!(update, PlayerUpdate::Receipt(_));
++                            if !receipt {
++                                if matches!(update, PlayerUpdate::Checkpoint(_)) { r.poses.clear(); }
++                                match (pose_bank.as_ref(), avatar_frames) {
++                                    (Some(bank), Some(frames)) => {
++                                        for frame in &frames {
++                                            if let Err(error) = r.poses.observe(frame, Arc::clone(bank)) {
++                                                r.poses.clear();
++                                                r.pose_issue = Some(error.to_string());
++                                                break;
++                                            }
++                                        }
++                                    }
++                                    _ => {
++                                        r.poses.clear();
++                                        if pose_bank.is_some() {
++                                            r.pose_issue = Some("Avatar trace exceeded its presentation budget; retained history restarts at the current accepted frame.".into());
++                                        }
++                                    }
++                                }
++                            }
+                         } else {
+                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
+                         }
+@@ -464,7 +497,21 @@ fn project_avatars(
+             cache.loading = false;
+         }
+     });
+-    let projection = match NativeAvatarProjection::prepare(frame, world, &bank) {
++    let prepared = ctl
++        .resources
++        .try_update_value(|r| {
++            // Normally a no-op: socket ingestion already committed every tick. This
++            // seeds a newly imported bank at the CURRENT frame without replaying old
++            // animation history or compounding blends on texture/camera callbacks.
++            r.poses.observe(frame, Arc::clone(&bank))?;
++            NativeAvatarProjection::prepare_retained(frame, world, &bank, &r.poses)
++        })
++        .unwrap_or_else(|| {
++            Err(wonderland_world_view::WorldError(
++                "Native avatar owner was disposed.".into(),
++            ))
++        });
++    let projection = match prepared {
+         Ok(value) => value,
+         Err(issue) => {
+             world
+@@ -507,6 +554,15 @@ fn project_avatars(
+                 message: issue.to_string(),
+             });
+     }
++    if let Some(message) = ctl.resources.with_value(|r| r.pose_issue.clone()) {
++        world
++            .diagnostics
++            .push(wonderland_world_view::WorldDiagnostic {
++                code: "native_avatar_history_reset".into(),
++                resource: "native avatars".into(),
++                message,
++            });
++    }
+     if let Some((generation, missing)) = task {
+         spawn_local(async move {
+             for key in missing {
+@@ -558,8 +614,10 @@ fn project_avatars(
+ #[component]
+ pub fn NativeLot() -> impl IntoView {
+     let ui = expect_context::<ConnectedUi>();
++    let content = expect_context::<ContentUi>();
+     let ctl = Controller {
+         ui,
++        content,
+         resources: StoredValue::new_local(Resources::default()),
+         world: RwSignal::new(None),
+         projection: RwSignal::new(None),
+@@ -570,7 +628,6 @@ pub fn NativeLot() -> impl IntoView {
+         notice: RwSignal::new(String::new()),
+         wake: RwSignal::new(0),
+     };
+-    let content = expect_context::<ContentUi>();
+     let avatar_resources = StoredValue::new_local(AvatarResources::default());
+     let controls = RwSignal::new(ViewportControls::default());
+     let presentation_revision = RwSignal::new(0u64);
+@@ -601,6 +658,7 @@ pub fn NativeLot() -> impl IntoView {
+                 if let Some(bank) = bank {
+                     project_avatars(ctl, avatar_resources, bank, &avatars, &mut world);
+                 } else {
++                    ctl.resources.update_value(|r| r.poses.clear());
+                     avatar_resources.update_value(|cache| {
+                         if cache.bank.is_none() {
+                             return;
