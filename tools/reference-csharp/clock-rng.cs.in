@@ -1,0 +1,79 @@
+// TEST ONLY: generated from exact hash-pinned original source by run_reference.py.
+// VMClock.cs and VMSerializable.cs are compiled unchanged alongside this file.
+// VMClockMarshal and VMContext.NextRandom are exact source-block extractions.
+// The driver, input schedule and branching policy below are authored test setup;
+// this does not boot the complete FreeSO VM, run BHAVs, or execute any service.
+using System;
+using System.Globalization;
+using System.IO;
+using FSO.SimAntics;
+using FSO.SimAntics.NetPlay.Model;
+
+namespace FSO.SimAntics.Marshals
+{
+    @@CLOCK_MARSHAL@@
+}
+
+public sealed class ReferenceRandom
+{
+    public ulong RandomSeed;
+    @@VM_NEXT_RANDOM@@
+}
+
+public static class ClockRngReference
+{
+    private const string CaseHeader = "case\tts1\tseed\tutc_start\tstart_tick\tfraction\tminutes\thours\tday\tmonth\tyear\tfire\tsteps";
+    private const string Header = "case\tstep\tclock_tick\trng_before\tbound\trandom\tbranch\textra\trng_after\tfraction\tminutes\thours\tday\tmonth\tyear\tfire\tseconds\tutc";
+    private static readonly ulong[] Bounds = {0, 1, 2, 100, 65535, ulong.MaxValue};
+    private static string Format(object value) { return Convert.ToString(value, CultureInfo.InvariantCulture); }
+    private static int Number(string value) { return int.Parse(value, CultureInfo.InvariantCulture); }
+
+    public static int Main(string[] args)
+    {
+        try
+        {
+            if (args.Length != 1 || new FileInfo(args[0]).Length > 65536) throw new Exception("Input limit");
+            string[] lines = File.ReadAllLines(args[0]);
+            if (lines.Length < 2 || lines.Length > 65 || lines[0] != CaseHeader) throw new Exception("Invalid case header/count");
+            Console.WriteLine(Header);
+            int records = 0;
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string[] p = lines[i].Split('\t');
+                if (p.Length != 13 || (p[1] != "0" && p[1] != "1")) throw new Exception("Invalid case");
+                // UTCStart's constructor initializer is overwritten before its
+                // value is ever observed. No wall clock contributes to the trace.
+                var clock = new VMClock {
+                    TicksPerMinute = p[1] == "1" ? 30 : 150,
+                    UTCStart = long.Parse(p[3], CultureInfo.InvariantCulture),
+                    Ticks = long.Parse(p[4], CultureInfo.InvariantCulture),
+                    MinuteFractions = Number(p[5]), Minutes = Number(p[6]), Hours = Number(p[7]),
+                    DayOfMonth = Number(p[8]), Month = Number(p[9]), Year = Number(p[10]), FirePercent = Number(p[11])
+                };
+                var rng = new ReferenceRandom {RandomSeed = ulong.Parse(p[2], CultureInfo.InvariantCulture)};
+                int steps = Number(p[12]);
+                if (steps < 1 || steps > 2048) throw new Exception("Step limit");
+                for (int step = 1; step <= steps; step++)
+                {
+                    if (++records > 10000) throw new Exception("Record limit");
+                    ulong before = rng.RandomSeed;
+                    ulong bound = Bounds[(step - 1) % Bounds.Length];
+                    ulong value = rng.NextRandom(bound);
+                    bool branch = (value & 1) != 0;
+                    ulong extra = rng.NextRandom(branch ? 17UL : 0UL);
+                    clock.Tick();
+                    object[] fields = {p[0], step, clock.Ticks, before, bound, value, branch ? 1 : 0, extra,
+                        rng.RandomSeed, clock.MinuteFractions, clock.Minutes, clock.Hours, clock.DayOfMonth,
+                        clock.Month, clock.Year, clock.FirePercent, clock.Seconds, clock.UTCNow.Ticks};
+                    Console.WriteLine(string.Join("\t", Array.ConvertAll(fields, Format)));
+                }
+            }
+            return 0;
+        }
+        catch (Exception error)
+        {
+            Console.Error.WriteLine(error.GetType().Name + ": " + error.Message);
+            return 2;
+        }
+    }
+}
