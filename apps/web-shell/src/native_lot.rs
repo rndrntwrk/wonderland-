@@ -21,7 +21,7 @@ export async function openNativePlayerSocket(url,ticket,frame,state,origin,resum
   if(signal.aborted) return null;
   const host=module.connectNativeSocket(url,ticket,frame,state,{allowedOrigin:origin,resume});
   const abort=()=>host.dispose();signal.addEventListener('abort',abort,{once:true});
-  return {ready:()=>host.ready(),send:b=>host.send(b),control:b=>host.control(b),dispose:()=>{signal.removeEventListener('abort',abort);host.dispose();}};
+  return {ready:()=>host.ready(),settled:()=>host.settled(),send:b=>host.send(b),control:b=>host.control(b),dispose:()=>{signal.removeEventListener('abort',abort);host.dispose();}};
 }
 export function nativeHostCall(host,method,bytes) {
   if(!host || typeof host[method]!=='function') return false;
@@ -215,12 +215,15 @@ impl Controller {
                     return JsValue::FALSE;
                 }
                 let payload = bytes.to_vec();
+                let mut receipt = false;
                 let processed = self.resources.try_update_value(
                     |r| -> Result<(Option<Vec<u8>>, bool), &'static str> {
                         if let Some(player) = r.player.as_mut() {
+                            use wonderland_game_runtime::live_wire::player::PlayerUpdate;
                             // Process this complete accepted batch synchronously;
                             // only durable presentation history may enter a signal.
-                            let _update = player.receive_update(&payload)?;
+                            let update = player.receive_update(&payload)?;
+                            receipt = matches!(update, PlayerUpdate::Receipt(_));
                         } else {
                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
                         }
@@ -248,6 +251,11 @@ impl Controller {
                 );
                 match processed {
                     Some(Ok((reply, ready))) => {
+                        // Release the mutable runtime borrow before invoking JS.
+                        // A validated tick/completion/checkpoint is not a receipt.
+                        if receipt {
+                            self.host("settled", None);
+                        }
                         if ready {
                             let was_live = self.live.get_untracked();
                             self.live.try_set(true);
@@ -271,6 +279,9 @@ impl Controller {
             let on_state = Closure::wrap(Box::new(move |value: String| {
                 if !self.current(generation) {
                     return;
+                }
+                if value == "receipt-timeout" {
+                    self.fail("The server did not confirm this action in time. Its result is unknown. Reconnect to continue; it will not be retried.");
                 }
                 if value == "failed" || value == "disconnected" {
                     self.fail("Connection interrupted. The displayed property is the last accepted state. Reconnect to continue.");
