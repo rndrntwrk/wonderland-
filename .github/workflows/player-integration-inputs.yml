@@ -1,0 +1,30 @@
+name: Player integration inputs
+on:
+  push:
+    branches: [feat/connected-player-integration]
+    paths: [.github/workflows/player-integration-inputs.yml]
+permissions:
+  contents: read
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Export exact sibling changes
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 13580dd2d0e2fefbefb73e4d0011032f80c06fb0 194e998d021c5ce894753222a57c8518162ffc32
+          mkdir -p /tmp/player-integration-inputs
+          git diff --binary 13580dd2d0e2fefbefb73e4d0011032f80c06fb0 194e998d021c5ce894753222a57c8518162ffc32 > /tmp/player-integration-inputs/pose.patch
+          git ls-tree -rz 194e998d021c5ce894753222a57c8518162ffc32 > /tmp/player-integration-inputs/pose-tree.bin
+          sha256sum /tmp/player-integration-inputs/* > /tmp/player-integration-inputs/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: player-integration-inputs
+          path: /tmp/player-integration-inputs/
+          retention-days: 3
+          if-no-files-found: error
