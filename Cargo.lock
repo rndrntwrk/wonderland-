@@ -2889,6 +2889,7 @@ name = "wonderland-render-core"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "flate2",
  "serde",
  "sha2",
 ]

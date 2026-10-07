@@ -182,3 +182,77 @@ fn tick_only_updates_and_device_reset_reuse_the_validated_light_atlas() {
     renderer.replace_document(Arc::new(next)).unwrap();
     assert_eq!(renderer.lighting_preparations(), 2);
 }
+
+#[test]
+fn tileless_upper_roofs_sample_their_source_floor_not_the_ground_floor() {
+    let mut world = lit_world();
+    let larger = WorldDocument::from_blueprint_xml(
+        "<house><size>5</size><world><floors/><walls/></world><objects/></house>",
+        "test:roof-light",
+        "fixture",
+    )
+    .unwrap();
+    world.lot = larger.lot;
+    let light = world.lighting.as_mut().unwrap();
+    light.width = 5;
+    light.height = 5;
+    light.cells = (0..world.lot.levels)
+        .flat_map(|f| {
+            vec![
+                WorldLightCell {
+                    first: u16::from(f) + 1,
+                    second: u16::from(f) + 1,
+                    diagonal: LightRoomDiagonal::None,
+                    floor_pattern: 0,
+                };
+                25
+            ]
+        })
+        .collect();
+    let width = usize::from(world.lot.width);
+    let floor_area = width * usize::from(world.lot.height);
+    assert!(world.lot.levels >= 2);
+    for y in 1..4 {
+        for x in 1..4 {
+            world.lot.tiles[floor_area + y * width + x].indoors = Some(true);
+        }
+    }
+    world.lot.roof = Some(WorldRoof {
+        material: 17,
+        pitch: 0.5,
+        advanced: true,
+        average_color: [1.; 4],
+        texture_scale: 1.,
+    });
+    let controls = ViewportControls {
+        visible_level: 2,
+        show_roofs: true,
+        ..Default::default()
+    };
+    let scene = build_scene(&world, controls).unwrap();
+    let upper_roof = scene
+        .parts
+        .iter()
+        .find(|p| p.level > 1 && p.tile.is_none() && p.surface == Some(WorldSurface::Roof))
+        .expect("fixture must include a tileless upper roof");
+    let light = world.lighting.as_ref().unwrap().prepare(&world).unwrap();
+    let desired = light
+        .model_to_uv(upper_roof.transform, upper_roof.level - 1)
+        .unwrap();
+    let desired: [f32; 16] = std::array::from_fn(|i| desired.cols[i / 4][i % 4]);
+    let ground = light.model_to_uv(upper_roof.transform, 0).unwrap();
+    let ground: [f32; 16] = std::array::from_fn(|i| ground.cols[i / 4][i % 4]);
+    assert_ne!(
+        desired, ground,
+        "fixture must distinguish floor atlas cells"
+    );
+    let mut renderer = WorldRenderer::new(Arc::new(world)).unwrap();
+    let (packet, _) = renderer.prepare_gpu(controls, 160, 120).unwrap();
+    assert!(
+        packet
+            .draws
+            .iter()
+            .any(|d| d.pick_id == 0 && d.light.as_ref().is_some_and(|l| l.matrix == desired)),
+        "upper roof incorrectly uses the ground-floor light atlas"
+    );
+}

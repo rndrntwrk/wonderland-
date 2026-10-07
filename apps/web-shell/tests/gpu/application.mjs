@@ -6,7 +6,7 @@ import {createReadStream} from 'node:fs';
 import {resolve,relative,sep,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
-import {inflateSync} from 'node:zlib';
+import {inflateSync,gunzipSync} from 'node:zlib';
 import {materialPixel} from './material-pixels.mjs';
 const root=fileURLToPath(new URL('../../../../',import.meta.url));
 const dist=resolve(process.env.WONDERLAND_DIST||resolve(root,'apps/web-shell/dist'));
@@ -97,6 +97,30 @@ async function photo(name){
   report.scenarios.push({name,width:image.width,height:image.height,sha256:sha(bytes),pixelComparisons:image.width*image.height,generation:before});
   return urls;
 }
+// Parse the actual exported FSOf body independently of the Rust encoder.
+async function facade(name){
+  const generation=await canvas().getAttribute('data-frame-generation');
+  await page.getByRole('button',{name:'Build facade',exact:true}).click();
+  const link=page.getByRole('link',{name:'Save FSOf',exact:true});await link.waitFor();
+  const urls={file:await link.getAttribute('href'),metadata:await page.getByRole('link',{name:'Facade details',exact:true}).getAttribute('href')};
+  const observed=await page.evaluate(async urls=>({bytes:Array.from(new Uint8Array(await (await fetch(urls.file)).arrayBuffer())),metadata:await (await fetch(urls.metadata)).json()}),urls);
+  const bytes=Buffer.from(observed.bytes),metadata=observed.metadata;
+  assert.equal(bytes.toString('ascii',0,4),'FSOf');assert.equal(bytes.readUInt32LE(4),1);assert.equal(bytes[8],1);
+  assert.equal(metadata.kind,'presentation_facade');assert.equal(metadata.not_a_game_save,true);assert.equal(metadata.sha256,sha(bytes));
+  const body=gunzipSync(bytes.subarray(9),{maxOutputLength:16*1024*1024});let cursor=0;
+  const int=()=>{assert.ok(cursor+4<=body.length);const v=body.readInt32LE(cursor);cursor+=4;assert.ok(v>=0);return v;};
+  assert.equal(int(),0);const dimensions=[int(),int(),int(),int()];assert.ok(dimensions.every(n=>n>0&&n<=2048));
+  assert.equal(body[cursor++],0,'A single supplied lighting state invented night data');
+  const textures=[];
+  for(let i=0;i<2;i++){const n=int();assert.equal(n,dimensions[i*2]*dimensions[i*2+1]*4);assert.ok(cursor+n<=body.length);textures.push(body.subarray(cursor,cursor+n));cursor+=n;}
+  let triangles=0;
+  for(let mesh=0;mesh<2;mesh++){const vertices=int();assert.ok(vertices<=100000&&cursor+vertices*32<=body.length);cursor+=vertices*32;const count=int();assert.ok(count<=300000&&count%3===0);for(let i=0;i<count;i++)assert.ok(int()<vertices);triangles+=count/3;}
+  assert.equal(cursor,body.length);assert.ok(triangles>0);assert.ok(textures[0].some((v,i)=>i%4===3&&v>0),'Export has no visible floor pixels');
+  assert.equal(await canvas().getAttribute('data-frame-generation'),generation,'Facade advanced displayed frame generation');
+  await writeFile(resolve(output,name+'.fsof'),bytes);await writeFile(resolve(output,name+'.json'),JSON.stringify(metadata,null,2)+'\n');
+  report.scenarios.push({name:'actual FSOf '+name,bytes:bytes.length,sha256:sha(bytes),triangles,source_hash:metadata.source_hash,generation});
+  return {urls,bytes,metadata,floorHash:sha(textures[0])};
+}
 async function revoked(urls){
   const released=await page.evaluate(()=>window.__revokedPhotoUrls);
   for(const url of Object.values(urls))assert.ok(released.includes(url),'Capture did not release its actual object URL');
@@ -110,7 +134,12 @@ try{
   assert.equal(await canvas().getAttribute('data-renderer'),'source-webgl2');
   assert.ok(Number(await page.locator('.world-render-evidence').getAttribute('data-triangles'))>0);
   const image=await capture('original-source-world');const colors=new Set();for(let i=0;i<image.pixels.length;i+=4)colors.add(image.pixels[i]|image.pixels[i+1]<<8|image.pixels[i+2]<<16);assert.ok(colors.size>8,'Actual application screenshot is empty');
-  await installCaptureObserver();const originalPhoto=await photo('original-view-export');
+  await installCaptureObserver();
+  await page.getByRole('button',{name:'Build facade',exact:true}).click();
+  await page.getByRole('button',{name:'Cancel export',exact:true}).click();
+  assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).count(),0);
+  report.scenarios.push({name:'cancel loaded original-lot facade without publishing stale output'});
+  const originalPhoto=await photo('original-view-export');
   await canvas().focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Clear selection',exact:true}).waitFor();
   assert.match(await page.locator('.source-world-inspector strong').innerText(),/^(Tile |Object )/);report.scenarios.push({name:'WASM-resolved GPU selection',selected:await page.locator('.source-world-inspector strong').innerText()});
   await page.getByRole('button',{name:'Rotate right',exact:true}).click();await changed(initial);await page.getByRole('link',{name:'Save PNG',exact:true}).waitFor({state:'detached'});await revoked(originalPhoto);report.scenarios.push({name:'camera changes discard the previous photo without changing source selection'});await capture('rotated-source-world');
@@ -189,8 +218,13 @@ try{
   };
   await importLighting('room-lit',litSource);await photo('room-lit-application-export');
   const litImage=png(await readFile(resolve(output,'room-lit-application-export.png')));
+  const litFacade=await facade('lit-lot-facade');
   await importLighting('room-shadow',shadowSource);const shadowPhoto=await photo('room-shadow-application-export');
   const shadowImage=png(await readFile(resolve(output,'room-shadow-application-export.png')));
+  await revoked(litFacade.urls);
+  const shadowFacade=await facade('shadowed-lot-facade');
+  assert.notEqual(litFacade.metadata.source_hash,shadowFacade.metadata.source_hash);
+  assert.notEqual(litFacade.floorHash,shadowFacade.floorHash,'Shadow recipe did not reach facade pixels');
   assert.equal(litImage.width,shadowImage.width);assert.equal(litImage.height,shadowImage.height);
   let shadowPixels=0,litPixels=0;
   for(let i=0;i<litImage.pixels.length;i+=4){
@@ -203,6 +237,7 @@ try{
   await page.locator('.source-open-lot input').setInputFiles({name:'invalid-light.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(malformed))});
   await page.getByRole('status').filter({hasText:'This lot contains invalid or unsupported world data.'}).waitFor();
   assert.equal(await canvas().getAttribute('data-frame-generation'),beforeBadLight);
+  assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).getAttribute('href'),shadowFacade.urls.file,'Invalid import discarded a valid facade');
   assert.equal(await page.getByRole('link',{name:'Save PNG',exact:true}).getAttribute('href'),shadowPhoto.image,'Rejected lighting discarded the admitted photo');
   await canvas().focus();await page.keyboard.press('Enter');
   await page.waitForFunction(()=>document.querySelector('.source-world-inspector strong')?.textContent.startsWith('Tile '));
@@ -215,8 +250,11 @@ try{
   assert.equal(await page.locator('.source-world-inspector strong').innerText(),selectedLit);
   report.scenarios.push({name:'source room lighting, rejected malformed shadow, and actual context recovery',litPixels,shadowPixels,selected:selectedLit,restorationIdentical:true});
   await capture('room-shadow-application');
+  assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).getAttribute('href'),shadowFacade.urls.file,'GPU loss discarded a CPU-owned facade');
+  await page.getByRole('button',{name:'Discard facade',exact:true}).click();await revoked(shadowFacade.urls);
+  const beforeCloseFacade=await facade('before-close-facade');
   const beforeClose=await photo('before-close-export');
-  await page.getByRole('button',{name:'Back to your Sims',exact:true}).click();await page.locator('.source-world-screen').waitFor({state:'detached'});await revoked(beforeClose);
+  await page.getByRole('button',{name:'Back to your Sims',exact:true}).click();await page.locator('.source-world-screen').waitFor({state:'detached'});await revoked(beforeClose);await revoked(beforeCloseFacade.urls);
   await page.getByRole('button',{name:'Original lot',exact:true}).click();await ready();report.scenarios.push({name:'close and reopen creates a fresh GPU owner'});
   assert.deepEqual(report.requests,[]);assert.deepEqual(report.errors,[]);report.status='passed';
 }catch(error){report.status='failed';report.error=String(error.stack||error);await page.screenshot({path:resolve(output,'failure.png'),fullPage:true}).catch(()=>{});process.exitCode=1;}
