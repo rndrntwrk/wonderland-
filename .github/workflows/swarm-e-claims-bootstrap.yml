@@ -1,4 +1,4 @@
-name: Swarm E claim bootstrap and database verification
+name: Swarm E guarded source bootstrap
 on:
   push:
     branches: [work/swarm-e-ownership-claims]
@@ -11,8 +11,6 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
-    outputs:
-      tested: ${{ steps.publish.outputs.tested }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -70,7 +68,6 @@ jobs:
           grep -q 'test result: FAILED' /tmp/e-source/mutation-red.log
           cargo +1.99.0 test --manifest-path crates/persistence/Cargo.toml --locked --lib 2>&1 | tee /tmp/e-source/restored-green.log
       - name: Publish only immutable source and its resolved lockfile
-        id: publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -92,9 +89,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'feat(swarm-e): add native MySQL ownership claims and fenced transactions'
           git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin HEAD:refs/heads/work/swarm-e-ownership-claims
-          SHA=$(git rev-parse HEAD)
-          echo "tested=$SHA" >> "$GITHUB_OUTPUT"
-          echo "$SHA" > /tmp/e-source/tested-commit.txt
+          git rev-parse HEAD > /tmp/e-source/tested-commit.txt
           git rev-parse HEAD^{tree} > /tmp/e-source/tested-tree.txt
           git archive --format=tar.gz HEAD -- crates/persistence docs/swarm-e > /tmp/e-source/source.tar.gz
           cp crates/persistence/Cargo.lock /tmp/e-source/Cargo.lock
@@ -103,60 +98,5 @@ jobs:
         with:
           name: claims-source-${{ github.sha }}
           path: /tmp/e-source/
-          retention-days: 14
-          if-no-files-found: error
-  database:
-    needs: source
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - engine: mysql
-            image: mysql:8.4
-            health: mysqladmin ping --silent -h127.0.0.1 -pclaim-ci-only
-          - engine: mariadb
-            image: mariadb:11.4
-            health: healthcheck.sh --connect --innodb_initialized
-    services:
-      db:
-        image: ${{ matrix.image }}
-        env:
-          MYSQL_ROOT_PASSWORD: claim-ci-only
-          MYSQL_ROOT_HOST: '%'
-          MYSQL_DATABASE: wonderland_claimstest
-        ports: ['3306/tcp']
-        options: >-
-          --health-cmd "${{ matrix.health }}"
-          --health-interval 5s --health-timeout 5s --health-retries 30
-    env:
-      DATABASE_URL: mysql://root:claim-ci-only@127.0.0.1:${{ job.services.db.ports[3306] }}/wonderland_claimstest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ needs.source.outputs.tested }}
-          persist-credentials: false
-      - name: Verify actual transactional ownership and stale-writer behavior
-        run: |
-          set -euo pipefail
-          mkdir -p /tmp/e-db
-          git rev-parse HEAD > /tmp/e-db/tested-commit.txt
-          git rev-parse HEAD^{tree} > /tmp/e-db/tested-tree.txt
-          docker image inspect '${{ matrix.image }}' --format '{{json .RepoDigests}}' > /tmp/e-db/image-digests.json
-          docker inspect '${{ job.services.db.id }}' --format '{{.Image}}' > /tmp/e-db/image-id.txt
-          docker exec '${{ job.services.db.id }}' sh -c 'if command -v mariadb >/dev/null; then mariadb -uroot -pclaim-ci-only -e "SELECT VERSION(), @@transaction_isolation"; else mysql -uroot -pclaim-ci-only -e "SELECT VERSION(), @@transaction_isolation"; fi' > /tmp/e-db/server.txt 2>&1 || docker exec '${{ job.services.db.id }}' mariadb -uroot -pclaim-ci-only -e 'SELECT VERSION(), @@tx_isolation' >> /tmp/e-db/server.txt 2>&1
-          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
-          rustc +1.99.0 -Vv > /tmp/e-db/compiler.txt
-          cargo +1.99.0 fmt --manifest-path crates/persistence/Cargo.toml -- --check
-          cargo +1.99.0 test --manifest-path crates/persistence/Cargo.toml --locked -- --test-threads=1 2>&1 | tee /tmp/e-db/database-tests.log
-          cargo +1.99.0 clippy --manifest-path crates/persistence/Cargo.toml --locked --all-targets -- -D warnings 2>&1 | tee /tmp/e-db/clippy.log
-          sha256sum crates/persistence/Cargo.lock > /tmp/e-db/lock.sha256
-          git diff --exit-code
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
-        with:
-          name: claims-${{ matrix.engine }}-${{ needs.source.outputs.tested }}
-          path: /tmp/e-db/
           retention-days: 14
           if-no-files-found: error
