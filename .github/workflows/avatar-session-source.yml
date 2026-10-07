@@ -21,7 +21,7 @@ jobs:
           python3 - <<'PY'
           import hashlib,io,json,pathlib,subprocess,tarfile
           run=lambda *args:subprocess.check_output(['git',*args])
-          base='ce0127597c2a3be9efe3576590780a5af8d1ec78'
+          base='33920415bf8d6abd233b2c13d00764f15fe66511'
           head=run('rev-parse','HEAD').decode().strip()
           paths=run('diff','--name-only','--no-renames',base,head).decode().splitlines()
           records=[]
