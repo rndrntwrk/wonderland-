@@ -1,0 +1,79 @@
+name: Pose retention exact source transfer
+on:
+  pull_request:
+    paths:
+      - tools/pose-retention-transfer/**
+      - .github/workflows/pose-retention-transfer.yml
+permissions:
+  contents: read
+jobs:
+  store:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/native-pose-replay-retention'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 16
+          persist-credentials: false
+          show-progress: false
+      - name: Verify approved patch, exact preimages and resulting source objects
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import base64,hashlib,json,os,pathlib,re,subprocess,tempfile,urllib.request
+          base='13580dd2d0e2fefbefb73e4d0011032f80c06fb0'
+          digest='8d4a362810418e5b31a0a50e3845e9e6e1864894beeae621f27a147c5b6dcea7'
+          allowed={'.github/workflows/native-pose-retention.yml','apps/web-shell/examples/native_pose_retention_probe.rs','apps/web-shell/scripts/verify-native-pose-retention.mjs','apps/web-shell/src/native_avatar.rs','apps/web-shell/src/native_avatar/history.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/tests/native_avatar_retention.rs','crates/game-runtime/src/avatar_projection.rs','crates/game-runtime/src/live_session.rs','crates/game-runtime/src/live_wire.rs','crates/game-runtime/src/live_wire/player.rs','crates/game-runtime/tests/avatar_replay.rs','crates/game-runtime/tests/native_player.rs','docs/design/action-first/native-avatar-pose-retention.md'}
+          parts=sorted(pathlib.Path('tools/pose-retention-transfer').glob('part-*.patch'))
+          assert [p.name for p in parts]==[f'part-{i:02}.patch' for i in range(5)]
+          patch=b''.join(p.read_bytes() for p in parts)
+          # Normalize only a transfer-envelope leading space; the complete hash
+          # below still MUST equal the already supplied user's original patch.
+          patch=patch.replace(b'\n diff --git ',b'\ndiff --git ')
+          actual=hashlib.sha256(patch).hexdigest()
+          print('APPROVED_PATCH_SHA256='+actual,flush=True)
+          assert actual==digest, 'Transferred patch differs from the approved attachment'
+          entries=re.findall(rb'^diff --git a/([^\n]+) b/([^\n]+)\n(?:new file mode 100644\n)?index ([0-9a-f]{40})\.\.([0-9a-f]{40})(?: 100644)?\n',patch,re.M)
+          assert len(entries)==14 and {a.decode() for a,b,pre,post in entries}==allowed
+          for a,b,pre,post in entries:
+              assert a==b
+              if pre!=b'0'*40:
+                  assert subprocess.check_output(['git','rev-parse',base+':'+a.decode()]).strip()==pre
+          fd,index=tempfile.mkstemp(prefix='pose-retention-index-');os.close(fd);os.unlink(index)
+          env={**os.environ,'GIT_INDEX_FILE':index}
+          try:
+              subprocess.run(['git','read-tree',base],env=env,check=True)
+              subprocess.run(['git','apply','--cached','--check','-'],input=patch,env=env,check=True)
+              subprocess.run(['git','apply','--cached','-'],input=patch,env=env,check=True)
+              tree=subprocess.check_output(['git','write-tree'],env=env,text=True).strip()
+              changed=subprocess.check_output(['git','diff','--cached','--name-only',base],env=env,text=True).splitlines()
+              assert set(changed)==allowed
+              records=[]
+              for a,b,pre,post in entries:
+                  path=a.decode();expected=post.decode()
+                  assert subprocess.check_output(['git','rev-parse',tree+':'+path],text=True).strip()==expected
+                  data=subprocess.check_output(['git','cat-file','blob',expected])
+                  payload=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode()
+                  req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/git/blobs',data=payload,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+                  with urllib.request.urlopen(req,timeout=30) as reply:response=json.load(reply)
+                  assert response['sha']==expected
+                  records.append({'path':path,'mode':'100644','type':'blob','sha':expected,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+              result={'source_head':os.environ['SOURCE_HEAD'],'base':base,'patch_sha256':actual,'resulting_tree':tree,'stored_blobs':records,'tests_executed':False,'branch_moved':False}
+              pathlib.Path('pose-retention-transfer-result.json').write_text(json.dumps(result,indent=2)+'\n')
+              print('EXACT_SOURCE_RESULT='+json.dumps(result),flush=True)
+          finally:
+              if os.path.exists(index):os.unlink(index)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pose-retention-exact-source
+          path: pose-retention-transfer-result.json
+          if-no-files-found: error
+          retention-days: 3
