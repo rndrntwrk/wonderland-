@@ -1,12 +1,13 @@
 //! Original Vitaboy resources sampled at the accepted native tick.
 //!
 //! This does not predict simulation, consume marker events, or reconstruct a
-//! pre-checkpoint visual skeleton. Each current timeline is sampled from the
-//! original bind pose. Missing rig/attachments/resources stay diagnosed.
+//! pre-checkpoint visual skeleton. NativeAvatarHistory retains channels between
+//! observed accepted samples; stateless callers still start from the bind pose.
+//! Missing rig/attachments/resources stay diagnosed.
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use wonderland_avatar_content::{self as content, ImportedContent};
-use wonderland_avatar_view::{CarryPose, Timeline, TimelineLayer, sample_timeline};
+use wonderland_avatar_view::{CarryPose, Pose, Timeline, TimelineLayer, sample_timeline};
 use wonderland_game_runtime::sim_core::avatars::outfits::OutfitReference;
 use wonderland_game_runtime::{AvatarVisual, AvatarVisualFrame};
 use wonderland_render_core::{Aabb, AssetKey, RenderLimits, RgbaImage, Vec2, Vec3};
@@ -14,6 +15,9 @@ use wonderland_world_view::{
     ModelContext, ModelPart, ModelTexture, ModelTextureSelector, WorldDiagnostic, WorldDocument,
     WorldError, WorldModel, WorldObject, WorldRevision, WorldSourceKind,
 };
+
+mod history;
+pub use history::{NativeAvatarHistory, NativeAvatarSample};
 
 const ADULT: u32 = 0x7FD96B54;
 struct Prepared {
@@ -30,6 +34,7 @@ pub struct NativeAvatarProjection {
     identities: Vec<(usize, WorldObject)>,
     textures: BTreeSet<AssetKey>,
     diagnostics: Vec<WorldDiagnostic>,
+    poses: BTreeMap<wonderland_render_core::EntityRef, (u32, Pose)>,
 }
 fn issue(code: &str, resource: String, message: impl Into<String>) -> WorldDiagnostic {
     WorldDiagnostic {
@@ -71,6 +76,14 @@ impl NativeAvatarProjection {
         world: &WorldDocument,
         bank: &ImportedContent,
     ) -> Result<Self, WorldError> {
+        Self::prepare_seeded(frame, world, bank, &BTreeMap::new())
+    }
+    fn prepare_seeded(
+        frame: &AvatarVisualFrame,
+        world: &WorldDocument,
+        bank: &ImportedContent,
+        seeds: &BTreeMap<wonderland_render_core::EntityRef, Pose>,
+    ) -> Result<Self, WorldError> {
         world.validate()?;
         if world.provenance.kind != WorldSourceKind::LiveSession || world.revision != frame.revision
         {
@@ -92,6 +105,7 @@ impl NativeAvatarProjection {
             identities: vec![],
             textures: BTreeSet::new(),
             diagnostics: vec![],
+            poses: BTreeMap::new(),
         };
         let limits = RenderLimits::default();
         let (mut vertices, mut indices) = (0usize, 0usize);
@@ -113,10 +127,24 @@ impl NativeAvatarProjection {
                 ));
             }
             result.identities.push((record, object.clone()));
+            // Visibility only suppresses mesh/texture work, not the sampled
+            // skeleton. Revealing an ended hidden layer must retain its pose.
+            let pose = match prepare_pose(avatar, bank, seeds.get(&id)) {
+                Ok(pose) => pose,
+                Err(message) => {
+                    result.diagnostics.push(issue(
+                        "native_avatar_resource_unavailable",
+                        resource(avatar),
+                        message,
+                    ));
+                    continue;
+                }
+            };
+            result.poses.insert(id, (avatar.guid, pose.clone()));
             if !object.visible {
                 continue;
             }
-            match prepare_parts(avatar, bank) {
+            match prepare_parts(avatar, bank, &pose) {
                 Ok(parts) => {
                     let added_v = parts.iter().map(|p| p.mesh.vertices.len()).sum::<usize>();
                     let added_i = parts.iter().map(|p| p.mesh.indices.len()).sum::<usize>();
@@ -343,10 +371,11 @@ impl NativeAvatarProjection {
         Ok(())
     }
 }
-fn prepare_parts(
+fn prepare_pose(
     avatar: &AvatarVisual,
     bank: &ImportedContent,
-) -> Result<Vec<content::RenderablePart>, String> {
+    seed: Option<&Pose>,
+) -> Result<Pose, String> {
     if avatar.container.is_some() {
         return Err("Container-bound avatars require original SLOT/bone attachment data; no grounded substitute is shown.".into());
     }
@@ -392,8 +421,15 @@ fn prepare_parts(
             frame: state.current_frame,
         });
     }
-    let mut pose = rig.bind_pose();
+    let mut pose = seed.cloned().unwrap_or_else(|| rig.bind_pose());
     sample_timeline(rig, &mut pose, &timeline, 0.).map_err(|e| e.to_string())?;
+    Ok(pose)
+}
+fn prepare_parts(
+    avatar: &AvatarVisual,
+    bank: &ImportedContent,
+    pose: &Pose,
+) -> Result<Vec<content::RenderablePart>, String> {
     let mut accessories = avatar
         .animations
         .bound_appearances
@@ -430,7 +466,7 @@ fn prepare_parts(
         accessories,
         ..Default::default()
     };
-    let mut parts = bank.compose_at(&selection, &pose).map_err(|issues| {
+    let mut parts = bank.compose_at(&selection, pose).map_err(|issues| {
         issues
             .iter()
             .take(4)

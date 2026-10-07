@@ -193,8 +193,11 @@ fn source_mode(visual: bool) -> Result<(GameRuntime, EntityRef)> {
         avatar.outfits.body = Some(OutfitReference::Id(0x002000020000000d));
         let mut animation =
             AnimationState::new(visual_animation(), false).map_err(|e| format!("{e:?}"))?;
-        animation.looping = true;
-        animation.speed = 0.25;
+        // Test-only one-shot witness: a slow accepted timeline reaches its
+        // clamped final pose before EndReached. No browser clock/state edits.
+        let once = std::env::var("WONDERLAND_NATIVE_AVATAR_ONCE").as_deref() == Ok("1");
+        animation.looping = !once;
+        animation.speed = if once { 1. / 32. } else { 0.25 };
         avatar.animations.animations.push(animation);
         let bytes =
             wonderland_game_runtime::sim_core::snapshot::encode(&state, runtime.sim().content())
@@ -328,6 +331,7 @@ fn process(runtime: &mut GameRuntime, actor: EntityRef, input: Value) -> Result<
             let projection = runtime.projection();
             Ok(
                 json!({"tick":projection.tick.to_string(),"hash":hex(&runtime.sim().state_hash()?),
+                "avatars":runtime.avatar_visual_frame().avatars,
                 "projection":{"lot_id":projection.lot_id,"epoch":projection.epoch,"tick":projection.tick,
                     "entities":projection.entities,"queues":projection.queues}}),
             )
