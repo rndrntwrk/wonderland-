@@ -1,0 +1,37 @@
+name: Swarm F reference replay
+
+on:
+  pull_request:
+    paths:
+      - tools/reference-csharp/**
+      - tools/replay/**
+      - fixtures/reference/**
+      - tests/parity/**
+      - docs/verification/swarm-f-reference.md
+      - .github/workflows/swarm-f-reference.yml
+      - crates/sim-core/**
+      - TSOClient/tso.simantics/**
+      - Cargo.lock
+      - rust-toolchain.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-f-reference-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Reference comparator regression specifications
+        run: python3 -B -m unittest discover -s tests/parity -p test_reference_trace.py -v
