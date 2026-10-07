@@ -43,20 +43,30 @@ jobs:
           @'
           import hashlib,json,os,pathlib,subprocess,sys,xml.etree.ElementTree as E
           root=pathlib.Path(os.environ['VM_BUILD_ROOT']);out=pathlib.Path(os.environ['VM_EVIDENCE_ROOT'])
-          # Git archive can honor Windows EOL attributes. Restore any filtered
-          # member from its exact committed blob before claiming source identity.
           entries=subprocess.check_output(['git','ls-tree','-rz','HEAD'])
           verified={}
-          for row in entries.split(b'\0'):
-              if not row:continue
-              meta,name=row.split(b'\t',1);mode,kind,digest=meta.decode().split();name=name.decode()
-              if kind!='blob':continue
-              path=root/name
-              if path.is_symlink() or not path.is_file():raise ValueError('Nonregular archive member: '+name)
-              data=path.read_bytes();actual=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
-              if actual!=digest:
-                  data=subprocess.check_output(['git','cat-file','blob',digest]);path.write_bytes(data)
-              verified[name]={'git_blob':digest,'sha256':hashlib.sha256(data).hexdigest()}
+          # Compare raw Git blobs, never assume platform-filtered archive bytes.
+          # One persistent Git reader avoids thousands of Windows process starts.
+          process=subprocess.Popen(['git','cat-file','--batch'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+          try:
+              for row in entries.split(b'\0'):
+                  if not row:continue
+                  meta,name=row.split(b'\t',1);mode,kind,digest=meta.decode().split();name=name.decode()
+                  if kind!='blob':continue
+                  path=root/name
+                  if path.is_symlink() or not path.is_file():raise ValueError('Nonregular archive member: '+name)
+                  data=path.read_bytes();actual=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+                  if actual!=digest:
+                      process.stdin.write(digest.encode()+b'\n');process.stdin.flush()
+                      header=process.stdout.readline().decode().split()
+                      if len(header)!=3 or header[0]!=digest or header[1]!='blob':raise ValueError('Invalid Git blob response')
+                      size=int(header[2]);data=process.stdout.read(size)
+                      if len(data)!=size or process.stdout.read(1)!=b'\n':raise ValueError('Truncated Git blob response')
+                      if hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()!=digest:raise ValueError('Corrupt Git source input')
+                      path.write_bytes(data)
+                  verified[name]={'git_blob':digest,'sha256':hashlib.sha256(data).hexdigest()}
+          finally:
+              process.stdin.close();process.stdout.close();process.wait(timeout=10)
           (out/'source-identity.json').write_text(json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'files':verified},indent=2))
           sys.path.insert(0,str(root/'tools/replay'))
           from baseline import canonical_path
@@ -101,6 +111,7 @@ jobs:
           }
           nuget install Microsoft.NETFramework.ReferenceAssemblies.net45 -Version 1.0.3 -OutputDirectory "$out/framework" -Source https://api.nuget.org/v3/index.json -NonInteractive -Verbosity quiet
           if ($LASTEXITCODE) { throw 'Framework reference restoration failed' }
+          & "$src/tools/reference-csharp/prepare-portable-references.ps1" -Output $out
       - name: Build the actual original assembly without replacing source classes
         shell: pwsh
         run: |
@@ -122,6 +133,7 @@ jobs:
             ${{ runner.temp }}/swarm-f-vm/closure.json
             ${{ runner.temp }}/swarm-f-vm/source-identity.json
             ${{ runner.temp }}/swarm-f-vm/restore.log
+            ${{ runner.temp }}/swarm-f-vm/portable-references.json
             ${{ runner.temp }}/swarm-f-vm/build.log
             ${{ runner.temp }}/swarm-f-vm/assembly.txt
           if-no-files-found: error
