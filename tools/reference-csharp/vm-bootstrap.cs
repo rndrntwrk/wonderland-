@@ -100,7 +100,7 @@ internal static class OriginalVmBootstrap
             };
             var resource = new GameObjectResource(local, null, null, "swarm-f-original-4110", content);
             var entity = new VMGameObject(new GameObject { GUID = definition.GUID, OBJ = definition, Resource = resource }, null);
-            entity.Attributes.AddRange(new short[4]);
+            for (int i = 0; i < 4; i++) entity.SetAttribute(i, 0);
             entity.MultitileGroup = new VMMultitileGroup(); entity.MultitileGroup.AddObject(entity);
             vm.AddEntity(entity); entity.Init(context);
             Require(entity.Thread != null && entity.Thread.GetType() == typeof(VMThread), "Real original interpreter thread required");
