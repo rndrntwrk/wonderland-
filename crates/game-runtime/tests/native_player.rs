@@ -478,3 +478,20 @@ fn browser_fixture_observes_both_unmodified_source_motive_branches() {
         "Exercise both branches, without replacing the original random instruction"
     );
 }
+
+#[test]
+fn native_avatar_visual_frame_is_read_only_and_bound_to_live_admission() {
+    let (server, value) = setup();
+    let mut client =
+        NativePlayer::open(&encode_bootstrap(&value).unwrap(), value.binding, 2).unwrap();
+    assert!(client.avatar_visual_frame().is_err());
+    install(&mut client, &server);
+    let before = client.world().unwrap();
+    let visual = client.avatar_visual_frame().unwrap();
+    assert_eq!(visual.revision, before.revision);
+    assert_eq!(visual.avatars.len(), 1);
+    assert_eq!(visual.avatars[0].entity, client.actor());
+    assert_eq!(client.world().unwrap(), before);
+    client.disconnect();
+    assert!(client.avatar_visual_frame().is_err());
+}

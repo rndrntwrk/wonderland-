@@ -1,9 +1,14 @@
 //! Explicit native lot view. Legacy source snapshots never enter this decoder.
+use crate::{avatar_content::ContentUi, native_avatar::NativeAvatarProjection};
 use crate::{components::Icon, connected_bridge::ConnectedUi, world_renderer::WorldViewport};
 use leptos::prelude::*;
-use std::sync::Arc;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    sync::Arc,
+};
 use wasm_bindgen::{JsCast, prelude::*};
 use wasm_bindgen_futures::{JsFuture, spawn_local};
+use wonderland_avatar_content::ImportedContent;
 use wonderland_game_runtime::live_wire::{
     encode_checkpoint_request,
     player::{ActionStatus, NativePlayer, PlayerBinding, activity::ActionActivity},
@@ -11,6 +16,7 @@ use wonderland_game_runtime::live_wire::{
 use wonderland_game_runtime::sim_core::interactions::InteractionKey;
 use wonderland_game_runtime::{EntityRef, ObjectId, RuntimeProjection};
 use wonderland_game_services::{GatewayOperation, SessionState};
+use wonderland_render_core::{AssetKey, RenderLimits, RgbaImage};
 use wonderland_world_view::{
     ViewportControls, WallMode, WorldDocument, WorldPick, WorldPickTarget,
 };
@@ -409,6 +415,135 @@ impl Controller {
     }
 }
 
+/// Resource decoding is fenced by bank and connection lifetime, not by each tick.
+/// Completion wakes the renderer to sample the newest accepted state; it never
+/// attaches an old asynchronously prepared avatar to a newer world.
+#[derive(Default)]
+struct AvatarResources {
+    presentation_revision: u64,
+    generation: u64,
+    connection: u64,
+    bank: Option<Arc<ImportedContent>>,
+    decoded: BTreeMap<AssetKey, RgbaImage>,
+    failed: BTreeSet<AssetKey>,
+    loading: bool,
+}
+fn project_avatars(
+    ctl: Controller,
+    state: StoredValue<AvatarResources, LocalStorage>,
+    bank: Arc<ImportedContent>,
+    frame: &wonderland_game_runtime::AvatarVisualFrame,
+    world: &mut WorldDocument,
+) {
+    let connection = ctl.resources.with_value(|r| r.generation);
+    state.update_value(|cache| {
+        if cache.connection != connection
+            || cache.bank.as_ref().is_none_or(|b| !Arc::ptr_eq(b, &bank))
+        {
+            let Some(next) = cache.presentation_revision.checked_add(1) else {
+                ctl.fail("Native avatar resource lifetime exhausted.");
+                return;
+            };
+            cache.presentation_revision = next;
+            cache.generation = cache.generation.saturating_add(1);
+            cache.connection = connection;
+            cache.bank = Some(Arc::clone(&bank));
+            cache.decoded.clear();
+            cache.failed.clear();
+            cache.loading = false;
+        }
+    });
+    let projection = match NativeAvatarProjection::prepare(frame, world, &bank) {
+        Ok(value) => value,
+        Err(issue) => {
+            world
+                .diagnostics
+                .push(wonderland_world_view::WorldDiagnostic {
+                    code: "native_avatar_projection_unavailable".into(),
+                    resource: "native avatars".into(),
+                    message: issue.to_string(),
+                });
+            return;
+        }
+    };
+    let needed = projection.texture_keys().clone();
+    let task = state
+        .try_update_value(|cache| {
+            if cache.loading {
+                return None;
+            }
+            // Sequential decoding keeps memory admission consistent across resource batches.
+            let missing = needed
+                .iter()
+                .filter(|k| !cache.decoded.contains_key(k) && !cache.failed.contains(k))
+                .take(64)
+                .copied()
+                .collect::<Vec<_>>();
+            if missing.is_empty() {
+                return None;
+            }
+            cache.loading = true;
+            Some((cache.generation, missing))
+        })
+        .flatten();
+    let result = state.with_value(|cache| projection.apply(world, &bank, &cache.decoded));
+    if let Err(issue) = result {
+        world
+            .diagnostics
+            .push(wonderland_world_view::WorldDiagnostic {
+                code: "native_avatar_projection_unavailable".into(),
+                resource: "native avatars".into(),
+                message: issue.to_string(),
+            });
+    }
+    if let Some((generation, missing)) = task {
+        spawn_local(async move {
+            for key in missing {
+                if !ctl.current(connection)
+                    || state.try_with_value(|c| c.generation) != Some(generation)
+                {
+                    return;
+                }
+                let remaining = state.with_value(|cache| {
+                    let used = cache
+                        .decoded
+                        .values()
+                        .map(|v| v.pixels.len())
+                        .sum::<usize>();
+                    RenderLimits::default()
+                        .max_texture_pixels
+                        .saturating_sub(used)
+                });
+                let result = crate::connected_world::decode_texture(&bank, key, remaining).await;
+                if !ctl.current(connection)
+                    || state.try_with_value(|c| c.generation) != Some(generation)
+                {
+                    return;
+                }
+                state.try_update_value(|cache| match result {
+                    Ok(image) => {
+                        cache.decoded.insert(key, image);
+                    }
+                    Err(_) => {
+                        cache.failed.insert(key);
+                    }
+                });
+            }
+            if ctl.current(connection) && state.try_with_value(|c| c.generation) == Some(generation)
+            {
+                state.try_update_value(|cache| {
+                    cache.loading = false;
+                    if let Some(next) = cache.presentation_revision.checked_add(1) {
+                        cache.presentation_revision = next;
+                    } else {
+                        ctl.fail("Native avatar resource lifetime exhausted.");
+                    }
+                });
+                ctl.wake.try_update(|n| *n = n.saturating_add(1));
+            }
+        });
+    }
+}
 #[component]
 pub fn NativeLot() -> impl IntoView {
     let ui = expect_context::<ConnectedUi>();
@@ -424,7 +559,10 @@ pub fn NativeLot() -> impl IntoView {
         notice: RwSignal::new(String::new()),
         wake: RwSignal::new(0),
     };
+    let content = expect_context::<ContentUi>();
+    let avatar_resources = StoredValue::new_local(AvatarResources::default());
     let controls = RwSignal::new(ViewportControls::default());
+    let presentation_revision = RwSignal::new(0u64);
     let needs_open = RwSignal::new(false);
     Effect::new(move |_| {
         ui.state.track();
@@ -435,16 +573,42 @@ pub fn NativeLot() -> impl IntoView {
     });
     Effect::new(move |_| {
         ctl.wake.track();
+        let bank = content.imported.get();
         if !ctl.live.get_untracked() {
             return;
         }
         let result = ctl.resources.with_value(|r| {
             let p = r.player.as_ref().ok_or("Native player is unavailable")?;
-            Ok::<_, &'static str>((Arc::new(p.world()?), Arc::new(p.projection()?)))
+            Ok::<_, &'static str>((
+                p.world()?,
+                Arc::new(p.projection()?),
+                p.avatar_visual_frame()?,
+            ))
         });
         match result {
-            Ok((world, projection)) => {
-                ctl.world.set(Some(world));
+            Ok((mut world, projection, avatars)) => {
+                if let Some(bank) = bank {
+                    project_avatars(ctl, avatar_resources, bank, &avatars, &mut world);
+                } else {
+                    avatar_resources.update_value(|cache| {
+                        if cache.bank.is_none() {
+                            return;
+                        }
+                        if let Some(next) = cache.presentation_revision.checked_add(1) {
+                            cache.presentation_revision = next;
+                        } else {
+                            ctl.fail("Native avatar resource lifetime exhausted.");
+                        }
+                        cache.generation = cache.generation.saturating_add(1);
+                        cache.bank = None;
+                        cache.decoded.clear();
+                        cache.failed.clear();
+                        cache.loading = false;
+                    });
+                }
+                ctl.world.set(Some(Arc::new(world)));
+                presentation_revision
+                    .set(avatar_resources.with_value(|cache| cache.presentation_revision));
                 ctl.projection.set(Some(projection));
             }
             Err(message) => ctl.fail(message),
@@ -455,8 +619,9 @@ pub fn NativeLot() -> impl IntoView {
     });
     let on_pick = Callback::new(move |pick| ctl.pick(pick));
     view! {
-        <section class="source-world-screen connected-world native-lot" aria-label="Native connected property" data-native-live=move ||ctl.live.get().to_string()>
-            <Show when=move ||ctl.world.with(|w|w.is_some())><NativeScene world=ctl.world controls on_pick/></Show>
+        <section class="source-world-screen connected-world native-lot" aria-label="Native connected property" data-native-live=move ||ctl.live.get().to_string()
+            data-native-avatar-models=move ||ctl.world.with(|w|w.as_ref().map(|w|w.objects.iter().filter(|o|o.model.is_some_and(|i|w.models[i].context==wonderland_world_view::ModelContext::Vitaboy)).count()).unwrap_or(0)).to_string()>
+            <Show when=move ||ctl.world.with(|w|w.is_some())><NativeScene world=ctl.world controls on_pick presentation_revision/></Show>
             <header class="source-world-header chrome"><button class="chrome round small" aria-label="Return to city" on:click=move |_|ui.send(GatewayOperation::LeaveLot,"Leave property",None)><Icon name="chevron-left"/></button><div><span class="eyebrow">"CONNECTED PROPERTY"</span><h1>"Property"</h1><p id="native-tick">{move ||ctl.projection.with(|p|p.as_ref().map(|p|format!("{} · Tick {}",if ctl.live.get(){"Live native simulation"}else{"Last accepted state"},p.tick)).unwrap_or_else(||"Waiting for native admission".into()))}</p></div><button class="chrome" on:click=move |_|ctl.begin(scope(ui))><Icon name="refresh"/>"Reconnect"</button></header>
             <Show when=move ||!ctl.notice.get().is_empty()><p class="source-world-notice chrome" role="status">{move ||ctl.notice.get()}</p></Show>
             <div class="connected-world-queue" aria-label="Your action queue"><For each=move ||ctl.projection.with(|p|p.as_ref().map(|p|p.queues.iter().filter(|q|Some(q.actor)==ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor()))).flat_map(|q|q.entries.clone()).collect::<Vec<_>>()).unwrap_or_default()) key=|item|item.id children=move |item|{
@@ -469,7 +634,12 @@ pub fn NativeLot() -> impl IntoView {
                 <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" disabled=move ||!ctl.live.get() on:click=move |_|{if let Some(actor)=ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor())){ctl.select(actor);}}>"Your Sim"</button><button class="chrome" on:click=move |_|needs_open.update(|v|*v = !*v)>"Needs"</button><button class="chrome" disabled=true title="Native construction provider is not connected">"Buy / Build"</button></div>
             </nav>
             <Show when=move ||!ctl.choices.get().is_empty()><aside class="connected-world-authoring chrome" aria-label="Source actions"><header><h2>"Actions"</h2><button class="chrome round small" aria-label="Close source actions" on:click=move |_|ctl.choices.set(Vec::new())><Icon name="x"/></button></header>{move ||ctl.choices.get().into_iter().map(move |choice|{let label=choice.label.clone();view!{<button class="chrome native-source-action" disabled=move ||!ctl.live.get()||matches!(ctl.status.get(),ActionStatus::Pending|ActionStatus::Unknown) on:click=move |_|ctl.submit(Some(choice.clone()),None)>{label}</button>}}).collect_view()}<p role="status">{move ||match ctl.status.get(){ActionStatus::Idle=>"Choose a source action.",ActionStatus::Pending=>"Sent · awaiting server acceptance",ActionStatus::Accepted=>"Accepted by the server",ActionStatus::Rejected=>"The server rejected this action",ActionStatus::Unknown=>"Previous action result unknown · not retried"}}</p><Show when=move ||!ctl.activity.get().is_empty()><p class="native-action-feedback" role="status" aria-live="polite">{move ||ctl.activity.with(|items|items.last().map(ActionActivity::message))}</p><details class="native-action-history"><summary>"Recent activity"</summary><ol><For each=move ||{ctl.activity.get().into_iter().rev().collect::<Vec<_>>()} key=|item|(item.tick,item.event_sequence) children=move |item|{view!{<li data-action-id=item.action.to_string()>{item.message()}</li>}}/></ol></details></Show><Show when=move ||ctl.live.get()&&ctl.status.get()==ActionStatus::Unknown><button class="chrome" on:click=move |_|{ctl.resources.update_value(|r|{if let Some(p)=r.player.as_mut() && p.dismiss_unknown().is_ok(){ctl.status.set(p.status());}});}>"Dismiss unknown result without retrying"</button></Show></aside></Show>
-            <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Live native needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==scope(ui).map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
+            <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Live native needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><p class="native-avatar-status" role="status">{move ||ctl.world.with(|w|w.as_ref().map(|w| {
+                let ready=w.objects.iter().filter(|o|o.model.is_some_and(|i|w.models[i].context==wonderland_world_view::ModelContext::Vitaboy)).count();
+                if ready>0 {format!("{ready} avatar appearance(s) sampled from original resources at the accepted frame.")}
+                else {w.diagnostics.iter().find(|d|d.code.starts_with("native_avatar_")).map(|d|d.message.clone())
+                    .unwrap_or_else(||"Original avatar resources are not loaded. Load Game content from Choose your Sim.".into())}
+            })).unwrap_or_default()}</p><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==scope(ui).map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
                 [("Energy",Some(n.energy)),("Comfort",Some(n.comfort)),("Hunger",Some(n.hunger)),("Hygiene",Some(n.hygiene)),("Bladder",Some(n.bladder)),("Social",Some(n.social)),("Fun",Some(n.fun)),("Room",n.room)].into_iter().map(|(name,value)|view!{<label><span>{name}</span>{value.map(|value|view!{<progress max="100" value=value>{value}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any())}</label>}).collect_view()
             })}</div></aside></Show>
         </section>
@@ -516,9 +686,13 @@ fn NativeScene(
     world: RwSignal<Option<Arc<WorldDocument>>>,
     controls: RwSignal<ViewportControls>,
     on_pick: Callback<WorldPick>,
+    presentation_revision: RwSignal<u64>,
 ) -> impl IntoView {
-    let fallback = world
-        .get_untracked()
-        .expect("NativeScene mounts only after a valid world projection");
-    view! {<WorldViewport world=Signal::derive(move ||world.get().unwrap_or_else(||Arc::clone(&fallback))) controls on_pick/>}
+    // A bank/decode/reconnect boundary creates a fresh disposable viewport. Do not
+    // pass changed resources as a second authoritative frame at the same tick.
+    // WorldViewport cleanup invalidates old raster/pick work; camera controls stay.
+    view! {<For each=move ||[presentation_revision.get()] key=|revision|*revision children=move |_| {
+        let fallback=world.get_untracked().expect("NativeScene mounts with an accepted world");
+        view! {<WorldViewport world=Signal::derive(move ||world.get().unwrap_or_else(||Arc::clone(&fallback))) controls on_pick/>}
+    }/>}
 }

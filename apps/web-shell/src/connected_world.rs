@@ -25,7 +25,7 @@ use wonderland_world_view::{
     ViewportControls, WallMode, WorldDiagnostic, WorldDocument, WorldPick, WorldPickTarget,
 };
 
-async fn decode_texture(
+pub(crate) async fn decode_texture(
     content: &ImportedContent,
     key: AssetKey,
     remaining: usize,

@@ -44,6 +44,11 @@ jobs:
           npm --prefix tools/native-browser ci --ignore-scripts --no-audit --no-fund
           tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
           timeout 240s node tools/native-browser/verify.mjs > /tmp/wonderland-native-browser-evidence/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/browser.log; exit 1; }
+      - name: Verify native avatar resources in the actual browser
+        run: |
+          cargo run -q -p wonderland-web-shell --example native_avatar_resources --locked -- target/native-avatar-fixtures
+          mkdir -p /tmp/wonderland-native-browser-evidence/avatars
+          WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/avatars timeout 120s node tools/native-browser/verify-avatars.mjs > /tmp/wonderland-native-browser-evidence/avatars/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/avatars/browser.log; exit 1; }
       - name: Verify source identity after testing
         if: always()
         run: |

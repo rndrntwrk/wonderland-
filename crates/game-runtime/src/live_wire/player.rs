@@ -272,6 +272,17 @@ impl NativePlayer {
             .world_document(&self.appearance)
             .map_err(|_| "Native scene is invalid")
     }
+    /// Read-only appearance/animation fields from the same accepted tick as `world`.
+    /// Fails closed while disconnected or recovering, like other live projections.
+    pub fn avatar_visual_frame(&self) -> Result<crate::AvatarVisualFrame> {
+        self.validate_actor()?;
+        Ok(self
+            .wire
+            .replica()
+            .runtime()
+            .ok_or("Native session is closed")?
+            .avatar_visual_frame())
+    }
     pub fn offers(&self, target: EntityRef) -> Result<OfferBatch> {
         self.validate_actor()?;
         self.wire

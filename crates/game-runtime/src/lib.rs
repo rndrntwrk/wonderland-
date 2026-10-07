@@ -8,6 +8,8 @@ use wonderland_content_runtime_bridge::{
     content::{ImportedContent, ImportedInteraction},
     cooked::LoadedRelease,
 };
+mod avatar_projection;
+pub use avatar_projection::{AvatarAnimation, AvatarTimeline, AvatarVisual, AvatarVisualFrame};
 pub mod live_session;
 pub mod live_wire;
 mod world_projection;
