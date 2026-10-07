@@ -1,0 +1,33 @@
+name: Native scene source
+on:
+  push:
+    branches: [feat/native-scene-continuation]
+    paths: [.github/workflows/native-scene-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 5aa879438076dfe077254212fb0326350b09927c
+          persist-credentials: false
+          show-progress: false
+      - name: Export pinned source deltas
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16 03e3fb8697c7e1a06447681536e0333810ccbab4
+          mkdir -p /tmp/native-scene-source
+          git diff --binary 0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16 5aa879438076dfe077254212fb0326350b09927c > /tmp/native-scene-source/avatar.patch
+          git diff --binary 0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16 03e3fb8697c7e1a06447681536e0333810ccbab4 > /tmp/native-scene-source/receipts.patch
+          git ls-tree -rz 5aa879438076dfe077254212fb0326350b09927c > /tmp/native-scene-source/tree.bin
+          git rev-parse HEAD 'HEAD^{tree}' > /tmp/native-scene-source/revision.txt
+          cd /tmp/native-scene-source && sha256sum *.patch tree.bin > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-scene-source
+          path: /tmp/native-scene-source/
+          retention-days: 3
+          if-no-files-found: error
