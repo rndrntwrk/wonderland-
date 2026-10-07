@@ -27,8 +27,14 @@ jobs:
           assert doc['base']==base and doc['tree']=='ee3cc73a88a3905e644e1abcce29c364cd734a0c'
           allowed={'.github/workflows/native-browser.yml','apps/web-shell/examples/native_avatar_resources.rs','apps/web-shell/src/connected_world.rs','apps/web-shell/src/lib.rs','apps/web-shell/src/native_avatar.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/tests/native_avatar.rs','apps/web-shell/tests/support/native_avatar_bank.rs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/src/avatar_projection.rs','crates/game-runtime/src/lib.rs','crates/game-runtime/src/live_wire/player.rs','crates/game-runtime/tests/native_player.rs','docs/design/action-first/native-avatar-presentation.md','docs/design/action-first/native-avatar-presentation-verification.json','tools/native-browser/verify-avatars.mjs'}
           assert set(doc['paths'])==allowed
+          parts=['tools/native-browser/avatar-part-'+str(i)+'.b64' for i in range(4)]
+          assert doc['parts']==parts
+          chunks=[]
+          for name in parts:
+              part=pathlib.Path(name);assert part.is_file() and not part.is_symlink() and part.stat().st_size<=8001
+              chunks.append(part.read_text().strip())
           dec=lzma.LZMADecompressor(memlimit=128*1024*1024)
-          patch=dec.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=1024*1024+1)
+          patch=dec.decompress(base64.b64decode(''.join(chunks),validate=True),max_length=1024*1024+1)
           assert dec.eof and not dec.unused_data and len(patch)<=1024*1024
           assert hashlib.sha256(patch).hexdigest()==doc['sha256']
           subprocess.run(['git','fetch','--depth=1','origin',base],check=True)
