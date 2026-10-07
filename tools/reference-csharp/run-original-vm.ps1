@@ -87,7 +87,7 @@ function Run-Witness([string]$Executable,[string]$Label,[bool]$Enabled,[int]$Exp
                 $identity.witness_sha256 -ne (Get-FileHash $Executable -Algorithm SHA256).Hash.ToLowerInvariant() -or
                 $identity.source_bhav_sha256 -ne '20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865') { throw 'Runtime loaded a different original/witness binary or resource' }
         }
-        Write-Host "Verified $Label: exit $($process.ExitCode), $ExpectedRows accepted trace rows"
+        Write-Host "Verified ${Label}: exit $($process.ExitCode), $ExpectedRows accepted trace rows"
         return @{ label = $Label; exit = $process.ExitCode; expected_exit = $ExpectedExit; rows = $ExpectedRows;
             sha256 = (Get-FileHash "$Output/vm-trace-$Label.tsv" -Algorithm SHA256).Hash.ToLowerInvariant();
             diagnostic_sha256 = (Get-FileHash "$Output/vm-trace-$Label.stderr" -Algorithm SHA256).Hash.ToLowerInvariant();
