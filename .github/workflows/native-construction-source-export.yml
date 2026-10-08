@@ -1,0 +1,35 @@
+name: Native construction source export
+on:
+  push:
+    branches: [ops/connected-player-source-recovery]
+    paths: [.github/workflows/native-construction-source-export.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 9eba8e5cdb0d3cf36be5e3888957415010ac47b2
+          persist-credentials: false
+          show-progress: false
+      - name: Export exact source delta
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 705530c1c99721ff9055ff1c44bd2cfb24e2097e
+          mkdir -p /tmp/construction-source
+          git diff --binary 705530c1c99721ff9055ff1c44bd2cfb24e2097e HEAD > /tmp/construction-source/source.patch
+          git ls-tree -rz HEAD > /tmp/construction-source/tree.bin
+          git cat-file commit HEAD > /tmp/construction-source/commit.txt
+          git rev-parse HEAD > /tmp/construction-source/revision.txt
+          git rev-parse 'HEAD^{tree}' >> /tmp/construction-source/revision.txt
+          cd /tmp/construction-source
+          sha256sum source.patch tree.bin commit.txt revision.txt > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-construction-source
+          path: /tmp/construction-source/
+          retention-days: 3
+          if-no-files-found: error
