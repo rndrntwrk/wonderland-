@@ -1,0 +1,77 @@
+name: Construction session source transfer
+on:
+  push:
+    branches: [ops/connected-player-source-recovery]
+    paths: [tools/native-browser/construction-session-delivery.json]
+permissions:
+  contents: read
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Validate bounded patch against immutable source
+        run: |
+          python3 - <<'PY'
+          import base64,hashlib,json,lzma,pathlib,subprocess
+          p=pathlib.Path('tools/native-browser/construction-session-delivery.json')
+          assert p.is_file() and p.stat().st_size<100000
+          doc=json.loads(p.read_text())
+          base='9eba8e5cdb0d3cf36be5e3888957415010ac47b2'
+          assert doc['base']==base and doc['schema']==1
+          allowed={'crates/game-runtime/src/live_wire/construction.rs','crates/game-runtime/src/live_wire/construction/session.rs','crates/game-runtime/tests/construction_session.rs','docs/design/action-first/native-construction-session.md'}
+          assert set(doc['paths'])==allowed
+          dec=lzma.LZMADecompressor(memlimit=128*1024*1024)
+          patch=dec.decompress(base64.b64decode(doc['xz_base64'],validate=True),max_length=500001)
+          assert dec.eof and not dec.unused_data and len(patch)<=500000
+          assert hashlib.sha256(patch).hexdigest()==doc['patch_sha256']=='8ba4050dd4f77762038ef39a5080361ab1d7590eb02f0657d6afa37323d01e99'
+          subprocess.run(['git','fetch','--depth=1','origin',base],check=True)
+          subprocess.run(['git','checkout','--detach',base],check=True)
+          subprocess.run(['git','apply','--check','--index','-'],input=patch,check=True)
+          subprocess.run(['git','apply','--index','-'],input=patch,check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          assert set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())==allowed
+          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          assert tree==doc['tree']=='a599ea41c12e9ae0b42ccc328b5fa9e137f07445'
+          files=[]
+          for path in sorted(allowed):
+              row=subprocess.check_output(['git','ls-files','--stage','--',path],text=True).strip()
+              mode,sha,stage=row.split('\t')[0].split()
+              assert mode=='100644' and stage=='0'
+              data=subprocess.check_output(['git','show',':'+path]);assert len(data)<200000
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==sha
+              files.append({'path':path,'mode':mode,'type':'blob','sha':sha,'content':base64.b64encode(data).decode()})
+          pathlib.Path('construction-session-files.json').write_text(json.dumps({'base':base,'tree':tree,'patch_sha256':doc['patch_sha256'],'files':files}))
+          print('Exact locally tested tree:',tree)
+          PY
+      - name: Store verified code blobs and tree without moving branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,urllib.request
+          doc=json.loads(pathlib.Path('construction-session-files.json').read_text())
+          def api(path,data=None):
+              req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/'+path,data=None if data is None else json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=30) as reply:return json.load(reply)
+          for f in doc['files']:
+              assert api('git/blobs',{'encoding':'base64','content':f.pop('content')})['sha']==f['sha']
+          base=api('git/commits/'+doc['base'])['tree']['sha']
+          assert api('git/trees',{'base_tree':base,'tree':doc['files']})['sha']==doc['tree']
+          doc['branch_updated']=False;doc['tests_executed_by_transfer']=False
+          pathlib.Path('construction-session-tree.json').write_text(json.dumps(doc,indent=2)+'\n')
+          print(json.dumps(doc,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: construction-session-tree
+          path: construction-session-tree.json
+          retention-days: 3
+          if-no-files-found: error
