@@ -1,0 +1,57 @@
+name: Render player integration inputs
+on:
+  push:
+    branches: [ops/render-player-integration-inputs]
+    paths: [.github/workflows/render-player-inputs.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 0c9f2c194bd6280d16cf6c4438941c1974da2690
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Export exact input trees and three-way preimages
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/combined-inputs/preimages
+          PLAYER=0c9f2c194bd6280d16cf6c4438941c1974da2690
+          RENDER=41b1c76a6e80d8546640db00af79c3bbad0d11c1
+          BASE=$(git merge-base "$PLAYER" "$RENDER")
+          git archive --format=tar.gz "$PLAYER" > /tmp/combined-inputs/player.tar.gz
+          git diff --binary --full-index "$BASE" "$RENDER" > /tmp/combined-inputs/renderer.patch
+          git ls-tree -rz "$PLAYER" > /tmp/combined-inputs/player-tree.bin
+          git ls-tree -rz "$RENDER" > /tmp/combined-inputs/renderer-tree.bin
+          printf '%s\n%s\n%s\n' "$PLAYER" "$RENDER" "$BASE" > /tmp/combined-inputs/refs.txt
+          BASE="$BASE" RENDER="$RENDER" python3 - <<'PY'
+          import os,subprocess,hashlib,json
+          from pathlib import Path
+          base=os.environ['BASE']; render=os.environ['RENDER']
+          records=[]
+          changed=subprocess.check_output(['git','diff','--name-only','-z',base,render]).split(b'\0')
+          for p in filter(None,changed):
+              path=os.fsdecode(p)
+              r=subprocess.run(['git','rev-parse',base+':'+path],capture_output=True,text=True)
+              if r.returncode: continue
+              sha=r.stdout.strip(); data=subprocess.check_output(['git','cat-file','blob',sha])
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha
+              Path('/tmp/combined-inputs/preimages',sha).write_bytes(data)
+              records.append({'path':path,'sha':sha})
+          Path('/tmp/combined-inputs/preimages.json').write_text(json.dumps(records,indent=2)+'\n')
+          PY
+          tar -C /tmp/combined-inputs -czf /tmp/combined-inputs/preimages.tar.gz preimages
+          rm -r /tmp/combined-inputs/preimages
+          cd /tmp/combined-inputs
+          sha256sum player.tar.gz renderer.patch player-tree.bin renderer-tree.bin refs.txt preimages.json preimages.tar.gz > SHA256SUMS
+          git -C "$GITHUB_WORKSPACE" diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: render-player-inputs
+          path: /tmp/combined-inputs/
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
