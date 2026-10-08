@@ -9,11 +9,12 @@ import {createHash} from 'node:crypto';
 import {chromium} from 'playwright';
 import {createFixture} from './peer.mjs';
 import {audioFixture} from './audio-fixture.mjs';
+import {presentedCanvas} from './canvas-readiness.mjs';
 const output=resolve(process.env.WONDERLAND_NATIVE_QA_OUTPUT??'/tmp/wonderland-native-browser-evidence/game-audio');
 await mkdir(output,{recursive:true});
 const report={passed:false,scope:'Authored original-format sound fixtures and accepted native primitives; real browser device graph',checks:[],screenshots:[],errors:[]};
 const combined=process.env.WONDERLAND_NATIVE_COMBINED_FIXTURE==='1';
-let combinedCanvas, initialPixels, retainedPixels;
+let combinedCanvas, initialPixels, retainedPixels, initialRaster;
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 const gateway=spawn(resolve('target/debug/examples/controlled_replay'),[],{env:{...process.env,WONDERLAND_REPLAY_BIND:'127.0.0.1:18787',WONDERLAND_REPLAY_BROWSER_ORIGINS:'http://127.0.0.1:18888'},stdio:['ignore','ignore','pipe']});
 let browser,fixture,page;
@@ -62,7 +63,9 @@ try{
  if(combined){
   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
   combinedCanvas=page.locator('.native-lot canvas');
-  initialPixels=await combinedCanvas.evaluate(c=>c.toDataURL());
+  const initialHandle=await page.waitForFunction(presentedCanvas,'.native-lot canvas',{timeout:5000});
+  initialRaster=await initialHandle.jsonValue();await initialHandle.dispose();
+  initialPixels=initialRaster.pixels;
   const batch=await fixture.burst(18);
   await page.waitForFunction(t=>document.querySelector('#native-tick')?.textContent?.match(/Tick (\d+)/)?.[1]===t,batch.tick);
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
@@ -150,8 +153,14 @@ try{
  assert.equal((await status()).activeVoices,0);assert.equal(fixture.stats.actions,before);record('Recovery checkpoint does not replay sound or commands',{voices:0,actions:fixture.stats.actions});
  if(combined){
   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),initialPixels,'Fresh checkpoint explicitly resets unavailable historical bones');
-  record('Combined reconnect retains resources but never invents missing pose or sound history',{avatarModels:1,soundVoices:0});
+  const recoveredHandle=await page.waitForFunction(presentedCanvas,'.native-lot canvas',{timeout:5000});
+  const recovered=await recoveredHandle.jsonValue();await recoveredHandle.dispose();
+  assert.deepEqual([recovered.width,recovered.height],[initialRaster.width,initialRaster.height],
+    'Recovery comparison must use the same displayed raster dimensions');
+  assert.equal(createHash('sha256').update(recovered.pixels).digest('hex'),
+    createHash('sha256').update(initialPixels).digest('hex'),
+    'Fresh checkpoint explicitly resets unavailable historical bones');
+  record('Combined reconnect retains resources but never invents missing pose or sound history',{avatarModels:1,soundVoices:0,raster:[initialRaster.width,initialRaster.height]});
  }
  await choose('Play sound (test harness)');await waitVoices(1);const restored=await measure();assert.ok(restored.rms>0.05);record('An explicit new action plays after reconnect',restored);
  await closeActions();await page.setViewportSize({width:390,height:844});await shot('02-mobile-native-game-sound');
