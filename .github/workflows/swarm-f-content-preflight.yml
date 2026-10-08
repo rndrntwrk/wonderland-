@@ -1,0 +1,58 @@
+name: Swarm F content prerequisite evidence
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/swarm-f-content-preflight.yml
+      - tools/replay/content_scope.rs
+      - tools/replay/content_preflight_probe.rs
+      - tools/replay/run_content_preflight.py
+      - tools/replay/run_reference_wasm.mjs
+      - tests/parity/content_scope_cases.rs
+      - tests/parity/test_content_preflight_evidence.py
+      - fixtures/reference/content-preflight.expected.json
+      - docs/swarm-f/CONTENT_PREFLIGHT.md
+      - crates/sim-core/**
+      - crates/legacy-formats/**
+      - crates/content-ir/**
+      - crates/content-runtime-bridge/**
+      - TSOClient/FSO.Content.TSO/Content/Objects/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-f-content-preflight-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  prerequisite-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          show-progress: false
+          submodules: false
+          fetch-depth: 0 # The read-only runner verifies PR #45 ancestry.
+      - name: Install repository-pinned compiler and browser target
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+      - name: Reproduce static dependency evidence, not playable-object acceptance
+        run: python3 -B tools/replay/run_content_preflight.py --output "$RUNNER_TEMP/swarm-f-content-preflight"
+      - name: Confirm verification left tracked source unchanged
+        if: always()
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: swarm-f-content-prerequisite-evidence
+          # Do not upload work/, which contains compiled probes embedding assets.
+          path: ${{ runner.temp }}/swarm-f-content-preflight/evidence/
+          if-no-files-found: error
+          retention-days: 7

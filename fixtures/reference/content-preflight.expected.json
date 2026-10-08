@@ -1,0 +1,1090 @@
+{
+  "audit_completed": true,
+  "empty_dependency_substitutions": 0,
+  "incomplete_resources": 4,
+  "original_vm_executed": false,
+  "placed_world_executed": false,
+  "resource_count": 4,
+  "resource_mutations": 0,
+  "resources": [
+    {
+      "audit": {
+        "declared_roots": [
+          "global:430",
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4103",
+          "private:4104",
+          "private:4105",
+          "private:4106",
+          "private:4107",
+          "private:4108",
+          "private:4109",
+          "private:4110",
+          "private:4113",
+          "private:4120",
+          "private:4121",
+          "private:4122",
+          "private:4130",
+          "private:4131",
+          "semiglobal:8192",
+          "semiglobal:8193",
+          "semiglobal:8194",
+          "semiglobal:8198"
+        ],
+        "edges": [
+          {
+            "from": "private:4096",
+            "instruction": 0,
+            "to": "private:4131"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 5,
+            "to": "semiglobal:8196"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 2,
+            "to": "semiglobal:8197"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 11,
+            "to": "private:4108"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 12,
+            "to": "private:4122"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 13,
+            "to": "private:4121"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 14,
+            "to": "private:4121"
+          },
+          {
+            "from": "private:4099",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 22,
+            "to": "global:281"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 26,
+            "to": "private:4122"
+          },
+          {
+            "from": "private:4101",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4103",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4104",
+            "instruction": 0,
+            "to": "global:283"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 16,
+            "to": "private:4109"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 0,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4108",
+            "instruction": 7,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4113",
+            "instruction": 0,
+            "to": "global:280"
+          },
+          {
+            "from": "private:4121",
+            "instruction": 10,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4122",
+            "instruction": 4,
+            "to": "private:4120"
+          },
+          {
+            "from": "private:4130",
+            "instruction": 0,
+            "to": "private:4131"
+          },
+          {
+            "from": "private:4131",
+            "instruction": 0,
+            "to": "global:271"
+          }
+        ],
+        "missing": [
+          "global:271",
+          "global:271 required by private:4131 instruction 0",
+          "global:280",
+          "global:280 required by private:4113 instruction 0",
+          "global:281",
+          "global:281 required by private:4100 instruction 22",
+          "global:283",
+          "global:283 required by private:4104 instruction 0",
+          "global:430",
+          "semiglobal resource: wetbarsemiglobal",
+          "semiglobal:8192",
+          "semiglobal:8193",
+          "semiglobal:8194",
+          "semiglobal:8196",
+          "semiglobal:8196 required by private:4096 instruction 5",
+          "semiglobal:8197",
+          "semiglobal:8197 required by private:4097 instruction 2",
+          "semiglobal:8198"
+        ],
+        "objects": [
+          {
+            "chunk_id": 16808,
+            "declared_attributes": 0,
+            "guid": 2532266414,
+            "master_id": 1,
+            "sub_index": 256,
+            "uses_function_table": true
+          },
+          {
+            "chunk_id": 16809,
+            "declared_attributes": 12,
+            "guid": 871321904,
+            "master_id": 1,
+            "sub_index": 0,
+            "uses_function_table": true
+          },
+          {
+            "chunk_id": 16811,
+            "declared_attributes": 0,
+            "guid": 2096058632,
+            "master_id": 1,
+            "sub_index": -1,
+            "uses_function_table": true
+          }
+        ],
+        "primitive_counts": {
+          "2": 94,
+          "23": 7,
+          "25": 1,
+          "27": 3,
+          "31": 4,
+          "32": 2,
+          "36": 6,
+          "44": 8,
+          "45": 4,
+          "6": 4,
+          "7": 3,
+          "8": 1
+        },
+        "schema": 1,
+        "scope": "conservative-static-resource-preflight",
+        "semiglobal_required": "wetbarsemiglobal",
+        "source_name": "Casino_2-Tile_Bar_CC.iff",
+        "source_sha256": "20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865",
+        "static_complete": false,
+        "supplied_scopes": {
+          "private": "20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865"
+        },
+        "unassessed": [
+          "content installation, patch ordering and tuning",
+          "dynamic tree/entity/object dispatch and provider results",
+          "normalized source footprints, placement, routing and animation metadata",
+          "source permissions, full object behavior and external effects",
+          "asset rights and release qualification"
+        ],
+        "visited": [
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4103",
+          "private:4104",
+          "private:4105",
+          "private:4106",
+          "private:4107",
+          "private:4108",
+          "private:4109",
+          "private:4110",
+          "private:4113",
+          "private:4120",
+          "private:4121",
+          "private:4122",
+          "private:4130",
+          "private:4131"
+        ],
+        "whole_object_runtime_qualified": false
+      },
+      "source": "Casino_2-Tile_Bar_CC.iff",
+      "source_bytes": 898259,
+      "source_sha256": "20b67e06940bfe0a89b689312fe001721ff3760cce10fca104373bf1122c4865",
+      "status": "inspected"
+    },
+    {
+      "audit": {
+        "declared_roots": [
+          "global:460",
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4102",
+          "private:4103",
+          "private:4105",
+          "private:4107",
+          "private:4109",
+          "private:4110",
+          "private:4114",
+          "private:4115",
+          "private:4116",
+          "private:4117",
+          "private:4118",
+          "private:4119",
+          "private:4120",
+          "private:4122",
+          "private:4123"
+        ],
+        "edges": [
+          {
+            "from": "private:4096",
+            "instruction": 0,
+            "to": "global:280"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 1,
+            "to": "global:280"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 5,
+            "to": "global:280"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 6,
+            "to": "private:4109"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 7,
+            "to": "private:4114"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 0,
+            "to": "private:4100"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 0,
+            "to": "global:288"
+          },
+          {
+            "from": "private:4099",
+            "instruction": 24,
+            "to": "global:398"
+          },
+          {
+            "from": "private:4099",
+            "instruction": 31,
+            "to": "global:260"
+          },
+          {
+            "from": "private:4099",
+            "instruction": 32,
+            "to": "global:260"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 1,
+            "to": "private:4099"
+          },
+          {
+            "from": "private:4102",
+            "instruction": 27,
+            "to": "global:370"
+          },
+          {
+            "from": "private:4102",
+            "instruction": 38,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4102",
+            "instruction": 39,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4102",
+            "instruction": 40,
+            "to": "global:260"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 0,
+            "to": "global:271"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 3,
+            "to": "private:4122"
+          },
+          {
+            "from": "private:4114",
+            "instruction": 0,
+            "to": "global:256"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 0,
+            "to": "semiglobal:8204"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 10,
+            "to": "semiglobal:8194"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 11,
+            "to": "semiglobal:8195"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 14,
+            "to": "global:272"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 15,
+            "to": "private:4118"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 16,
+            "to": "global:273"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 17,
+            "to": "private:4120"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 19,
+            "to": "private:4117"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 21,
+            "to": "global:260"
+          },
+          {
+            "from": "private:4116",
+            "instruction": 22,
+            "to": "global:260"
+          },
+          {
+            "from": "private:4117",
+            "instruction": 0,
+            "to": "global:288"
+          },
+          {
+            "from": "private:4118",
+            "instruction": 0,
+            "to": "semiglobal:8196"
+          },
+          {
+            "from": "private:4119",
+            "instruction": 1,
+            "to": "semiglobal:8205"
+          },
+          {
+            "from": "private:4120",
+            "instruction": 3,
+            "to": "global:399"
+          },
+          {
+            "from": "private:4120",
+            "instruction": 4,
+            "to": "private:4119"
+          },
+          {
+            "from": "private:4120",
+            "instruction": 5,
+            "to": "semiglobal:8197"
+          },
+          {
+            "from": "private:4123",
+            "instruction": 0,
+            "to": "private:4122"
+          },
+          {
+            "from": "private:4123",
+            "instruction": 1,
+            "to": "private:4114"
+          }
+        ],
+        "missing": [
+          "global:256",
+          "global:256 required by private:4114 instruction 0",
+          "global:260",
+          "global:260 required by private:4099 instruction 31",
+          "global:260 required by private:4099 instruction 32",
+          "global:260 required by private:4102 instruction 40",
+          "global:260 required by private:4116 instruction 21",
+          "global:260 required by private:4116 instruction 22",
+          "global:271",
+          "global:271 required by private:4105 instruction 0",
+          "global:272",
+          "global:272 required by private:4116 instruction 14",
+          "global:273",
+          "global:273 required by private:4116 instruction 16",
+          "global:280",
+          "global:280 required by private:4096 instruction 0",
+          "global:280 required by private:4096 instruction 1",
+          "global:280 required by private:4096 instruction 5",
+          "global:288",
+          "global:288 required by private:4098 instruction 0",
+          "global:288 required by private:4117 instruction 0",
+          "global:370",
+          "global:370 required by private:4102 instruction 27",
+          "global:398",
+          "global:398 required by private:4099 instruction 24",
+          "global:399",
+          "global:399 required by private:4120 instruction 3",
+          "global:460",
+          "semiglobal resource: skillobjects",
+          "semiglobal:8194",
+          "semiglobal:8194 required by private:4116 instruction 10",
+          "semiglobal:8195",
+          "semiglobal:8195 required by private:4116 instruction 11",
+          "semiglobal:8196",
+          "semiglobal:8196 required by private:4118 instruction 0",
+          "semiglobal:8197",
+          "semiglobal:8197 required by private:4120 instruction 5",
+          "semiglobal:8204",
+          "semiglobal:8204 required by private:4116 instruction 0",
+          "semiglobal:8205",
+          "semiglobal:8205 required by private:4119 instruction 1"
+        ],
+        "objects": [
+          {
+            "chunk_id": 16807,
+            "declared_attributes": 0,
+            "guid": 73587505,
+            "master_id": 0,
+            "sub_index": 0,
+            "uses_function_table": true
+          }
+        ],
+        "primitive_counts": {
+          "15": 1,
+          "2": 108,
+          "23": 5,
+          "29": 3,
+          "32": 1,
+          "36": 3,
+          "44": 18,
+          "45": 2,
+          "46": 10,
+          "49": 1,
+          "7": 1,
+          "8": 3
+        },
+        "schema": 1,
+        "scope": "conservative-static-resource-preflight",
+        "semiglobal_required": "skillobjects",
+        "source_name": "Chair_fso_Bouncy_Beach_Ball.iff",
+        "source_sha256": "ab9975d947e64ea19ac194679dee6080f99a5b4c0a4c89f03f719d75113d57a7",
+        "static_complete": false,
+        "supplied_scopes": {
+          "private": "ab9975d947e64ea19ac194679dee6080f99a5b4c0a4c89f03f719d75113d57a7"
+        },
+        "unassessed": [
+          "content installation, patch ordering and tuning",
+          "dynamic tree/entity/object dispatch and provider results",
+          "normalized source footprints, placement, routing and animation metadata",
+          "source permissions, full object behavior and external effects",
+          "asset rights and release qualification"
+        ],
+        "visited": [
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4102",
+          "private:4103",
+          "private:4105",
+          "private:4107",
+          "private:4109",
+          "private:4110",
+          "private:4114",
+          "private:4115",
+          "private:4116",
+          "private:4117",
+          "private:4118",
+          "private:4119",
+          "private:4120",
+          "private:4122",
+          "private:4123"
+        ],
+        "whole_object_runtime_qualified": false
+      },
+      "source": "Chair_fso_Bouncy_Beach_Ball.iff",
+      "source_bytes": 183352,
+      "source_sha256": "ab9975d947e64ea19ac194679dee6080f99a5b4c0a4c89f03f719d75113d57a7",
+      "status": "inspected"
+    },
+    {
+      "audit": {
+        "declared_roots": [
+          "global:265",
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4102",
+          "private:4103",
+          "private:4104",
+          "private:4105",
+          "private:4106",
+          "private:4107",
+          "private:4108",
+          "private:4109",
+          "private:4110",
+          "private:4111",
+          "private:4112",
+          "private:4113",
+          "private:4114",
+          "private:4115"
+        ],
+        "edges": [
+          {
+            "from": "private:4096",
+            "instruction": 0,
+            "to": "global:271"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 2,
+            "to": "private:4103"
+          },
+          {
+            "from": "private:4096",
+            "instruction": 4,
+            "to": "private:4104"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 0,
+            "to": "private:4105"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 3,
+            "to": "private:4104"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 4,
+            "to": "private:4103"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 5,
+            "to": "global:280"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 0,
+            "to": "global:272"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 3,
+            "to": "global:273"
+          },
+          {
+            "from": "private:4099",
+            "instruction": 0,
+            "to": "global:272"
+          },
+          {
+            "from": "private:4099",
+            "instruction": 3,
+            "to": "global:273"
+          },
+          {
+            "from": "private:4101",
+            "instruction": 0,
+            "to": "private:4109"
+          },
+          {
+            "from": "private:4102",
+            "instruction": 0,
+            "to": "private:4109"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 0,
+            "to": "private:4105"
+          },
+          {
+            "from": "private:4107",
+            "instruction": 0,
+            "to": "private:4105"
+          },
+          {
+            "from": "private:4109",
+            "instruction": 16,
+            "to": "private:4110"
+          },
+          {
+            "from": "private:4109",
+            "instruction": 17,
+            "to": "private:4110"
+          },
+          {
+            "from": "private:4109",
+            "instruction": 18,
+            "to": "private:4110"
+          },
+          {
+            "from": "private:4109",
+            "instruction": 19,
+            "to": "private:4110"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 0,
+            "to": "private:4111"
+          },
+          {
+            "from": "private:4112",
+            "instruction": 0,
+            "to": "private:4111"
+          },
+          {
+            "from": "private:4113",
+            "instruction": 0,
+            "to": "private:4115"
+          },
+          {
+            "from": "private:4113",
+            "instruction": 14,
+            "to": "private:4105"
+          },
+          {
+            "from": "private:4115",
+            "instruction": 0,
+            "to": "private:4111"
+          }
+        ],
+        "missing": [
+          "global:265",
+          "global:271",
+          "global:271 required by private:4096 instruction 0",
+          "global:272",
+          "global:272 required by private:4098 instruction 0",
+          "global:272 required by private:4099 instruction 0",
+          "global:273",
+          "global:273 required by private:4098 instruction 3",
+          "global:273 required by private:4099 instruction 3",
+          "global:280",
+          "global:280 required by private:4097 instruction 5"
+        ],
+        "objects": [
+          {
+            "chunk_id": 16807,
+            "declared_attributes": 0,
+            "guid": 223843000,
+            "master_id": 0,
+            "sub_index": 0,
+            "uses_function_table": false
+          }
+        ],
+        "primitive_counts": {
+          "13": 1,
+          "2": 71,
+          "26": 1,
+          "27": 2,
+          "28": 1,
+          "31": 2,
+          "36": 9,
+          "42": 1,
+          "44": 6,
+          "49": 2,
+          "50": 6,
+          "67": 12,
+          "7": 1,
+          "8": 5
+        },
+        "schema": 1,
+        "scope": "conservative-static-resource-preflight",
+        "semiglobal_required": null,
+        "source_name": "fso_christmas_flag.iff",
+        "source_sha256": "d12dcf5254b1381c7ad8f4549c6365c4d2f31f1170a5fd96a5fdf037a195f188",
+        "static_complete": false,
+        "supplied_scopes": {
+          "private": "d12dcf5254b1381c7ad8f4549c6365c4d2f31f1170a5fd96a5fdf037a195f188"
+        },
+        "unassessed": [
+          "content installation, patch ordering and tuning",
+          "dynamic tree/entity/object dispatch and provider results",
+          "normalized source footprints, placement, routing and animation metadata",
+          "source permissions, full object behavior and external effects",
+          "asset rights and release qualification"
+        ],
+        "visited": [
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4102",
+          "private:4103",
+          "private:4104",
+          "private:4105",
+          "private:4106",
+          "private:4107",
+          "private:4108",
+          "private:4109",
+          "private:4110",
+          "private:4111",
+          "private:4112",
+          "private:4113",
+          "private:4114",
+          "private:4115"
+        ],
+        "whole_object_runtime_qualified": false
+      },
+      "source": "fso_christmas_flag.iff",
+      "source_bytes": 971488,
+      "source_sha256": "d12dcf5254b1381c7ad8f4549c6365c4d2f31f1170a5fd96a5fdf037a195f188",
+      "status": "inspected"
+    },
+    {
+      "audit": {
+        "declared_roots": [
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4103",
+          "private:4104",
+          "private:4105",
+          "private:4106",
+          "private:4107",
+          "private:4108",
+          "private:4110",
+          "private:4114",
+          "private:4115",
+          "private:4116"
+        ],
+        "edges": [
+          {
+            "from": "private:4096",
+            "instruction": 0,
+            "to": "global:280"
+          },
+          {
+            "from": "private:4097",
+            "instruction": 0,
+            "to": "global:271"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 9,
+            "to": "global:437"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 10,
+            "to": "global:293"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 13,
+            "to": "global:391"
+          },
+          {
+            "from": "private:4098",
+            "instruction": 29,
+            "to": "private:4101"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 11,
+            "to": "global:437"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 15,
+            "to": "global:391"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 19,
+            "to": "global:370"
+          },
+          {
+            "from": "private:4100",
+            "instruction": 55,
+            "to": "global:370"
+          },
+          {
+            "from": "private:4101",
+            "instruction": 20,
+            "to": "global:370"
+          },
+          {
+            "from": "private:4103",
+            "instruction": 10,
+            "to": "global:437"
+          },
+          {
+            "from": "private:4103",
+            "instruction": 17,
+            "to": "global:391"
+          },
+          {
+            "from": "private:4103",
+            "instruction": 28,
+            "to": "private:4101"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 8,
+            "to": "global:437"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 17,
+            "to": "global:391"
+          },
+          {
+            "from": "private:4105",
+            "instruction": 29,
+            "to": "private:4101"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 6,
+            "to": "global:437"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 10,
+            "to": "global:391"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 15,
+            "to": "private:4107"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 16,
+            "to": "private:4108"
+          },
+          {
+            "from": "private:4106",
+            "instruction": 22,
+            "to": "private:4101"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 6,
+            "to": "global:437"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 8,
+            "to": "global:391"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 22,
+            "to": "global:392"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 31,
+            "to": "private:4104"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 42,
+            "to": "private:4101"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 51,
+            "to": "global:393"
+          },
+          {
+            "from": "private:4110",
+            "instruction": 58,
+            "to": "global:393"
+          }
+        ],
+        "missing": [
+          "global:271",
+          "global:271 required by private:4097 instruction 0",
+          "global:280",
+          "global:280 required by private:4096 instruction 0",
+          "global:293",
+          "global:293 required by private:4098 instruction 10",
+          "global:370",
+          "global:370 required by private:4100 instruction 19",
+          "global:370 required by private:4100 instruction 55",
+          "global:370 required by private:4101 instruction 20",
+          "global:391",
+          "global:391 required by private:4098 instruction 13",
+          "global:391 required by private:4100 instruction 15",
+          "global:391 required by private:4103 instruction 17",
+          "global:391 required by private:4105 instruction 17",
+          "global:391 required by private:4106 instruction 10",
+          "global:391 required by private:4110 instruction 8",
+          "global:392",
+          "global:392 required by private:4110 instruction 22",
+          "global:393",
+          "global:393 required by private:4110 instruction 51",
+          "global:393 required by private:4110 instruction 58",
+          "global:437",
+          "global:437 required by private:4098 instruction 9",
+          "global:437 required by private:4100 instruction 11",
+          "global:437 required by private:4103 instruction 10",
+          "global:437 required by private:4105 instruction 8",
+          "global:437 required by private:4106 instruction 6",
+          "global:437 required by private:4110 instruction 6"
+        ],
+        "objects": [
+          {
+            "chunk_id": 16807,
+            "declared_attributes": 0,
+            "guid": 1168320904,
+            "master_id": 0,
+            "sub_index": 0,
+            "uses_function_table": false
+          }
+        ],
+        "primitive_counts": {
+          "1": 3,
+          "14": 5,
+          "16": 3,
+          "2": 90,
+          "23": 68,
+          "27": 7,
+          "28": 5,
+          "29": 29,
+          "31": 3,
+          "36": 24,
+          "42": 25,
+          "44": 67,
+          "48": 1,
+          "50": 6,
+          "6": 8,
+          "8": 12
+        },
+        "schema": 1,
+        "scope": "conservative-static-resource-preflight",
+        "semiglobal_required": null,
+        "source_name": "cursebook_set_permission.iff",
+        "source_sha256": "fab1a27e78532339eb42ebceda39eaa2a17cff9a4c16226e66ec2a1048938f91",
+        "static_complete": false,
+        "supplied_scopes": {
+          "private": "fab1a27e78532339eb42ebceda39eaa2a17cff9a4c16226e66ec2a1048938f91"
+        },
+        "unassessed": [
+          "content installation, patch ordering and tuning",
+          "dynamic tree/entity/object dispatch and provider results",
+          "normalized source footprints, placement, routing and animation metadata",
+          "source permissions, full object behavior and external effects",
+          "asset rights and release qualification"
+        ],
+        "visited": [
+          "private:4096",
+          "private:4097",
+          "private:4098",
+          "private:4099",
+          "private:4100",
+          "private:4101",
+          "private:4103",
+          "private:4104",
+          "private:4105",
+          "private:4106",
+          "private:4107",
+          "private:4108",
+          "private:4110",
+          "private:4114",
+          "private:4115",
+          "private:4116"
+        ],
+        "whole_object_runtime_qualified": false
+      },
+      "source": "cursebook_set_permission.iff",
+      "source_bytes": 244341,
+      "source_sha256": "fab1a27e78532339eb42ebceda39eaa2a17cff9a4c16226e66ec2a1048938f91",
+      "status": "inspected"
+    }
+  ],
+  "schema": 1,
+  "scope": "pinned-whole-resource-static-intake",
+  "static_cohort_complete": false,
+  "whole_object_runtime_qualified": false
+}
