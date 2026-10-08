@@ -1,3 +1,4 @@
+import {canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
 // TEST ONLY: built native player plus synthetic standalone Vitaboy resources.
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
@@ -63,22 +64,14 @@ try {
  await canvas.waitFor();
  report.checks.push({name:'Real content loader binds the admitted native avatar',models:1});
  const frames=new Set();
- for(let i=0;i<14;i++){frames.add(await canvas.evaluate(c=>c.toDataURL()));await delay(120);}
+ for(let i=0;i<14;i++){frames.add(await canvasPixels(canvas));await delay(120);}
  assert.ok(frames.size>=2,'Accepted changing animation frames must alter the actual canvas');
  report.checks.push({name:'Accepted animation changes render real pixels',distinctCanvasFrames:frames.size});
  assert.equal(await page.locator('.world-view-error').count(),0,'No renderer admission error');
  // Find real rendered synthetic red geometry, then use ordinary pointer events.
  let picked=false,selectedPoint=null;
  for(let attempt=0;attempt<8&&!picked;attempt++){
-  const point=await canvas.evaluate(c=>{
-   const ctx=c.getContext('2d'),rgba=ctx.getImageData(0,0,c.width,c.height).data,samples=[];
-   for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){
-    const i=(y*c.width+x)*4;if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)samples.push([x,y]);
-   }
-   if(!samples.length)return null;
-   const [x,y]=samples[Math.floor(samples.length/2)],b=c.getBoundingClientRect();
-   return {x:b.left+x*b.width/c.width,y:b.top+y*b.height/c.height,pixels:samples.length};
-  });
+  const point=await avatarPoint(canvas);
   assert.ok(point&&point.pixels>0,'Synthetic avatar geometry must have visible pixels');
   selectedPoint=point;
   await page.mouse.click(point.x,point.y);
@@ -98,19 +91,7 @@ try {
    // Model admission is synchronous, but the existing viewport paints on the
    // next animation frame. Wait for the actual completed draw, not its model
    // counter; a permanently stale visible image still fails this bounded check.
-   await page.waitForFunction(()=>{
-    const lot=document.querySelector('.native-lot[data-native-avatar-models="0"]');
-    const view=lot?.querySelector('.world-viewport'),c=view?.querySelector('canvas');
-    if(!c||view.classList.contains('world-busy'))return false;
-    const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
-    for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)return false;
-    return true;
-   },null,{timeout:5000});
-   const hiddenPixels=await canvas.evaluate(c=>{
-    const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;
-    for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)n++;
-    return n;
-   });
+   const hiddenPixels=await waitHiddenAvatar(page,canvas);
    assert.equal(hiddenPixels,0,'Hidden=2 cannot keep rendering a selectable avatar');
    await page.mouse.click(selectedPoint.x,selectedPoint.y);await delay(100);
    assert.equal(await page.getByRole('heading',{name:'Actions',exact:true}).count(),0,
@@ -131,8 +112,8 @@ try {
  await shot(page,'native-avatar-mobile-scene');
  fixture.disconnect();
  await page.locator('.native-lot[data-native-live="false"]').waitFor();
- const frozen=await canvas.evaluate(c=>c.toDataURL());await delay(450);
- assert.equal(await canvas.evaluate(c=>c.toDataURL()),frozen,'Disconnected avatar must not advance');
+ const frozen=await canvasPixels(canvas);await delay(450);
+ assert.equal(await canvasPixels(canvas),frozen,'Disconnected avatar must not advance');
  report.checks.push({name:'Disconnect freezes accepted avatar pixels'});
  await page.getByRole('button',{name:'Reconnect',exact:true}).click();
  await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
@@ -153,7 +134,7 @@ try {
  await page.waitForFunction(count=>document.querySelectorAll('.native-action-history li').length===count,historyBefore+1);
  assert.equal(fixture.stats.silentReceipts,1);
  const pendingFrames=new Set();
- for(let i=0;i<10;i++){pendingFrames.add(await canvas.evaluate(c=>c.toDataURL()));await delay(120);}
+ for(let i=0;i<10;i++){pendingFrames.add(await canvasPixels(canvas));await delay(120);}
  assert.ok(pendingFrames.size>=2,'Receipt uncertainty must not stop still-accepted animation frames');
  assert.equal(fixture.active(),1,'The test authority keeps this connection open');
  assert.equal(fixture.stats.unknownDrops,0,'No server close may simulate the receipt deadline');
@@ -166,8 +147,8 @@ try {
  assert.ok(elapsed>=14000&&elapsed<30000,'Unchanged real 15s receipt deadline, with scheduling allowance');
  assert.equal(await page.locator('.native-lot').getAttribute('data-native-live'),'false');
  assert.equal(await page.locator('.native-lot').getAttribute('data-native-avatar-models'),'1');
- const timeoutFrame=await canvas.evaluate(c=>c.toDataURL());await delay(400);
- assert.equal(await canvas.evaluate(c=>c.toDataURL()),timeoutFrame,'Timeout freezes the actual last accepted avatar pose');
+ const timeoutFrame=await canvasPixels(canvas);await delay(400);
+ assert.equal(await canvasPixels(canvas),timeoutFrame,'Timeout freezes the actual last accepted avatar pose');
  assert.equal(fixture.stats.actions,actionsBefore+1,'No automatic replay from the avatar component');
  assert.equal(fixture.active(),0);
  report.checks.push({name:'Independent receipt timeout freezes the resource-backed avatar without dropping its model',
@@ -178,7 +159,7 @@ try {
  assert.equal(await page.getByRole('button',{name:'Walls down',exact:true}).getAttribute('aria-pressed'),'true',
   'Rebuilding the resource viewport cannot reset player camera/visibility controls');
  const recoveredFrames=new Set();
- for(let i=0;i<10;i++){recoveredFrames.add(await canvas.evaluate(c=>c.toDataURL()));await delay(120);}
+ for(let i=0;i<10;i++){recoveredFrames.add(await canvasPixels(canvas));await delay(120);}
  assert.ok(recoveredFrames.size>=2,'Recovered avatar animation must resume on accepted frames');
  await page.getByRole('button',{name:'Your Sim',exact:true}).click();
  await page.getByText('Previous action result unknown · not retried',{exact:true}).waitFor();

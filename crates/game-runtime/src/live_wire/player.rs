@@ -15,6 +15,8 @@ use crate::{
 use bincode::Options;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
+mod appearance_v1;
+
 pub const MAX_BOOTSTRAP_BYTES: usize = 32 * 1024 * 1024;
 pub const MAX_ACTION_BYTES: usize = 16 * 1024;
 const BOOT: &[u8; 8] = b"WLB1\r\n\x1a\n";
@@ -35,6 +37,7 @@ pub struct Bootstrap {
     pub principal: PrincipalKey,
     pub actor: EntityRef,
     pub content: ContentSet,
+    #[serde(with = "appearance_v1")]
     pub appearance: WorldDocument,
     pub lot: LotModel,
     pub mode: VmMode,

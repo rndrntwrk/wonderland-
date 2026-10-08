@@ -1,3 +1,4 @@
+import {canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
 // TEST ONLY: real built Rust/WASM, accepted primitive events, real AudioContext
 // and an analyser connected to its existing output. No synthetic ACK, audio
 // backend replacement, autoplay policy override or browser-clock modification.
@@ -62,41 +63,26 @@ try{
  if(combined){
   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
   combinedCanvas=page.locator('.native-lot canvas');
-  initialPixels=await combinedCanvas.evaluate(c=>c.toDataURL());
+  initialPixels=await canvasPixels(combinedCanvas);
   const batch=await fixture.burst(18);
   await page.waitForFunction(t=>document.querySelector('#native-tick')?.textContent?.match(/Tick (\d+)/)?.[1]===t,batch.tick);
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const ended=await fixture.state();
   assert.equal(ended.avatars[0].animations.layers[0].end_reached,true);
-  retainedPixels=await combinedCanvas.evaluate(c=>c.toDataURL());
+  retainedPixels=await canvasPixels(combinedCanvas);
   assert.ok(retainedPixels!==initialPixels,'Combined player must retain intermediate poses from a complete animation packet');
-  const point=await combinedCanvas.evaluate(c=>{
-   const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data,points=[];
-   for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){
-    const i=(y*c.width+x)*4;if(data[i]>150&&data[i+1]<30&&data[i+2]<30)points.push([x,y]);
-   }
-   if(!points.length)return null;
-   const [x,y]=points[Math.floor(points.length/2)],b=c.getBoundingClientRect();
-   return {x:b.left+x*b.width/c.width,y:b.top+y*b.height/c.height,pixels:points.length};
-  });
+  const point=await avatarPoint(combinedCanvas);
   assert.ok(point?.pixels>0,'Retained mesh remains above the raised terrain');
   await page.mouse.click(point.x,point.y);
   await page.getByRole('heading',{name:'Actions',exact:true}).waitFor();await closeActions();
   record('One admitted player combines raised terrain, mesh picking and all eighteen pose transitions',{tick:batch.tick,canvasSha256:createHash('sha256').update(retainedPixels).digest('hex'),visiblePixels:point.pixels});
   await fixture.setHidden(2);await page.locator('.native-lot[data-native-avatar-models="0"]').waitFor();
-  await page.waitForFunction(()=>{
-   const lot=document.querySelector('.native-lot[data-native-avatar-models="0"]');
-   const view=lot?.querySelector('.world-viewport'),c=view?.querySelector('canvas');
-   if(!c||view.classList.contains('world-busy'))return false;
-   const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
-   for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)return false;
-   return true;
-  },null,{timeout:5000});
+  await waitHiddenAvatar(page,combinedCanvas);
   await page.mouse.click(point.x,point.y);await delay(100);
   assert.equal(await page.getByRole('heading',{name:'Actions',exact:true}).count(),0);
   await fixture.setHidden(0);await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),retainedPixels,'Hidden/restored state retains the accepted ended pose');
+  assert.equal(await canvasPixels(combinedCanvas),retainedPixels,'Hidden/restored state retains the accepted ended pose');
   record('Terrain visibility repair coexists with retained pose history',{hiddenValue:2,restored:true});
  }
  await page.getByRole('button',{name:'Needs',exact:true}).click();await page.getByText(/Game sounds ready/).waitFor();
@@ -140,7 +126,7 @@ try{
  await choose('Play sound (test harness)');await waitVoices(1);
  await choose('Stop sound (test harness)');await waitVoices(0);record('Accepted StopSound releases the exact owning sound',{voices:0});
  if(combined){
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),retainedPixels,'Sound actions and foreground load cannot reset an ended pose');
+  assert.equal(await canvasPixels(combinedCanvas),retainedPixels,'Sound actions and foreground load cannot reset an ended pose');
   record('Sound actions and UI scheduling preserve the retained terrain-backed avatar',{sameCanvas:true});
  }
  await choose('Play sound (test harness)');await waitVoices(1);await closeActions();
@@ -150,7 +136,7 @@ try{
  assert.equal((await status()).activeVoices,0);assert.equal(fixture.stats.actions,before);record('Recovery checkpoint does not replay sound or commands',{voices:0,actions:fixture.stats.actions});
  if(combined){
   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),initialPixels,'Fresh checkpoint explicitly resets unavailable historical bones');
+  assert.equal(await canvasPixels(combinedCanvas),initialPixels,'Fresh checkpoint explicitly resets unavailable historical bones');
   record('Combined reconnect retains resources but never invents missing pose or sound history',{avatarModels:1,soundVoices:0});
  }
  await choose('Play sound (test harness)');await waitVoices(1);const restored=await measure();assert.ok(restored.rms>0.05);record('An explicit new action plays after reconnect',restored);

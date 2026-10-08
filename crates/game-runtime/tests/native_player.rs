@@ -574,3 +574,29 @@ fn a_receipt_cannot_advance_or_reseed_avatar_pose_history() {
     assert!(frames.is_none());
     assert_eq!(p.avatar_visual_frame().unwrap(), before);
 }
+
+// Keep WLB1 frozen when a presentation-only JSON field is added to WorldDocument.
+#[test]
+fn native_bootstrap_without_lighting_keeps_published_v1_bytes_and_decoding() {
+    use sha2::{Digest, Sha256};
+    let (_, value) = setup();
+    let bytes = encode_bootstrap(&value).unwrap();
+    assert_eq!(bytes.len(), 12_796);
+    assert_eq!(
+        format!("{:x}", Sha256::digest(&bytes)),
+        "f72071935f91247083da73dde5a8ea724ca016f2c6a01b96d99ba4c38f957d9c"
+    );
+    NativePlayer::open(&bytes, value.binding, 2)
+        .expect("published WLB1 appearance must remain decodable");
+}
+#[test]
+fn native_bootstrap_cannot_silently_serialize_unversioned_lighting() {
+    #[path = "../../world-view/examples/support/lighting.rs"]
+    mod fixture;
+    let (_, mut value) = setup();
+    value.appearance = fixture::lit_world();
+    assert!(
+        encode_bootstrap(&value).is_err(),
+        "new lighting needs a separately versioned transport contract, not shifted WLB1 fields"
+    );
+}

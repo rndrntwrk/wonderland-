@@ -5,7 +5,9 @@ use wonderland_render_core::{
     AssetKey, EntityProjection, EntityRef, FrameStamp, Mat4, Quat, RenderFrame, RenderLimits,
     RgbaImage, Transform, Vec3,
     frame::FrameStore,
-    reference::{DepthComparison, FragmentOptions, ReferenceSurface, TextureAddress},
+    reference::{
+        DepthComparison, FragmentOptions, ReferenceLightmap, ReferenceSurface, TextureAddress,
+    },
 };
 
 #[derive(Clone, Debug, Default)]
@@ -16,6 +18,10 @@ pub struct WorldRenderStats {
     pub triangles: usize,
     pub diagnostics: Vec<WorldDiagnostic>,
 }
+
+mod gpu;
+mod native_pose;
+pub use gpu::WorldGpuFrame;
 
 struct DisplayedRaster {
     color: ReferenceSurface,
@@ -30,36 +36,30 @@ pub struct WorldRenderer {
     frames: Option<FrameStore>,
     prepared: Option<(ViewportControls, PreparedWorld)>,
     raster: Option<DisplayedRaster>,
+    gpu: Option<gpu::DisplayedGpu>,
     generation: u64,
+    lighting: Option<Arc<PreparedWorldLighting>>,
+    lighting_preparations: u64,
 }
 impl WorldRenderer {
     pub fn new(document: Arc<WorldDocument>) -> Result<Self, WorldError> {
         document.validate()?;
-        let frames = if let Some(lot_id) = document.revision.lot_id {
-            let mut frames = FrameStore::new(RenderLimits::default());
-            frames.reset(lot_id, document.revision.epoch);
-            frames
-                .admit(render_frame(&document)?)
-                .map_err(|error| WorldError(error.to_string()))?;
-            Some(frames)
-        } else {
-            if document
-                .objects
-                .iter()
-                .any(|object| object.entity.is_some())
-            {
-                return Err(WorldError(
-                    "live entity references require an admitted lot identity".into(),
-                ));
-            }
-            None
-        };
+        let lighting = document
+            .lighting
+            .as_ref()
+            .map(|recipe| recipe.prepare(&document).map(Arc::new))
+            .transpose()?;
+        let frames = initial_frames(&document)?;
+        let lighting_preparations = u64::from(lighting.is_some());
         Ok(Self {
             document,
             frames,
             prepared: None,
             raster: None,
+            gpu: None,
             generation: 0,
+            lighting,
+            lighting_preparations,
         })
     }
     pub fn replace_document(&mut self, document: Arc<WorldDocument>) -> Result<(), WorldError> {
@@ -67,6 +67,12 @@ impl WorldRenderer {
         if Arc::ptr_eq(&self.document, &document) || *self.document == *document {
             return Ok(());
         }
+        // Resolve every fallible operation before changing admitted state.
+        let generation = self
+            .generation
+            .checked_add(1)
+            .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
+        let light_changed = document.lighting != self.document.lighting;
         let same_boundary = (document.revision.lot_id, document.revision.epoch)
             == (self.document.revision.lot_id, self.document.revision.epoch)
             && document.provenance.origin == self.document.provenance.origin;
@@ -81,7 +87,39 @@ impl WorldRenderer {
                 "snapshot presentation generation must increase on refresh".into(),
             ));
         }
+        if same_boundary
+            && document.revision.lot_id.is_some()
+            && let (Some(previous), Some(next)) = (&self.document.lighting, &document.lighting)
+            && light_changed
+            && next.revision <= previous.revision
+        {
+            return Err(WorldError(
+                "live lighting changed without a new lighting revision".into(),
+            ));
+        }
+        let next_lighting = if light_changed {
+            document
+                .lighting
+                .as_ref()
+                .map(|recipe| recipe.prepare(&document).map(Arc::new))
+                .transpose()?
+        } else {
+            self.lighting.clone()
+        };
+        let light_preparations = self
+            .lighting_preparations
+            .checked_add(u64::from(light_changed && next_lighting.is_some()))
+            .ok_or_else(|| WorldError("lighting preparation counter exhausted".into()))?;
         if same_boundary && document.revision.lot_id.is_some() {
+            if document.revision.content == self.document.revision.content
+                && (document.models != self.document.models
+                    || document.materials != self.document.materials)
+                && !native_pose::native_pose_update(&self.document, &document)
+            {
+                return Err(WorldError(
+                    "live source resource bytes changed without new content identity".into(),
+                ));
+            }
             if document.revision.architecture_revision
                 == self.document.revision.architecture_revision
                 && document.lot != self.document.lot
@@ -117,16 +155,15 @@ impl WorldRenderer {
                 .admit(render_frame(&document)?)
                 .map_err(|error| WorldError(error.to_string()))?;
         } else {
-            let replacement = Self::new(Arc::clone(&document))?;
-            self.frames = replacement.frames;
+            self.frames = initial_frames(&document)?;
         }
         self.document = document;
         self.prepared = None;
         self.raster = None;
-        self.generation = self
-            .generation
-            .checked_add(1)
-            .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
+        self.gpu = None;
+        self.generation = generation;
+        self.lighting = next_lighting;
+        self.lighting_preparations = light_preparations;
         Ok(())
     }
     pub fn render(
@@ -164,38 +201,12 @@ impl WorldRenderer {
         let mut drawn_parts = 0;
         for part in &scene.parts {
             let matrix = projection * part.transform;
-            if outside_frustum(&part.mesh, matrix) {
+            if part.pipeline.and_then(|p| p.forced_depth).is_none()
+                && outside_frustum(&part.mesh, matrix)
+            {
                 continue;
             }
-            let target = if let Some(index) = part.object {
-                let object = &self.document.objects[index];
-                object.selectable.then_some(WorldPickTarget::Object {
-                    entity: object.entity,
-                    source_guid: object.source_guid,
-                    source_record: object
-                        .blueprint
-                        .map(|source| source.record)
-                        .or_else(|| object.snapshot.map(|source| source.record)),
-                })
-            } else if let (Some((x, y, level)), Some(surface)) = (part.tile, part.surface) {
-                (level == controls.visible_level
-                    && matches!(
-                        surface,
-                        WorldSurface::Terrain
-                            | WorldSurface::Floor
-                            | WorldSurface::Water
-                            | WorldSurface::Pool
-                            | WorldSurface::BuildSupport
-                    ))
-                .then_some(WorldPickTarget::Tile {
-                    x,
-                    y,
-                    level,
-                    surface,
-                })
-            } else {
-                None
-            };
+            let target = pick_target(&self.document, part, controls);
             let hit = target.map(|target| {
                 hits.push(target);
                 EntityRef {
@@ -211,29 +222,36 @@ impl WorldRenderer {
             } else {
                 DepthComparison::Less
             };
+            color.set_pipeline(part.pipeline)?;
+            hit_ids.set_pipeline(part.pipeline)?;
             color.set_depth_comparison(depth);
             hit_ids.set_depth_comparison(depth);
             let options = FragmentOptions {
                 alpha_cutoff: 2,
                 // Source Vitaboy.fx wraps both UV axes. Address the interpolated
                 // fragments, preserving original out-of-range mesh coordinates.
-                texture_address: if part
-                    .object
-                    .and_then(|index| self.document.objects[index].model)
-                    .is_some_and(|index| {
-                        matches!(self.document.models[index].context, ModelContext::Vitaboy)
-                    }) {
-                    TextureAddress::Wrap
-                } else {
-                    TextureAddress::Clamp
-                },
+                texture_address: self.texture_address_for_part(part),
                 ..Default::default()
             };
-            if let Some(texture) = &part.texture {
+            let light = self.light_for_part(part)?;
+            if let Some((image, uv)) = light {
+                color.draw_lit_mesh(
+                    &part.mesh,
+                    matrix,
+                    part.texture.as_deref(),
+                    ReferenceLightmap::new(image, uv, &limits)?,
+                    entity,
+                    options,
+                    &limits,
+                )?;
+            } else if let Some(texture) = &part.texture {
                 color.draw_textured_mesh(&part.mesh, matrix, texture, entity, options, &limits)?;
-                hit_ids.draw_textured_mesh(&part.mesh, matrix, texture, hit, options, &limits)?;
             } else {
                 color.draw_mesh(&part.mesh, matrix, entity, options, &limits)?;
+            }
+            if let Some(texture) = &part.texture {
+                hit_ids.draw_textured_mesh(&part.mesh, matrix, texture, hit, options, &limits)?;
+            } else {
                 hit_ids.draw_mesh(&part.mesh, matrix, hit, options, &limits)?;
             }
             triangles += part.mesh.indices.len() / 3;
@@ -244,6 +262,7 @@ impl WorldRenderer {
             .checked_add(1)
             .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
         self.generation = generation;
+        self.gpu = None;
         self.raster = Some(DisplayedRaster {
             color,
             hit_ids,
@@ -258,6 +277,79 @@ impl WorldRenderer {
             triangles,
             diagnostics: scene.diagnostics.clone(),
         })
+    }
+    /// Diagnostic only; never a tick or game-state revision.
+    pub fn lighting_preparations(&self) -> u64 {
+        self.lighting_preparations
+    }
+    fn texture_address_for_part(&self, part: &ScenePart) -> TextureAddress {
+        if part
+            .object
+            .and_then(|i| self.document.objects[i].model)
+            .is_some_and(|i| matches!(self.document.models[i].context, ModelContext::Vitaboy))
+        {
+            TextureAddress::Wrap
+        } else {
+            TextureAddress::Clamp
+        }
+    }
+    fn light_for_part(&self, part: &ScenePart) -> Result<Option<(&RgbaImage, Mat4)>, WorldError> {
+        let Some(light) = &self.lighting else {
+            return Ok(None);
+        };
+        if part
+            .pipeline
+            .is_some_and(|p| p.blend == wonderland_render_core::reference::FragmentBlend::NoColor)
+            || part
+                .object
+                .is_some_and(|i| self.document.objects[i].room == 65535)
+        {
+            return Ok(None);
+        }
+        // Tile-less architecture (notably roofs) also has an explicit source
+        // level. Falling back to the ground floor samples the wrong atlas cell.
+        let level = part.level;
+        let uv = light.model_to_uv(part.transform, level.saturating_sub(1))?;
+        Ok(Some((light.image(), uv)))
+    }
+    /// Render one immutable scene command for C-owned derivatives without
+    /// changing live frame generations, picking, or simulation state.
+    pub(crate) fn draw_derivative_part(
+        &self,
+        surface: &mut ReferenceSurface,
+        part: &ScenePart,
+        camera: Mat4,
+    ) -> Result<(), WorldError> {
+        let limits = RenderLimits::default();
+        let matrix = camera * part.transform;
+        surface.set_pipeline(part.pipeline)?;
+        surface.set_depth_comparison(if part.object.is_some() {
+            DepthComparison::LessEqual
+        } else {
+            DepthComparison::Less
+        });
+        let options = FragmentOptions {
+            alpha_cutoff: 2,
+            write_id: false,
+            texture_address: self.texture_address_for_part(part),
+            ..Default::default()
+        };
+        if let Some((image, uv)) = self.light_for_part(part)? {
+            surface.draw_lit_mesh(
+                &part.mesh,
+                matrix,
+                part.texture.as_deref(),
+                ReferenceLightmap::new(image, uv, &limits)?,
+                None,
+                options,
+                &limits,
+            )?;
+        } else if let Some(texture) = &part.texture {
+            surface.draw_textured_mesh(&part.mesh, matrix, texture, None, options, &limits)?;
+        } else {
+            surface.draw_mesh(&part.mesh, matrix, None, options, &limits)?;
+        }
+        Ok(())
     }
     pub fn image(&self) -> Option<&RgbaImage> {
         self.raster.as_ref().map(|raster| raster.color.image())
@@ -303,6 +395,7 @@ impl WorldRenderer {
             frames.device_reset();
         }
         self.raster = None;
+        self.gpu = None;
         self.prepared = None;
         self.generation = self.generation.saturating_add(1);
     }
@@ -396,4 +489,63 @@ fn outside_frustum(mesh: &wonderland_render_core::Mesh, matrix: Mat4) -> bool {
         }
     }
     outside.into_iter().any(|value| value)
+}
+
+fn pick_target(
+    document: &WorldDocument,
+    part: &ScenePart,
+    controls: ViewportControls,
+) -> Option<WorldPickTarget> {
+    if let Some(index) = part.object {
+        let object = &document.objects[index];
+        object.selectable.then_some(WorldPickTarget::Object {
+            entity: object.entity,
+            source_guid: object.source_guid,
+            source_record: object
+                .blueprint
+                .map(|source| source.record)
+                .or_else(|| object.snapshot.map(|source| source.record)),
+        })
+    } else if let (Some((x, y, level)), Some(surface)) = (part.tile, part.surface) {
+        (level == controls.visible_level
+            && matches!(
+                surface,
+                WorldSurface::Terrain
+                    | WorldSurface::Floor
+                    | WorldSurface::Water
+                    | WorldSurface::Pool
+                    | WorldSurface::BuildSupport
+            ))
+        .then_some(WorldPickTarget::Tile {
+            x,
+            y,
+            level,
+            surface,
+        })
+    } else {
+        None
+    }
+}
+
+fn initial_frames(document: &WorldDocument) -> Result<Option<FrameStore>, WorldError> {
+    let frames = if let Some(lot_id) = document.revision.lot_id {
+        let mut frames = FrameStore::new(RenderLimits::default());
+        frames.reset(lot_id, document.revision.epoch);
+        frames
+            .admit(render_frame(document)?)
+            .map_err(|error| WorldError(error.to_string()))?;
+        Some(frames)
+    } else {
+        if document
+            .objects
+            .iter()
+            .any(|object| object.entity.is_some())
+        {
+            return Err(WorldError(
+                "live entity references require an admitted lot identity".into(),
+            ));
+        }
+        None
+    };
+    Ok(frames)
 }

@@ -2890,8 +2890,16 @@ name = "wonderland-render-core"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "flate2",
  "serde",
  "sha2",
+]
+
+[[package]]
+name = "wonderland-render-iso"
+version = "0.1.0"
+dependencies = [
+ "wonderland-render-core",
 ]
 
 [[package]]
@@ -2942,6 +2950,7 @@ dependencies = [
  "sha2",
  "wonderland-render-3d",
  "wonderland-render-core",
+ "wonderland-render-iso",
 ]
 
 [[package]]
