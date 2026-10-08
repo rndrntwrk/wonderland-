@@ -305,6 +305,30 @@ impl LiveReplica {
         checkpoint: Checkpoint<'_>,
         tail: &[TickFrame],
     ) -> Result<ReplicaCursor, LiveError> {
+        self.install_checkpoint_inner(ticket, checkpoint, tail, false)
+            .map(|(cursor, _)| cursor)
+    }
+
+    /// Rebuild only the visual history supplied by the checkpoint and its tail.
+    /// The seed and every nonduplicate accepted tail frame commit together after
+    /// full validation. No historical TickOutcomes or durable effects are exposed.
+    /// None means the bounded presentation trace is unavailable, not failed replay.
+    pub fn install_checkpoint_with_avatar_frames(
+        &mut self,
+        ticket: CheckpointTicket,
+        checkpoint: Checkpoint<'_>,
+        tail: &[TickFrame],
+    ) -> Result<(ReplicaCursor, Option<Vec<crate::AvatarVisualFrame>>), LiveError> {
+        self.install_checkpoint_inner(ticket, checkpoint, tail, true)
+    }
+
+    fn install_checkpoint_inner(
+        &mut self,
+        ticket: CheckpointTicket,
+        checkpoint: Checkpoint<'_>,
+        tail: &[TickFrame],
+        capture: bool,
+    ) -> Result<(ReplicaCursor, Option<Vec<crate::AvatarVisualFrame>>), LiveError> {
         self.require_connection(ticket.connection)?;
         if self.status != SessionStatus::AwaitingCheckpoint || self.ticket != Some(ticket) {
             return Err(LiveError::StaleCheckpoint);
@@ -340,13 +364,11 @@ impl LiveReplica {
             return Err(LiveError::CheckpointMetadata);
         }
         check_anchor(checkpoint_cursor, self.anchor)?;
-        replay(
-            &mut candidate,
-            tail,
-            self.anchor,
-            false,
-            &mut crate::avatar_projection::AvatarCapture::new(false),
-        )?;
+        // Reconstruct from this validated seed, never from the old connection's
+        // retained bones. Capture stays detached until the complete tail commits.
+        let mut visuals = crate::avatar_projection::AvatarCapture::new(capture);
+        visuals.observe(&candidate);
+        replay(&mut candidate, tail, self.anchor, false, &mut visuals)?;
         let completed = cursor(&candidate)?;
         if self
             .anchor
@@ -358,7 +380,7 @@ impl LiveReplica {
         self.anchor = Some(completed);
         self.ticket = None;
         self.status = SessionStatus::Live;
-        Ok(completed)
+        Ok((completed, visuals.finish()))
     }
 
     /// Tick transitions run through the actual runtime. A bad later tick rolls
@@ -592,9 +614,14 @@ fn replay(
         {
             return Err(LiveError::HistoryConflict);
         }
-        if publish && !outcome.duplicate {
+        if !outcome.duplicate {
+            // Presentation reconstruction is independent of event publication:
+            // a recovery tail can rebuild bones while historical sound/activity
+            // stays suppressed. Disabled capture performs no per-frame work.
             capture.observe(runtime);
-            outcomes.push(outcome);
+            if publish {
+                outcomes.push(outcome);
+            }
         }
     }
     Ok(outcomes)

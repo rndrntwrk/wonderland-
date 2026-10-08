@@ -180,6 +180,9 @@ fn run(batch_size: usize) -> Value {
     let mut history = NativeAvatarPoseHistory::default();
     install(&mut p, &server, &mut history, &bank);
     let initial = picture(&p, &history, &bank);
+    let recovery_bytes = server.snapshot().unwrap();
+    let recovery_tick = server.sim().state().completed_tick;
+    let recovery_hash = server.sim().state_hash().unwrap();
     let mut frames = Vec::new();
     let mut trace = Vec::new();
     for _ in 0..18 {
@@ -215,6 +218,43 @@ fn run(batch_size: usize) -> Value {
         assert_eq!(hash(&picture(&p, &history, &bank).models[0]), model);
     }
     let server_hash = hex(&server.sim().state_hash().unwrap());
+    // The supplied checkpoint starts before the clip ends; its tail contains
+    // every intervening authoritative pose, unlike a cold final-state checkpoint.
+    p.disconnect();
+    p.reconnect().unwrap();
+    let recovery = encode_checkpoint(
+        p.checkpoint_request().unwrap().id,
+        Checkpoint {
+            completed_tick: recovery_tick,
+            state_hash: recovery_hash,
+            bytes: &recovery_bytes,
+        },
+        &frames,
+        WireLimits::default(),
+    )
+    .unwrap();
+    let (update, recovered_frames) = p.receive_presented(&recovery).unwrap();
+    assert!(matches!(update, PlayerUpdate::Checkpoint(_)));
+    let recovered_frames = recovered_frames.unwrap();
+    assert_eq!(
+        recovered_frames.len(),
+        19,
+        "recovery needs its seed plus all 18 tail poses"
+    );
+    history.clear();
+    for (index, frame) in recovered_frames.iter().enumerate() {
+        assert_eq!(frame.revision.tick, recovery_tick + index as u64);
+        history.observe(frame, Arc::clone(&bank)).unwrap();
+    }
+    let recovered = picture(&p, &history, &bank);
+    assert_eq!(recovered.models[0].groups, final_world.models[0].groups);
+    assert_eq!(p.projection().unwrap(), server.projection());
+    assert_eq!(
+        p.activity().count(),
+        0,
+        "a checkpoint never re-emits historical activity"
+    );
+    let recovered_model = hash(&recovered.models[0]);
     p.disconnect();
     assert!(p.avatar_visual_frame().is_err());
     p.reconnect().unwrap();
@@ -224,7 +264,7 @@ fn run(batch_size: usize) -> Value {
         cold.models[0].groups, initial.models[0].groups,
         "unknown pre-checkpoint bone history is not fabricated"
     );
-    json!({"trace":trace,"retained_model":final_world.models[0],"retained_sha256":model,"checkpoint_reset_model":cold.models[0],"server_hash":server_hash,"tick":server.sim().state().completed_tick,"duplicate_frames":0,"repeat_draws":120})
+    json!({"trace":trace,"retained_model":final_world.models[0],"retained_sha256":model,"checkpoint_reset_model":cold.models[0],"recovery_avatar_frames":recovered_frames.len(),"recovery_model":recovered.models[0],"recovery_sha256":recovered_model,"recovery_activity":p.activity().count(),"server_hash":server_hash,"tick":server.sim().state().completed_tick,"duplicate_frames":0,"repeat_draws":120})
 }
 fn output() -> Vec<u8> {
     let ordinary = run(1);

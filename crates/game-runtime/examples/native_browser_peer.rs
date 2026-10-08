@@ -371,6 +371,42 @@ fn process(runtime: &mut GameRuntime, actor: EntityRef, input: Value) -> Result<
                 json!({"packet":hex(&packet),"tick":state.completed_tick.to_string(),"hash":hex(&runtime.sim().state_hash()?)}),
             )
         }
+        // Test-only recovery: save the actual current checkpoint, advance an
+        // entire one-shot animation, and return its real encoded accepted tail.
+        // Nothing is synthesized in JavaScript or accepted by product startup.
+        "checkpoint_tail" => {
+            let count = input["count"]
+                .as_u64()
+                .filter(|n| (1..=64).contains(n))
+                .ok_or("Controlled recovery tail must contain 1 to 64 ticks")?;
+            let request = unhex(input["request"].as_str().ok_or("Missing request")?)?;
+            let request = decode_checkpoint_request(&request)?;
+            let bytes = runtime.snapshot()?;
+            let seed_tick = runtime.sim().state().completed_tick;
+            let seed_hash = runtime.sim().state_hash()?;
+            let mut tail = Vec::with_capacity(count as usize);
+            for _ in 0..count {
+                let accepted = runtime.sim().next_tick(vec![])?;
+                let outcome = runtime.apply_accepted(&accepted)?;
+                tail.push(TickFrame {
+                    accepted,
+                    state_hash: outcome.state_hash,
+                });
+            }
+            let packet = encode_checkpoint(
+                request.id,
+                Checkpoint {
+                    completed_tick: seed_tick,
+                    state_hash: seed_hash,
+                    bytes: &bytes,
+                },
+                &tail,
+                WireLimits::default(),
+            )?;
+            Ok(json!({"packet":hex(&packet), "tail_count":count,
+                "seed_tick":seed_tick.to_string(), "tick":runtime.sim().state().completed_tick.to_string(),
+                "hash":hex(&runtime.sim().state_hash()?)}))
+        }
         "tick" => tick(runtime, vec![]),
         "burst" => burst(
             runtime,
