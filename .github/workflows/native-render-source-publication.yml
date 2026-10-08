@@ -1,0 +1,133 @@
+name: Native render source publication
+on:
+  push:
+    branches: [ops/native-render-publication-20261008]
+    paths: [.github/workflows/native-render-source-publication.yml]
+permissions:
+  contents: read
+jobs:
+  checked-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 0c9f2c194bd6280d16cf6c4438941c1974da2690
+          persist-credentials: false
+          show-progress: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Reconstruct only hash-pinned integration source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = rndrntwrk/wonderland-
+          test "$GITHUB_REF" = refs/heads/ops/native-render-publication-20261008
+          git fetch --no-tags --depth=1 origin 41b1c76a6e80d8546640db00af79c3bbad0d11c1
+          mkdir -p /tmp/native-render-publication
+          python3 - <<'PY'
+          import base64,hashlib,json,lzma,pathlib,re,subprocess
+          out=pathlib.Path('/tmp/native-render-publication')
+          chunks=['45fc9c7874a5cbc23185b330689e7964fa9a28c2','9df6e1336879b16621c6282f9cb673f009a0cf2c','12eb1abbc5d9f5b6961e4c9352750d02eeca0409','ce92437cb5cd2fa13a69f0a528512a51a303791d','3ca891ee809d517276c520eab6d72b4dc08014a8','8bd6713bdc65db73176ecf34f8f386e1b2238e1e']
+          def git(*args,**kw): return subprocess.check_output(['git',*args],**kw)
+          def blob(data): return hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+          parts=[]
+          for sha in chunks:
+              obj=json.loads(subprocess.check_output(['gh','api',f'repos/rndrntwrk/wonderland-/git/blobs/{sha}']))
+              assert obj['encoding']=='base64'
+              data=base64.b64decode(''.join(obj['content'].split()),validate=True)
+              assert blob(data)==sha
+              parts.append(data)
+          compressed=b''.join(parts)
+          assert len(compressed)==35372
+          assert hashlib.sha256(compressed).hexdigest()=='1eed217aa129f7e59cd418739b9512b72c0565940995e1ec5d4fc5f55b114f34'
+          raw=lzma.decompress(compressed,memlimit=134217728)
+          assert hashlib.sha256(raw).hexdigest()=='5296a9ece9f2a4908f282c38032440fce0cd4b1cd7d48a20bfb535a04c0b2cc8'
+          payload=json.loads(raw)
+          assert payload['base_commit']=='0c9f2c194bd6280d16cf6c4438941c1974da2690'
+          assert payload['result_tree']=='67e511db1d03c2a81bf00e963aa2ecedb0eb6e8e'
+          assert git('rev-parse','HEAD',text=True).strip()==payload['base_commit']
+          assert git('rev-parse','HEAD^{tree}',text=True).strip()=='5d67dc06605383a8ec96afa7c1606c6b53b4382b'
+          new=payload['manifest'];known=payload['known']
+          assert len(new)==32 and len(known)==95 and not (set(new)&set(known))
+          for name in set(new)|set(known):
+              q=pathlib.PurePosixPath(name)
+              assert not q.is_absolute() and '..' not in q.parts and '.git' not in q.parts
+              assert name.startswith(('.github/workflows/','apps/web-shell/','crates/','tools/','docs/')) or name in ('Cargo.toml','Cargo.lock')
+          for name,sha in known.items():
+              data=git('cat-file','blob',sha);assert blob(data)==sha
+              path=pathlib.Path(name);path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+          for name,record in new.items():
+              assert re.fullmatch('[0-9a-f]{40}',record['after'])
+              path=pathlib.Path(name);path.parent.mkdir(parents=True,exist_ok=True)
+              if record['before'] is None:
+                  assert not path.exists(),name
+              else:
+                  data=git('cat-file','blob',record['before']);assert blob(data)==record['before']
+                  path.write_bytes(data)
+          patch=out/'compact.patch';patch.write_text(payload['patch_text'])
+          names={line.split('\t',2)[2] for line in git('apply','--numstat',str(patch),text=True).splitlines()}
+          assert names==set(new)
+          git('apply','--check',str(patch));git('apply','--whitespace=error',str(patch))
+          expected=dict(known)
+          for name,record in new.items():
+              data=pathlib.Path(name).read_bytes()
+              assert blob(data)==record['after'],name
+              assert hashlib.sha256(data).hexdigest()==record['sha256'],name
+              expected[name]=record['after']
+          for name,sha in expected.items():
+              assert git('hash-object','-w','--no-filters',name,text=True).strip()==sha
+          info=b''.join(f'100644 {sha}\t{name}\0'.encode() for name,sha in expected.items())
+          git('update-index','-z','--index-info',input=info)
+          assert git('write-tree',text=True).strip()==payload['result_tree']
+          git('diff','--cached','--check')
+          (out/'expected.json').write_text(json.dumps(expected,indent=2)+'\n')
+          (out/'novel.json').write_text(json.dumps(new,indent=2)+'\n')
+          (out/'result-tree.txt').write_text(payload['result_tree']+'\n')
+          print('Exact 127-file integration reconstructed; original files and index entries retained')
+          PY
+      - name: Run all existing source, socket and audio Node regressions
+        run: |
+          set -euo pipefail
+          node --test --test-reporter=tap apps/web-shell/tests/gpu/*.test.mjs tools/native-browser/canvas-evidence.test.mjs > /tmp/native-render-publication/source-node.log 2>&1
+          node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs > /tmp/native-render-publication/socket-node.log 2>&1
+          node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs > /tmp/native-render-publication/audio-node.log 2>&1
+          tail -8 /tmp/native-render-publication/source-node.log
+          tail -8 /tmp/native-render-publication/socket-node.log
+          tail -8 /tmp/native-render-publication/audio-node.log
+      - name: Store the verified new blobs only; do not create commits or update refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64,hashlib,json,pathlib,subprocess
+          out=pathlib.Path('/tmp/native-render-publication')
+          expected=json.loads((out/'expected.json').read_text())
+          novel=json.loads((out/'novel.json').read_text())
+          stored={}
+          for name,sha in expected.items():
+              data=pathlib.Path(name).read_bytes()
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha,name
+          for name,record in novel.items():
+              data=pathlib.Path(name).read_bytes()
+              request=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode()
+              result=json.loads(subprocess.check_output(['gh','api','--method','POST','repos/rndrntwrk/wonderland-/git/blobs','--input','-'],input=request))
+              assert result['sha']==record['after'],name
+              stored[name]=result['sha']
+          (out/'stored.json').write_text(json.dumps(stored,indent=2)+'\n')
+          assert subprocess.check_output(['git','write-tree'],text=True).strip()=='67e511db1d03c2a81bf00e963aa2ecedb0eb6e8e'
+          print('All 32 novel source blobs stored with exact identity; no product branch or commit changed')
+          PY
+      - name: Preserve transfer identity and actual regression outputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-render-publication-${{ github.sha }}
+          path: /tmp/native-render-publication/
+          retention-days: 14
+          if-no-files-found: error
