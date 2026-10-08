@@ -1,4 +1,4 @@
-import {canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
+import {observeNativeCanvas,visibleAvatarPixels,canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
 // TEST ONLY: built native player plus synthetic standalone Vitaboy resources.
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
@@ -40,6 +40,7 @@ try {
 
  page.on('pageerror',error=>report.errors.push(error.message));
  page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
+ await observeNativeCanvas(page);
  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');
  await page.getByLabel('Password',{exact:true}).fill('test-only');
@@ -63,10 +64,11 @@ try {
  const canvas=page.locator('.native-lot canvas');
  await canvas.waitFor();
  report.checks.push({name:'Real content loader binds the admitted native avatar',models:1});
- const frames=new Set();
- for(let i=0;i<14;i++){frames.add(await canvasPixels(canvas));await delay(120);}
+ const frames=new Set(),visibleFrames=new Set();
+ for(let i=0;i<14;i++){frames.add(await canvasPixels(canvas));visibleFrames.add(await visibleAvatarPixels(canvas));await delay(120);}
  assert.ok(frames.size>=2,'Accepted changing animation frames must alter the actual canvas');
- report.checks.push({name:'Accepted animation changes render real pixels',distinctCanvasFrames:frames.size});
+ assert.ok(visibleFrames.size>=2,'Actual composited avatar must move, not only the underlying framebuffer');
+ report.checks.push({name:'Accepted animation changes render real pixels',distinctCanvasFrames:frames.size,distinctVisibleAvatarFrames:visibleFrames.size});
  assert.equal(await page.locator('.world-view-error').count(),0,'No renderer admission error');
  // Find real rendered synthetic red geometry, then use ordinary pointer events.
  let picked=false,selectedPoint=null;
@@ -133,14 +135,17 @@ try {
  await page.getByText('Sent · awaiting server acceptance',{exact:true}).waitFor();
  await page.waitForFunction(count=>document.querySelectorAll('.native-action-history li').length===count,historyBefore+1);
  assert.equal(fixture.stats.silentReceipts,1);
- const pendingFrames=new Set();
- for(let i=0;i<10;i++){pendingFrames.add(await canvasPixels(canvas));await delay(120);}
+ await page.getByRole('button',{name:'Close source actions',exact:true}).click();
+ const pendingFrames=new Set(),pendingVisibleFrames=new Set();
+ for(let i=0;i<10;i++){pendingFrames.add(await canvasPixels(canvas));pendingVisibleFrames.add(await visibleAvatarPixels(canvas));await delay(120);}
  assert.ok(pendingFrames.size>=2,'Receipt uncertainty must not stop still-accepted animation frames');
+ assert.ok(pendingVisibleFrames.size>=2,'Receipt uncertainty must not freeze the visible composited avatar');
  assert.equal(fixture.active(),1,'The test authority keeps this connection open');
  assert.equal(fixture.stats.unknownDrops,0,'No server close may simulate the receipt deadline');
  report.checks.push({name:'Avatar animation and source completion continue while only the receipt is withheld',
-  distinctCanvasFrames:pendingFrames.size,actions:fixture.stats.actions,historyEntries:historyBefore+1});
+  distinctCanvasFrames:pendingFrames.size,distinctVisibleAvatarFrames:pendingVisibleFrames.size,actions:fixture.stats.actions,historyEntries:historyBefore+1});
  await shot(page,'native-avatar-pending-receipt');
+ await page.getByRole('button',{name:'Your Sim',exact:true}).click();
  const timeoutMessage='The server did not confirm this action in time. Its result is unknown. Reconnect to continue; it will not be retried.';
  await page.getByText(timeoutMessage,{exact:true}).waitFor({timeout:25000});
  const elapsed=performance.now()-sentAt;
@@ -158,9 +163,12 @@ try {
  await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
  assert.equal(await page.getByRole('button',{name:'Walls down',exact:true}).getAttribute('aria-pressed'),'true',
   'Rebuilding the resource viewport cannot reset player camera/visibility controls');
- const recoveredFrames=new Set();
- for(let i=0;i<10;i++){recoveredFrames.add(await canvasPixels(canvas));await delay(120);}
+ const recoveredActions=page.getByRole('button',{name:'Close source actions',exact:true});
+ if(await recoveredActions.isVisible())await recoveredActions.click();
+ const recoveredFrames=new Set(),recoveredVisibleFrames=new Set();
+ for(let i=0;i<10;i++){recoveredFrames.add(await canvasPixels(canvas));recoveredVisibleFrames.add(await visibleAvatarPixels(canvas));await delay(120);}
  assert.ok(recoveredFrames.size>=2,'Recovered avatar animation must resume on accepted frames');
+ assert.ok(recoveredVisibleFrames.size>=2,'Recovered avatar must visibly move in the ordinary compositor');
  await page.getByRole('button',{name:'Your Sim',exact:true}).click();
  await page.getByText('Previous action result unknown · not retried',{exact:true}).waitFor();
  assert.equal(await page.locator('.native-action-history li').count(),historyBefore+1,'Recovery cannot replay visual action history');
@@ -173,7 +181,7 @@ try {
  await page.getByText('Accepted by the server',{exact:true}).waitFor();
  assert.equal(fixture.stats.actions,actionsBefore+2);
  report.checks.push({name:'Avatar resources, selected controls and unknown results survive the same reconnect',
-  distinctRecoveredFrames:recoveredFrames.size,historyReplay:false,explicitNewActionAccepted:true});
+  distinctRecoveredFrames:recoveredFrames.size,distinctVisibleAvatarFrames:recoveredVisibleFrames.size,historyReplay:false,explicitNewActionAccepted:true});
  await page.getByRole('button',{name:'Return to city',exact:true}).click();
  await page.getByRole('heading',{name:'Controlled City',exact:true}).waitFor();
  for(let i=0;i<30&&fixture.active()!==0;i++)await delay(50);

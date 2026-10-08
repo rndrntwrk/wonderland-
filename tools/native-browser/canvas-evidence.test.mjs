@@ -12,7 +12,7 @@ test('native visual journeys capture compositor images, never open Canvas2D on t
  }
 });
 
-import {redAvatarPoint,canvasPixels} from './canvas-evidence.mjs';
+import {redAvatarPoint,canvasImage} from './canvas-evidence.mjs';
 import {deflateSync} from 'node:zlib';
 const image=()=>({width:2,height:2,pixels:new Uint8Array([255,0,0,255,144,112,62,255, 255,0,0,0, 255,0,0,255])});
 test('red witness excludes brown terrain and transparent pixels and maps screenshot centers to CSS',()=>{
@@ -29,6 +29,7 @@ test('compositor capture does not evaluate or alter the product canvas',async()=
  // The existing bounded evidence decoder (not an import parser) does not use CRC.
  const data=Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',header),chunk('IDAT',deflateSync(Buffer.from([0,255,0,0,255]))),chunk('IEND',Buffer.alloc(0))]);
  let calls=0;
- const result=await canvasPixels({async screenshot(options){calls++;assert.equal(options.animations,'allow');return data;},evaluate(){throw Error('Product canvas must not be changed');}});
- assert.equal(calls,1);assert.equal(result,'1x1:/wAA/w==');
+ const result=await canvasImage({async screenshot(options){calls++;assert.equal(options.animations,'allow');return data;},evaluate(){throw Error('Product canvas must not be changed');}});
+ assert.equal(calls,1);assert.equal(result.width,1);assert.equal(result.height,1);
+ assert.deepEqual([...result.pixels],[255,0,0,255]);
 });

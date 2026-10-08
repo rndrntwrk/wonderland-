@@ -1,4 +1,4 @@
-import {canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
+import {observeNativeCanvas,canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
 // TEST ONLY: real built Rust/WASM, accepted primitive events, real AudioContext
 // and an analyser connected to its existing output. No synthetic ACK, audio
 // backend replacement, autoplay policy override or browser-clock modification.
@@ -49,7 +49,8 @@ try{
  browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
  report.browser=browser.version();page=await browser.newPage({viewport:{width:1200,height:900}});
  page.on('pageerror',error=>report.errors.push(error.message));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
- await page.goto(fixture.origin);
+ await observeNativeCanvas(page);
+  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');await page.getByLabel('Password',{exact:true}).fill('test-only');await page.getByRole('button',{name:'Sign in',exact:true}).click();
  await page.getByRole('heading',{name:'Choose your Sim',exact:true}).waitFor();
  await page.locator('.connected-content-details > summary').click();const loader=page.locator('.connected-content-details .content-loader');

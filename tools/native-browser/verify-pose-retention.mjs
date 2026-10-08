@@ -1,4 +1,4 @@
-import {canvasPixels} from './canvas-evidence.mjs';
+import {observeNativeCanvas,visibleAvatarPixels,canvasPixels} from './canvas-evidence.mjs';
 // TEST ONLY: real accepted non-looping animation, original-format synthetic mesh.
 // The product build/timers are unchanged. The authority owns end-of-animation.
 import assert from 'node:assert/strict';
@@ -44,7 +44,8 @@ try{
  const page=await browser.newPage({viewport:{width:1200,height:900}});
  page.on('pageerror',error=>report.errors.push(error.message));
  page.on('console',message=>{if(message.type()==='error')report.errors.push(message.text());});
- await page.goto(fixture.origin);
+ await observeNativeCanvas(page);
+  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');
  await page.getByLabel('Password',{exact:true}).fill('test-only');
  await page.getByRole('button',{name:'Sign in',exact:true}).click();
@@ -64,10 +65,11 @@ try{
  await page.getByRole('button',{name:'Visit',exact:true}).click();
  await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
  const canvas=page.locator('.native-lot canvas');await canvas.waitFor();
- const moving=new Set();
- for(let i=0;i<5;i++){moving.add(await canvasPixels(canvas));await delay(120);}
+ const moving=new Set(),visibleFrames=new Set();
+ for(let i=0;i<5;i++){moving.add(await canvasPixels(canvas));visibleFrames.add(await visibleAvatarPixels(canvas));await delay(120);}
  assert.ok(moving.size>1,'The witness must first observe an actually moving non-bind avatar');
- record('Real content and accepted one-shot animation are visible',{models:1,distinctFrames:moving.size});
+ assert.ok(visibleFrames.size>=2,'The ordinary compositor must independently show avatar motion');
+ record('Real content and accepted one-shot animation are visible',{models:1,distinctFrames:moving.size,distinctVisibleFrames:visibleFrames.size});
  const plateau=await untilState(s=>animation(s).current_frame>=1.125&&!animation(s).end_reached);
  assert.equal(animation(plateau).looping,false);await accepted(page,plateau.tick);await delay(150);
  const beforeEnd=await canvasPixels(canvas);

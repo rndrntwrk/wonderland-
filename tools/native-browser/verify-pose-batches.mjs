@@ -1,4 +1,4 @@
-import {canvasPixels} from './canvas-evidence.mjs';
+import {observeNativeCanvas,canvasPixels} from './canvas-evidence.mjs';
 // Real built browser + Rust authority: the entire animation may end inside one
 // accepted packet. No synthetic DOM, altered product WASM or injected game state.
 // Test geometry/timeline setup is explicitly the standalone Vitaboy fixture.
@@ -28,7 +28,8 @@ async function accepted(page,tick){
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
 async function enter(page){
- await page.goto(fixture.origin);
+ await observeNativeCanvas(page);
+  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');
  await page.getByLabel('Password',{exact:true}).fill('test-only');
  await page.getByRole('button',{name:'Sign in',exact:true}).click();
