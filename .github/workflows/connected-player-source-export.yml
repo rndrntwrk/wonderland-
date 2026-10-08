@@ -1,0 +1,35 @@
+name: Connected player source export
+on:
+  push:
+    branches: [ops/connected-player-source-recovery]
+    paths: [.github/workflows/connected-player-source-export.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 0c9f2c194bd6280d16cf6c4438941c1974da2690
+          persist-credentials: false
+          show-progress: false
+      - name: Export immutable source identity and delta
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 705530c1c99721ff9055ff1c44bd2cfb24e2097e
+          mkdir -p /tmp/connected-source
+          git diff --binary 705530c1c99721ff9055ff1c44bd2cfb24e2097e HEAD > /tmp/connected-source/source.patch
+          git ls-tree -rz HEAD > /tmp/connected-source/tree.bin
+          git rev-parse HEAD > /tmp/connected-source/revision.txt
+          git rev-parse 'HEAD^{tree}' >> /tmp/connected-source/revision.txt
+          git cat-file commit HEAD > /tmp/connected-source/commit.txt
+          cd /tmp/connected-source
+          sha256sum source.patch tree.bin revision.txt commit.txt > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: connected-player-source
+          path: /tmp/connected-source/
+          retention-days: 3
+          if-no-files-found: error
