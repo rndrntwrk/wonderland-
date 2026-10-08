@@ -156,11 +156,10 @@ impl AudioHandle {
                 previous = now;
                 let count = cadence.advance(elapsed);
                 let mut state = current.borrow_mut();
-                // Background suspension must not leave a source loop playing out of phase.
-                if elapsed > 250. {
-                    state.silence();
-                    return;
-                }
+                // Timer lateness is not a visibility or device transition. The
+                // cadence already drops excessive catch-up work; keep accepted
+                // loops alive during foreground load. tick() independently stops
+                // playback for a hidden document or a non-running audio device.
                 if let Err(error) = state.tick(count, view()) {
                     state.silence();
                     state.failed = true;

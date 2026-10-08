@@ -1,8 +1,9 @@
 //! Original Vitaboy resources sampled at the accepted native tick.
 //!
-//! This does not predict simulation, consume marker events, or reconstruct a
-//! pre-checkpoint visual skeleton. Each current timeline is sampled from the
-//! original bind pose. Missing rig/attachments/resources stay diagnosed.
+//! This does not predict simulation or consume gameplay markers. The live player
+//! commits retained source bone channels once per accepted tick, independently of
+//! rendering. Checkpoints and resource discontinuities start from the bind pose;
+//! no pre-checkpoint visual history is invented.
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use wonderland_avatar_content::{self as content, ImportedContent};
@@ -14,6 +15,10 @@ use wonderland_world_view::{
     ModelContext, ModelPart, ModelTexture, ModelTextureSelector, WorldDiagnostic, WorldDocument,
     WorldError, WorldModel, WorldObject, WorldRevision, WorldSourceKind,
 };
+
+#[path = "native_avatar/history.rs"]
+mod history;
+pub use history::NativeAvatarPoseHistory;
 
 const ADULT: u32 = 0x7FD96B54;
 struct Prepared {
@@ -30,6 +35,7 @@ pub struct NativeAvatarProjection {
     identities: Vec<(usize, WorldObject)>,
     textures: BTreeSet<AssetKey>,
     diagnostics: Vec<WorldDiagnostic>,
+    retained: bool,
 }
 fn issue(code: &str, resource: String, message: impl Into<String>) -> WorldDiagnostic {
     WorldDiagnostic {
@@ -71,6 +77,25 @@ impl NativeAvatarProjection {
         world: &WorldDocument,
         bank: &ImportedContent,
     ) -> Result<Self, WorldError> {
+        Self::prepare_inner(frame, world, bank, None)
+    }
+
+    pub fn prepare_retained(
+        frame: &AvatarVisualFrame,
+        world: &WorldDocument,
+        bank: &ImportedContent,
+        history: &NativeAvatarPoseHistory,
+    ) -> Result<Self, WorldError> {
+        history.validate_frame(frame, bank)?;
+        Self::prepare_inner(frame, world, bank, Some(history))
+    }
+
+    fn prepare_inner(
+        frame: &AvatarVisualFrame,
+        world: &WorldDocument,
+        bank: &ImportedContent,
+        history: Option<&NativeAvatarPoseHistory>,
+    ) -> Result<Self, WorldError> {
         world.validate()?;
         if world.provenance.kind != WorldSourceKind::LiveSession || world.revision != frame.revision
         {
@@ -92,6 +117,7 @@ impl NativeAvatarProjection {
             identities: vec![],
             textures: BTreeSet::new(),
             diagnostics: vec![],
+            retained: history.is_some(),
         };
         let limits = RenderLimits::default();
         let (mut vertices, mut indices) = (0usize, 0usize);
@@ -116,7 +142,13 @@ impl NativeAvatarProjection {
             if !object.visible {
                 continue;
             }
-            match prepare_parts(avatar, bank) {
+            let parts = match history {
+                Some(history) => history
+                    .pose(avatar)
+                    .and_then(|pose| prepare_parts(avatar, bank, Some(pose))),
+                None => prepare_parts(avatar, bank, None),
+            };
+            match parts {
                 Ok(parts) => {
                     let added_v = parts.iter().map(|p| p.mesh.vertices.len()).sum::<usize>();
                     let added_i = parts.iter().map(|p| p.mesh.indices.len()).sum::<usize>();
@@ -327,8 +359,13 @@ impl NativeAvatarProjection {
             next.objects[avatar.record].model = Some(next.models.len());
             next.models.push(model);
             // Preserve diagnostics for other missing instances, including a shared GUID.
-            next.diagnostics.push(issue("native_avatar_current_pose",name,
-                "Original resources sampled at the accepted animation frame. Historical bone retention, head seeking and container/bone attachments are not reconstructed."));
+            let message = if self.retained {
+                "Original resources with bone channels retained across observed accepted ticks. Checkpoint/resource boundaries start from bind pose; head seeking and container/bone attachments are not reconstructed."
+            } else {
+                "Original resources sampled from bind pose at the current accepted frame; no historical bone retention, head seeking or container/bone attachments are reconstructed."
+            };
+            next.diagnostics
+                .push(issue("native_avatar_current_pose", name, message));
         }
         let unavailable = next
             .objects
@@ -346,6 +383,7 @@ impl NativeAvatarProjection {
 fn prepare_parts(
     avatar: &AvatarVisual,
     bank: &ImportedContent,
+    retained: Option<&wonderland_avatar_view::Pose>,
 ) -> Result<Vec<content::RenderablePart>, String> {
     if avatar.container.is_some() {
         return Err("Container-bound avatars require original SLOT/bone attachment data; no grounded substitute is shown.".into());
@@ -364,36 +402,14 @@ fn prepare_parts(
     if avatar.animations.layers.len() > 64 || avatar.animations.bound_appearances.len() > 128 {
         return Err("The native avatar animation/attachment budget was exceeded.".into());
     }
-    let resolve = |state: &wonderland_game_runtime::AvatarAnimation| {
-        let clip = bank.animation(&state.resource).map_err(|e| e.to_string())?;
-        if !clip.matches_projection(&state.resource, state.num_frames, clip.key) {
-            return Err(
-                "Original animation metadata differs from the accepted runtime resource."
-                    .to_string(),
-            );
-        }
-        Ok(clip)
+    let pose = if let Some(retained) = retained {
+        retained.clone()
+    } else {
+        let timeline = resolve_timeline(avatar, bank)?;
+        let mut pose = rig.bind_pose();
+        sample_timeline(rig, &mut pose, &timeline, 0.).map_err(|e| e.to_string())?;
+        pose
     };
-    let mut timeline = Timeline::default();
-    for state in &avatar.animations.layers {
-        timeline.layers.push(TimelineLayer {
-            clip: resolve(state)?,
-            current_frame: state.current_frame,
-            speed: state.speed,
-            weight: state.weight,
-            backwards: state.backwards,
-            end_reached: state.end_reached,
-            looping: state.looping,
-        });
-    }
-    if let Some(state) = &avatar.animations.carry {
-        timeline.carry = Some(CarryPose {
-            clip: resolve(state)?,
-            frame: state.current_frame,
-        });
-    }
-    let mut pose = rig.bind_pose();
-    sample_timeline(rig, &mut pose, &timeline, 0.).map_err(|e| e.to_string())?;
     let mut accessories = avatar
         .animations
         .bound_appearances
@@ -494,4 +510,39 @@ pub fn native_pick_entity(
         object_id: wonderland_game_runtime::ObjectId(i16::try_from(entity.object_id).ok()?),
         generation: entity.generation,
     })
+}
+
+fn resolve_timeline(avatar: &AvatarVisual, bank: &ImportedContent) -> Result<Timeline, String> {
+    if avatar.animations.layers.len() > 64 || avatar.animations.bound_appearances.len() > 128 {
+        return Err("The native avatar animation/attachment budget was exceeded.".into());
+    }
+    let resolve = |state: &wonderland_game_runtime::AvatarAnimation| {
+        let clip = bank.animation(&state.resource).map_err(|e| e.to_string())?;
+        if !clip.matches_projection(&state.resource, state.num_frames, clip.key) {
+            return Err(
+                "Original animation metadata differs from the accepted runtime resource."
+                    .to_string(),
+            );
+        }
+        Ok(clip)
+    };
+    let mut timeline = Timeline::default();
+    for state in &avatar.animations.layers {
+        timeline.layers.push(TimelineLayer {
+            clip: resolve(state)?,
+            current_frame: state.current_frame,
+            speed: state.speed,
+            weight: state.weight,
+            backwards: state.backwards,
+            end_reached: state.end_reached,
+            looping: state.looping,
+        });
+    }
+    if let Some(state) = &avatar.animations.carry {
+        timeline.carry = Some(CarryPose {
+            clip: resolve(state)?,
+            frame: state.current_frame,
+        });
+    }
+    Ok(timeline)
 }

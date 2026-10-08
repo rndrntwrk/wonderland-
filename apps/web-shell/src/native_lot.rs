@@ -1,5 +1,8 @@
 //! Explicit native lot view. Legacy source snapshots never enter this decoder.
-use crate::{avatar_content::ContentUi, native_avatar::NativeAvatarProjection};
+use crate::{
+    avatar_content::ContentUi,
+    native_avatar::{NativeAvatarPoseHistory, NativeAvatarProjection},
+};
 use crate::{components::Icon, connected_bridge::ConnectedUi, world_renderer::WorldViewport};
 use leptos::prelude::*;
 use std::{
@@ -67,6 +70,8 @@ struct Resources {
     audio: Option<crate::native_audio_browser::AudioHandle>,
     audio_bank: Option<Arc<wonderland_audio_content::pack::AudioPack>>,
     audio_loading: bool,
+    poses: NativeAvatarPoseHistory,
+    pose_issue: Option<String>,
 }
 impl Resources {
     fn stop_audio(&mut self) {
@@ -92,11 +97,14 @@ impl Resources {
         }
         self.player = None;
         self.scope = None;
+        self.poses.clear();
+        self.pose_issue = None;
     }
 }
 #[derive(Clone, Copy)]
 struct Controller {
     ui: ConnectedUi,
+    content: ContentUi,
     resources: StoredValue<Resources, LocalStorage>,
     world: RwSignal<Option<Arc<WorldDocument>>>,
     projection: RwSignal<Option<Arc<RuntimeProjection>>>,
@@ -179,6 +187,8 @@ impl Controller {
         };
         let Some((generation, resume)) = self.resources.try_update_value(|r| {
             r.stop_socket();
+            r.poses.clear();
+            r.pose_issue = None;
             let Some(next) = r.generation.checked_add(1) else {
                 r.close();
                 return (u64::MAX, false);
@@ -233,6 +243,7 @@ impl Controller {
                     return JsValue::FALSE;
                 }
                 let payload = bytes.to_vec();
+                let pose_bank = self.content.imported.get_untracked();
                 let mut receipt = false;
                 let mut audio_update = None;
                 let processed = self.resources.try_update_value(
@@ -241,8 +252,30 @@ impl Controller {
                             use wonderland_game_runtime::live_wire::player::PlayerUpdate;
                             // Process this complete accepted batch synchronously;
                             // only durable presentation history may enter a signal.
-                            let update = player.receive_update(&payload)?;
+                            let (update, avatar_frames) = if pose_bank.is_some() {
+                                player.receive_presented(&payload)?
+                            } else { (player.receive_update(&payload)?, None) };
                             receipt = matches!(update, PlayerUpdate::Receipt(_));
+                            if !receipt {
+                                if matches!(update, PlayerUpdate::Checkpoint(_)) { r.poses.clear(); }
+                                match (pose_bank.as_ref(), avatar_frames) {
+                                    (Some(bank), Some(frames)) => {
+                                        for frame in &frames {
+                                            if let Err(error) = r.poses.observe(frame, Arc::clone(bank)) {
+                                                r.poses.clear();
+                                                r.pose_issue = Some(error.to_string());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    _ => {
+                                        r.poses.clear();
+                                        if pose_bank.is_some() {
+                                            r.pose_issue = Some("Avatar trace exceeded its presentation budget; retained history restarts at the current accepted frame.".into());
+                                        }
+                                    }
+                                }
+                            }
                             audio_update = Some(update);
                         } else {
                             r.player = Some(NativePlayer::open(&payload, binding, browser_epoch)?);
@@ -477,7 +510,21 @@ fn project_avatars(
             cache.loading = false;
         }
     });
-    let projection = match NativeAvatarProjection::prepare(frame, world, &bank) {
+    let prepared = ctl
+        .resources
+        .try_update_value(|r| {
+            // Normally a no-op: socket ingestion already committed every tick. This
+            // seeds a newly imported bank at the CURRENT frame without replaying old
+            // animation history or compounding blends on texture/camera callbacks.
+            r.poses.observe(frame, Arc::clone(&bank))?;
+            NativeAvatarProjection::prepare_retained(frame, world, &bank, &r.poses)
+        })
+        .unwrap_or_else(|| {
+            Err(wonderland_world_view::WorldError(
+                "Native avatar owner was disposed.".into(),
+            ))
+        });
+    let projection = match prepared {
         Ok(value) => value,
         Err(issue) => {
             world
@@ -518,6 +565,15 @@ fn project_avatars(
                 code: "native_avatar_projection_unavailable".into(),
                 resource: "native avatars".into(),
                 message: issue.to_string(),
+            });
+    }
+    if let Some(message) = ctl.resources.with_value(|r| r.pose_issue.clone()) {
+        world
+            .diagnostics
+            .push(wonderland_world_view::WorldDiagnostic {
+                code: "native_avatar_history_reset".into(),
+                resource: "native avatars".into(),
+                message,
             });
     }
     if let Some((generation, missing)) = task {
@@ -571,8 +627,10 @@ fn project_avatars(
 #[component]
 pub fn NativeLot() -> impl IntoView {
     let ui = expect_context::<ConnectedUi>();
+    let content = expect_context::<ContentUi>();
     let ctl = Controller {
         ui,
+        content,
         resources: StoredValue::new_local(Resources::default()),
         world: RwSignal::new(None),
         projection: RwSignal::new(None),
@@ -587,7 +645,6 @@ pub fn NativeLot() -> impl IntoView {
             "Load an optional wonderland-audio.json sound cohort in Game content.".into(),
         ),
     };
-    let content = expect_context::<ContentUi>();
     let avatar_resources = StoredValue::new_local(AvatarResources::default());
     let controls = RwSignal::new(ViewportControls::default());
     let presentation_revision = RwSignal::new(0u64);
@@ -618,6 +675,7 @@ pub fn NativeLot() -> impl IntoView {
                 if let Some(bank) = bank {
                     project_avatars(ctl, avatar_resources, bank, &avatars, &mut world);
                 } else {
+                    ctl.resources.update_value(|r| r.poses.clear());
                     avatar_resources.update_value(|cache| {
                         if cache.bank.is_none() {
                             return;
