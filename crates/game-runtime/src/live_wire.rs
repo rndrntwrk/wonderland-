@@ -12,6 +12,7 @@ use crate::sim_core::snapshot::{SNAPSHOT_CHECKSUM_LEN, SNAPSHOT_HEADER_LEN};
 use crate::{AcceptedTick, TickOutcome};
 use bincode::Options;
 
+pub mod construction;
 mod guard;
 pub mod player;
 pub const HEADER_LEN: usize = 32;
