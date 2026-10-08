@@ -1,0 +1,96 @@
+name: PR50 canvas observation source check
+on:
+  push:
+    branches: [ops/pr50-canvas-observation-20261008]
+permissions:
+  contents: read
+jobs:
+  checked-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: df73e9d951e98a8705cc726ad78851c0642b0c7a
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Restore exact scoped patch on its pinned product parent
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pr50-observation
+          python3 - <<'PY'
+          import base64,gzip,hashlib,json,subprocess
+          from pathlib import Path
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='df73e9d951e98a8705cc726ad78851c0642b0c7a'
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='67e511db1d03c2a81bf00e963aa2ecedb0eb6e8e'
+          chunks=[]
+          for sha in ['12237651702d316d147daaddc263431338ed2b2b','da1af435539803b0f7ed3af3764b0b980c3e5563','3a936230837a1e87dab2d15402462f8a4a58b6a6','6e2b6c6da610c3621a5d5621d25be2de3a113ede','7d95f4455e07ea81b1fa6e19607f531c5c75cd90']:
+              result=json.loads(subprocess.check_output(['gh','api',f'repos/rndrntwrk/wonderland-/git/blobs/{sha}']))
+              assert result['encoding']=='base64'
+              data=base64.b64decode(''.join(result['content'].split()),validate=True)
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha
+              chunks.append(data)
+          packed=b''.join(chunks)
+          assert len(packed)==15190
+          assert hashlib.sha256(packed).hexdigest()=='af0fa49fecb7b20a2fbf305d7c6b6ef4e291cb2edddb7e15d1cbbe626e1aaf49'
+          patch=gzip.decompress(packed)
+          assert len(patch)==55389
+          assert hashlib.sha256(patch).hexdigest()=='b9a27c963835f1615fa0f2fac5c904560c0d6e7dc41c5552bc002955b16a0647'
+          expected={'.github/workflows/native-browser.yml':'7491296d0241e8370918a2268da7cb6e9e388151','.github/workflows/native-canvas-observation.yml':'f162c52516389562d4f629fc1e928499c66b9dcb','docs/swarm-c/NATIVE_CANVAS_OBSERVATION.md':'d34c8e7b1de51484ceec5a5016a7cc903043df33','tools/native-browser/canvas-evidence.mjs':'42681f0274f6eecf9a9f49f1c1e08897d30d4c84','tools/native-browser/canvas-evidence.test.mjs':'dd604bd38fb9b115ee60e03d0af808e72a85c077','tools/native-browser/canvas-observation.mjs':'766b0997ac00b0a22304517a427c3a3a3cf3800e','tools/native-browser/canvas-observation.test.mjs':'19466cfeb62cbefd37f5090f8a7dc651d6e03dad','tools/native-browser/verify-audio.mjs':'092b93f8e8dbe94e3a13248f2b93fe4c581ef030','tools/native-browser/verify-avatars.mjs':'1b5a2a922b28fba2b29d64f416bc7a24da2f5bba','tools/native-browser/verify-canvas-observation.mjs':'463a59dbaba644a044c341bec71853f863c10db7','tools/native-browser/verify-pose-batches.mjs':'2ddbfc128fa6895cb691fead9213695eb52efcdb','tools/native-browser/verify-pose-retention.mjs':'c282df48e78d3ac513d1f5abdbc0d46fab735287'}
+          out=Path('/tmp/pr50-observation');(out/'candidate.patch').write_bytes(patch)
+          names=subprocess.check_output(['git','apply','--numstat',str(out/'candidate.patch')],text=True)
+          assert {row.split('\t',2)[2] for row in names.splitlines()}==set(expected)
+          subprocess.run(['git','apply','--check',str(out/'candidate.patch')],check=True)
+          subprocess.run(['git','apply','--whitespace=error',str(out/'candidate.patch')],check=True)
+          for path,sha in expected.items():
+              assert subprocess.check_output(['git','hash-object',path],text=True).strip()==sha,path
+          (out/'expected-blobs.json').write_text(json.dumps(expected,indent=2)+'\n')
+          PY
+      - name: Run complete Node regressions and syntax checks
+        run: |
+          set -euo pipefail
+          node --test --test-reporter=tap tools/native-browser/canvas-*.test.mjs apps/web-shell/tests/gpu/*.test.mjs apps/web-shell/scripts/native-*.test.mjs crates/audio-runtime/browser/*.test.mjs > /tmp/pr50-observation/node.log 2>&1 || { cat /tmp/pr50-observation/node.log; exit 1; }
+          for file in tools/native-browser/canvas-*.mjs tools/native-browser/verify-*.mjs; do node --check "$file"; done
+          git diff --check
+      - name: Test actual browser observation before publishing source objects
+        run: |
+          set -euo pipefail
+          npm --prefix tools/native-browser ci --ignore-scripts --no-audit --no-fund
+          tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
+          WONDERLAND_CANVAS_EVIDENCE_OUTPUT=/tmp/pr50-observation/browser node tools/native-browser/verify-canvas-observation.mjs > /tmp/pr50-observation/browser.log 2>&1 || { cat /tmp/pr50-observation/browser.log; exit 1; }
+      - name: Store only exact verified blobs; never create commits or move branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64,hashlib,json,subprocess
+          from pathlib import Path
+          out=Path('/tmp/pr50-observation');expected=json.loads((out/'expected-blobs.json').read_text())
+          subprocess.run(['git','add','--intent-to-add','--',*expected],check=True)
+          assert set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())==set(expected)
+          stored={}
+          for path,sha in expected.items():
+              data=Path(path).read_bytes()
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha,path
+              body=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()})
+              result=json.loads(subprocess.check_output(['gh','api','--method','POST','repos/rndrntwrk/wonderland-/git/blobs','--input','-'],input=body,text=True))
+              assert result['sha']==sha,path
+              stored[path]={'blob':sha,'sha256':hashlib.sha256(data).hexdigest()}
+              destination=out/'source'/path;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(data)
+          (out/'stored-blobs.json').write_text(json.dumps(stored,indent=2)+'\n')
+          print(json.dumps(stored))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr50-observation-source-${{ github.sha }}
+          path: /tmp/pr50-observation/
+          retention-days: 14
+          if-no-files-found: error
