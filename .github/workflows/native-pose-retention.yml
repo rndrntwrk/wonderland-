@@ -43,7 +43,7 @@ jobs:
           set -o pipefail
           mkdir -p pose-evidence
           cargo test -p wonderland-web-shell --test native_avatar_retention --locked 2>&1 | tee pose-evidence/retention.log
-          cargo test -p wonderland-game-runtime --test avatar_replay --test native_player --lib --locked 2>&1 | tee pose-evidence/replay.log
+          cargo test -p wonderland-game-runtime --test avatar_replay --test native_player --test checkpoint_avatar_recovery --lib --locked 2>&1 | tee pose-evidence/replay.log
       - name: Run the native production-source conformance probe
         run: cargo run -p wonderland-web-shell --example native_pose_retention_probe --locked > pose-evidence/native.json
       - name: Build the ordinary WASM production-source probe

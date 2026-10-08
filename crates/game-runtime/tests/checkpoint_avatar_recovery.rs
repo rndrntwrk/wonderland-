@@ -71,7 +71,11 @@ fn scale(server: &mut GameRuntime, actor: EntityRef, value: i16) -> TickFrame {
         }],
     )
 }
-fn deliver(wire: &mut NativeWire, saved: &Saved, tail: &[TickFrame]) -> Vec<wonderland_game_runtime::AvatarVisualFrame> {
+fn deliver(
+    wire: &mut NativeWire,
+    saved: &Saved,
+    tail: &[TickFrame],
+) -> Vec<wonderland_game_runtime::AvatarVisualFrame> {
     let packet = saved.packet(wire.checkpoint_request().unwrap().id, tail);
     let (update, frames) = wire
         .receive_with_avatar_frames(wire.connection(), &packet)
@@ -91,13 +95,19 @@ fn checkpoint_tail_captures_seed_and_every_validated_intermediate_frame() {
         expected.push(server.avatar_visual_frame());
     }
     assert_eq!(deliver(&mut wire, &saved, &tail), expected);
-    assert_eq!(wire.replica().runtime().unwrap().snapshot().unwrap(), server.snapshot().unwrap());
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        server.snapshot().unwrap()
+    );
 }
 
 #[test]
 fn empty_checkpoint_tail_supplies_only_its_actual_seed() {
     let (server, mut wire, _) = setup();
-    assert_eq!(deliver(&mut wire, &Saved::new(&server), &[]), vec![server.avatar_visual_frame()]);
+    assert_eq!(
+        deliver(&mut wire, &Saved::new(&server), &[]),
+        vec![server.avatar_visual_frame()]
+    );
 }
 
 #[test]
@@ -112,12 +122,17 @@ fn checkpoint_tail_and_live_packet_groups_publish_identical_visual_inputs() {
     }
     for chunk in tail.chunks(3) {
         let packet = encode_ticks(chunk, WireLimits::default()).unwrap();
-        let (update, frames) = live_wire.receive_with_avatar_frames(live_wire.connection(), &packet).unwrap();
+        let (update, frames) = live_wire
+            .receive_with_avatar_frames(live_wire.connection(), &packet)
+            .unwrap();
         assert!(matches!(update, Received::Ticks(_)));
         live_frames.extend(frames.unwrap());
     }
     assert_eq!(deliver(&mut checkpoint_wire, &saved, &tail), live_frames);
-    assert_eq!(checkpoint_wire.replica().cursor(), live_wire.replica().cursor());
+    assert_eq!(
+        checkpoint_wire.replica().cursor(),
+        live_wire.replica().cursor()
+    );
 }
 
 #[test]
@@ -127,10 +142,17 @@ fn hidden_avatars_remain_in_the_recovery_trace() {
     let mut expected = vec![server.avatar_visual_frame()];
     let mut tail = Vec::new();
     for value in [2, 0] {
-        tail.push(step(&mut server, vec![AcceptedCommand::WriteMemory {
-            address: MemoryAddress::Entity { entity: actor, field: EntityField::ObjectData, index: 34 },
-            value,
-        }]));
+        tail.push(step(
+            &mut server,
+            vec![AcceptedCommand::WriteMemory {
+                address: MemoryAddress::Entity {
+                    entity: actor,
+                    field: EntityField::ObjectData,
+                    index: 34,
+                },
+                value,
+            }],
+        ));
         expected.push(server.avatar_visual_frame());
     }
     let frames = deliver(&mut wire, &saved, &tail);
@@ -148,8 +170,14 @@ fn a_bad_final_tail_hash_publishes_no_partial_state_or_visuals() {
     let mut second = scale(&mut server, actor, 50);
     second.state_hash[0] ^= 1;
     let packet = saved.packet(wire.checkpoint_request().unwrap().id, &[first, second]);
-    assert!(wire.receive_with_avatar_frames(wire.connection(), &packet).is_err());
-    assert_eq!(wire.replica().runtime().unwrap().snapshot().unwrap(), before);
+    assert!(
+        wire.receive_with_avatar_frames(wire.connection(), &packet)
+            .is_err()
+    );
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        before
+    );
     assert_eq!(wire.replica().cursor(), cursor);
     assert_eq!(wire.replica().status(), SessionStatus::Suspended);
 }
@@ -161,8 +189,14 @@ fn a_bad_checkpoint_hash_cannot_publish_its_seed() {
     saved.hash[0] ^= 1;
     let before = wire.replica().runtime().unwrap().snapshot().unwrap();
     let packet = saved.packet(wire.checkpoint_request().unwrap().id, &[]);
-    assert!(wire.receive_with_avatar_frames(wire.connection(), &packet).is_err());
-    assert_eq!(wire.replica().runtime().unwrap().snapshot().unwrap(), before);
+    assert!(
+        wire.receive_with_avatar_frames(wire.connection(), &packet)
+            .is_err()
+    );
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        before
+    );
 }
 
 #[test]
@@ -174,8 +208,14 @@ fn obsolete_checkpoint_callbacks_cannot_seed_the_replacement_connection() {
     let old = wire.connection();
     wire.disconnect(old).unwrap();
     let current = wire.reconnect().unwrap();
-    assert!(matches!(wire.receive_with_avatar_frames(old, &packet), Err(WireError::StaleConnection)));
-    assert!(matches!(wire.receive_with_avatar_frames(current, &packet), Err(WireError::StaleResponse)));
+    assert!(matches!(
+        wire.receive_with_avatar_frames(old, &packet),
+        Err(WireError::StaleConnection)
+    ));
+    assert!(matches!(
+        wire.receive_with_avatar_frames(current, &packet),
+        Err(WireError::StaleResponse)
+    ));
     assert_eq!(wire.replica().status(), SessionStatus::AwaitingCheckpoint);
 }
 
@@ -195,7 +235,10 @@ fn recovery_rebuilds_supplied_frames_before_and_after_the_previous_anchor() {
     wire.disconnect(wire.connection()).unwrap();
     wire.reconnect().unwrap();
     assert_eq!(deliver(&mut wire, &saved, &tail), expected);
-    assert_eq!(wire.replica().cursor().unwrap().completed_tick, saved.tick + 3);
+    assert_eq!(
+        wire.replica().cursor().unwrap().completed_tick,
+        saved.tick + 3
+    );
 }
 
 #[test]
@@ -205,7 +248,10 @@ fn an_exact_duplicate_last_tail_tick_cannot_compound_retained_blends() {
     let seed = server.avatar_visual_frame();
     let frame = scale(&mut server, actor, 25);
     let expected = vec![seed, server.avatar_visual_frame()];
-    assert_eq!(deliver(&mut wire, &saved, &[frame.clone(), frame]), expected);
+    assert_eq!(
+        deliver(&mut wire, &saved, &[frame.clone(), frame]),
+        expected
+    );
 }
 
 #[test]
@@ -216,9 +262,20 @@ fn state_only_checkpoint_delivery_keeps_the_same_authoritative_result() {
     let tail = [scale(&mut server, actor, 25), scale(&mut server, actor, 50)];
     deliver(&mut visual_wire, &saved, &tail);
     let packet = saved.packet(plain_wire.checkpoint_request().unwrap().id, &tail);
-    assert!(matches!(plain_wire.receive(plain_wire.connection(), &packet).unwrap(), Received::Checkpoint(_)));
-    assert_eq!(plain_wire.replica().cursor(), visual_wire.replica().cursor());
-    assert_eq!(plain_wire.replica().runtime().unwrap().snapshot().unwrap(), server.snapshot().unwrap());
+    assert!(matches!(
+        plain_wire
+            .receive(plain_wire.connection(), &packet)
+            .unwrap(),
+        Received::Checkpoint(_)
+    ));
+    assert_eq!(
+        plain_wire.replica().cursor(),
+        visual_wire.replica().cursor()
+    );
+    assert_eq!(
+        plain_wire.replica().runtime().unwrap().snapshot().unwrap(),
+        server.snapshot().unwrap()
+    );
 }
 
 #[test]
@@ -226,14 +283,21 @@ fn player_recovery_returns_poses_without_replaying_activity_or_resolving_unknown
     let (mut server, _, actor) = setup();
     let state = server.sim().state();
     let value = Bootstrap {
-        binding: PlayerBinding { source_epoch: 3, lot_incarnation: 4, lot_location: 55, avatar_id: 7 },
+        binding: PlayerBinding {
+            source_epoch: 3,
+            lot_incarnation: 4,
+            lot_location: 55,
+            avatar_id: 7,
+        },
         principal: support::PRINCIPAL,
         actor,
         content: server.sim().content().clone(),
         appearance: WorldDocument::from_blueprint_xml(
             "<house><size>8</size><world><floors/><walls/></world><objects/></house>",
-            "test:checkpoint-visual-tail", "declared-harness",
-        ).unwrap(),
+            "test:checkpoint-visual-tail",
+            "declared-harness",
+        )
+        .unwrap(),
         lot: state.world.lot.clone(),
         mode: state.mode,
         lot_id: state.lot_id,
@@ -242,12 +306,19 @@ fn player_recovery_returns_poses_without_replaying_activity_or_resolving_unknown
         limits: state.limits.clone(),
         effect_limits: state.effects.limits(),
     };
-    let mut player = NativePlayer::open(&encode_bootstrap(&value).unwrap(), value.binding, 2).unwrap();
+    let mut player =
+        NativePlayer::open(&encode_bootstrap(&value).unwrap(), value.binding, 2).unwrap();
     let saved = Saved::new(&server);
-    player.receive(&saved.packet(player.checkpoint_request().unwrap().id, &[])).unwrap();
+    player
+        .receive(&saved.packet(player.checkpoint_request().unwrap().id, &[]))
+        .unwrap();
     let offer = player.offers(actor).unwrap().offers[0].clone();
-    let request = player.prepare(actor, offer.interaction, offer.param0).unwrap();
-    let PlayerAction::Invoke(intent) = decode_action(&request).unwrap() else { panic!("invoke expected") };
+    let request = player
+        .prepare(actor, offer.interaction, offer.param0)
+        .unwrap();
+    let PlayerAction::Invoke(intent) = decode_action(&request).unwrap() else {
+        panic!("invoke expected")
+    };
     let mut expected = vec![server.avatar_visual_frame()];
     let first = step(&mut server, vec![AcceptedCommand::QueueInteraction(intent)]);
     expected.push(server.avatar_visual_frame());
@@ -255,15 +326,152 @@ fn player_recovery_returns_poses_without_replaying_activity_or_resolving_unknown
     expected.push(server.avatar_visual_frame());
     player.disconnect();
     player.reconnect().unwrap();
-    let (update, frames) = player.receive_presented(&saved.packet(player.checkpoint_request().unwrap().id, &[first, second])).unwrap();
-    assert!(matches!(update, PlayerUpdate::Checkpoint(_)), "recovery must not return historical TickOutcomes");
+    let (update, frames) = player
+        .receive_presented(&saved.packet(player.checkpoint_request().unwrap().id, &[first, second]))
+        .unwrap();
+    assert!(
+        matches!(update, PlayerUpdate::Checkpoint(_)),
+        "recovery must not return historical TickOutcomes"
+    );
     assert_eq!(frames.unwrap(), expected);
     assert_eq!(player.status(), ActionStatus::Unknown);
     assert_eq!(player.activity().count(), 0);
     assert_eq!(player.projection().unwrap(), server.projection());
-    assert!(player.prepare(actor, offer.interaction, offer.param0).is_err());
+    assert!(
+        player
+            .prepare(actor, offer.interaction, offer.param0)
+            .is_err()
+    );
     player.dismiss_unknown().unwrap();
     let next_offer = player.offers(actor).unwrap().offers[0].clone();
-    let next = player.prepare(actor, next_offer.interaction, next_offer.param0).unwrap();
+    let next = player
+        .prepare(actor, next_offer.interaction, next_offer.param0)
+        .unwrap();
     assert!(decode_action(&next).unwrap().sequence() > decode_action(&request).unwrap().sequence());
+}
+
+#[test]
+fn maximum_default_tail_retains_its_seed_and_all_sixty_four_ticks() {
+    let (mut server, mut wire, actor) = setup();
+    let saved = Saved::new(&server);
+    let mut expected = vec![server.avatar_visual_frame()];
+    let tail: Vec<_> = (1..=64)
+        .map(|value| {
+            let frame = scale(&mut server, actor, value);
+            expected.push(server.avatar_visual_frame());
+            frame
+        })
+        .collect();
+    assert_eq!(deliver(&mut wire, &saved, &tail), expected);
+}
+
+#[test]
+fn a_missing_intermediate_tick_cannot_publish_the_seed_or_later_pose() {
+    let (mut server, mut wire, actor) = setup();
+    let saved = Saved::new(&server);
+    let before = wire.replica().runtime().unwrap().snapshot().unwrap();
+    scale(&mut server, actor, 25);
+    let second = scale(&mut server, actor, 50);
+    let packet = saved.packet(wire.checkpoint_request().unwrap().id, &[second]);
+    assert!(
+        wire.receive_with_avatar_frames(wire.connection(), &packet)
+            .is_err()
+    );
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        before
+    );
+    assert_eq!(wire.replica().status(), SessionStatus::Suspended);
+}
+
+#[test]
+fn a_tail_stopping_before_the_known_anchor_cannot_replace_live_state() {
+    let (mut server, mut wire, actor) = setup();
+    let saved = Saved::new(&server);
+    deliver(&mut wire, &saved, &[]);
+    let tail = [scale(&mut server, actor, 25), scale(&mut server, actor, 50)];
+    wire.receive(
+        wire.connection(),
+        &encode_ticks(&tail, WireLimits::default()).unwrap(),
+    )
+    .unwrap();
+    let before = wire.replica().runtime().unwrap().snapshot().unwrap();
+    wire.disconnect(wire.connection()).unwrap();
+    wire.reconnect().unwrap();
+    let packet = saved.packet(wire.checkpoint_request().unwrap().id, &tail[..1]);
+    assert!(
+        wire.receive_with_avatar_frames(wire.connection(), &packet)
+            .is_err()
+    );
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        before
+    );
+}
+
+#[test]
+fn a_valid_but_conflicting_tail_cannot_rewrite_the_previous_anchor() {
+    let (mut server, mut wire, actor) = setup();
+    let (mut other, _, other_actor) = setup();
+    let saved = Saved::new(&server);
+    deliver(&mut wire, &saved, &[]);
+    let accepted = scale(&mut server, actor, 25);
+    wire.receive(
+        wire.connection(),
+        &encode_ticks(&[accepted], WireLimits::default()).unwrap(),
+    )
+    .unwrap();
+    let before = wire.replica().runtime().unwrap().snapshot().unwrap();
+    let conflicting = scale(&mut other, other_actor, 75);
+    wire.disconnect(wire.connection()).unwrap();
+    wire.reconnect().unwrap();
+    let packet = saved.packet(wire.checkpoint_request().unwrap().id, &[conflicting]);
+    assert!(
+        wire.receive_with_avatar_frames(wire.connection(), &packet)
+            .is_err()
+    );
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        before
+    );
+}
+
+#[test]
+fn exhausted_optional_pose_budget_commits_state_but_never_a_partial_trace() {
+    use wonderland_game_runtime::{Facing, LotPosition, PersistentId, SpawnSpec};
+    let (mut server, mut wire, _) = setup();
+    // 257 avatars across seed + 64 ticks exceed the 16,384-record capture cap.
+    // Out-of-world fixture placement avoids guessing routing or lot capacity.
+    server
+        .advance(
+            (0..256)
+                .map(|_| {
+                    AcceptedCommand::Spawn(SpawnSpec {
+                        guid: support::OWNER,
+                        position: LotPosition::OUT_OF_WORLD,
+                        facing: Facing::NORTH,
+                        persistent_id: PersistentId(0),
+                        avatar: true,
+                    })
+                })
+                .collect(),
+        )
+        .unwrap();
+    assert_eq!(server.avatar_visual_frame().avatars.len(), 257);
+    let saved = Saved::new(&server);
+    let tail: Vec<_> = (0..64).map(|_| step(&mut server, vec![])).collect();
+    let packet = saved.packet(wire.checkpoint_request().unwrap().id, &tail);
+    let (update, frames) = wire
+        .receive_with_avatar_frames(wire.connection(), &packet)
+        .unwrap();
+    assert!(matches!(update, Received::Checkpoint(_)));
+    assert!(
+        frames.is_none(),
+        "a budget failure cannot publish a misleading visual prefix"
+    );
+    assert_eq!(wire.replica().status(), SessionStatus::Live);
+    assert_eq!(
+        wire.replica().runtime().unwrap().snapshot().unwrap(),
+        server.snapshot().unwrap()
+    );
 }

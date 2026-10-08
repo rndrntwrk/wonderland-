@@ -36,6 +36,10 @@ function validate(text) {
     assert.equal(layer.current_frame, Math.min((index + 1) / 4, 2));
     assert.equal(layer.end_reached, index >= 7);
   }
+  assert.equal(result.recovery_avatar_frames, 19);
+  assert.equal(result.recovery_activity, 0);
+  assert.deepEqual(result.recovery_model.groups, result.retained_model.groups);
+  assert.match(result.recovery_sha256, /^[0-9a-f]{64}$/);
   const retained = result.retained_model, reset = result.checkpoint_reset_model;
   for (const model of [retained, reset]) {
     assert.equal(model.context.kind, 'vitaboy');
@@ -98,6 +102,9 @@ const mutations = [
   record => {record.result.duplicate_frames = 1;},
   record => {record.result.checkpoint_reset_model = record.result.retained_model;},
   record => {record.equal_batch_sizes = [1, 3];},
+  record => {record.result.recovery_avatar_frames = 1;},
+  record => {record.result.recovery_model = record.result.checkpoint_reset_model;},
+  record => {record.result.recovery_activity = 1;},
 ];
 for (const mutation of mutations) {
   const record = JSON.parse(native); mutation(record);
@@ -113,5 +120,6 @@ console.log(JSON.stringify({
   wasm_sha256: digest(moduleBytes), native_wasm_equal: true, wasm_imports: 0,
   equal_batch_sizes: [1, 3, 18], accepted_avatar_frames: 18, repeated_draws: 120,
   semantic_negative_controls: mutations.length, changed_output_negative_controls: 1,
+  recovery_avatar_frames: 19, recovery_matches_live: true,
   shared_memory: false, browser_interaction_test: false,
 }, null, 2));

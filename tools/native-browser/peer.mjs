@@ -27,7 +27,7 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
   });
   const tickets=new Map(), clients=new Set(), relays=new Set();
   const stats={admissions:0,opens:0,checkpoints:0,actions:0,accepted:0,unknownDrops:0,ticks:0,silentReceipts:0,bursts:0};
-  let serial=Promise.resolve(), dropNext=false, loseNext=false;
+  let serial=Promise.resolve(), dropNext=false, loseNext=false, recoveryTail=0;
   const transact=fn=>{const result=serial.then(fn);serial=result.catch(()=>{});return result;};
   const packet=result=>Buffer.from(result.packet,'hex');
   const send=(ws,bytes)=>{if(ws.readyState===1){if(ws.bufferedAmount>2*1024*1024)ws.close(1013);else ws.send(bytes,{binary:true});}};
@@ -102,7 +102,10 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
           assert.equal(binary,true);const session=await current(auth.authorization);assert.ok(matches(session,auth.binding));
           const magic=data.subarray(0,4).toString();
           if(magic==='WLR1'){
-            const result=await execute({op:'checkpoint',request:data.toString('hex')});send(ws,packet(result));ws.live=true;stats.checkpoints++;clearTimeout(timeout);
+            const count=recoveryTail;recoveryTail=0;
+            const result=await execute({op:count?'checkpoint_tail':'checkpoint',request:data.toString('hex'),count});
+            if(count){assert.equal(result.tail_count,count);stats.recoveryTailFrames=(stats.recoveryTailFrames??0)+count;stats.ticks+=count;}
+            send(ws,packet(result));ws.live=true;stats.checkpoints++;clearTimeout(timeout);
           } else if(magic==='WLC1') {
             assert.ok(ws.live);stats.actions++;
             // Deterministically reproduce ordinary server ticks while a chosen
@@ -134,6 +137,13 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
       broadcast(result);stats.ticks+=count;stats.bursts++;
       return {count,tick:result.tick,hash:result.hash,packetSha256:await import('node:crypto').then(m=>m.createHash('sha256').update(packet(result)).digest('hex'))};
     }),
+    // Only the isolated manual-tick harness can ask its real Rust authority
+    // for a nonempty recovery tail. Never an HTTP route or edited packet.
+    recoverWithTail:count=>{
+      assert.ok(manualTicks && clients.size===0 && recoveryTail===0);
+      assert.ok(Number.isInteger(count) && count>=1 && count<=64);
+      recoveryTail=count;
+    },
     dropNextReceipt:()=>{dropNext=true;},
     loseNextReceipt:()=>{loseNext=true;},
     disconnect:()=>{for(const ws of clients)ws.close(1012);},

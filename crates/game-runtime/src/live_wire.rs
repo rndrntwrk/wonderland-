@@ -471,8 +471,8 @@ impl NativeWire {
             .map(|(update, _)| update)
     }
     /// Like receive, plus bounded per-tick avatar projections for a presentation
-    /// consumer. Checkpoints contain only the final recovered frame, never a
-    /// speculative replay of pre-checkpoint visual history.
+    /// consumer. Checkpoints contain their validated seed and nonduplicate tail
+    /// frames, never invented pre-checkpoint visual history or old sound events.
     pub fn receive_with_avatar_frames(
         &mut self,
         token: ConnectionToken,
@@ -503,16 +503,17 @@ impl NativeWire {
                 let Some((_, ticket)) = self.pending else {
                     return Err(WireError::StaleResponse);
                 };
-                let cursor = self
-                    .replica
-                    .install_checkpoint(ticket, checkpoint, &tail)
-                    .map_err(|e| self.fault(token, e.into()))?;
-                self.pending = None;
-                let mut visuals = crate::avatar_projection::AvatarCapture::new(capture);
-                if let Some(runtime) = self.replica.runtime() {
-                    visuals.observe(runtime);
+                let (cursor, visuals) = if capture {
+                    self.replica
+                        .install_checkpoint_with_avatar_frames(ticket, checkpoint, &tail)
+                } else {
+                    self.replica
+                        .install_checkpoint(ticket, checkpoint, &tail)
+                        .map(|cursor| (cursor, None))
                 }
-                Ok((Received::Checkpoint(cursor), visuals.finish()))
+                .map_err(|e| self.fault(token, e.into()))?;
+                self.pending = None;
+                Ok((Received::Checkpoint(cursor), visuals))
             }
             Packet::Ticks(frames) => match if capture {
                 self.replica.apply_batch_with_avatar_frames(token, &frames)
