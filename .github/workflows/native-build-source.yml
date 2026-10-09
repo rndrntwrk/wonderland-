@@ -26,9 +26,14 @@ jobs:
           base='505e74e9befeb08e44784fa4f51a3e7848a412ef'
           assert doc['schema']==1 and doc['base']==base
           allowed={'.github/workflows/native-browser.yml','apps/web-shell/index.html','apps/web-shell/public/native-build.css','apps/web-shell/public/native-construction.mjs','apps/web-shell/scripts/native-audio-readiness.test.mjs','apps/web-shell/scripts/native-construction.test.mjs','apps/web-shell/src/connected_bridge.rs','apps/web-shell/src/lib.rs','apps/web-shell/src/native_build.rs','apps/web-shell/src/native_build_model.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/tests/native_build_model.rs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/examples/native_browser_peer/construction.rs','crates/game-runtime/src/live_wire/construction.rs','crates/game-runtime/src/live_wire/construction/catalogue.rs','crates/game-runtime/tests/construction_catalogue.rs','crates/game-runtime/tests/native_model_bootstrap.rs','crates/world-view/src/document.rs','crates/world-view/src/lib.rs','crates/world-view/src/model_tags.rs','docs/design/action-first/native-buy-build-player.md','docs/design/action-first/native-buy-build-player-verification.json','tools/native-browser/audio-readiness.mjs','tools/native-browser/peer.mjs','tools/native-browser/verify-audio.mjs','tools/native-browser/verify-construction.mjs'}
-          assert set(doc['paths'])==allowed
+          assert set(doc['paths'])==allowed and doc['parts']==4
+          chunks=[]
+          for i in range(4):
+              part=p.parent/f'build-source.{i}.b64'
+              assert part.is_file() and not part.is_symlink() and part.stat().st_size<20000
+              chunks.append(part.read_text().strip())
           decoder=lzma.LZMADecompressor(memlimit=128*1024*1024)
-          patch=decoder.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=500001)
+          patch=decoder.decompress(base64.b64decode(''.join(chunks),validate=True),max_length=500001)
           assert decoder.eof and not decoder.unused_data and len(patch)<=500000
           assert hashlib.sha256(patch).hexdigest()==doc['sha256']=='e44df8567330af2d9389b0595d49aa4be7db6dc6718c587608b362a3f3b21ddd'
           subprocess.run(['git','fetch','--depth=1','origin',base],check=True)
