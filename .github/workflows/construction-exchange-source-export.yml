@@ -1,0 +1,35 @@
+name: Construction exchange source export
+on:
+  push:
+    branches: [ops/construction-exchange-source-check]
+    paths: [.github/workflows/construction-exchange-source-export.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ab28f56e36bdbf542f71233a6904493be992c1f8
+          persist-credentials: false
+          show-progress: false
+      - name: Export immutable parent and complete raw tree
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 705530c1c99721ff9055ff1c44bd2cfb24e2097e
+          mkdir -p /tmp/construction-parent
+          git diff --binary 705530c1c99721ff9055ff1c44bd2cfb24e2097e HEAD > /tmp/construction-parent/source.patch
+          git ls-tree -rz HEAD > /tmp/construction-parent/tree.bin
+          git rev-parse HEAD > /tmp/construction-parent/revision.txt
+          git rev-parse 'HEAD^{tree}' >> /tmp/construction-parent/revision.txt
+          git cat-file commit HEAD > /tmp/construction-parent/commit.txt
+          cd /tmp/construction-parent
+          sha256sum source.patch tree.bin revision.txt commit.txt > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: construction-exchange-pinned-parent
+          path: /tmp/construction-parent/
+          retention-days: 3
+          if-no-files-found: error
