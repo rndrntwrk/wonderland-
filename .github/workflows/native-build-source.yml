@@ -1,0 +1,74 @@
+name: Native Buy Build source transfer
+on:
+  push:
+    branches: [ops/native-buy-build-source-20261009]
+    paths: [tools/native-browser/build-source.json]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Validate exact bounded patch without executing application code
+        run: |
+          python3 - <<'PY'
+          import base64,hashlib,json,lzma,pathlib,subprocess
+          p=pathlib.Path('tools/native-browser/build-source.json')
+          assert p.is_file() and p.stat().st_size<100000
+          doc=json.loads(p.read_text())
+          base='505e74e9befeb08e44784fa4f51a3e7848a412ef'
+          assert doc['schema']==1 and doc['base']==base
+          allowed={'.github/workflows/native-browser.yml','apps/web-shell/index.html','apps/web-shell/public/native-build.css','apps/web-shell/public/native-construction.mjs','apps/web-shell/scripts/native-audio-readiness.test.mjs','apps/web-shell/scripts/native-construction.test.mjs','apps/web-shell/src/connected_bridge.rs','apps/web-shell/src/lib.rs','apps/web-shell/src/native_build.rs','apps/web-shell/src/native_build_model.rs','apps/web-shell/src/native_lot.rs','apps/web-shell/tests/native_build_model.rs','crates/game-runtime/examples/native_browser_peer.rs','crates/game-runtime/examples/native_browser_peer/construction.rs','crates/game-runtime/src/live_wire/construction.rs','crates/game-runtime/src/live_wire/construction/catalogue.rs','crates/game-runtime/tests/construction_catalogue.rs','crates/game-runtime/tests/native_model_bootstrap.rs','crates/world-view/src/document.rs','crates/world-view/src/lib.rs','crates/world-view/src/model_tags.rs','docs/design/action-first/native-buy-build-player.md','docs/design/action-first/native-buy-build-player-verification.json','tools/native-browser/audio-readiness.mjs','tools/native-browser/peer.mjs','tools/native-browser/verify-audio.mjs','tools/native-browser/verify-construction.mjs'}
+          assert set(doc['paths'])==allowed
+          decoder=lzma.LZMADecompressor(memlimit=128*1024*1024)
+          patch=decoder.decompress(base64.b64decode(doc['patch_xz_base64'],validate=True),max_length=500001)
+          assert decoder.eof and not decoder.unused_data and len(patch)<=500000
+          assert hashlib.sha256(patch).hexdigest()==doc['sha256']=='e44df8567330af2d9389b0595d49aa4be7db6dc6718c587608b362a3f3b21ddd'
+          subprocess.run(['git','fetch','--depth=1','origin',base],check=True)
+          subprocess.run(['git','checkout','--detach',base],check=True)
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='86b2ef453c2bfee38d6397231376e9938cc11710'
+          subprocess.run(['git','apply','--unidiff-zero','--check','--index','-'],input=patch,check=True)
+          subprocess.run(['git','apply','--unidiff-zero','--index','-'],input=patch,check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          assert set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())==allowed
+          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          assert tree==doc['tree']=='dc7a96b91472be0eb173c8e9442e8f510d81c968'
+          files=[]
+          for path in sorted(allowed):
+              entry=subprocess.check_output(['git','ls-files','--stage','--',path],text=True).strip()
+              mode,sha,stage=entry.split('\t')[0].split()
+              assert mode=='100644' and stage=='0'
+              data=subprocess.check_output(['git','show',':'+path]);assert len(data)<200000
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==sha
+              files.append({'path':path,'mode':mode,'type':'blob','sha':sha,'content':base64.b64encode(data).decode()})
+          pathlib.Path('native-build-files.json').write_text(json.dumps({'base':base,'tree':tree,'patch_sha256':doc['sha256'],'files':files}))
+          print('Verified exact source tree:',tree)
+          PY
+      - name: Store checked public source blobs; no product ref movement
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,urllib.request
+          doc=json.loads(pathlib.Path('native-build-files.json').read_text())
+          for f in doc['files']:
+              req=urllib.request.Request('https://api.github.com/repos/'+os.environ['REPOSITORY']+'/git/blobs',data=json.dumps({'encoding':'base64','content':f.pop('content')}).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=30) as reply:assert json.load(reply)['sha']==f['sha']
+          doc['branch_updated']=False;doc['tests_executed_by_transfer']=False
+          pathlib.Path('native-build-tree.json').write_text(json.dumps(doc,indent=2)+'\n')
+          print(json.dumps(doc,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-build-tree
+          path: native-build-tree.json
+          retention-days: 3
+          if-no-files-found: error
