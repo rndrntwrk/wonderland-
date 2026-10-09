@@ -1,3 +1,4 @@
+import {waitForPlayback,observePlayback} from './audio-readiness.mjs';
 import {observeNativeCanvas,canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
 // TEST ONLY: real built Rust/WASM, accepted primitive events, real AudioContext
 // and an analyser connected to its existing output. No synthetic ACK, audio
@@ -24,14 +25,28 @@ async function status(){return page.evaluate(async()=>{const {acceptedAudioHost}
 async function waitVoices(count){await page.waitForFunction(async n=>{const {acceptedAudioHost}=await import('/audio/source-audio.mjs');return acceptedAudioHost().snapshot().activeVoices===n;},count,{timeout:12000});}
 async function choose(name){await page.getByRole('button',{name:'Your Sim',exact:true}).click();await page.getByRole('button',{name,exact:true}).click();await page.getByText('Accepted by the server',{exact:true}).waitFor();}
 async function closeActions(){const button=page.getByRole('button',{name:'Close source actions',exact:true});if(await button.isVisible())await button.click();}
-async function measure(){return page.evaluate(async()=>{
- const {acceptedAudioHost}=await import('/audio/source-audio.mjs');const host=acceptedAudioHost(),backend=host.backend;
- const voice=[...backend._voices.values()].find(v=>v.status==='playing');if(!voice?.panNode)throw Error('No real playing voice');
- const analyser=backend._context.createAnalyser();analyser.fftSize=2048;voice.panNode.connect(analyser);
- await new Promise(r=>setTimeout(r,100));const samples=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(samples);
- voice.panNode.disconnect(analyser);analyser.disconnect();
- return {voiceId:voice.id,rms:Math.sqrt(samples.reduce((n,v)=>n+v*v,0)/samples.length),context:backend._context.constructor.name,state:backend._context.state,gain:voice.gainNode.gain.value,pan:voice.panNode.pan.value,looped:voice.node.loop};
- });}
+async function measure(){
+ const ready=await waitForPlayback(()=>observePlayback(page));
+ const result=await page.evaluate(async id=>{
+  const {acceptedAudioHost}=await import('/audio/source-audio.mjs');
+  const backend=acceptedAudioHost().backend;
+  const voice=backend._voices.get(id);
+  if(voice?.status!=='playing'||!voice.node||!voice.gainNode||!voice.panNode)
+   throw Error('Observed native voice stopped before measurement');
+  const pan=voice.panNode,context=backend._context,analyser=context.createAnalyser();
+  analyser.fftSize=2048;pan.connect(analyser);
+  try {
+   await new Promise(r=>setTimeout(r,100));
+   if(backend._voices.get(id)!==voice||voice.status!=='playing'||voice.panNode!==pan||context.state!=='running')
+    throw Error('Observed native voice changed during measurement');
+   const samples=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(samples);
+   return {voiceId:voice.id,rms:Math.sqrt(samples.reduce((n,v)=>n+v*v,0)/samples.length),
+    context:context.constructor.name,state:context.state,gain:voice.gainNode.gain.value,
+    pan:pan.pan.value,looped:voice.node.loop};
+  }finally{pan.disconnect(analyser);analyser.disconnect();}
+ },ready.snapshot.voices[0].id);
+ return {...result,readinessPolls:ready.polls,readinessMs:ready.elapsedMs};
+}
 try{
  let ready=false;for(let i=0;i<100;i++){try{if((await fetch('http://127.0.0.1:18787/health')).ok){ready=true;break;}}catch{}await delay(100);}assert.ok(ready);
  process.env.WONDERLAND_NATIVE_AUDIO_FIXTURE='1';
