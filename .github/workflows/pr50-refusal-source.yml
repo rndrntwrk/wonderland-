@@ -1,0 +1,119 @@
+name: PR50 replacement source check
+on:
+  push:
+    branches: [ops/pr50-review-inputs-20261009]
+    paths: [.github/workflows/pr50-refusal-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 2f39f0f959140447227a7d68ad523caa19524a0e
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Restore the hash-checked local candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = rndrntwrk/wonderland-
+          test "$GITHUB_REF" = refs/heads/ops/pr50-review-inputs-20261009
+          test "$(git rev-parse HEAD)" = 2f39f0f959140447227a7d68ad523caa19524a0e
+          mkdir -p /tmp/pr50-refusal
+          python3 - <<'PY'
+          import base64,gzip,hashlib,json,pathlib,subprocess
+          out=pathlib.Path('/tmp/pr50-refusal')
+          ids=['7d00aaef82c3e72d22d02eff87176d2c7adc0bb3','3dff8776fd872e3e1f57a2a2a62a3bd1412f3e57','f2c0536d68c04c3669f0359b57d5009ee4300eeb']
+          def blob(data): return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          parts=[]
+          for i,sha in enumerate(ids):
+              obj=json.loads(subprocess.check_output(['gh','api',f'repos/rndrntwrk/wonderland-/git/blobs/{sha}']))
+              assert obj['encoding']=='base64'
+              data=base64.b64decode(''.join(obj['content'].split()),validate=True)
+              assert blob(data)==sha
+              if i==1:
+                  # A two-character transcription insertion affected only this
+                  # transfer object. Restore the pre-recorded compressed chunk;
+                  # neither source nor checks may execute before all hashes match.
+                  text=base64.b64encode(data).decode().rstrip('=')
+                  assert len(text)==8002 and text.count('zvPuPeChc')==1
+                  text=text.replace('zvPuPeChc','zvPuChc')
+                  assert text.endswith('+gal4ZGphoMJ5X99ZMpA')
+                  data=base64.b64decode(text[:-1]+'C',validate=True)
+                  assert blob(data)=='95ca2dcb26d3cba93ce5a0cf101c386db32f13f4'
+              parts.append(data)
+          compressed=b''.join(parts)
+          assert len(compressed)==15844
+          assert hashlib.sha256(compressed).hexdigest()=='eef0aca2fb0a64f26f90817dc6694d36b0b10daed57d9ed5cc64d4bcf77c8f9a'
+          patch=gzip.decompress(compressed)
+          assert len(patch)==54466
+          assert hashlib.sha256(patch).hexdigest()=='28a64c307c33c3c02c14c427b519b0867dd802043b6caedf4549ee3233f1a90f'
+          expected={
+            'apps/web-shell/public/world-gpu.mjs':'f8c47bc3dec44152b11a26c2bacdfa8559ee7b3a',
+            'apps/web-shell/src/source_world_screen.rs':'f9eda8aa26754f4b5cc57b80b50ad2e3d436fe33',
+            'apps/web-shell/src/world_renderer.rs':'07044911a0d8c50f5044d37ee4513fb7341ea3ed',
+            'apps/web-shell/tests/gpu/application.mjs':'21d6f934decaa17eb7509b89a44957e0a62be261',
+            'apps/web-shell/tests/gpu/replacement.test.mjs':'ca97c7c456ccddc522b1e362fc9c42fa191e268a',
+            'crates/render-core/src/frame.rs':'9b5c311cc383f4b93e9042b1fe53ef6e41325d3c',
+            'crates/world-view/examples/gpu_fixture.rs':'b7481921e6ad6e41344636eb98387dca522a2ac7',
+            'crates/world-view/src/renderer.rs':'4e9785787aef6a41c18ed4e5dc86505e685b4a11',
+            'crates/world-view/src/scene.rs':'266b5ef2cdbd1c4b5b6b1707675e088488358d07',
+            'crates/world-view/tests/gpu_replacement.rs':'b5833fd52167ba309e2a499d83057c7c728da140',
+            'crates/world-view/tests/support/replacement.rs':'3cbed409b3c11e0ca5142eafedab08a4eda0fcc0',
+            'docs/swarm-c/PR50_REPLACEMENT_ADMISSION.md':'c2f1e3eb172f64fd1446d7f93e830d33497013ed'}
+          target=out/'implementation.patch';target.write_bytes(patch)
+          stats=subprocess.check_output(['git','apply','--numstat',str(target)],text=True)
+          assert {row.split('\t',2)[2] for row in stats.splitlines()}==set(expected)
+          subprocess.run(['git','apply','--check',str(target)],check=True)
+          subprocess.run(['git','apply','--whitespace=error',str(target)],check=True)
+          for path,sha in expected.items(): assert blob(pathlib.Path(path).read_bytes())==sha,path
+          subprocess.run(['git','add','--',*expected],check=True)
+          assert set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())==set(expected)
+          assert subprocess.check_output(['git','write-tree'],text=True).strip()=='b4d57e5f0a427efee507c4997687756c0ec90eb8'
+          (out/'expected-blobs.json').write_text(json.dumps(expected,indent=2)+'\n')
+          PY
+      - name: Run unchanged aggregate Node gates on exact candidate
+        run: |
+          set -euo pipefail
+          node --test --test-reporter=tap tools/native-browser/*.test.mjs apps/web-shell/tests/gpu/*.test.mjs apps/web-shell/scripts/native-*.test.mjs crates/audio-runtime/browser/*.test.mjs > /tmp/pr50-refusal/node.log 2>&1
+          tail -12 /tmp/pr50-refusal/node.log
+          grep -q '^# pass 182$' /tmp/pr50-refusal/node.log
+          grep -q '^# fail 0$' /tmp/pr50-refusal/node.log
+          node --check apps/web-shell/tests/gpu/application.mjs
+          git diff --cached --check
+      - name: Store only the verified source blobs; do not move refs or create commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64,hashlib,json,pathlib,subprocess
+          out=pathlib.Path('/tmp/pr50-refusal')
+          expected=json.loads((out/'expected-blobs.json').read_text())
+          assert subprocess.check_output(['git','write-tree'],text=True).strip()=='b4d57e5f0a427efee507c4997687756c0ec90eb8'
+          receipts=[]
+          for path,sha in expected.items():
+              data=pathlib.Path(path).read_bytes()
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==sha,path
+              payload=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode()
+              result=json.loads(subprocess.check_output(['gh','api','--method','POST','repos/rndrntwrk/wonderland-/git/blobs','--input','-'],input=payload))
+              assert result['sha']==sha,path
+              receipts.append({'path':path,'blob':sha,'sha256':hashlib.sha256(data).hexdigest()})
+          (out/'stored-source.json').write_text(json.dumps({'base':'2f39f0f959140447227a7d68ad523caa19524a0e','tree':'b4d57e5f0a427efee507c4997687756c0ec90eb8','files':receipts,'scope':'Node source verification and blob storage only; not Rust/browser execution or publication'},indent=2)+'\n')
+          PY
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr50-replacement-source
+          path: /tmp/pr50-refusal/
+          retention-days: 7
+          if-no-files-found: error
