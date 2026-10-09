@@ -62,6 +62,38 @@ impl WorldRenderer {
             lighting_preparations,
         })
     }
+    /// Prepare and install a candidate without admitting it before the device.
+    /// The adapter must preserve its previous image/resources on an error, or
+    /// explicitly report real device loss to its owner. The callback is called
+    /// once, synchronously, and must not publish authoritative game state.
+    pub fn update_gpu(
+        &mut self,
+        document: Arc<WorldDocument>,
+        controls: ViewportControls,
+        width: u32,
+        height: u32,
+        publish: impl FnOnce(&WorldGpuFrame) -> Result<(), WorldError>,
+    ) -> Result<(String, WorldRenderStats), WorldError> {
+        // Fork only bounded presentation metadata and immutable resource Arcs.
+        // In particular, never clone the two full software raster buffers.
+        let mut candidate = Self {
+            document: Arc::clone(&self.document),
+            frames: self.frames.clone(),
+            prepared: self.prepared.clone(),
+            raster: None,
+            gpu: None,
+            generation: self.generation,
+            lighting: self.lighting.clone(),
+            lighting_preparations: self.lighting_preparations,
+        };
+        candidate.replace_document(document)?;
+        let (frame, stats) = candidate.prepare_gpu(controls, width, height)?;
+        publish(&frame)?;
+        // No fallible work follows publication. Failed preparation, encoding or
+        // device installation cannot retire the previous document or tickets.
+        *self = candidate;
+        Ok((frame.generation, stats))
+    }
     pub fn replace_document(&mut self, document: Arc<WorldDocument>) -> Result<(), WorldError> {
         document.validate()?;
         if Arc::ptr_eq(&self.document, &document) || *self.document == *document {

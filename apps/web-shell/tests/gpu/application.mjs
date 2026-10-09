@@ -263,6 +263,57 @@ try{
   await capture('room-shadow-application');
   assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).getAttribute('href'),shadowFacade.urls.file,'GPU loss discarded a CPU-owned facade');
   await page.getByRole('button',{name:'Discard facade',exact:true}).click();await revoked(shadowFacade.urls);
+  // Actual admission failure after schema validation, followed by a real
+  // one-shot device draw failure. Neither may erase the existing source/selection.
+  const beforeTurn=await canvas().getAttribute('data-frame-generation');
+  await page.getByRole('button',{name:'Rotate right',exact:true}).click();await changed(beforeTurn);
+  const retainedPhoto=await photo('before-rejected-replacement');
+  const retainedFacade=await facade('before-rejected-replacement-facade');
+  const retainedImage=png(await readFile(resolve(output,'before-rejected-replacement.png')));
+  const retainedGeneration=await canvas().getAttribute('data-frame-generation');
+  const retainedTitle=await page.locator('.source-world-header h1').innerText();
+  const retainedSelection=await page.locator('.source-world-inspector strong').innerText();
+  const refused=await readFile(resolve(root,'tests/output/source-gpu/valid-overbudget.world.json'));
+  await page.locator('.source-open-lot input').setInputFiles({name:'valid-overbudget.json',mimeType:'application/json',buffer:refused});
+  await page.locator('.source-world-notice').filter({hasText:'expanded world scene budget'}).waitFor();
+  await page.waitForFunction(()=>!document.querySelector('.world-viewport.world-busy'));
+  assert.equal(await page.locator('.source-world-header h1').innerText(),retainedTitle);
+  assert.equal(await page.locator('.source-world-inspector strong').innerText(),retainedSelection);
+  assert.equal(await canvas().getAttribute('data-frame-generation'),retainedGeneration);
+  assert.equal(await canvas().getAttribute('data-gpu-state'),'ready');
+  assert.equal(await page.getByRole('link',{name:'Save PNG',exact:true}).getAttribute('href'),retainedPhoto.image);
+  assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).getAttribute('href'),retainedFacade.urls.file);
+  await photo('after-refused-expansion');
+  assert.deepEqual(png(await readFile(resolve(output,'after-refused-expansion.png'))).pixels,retainedImage.pixels);
+  report.scenarios.push({name:'schema-valid expanded-scene refusal retains source, camera, selection, PNG and FSOf',sourceSha256:sha(refused),generation:retainedGeneration});
+  // Failure injection is in the real WebGL API only; no substitute renderer,
+  // fake frame or altered WASM. The next draw automatically restores the API.
+  await page.evaluate(()=>{
+    const gl=document.querySelector('.world-viewport canvas').getContext('webgl2');
+    const draw=gl.drawElements.bind(gl);
+    gl.drawElements=(...args)=>{gl.drawElements=draw;throw new Error('test-only candidate draw refusal');};
+  });
+  const replacement=await readFile(resolve(root,'tests/output/source-gpu/normal-mask.world.json'));
+  await page.locator('.source-open-lot input').setInputFiles({name:'device-refused.json',mimeType:'application/json',buffer:replacement});
+  await page.locator('.source-world-notice').filter({hasText:'test-only candidate draw refusal'}).waitFor();
+  await page.waitForFunction(()=>!document.querySelector('.world-viewport.world-busy'));
+  assert.equal(await page.locator('.source-world-header h1').innerText(),retainedTitle);
+  assert.equal(await page.locator('.source-world-inspector strong').innerText(),retainedSelection);
+  assert.equal(await canvas().getAttribute('data-frame-generation'),retainedGeneration);
+  assert.equal(await canvas().getAttribute('data-gpu-state'),'ready');
+  assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).getAttribute('href'),retainedFacade.urls.file);
+  await photo('after-refused-device-draw');
+  assert.deepEqual(png(await readFile(resolve(output,'after-refused-device-draw.png'))).pixels,retainedImage.pixels);
+  await canvas().focus();await page.keyboard.press('Enter');
+  await page.waitForFunction(()=>document.querySelector('.source-world-inspector strong')?.textContent.startsWith('Tile '));
+  report.scenarios.push({name:'failed candidate device draw restores exact previous pixels and usable old GPU picks',generation:retainedGeneration});
+  await capture('retained-after-device-refusal');
+  await page.locator('.source-open-lot input').setInputFiles({name:'successful-replacement.json',mimeType:'application/json',buffer:replacement});
+  await page.getByRole('heading',{name:'successful-replacement.json',exact:true}).waitFor();await ready();
+  assert.notEqual(await canvas().getAttribute('data-frame-generation'),retainedGeneration);
+  await revoked(retainedFacade.urls);
+  assert.equal(await page.getByRole('button',{name:'Clear selection',exact:true}).count(),0);
+  report.scenarios.push({name:'valid replacement still succeeds after both refusals and retires previous exports'});
   const beforeCloseFacade=await facade('before-close-facade');
   const beforeClose=await photo('before-close-export');
   await page.getByRole('button',{name:'Back to your Sims',exact:true}).click();await page.locator('.source-world-screen').waitFor({state:'detached'});await revoked(beforeClose);await revoked(beforeCloseFacade.urls);

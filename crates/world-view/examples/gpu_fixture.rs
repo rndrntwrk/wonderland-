@@ -7,6 +7,8 @@ mod avatar_fixture;
 mod lighting_fixture;
 #[path = "support/masked.rs"]
 mod mask_fixture;
+#[path = "../tests/support/replacement.rs"]
+mod replacement_fixture;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output = PathBuf::from(
         std::env::args()
@@ -14,6 +16,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .ok_or("supply an output directory")?,
     );
     fs::create_dir_all(&output)?;
+    fs::write(
+        output.join("valid-overbudget.world.json"),
+        serde_json::to_vec(&replacement_fixture::overbudget())?,
+    )?;
     let mut source = WorldDocument::from_blueprint_xml(
         "<house><size>4</size><world><floors><floor level=\"0\" x=\"1\" y=\"1\" value=\"9\"/></floors><walls><wall level=\"0\" x=\"2\" y=\"2\" segments=\"1\" tlp=\"1\" trp=\"1\" blp=\"1\" brp=\"1\" tls=\"1\" trs=\"1\"/></walls></world><objects/></house>",
         "tests:source GPU fixture",

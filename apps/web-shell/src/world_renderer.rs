@@ -3,7 +3,7 @@ use leptos::{ev, leptos_dom::helpers::window_event_listener, prelude::*};
 use std::{collections::BTreeMap, sync::Arc};
 use wasm_bindgen::prelude::*;
 use wonderland_world_view::{
-    ViewportControls, WorldDocument, WorldPick, WorldRenderStats, WorldRenderer,
+    ViewportControls, WorldDocument, WorldError, WorldPick, WorldRenderStats, WorldRenderer,
 };
 
 use crate::world_capture::{WorldCaptureReceipt, capture_metadata};
@@ -14,6 +14,8 @@ extern "C" {
     fn next_paint() -> js_sys::Promise;
     #[wasm_bindgen(catch,js_name=paintSourceWorld)]
     fn paint(canvas: &web_sys::HtmlCanvasElement, frame: &str) -> Result<(), JsValue>;
+    #[wasm_bindgen(js_name=sourceWorldFrameAvailable)]
+    fn frame_available(canvas: &web_sys::HtmlCanvasElement) -> bool;
     #[wasm_bindgen(js_name=pickSourceWorld)]
     fn gpu_pick(canvas: &web_sys::HtmlCanvasElement, x: u32, y: u32) -> js_sys::Promise;
     #[wasm_bindgen(js_name=captureSourceWorld)]
@@ -89,6 +91,14 @@ pub fn WorldCapturePanel(capture: WorldCaptureControls) -> impl IntoView {
             }}
         </div>
     }
+}
+
+/// Source imports are proposals until CPU preparation and device drawing agree.
+/// The callback runs after the renderer borrow is released, for this exact Arc.
+#[derive(Clone, Copy)]
+pub struct WorldReplacementControls {
+    pub document: Signal<Option<Arc<WorldDocument>>>,
+    pub complete: Callback<(Arc<WorldDocument>, Result<(), String>)>,
 }
 
 #[derive(serde::Deserialize)]
@@ -168,8 +178,10 @@ pub fn WorldViewport(
     on_pick: Callback<WorldPick>,
     #[prop(optional)] draft: Option<Signal<crate::world_draft::WorldDraftOutline>>,
     #[prop(optional)] capture: Option<WorldCaptureControls>,
+    #[prop(optional)] replacement: Option<WorldReplacementControls>,
 ) -> impl IntoView {
     let canvas = NodeRef::<leptos::html::Canvas>::new();
+    let displayed = RwSignal::new(world.get_untracked());
     let runtime = StoredValue::new(None::<WorldRenderer>);
     let painted = StoredValue::new(
         None::<(
@@ -184,6 +196,7 @@ pub fn WorldViewport(
     let pick_request = RwSignal::new(0u64);
     let resize = RwSignal::new(0u64);
     let busy = RwSignal::new(true);
+    let retained_capture = StoredValue::new(None::<WorldCaptureState>);
     let error = RwSignal::new(String::new());
     let stats = RwSignal::new(WorldRenderStats::default());
     let draft_projection = Memo::new(move |_| {
@@ -192,7 +205,7 @@ pub fn WorldViewport(
         if dimensions.width == 0 || dimensions.height == 0 || busy.get() {
             return (Vec::<(f32, f32)>::new(), false);
         }
-        let document = world.get();
+        let document = displayed.get();
         let Ok(projection) = wonderland_world_view::camera_projection(
             &document,
             controls.get(),
@@ -221,18 +234,58 @@ pub fn WorldViewport(
     });
     on_cleanup(move || resize_handle.remove());
     Effect::new(move |_| {
-        let document = world.get();
-        let settings = controls.get();
+        let admitted = world.get();
+        let candidate = replacement.and_then(|request| request.document.get());
+        let current_settings = controls.get();
+        let settings = if candidate.is_some() {
+            ViewportControls::default()
+        } else {
+            current_settings
+        };
+        let document = candidate.clone().unwrap_or(admitted);
         resize.get();
         let Some(canvas) = canvas.get() else {
             return;
         };
+        let (width, height) = surface_size(&canvas);
+        // A source admission callback changes the parent signals, but must not
+        // reinstall an already painted frame or invalidate a retained photo.
+        let unchanged = painted.with_value(|last| {
+            last.as_ref().is_some_and(|(_, old, old_settings, stats)| {
+                Arc::ptr_eq(old, &document)
+                    && *old_settings == settings
+                    && (stats.width, stats.height) == (width, height)
+            })
+        }) && frame_available(&canvas);
+        if unchanged {
+            // A reverted/superseded proposal must not paint after this no-op.
+            if busy.get_untracked() {
+                requested.update(|value| *value = value.saturating_add(1));
+                busy.set(false);
+                if let (Some(capture), Some(previous)) = (capture, retained_capture.get_value()) {
+                    if matches!(previous, WorldCaptureState::Preparing) {
+                        clear_capture(&canvas);
+                        capture.state.set(WorldCaptureState::Idle);
+                    } else {
+                        capture.state.set(previous);
+                    }
+                }
+                retained_capture.set_value(None);
+            }
+            if let (Some(request), Some(candidate)) = (replacement, candidate) {
+                request.complete.run((candidate, Ok(())));
+            }
+            return;
+        }
         requested.update(|value| *value = value.saturating_add(1));
         let expected = requested.get_untracked();
         busy.set(true);
-        painted.set_value(None);
-        clear_capture(&canvas);
+        // Keep the last image, resources, source metadata and ready URL alive
+        // throughout preparation. Only a successful device commit retires them.
         if let Some(capture) = capture {
+            if retained_capture.get_value().is_none() {
+                retained_capture.set_value(Some(capture.state.get_untracked()));
+            }
             capture.state.set(WorldCaptureState::Unavailable);
         }
         wasm_bindgen_futures::spawn_local(async move {
@@ -242,27 +295,32 @@ pub fn WorldViewport(
             }
             let (width, height) = surface_size(&canvas);
             let result = runtime.try_update_value(|slot| -> Result<WorldRenderStats, String> {
-                if let Some(renderer) = slot {
+                let publish = |frame: &wonderland_world_view::WorldGpuFrame| {
+                    let encoded = serde_json::to_string(frame)
+                        .map_err(|error| WorldError(error.to_string()))?;
+                    if encoded.len() > 128 * 1024 * 1024 {
+                        return Err(WorldError(
+                            "Source GPU frame exceeds the transfer budget.".into(),
+                        ));
+                    }
+                    paint(&canvas, &encoded).map_err(|error| WorldError(js_message(error)))
+                };
+                let (generation, result) = if let Some(renderer) = slot {
                     renderer
-                        .replace_document(Arc::clone(&document))
-                        .map_err(|error| error.to_string())?;
+                        .update_gpu(Arc::clone(&document), settings, width, height, publish)
+                        .map_err(|error| error.to_string())?
                 } else {
-                    *slot = Some(
-                        WorldRenderer::new(Arc::clone(&document))
-                            .map_err(|error| error.to_string())?,
-                    );
-                }
-                let renderer = slot.as_mut().expect("admitted world renderer");
-                let (frame, result) = renderer
-                    .prepare_gpu(settings, width, height)
-                    .map_err(|error| error.to_string())?;
-                let encoded = serde_json::to_string(&frame).map_err(|error| error.to_string())?;
-                if encoded.len() > 128 * 1024 * 1024 {
-                    return Err("Source GPU frame exceeds the transfer budget.".into());
-                }
-                paint(&canvas, &encoded).map_err(js_message)?;
+                    let mut renderer = WorldRenderer::new(Arc::clone(&document))
+                        .map_err(|error| error.to_string())?;
+                    let (frame, result) = renderer
+                        .prepare_gpu(settings, width, height)
+                        .map_err(|error| error.to_string())?;
+                    publish(&frame).map_err(|error| error.to_string())?;
+                    *slot = Some(renderer);
+                    (frame.generation, result)
+                };
                 painted.set_value(Some((
-                    frame.generation,
+                    generation,
                     Arc::clone(&document),
                     settings,
                     result.clone(),
@@ -274,22 +332,48 @@ pub fn WorldViewport(
             }
             match result {
                 Some(Ok(rendered)) => {
+                    retained_capture.set_value(None);
                     if let Some(capture) = capture {
                         capture.state.set(WorldCaptureState::Idle);
                     }
+                    displayed.set(Arc::clone(&document));
                     stats.set(rendered);
                     error.set(String::new());
                     busy.set(false);
+                    if let (Some(request), Some(candidate)) = (replacement, candidate) {
+                        request.complete.run((candidate, Ok(())));
+                    }
                 }
                 Some(Err(message)) => {
-                    runtime.update_value(|slot| {
-                        if let Some(renderer) = slot {
-                            renderer.device_reset();
+                    if !frame_available(&canvas) {
+                        // Genuine device loss / unsuccessful recovery is not a
+                        // recoverable candidate refusal. Do not claim old picks.
+                        runtime.update_value(|slot| {
+                            if let Some(renderer) = slot {
+                                renderer.device_reset();
+                            }
+                        });
+                        painted.set_value(None);
+                        dispose(&canvas);
+                        if let Some(capture) = capture {
+                            capture.state.set(WorldCaptureState::Unavailable);
                         }
-                    });
-                    dispose(&canvas);
-                    error.set(message);
+                    } else if let (Some(capture), Some(previous)) =
+                        (capture, retained_capture.get_value())
+                    {
+                        if matches!(previous, WorldCaptureState::Preparing) {
+                            clear_capture(&canvas);
+                            capture.state.set(WorldCaptureState::Idle);
+                        } else {
+                            capture.state.set(previous);
+                        }
+                    }
+                    retained_capture.set_value(None);
+                    error.set(message.clone());
                     busy.set(false);
+                    if let (Some(request), Some(candidate)) = (replacement, candidate) {
+                        request.complete.run((candidate, Err(message)));
+                    }
                 }
                 None => {}
             }
@@ -317,7 +401,7 @@ pub fn WorldViewport(
                 return;
             };
             if busy.get_untracked()
-                || !Arc::ptr_eq(&document, &world.get_untracked())
+                || !Arc::ptr_eq(&document, &displayed.get_untracked())
                 || settings != controls.get_untracked()
             {
                 capture.state.set(WorldCaptureState::Failed(
@@ -438,11 +522,12 @@ pub fn WorldViewport(
     };
     view! {
         <style>{include_str!("../public/world.css")}</style>
-        <div class="world-viewport" class:world-busy=move ||busy.get() data-source-kind=move ||format!("{:?}",world.get().provenance.kind)>
+        <div class="world-viewport" class:world-busy=move ||busy.get() data-source-kind=move ||format!("{:?}",displayed.get().provenance.kind)>
             <canvas node_ref=canvas tabindex="0" aria-label="Source world. Drag to pan, Shift-drag to rotate, or pinch to zoom. Arrow keys pan; Q and E rotate; plus and minus zoom; Page Up and Page Down change floors; Enter selects the center tile."
                 on:webglcontextlost=move |_: web_sys::Event| {
                     requested.try_update(|value| *value = value.saturating_add(1));
                     painted.try_update_value(|value| *value = None);
+                    retained_capture.try_update_value(|value| *value = None);
                     if let Some(capture) = capture { capture.state.try_set(WorldCaptureState::Unavailable); }
                 }
                 on:contextmenu=move |event|event.prevent_default()
@@ -476,7 +561,7 @@ pub fn WorldViewport(
                     }).flatten();
                     let Some(gesture)=gesture else { return; };
                     let width=canvas.get_untracked().map(|canvas|canvas.get_bounding_client_rect().width() as f32).unwrap_or(800.);
-                    let extent=world.with_untracked(|document|f32::from(document.lot.width.max(document.lot.height)));
+                    let extent=displayed.with_untracked(|document|f32::from(document.lot.width.max(document.lot.height)));
                     controls.update(|controls| match gesture {
                         Gesture::Pan(x,y)=>pan(controls,x,y,extent,width),
                         Gesture::Rotate(x,y)=> { controls.yaw_radians=(controls.yaw_radians+x*0.008).rem_euclid(std::f32::consts::TAU);controls.pitch_radians=(controls.pitch_radians-y*0.006).clamp(0.,2.6); },
@@ -498,7 +583,7 @@ pub fn WorldViewport(
                     if key=="Enter" { event.prevent_default();if let Some(canvas)=canvas.get_untracked() { choose(canvas.width()/2,canvas.height()/2); }return; }
                     if !matches!(key.as_str(),"ArrowLeft"|"ArrowRight"|"ArrowUp"|"ArrowDown"|"q"|"Q"|"e"|"E"|"+"|"="|"-"|"_"|"PageUp"|"PageDown"|"Home") { return; }
                     event.prevent_default();
-                    let levels=world.with_untracked(|document|document.lot.levels);
+                    let levels=displayed.with_untracked(|document|document.lot.levels);
                     controls.update(|controls|match key.as_str() {
                         "ArrowLeft"=>controls.pan_x-=1.,"ArrowRight"=>controls.pan_x+=1.,"ArrowUp"=>controls.pan_y-=1.,"ArrowDown"=>controls.pan_y+=1.,
                         "q"|"Q"=>controls.yaw_radians-=std::f32::consts::FRAC_PI_4,"e"|"E"=>controls.yaw_radians+=std::f32::consts::FRAC_PI_4,
@@ -517,7 +602,7 @@ pub fn WorldViewport(
                 } fill=move ||if draft_projection.get().1{"#bfe75a44"}else{"none"}/>
             </svg>
             {move ||draft_projection.get().0.into_iter().map(|(x,y)|view!{<span class="world-draft-point" style= format!("left:{}%;top:{}%",x/10.,y/10.) aria-hidden="true"/>}).collect_view()}
-            <div class="world-view-caption" aria-hidden="true"><span>"Source world"</span><span>{move ||format!("{} × {} tiles · Floor {}",world.get().lot.width,world.get().lot.height,controls.get().visible_level)}</span></div>
+            <div class="world-view-caption" aria-hidden="true"><span>"Source world"</span><span>{move ||format!("{} × {} tiles · Floor {}",displayed.get().lot.width,displayed.get().lot.height,controls.get().visible_level)}</span></div>
             <p class="world-view-hint">"Drag to move · Shift-drag to turn · Scroll or pinch to zoom"</p>
             <Show when=move ||!error.get().is_empty()><p class="world-view-error" role="alert">{move ||error.get()}</p></Show>
             <Show when=move ||!stats.get().diagnostics.is_empty()>

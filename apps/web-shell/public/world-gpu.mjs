@@ -207,10 +207,32 @@ class WorldGpuOwner{
       const depth=required(gl.createRenderbuffer(),'ID depth');candidate.renderbuffers.push(depth);gl.bindRenderbuffer(gl.RENDERBUFFER,depth);
       gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH24_STENCIL8,frame.width,frame.height);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_STENCIL_ATTACHMENT,gl.RENDERBUFFER,depth);
       if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw new Error('Source ID framebuffer is incomplete');
-      this.check();this.cancel('Frame replaced');this.captureStore.clear('The displayed view changed. Capture again.');
-      const previous=this.resources;this.resources=candidate;this.current={frame,meshes,images,white,framebuffer};
-      this.canvas.width=frame.width;this.canvas.height=frame.height;
-      try{this.draw(false);}catch(error){this.current=null;this.resources=null;release(gl,candidate);release(gl,previous);throw error;}
+      this.check();
+      const previous=this.resources,previousScene=this.current;
+      this.resources=candidate;this.current={frame,meshes,images,white,framebuffer};
+      try{
+        if(this.canvas.width!==frame.width)this.canvas.width=frame.width;
+        if(this.canvas.height!==frame.height)this.canvas.height=frame.height;
+        this.draw(false);
+      }catch(error){
+        // Keep the old resource graph until a complete candidate draw succeeds.
+        // A failed draw may have cleared the default framebuffer: redraw the
+        // retained scene, including its old dimensions, without replacing IDs.
+        this.current=previousScene;this.resources=previous;
+        try{
+          if(!previousScene)throw error;
+          if(this.canvas.width!==previousScene.frame.width)this.canvas.width=previousScene.frame.width;
+          if(this.canvas.height!==previousScene.frame.height)this.canvas.height=previousScene.frame.height;
+          this.draw(false);
+        }catch{
+          // A genuinely lost/unrecoverable device cannot promise preservation.
+          this.current=null;this.resources=null;release(gl,previous);
+          this.cancel('Graphics recovery failed');this.captureStore.clear('Graphics recovery failed. Reopen the view.');
+          this.canvas.setAttribute('data-gpu-state','failed');
+        }
+        throw error;
+      }
+      this.cancel('Frame replaced');this.captureStore.clear('The displayed view changed. Capture again.');
       release(gl,previous);this.canvas.setAttribute('data-renderer','source-webgl2');this.canvas.setAttribute('data-gpu-state','ready');this.canvas.setAttribute('data-frame-generation',frame.generation);
     }catch(error){if(this.resources!==candidate)release(gl,candidate);throw error;}
     finally{gl.bindVertexArray(null);gl.bindBuffer(gl.ARRAY_BUFFER,null);gl.bindRenderbuffer(gl.RENDERBUFFER,null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);}
@@ -302,6 +324,10 @@ export function pickSourceWorld(canvas,x,y){const owner=owners.get(canvas);retur
 export function captureSourceWorld(canvas,generation,metadata){const owner=owners.get(canvas);return owner?owner.capture(generation,metadata):Promise.reject(abort('View disposed'));}
 export function clearSourceWorldCapture(canvas){owners.get(canvas)?.captureStore.clear();}
 export function disposeSourceWorld(canvas){const owner=owners.get(canvas);owner?.dispose();owners.delete(canvas);}
+export function sourceWorldFrameAvailable(canvas){
+  const owner=owners.get(canvas);
+  return !!owner?.current&&!owner.disposed&&!owner.lost&&!owner.gl.isContextLost();
+}
 export function worldGpuStats(canvas){
   const owner=owners.get(canvas),r=owner?.resources;
   return {ready:!!owner?.current,lost:owner?.lost??false,pending:!!owner?.pending,generation:owner?.current?.frame.generation??null,

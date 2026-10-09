@@ -38,6 +38,7 @@ pub struct PickTicket {
     device_generation: u64,
 }
 
+#[derive(Clone)]
 pub struct FrameStore {
     limits: RenderLimits,
     boundary: Option<(u64, u64)>,

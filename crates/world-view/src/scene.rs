@@ -57,6 +57,7 @@ pub struct ScenePart {
     pub material: u32,
     pub texture: Option<Arc<RgbaImage>>,
 }
+#[derive(Clone)]
 pub struct PreparedWorld {
     pub parts: Vec<ScenePart>,
     pub diagnostics: Vec<WorldDiagnostic>,
