@@ -1,3 +1,4 @@
+import {observeNativeCanvas,canvasPixels} from './canvas-evidence.mjs';
 // Real built browser + Rust authority: the entire animation may end inside one
 // accepted packet. No synthetic DOM, altered product WASM or injected game state.
 // Test geometry/timeline setup is explicitly the standalone Vitaboy fixture.
@@ -27,7 +28,8 @@ async function accepted(page,tick){
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
 async function enter(page){
- await page.goto(fixture.origin);
+ await observeNativeCanvas(page);
+  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');
  await page.getByLabel('Password',{exact:true}).fill('test-only');
  await page.getByRole('button',{name:'Sign in',exact:true}).click();
@@ -68,7 +70,7 @@ try{
   const initialState=await fixture.state();
   assert.equal(initialState.avatars[0].animations.layers[0].current_frame,0);
   assert.equal(initialState.avatars[0].animations.layers[0].looping,false);
-  const initialPixels=await canvas.evaluate(c=>c.toDataURL());
+  const initialPixels=await canvasPixels(canvas);
   const initialTick=BigInt(initialState.tick),packets=[];
   for(let n=0;n<18;n+=batchSize){
    const result=await fixture.burst(batchSize);packets.push(result);
@@ -79,21 +81,21 @@ try{
   assert.equal(ended.avatars[0].animations.layers[0].end_reached,true);
   assert.equal(ended.avatars[0].animations.layers[0].current_frame,2);
   assert.equal(fixture.stats.bursts,18/batchSize);
-  const retained=await canvas.evaluate(c=>c.toDataURL());
+  const retained=await canvasPixels(canvas);
   assert.notEqual(retained,initialPixels,'POSE_BATCH_ASSERTION: the final-only sample lost the preceding bone transforms');
   if(referencePixels===undefined){referencePixels=retained;referenceHash=ended.hash;}
   else {assert.equal(retained,referencePixels,'Packet grouping changed actual rendered pixels');assert.equal(ended.hash,referenceHash,'Packet grouping changed authority state');}
   await shot(page,`01-retained-batch-${batchSize}`);
   for(let n=0;n<3;n++){
    await accepted(page,(await fixture.burst(batchSize)).tick);
-   assert.equal(await canvas.evaluate(c=>c.toDataURL()),retained,'Accepted idle ticks drifted the retained pose');
+   assert.equal(await canvasPixels(canvas),retained,'Accepted idle ticks drifted the retained pose');
   }
   record('All intermediate accepted poses survive packet grouping',{batchSize,acceptedFrames:18,packets:packets.length,canvasSha256:digest(retained),authorityHash:ended.hash});
   report.batches.push({batchSize,initialTick:initialState.tick,finalTick:ended.tick,packets,canvasSha256:digest(retained),authorityHash:ended.hash});
   await page.getByRole('button',{name:'Rotate right',exact:true}).click();await delay(100);
-  assert.notEqual(await canvas.evaluate(c=>c.toDataURL()),retained);
+  assert.notEqual(await canvasPixels(canvas),retained);
   await page.getByRole('button',{name:'Rotate left',exact:true}).click();await delay(100);
-  assert.equal(await canvas.evaluate(c=>c.toDataURL()),retained);
+  assert.equal(await canvasPixels(canvas),retained);
   await page.getByRole('button',{name:'Your Sim',exact:true}).click();
   await page.locator('.native-source-action').first().click();
   await page.getByText('Accepted by the server',{exact:true}).waitFor();
@@ -102,11 +104,11 @@ try{
   record('Source actions and camera controls remain usable after the batched animation ends',{batchSize,acceptedActions:1});
   if(batchSize===18){
    fixture.disconnect();await page.locator('.native-lot[data-native-live="false"]').waitFor();
-   const frozen=await canvas.evaluate(c=>c.toDataURL());await delay(200);assert.equal(await canvas.evaluate(c=>c.toDataURL()),frozen);
+   const frozen=await canvasPixels(canvas);await delay(200);assert.equal(await canvasPixels(canvas),frozen);
    await page.getByRole('button',{name:'Reconnect',exact:true}).click();
    await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
    await accepted(page,(await fixture.state()).tick);
-   assert.equal(await canvas.evaluate(c=>c.toDataURL()),initialPixels,'Checkpoint without pose history must deliberately reseed the bind pose');
+   assert.equal(await canvasPixels(canvas),initialPixels,'Checkpoint without pose history must deliberately reseed the bind pose');
    assert.equal(fixture.stats.actions,1);
    await shot(page,'02-batched-checkpoint-reset');
    record('Recovery resets unavailable bone history without retrying the accepted operation',{batchSize,actions:1});

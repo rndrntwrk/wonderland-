@@ -6,7 +6,13 @@ use wonderland_world_view::{
     ViewportControls, WallMode, WorldDocument, WorldPick, WorldPickTarget,
 };
 
-use crate::{components::Icon, world_renderer::WorldViewport};
+use crate::{
+    components::Icon,
+    world_facade::WorldFacadePanel,
+    world_renderer::{
+        WorldCaptureControls, WorldCapturePanel, WorldReplacementControls, WorldViewport,
+    },
+};
 
 #[component]
 pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
@@ -19,17 +25,46 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
         }.into_any(),
     };
     let world = RwSignal::new(original);
+    let capture = WorldCaptureControls::default();
     let controls = RwSignal::new(ViewportControls::default());
     let selected = RwSignal::new(None::<WorldPick>);
     let title = RwSignal::new("Original lot".to_string());
     let notice = RwSignal::new(String::new());
     let loading = RwSignal::new(false);
+    let pending = RwSignal::new(None::<(Arc<WorldDocument>, String)>);
     let generation = RwSignal::new(0_u64);
     let on_pick = Callback::new(move |pick: WorldPick| {
         if world.with_untracked(|world| world.revision == pick.revision) {
             selected.set(Some(pick));
         }
     });
+    let replacement = WorldReplacementControls {
+        document: Signal::derive(move || pending.get().map(|(document, _)| document)),
+        complete: Callback::new(
+            move |(document, result): (Arc<WorldDocument>, Result<(), String>)| {
+                let Some((candidate, filename)) = pending.get_untracked() else {
+                    return;
+                };
+                if !Arc::ptr_eq(&candidate, &document) {
+                    return;
+                }
+                match result {
+                    Ok(()) => {
+                        selected.set(None);
+                        controls.set(ViewportControls::default());
+                        world.set(document);
+                        title.set(filename);
+                        notice.set("Lot opened. Drag to look around and select a tile or object to inspect it.".into());
+                    }
+                    Err(message) => {
+                        notice.set(format!("This lot could not be displayed: {message}"))
+                    }
+                }
+                pending.set(None);
+                loading.set(false);
+            },
+        ),
+    };
     let upload = move |event: web_sys::Event| {
         let input = event_target::<web_sys::HtmlInputElement>(&event);
         let file = input.files().and_then(|files| files.get(0));
@@ -75,16 +110,14 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
             if generation.try_get_untracked() != Some(current) {
                 return;
             }
-            loading.try_set(false);
             match result {
                 Ok(document) => {
-                    selected.try_set(None);
-                    controls.try_set(ViewportControls::default());
-                    world.try_set(document);
-                    title.try_set(filename);
-                    notice.try_set("Lot opened. Drag to look around and select a tile or object to inspect it.".into());
+                    // Do not commit selection, controls, source title or export
+                    // ownership until the real renderer successfully draws it.
+                    pending.try_set(Some((document, filename)));
                 }
                 Err(message) => {
+                    loading.try_set(false);
                     notice.try_set(message);
                 }
             }
@@ -92,7 +125,7 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
     };
     view! {
         <section class="source-world-screen" aria-label="Source lot view">
-            <WorldViewport world=Signal::derive(move || world.get()) controls on_pick/>
+            <WorldViewport world=Signal::derive(move || world.get()) controls on_pick capture replacement/>
             <header class="source-world-header chrome">
                 <button class="chrome round small" aria-label="Back to your Sims" on:click=move |_| on_close.run(())><Icon name="chevron-left"/></button>
                 <div><span class="eyebrow">"SOURCE LOT"</span><h1>{move || title.get()}</h1>
@@ -135,6 +168,8 @@ pub fn SourceWorldScreen(on_close: Callback<()>) -> impl IntoView {
                     }).unwrap_or_default())}</p>
                     <button class="chrome" on:click=move |_| selected.set(None)>"Clear selection"</button>
                 </Show>
+                <WorldCapturePanel capture/>
+                <WorldFacadePanel world=Signal::derive(move || world.get())/>
                 <p class="source-world-mode">"Local source view"</p>
             </aside>
             <Show when=move || !notice.get().is_empty()><p class="source-world-notice chrome" role="status">{move || notice.get()}</p></Show>

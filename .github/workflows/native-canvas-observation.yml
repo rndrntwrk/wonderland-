@@ -1,0 +1,39 @@
+name: Native canvas observation
+on:
+  pull_request:
+    paths:
+      - tools/native-browser/canvas-*.mjs
+      - tools/native-browser/verify-canvas-observation.mjs
+      - .github/workflows/native-canvas-observation.yml
+permissions:
+  contents: read
+jobs:
+  observer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Test observer bounds and independent measurements
+        run: node --test tools/native-browser/canvas-*.test.mjs
+      - name: Install the existing locked browser dependency
+        run: |
+          npm --prefix tools/native-browser ci --ignore-scripts --no-audit --no-fund
+          tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Observe actual WebGL2 publication and page composition
+        run: |
+          set -o pipefail
+          mkdir -p /tmp/wonderland-canvas-observation
+          node tools/native-browser/verify-canvas-observation.mjs | tee /tmp/wonderland-canvas-observation/browser.log
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: canvas-observation-${{ github.sha }}
+          path: /tmp/wonderland-canvas-observation/
+          retention-days: 14
+          if-no-files-found: error

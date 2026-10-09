@@ -1,3 +1,5 @@
+import {waitForPlayback,observePlayback} from './audio-readiness.mjs';
+import {observeNativeCanvas,canvasPixels,avatarPoint,waitHiddenAvatar} from './canvas-evidence.mjs';
 // TEST ONLY: real built Rust/WASM, accepted primitive events, real AudioContext
 // and an analyser connected to its existing output. No synthetic ACK, audio
 // backend replacement, autoplay policy override or browser-clock modification.
@@ -23,14 +25,28 @@ async function status(){return page.evaluate(async()=>{const {acceptedAudioHost}
 async function waitVoices(count){await page.waitForFunction(async n=>{const {acceptedAudioHost}=await import('/audio/source-audio.mjs');return acceptedAudioHost().snapshot().activeVoices===n;},count,{timeout:12000});}
 async function choose(name){await page.getByRole('button',{name:'Your Sim',exact:true}).click();await page.getByRole('button',{name,exact:true}).click();await page.getByText('Accepted by the server',{exact:true}).waitFor();}
 async function closeActions(){const button=page.getByRole('button',{name:'Close source actions',exact:true});if(await button.isVisible())await button.click();}
-async function measure(){return page.evaluate(async()=>{
- const {acceptedAudioHost}=await import('/audio/source-audio.mjs');const host=acceptedAudioHost(),backend=host.backend;
- const voice=[...backend._voices.values()].find(v=>v.status==='playing');if(!voice?.panNode)throw Error('No real playing voice');
- const analyser=backend._context.createAnalyser();analyser.fftSize=2048;voice.panNode.connect(analyser);
- await new Promise(r=>setTimeout(r,100));const samples=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(samples);
- voice.panNode.disconnect(analyser);analyser.disconnect();
- return {voiceId:voice.id,rms:Math.sqrt(samples.reduce((n,v)=>n+v*v,0)/samples.length),context:backend._context.constructor.name,state:backend._context.state,gain:voice.gainNode.gain.value,pan:voice.panNode.pan.value,looped:voice.node.loop};
- });}
+async function measure(){
+ const ready=await waitForPlayback(()=>observePlayback(page));
+ const result=await page.evaluate(async id=>{
+  const {acceptedAudioHost}=await import('/audio/source-audio.mjs');
+  const backend=acceptedAudioHost().backend;
+  const voice=backend._voices.get(id);
+  if(voice?.status!=='playing'||!voice.node||!voice.gainNode||!voice.panNode)
+   throw Error('Observed native voice stopped before measurement');
+  const pan=voice.panNode,context=backend._context,analyser=context.createAnalyser();
+  analyser.fftSize=2048;pan.connect(analyser);
+  try {
+   await new Promise(r=>setTimeout(r,100));
+   if(backend._voices.get(id)!==voice||voice.status!=='playing'||voice.panNode!==pan||context.state!=='running')
+    throw Error('Observed native voice changed during measurement');
+   const samples=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(samples);
+   return {voiceId:voice.id,rms:Math.sqrt(samples.reduce((n,v)=>n+v*v,0)/samples.length),
+    context:context.constructor.name,state:context.state,gain:voice.gainNode.gain.value,
+    pan:pan.pan.value,looped:voice.node.loop};
+  }finally{pan.disconnect(analyser);analyser.disconnect();}
+ },ready.snapshot.voices[0].id);
+ return {...result,readinessPolls:ready.polls,readinessMs:ready.elapsedMs};
+}
 try{
  let ready=false;for(let i=0;i<100;i++){try{if((await fetch('http://127.0.0.1:18787/health')).ok){ready=true;break;}}catch{}await delay(100);}assert.ok(ready);
  process.env.WONDERLAND_NATIVE_AUDIO_FIXTURE='1';
@@ -48,7 +64,8 @@ try{
  browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
  report.browser=browser.version();page=await browser.newPage({viewport:{width:1200,height:900}});
  page.on('pageerror',error=>report.errors.push(error.message));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
- await page.goto(fixture.origin);
+ await observeNativeCanvas(page);
+  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');await page.getByLabel('Password',{exact:true}).fill('test-only');await page.getByRole('button',{name:'Sign in',exact:true}).click();
  await page.getByRole('heading',{name:'Choose your Sim',exact:true}).waitFor();
  await page.locator('.connected-content-details > summary').click();const loader=page.locator('.connected-content-details .content-loader');
@@ -62,41 +79,26 @@ try{
  if(combined){
   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
   combinedCanvas=page.locator('.native-lot canvas');
-  initialPixels=await combinedCanvas.evaluate(c=>c.toDataURL());
+  initialPixels=await canvasPixels(combinedCanvas);
   const batch=await fixture.burst(18);
   await page.waitForFunction(t=>document.querySelector('#native-tick')?.textContent?.match(/Tick (\d+)/)?.[1]===t,batch.tick);
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const ended=await fixture.state();
   assert.equal(ended.avatars[0].animations.layers[0].end_reached,true);
-  retainedPixels=await combinedCanvas.evaluate(c=>c.toDataURL());
+  retainedPixels=await canvasPixels(combinedCanvas);
   assert.ok(retainedPixels!==initialPixels,'Combined player must retain intermediate poses from a complete animation packet');
-  const point=await combinedCanvas.evaluate(c=>{
-   const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data,points=[];
-   for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){
-    const i=(y*c.width+x)*4;if(data[i]>150&&data[i+1]<30&&data[i+2]<30)points.push([x,y]);
-   }
-   if(!points.length)return null;
-   const [x,y]=points[Math.floor(points.length/2)],b=c.getBoundingClientRect();
-   return {x:b.left+x*b.width/c.width,y:b.top+y*b.height/c.height,pixels:points.length};
-  });
+  const point=await avatarPoint(combinedCanvas);
   assert.ok(point?.pixels>0,'Retained mesh remains above the raised terrain');
   await page.mouse.click(point.x,point.y);
   await page.getByRole('heading',{name:'Actions',exact:true}).waitFor();await closeActions();
   record('One admitted player combines raised terrain, mesh picking and all eighteen pose transitions',{tick:batch.tick,canvasSha256:createHash('sha256').update(retainedPixels).digest('hex'),visiblePixels:point.pixels});
   await fixture.setHidden(2);await page.locator('.native-lot[data-native-avatar-models="0"]').waitFor();
-  await page.waitForFunction(()=>{
-   const lot=document.querySelector('.native-lot[data-native-avatar-models="0"]');
-   const view=lot?.querySelector('.world-viewport'),c=view?.querySelector('canvas');
-   if(!c||view.classList.contains('world-busy'))return false;
-   const rgba=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
-   for(let i=0;i<rgba.length;i+=4)if(rgba[i]>150&&rgba[i+1]<30&&rgba[i+2]<30)return false;
-   return true;
-  },null,{timeout:5000});
+  await waitHiddenAvatar(page,combinedCanvas);
   await page.mouse.click(point.x,point.y);await delay(100);
   assert.equal(await page.getByRole('heading',{name:'Actions',exact:true}).count(),0);
   await fixture.setHidden(0);await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),retainedPixels,'Hidden/restored state retains the accepted ended pose');
+  assert.equal(await canvasPixels(combinedCanvas),retainedPixels,'Hidden/restored state retains the accepted ended pose');
   record('Terrain visibility repair coexists with retained pose history',{hiddenValue:2,restored:true});
  }
  await page.getByRole('button',{name:'Needs',exact:true}).click();await page.getByText(/Game sounds ready/).waitFor();
@@ -140,7 +142,7 @@ try{
  await choose('Play sound (test harness)');await waitVoices(1);
  await choose('Stop sound (test harness)');await waitVoices(0);record('Accepted StopSound releases the exact owning sound',{voices:0});
  if(combined){
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),retainedPixels,'Sound actions and foreground load cannot reset an ended pose');
+  assert.equal(await canvasPixels(combinedCanvas),retainedPixels,'Sound actions and foreground load cannot reset an ended pose');
   record('Sound actions and UI scheduling preserve the retained terrain-backed avatar',{sameCanvas:true});
  }
  await choose('Play sound (test harness)');await waitVoices(1);await closeActions();
@@ -150,7 +152,7 @@ try{
  assert.equal((await status()).activeVoices,0);assert.equal(fixture.stats.actions,before);record('Recovery checkpoint does not replay sound or commands',{voices:0,actions:fixture.stats.actions});
  if(combined){
   await page.locator('.native-lot[data-native-avatar-models="1"]').waitFor();
-  assert.equal(await combinedCanvas.evaluate(c=>c.toDataURL()),initialPixels,'Fresh checkpoint explicitly resets unavailable historical bones');
+  assert.equal(await canvasPixels(combinedCanvas),initialPixels,'Fresh checkpoint explicitly resets unavailable historical bones');
   record('Combined reconnect retains resources but never invents missing pose or sound history',{avatarModels:1,soundVoices:0});
  }
  await choose('Play sound (test harness)');await waitVoices(1);const restored=await measure();assert.ok(restored.rms>0.05);record('An explicit new action plays after reconnect',restored);

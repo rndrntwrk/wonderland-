@@ -1,0 +1,91 @@
+{
+  "schema": "wonderland-client-materials-verification-v1",
+  "scope": "W08.2 source normal/portal material passes in the PR23 browser client",
+  "repository": "rndrntwrk/wonderland-",
+  "pull_request": 28,
+  "base_pr": 23,
+  "base_commit": "3dbb7f71d18c5ec999367d36feba2cceb1d1844c",
+  "source_commit": "4dd4a7eed31f0b1af41c5cf2ca7242a527fc2327",
+  "tested_head": "d52689c8db00d66bb544f043efb55da1338fd74a",
+  "tested_tree": "1276cc2229ff2e2ff62f970b96083c4e265d311b",
+  "tested_pr_merge": "f413b4097d1ca4f3cc6ffda84bb37a85529e6fe7",
+  "merge_tree_has_no_file_differences": true,
+  "runs": [
+    {
+      "id": 37553841901,
+      "purpose": "guarded source publication; affected native/WASM checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 37555822859,
+      "purpose": "fresh affected native/WASM, Node and real standalone WebGL2",
+      "conclusion": "success",
+      "artifact": 11455125326,
+      "archive_sha256": "f9aa2d6e2c342b4f0839759c5994c29aacc7bd5e1ee5d29461a13b9e42d7e566"
+    },
+    {
+      "id": 37555827077,
+      "purpose": "full workspace, lint, release build, standalone GPU and actual application",
+      "conclusion": "success",
+      "artifact": 11454841493,
+      "archive_sha256": "d17b35a4e197db02536074048fab4179f43eff8ee71e89254f7877684ad5508f"
+    }
+  ],
+  "checks": {
+    "affected_rust_passed": 188,
+    "affected_rust_failed": 0,
+    "affected_rust_ignored": 0,
+    "gpu_png_node_passed": 32,
+    "source_derived_fragment_cases": 1872,
+    "standalone_scenes": 6,
+    "exact_standalone_gpu_picks": 155,
+    "application_records": 22,
+    "application_png_exports": 8,
+    "application_png_pixel_comparisons": 2989941,
+    "recorded_browser_errors": 0,
+    "recorded_http_errors": 0
+  },
+  "actual_material_checks": [
+    {
+      "name": "source materials normal-mask",
+      "redPixels": 3890,
+      "portalPixels": 0,
+      "selected": "Object 313D2F9A",
+      "sourceSha256": "552d487901f547b86aab00278eadf280cebbf8d104a87173fadbe49d74379cad",
+      "restorationIdentical": true
+    },
+    {
+      "name": "source materials portal-mask",
+      "redPixels": 3604,
+      "portalPixels": 453,
+      "selected": "Object 313D2F9A",
+      "sourceSha256": "0fe8a9e7e5afd78303a01cc7cfe5fba0b819eb9e763df9e17746686814947dd8",
+      "restorationIdentical": true
+    }
+  ],
+  "application_report_sha256": "e0bbab8bd0d1b0441f9988e27b1ad19ba2fbc3e4fb492f37de28564acddb8d07",
+  "standalone_report_sha256": "523ebd6bebbe1c03e672b772e053eb8bea1de5af8e42db238fc82e818b003ab7",
+  "release_wasm_bytes": 8494841,
+  "release_wasm_sha256": "48b4aa6063acebb833584b8277564e804705a44dfae9496bddd0cab997053c23",
+  "bundled_gpu_module_sha256": "052c73e15553450901b4eadb65db7887ae62cfb6e94b4739e569ecfd414becf8",
+  "browser": "Chromium 151.0.7922.34 / software WebGL2",
+  "first_application_failure": {
+    "run": 37554188564,
+    "artifact": 11453689048,
+    "archive_sha256": "0175bf7ccf60e7cf2dd993ec931bac56e0c370ea156f94a05f73846fadbff3cd",
+    "cause": "Test selected brown terrain as a red fixture object. Strict dominance over both other channels corrects the predicate; renderer unchanged."
+  },
+  "image_and_id_thresholds_unchanged": true,
+  "original_csharp_gpu_executed": false,
+  "review": "Author self-review complete; independent review pending",
+  "remaining_scope": [
+    "Full2D/hybrid/sprite client composition",
+    "linear/mipmap/directional/lightmap parity and advanced environment",
+    "complete avatar/audio hosts",
+    "FSOf facade export",
+    "original-VM continuation integration",
+    "authorized full content, live multiplayer and physical-device/performance qualification"
+  ],
+  "merged": false,
+  "deployed": false
+}

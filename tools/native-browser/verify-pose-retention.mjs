@@ -1,3 +1,4 @@
+import {observeNativeCanvas,visibleAvatarPixels,canvasPixels} from './canvas-evidence.mjs';
 // TEST ONLY: real accepted non-looping animation, original-format synthetic mesh.
 // The product build/timers are unchanged. The authority owns end-of-animation.
 import assert from 'node:assert/strict';
@@ -43,7 +44,8 @@ try{
  const page=await browser.newPage({viewport:{width:1200,height:900}});
  page.on('pageerror',error=>report.errors.push(error.message));
  page.on('console',message=>{if(message.type()==='error')report.errors.push(message.text());});
- await page.goto(fixture.origin);
+ await observeNativeCanvas(page);
+  await page.goto(fixture.origin);
  await page.getByLabel('Account name',{exact:true}).fill('controlled-player');
  await page.getByLabel('Password',{exact:true}).fill('test-only');
  await page.getByRole('button',{name:'Sign in',exact:true}).click();
@@ -63,20 +65,21 @@ try{
  await page.getByRole('button',{name:'Visit',exact:true}).click();
  await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
  const canvas=page.locator('.native-lot canvas');await canvas.waitFor();
- const moving=new Set();
- for(let i=0;i<5;i++){moving.add(await canvas.evaluate(c=>c.toDataURL()));await delay(120);}
+ const moving=new Set(),visibleFrames=new Set();
+ for(let i=0;i<5;i++){moving.add(await canvasPixels(canvas));visibleFrames.add(await visibleAvatarPixels(canvas));await delay(120);}
  assert.ok(moving.size>1,'The witness must first observe an actually moving non-bind avatar');
- record('Real content and accepted one-shot animation are visible',{models:1,distinctFrames:moving.size});
+ assert.ok(visibleFrames.size>=2,'The ordinary compositor must independently show avatar motion');
+ record('Real content and accepted one-shot animation are visible',{models:1,distinctFrames:moving.size,distinctVisibleFrames:visibleFrames.size});
  const plateau=await untilState(s=>animation(s).current_frame>=1.125&&!animation(s).end_reached);
  assert.equal(animation(plateau).looping,false);await accepted(page,plateau.tick);await delay(150);
- const beforeEnd=await canvas.evaluate(c=>c.toDataURL());
+ const beforeEnd=await canvasPixels(canvas);
  await shot(page,'01-before-animation-end');
  const end=await untilState(s=>animation(s).end_reached);
  await accepted(page,(BigInt(end.tick)+2n).toString());await delay(120);
- const afterEnd=await canvas.evaluate(c=>c.toDataURL());
+ const afterEnd=await canvasPixels(canvas);
  assert.ok(afterEnd===beforeEnd,`POSE_RETENTION_ASSERTION: ended clip reset its sampled skeleton (${digest(beforeEnd)} -> ${digest(afterEnd)})`);
  const frames=new Set([afterEnd]);
- for(let i=0;i<8;i++){await delay(100);frames.add(await canvas.evaluate(c=>c.toDataURL()));}
+ for(let i=0;i<8;i++){await delay(100);frames.add(await canvasPixels(canvas));}
  assert.equal(frames.size,1,'Later accepted idle ticks must not drift retained channels');
  record('EndReached and subsequent live ticks retain exactly the prior canvas pixels',{
   activeTick:plateau.tick,endedTick:end.tick,lastSourceFrame:animation(end).current_frame,
@@ -86,9 +89,9 @@ try{
  // Ordinary camera changes use the retained mesh; returning to the same view is
  // an additional same-sample re-render, not another blend into the skeleton.
  await page.getByRole('button',{name:'Rotate right',exact:true}).click();await delay(150);
- assert.notEqual(await canvas.evaluate(c=>c.toDataURL()),afterEnd);
+ assert.notEqual(await canvasPixels(canvas),afterEnd);
  await page.getByRole('button',{name:'Rotate left',exact:true}).click();await delay(150);
- assert.equal(await canvas.evaluate(c=>c.toDataURL()),afterEnd);
+ assert.equal(await canvasPixels(canvas),afterEnd);
  record('Camera re-render preserves retained geometry without accumulated blending',{});
  await page.getByRole('button',{name:'Your Sim',exact:true}).click();
  await page.locator('.native-source-action').first().click();
@@ -98,10 +101,10 @@ try{
  await page.getByRole('button',{name:'Close source actions',exact:true}).click();
  await page.setViewportSize({width:390,height:844});await delay(150);await shot(page,'03-retained-mobile');
  fixture.disconnect();await page.locator('.native-lot[data-native-live="false"]').waitFor();
- const frozen=await canvas.evaluate(c=>c.toDataURL());await delay(250);assert.equal(await canvas.evaluate(c=>c.toDataURL()),frozen);
+ const frozen=await canvasPixels(canvas);await delay(250);assert.equal(await canvasPixels(canvas),frozen);
  await page.getByRole('button',{name:'Reconnect',exact:true}).click();
  await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();await delay(250);
- assert.notEqual(await canvas.evaluate(c=>c.toDataURL()),frozen,'New checkpoint has no serialized visual bone history; old channels must not leak across it');
+ assert.notEqual(await canvasPixels(canvas),frozen,'New checkpoint has no serialized visual bone history; old channels must not leak across it');
  assert.equal(fixture.stats.actions,1);
  record('Disconnect freezes history and a fresh checkpoint resets unavailable prior bones',{modelsAfterRecovery:1,automaticRetries:0});
  await shot(page,'04-checkpoint-reset');

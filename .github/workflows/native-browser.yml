@@ -33,50 +33,74 @@ jobs:
           cargo test --workspace --locked > /tmp/wonderland-native-browser-evidence/workspace.log 2>&1 || { tail -100 /tmp/wonderland-native-browser-evidence/workspace.log; exit 1; }
           node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
           node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
+          node --test --test-reporter=tap tools/native-browser/*.test.mjs apps/web-shell/tests/gpu/*.test.mjs > /tmp/wonderland-native-browser-evidence/render-integration.log 2>&1
           cargo clippy --workspace --all-targets --locked -- -D warnings
-          cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
+          cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --bin wonderland-facade-worker --locked -- -D warnings
       - name: Build actual browser and controlled authority
+        id: build
         run: |
           cargo install trunk --version 0.21.14 --locked --quiet
           (cd apps/web-shell && trunk build --release --locked)
           cmp apps/web-shell/public/native-socket.mjs apps/web-shell/dist/native-socket.mjs
           cargo build -q -p wonderland-browser-gateway --example controlled_replay --locked
           cargo build -q -p wonderland-game-runtime --example native_browser_peer --locked
-      - name: Execute the browser action, latency and reconnect journey
+      - name: Prepare pinned browser and fixture inputs
+        id: browser
         run: |
           npm --prefix tools/native-browser ci --ignore-scripts --no-audit --no-fund
           tools/native-browser/node_modules/.bin/playwright install --with-deps chromium
+          cargo run -q -p wonderland-web-shell --example native_avatar_resources --locked -- target/native-avatar-fixtures
+          cargo run -q -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu
+      - name: Verify actual default-buffer and compositor observation
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          WONDERLAND_CANVAS_EVIDENCE_OUTPUT=/tmp/wonderland-native-browser-evidence/canvas-observation timeout 120s node tools/native-browser/verify-canvas-observation.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/canvas-observation.log
+      - name: Verify source imports and exports on this same packaged release
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          WONDERLAND_PLAYWRIGHT_MODULE="$GITHUB_WORKSPACE/tools/native-browser/node_modules/playwright/index.mjs" WONDERLAND_APPLICATION_REPORT=/tmp/wonderland-native-browser-evidence/source-application timeout 240s node apps/web-shell/tests/gpu/application.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/source-application.log
+      - name: Execute the browser action, latency and reconnect journey
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: |
           timeout 240s node tools/native-browser/verify.mjs > /tmp/wonderland-native-browser-evidence/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/browser.log; exit 1; }
       - name: Verify native avatar resources in the actual browser
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
-          cargo run -q -p wonderland-web-shell --example native_avatar_resources --locked -- target/native-avatar-fixtures
           mkdir -p /tmp/wonderland-native-browser-evidence/avatars
           WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/avatars timeout 120s node tools/native-browser/verify-avatars.mjs > /tmp/wonderland-native-browser-evidence/avatars/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/avatars/browser.log; exit 1; }
       - name: Verify elevated native contact and hidden-avatar rendering
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           mkdir -p /tmp/wonderland-native-browser-evidence/terrain
           WONDERLAND_NATIVE_TERRAIN_FIXTURE=1 WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/terrain timeout 120s node tools/native-browser/verify-avatars.mjs > /tmp/wonderland-native-browser-evidence/terrain/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/terrain/browser.log; exit 1; }
       - name: Verify ended animation retention and explicit checkpoint reset
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           set -o pipefail
           mkdir -p /tmp/wonderland-native-browser-evidence/pose-retention
           WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/pose-retention timeout 120s node tools/native-browser/verify-pose-retention.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/pose-retention/browser.log
       - name: Verify all intermediate frames in 1, 3 and 18 tick browser packets
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           set -o pipefail
           mkdir -p /tmp/wonderland-native-browser-evidence/pose-batches
           WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/pose-batches timeout 150s node tools/native-browser/verify-pose-batches.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/pose-batches/browser.log
       - name: Verify receipt deadlines and cleanup with actual browser timers
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           set -o pipefail
           timeout 150s node tools/native-browser/verify-receipt-deadline.mjs 2>&1 | tee /tmp/wonderland-native-browser-evidence/receipt-deadline.log
       - name: Verify accepted gameplay audio output and device cleanup
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           mkdir -p /tmp/wonderland-native-browser-evidence/game-audio
           cmp apps/web-shell/public/audio/source-audio.mjs crates/audio-runtime/browser/source-audio.mjs
           cmp apps/web-shell/public/native-audio.mjs apps/web-shell/dist/native-audio.mjs
           WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/game-audio timeout 150s node tools/native-browser/verify-audio.mjs > /tmp/wonderland-native-browser-evidence/game-audio/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/game-audio/browser.log; exit 1; }
       - name: Verify one player with terrain, every-tick poses, audio and recovery
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           mkdir -p /tmp/wonderland-native-browser-evidence/combined-player
           WONDERLAND_NATIVE_COMBINED_FIXTURE=1 WONDERLAND_NATIVE_QA_OUTPUT=/tmp/wonderland-native-browser-evidence/combined-player timeout 150s node tools/native-browser/verify-audio.mjs > /tmp/wonderland-native-browser-evidence/combined-player/browser.log 2>&1 || { cat /tmp/wonderland-native-browser-evidence/combined-player/browser.log; exit 1; }
@@ -94,15 +118,15 @@ jobs:
           digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
           log=(out/'workspace.log').read_text() if (out/'workspace.log').exists() else ''
           counts=re.findall(r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;',log)
-          files=['apps/web-shell/src/native_lot.rs', 'apps/web-shell/src/native_avatar.rs', 'apps/web-shell/public/native-socket.mjs', 'tools/native-browser/verify-avatars.mjs', 'tools/native-browser/verify-receipt-deadline.mjs', 'tools/native-browser/peer.mjs', 'apps/web-shell/src/native_audio.rs', 'apps/web-shell/src/native_audio_browser.rs', 'apps/web-shell/public/native-audio.mjs', 'crates/audio-content/src/pack.rs', 'tools/native-browser/audio-fixture.mjs', 'tools/native-browser/verify-audio.mjs', 'Cargo.lock', 'apps/web-shell/src/native_avatar/history.rs', 'crates/game-runtime/src/avatar_projection.rs', 'crates/game-runtime/src/live_session.rs', 'crates/game-runtime/src/live_wire.rs', 'crates/game-runtime/src/live_wire/player.rs', 'crates/game-runtime/examples/native_browser_peer.rs', 'tools/native-browser/verify-pose-retention.mjs', 'tools/native-browser/verify-pose-batches.mjs']
+          files=['apps/web-shell/src/native_lot.rs', 'apps/web-shell/src/native_avatar.rs', 'apps/web-shell/public/native-socket.mjs', 'tools/native-browser/verify-avatars.mjs', 'tools/native-browser/verify-receipt-deadline.mjs', 'tools/native-browser/peer.mjs', 'apps/web-shell/src/native_audio.rs', 'apps/web-shell/src/native_audio_browser.rs', 'apps/web-shell/public/native-audio.mjs', 'crates/audio-content/src/pack.rs', 'tools/native-browser/audio-fixture.mjs', 'tools/native-browser/verify-audio.mjs', 'Cargo.lock', 'apps/web-shell/src/native_avatar/history.rs', 'crates/game-runtime/src/avatar_projection.rs', 'crates/game-runtime/src/live_session.rs', 'crates/game-runtime/src/live_wire.rs', 'crates/game-runtime/src/live_wire/player.rs', 'crates/game-runtime/examples/native_browser_peer.rs', 'tools/native-browser/verify-pose-retention.mjs', 'tools/native-browser/verify-pose-batches.mjs', 'tools/native-browser/canvas-observation.mjs', 'tools/native-browser/canvas-evidence.mjs', 'tools/native-browser/verify-canvas-observation.mjs', 'apps/web-shell/public/world-gpu.mjs', 'tools/native-browser/audio-readiness.mjs', 'tools/native-browser/audio-readiness.test.mjs']
           report={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'native_summaries':{'passed':sum(int(r[0]) for r in counts),'failed':sum(int(r[1]) for r in counts),'ignored':sum(int(r[2]) for r in counts)},'source_sha256':{p:digest(pathlib.Path(p)) for p in files},'wasm_sha256':{p.name:digest(p) for p in pathlib.Path('apps/web-shell/dist').glob('*.wasm')}}
           report['browser']={}
-          for name in ['results.json', 'avatars/report.json', 'terrain/report.json', 'receipt-deadline/results.json', 'game-audio/report.json', 'combined-player/report.json', 'pose-retention/report.json', 'pose-batches/report.json']:
+          for name in ['results.json', 'avatars/report.json', 'terrain/report.json', 'receipt-deadline/results.json', 'game-audio/report.json', 'combined-player/report.json', 'pose-retention/report.json', 'pose-batches/report.json', 'canvas-observation/report.json', 'source-application/report.json']:
               path=out/name
               if path.exists():
-                  result=json.loads(path.read_text());report['browser'][name]={'passed':result.get('passed'),'checks':len(result.get('checks',[])),'errors':result.get('errors',[]),'screenshots':len(result.get('screenshots',[]))}
+                  result=json.loads(path.read_text());report['browser'][name]={'passed':result.get('passed', result.get('status') == 'passed'),'checks':len(result.get('checks',result.get('scenarios',[]))),'errors':result.get('errors',[]),'screenshots':len(result.get('screenshots',[]))}
           report['node']={}
-          for name in ['socket','audio']:
+          for name in ['socket','audio','render-integration']:
               path=out/(name+'.log')
               if path.exists():report['node'][name]={k:int(v) for k,v in re.findall(r'^# (tests|pass|fail|skipped) (\d+)$',path.read_text(),re.M)}
           report['evidence_sha256']={str(p.relative_to(out)):digest(p) for p in out.rglob('*') if p.is_file() and p.name!='verification-summary.json'}

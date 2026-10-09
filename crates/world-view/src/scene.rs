@@ -45,6 +45,10 @@ impl Default for ViewportControls {
 
 #[derive(Clone, Debug)]
 pub struct ScenePart {
+    /// One-based source floor, including tile-less roof geometry.
+    pub level: u8,
+    /// None for architecture; Some preserves each source object material pass.
+    pub pipeline: Option<wonderland_render_core::reference::FragmentPipeline>,
     pub mesh: Arc<Mesh>,
     pub transform: Mat4,
     pub surface: Option<WorldSurface>,
@@ -53,6 +57,7 @@ pub struct ScenePart {
     pub material: u32,
     pub texture: Option<Arc<RgbaImage>>,
 }
+#[derive(Clone)]
 pub struct PreparedWorld {
     pub parts: Vec<ScenePart>,
     pub diagnostics: Vec<WorldDiagnostic>,
@@ -169,9 +174,6 @@ fn reserve_objects(
             continue;
         };
         let model = &document.models[index];
-        if model.depth_mask.is_some() {
-            continue;
-        }
         let first = unique.insert(index);
         for part in model.groups.iter().flatten() {
             usage.geometry(part.mesh.vertices.len(), part.mesh.indices.len(), 1, budget)?;
@@ -180,6 +182,29 @@ fn reserve_objects(
                 // shared UV-adjusted/shaded mesh. Input document is caller owned.
                 usage.buffers(
                     buffer_bytes(part.mesh.vertices.len(), part.mesh.indices.len(), 1)?,
+                    budget,
+                )?;
+            }
+        }
+        if let Some(mask) = &model.depth_mask {
+            let passes = if mask.kind == ModelMaskKind::Portal {
+                3
+            } else {
+                2
+            };
+            // Repeated draw work and one retained shared prepared mask are
+            // separate bounds. Even hidden body groups cannot hide mask cost.
+            usage.geometry(
+                mask.mesh.vertices.len() * passes,
+                mask.mesh.indices.len() * passes,
+                passes,
+                budget,
+            )?;
+            if first {
+                usage.buffers(
+                    buffer_bytes(mask.mesh.vertices.len(), mask.mesh.indices.len(), 1)?
+                        .checked_mul(2)
+                        .ok_or_else(|| capacity_error("bytes"))?,
                     budget,
                 )?;
             }
@@ -543,6 +568,8 @@ pub fn build_scene_with_budget(
         }
         shade(&mut mesh, tint);
         parts.push(ScenePart {
+            level: part.level,
+            pipeline: None,
             mesh: Arc::new(mesh),
             transform: Mat4::IDENTITY,
             surface: Some(surface),
@@ -607,6 +634,8 @@ pub fn build_scene_with_budget(
             diagnostics.push(WorldDiagnostic { code: "software_avatar_sampling".into(), resource: format!("avatar:record:{index}"), message: "Original avatar UVs use the source wrap addressing. The software renderer uses nearest texture filtering rather than the original linear/mipmap filtering.".into() });
             for (part_index, part) in model.groups[0].iter().enumerate() {
                 parts.push(ScenePart {
+                    level: object.level,
+                    pipeline: None,
                     mesh: Arc::clone(&meshes[part_index]),
                     transform,
                     surface: None,
@@ -618,10 +647,7 @@ pub fn build_scene_with_budget(
             }
             continue;
         }
-        if model.depth_mask.is_some() {
-            diagnostics.push(WorldDiagnostic { code: "unsupported_object_depth_mask".into(), resource: format!("object:{:08X}", object.source_guid), message: "This source model needs an original normal/portal stencil pass that the software adapter cannot display yet.".into() });
-            continue;
-        }
+
         if let std::collections::btree_map::Entry::Vacant(e) = prepared_models.entry(model_index) {
             e.insert(PreparedModel::new(model)?);
         }
@@ -648,22 +674,36 @@ pub fn build_scene_with_budget(
                 source_objects::ObjectTarget::Color,
             )
             .map_err(|error| WorldError(error.to_string()))?;
-        if cached.translucent {
-            diagnostics.push(WorldDiagnostic { code: "software_alpha_approximation".into(), resource: format!("object:{:08X}", object.source_guid), message: "This model has translucent texels; software uses straight alpha compositing, without the original alpha-channel accumulation.".into() });
-        }
         for draw in scene.draws {
-            let Some((group, part_index)) = draw.group_part else {
-                continue;
+            let (mesh, texture, material) = if let Some((group, part_index)) = draw.group_part {
+                let part = &prepared.groups()[usize::from(group)][part_index];
+                (
+                    Arc::clone(&cached.meshes[usize::from(group)][part_index]),
+                    Some(Arc::clone(&cached.images[part.texture_index()])),
+                    part.texture_index() as u32,
+                )
+            } else {
+                (
+                    Arc::clone(
+                        cached
+                            .mask
+                            .as_ref()
+                            .expect("source mask command requires prepared geometry"),
+                    ),
+                    None,
+                    0,
+                )
             };
-            let part = &prepared.groups()[usize::from(group)][part_index];
             parts.push(ScenePart {
-                mesh: Arc::clone(&cached.meshes[usize::from(group)][part_index]),
+                level: object.level,
+                pipeline: Some(crate::materials::pipeline(draw.pipeline)),
+                mesh,
                 transform: scene.world,
                 surface: None,
                 tile: None,
                 object: Some(index),
-                material: part.texture_index() as u32,
-                texture: Some(Arc::clone(&cached.images[part.texture_index()])),
+                material,
+                texture,
             });
         }
     }
@@ -674,7 +714,7 @@ struct PreparedModel {
     source: source_objects::PreparedFsom,
     meshes: Vec<Vec<Arc<Mesh>>>,
     images: Vec<Arc<RgbaImage>>,
-    translucent: bool,
+    mask: Option<Arc<Mesh>>,
 }
 impl PreparedModel {
     fn new(model: &WorldModel) -> Result<Self, WorldError> {
@@ -684,12 +724,7 @@ impl PreparedModel {
             .iter()
             .map(|texture| Arc::new(texture.image().clone()))
             .collect();
-        let translucent = images.iter().any(|image| {
-            image
-                .pixels
-                .iter()
-                .any(|pixel| pixel[3] != 0 && pixel[3] != 255)
-        });
+        let mask = source.depth_mask().map(|(_, mesh)| Arc::new(mesh.clone()));
         let meshes = source
             .groups()
             .iter()
@@ -714,7 +749,7 @@ impl PreparedModel {
             source,
             meshes,
             images,
-            translucent,
+            mask,
         })
     }
 }
@@ -851,3 +886,7 @@ pub fn camera_projection(
     pose.far = (f32::from(document.lot.width.max(document.lot.height)) * 48.).max(800.);
     pose.view_projection(aspect).map_err(Into::into)
 }
+
+#[cfg(test)]
+#[path = "scene/material_tests.rs"]
+mod material_tests;

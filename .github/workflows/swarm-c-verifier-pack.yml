@@ -1,0 +1,36 @@
+name: Swarm C offline verifier
+on:
+  push:
+    branches: [feat/swarm-c-client-integration]
+    paths: ['.github/workflows/swarm-c-verifier-pack.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-verifier:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Prepare the pinned native and WASM verifier
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          mkdir -p offline-verifier
+          cargo vendor --locked --versioned-dirs offline-verifier/vendor > offline-verifier/vendor-config.toml
+          SYSROOT="$(rustc --print sysroot)"
+          tar -C "$SYSROOT" -czf offline-verifier/compiler.tar.gz bin lib
+          tar -czf offline-verifier/dependencies.tar.gz -C offline-verifier vendor
+          rm -rf offline-verifier/vendor
+          git archive --format=tar.gz HEAD -- services > offline-verifier/service-source.tar.gz
+          rustc -Vv > offline-verifier/compiler.txt
+          git rev-parse HEAD > offline-verifier/source-commit.txt
+          sha256sum offline-verifier/*.tar.gz > offline-verifier/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: swarm-c-offline-verifier-${{ github.sha }}
+          path: offline-verifier/
+          retention-days: 3
+          if-no-files-found: error

@@ -12,3 +12,4 @@ quick-xml = "=0.38.4"
 sha2 = "0.10.8"
 wonderland-render-core.workspace = true
 wonderland-render-3d.workspace = true
+wonderland-render-iso = { path = "../render-iso" }
