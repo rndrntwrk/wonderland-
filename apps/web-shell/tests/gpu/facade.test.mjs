@@ -3,11 +3,16 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 const root=new URL('../../',import.meta.url);
-test('source inspector exposes the actual Rust facade job, cooperative yield and cleanup',async()=>{
+test('source inspector dispatches the Rust facade worker, yields and cleans up',async()=>{
  const screen=await readFile(new URL('src/source_world_screen.rs',root),'utf8');
  assert.match(screen,/<WorldFacadePanel/);
  const source=await readFile(new URL('src/world_facade.rs',root),'utf8');
- assert.match(source,/WorldFacadeJob::new/); assert.match(source,/job\.step\(4\)/);
+ assert.doesNotMatch(source,/WorldFacadeJob::new|job\.step\(/);
+ assert.match(source,/start_facade_worker\(/); assert.match(source,/cancel_facade_worker\(/);
+ const worker=await readFile(new URL('src/facade_worker.rs',root),'utf8');
+ assert.match(worker,/execute_facade_worker_request/);
+ const index=await readFile(new URL('index.html',root),'utf8');
+ assert.match(index,/data-bin="wonderland-facade-worker" data-type="worker"/);
  assert.match(source,/JsFuture::from\(yield_facade\(\)\)/);
  assert.match(source,/on_cleanup/); assert.match(source,/Arc::ptr_eq/);
 });

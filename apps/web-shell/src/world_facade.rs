@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::{JsFuture, spawn_local};
-use wonderland_world_view::{WorldDocument, WorldFacadeJob};
+use wonderland_world_view::{WorldDocument, encode_facade_worker_request};
 
 #[wasm_bindgen(module = "/public/facade-links.mjs")]
 extern "C" {
@@ -13,6 +13,15 @@ extern "C" {
     fn release_links(file: &str, metadata: &str);
     #[wasm_bindgen(js_name=yieldFacade)]
     fn yield_facade() -> js_sys::Promise;
+}
+#[wasm_bindgen(module = "/public/facade-worker-host.mjs")]
+extern "C" {
+    #[wasm_bindgen(catch, js_name = startFacadeWorker)]
+    fn start_facade_worker(bytes: &[u8]) -> Result<u32, JsValue>;
+    #[wasm_bindgen(catch, js_name = pollFacadeWorker)]
+    fn poll_facade_worker(id: u32) -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(js_name = cancelFacadeWorker)]
+    fn cancel_facade_worker(id: u32);
 }
 #[derive(Clone)]
 struct Links {
@@ -31,6 +40,13 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
     let pending = RwSignal::new(false);
     let notice = RwSignal::new(String::new());
     let generation = RwSignal::new(0_u64);
+    let owned_worker = RwSignal::new(None::<u32>);
+    let retire_worker = move || {
+        if let Some(id) = owned_worker.try_get_untracked().flatten() {
+            cancel_facade_worker(id);
+        }
+        owned_worker.try_set(None);
+    };
     let clear = move || {
         if let Some(links) = ready.try_get_untracked().flatten() {
             links.release();
@@ -42,10 +58,12 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
         let _ = world.get();
         generation.update(|v| *v = v.saturating_add(1));
         pending.set(false);
+        retire_worker();
         clear();
         notice.set(String::new());
     });
     on_cleanup(move || {
+        retire_worker();
         generation.try_update(|v| *v = v.saturating_add(1));
         clear();
     });
@@ -80,17 +98,51 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
                 if !current() {
                     return Ok(None);
                 }
-                let mut job = WorldFacadeJob::new(document.clone(), Default::default())
+                // Only bounded snapshot marshaling remains in the DOM task.
+                // The worker owns validation, topology, lightmaps, geometry,
+                // rasterization and compression from constructor through result.
+                let payload = encode_facade_worker_request(&document, Default::default())
                     .map_err(|e| e.to_string())?;
+                let id = start_facade_worker(&payload)
+                    .map_err(|_| "The facade worker could not start.".to_string())?;
+                drop(payload);
+                owned_worker.try_set(Some(id));
+                let mut phase = String::new();
                 loop {
                     if !current() {
-                        job.cancel();
+                        cancel_facade_worker(id);
                         return Ok(None);
                     }
-                    if let Some(output) = job.step(4).map_err(|e| e.to_string())? {
-                        let promise =
-                            make_links(&output.bytes, &output.metadata_json, &output.source_hash)
-                                .map_err(|_| {
+                    let response = poll_facade_worker(id).map_err(|e| {
+                        e.as_string()
+                            .unwrap_or_else(|| "Facade worker failed.".into())
+                    })?;
+                    if let Some(next_phase) = response.as_string() {
+                        if phase != next_phase {
+                            phase = next_phase;
+                            notice.try_set(if phase == "preparing" {
+                                "Preparing facade in worker…".into()
+                            } else {
+                                "Starting facade worker…".into()
+                            });
+                        }
+                    } else {
+                        owned_worker.try_set(None);
+                        let output: js_sys::Array = response
+                            .dyn_into()
+                            .map_err(|_| "Invalid facade worker response.".to_string())?;
+                        let bytes: js_sys::Uint8Array = output
+                            .get(0)
+                            .dyn_into()
+                            .map_err(|_| "Missing facade bytes.".to_string())?;
+                        let metadata =
+                            output.get(1).as_string().ok_or("Missing facade details.")?;
+                        let source_hash = output
+                            .get(2)
+                            .as_string()
+                            .ok_or("Missing facade identity.")?;
+                        let promise = make_links(&bytes.to_vec(), &metadata, &source_hash)
+                            .map_err(|_| {
                                 "The facade download could not be prepared.".to_string()
                             })?;
                         let values: js_sys::Array = JsFuture::from(promise)
@@ -106,7 +158,7 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
                         return Ok::<_, String>(Some(Links {
                             file,
                             metadata,
-                            name: format!("wonderland-facade-{}", output.source_hash),
+                            name: format!("wonderland-facade-{source_hash}"),
                         }));
                     }
                     JsFuture::from(yield_facade())
@@ -121,6 +173,7 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
                 }
                 return;
             }
+            retire_worker();
             pending.try_set(false);
             match result {
                 Ok(Some(links)) => {
@@ -137,6 +190,7 @@ pub fn WorldFacadePanel(world: Signal<Arc<WorldDocument>>) -> impl IntoView {
     let cancel = move |_| {
         generation.update(|v| *v = v.saturating_add(1));
         pending.set(false);
+        retire_worker();
         clear();
         notice.set("Export cancelled.".into());
     };

@@ -33,9 +33,9 @@ jobs:
           cargo test --workspace --locked > /tmp/wonderland-native-browser-evidence/workspace.log 2>&1 || { tail -100 /tmp/wonderland-native-browser-evidence/workspace.log; exit 1; }
           node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs > /tmp/wonderland-native-browser-evidence/socket.log 2>&1
           node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs > /tmp/wonderland-native-browser-evidence/audio.log 2>&1
-          node --test --test-reporter=tap tools/native-browser/canvas-*.test.mjs apps/web-shell/tests/gpu/*.test.mjs > /tmp/wonderland-native-browser-evidence/render-integration.log 2>&1
+          node --test --test-reporter=tap tools/native-browser/canvas-*.test.mjs tools/native-browser/retained-compositor.test.mjs apps/web-shell/tests/gpu/*.test.mjs > /tmp/wonderland-native-browser-evidence/render-integration.log 2>&1
           cargo clippy --workspace --all-targets --locked -- -D warnings
-          cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked -- -D warnings
+          cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --bin wonderland-facade-worker --locked -- -D warnings
       - name: Build actual browser and controlled authority
         id: build
         run: |

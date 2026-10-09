@@ -42,6 +42,7 @@ async function inventory(path=dist){
   return entries.sort((a,b)=>a.path.localeCompare(b.path));
 }
 const bundle=await inventory();assert.ok(bundle.some(file=>file.path.endsWith('.wasm')),'A real built WASM distribution is required');
+for(const required of ['wonderland-facade-worker.js','wonderland-facade-worker_bg.wasm','facade-worker-entry.mjs'])assert.ok(bundle.some(file=>file.path===required),`Missing packaged worker: ${required}`);
 const mime={'.html':'text/html','.wasm':'application/wasm','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff2':'font/woff2'};
 const server=createServer(async(req,res)=>{
   try{
@@ -60,6 +61,9 @@ await page.addInitScript(()=>{const revoke=URL.revokeObjectURL.bind(URL);window.
 page.on('pageerror',error=>report.errors.push(String(error.stack||error)));
 page.on('console',message=>{if(message.type()==='error')report.errors.push(message.text());});
 page.on('response',response=>{if(response.status()>=400)report.requests.push({url:response.url(),status:response.status()});});
+const facadeWorkers=new Set();let facadeWorkersStarted=0;
+page.on('worker',worker=>{if(!worker.url().includes('facade-worker-entry.mjs'))return;facadeWorkersStarted++;facadeWorkers.add(worker);worker.on('close',()=>facadeWorkers.delete(worker));});
+async function workersStopped(){for(let i=0;i<100&&facadeWorkers.size;i++)await new Promise(resolve=>setTimeout(resolve,20));assert.equal(facadeWorkers.size,0,'Completed/cancelled facade worker leaked');}
 const canvas=()=>page.locator('.world-viewport canvas');
 async function ready(){await page.waitForFunction(()=>{const c=document.querySelector('.world-viewport canvas');return c?.dataset.gpuState==='ready'&&!document.querySelector('.world-viewport.world-busy');});assert.equal(await page.locator('.world-view-error').count(),0);}
 async function changed(before){await page.waitForFunction(before=>document.querySelector('.world-viewport canvas')?.dataset.frameGeneration!==before,before);await ready();}
@@ -99,9 +103,11 @@ async function photo(name){
 }
 // Parse the actual exported FSOf body independently of the Rust encoder.
 async function facade(name){
+  const started=facadeWorkersStarted;
   const generation=await canvas().getAttribute('data-frame-generation');
   await page.getByRole('button',{name:'Build facade',exact:true}).click();
   const link=page.getByRole('link',{name:'Save FSOf',exact:true});await link.waitFor();
+  assert.equal(facadeWorkersStarted,started+1,'The real packaged Rust worker must produce the facade');await workersStopped();
   const urls={file:await link.getAttribute('href'),metadata:await page.getByRole('link',{name:'Facade details',exact:true}).getAttribute('href')};
   const observed=await page.evaluate(async urls=>({bytes:Array.from(new Uint8Array(await (await fetch(urls.file)).arrayBuffer())),metadata:await (await fetch(urls.metadata)).json()}),urls);
   const bytes=Buffer.from(observed.bytes),metadata=observed.metadata;
@@ -136,9 +142,14 @@ try{
   const image=await capture('original-source-world');const colors=new Set();for(let i=0;i<image.pixels.length;i+=4)colors.add(image.pixels[i]|image.pixels[i+1]<<8|image.pixels[i+2]<<16);assert.ok(colors.size>8,'Actual application screenshot is empty');
   await installCaptureObserver();
   await page.getByRole('button',{name:'Build facade',exact:true}).click();
+  await page.waitForFunction(()=>/Preparing facade in worker/.test(document.querySelector('.world-facade-export [role=status]')?.textContent??''));
+  assert.equal(facadeWorkersStarted,1);assert.equal(facadeWorkers.size,1);
+  const cancelStarted=Date.now();
   await page.getByRole('button',{name:'Cancel export',exact:true}).click();
+  await page.getByText('Export cancelled.',{exact:true}).waitFor();await workersStopped();
+  const cancelMs=Date.now()-cancelStarted;assert.ok(cancelMs<1500,'Actual worker cancellation must not wait for export completion');
   assert.equal(await page.getByRole('link',{name:'Save FSOf',exact:true}).count(),0);
-  report.scenarios.push({name:'cancel loaded original-lot facade without publishing stale output'});
+  report.scenarios.push({name:'cancel an actual started Rust facade worker without publishing stale output',cancelMs,workers:facadeWorkers.size});
   const originalPhoto=await photo('original-view-export');
   await canvas().focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Clear selection',exact:true}).waitFor();
   assert.match(await page.locator('.source-world-inspector strong').innerText(),/^(Tile |Object )/);report.scenarios.push({name:'WASM-resolved GPU selection',selected:await page.locator('.source-world-inspector strong').innerText()});
