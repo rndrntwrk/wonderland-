@@ -32,7 +32,13 @@ export async function canvasPixels(canvas) {
    assert.equal(image.width,sample.width);assert.equal(image.height,sample.height);
    assert.ok(redAvatarPoint(image,{x:0,y:0,width:image.width,height:image.height}),
     'Complete pose observation must contain actual synthetic avatar pixels, not a cleared buffer');
-   return `${image.width}x${image.height}:sha256:`+createHash('sha256').update(image.pixels).digest('hex');
+   // Always observe what the user currently sees as well as the last complete
+   // framebuffer. The generation may stay unchanged throughout idle, ended,
+   // disconnected or checkpoint comparisons; it cannot certify page visibility.
+   // Keep DOM/HUD pixels out of pose identity without hiding or mutating them.
+   const visible=await visibleAvatarPixels(canvas);
+   return `${image.width}x${image.height}:sha256:`+createHash('sha256').update(image.pixels).digest('hex')+
+    `|visible-avatar:${visible}`;
   }
   await sleep(20);
  }

@@ -65,7 +65,16 @@ try{
  // older accepted snapshot. The independent ordinary-compositor witness fails.
  await page.evaluate(()=>fixture.clearWithoutPublication());
  await assert.rejects(visibleAvatarPixels(canvas),/No synthetic avatar/);
- record('A blank compositor is rejected even when an older accepted snapshot still exists');
+ await assert.rejects(canvasPixels(canvas),/No synthetic avatar/);
+ record('The same native retention helper rejects a blank compositor despite an older accepted snapshot');
+ // A stale nonblank page must also invalidate equality, with no generation update.
+ await page.evaluate(()=>{fixture.draw(8);});
+ const beforeCover=await canvasPixels(canvas);
+ await page.evaluate(()=>{const c=document.createElement('div');c.id='fault-cover';c.style.cssText='position:absolute;left:0;top:0;width:64px;height:64px;background:rgb(51,77,102)';c.innerHTML='<div style="position:absolute;left:4px;top:32px;width:12px;height:12px;background:red"></div>';document.querySelector('.native-lot').append(c);});
+ assert.notEqual(await canvasPixels(canvas),beforeCover,'A stale nonblank composited pose cannot pass native retention equality');
+ await page.evaluate(()=>document.querySelector('#fault-cover').remove());
+ assert.equal(await canvasPixels(canvas),beforeCover);
+ record('Stale nonblank compositor output is detected by the native retention comparison');
  await page.evaluate(()=>fixture.draw());
  assert.equal(await canvasPixels(canvas),first);
  await page.evaluate(()=>fixture.lose());
