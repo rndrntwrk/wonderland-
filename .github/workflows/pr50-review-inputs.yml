@@ -1,0 +1,36 @@
+name: PR50 review source
+on:
+  push:
+    branches: [ops/pr50-review-inputs-20261009]
+    paths: [.github/workflows/pr50-review-inputs.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: add9e160678fc2189622559599c8e280cdd9cd1d
+          persist-credentials: false
+      - name: Archive the unchanged review input
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = add9e160678fc2189622559599c8e280cdd9cd1d
+          mkdir -p /tmp/pr50-review-inputs
+          git archive --format=tar.gz HEAD > /tmp/pr50-review-inputs/source.tar.gz
+          git rev-parse HEAD > /tmp/pr50-review-inputs/commit.txt
+          git rev-parse HEAD^{tree} > /tmp/pr50-review-inputs/tree.txt
+          git ls-tree -r -z HEAD > /tmp/pr50-review-inputs/tree-entries.bin
+          git cat-file commit HEAD > /tmp/pr50-review-inputs/commit.raw
+          cd /tmp/pr50-review-inputs
+          sha256sum source.tar.gz tree-entries.bin commit.raw > SHA256SUMS
+          git -C "$GITHUB_WORKSPACE" diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pr50-review-inputs-add9e160
+          path: /tmp/pr50-review-inputs/
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
