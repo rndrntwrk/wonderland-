@@ -1,0 +1,43 @@
+name: PR50 delta source
+on:
+  push:
+    branches: [ops/pr50-review-inputs-20261009]
+    paths: [.github/workflows/pr50-delta-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 48b3c056905c9c5ba1c01e63222d1776a1e7ac0a
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Preserve tracked delta and exact identity
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 48b3c056905c9c5ba1c01e63222d1776a1e7ac0a
+          test "$(git rev-parse HEAD^)" = add9e160678fc2189622559599c8e280cdd9cd1d
+          mkdir -p /tmp/pr50-delta
+          python3 - <<'PY'
+          import subprocess,pathlib
+          out=pathlib.Path('/tmp/pr50-delta')
+          paths=subprocess.check_output(['git','diff','--name-only','-z','HEAD^','HEAD']).decode().rstrip('\0').split('\0')
+          with (out/'source-delta.tar.gz').open('wb') as f:
+              subprocess.run(['git','archive','--format=tar.gz','HEAD','--',*paths],stdout=f,check=True)
+          for name,args in [('commit.raw',['cat-file','commit','HEAD']),('tree-entries.bin',['ls-tree','-r','-z','HEAD']),('patch.diff',['diff','--binary','--full-index','HEAD^','HEAD'])]:
+              (out/name).write_bytes(subprocess.check_output(['git',*args]))
+          PY
+          git rev-parse HEAD > /tmp/pr50-delta/commit.txt
+          git rev-parse HEAD^{tree} > /tmp/pr50-delta/tree.txt
+          cd /tmp/pr50-delta
+          sha256sum * > SHA256SUMS
+          git -C "$GITHUB_WORKSPACE" diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pr50-delta-48b3c056
+          path: /tmp/pr50-delta/
+          retention-days: 7
+          if-no-files-found: error
