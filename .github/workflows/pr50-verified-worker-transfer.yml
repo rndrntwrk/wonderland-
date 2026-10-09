@@ -1,0 +1,98 @@
+name: PR50 worker source verification
+on:
+  push:
+    branches: [ops/pr50-verified-worker-transfer-20261009]
+    paths: [.github/workflows/pr50-verified-worker-transfer.yml]
+permissions:
+  contents: read
+jobs:
+  source-objects:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: add9e160678fc2189622559599c8e280cdd9cd1d
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Reconstruct and verify only the exact reviewed source tree
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = rndrntwrk/wonderland-
+          test "$GITHUB_REF" = refs/heads/ops/pr50-verified-worker-transfer-20261009
+          mkdir -p /tmp/pr50-worker-evidence
+          python3 - <<'PY'
+          import base64,gzip,hashlib,json,subprocess
+          from pathlib import Path
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          assert git('rev-parse','HEAD')=='add9e160678fc2189622559599c8e280cdd9cd1d'
+          assert git('rev-parse','HEAD^{tree}')=='0ad11af6fc72305d1512eb13caf8f5746130dd39'
+          blobs=['2da1a2586245b8729db060168163bc6c6dcb8138','968a84863a8f8840b1742d466049e40dd41ae6cd','7802fbfffe3f1ab4929cac915018d91d223106b3','6cce77bffd7bfbd9316f85ae8d5125d4dc66b35f','d68816f6674080183747f33f49bc7333caacb28b','0c58dcc481597834db0676bf7d7f6fc76e03c333','9c883e99065732380a14455266f1a9b9517c6310','54a795ac542c84fb14705149cec0c4a18e6a848b','5878a42a72216769572f2469745309462f12c241','7a4723b29c9d1a5f26e42762176a9269dbb65b7f','a7479a02dab5694d7ba53a8e6d4df6a9ef435c07']
+          parts=[]
+          for sha in blobs:
+              obj=json.loads(subprocess.check_output(['gh','api',f'repos/rndrntwrk/wonderland-/git/blobs/{sha}']))
+              assert obj['encoding']=='base64'
+              data=base64.b64decode(''.join(obj['content'].split()),validate=True)
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==sha
+              parts.append(data)
+          compressed=b''.join(parts)
+          assert len(compressed)==15748
+          assert hashlib.sha256(compressed).hexdigest()=='7d21c31752e9e5fee4748f69ed51a9e555a384d7369c971bb4b22685e2df3e50'
+          patch=gzip.decompress(compressed)
+          assert len(patch)==49577
+          assert hashlib.sha256(patch).hexdigest()=='7906970cf3ed25c5021bc5ace885432c93788261f52f8fea5ebabe4fec247fe9'
+          paths=['.github/workflows/native-browser.yml','apps/web-shell/Cargo.toml','apps/web-shell/examples/native_avatar_resources.rs','apps/web-shell/index.html','apps/web-shell/public/facade-worker-entry.mjs','apps/web-shell/public/facade-worker-host.mjs','apps/web-shell/src/facade_worker.rs','apps/web-shell/src/world_facade.rs','apps/web-shell/tests/gpu/application.mjs','apps/web-shell/tests/gpu/facade-worker.test.mjs','apps/web-shell/tests/gpu/facade.test.mjs','apps/web-shell/tests/native_camera_witness.rs','apps/web-shell/tests/support/native_camera_witness.rs','crates/world-view/src/facade_worker.rs','crates/world-view/src/lib.rs','crates/world-view/tests/facade_worker.rs','docs/swarm-c/PR50_REVIEW_FIXES.md']
+          p=Path('/tmp/pr50-worker-evidence/review.patch');p.write_bytes(patch)
+          names=subprocess.check_output(['git','apply','--numstat',str(p)],text=True)
+          assert {line.split('\t',2)[2] for line in names.splitlines()}==set(paths)
+          subprocess.run(['git','apply','--check',str(p)],check=True)
+          subprocess.run(['git','apply','--whitespace=error',str(p)],check=True)
+          subprocess.run(['git','add','--',*paths],check=True)
+          assert set(git('diff','--cached','--name-only').splitlines())==set(paths)
+          assert git('write-tree')=='3ceef9b35a834e7ac0bc80422ceee786db524015'
+          manifest=[]
+          for path in paths:
+              data=Path(path).read_bytes()
+              manifest.append({'path':path,'mode':'100644','type':'blob','sha':git('hash-object',path),'sha256':hashlib.sha256(data).hexdigest()})
+          Path('/tmp/pr50-worker-evidence/manifest.json').write_text(json.dumps({'base':'add9e160678fc2189622559599c8e280cdd9cd1d','tree':git('write-tree'),'files':manifest},indent=2)+'\n')
+          PY
+      - name: Execute all JavaScript source and regression checks
+        run: |
+          set -euo pipefail
+          node --test --test-reporter=tap tools/native-browser/*test.mjs apps/web-shell/tests/gpu/*.test.mjs apps/web-shell/scripts/native-*.test.mjs crates/audio-runtime/browser/*.test.mjs | tee /tmp/pr50-worker-evidence/node.log
+          node --check apps/web-shell/public/facade-worker-entry.mjs
+          node --check apps/web-shell/tests/gpu/application.mjs
+          git diff --cached --check
+          git diff --exit-code
+      - name: Store validated Git blobs only, not commits or branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64,hashlib,json,subprocess
+          from pathlib import Path
+          p=Path('/tmp/pr50-worker-evidence/manifest.json');m=json.loads(p.read_text())
+          assert subprocess.check_output(['git','write-tree'],text=True).strip()==m['tree']
+          for item in m['files']:
+              data=Path(item['path']).read_bytes()
+              assert hashlib.sha256(data).hexdigest()==item['sha256']
+              assert hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()==item['sha']
+              response=subprocess.check_output(['gh','api','--method','POST','repos/rndrntwrk/wonderland-/git/blobs','--input','-'],input=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode())
+              assert json.loads(response)['sha']==item['sha'],item['path']
+          print(json.dumps(m,indent=2))
+          Path('/tmp/pr50-worker-evidence/scope.txt').write_text('Validated exact source tree, executed 165 Node regressions and stored source blobs. No Rust/browser execution and no product ref movement occur in this transfer. Normal product CI executes the resulting tracked source after connector publication.\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr50-worker-source-objects
+          path: /tmp/pr50-worker-evidence/
+          retention-days: 14
+          if-no-files-found: error
