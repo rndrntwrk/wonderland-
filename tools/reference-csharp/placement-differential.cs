@@ -16,6 +16,7 @@ using FSO.SimAntics;
 using FSO.SimAntics.Engine;
 using FSO.SimAntics.Entities;
 using FSO.SimAntics.Model;
+using FSO.SimAntics.Model.Routing;
 using Microsoft.Xna.Framework;
 
 internal static class PlacementDifferential
@@ -93,6 +94,48 @@ internal static class PlacementDifferential
             a.GetValue(VMStackObjectVariable.AllowedHeightFlags);
     }
     private static int Blocker(VMPlacementResult result) { return result.Object == null ? 0 : result.Object.ObjectID; }
+    private static readonly List<string> Geometry = new List<string>();
+    private static string Bounds(VMObstacle obstacle)
+    {
+        return obstacle == null ? "null" : string.Join(",", new int[] { obstacle.x1, obstacle.y1, obstacle.x2, obstacle.y2 });
+    }
+    private static void ObserveGeometry(string name, bool ts1, int notch, VMGameObject a, VMGameObject b,
+        LotTilePos target, Direction facing, VMContext context)
+    {
+        // Read-only runtime witnesses. Do not alter metadata, rebuild the index, or
+        // repair the fixture before observing the original placement operation.
+        var requested = a.GetObstacle(target, facing, true);
+        var freshBlocker = b.GetObstacle(b.Position, b.Direction, true);
+        var room = context.GetRoomAt(target);
+        var candidates = new List<string>();
+        if (requested != null)
+            foreach (var obstacle in context.RoomInfo[room].StaticObstacles.AllIntersect(requested))
+            {
+                var entity = obstacle as VMEntityObstacle;
+                candidates.Add((entity == null ? "nonentity" : entity.Parent.ObjectID.ToString()) + ":" + Bounds(obstacle));
+            }
+        var nodes = new List<string>();
+        foreach (var node in context.RoomInfo[room].StaticObstacles.Nodes)
+            if (node.Rect != null)
+            {
+                var entity = node.Rect as VMEntityObstacle;
+                if (entity != null && entity.Parent == b)
+                    nodes.Add(string.Join(",", new int[] { node.x1, node.y1, node.x2, node.y2 }));
+            }
+        var dynamicCandidates = new List<string>();
+        if (requested != null)
+            foreach (var obstacle in context.RoomInfo[room].DynamicObstacles)
+                if (obstacle.Intersects(requested))
+                {
+                    var entity = obstacle as VMEntityObstacle;
+                    dynamicCandidates.Add((entity == null ? "nonentity" : entity.Parent.ObjectID.ToString()) + ":" + Bounds(obstacle));
+                }
+        Geometry.Add(string.Join("\t", new object[] { name, ts1 ? 1 : 0, notch,
+            a.Object.OBJ.TileWidth, a.Object.OBJ.FootprintMask, b.Object.OBJ.TileWidth, b.Object.OBJ.FootprintMask,
+            room, context.GetRoomAt(b.Position), Bounds(requested), Bounds(b.Footprint), Bounds(freshBlocker),
+            requested != null && b.Footprint != null && b.Footprint.Intersects(requested),
+            string.Join(";", candidates), b.StaticFootprint, string.Join(";", nodes), string.Join(";", dynamicCandidates) }));
+    }
     private static void Run(string[] values, bool ts1, int notch)
     {
         VM.UseWorld = false;
@@ -121,6 +164,7 @@ internal static class PlacementDifferential
         var target = new LotTilePos(short.Parse(values[1]), short.Parse(values[2]), 1);
         var facing = (Direction)(1 << notch);
         var flags = values[6] == "1" ? VMPlaceRequestFlags.AllowIntersection : VMPlaceRequestFlags.Default;
+        ObserveGeometry(values[0], ts1, notch, a, b, target, facing, context);
         var before = QueryState(vm, a, b);
         var query = a.PositionValid(target, facing, context, flags);
         var pure = before == QueryState(vm, a, b) ? 1 : 0;
@@ -157,6 +201,11 @@ internal static class PlacementDifferential
                 var values = lines[i].Split('\t'); Require(values.Length == 8, "placement column count");
                 foreach (bool ts1 in new bool[] { true, false })
                     foreach (int notch in new int[] { 0, 2, 4, 6 }) Run(values, ts1, notch);
+            }
+            using (var geometry = new StreamWriter(new FileStream(args[1] + ".geometry.tsv", FileMode.CreateNew), new UTF8Encoding(false))) {
+                geometry.NewLine = "\n";
+                geometry.WriteLine("case\tts1\tfacing\ta_width\ta_mask\tb_width\tb_mask\ttarget_room\tblocker_room\trequested\tcached_blocker\tfresh_blocker\tintersects\tstatic_candidates\tblocker_static\tblocker_cached_nodes\tdynamic_candidates");
+                foreach (var row in Geometry) geometry.WriteLine(row);
             }
             using (var file = new FileStream(args[1], FileMode.CreateNew))
             using (var writer = new StreamWriter(file, new UTF8Encoding(false))) {

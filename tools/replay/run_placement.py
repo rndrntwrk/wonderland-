@@ -29,7 +29,7 @@ def run(root: Path, output: Path) -> int:
     record={'schema':1,'passed':False,'scope':'ground-placement-observations-v1',
         'original_content_installation':False,'full_vm_state_parity':False,
         'production_build_or_payment':False,'rendered_browser_test':False,
-        'commands':[],'comparisons':{},'fault_controls':[],'executables':{}}
+        'commands':[],'comparisons':{},'fault_controls':[],'executables':{},'acceptance_errors':[]}
     env=dict(os.environ,CARGO_TARGET_DIR=str(build/'cargo'),PYTHONDONTWRITEBYTECODE='1',
              WONDERLAND_PLACEMENT_TEST_ONLY='1')
     def command(label,args,timeout=120,expected=0,enabled=True):
@@ -50,11 +50,21 @@ def run(root: Path, output: Path) -> int:
         print(f'{label}: exit {result.returncode}',flush=True)
         return stdout,stderr
     def compare_paths(label,left,right):
-        result=compare(cases,left.read_bytes(),right.read_bytes())
+        # Preserve all genuine runtime observations even when a reference invariant
+        # fails. Every such failure remains an acceptance error and a red job.
+        try:
+            result=compare(cases,left.read_bytes(),right.read_bytes())
+        except ValueError as error:
+            result={'passed':False,'reference_contract_error':str(error),
+                    'reference_sha256':sha(left),'candidate_sha256':sha(right),
+                    'raw_traces_identical':left.read_bytes()==right.read_bytes()}
         (output/(label+'.json')).write_text(json.dumps(result,indent=2)+'\n')
         record['comparisons'][label]=result
-        require(result['passed'],label+': '+str(result['first_difference']))
-        print(f'{label}: {result["rows"]} records matched',flush=True)
+        if not result['passed']:
+            record['acceptance_errors'].append({'comparison':label,'result':result})
+            print(label+': FAILED (observations retained)',flush=True)
+        else:
+            print(f'{label}: {result["rows"]} records matched',flush=True)
     try:
         require(os.name=='nt','original .NET Framework placement requires Windows')
         paths=[root/p for p in ['tools/reference-csharp/placement-differential.cs',
@@ -145,7 +155,15 @@ def run(root: Path, output: Path) -> int:
                     parse_trace(cases,trace.read_bytes());traces.append(trace)
                     if flavor=='normal':compare_paths('original-'+label,original[0],trace)
                     else:
-                        result=compare(cases,original[0].read_bytes(),trace.read_bytes())
+                        try:
+                            result=compare(cases,original[0].read_bytes(),trace.read_bytes())
+                        except ValueError as error:
+                            result={'passed':False,'reference_contract_error':str(error)}
+                            (output/(label+'.difference.json')).write_text(json.dumps(result,indent=2)+'\n')
+                            record['acceptance_errors'].append({'fault_control':label,'result':result})
+                            record['fault_controls'].append(dict(target=target,flavor=flavor,detected=False,
+                                blocked_by_reference_contract=True))
+                            continue
                         (output/(label+'.difference.json')).write_text(json.dumps(result,indent=2)+'\n')
                         expected=dict(case='collision',ts1=1,facing=0,field='query_status' if flavor=='blocker' else 'after_x',
                                       expected=10 if flavor=='blocker' else 40,actual=-1 if flavor=='blocker' else 88)
@@ -159,6 +177,7 @@ def run(root: Path, output: Path) -> int:
         _,errors=command('wasm-missing-exports',['node',root/'tools/replay/run_placement_wasm.mjs',empty,invalid],timeout=30,expected=1)
         require('missing WASM memory' in errors.read_text() and not invalid.exists(),'empty WASM accepted')
         require(inputs=={str(p.relative_to(root)).replace('\\','/'):sha(p) for p in paths},'placement source inputs changed')
+        require(not record['acceptance_errors'],'placement acceptance failed; inspect retained comparisons and runtime geometry')
         record['passed']=True
     except (OSError,ValueError,AssertionError,KeyError,subprocess.SubprocessError) as error:
         record['error']=str(error);print('FAIL: '+str(error),file=sys.stderr,flush=True)

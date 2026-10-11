@@ -93,18 +93,21 @@ def _reference_contract(cases: bytes, rows: list[list[str | int]]) -> None:
         r=dict(zip(FIELDS,row))
         blocker=2 if status==10 else 0
         target=[x,y,1,r['facing']] if status==-1 else [40,40,1,0]
-        checks=(
-            [r['query_status'],r['commit_status']]==[status,status],
-            [r['query_blocker'],r['commit_blocker']]==[blocker,blocker],
-            r['query_unchanged']==1,
-            [r['after_x'],r['after_y'],r['after_level'],r['after_facing']]==target,
-            [r['blocker_x'],r['blocker_y'],r['blocker_level'],r['blocker_facing']]==[88,56,1,0],
-            r['entities']==2,
-            [r['recover_status'],r['recover_x'],r['recover_y']]==[-1,40,72],
-            [r['retry_status'],r['retry_blocker'],r['final_x'],r['final_y'],r['final_facing']]==[10,2,40,72,0],
-        )
-        if not all(checks):
-            raise ValueError(f'original placement invariant not observed: {name}/{r["ts1"]}/{r["facing"]}')
+        checks={
+            'status': ([r['query_status'],r['commit_status']], [status,status]),
+            'blocker': ([r['query_blocker'],r['commit_blocker']], [blocker,blocker]),
+            'query_unchanged': (r['query_unchanged'], 1),
+            'after_pose': ([r['after_x'],r['after_y'],r['after_level'],r['after_facing']], target),
+            'blocker_pose': ([r['blocker_x'],r['blocker_y'],r['blocker_level'],r['blocker_facing']], [88,56,1,0]),
+            'entities': (r['entities'], 2),
+            'recovery': ([r['recover_status'],r['recover_x'],r['recover_y']], [-1,40,72]),
+            'retry': ([r['retry_status'],r['retry_blocker'],r['final_x'],r['final_y'],r['final_facing']], [10,2,40,72,0]),
+        }
+        failures={key: {'actual': actual, 'expected': expected}
+                  for key,(actual,expected) in checks.items() if actual != expected}
+        if failures:
+            raise ValueError(f'original placement invariant not observed: {name}/{r["ts1"]}/{r["facing"]}: {failures}')
+
 
 
 def compare(cases: bytes, reference: bytes, candidate: bytes) -> dict:

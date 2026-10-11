@@ -368,6 +368,10 @@ try{
       const url=`${base}?variant=${variant}&mode=hybrid2d&avatars=${avatars}&tick=30`;
       enterPhase(`engine-startup-${avatars}`);
       await page.goto(url,{waitUntil:'domcontentloaded'});const initial=await ready(page);
+      await step(`audio-initially-locked-${avatars}`,async()=>{
+        const audio=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());
+        assert.equal(audio.state,'locked');assert.equal(audio.activeVoices,0);return audio;
+      });
       check(`startup-${avatars}`,initial.actualBackend===backend&&initial.wasmMemoryShared===false&&initial.crossOriginIsolated===false,initial);
       await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));
       await page.waitForTimeout(250);
@@ -446,9 +450,11 @@ try{
         await page.waitForFunction(n=>window.__wonderlandProbe.snapshot().updateCount>n,paused.updateCount);return {pausedUpdates:paused.updateCount};
       });
       await step(`audio-gesture-and-lifecycle-${avatars}`,async()=>{
-        const locked=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());assert.equal(locked.state,'locked');
+        // The preceding presentation suspension intentionally suspends audio too.
+        // Resuming presentation programmatically must not unlock sound.
+        const held=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());assert.equal(held.state,'suspended');
         await page.evaluate(()=>window.__wonderlandProbe.startAudio());
-        const queued=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());assert.equal(queued.state,'locked');assert.equal(queued.activeVoices,1);
+        const queued=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());assert.equal(queued.state,'suspended');assert.equal(queued.activeVoices,1);
         await page.locator('#unlock-audio').click();await page.waitForFunction(()=>window.__wonderlandProbe.audioSnapshot().state==='running');
         await page.waitForFunction(()=>window.__wonderlandProbe.audioSnapshot().pendingDecodes===0&&window.__wonderlandProbe.audioSnapshot().pcmBytes>0);
         const playing=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());assert.equal(playing.errors,0);
@@ -458,7 +464,7 @@ try{
         // Queue a real provider completion, then reset the lot before accepting its playback.
         await page.evaluate(()=>{void window.__wonderlandProbe.startAudio();window.__wonderlandProbe.reloadFixture();});
         await page.waitForTimeout(200);const reset=await page.evaluate(()=>window.__wonderlandProbe.audioSnapshot());assert.equal(reset.activeVoices,0);assert.equal(reset.pendingDecodes,0);
-        return {locked,queued,playing,reset,audibility:'AudioContext and source graph observed; speaker output not measured'};
+        return {held,queued,playing,reset,audibility:'AudioContext and source graph observed; speaker output not measured'};
       });
       await step(`repeat-resource-reset-${avatars}`,async()=>{
         const before=await snapshot(page);
