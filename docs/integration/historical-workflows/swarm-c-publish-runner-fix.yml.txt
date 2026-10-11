@@ -1,0 +1,136 @@
+name: Swarm C guarded resize repair
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths: ['.github/workflows/swarm-c-publish-runner-fix.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  repair-and-verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Apply the exact locally tested two-file correction
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/resize-evidence
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          before={'tools/swarm-c/browser-gate.mjs':'c533131677b160f0b5eb9bba406a5663ee8122de8c4aba82ded813985a6ebcdb','tools/swarm-c/verify.sh':'784ad8f6add4693fd369fdca1c9ce93f28a00f80522562c26863c76a783d328d','tools/swarm-c/viewport-ready.test.mjs':'4a659a41534f3dcd1c3f3b2b5fc3825c72446fde585973ba5683daf7fd4d7c7f'}
+          for p,digest in before.items(): assert hashlib.sha256(Path(p).read_bytes()).hexdigest()==digest,p
+          PY
+          if node --test --test-reporter=tap tools/swarm-c/viewport-ready.test.mjs > /tmp/resize-evidence/red.log 2>&1; then
+            echo 'Expected the two unwired-runner regression failures' >&2; exit 1
+          fi
+          cat /tmp/resize-evidence/red.log
+          grep -q '^# fail 2$' /tmp/resize-evidence/red.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          def replace(p,old,new):
+              p=Path(p);text=p.read_text();assert text.count(old)==1,(str(p),old)
+              p.write_text(text.replace(old,new))
+          gate='tools/swarm-c/browser-gate.mjs'
+          anchor="import {readPng,readPpm,colorDifference,compareIds,capturePixelBounds,extractPixels,rgbaPng,logicalSelectionPoint} from './read-png.mjs';"
+          replace(gate,anchor,anchor+"\nimport {waitForDrawableViewport} from './viewport-ready.mjs';")
+          old='''        const before=await snapshot(page);await page.evaluate(()=>window.__wonderlandProbe.resize(402,302));await page.waitForTimeout(250);
+                  const after=await snapshot(page);assert.equal(after.sceneHash,before.sceneHash);assert.equal(Math.round(after.viewport.cssWidth),400);assert.equal(Math.round(after.viewport.cssHeight),300);'''
+          new='''        const before=await snapshot(page);await page.evaluate(()=>window.__wonderlandProbe.resize(402,302));
+                  // CSS layout and the engine-owned backing store settle independently.
+                  // Observe both; never resize the canvas here or relax physical-DPR checks.
+                  const after=await waitForDrawableViewport(()=>snapshot(page),{width:400,height:300,dpr});
+                  assert.equal(after.sceneHash,before.sceneHash);assert.equal(Math.round(after.viewport.cssWidth),400);assert.equal(Math.round(after.viewport.cssHeight),300);'''
+          replace(gate,old,new)
+          old='''        await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));return {before:before.viewport,after:after.viewport,dpr};'''
+          new='''        await page.evaluate(()=>window.__wonderlandProbe.resize(642,482));
+                  const restored=await waitForDrawableViewport(()=>snapshot(page),{width:640,height:480,dpr});
+                  assert.equal(restored.sceneHash,before.sceneHash);
+                  return {before:before.viewport,after:after.viewport,restored:restored.viewport,dpr};'''
+          replace(gate,old,new)
+          replace('tools/swarm-c/verify.sh','task_check node tools/swarm-c/browser-gate.mjs --self-test','task_check node --test tools/swarm-c/viewport-ready.test.mjs\ntask_check node tools/swarm-c/browser-gate.mjs --self-test')
+          after={'tools/swarm-c/browser-gate.mjs':'66cf488ba79804a51a56e2af691d143c51702e3a4c85c2414f2569a5a9132461','tools/swarm-c/verify.sh':'2d5ce3ad54634963e9336dc261ba40cbed882ed6bcf339d2a12d586bb4a0910b'}
+          for p,digest in after.items(): assert hashlib.sha256(Path(p).read_bytes()).hexdigest()==digest,p
+          PY
+          node --test tools/swarm-c/viewport-ready.test.mjs | tee /tmp/resize-evidence/green.log
+          node --test crates/audio-runtime/browser/*.test.mjs probes/engine-bakeoff/web/host-core.test.mjs probes/engine-bakeoff/web/gpu-readback.test.mjs probes/engine-bakeoff/web/fixture-server.test.mjs | tee /tmp/resize-evidence/protocols.log
+          node tools/swarm-c/browser-gate.mjs --self-test | tee /tmp/resize-evidence/comparator.log
+          node --check tools/swarm-c/browser-gate.mjs
+          bash -n tools/swarm-c/verify.sh
+          git diff --check
+      - name: Publish only the checked correction, without force
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/feat/swarm-c-views-audio
+          python3 - <<'PY'
+          import subprocess
+          assert set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())=={'tools/swarm-c/browser-gate.mjs','tools/swarm-c/verify.sh'}
+          PY
+          git diff --binary > /tmp/resize-evidence/runner.patch
+          git config user.name 'Wonderland verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tools/swarm-c/browser-gate.mjs tools/swarm-c/verify.sh
+          git commit -m 'fix(swarm-c): connect actual drawable readiness to browser resize acceptance'
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin HEAD:refs/heads/feat/swarm-c-views-audio
+          git rev-parse HEAD > /tmp/resize-evidence/tested-commit.txt
+          git rev-parse HEAD^{tree} > /tmp/resize-evidence/tested-tree.txt
+          sha256sum tools/swarm-c/browser-gate.mjs tools/swarm-c/verify.sh tools/swarm-c/viewport-ready.test.mjs > /tmp/resize-evidence/source.sha256
+      - name: Restore the exact previously built engine and independent reference
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/rndrntwrk/wonderland-/actions/artifacts/11400893769/zip > /tmp/resize-runtime.zip
+          echo 'ea104372518c14f5e1ad391faa9a62881a83554f86fec9e628aef59bff6c4d95  /tmp/resize-runtime.zip' | sha256sum -c -
+          python3 - <<'PY'
+          from pathlib import Path,PurePosixPath
+          import zipfile
+          prefixes=('probes/engine-bakeoff/web/pkg/bevy-webgpu/','tools/swarm-c/output/reference/')
+          with zipfile.ZipFile('/tmp/resize-runtime.zip') as z:
+              for info in z.infolist():
+                  name=info.filename
+                  if not name.startswith(prefixes): continue
+                  p=PurePosixPath(name)
+                  assert not p.is_absolute() and '..' not in p.parts
+                  assert not info.is_dir() or info.file_size==0
+                  assert (info.external_attr>>16)&0o170000 != 0o120000
+                  z.extract(info,Path.cwd())
+          PY
+          mkdir -p probes/engine-bakeoff/web/audio
+          cp crates/audio-runtime/browser/browser-audio.mjs probes/engine-bakeoff/web/audio/
+          echo 'Reused immutable engine/reference artifact 11400893769 from source 92d183d8c5c93ce4a4847b31ff5ca71c2431dc94; browser runner is the tested commit above, not a new Rust compilation.' > /tmp/resize-evidence/artifact-scope.txt
+          sha256sum probes/engine-bakeoff/web/pkg/bevy-webgpu/engine_bg.wasm >> /tmp/resize-evidence/artifact-scope.txt
+          npm ci --prefix tools/swarm-c --ignore-scripts
+          tools/swarm-c/node_modules/.bin/playwright install --with-deps --no-shell chromium
+      - name: Exercise ordinary WebGPU page pixels, resizing and recovery
+        env:
+          WONDERLAND_ENGINE: bevy
+          WONDERLAND_BACKEND: webgpu
+          WONDERLAND_HEADED: '1'
+        run: |
+          set -euo pipefail
+          xvfb-run -a -s '-screen 0 3000x2400x24' node tools/swarm-c/browser-gate.mjs > /tmp/resize-evidence/browser.log 2>&1
+      - name: Retain publication identity and actual browser evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: resize-repair-${{ github.sha }}
+          path: |
+            /tmp/resize-evidence/
+            tools/swarm-c/output/bevy-webgpu/browser/
+          retention-days: 14
+          if-no-files-found: error

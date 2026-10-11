@@ -1,0 +1,1121 @@
+{
+  "format": "swarm-a-native-wasm-replay-evidence-v1",
+  "recordedAtUtc": "2026-10-05T10:23:57.505Z",
+  "node": "v24.19.0",
+  "nativePlatform": "linux-x64",
+  "applicationSourceSha256": "9cd1618636c91b28db0b8a8cfeb8a7ab701122a74e4d6ccb47d22df96fde13e8",
+  "rustc": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)\nbinary: rustc\ncommit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112\ncommit-date: 2023-12-21\nhost: x86_64-unknown-linux-gnu\nrelease: 1.75.0\nLLVM version: 17.0.6",
+  "cargo": "cargo 1.75.0",
+  "wasmBytes": 2969275,
+  "wasmSha256": "4d0a0da1c130062d937243342207ad5665951c23af7970d7c712a2e743cb8e75",
+  "wasmImports": [],
+  "nativeRecordsBytes": 2260356,
+  "nativeRecordsSha256": "beb1d7cedc3ee66151ef584726b0f18a624169e65ca71e38351a9fede382fab4",
+  "scenarioCount": 4,
+  "seeds": [
+    "0",
+    "1",
+    "123",
+    "18364758544493064720"
+  ],
+  "freshInstancesPerCase": 2,
+  "repetitionsPerInstance": 2,
+  "wasmScenarioExecutions": 64,
+  "comparedTickRecords": 5840,
+  "comparedSnapshotRecords": 320,
+  "legacyEngineOracle": false,
+  "cases": [
+    {
+      "scenario": 0,
+      "name": "bhav-stack-sleep-rng",
+      "seed": "0",
+      "snapshots": [
+        {
+          "label": "nested-semiglobal-sleep",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11933,
+          "sha256": "ddc1ff005c255e728dedd73a7ec931f706cfa433689356ac013af2a0c90cc23b",
+          "stateHash": "d4d5d7c636b7d7b07b07d1828e111ce623f6d44c73c2dc3236f44985ab07b96c"
+        },
+        {
+          "label": "private-caller-sleep",
+          "tick": "5",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "4a562de4076516812ca28e4c55b1449e030ba877dc7644e4bb9a98b01d470167",
+          "stateHash": "11da8ed80283de7f169983644fb73cc686abf5ee60f4b008f39cd67bde54dcc7"
+        },
+        {
+          "label": "repeated-main-midstream",
+          "tick": "47",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "4189c5458d8364972e27631257c5d04785c7e22f10638bd6a19e4e7fb7aa7ce6",
+          "stateHash": "7fff0252f1382e21060f75bd79c4dd2676c6f51ccb52165cd8838eff25bc8fab"
+        },
+        {
+          "label": "final",
+          "tick": "96",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "b73eeeac4da13facdd8f9e0bb4fe1c582a201249a1dca1e91c41fdb72f3f8e3b",
+          "stateHash": "89c77b4b3faaad87d36d9530ad5cb059ebc0fcf67cba1bbcf186ca3a8c3b0d60"
+        }
+      ],
+      "probes": {
+        "saved_stack_depth": "3",
+        "completed_main_calls": "13",
+        "isolated_rng_queries": "8",
+        "post_snapshot_replayed_ticks": "94",
+        "duplicate_tick_noops": "7"
+      },
+      "tickCount": 96,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "96",
+      "instructions": 498,
+      "finalStateHash": "89c77b4b3faaad87d36d9530ad5cb059ebc0fcf67cba1bbcf186ca3a8c3b0d60",
+      "finalRng": "663415586471721753",
+      "reportBytes": 56782,
+      "reportSha256": "1996a2deadb3516e4a3462b63c87b985fe1831a540191c03dbf69b3966b5a4ce",
+      "orderedTickHashSha256": "7261d21fef8e53d072dcdd4fff9ba7ab225e40dc319e47f3153ffbabe73448ed"
+    },
+    {
+      "scenario": 0,
+      "name": "bhav-stack-sleep-rng",
+      "seed": "1",
+      "snapshots": [
+        {
+          "label": "nested-semiglobal-sleep",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11933,
+          "sha256": "a331c44ff65c3e6750a07c197ff6253138d047e358ff10fa36fa8544a01c6067",
+          "stateHash": "125f619b5723d2d2af5126f103e9cedfbbc0cd4d0c7223056cdb05535efc1e64"
+        },
+        {
+          "label": "private-caller-sleep",
+          "tick": "5",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "1311be111aa7efb678d296d44d2614a37fc21f70c1159d7a365938e587b6eee6",
+          "stateHash": "27e6c6ab1f46c3a531c2cbd7142d047ff53f61e39c9f125fe0b2a34b5f764075"
+        },
+        {
+          "label": "repeated-main-midstream",
+          "tick": "47",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "24fa911ab29a6e760c03e2437de11b58164211be4733966a043c0821c4ebc87b",
+          "stateHash": "7ccd0167d5fc4a93b27cdb1678a7917a471e640b6dca89e67f19b0bb28947c36"
+        },
+        {
+          "label": "final",
+          "tick": "96",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "e554743f41c750819942c2d43034bbabb6873bb28a034da829784738c5f17924",
+          "stateHash": "6d04e65bbe311956bdf6b68e62b2302b5a7c983147d730538cc54d240aaa65cc"
+        }
+      ],
+      "probes": {
+        "saved_stack_depth": "3",
+        "completed_main_calls": "13",
+        "isolated_rng_queries": "8",
+        "post_snapshot_replayed_ticks": "94",
+        "duplicate_tick_noops": "7"
+      },
+      "tickCount": 96,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "96",
+      "instructions": 498,
+      "finalStateHash": "6d04e65bbe311956bdf6b68e62b2302b5a7c983147d730538cc54d240aaa65cc",
+      "finalRng": "1228959277562503081",
+      "reportBytes": 56782,
+      "reportSha256": "8bac788d8d131ae5a75fc7622452b8238c3c1318b25ce1cafedc57146bccb516",
+      "orderedTickHashSha256": "a37ffb212ce4c73a27d2693505f0882b27b133e9c7d8287d5712d1354a0c8cc1"
+    },
+    {
+      "scenario": 0,
+      "name": "bhav-stack-sleep-rng",
+      "seed": "123",
+      "snapshots": [
+        {
+          "label": "nested-semiglobal-sleep",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11933,
+          "sha256": "ad04ea5c4ca7dbae79f0c61575d53f5ca157518db1b39191bb4292380fd983c1",
+          "stateHash": "664179a1287c4fbb6e0ac15a883a3849f81f16f0770df4aa8f25a0d49cae599f"
+        },
+        {
+          "label": "private-caller-sleep",
+          "tick": "5",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "6244e70969460548149bb4d94d6717756d1308ab6dfcc6c5ede76014a883942f",
+          "stateHash": "4c1d993a3da0c813a8435b6cbf511994616be9dcfff3de3e9b4d1635c1cebfa4"
+        },
+        {
+          "label": "repeated-main-midstream",
+          "tick": "47",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "c74ef2856520c7fb4a26cb2d0ab53d20c572ce60f6f31bc18694f19111d796f8",
+          "stateHash": "78587f04b48004b387375dd501dbd29c1b710eff02fbe0d4332bf43ccbc42c1d"
+        },
+        {
+          "label": "final",
+          "tick": "96",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "a0761fb67afa4c1945d5859e8eb6bda5ee9b301c47a50e393d856a77fead26f4",
+          "stateHash": "d7d24dab3e865a764808b6ce7500989f44ab9639374dc1add5b82fc1a0eb44f6"
+        }
+      ],
+      "probes": {
+        "saved_stack_depth": "3",
+        "completed_main_calls": "13",
+        "isolated_rng_queries": "8",
+        "post_snapshot_replayed_ticks": "94",
+        "duplicate_tick_noops": "7"
+      },
+      "tickCount": 96,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "96",
+      "instructions": 498,
+      "finalStateHash": "d7d24dab3e865a764808b6ce7500989f44ab9639374dc1add5b82fc1a0eb44f6",
+      "finalRng": "5629629382860447189",
+      "reportBytes": 56782,
+      "reportSha256": "f72e0805d01986fb467a6c9aa4c85cdb021a8afe7021603275eb617492dbba02",
+      "orderedTickHashSha256": "0db2d5d4156a5fe487dc09d32c035a28a53f0372736b5bf489205831e9fd889a"
+    },
+    {
+      "scenario": 0,
+      "name": "bhav-stack-sleep-rng",
+      "seed": "18364758544493064720",
+      "snapshots": [
+        {
+          "label": "nested-semiglobal-sleep",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11933,
+          "sha256": "99a4360c4e37c1232e69fa07258daa833331b6b7324a87db6d4968853e36680e",
+          "stateHash": "0f4889341554330d640921dc7c81fb93ba82d4c74207cf2c9356a444cc6315cc"
+        },
+        {
+          "label": "private-caller-sleep",
+          "tick": "5",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "d6dcb2173de2e8a34f576b0259704a8466900e46f5875cdbd3d7109bf82920fb",
+          "stateHash": "64407f66033362a3fa215c7691479733cb201697db57244e821883e706052535"
+        },
+        {
+          "label": "repeated-main-midstream",
+          "tick": "47",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "85e924098466db327b443a8743f967a90f062acdcef5e4e4b8e4f1d731cc1c63",
+          "stateHash": "f6dbd2da32ce050c7640e0aca253e536e8a012b52e60de2c2a08c3b22255c2ec"
+        },
+        {
+          "label": "final",
+          "tick": "96",
+          "epoch": "1",
+          "bytes": 11799,
+          "sha256": "93ab0d3ddd17708ba847cb69fa0f816cdec760da34bc6a94d90b0cef346a16e3",
+          "stateHash": "53ee6a9a19ea6cf4add0f6f003ed9dff57a9e538a58a88491b699065a18a0ed0"
+        }
+      ],
+      "probes": {
+        "saved_stack_depth": "3",
+        "completed_main_calls": "13",
+        "isolated_rng_queries": "8",
+        "post_snapshot_replayed_ticks": "94",
+        "duplicate_tick_noops": "7"
+      },
+      "tickCount": 96,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "96",
+      "instructions": 498,
+      "finalStateHash": "53ee6a9a19ea6cf4add0f6f003ed9dff57a9e538a58a88491b699065a18a0ed0",
+      "finalRng": "12019019423031398139",
+      "reportBytes": 56782,
+      "reportSha256": "1fa6801ef28e2e30a5405da7df7f00d4a36bb8db3d36b4a5317df991bd7f50ef",
+      "orderedTickHashSha256": "a84fbffbf7a1abd56b11881a5599f2c9b4d69bdedcb81b063f9959bb058f22c4"
+    },
+    {
+      "scenario": 1,
+      "name": "avatar-animation-motives",
+      "seed": "0",
+      "snapshots": [
+        {
+          "label": "animation-start-and-queued-xevts",
+          "tick": "4",
+          "epoch": "1",
+          "bytes": 15565,
+          "sha256": "25e1d7f8b445aa823231da7db0adf2fb5802085f8ec8f32a3d237f5154270b67",
+          "stateHash": "681191908fd42def327b62b7686214b68641647d4f32bc648469dc9f846cb00c"
+        },
+        {
+          "label": "mixed-forward-reverse-continuations",
+          "tick": "8",
+          "epoch": "1",
+          "bytes": 15419,
+          "sha256": "a0578b8e1f4e5c2542edf7fc0ef2a550c8dcfb8362a6e798a22f7c19eb955937",
+          "stateHash": "5ee6ab0b9e20962175226f71e0fdca850dfa578813f74034b486766a44610174"
+        },
+        {
+          "label": "first-two-minute-motive-boundary",
+          "tick": "61",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "115b9e16365106e2c19cea05e4165b89a5839f644250c354c02d3ae2c1fb03e7",
+          "stateHash": "c0f5f4bd6da35f8641176702be970ed213316d912b7d898fa0f51a802915eb34"
+        },
+        {
+          "label": "fractional-motive-and-animation-continuations",
+          "tick": "121",
+          "epoch": "1",
+          "bytes": 14818,
+          "sha256": "912f4d7d60ea328fd3ee3b6e65bf8a1fb9323291d919445e47705e2b9a80965f",
+          "stateHash": "d164aec5498798a220c2de2893572c848458465a203d486397351c4c0a664b55"
+        },
+        {
+          "label": "final",
+          "tick": "181",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "b689f7caec75227b697f1651eea94a2bde529b28d769a402f08f1d4978a959a4",
+          "stateHash": "dd62e988a902fb34cc0546c60221c4d97430450fb3dc2e1d3324c73160cedc6a"
+        }
+      ],
+      "probes": {
+        "normal_speed_bits": "1067030938",
+        "hurry_speed_bits": "1075419546",
+        "normal_first_frame_bits": "1067030938",
+        "hurry_first_frame_bits": "1075419546",
+        "forward_event_count": "64",
+        "forward_completed": "10",
+        "reverse_event_count": "30",
+        "reverse_completed": "10",
+        "actual_xevt_cues": "200",
+        "max_queued_events": "4",
+        "hunger_final": "-67",
+        "post_snapshot_replayed_ticks": "177",
+        "duplicate_tick_noops": "13"
+      },
+      "tickCount": 181,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "181",
+      "instructions": 1330,
+      "finalStateHash": "dd62e988a902fb34cc0546c60221c4d97430450fb3dc2e1d3324c73160cedc6a",
+      "finalRng": "3403742399726282377",
+      "reportBytes": 93816,
+      "reportSha256": "f8885fd79eb88377f4a7fad45cf34dca5108183c4185030b11f5358bf739c6e4",
+      "orderedTickHashSha256": "291e5e6af2c03f58d7a8c7ce680801972c63b5718cc5969786c821618d69bbe6"
+    },
+    {
+      "scenario": 1,
+      "name": "avatar-animation-motives",
+      "seed": "1",
+      "snapshots": [
+        {
+          "label": "animation-start-and-queued-xevts",
+          "tick": "4",
+          "epoch": "1",
+          "bytes": 15565,
+          "sha256": "5971f7c3289c35abb067ecd613726346debe4ce7ad07a8090c779f1f96426518",
+          "stateHash": "d71d0e127f0bd9b55b93d624a5d39d2dd9c49ba213d2fc261122757a058d18fe"
+        },
+        {
+          "label": "mixed-forward-reverse-continuations",
+          "tick": "8",
+          "epoch": "1",
+          "bytes": 15419,
+          "sha256": "7900958097c87a938217015e945d3c9fbe4eedf7424587c6ab6b2cdb9f1310fb",
+          "stateHash": "a12bfd528ec11f8ca15de72cd83d22782d8ff539f9aa9d8bd61b82099330f6dc"
+        },
+        {
+          "label": "first-two-minute-motive-boundary",
+          "tick": "61",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "958479ae459781e39f75ca67abd0e106c66bd0e6d3f36b6172566c222b2f7017",
+          "stateHash": "cb55e2586a6dac27150c00f7c28635e04a020b776b19689063d79949922e94da"
+        },
+        {
+          "label": "fractional-motive-and-animation-continuations",
+          "tick": "121",
+          "epoch": "1",
+          "bytes": 14818,
+          "sha256": "11350a1e7f6f06ceafd2bea8211b2a3af0a8a843ecf184f138cb5ead415d80de",
+          "stateHash": "31c0b86c81101df778a33bdcd45ba25f11543fad3c909ffcecd3a987151a4474"
+        },
+        {
+          "label": "final",
+          "tick": "181",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "aa4c6b0694f79f4b9e434ba19921cc1e7cd295fded9a80f22c42d12edea8c65d",
+          "stateHash": "d3a01ee8da92af8a9494392c738d85a3e4f3b493d2703c7a19d560a90a1fa374"
+        }
+      ],
+      "probes": {
+        "normal_speed_bits": "1067030938",
+        "hurry_speed_bits": "1075419546",
+        "normal_first_frame_bits": "1067030938",
+        "hurry_first_frame_bits": "1075419546",
+        "forward_event_count": "64",
+        "forward_completed": "10",
+        "reverse_event_count": "30",
+        "reverse_completed": "10",
+        "actual_xevt_cues": "200",
+        "max_queued_events": "4",
+        "hunger_final": "-67",
+        "post_snapshot_replayed_ticks": "177",
+        "duplicate_tick_noops": "13"
+      },
+      "tickCount": 181,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "181",
+      "instructions": 1330,
+      "finalStateHash": "d3a01ee8da92af8a9494392c738d85a3e4f3b493d2703c7a19d560a90a1fa374",
+      "finalRng": "18348150341375295618",
+      "reportBytes": 93816,
+      "reportSha256": "6dbecef1347ef45abb9fab7838a93247b225ecc7d62f0d9a76ea0b081efe7817",
+      "orderedTickHashSha256": "d8822ccd27e33f74c0261af4b8a7ad959dea79fd941266395ad1659368345267"
+    },
+    {
+      "scenario": 1,
+      "name": "avatar-animation-motives",
+      "seed": "123",
+      "snapshots": [
+        {
+          "label": "animation-start-and-queued-xevts",
+          "tick": "4",
+          "epoch": "1",
+          "bytes": 15565,
+          "sha256": "4080a86169c5db2ea223e87a0464682560f04dfb01fb355fe3a36ee7ca20335b",
+          "stateHash": "c9c83b6aba86c57916c6c59b6d6e1b7ead37d1c37c26175335cf7e572b0adeb5"
+        },
+        {
+          "label": "mixed-forward-reverse-continuations",
+          "tick": "8",
+          "epoch": "1",
+          "bytes": 15419,
+          "sha256": "509478621fedfb2bd99eeca43ac9fb1455c9fcaca2aa7c70f2cb3cbfcddf0225",
+          "stateHash": "1a98c4911c4c73c2f3c575e3d8539fbb2b8416f6a5dd8bb8daf378a269c91e76"
+        },
+        {
+          "label": "first-two-minute-motive-boundary",
+          "tick": "61",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "6ff68c51fd667ec2ef0ed7a8ac4996ca5b338ea3dbb605d7958cdf4fba77d80e",
+          "stateHash": "543de87de5e99d71ad95406b5c773e0e73998e1139ddc04a18db29985bb7790e"
+        },
+        {
+          "label": "fractional-motive-and-animation-continuations",
+          "tick": "121",
+          "epoch": "1",
+          "bytes": 14818,
+          "sha256": "a9f363215ab2453505f64b0188ed5a42d662e559dab52135e6af2096840c4892",
+          "stateHash": "9221933870809249057245692be88c8b096ddd6693282106fbc2ece5a81163a2"
+        },
+        {
+          "label": "final",
+          "tick": "181",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "a2c1a163667f66d725ace3b58df15700fb8946ab72ba7e8cf9e6e9403e7eccc4",
+          "stateHash": "c0495b01f9bb99df364ca9dfa20e882f8b97a357132f8edeb5ab64ed6fd8b64e"
+        }
+      ],
+      "probes": {
+        "normal_speed_bits": "1067030938",
+        "hurry_speed_bits": "1075419546",
+        "normal_first_frame_bits": "1067030938",
+        "hurry_first_frame_bits": "1075419546",
+        "forward_event_count": "64",
+        "forward_completed": "10",
+        "reverse_event_count": "30",
+        "reverse_completed": "10",
+        "actual_xevt_cues": "200",
+        "max_queued_events": "4",
+        "hunger_final": "-67",
+        "post_snapshot_replayed_ticks": "177",
+        "duplicate_tick_noops": "13"
+      },
+      "tickCount": 181,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "181",
+      "instructions": 1330,
+      "finalStateHash": "c0495b01f9bb99df364ca9dfa20e882f8b97a357132f8edeb5ab64ed6fd8b64e",
+      "finalRng": "17342000213201196767",
+      "reportBytes": 93816,
+      "reportSha256": "a3339e4764dc6fe51552e70f58fb9d2ba16e955f94e82e2210952c72c68d9d4e",
+      "orderedTickHashSha256": "eb491ba453a978c6eb21a5c729ff0a86c91850def4bb3ba028516cbb3b7ba8d6"
+    },
+    {
+      "scenario": 1,
+      "name": "avatar-animation-motives",
+      "seed": "18364758544493064720",
+      "snapshots": [
+        {
+          "label": "animation-start-and-queued-xevts",
+          "tick": "4",
+          "epoch": "1",
+          "bytes": 15565,
+          "sha256": "3a3b0509d8b9021bd2a84a1480cb8c41137a85d36a45eb6835bde397e4b8390b",
+          "stateHash": "140bb4c0edc5be9602127770d70e7969567c5767edd8e3c60f087d704a9f58e2"
+        },
+        {
+          "label": "mixed-forward-reverse-continuations",
+          "tick": "8",
+          "epoch": "1",
+          "bytes": 15419,
+          "sha256": "f3727eea79828714af002a1f05b91a8ec495c673f95ea17868c48535733eb000",
+          "stateHash": "bf09ba2cc45fad15bc877920ecce2a6e9c64c980ef88f895d38c52a7dccae50b"
+        },
+        {
+          "label": "first-two-minute-motive-boundary",
+          "tick": "61",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "3447273c12f7dcca1e57834240db2db35a4039cc4bf54fcb9d3cd4bf156208a6",
+          "stateHash": "ba0bbcb37c09646e2a25c6d6aabbb3ff507d9433459e65ed846792894e866d7b"
+        },
+        {
+          "label": "fractional-motive-and-animation-continuations",
+          "tick": "121",
+          "epoch": "1",
+          "bytes": 14818,
+          "sha256": "47ce89c8a8e0cb689deaa67e1142ee8c5c59c0dcf1153d37cf2de4c7c447896c",
+          "stateHash": "44acfb63aa7d03ebd7aedab8750b764c884de4803094ded39a63dc5fe59f76ed"
+        },
+        {
+          "label": "final",
+          "tick": "181",
+          "epoch": "1",
+          "bytes": 15171,
+          "sha256": "3620000c13d13fcbbfe7c6daa8c4e64dfa6d0452ff8ed3402c661ab915c7fd43",
+          "stateHash": "a2f0f8d37043a6de0160ad536f4fc4e849e7c7be1a1e0083403dfaf833dc98de"
+        }
+      ],
+      "probes": {
+        "normal_speed_bits": "1067030938",
+        "hurry_speed_bits": "1075419546",
+        "normal_first_frame_bits": "1067030938",
+        "hurry_first_frame_bits": "1075419546",
+        "forward_event_count": "64",
+        "forward_completed": "10",
+        "reverse_event_count": "30",
+        "reverse_completed": "10",
+        "actual_xevt_cues": "200",
+        "max_queued_events": "4",
+        "hunger_final": "-67",
+        "post_snapshot_replayed_ticks": "177",
+        "duplicate_tick_noops": "13"
+      },
+      "tickCount": 181,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "181",
+      "instructions": 1330,
+      "finalStateHash": "a2f0f8d37043a6de0160ad536f4fc4e849e7c7be1a1e0083403dfaf833dc98de",
+      "finalRng": "6367772262836785883",
+      "reportBytes": 93816,
+      "reportSha256": "493af0a3e363e5eacaf9371cd3b574c3b07a06eb8ec075a5c162309649247a7b",
+      "orderedTickHashSha256": "39a6f062315ea62134cb112278e4b2b0176f7a6e45f4818a1bd4556250c22170"
+    },
+    {
+      "scenario": 2,
+      "name": "effect-fenced-retry",
+      "seed": "0",
+      "snapshots": [
+        {
+          "label": "pending-external-vm-continuation",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11915,
+          "sha256": "4c2e20a59124c09ab857c7981837f541cca3dd7884183d0a39ecbeff696da9e9",
+          "stateHash": "42abfcf543b660e44133f8fa7c1578b24cf07960c044eb978016edc275076056"
+        },
+        {
+          "label": "takeover-retries-original-operation",
+          "tick": "3",
+          "epoch": "2",
+          "bytes": 11915,
+          "sha256": "d397e1af01b4b4ae013d5fc2f150d2fcf2e308fd03dd8aefc9b657632efa610d",
+          "stateHash": "ee705164637c1c367778580cb2b37569504da419c29f89727acf7590218afa9c"
+        },
+        {
+          "label": "resolved-effect-followed-by-sleep",
+          "tick": "8",
+          "epoch": "2",
+          "bytes": 11718,
+          "sha256": "dacfafe0d334d34b998ca014536de32e36da9860c5fca5be472c1554266b1eda",
+          "stateHash": "535e7d89095e11ed3044f4f4671720bd424577165c0b262b461a959f35fa4236"
+        },
+        {
+          "label": "second-pending-operation",
+          "tick": "15",
+          "epoch": "2",
+          "bytes": 12117,
+          "sha256": "a405411280d94a98c3c9bad23b8981231fcd105cc05bbc3efe76cc18df1998f7",
+          "stateHash": "372b0cda788c52f24bf2a57e8f2fe4fa4f505826a872487e9f8dea0ce7a5bd6f"
+        },
+        {
+          "label": "final",
+          "tick": "24",
+          "epoch": "3",
+          "bytes": 11831,
+          "sha256": "e922fb77f0fcc6fd48492c89d6e8ef1fb450d6dd2d21d4a1816acbe715f69e5e",
+          "stateHash": "ba97556ee15a98924c6b6d7bae1ec62ec2bf4bb8f54a90bea5e8c0dd4da2a41f"
+        }
+      ],
+      "probes": {
+        "applied_effects": "2",
+        "unique_operations": "3",
+        "cancelled_operations": "1",
+        "authority_takeovers": "2",
+        "rejected_fenced_deliveries": "4",
+        "duplicate_effect_deliveries": "2",
+        "replacement_generation": "2",
+        "xl_response_value": "24000",
+        "post_snapshot_replayed_ticks": "22",
+        "duplicate_tick_noops": "1"
+      },
+      "tickCount": 24,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "24",
+      "instructions": 18,
+      "finalStateHash": "ba97556ee15a98924c6b6d7bae1ec62ec2bf4bb8f54a90bea5e8c0dd4da2a41f",
+      "finalRng": "20271148021501991",
+      "reportBytes": 62636,
+      "reportSha256": "42a9517e1f9abd7b242f3a05ec291d093989a5e95cc52a1823462d5b0bb58a81",
+      "orderedTickHashSha256": "e36b6006c6aaee56b3e6f4869c75422062fabd3339348674993227fc64d8dbfc"
+    },
+    {
+      "scenario": 2,
+      "name": "effect-fenced-retry",
+      "seed": "1",
+      "snapshots": [
+        {
+          "label": "pending-external-vm-continuation",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11915,
+          "sha256": "cdb8718c683e252a2c9431f6f97d341af3c39cb618efa381b8176571639991d0",
+          "stateHash": "24dfa64bfa1e033cea7967835899a3578035d86d4a7d38963f454c927a6a0a35"
+        },
+        {
+          "label": "takeover-retries-original-operation",
+          "tick": "3",
+          "epoch": "2",
+          "bytes": 11915,
+          "sha256": "a0167858497d17f517a784b3790d502a42988fc1fc219056f7c195fdf104e78b",
+          "stateHash": "551f5835b2aa24e60cec28290e6b5bd015d468a4c88ff996fa8c0bbecd27c9e4"
+        },
+        {
+          "label": "resolved-effect-followed-by-sleep",
+          "tick": "8",
+          "epoch": "2",
+          "bytes": 11718,
+          "sha256": "5505b30202b897fd9464476573cf75953631eb298f3a7ea3778abe8dc30ec25e",
+          "stateHash": "cc4469111953c85010e0a224111415199be8d12c7b31d5af4b909900e3127f0f"
+        },
+        {
+          "label": "second-pending-operation",
+          "tick": "15",
+          "epoch": "2",
+          "bytes": 12117,
+          "sha256": "93bad0de1f84bce1981e5df4d94891611237e1d541216170d449e5559349560d",
+          "stateHash": "393ae2259b9aa34270e32968820024d62da09de40675fdcd2a4dd93502f674bb"
+        },
+        {
+          "label": "final",
+          "tick": "24",
+          "epoch": "3",
+          "bytes": 11831,
+          "sha256": "ecac0cd9296e47bc4fde2ac59a0a08cc78ac75618a4f66883c388488873fa7f0",
+          "stateHash": "707c1213db64d2d8a0764282df87cab1e75c7a3a9dd56854869706983254120d"
+        }
+      ],
+      "probes": {
+        "applied_effects": "2",
+        "unique_operations": "3",
+        "cancelled_operations": "1",
+        "authority_takeovers": "2",
+        "rejected_fenced_deliveries": "4",
+        "duplicate_effect_deliveries": "2",
+        "replacement_generation": "2",
+        "xl_response_value": "24000",
+        "post_snapshot_replayed_ticks": "22",
+        "duplicate_tick_noops": "1"
+      },
+      "tickCount": 24,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "24",
+      "instructions": 18,
+      "finalStateHash": "707c1213db64d2d8a0764282df87cab1e75c7a3a9dd56854869706983254120d",
+      "finalRng": "21397322814650406",
+      "reportBytes": 62636,
+      "reportSha256": "4995c3e4272e683d0d8249b4093fbe168d56e558ab766afaf1cdc35ed0005326",
+      "orderedTickHashSha256": "1332e8ca4a9e2065b8d6663caf64836e07fbfc7e6028311ba0467de645b875f2"
+    },
+    {
+      "scenario": 2,
+      "name": "effect-fenced-retry",
+      "seed": "123",
+      "snapshots": [
+        {
+          "label": "pending-external-vm-continuation",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11915,
+          "sha256": "29901fce3f97ff5cad0daa6f325aefe001338c5f11baf27bbcd8a2a6dd5f2ebe",
+          "stateHash": "e4a8f5ffcf003678ab39c4bcf3d84bf7c74f9d380369131e3c8ae10e9245cddf"
+        },
+        {
+          "label": "takeover-retries-original-operation",
+          "tick": "3",
+          "epoch": "2",
+          "bytes": 11915,
+          "sha256": "83a02b5b130c06f3672ebd00bcf30064631396bb35cacf4cdec707506325c4f8",
+          "stateHash": "278af48e883577a572dd055842e7b66fa33076c37f4806047ecd8a2cd5db4e65"
+        },
+        {
+          "label": "resolved-effect-followed-by-sleep",
+          "tick": "8",
+          "epoch": "2",
+          "bytes": 11718,
+          "sha256": "e52df098dcc64ab2b5886943ba13f95a9e4d68c32cd8444e23cf012a5b0faac0",
+          "stateHash": "37c9ac2dbb13fd9304186845517f7bcb871bb1496c12f4093798e05007c94967"
+        },
+        {
+          "label": "second-pending-operation",
+          "tick": "15",
+          "epoch": "2",
+          "bytes": 12117,
+          "sha256": "b09e111091e703b5c890c5b8f68c5c9ad3df06fa40269ee0ac4b1db5b12b3a12",
+          "stateHash": "a9a8110e2b74a84fcddd3a853ed35b1ee2a0ee0317041a8aaa1c3f656aeee9a5"
+        },
+        {
+          "label": "final",
+          "tick": "24",
+          "epoch": "3",
+          "bytes": 11831,
+          "sha256": "0b290c3d4def1980b569d16f8323f906f8a4e64d71797c6093776b8638345df4",
+          "stateHash": "552816f3f9d2cba28d434e1720eb9fa468365a713b68c5dbe3f106aced908660"
+        }
+      ],
+      "probes": {
+        "applied_effects": "2",
+        "unique_operations": "3",
+        "cancelled_operations": "1",
+        "authority_takeovers": "2",
+        "rejected_fenced_deliveries": "4",
+        "duplicate_effect_deliveries": "2",
+        "replacement_generation": "2",
+        "xl_response_value": "24000",
+        "post_snapshot_replayed_ticks": "22",
+        "duplicate_tick_noops": "1"
+      },
+      "tickCount": 24,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "24",
+      "instructions": 18,
+      "finalStateHash": "552816f3f9d2cba28d434e1720eb9fa468365a713b68c5dbe3f106aced908660",
+      "finalRng": "158790648149166298",
+      "reportBytes": 62636,
+      "reportSha256": "6b0d520119be247c28d92cca256cfc583bc4ec12364127cf0bf1042892c1ea01",
+      "orderedTickHashSha256": "c64177d7b5d722d35440b4859f660094d9b4992859847d767feda5d5033f7dbf"
+    },
+    {
+      "scenario": 2,
+      "name": "effect-fenced-retry",
+      "seed": "18364758544493064720",
+      "snapshots": [
+        {
+          "label": "pending-external-vm-continuation",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 11915,
+          "sha256": "1a0877bc6292b38526781e00ef833acf06e628f47ab87666d5eea638e5fae2aa",
+          "stateHash": "155e483be0071517e16a13e2784d91eb55715b13ec7709e308b0a40566d99533"
+        },
+        {
+          "label": "takeover-retries-original-operation",
+          "tick": "3",
+          "epoch": "2",
+          "bytes": 11915,
+          "sha256": "f7272c2135ccb43ad1d05a05ed5c4ea884dde3fae7c403dff8513c65aa89e7de",
+          "stateHash": "fd4d201507adc2b72c83afb6c310f644ed1f214da64e160aa25a829b01d63f47"
+        },
+        {
+          "label": "resolved-effect-followed-by-sleep",
+          "tick": "8",
+          "epoch": "2",
+          "bytes": 11718,
+          "sha256": "e6d47ab03b0af6231831db96020d59ab6bf20632538be8fb07ad5e9c9f0d1fe8",
+          "stateHash": "5c0035f07a293143dcb413403d788e0f9566c10e5481c075b5a7128615220537"
+        },
+        {
+          "label": "second-pending-operation",
+          "tick": "15",
+          "epoch": "2",
+          "bytes": 12117,
+          "sha256": "3d7926dd15864d8e3b4141eb89f630ec9e09cdcc146cc0a8e434bdcf0040255c",
+          "stateHash": "84a8f927b2ffb696e546dd6cc6f8fd7446aa49bc6807e7ca42680d20945541da"
+        },
+        {
+          "label": "final",
+          "tick": "24",
+          "epoch": "3",
+          "bytes": 11831,
+          "sha256": "11887ef4ec5131ccac8370c896606fabdaffbede844a882451484e6c15fc6876",
+          "stateHash": "3043542865b3ff5814c7932cdcbe2eeb694f0ad8451bd4a891265831990f1b39"
+        }
+      ],
+      "probes": {
+        "applied_effects": "2",
+        "unique_operations": "3",
+        "cancelled_operations": "1",
+        "authority_takeovers": "2",
+        "rejected_fenced_deliveries": "4",
+        "duplicate_effect_deliveries": "2",
+        "replacement_generation": "2",
+        "xl_response_value": "24000",
+        "post_snapshot_replayed_ticks": "22",
+        "duplicate_tick_noops": "1"
+      },
+      "tickCount": 24,
+      "firstAcceptedTick": "1",
+      "lastAcceptedTick": "24",
+      "instructions": 18,
+      "finalStateHash": "3043542865b3ff5814c7932cdcbe2eeb694f0ad8451bd4a891265831990f1b39",
+      "finalRng": "3114023519160700976",
+      "reportBytes": 62636,
+      "reportSha256": "03eb6299948c7123f66a475c214d9815b4a078ac5726d6796de3244953571595",
+      "orderedTickHashSha256": "e4ce9f84d1fc8c7159d88fb5faab633fe61fb2adb9fd0ebfebd9d21e9b2aea93"
+    },
+    {
+      "scenario": 3,
+      "name": "portal-route-callback",
+      "seed": "0",
+      "snapshots": [
+        {
+          "label": "normalized-initial-world",
+          "tick": "1",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "a4338a59712c19a91443d558f7b08d26b1216790189257deacbcf68bf8e8e4d8",
+          "stateHash": "19596a198e7e092e2bd1d04066c9bbad3f69838f33cdd554941c8dd7d0600443"
+        },
+        {
+          "label": "vm-route-pending",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 10421,
+          "sha256": "cde0f3ad99b1e49dd9c3430e818997c9ddf13ecf2ef6b5adf249c83c1430deb7",
+          "stateHash": "5265e0527fb5fa76e4659704ead0be97e23089a8896197f05fbeedf5cd42e02c"
+        },
+        {
+          "label": "portal-script-pending",
+          "tick": "13",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "6f2ff9adc010aaa14057ad1370b5b5d700fb665dfc6b0a4346458d364ff101d1",
+          "stateHash": "b1207bcef3002825bf457ceff7b12413ba517225c4c0fe17513575fdf123068b"
+        },
+        {
+          "label": "portal-script-held",
+          "tick": "16",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "0012c6a811997238ec6a1550ef7faee89141bcfd151ba68ae677169748d98d30",
+          "stateHash": "185535405b968dcc49e7c847bfc4b92472c4328c21dc8f9fb833cb0a53b9337d"
+        },
+        {
+          "label": "portal-crossed",
+          "tick": "17",
+          "epoch": "1",
+          "bytes": 10590,
+          "sha256": "8cd7531d8bb97462b1d701b708e675f08605a90e042c12ae099a1fe86f2fec63",
+          "stateHash": "24cdc982314c0d76ffb2025731db539b1383297be31ca51311a05fef4c4d9f40"
+        },
+        {
+          "label": "final",
+          "tick": "65",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "976c0e68eabf4c75bc435aa8225bad2930fa483c03105e17cf3a408bd8ba7f6a",
+          "stateHash": "3296b2000b81860ceb0acc9a25c56d6c9f8440bd0e68997077829abb01c169c3"
+        }
+      ],
+      "probes": {
+        "normalized_initial_tick": "1",
+        "portal_callbacks": "1",
+        "portal_wait_ticks": "3",
+        "vm_suspended_frames": "1",
+        "route_finished_count": "1",
+        "vm_route_success_count": "1",
+        "vm_route_failure_count": "0",
+        "rejected_route_callbacks": "5",
+        "portal_final_level": "2",
+        "portal_final_x": "104",
+        "portal_final_y": "40",
+        "post_snapshot_replayed_ticks": "64",
+        "duplicate_tick_noops": "5"
+      },
+      "tickCount": 64,
+      "firstAcceptedTick": "2",
+      "lastAcceptedTick": "65",
+      "instructions": 4,
+      "finalStateHash": "3296b2000b81860ceb0acc9a25c56d6c9f8440bd0e68997077829abb01c169c3",
+      "finalRng": "7187472529305825902",
+      "reportBytes": 69290,
+      "reportSha256": "a7e14609080bb65fb86121b036ea3d33a53a8a622691d4f602fcf9dacae1d3d4",
+      "orderedTickHashSha256": "2fc8acb2977aa79ad4a4a9e196162260defe1ee542204205e9d1dec9434ffeca"
+    },
+    {
+      "scenario": 3,
+      "name": "portal-route-callback",
+      "seed": "1",
+      "snapshots": [
+        {
+          "label": "normalized-initial-world",
+          "tick": "1",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "476c2760cf9f76d8cc087e071168c5833201fc5a90dd135d3c9311b70eb907a2",
+          "stateHash": "c9a4e31ccc7b933168e8ea184190c136ed94b0eaeb342d17303f3f358269b02e"
+        },
+        {
+          "label": "vm-route-pending",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 10421,
+          "sha256": "32d464a4d084c2fceb73ea01b312f1e60f5d15da3ef8abd23828994a0ba9fe86",
+          "stateHash": "105130608a5603b9c884e3ac1805d1597b5c48fde1ad596b913b552d5efc39a3"
+        },
+        {
+          "label": "portal-script-pending",
+          "tick": "13",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "b3e63061b9ae89e1098180381e51ab419b273e237b84d4ee8e9739b90c8b875d",
+          "stateHash": "5a35293696f7f248d32f09924c969cdbc88913892af734ad4969cc2d2d4d4034"
+        },
+        {
+          "label": "portal-script-held",
+          "tick": "16",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "669feb16de3569e6e816c68e2f946bb0763c098c22e01d8b4df62664c14ffa5b",
+          "stateHash": "69839b1f7ed71a3db0d95749cbb666e58b86eb7f6940da07812c7a253100830d"
+        },
+        {
+          "label": "portal-crossed",
+          "tick": "17",
+          "epoch": "1",
+          "bytes": 10590,
+          "sha256": "4afa3163ad6883b8f67687a9e17c1f0721de24efa5ca9dfba80237c01c143c8d",
+          "stateHash": "95dc0dec0a4d845530a3932aa68f94e3e75fe54c299654a4606aff60d2f5ab06"
+        },
+        {
+          "label": "final",
+          "tick": "65",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "484d942ac51309b0156b89c82ad3c0d74f0a1ec90cc15392f651b02d0cdc2142",
+          "stateHash": "25a1db6bd1c7b61bfcbd6e9cb9d4fbb7e19384d1339097c0ad4ff227bd8e1364"
+        }
+      ],
+      "probes": {
+        "normalized_initial_tick": "1",
+        "portal_callbacks": "1",
+        "portal_wait_ticks": "3",
+        "vm_suspended_frames": "1",
+        "route_finished_count": "1",
+        "vm_route_success_count": "1",
+        "vm_route_failure_count": "0",
+        "rejected_route_callbacks": "5",
+        "portal_final_level": "2",
+        "portal_final_x": "104",
+        "portal_final_y": "40",
+        "post_snapshot_replayed_ticks": "64",
+        "duplicate_tick_noops": "5"
+      },
+      "tickCount": 64,
+      "firstAcceptedTick": "2",
+      "lastAcceptedTick": "65",
+      "instructions": 4,
+      "finalStateHash": "25a1db6bd1c7b61bfcbd6e9cb9d4fbb7e19384d1339097c0ad4ff227bd8e1364",
+      "finalRng": "13678267952092993237",
+      "reportBytes": 69290,
+      "reportSha256": "6ae3273dc1ded5c96e81bd6e8342586f9de28ef160f8c10aba21a743a493ff7e",
+      "orderedTickHashSha256": "5b931ac82e58d62e961654c2a7782a4396979ff57f7593b9fd6eaefc10ef13cd"
+    },
+    {
+      "scenario": 3,
+      "name": "portal-route-callback",
+      "seed": "123",
+      "snapshots": [
+        {
+          "label": "normalized-initial-world",
+          "tick": "1",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "30f89475a5a2f8973a5d09427d63ce4833322d8b998b0b3e6f4888f67e18d9a7",
+          "stateHash": "debcaac799c98f75e5de71836c6919fedcd54153de3c277ebc03066633cc77c2"
+        },
+        {
+          "label": "vm-route-pending",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 10421,
+          "sha256": "0523fddee15c4488fcde5e695c18b9edf991796a107cf2c162d5724e0b4337ef",
+          "stateHash": "00e174f538bde48e9d88fbed01713d5517fe097a229bc3dec240e3effcb3583f"
+        },
+        {
+          "label": "portal-script-pending",
+          "tick": "13",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "41cc2cd45788e0a0283bcd238aaee64bd5b130e0579966f26f67dba318cb99f8",
+          "stateHash": "7aeb32b0774253e2294ba25dbf57cba54af34487f9974490093510181437ebff"
+        },
+        {
+          "label": "portal-script-held",
+          "tick": "16",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "d0a54b79f54d5c28e37505ba205851282ec2ac5d1b33ec7208498692f8da4b8c",
+          "stateHash": "9f2f1144b4f8e60dc948ce98aed6b71d3cb221d16fbda8c8d87adc43c91f8622"
+        },
+        {
+          "label": "portal-crossed",
+          "tick": "17",
+          "epoch": "1",
+          "bytes": 10590,
+          "sha256": "abb835c8eea3d9064f0eb99aa238e1a11e4b0d535eeccaa8e663fde3900507f8",
+          "stateHash": "0cca2b039e7d1e2df425cb99a9cc03ee97a2d43afc3a1ace5aec7ae1912139ae"
+        },
+        {
+          "label": "final",
+          "tick": "65",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "da97bf0f115f54e0e5b5564e72af000ee65993e46164f5aad7e1354e0ccaa41e",
+          "stateHash": "94646bf7e3f4978a6522ea0a35541b0adc8bcfcbb86a9aa588e0909bba0583e1"
+        }
+      ],
+      "probes": {
+        "normalized_initial_tick": "1",
+        "portal_callbacks": "1",
+        "portal_wait_ticks": "3",
+        "vm_suspended_frames": "1",
+        "route_finished_count": "1",
+        "vm_route_success_count": "1",
+        "vm_route_failure_count": "0",
+        "rejected_route_callbacks": "5",
+        "portal_final_level": "2",
+        "portal_final_x": "104",
+        "portal_final_y": "40",
+        "post_snapshot_replayed_ticks": "64",
+        "duplicate_tick_noops": "5"
+      },
+      "tickCount": 64,
+      "firstAcceptedTick": "2",
+      "lastAcceptedTick": "65",
+      "instructions": 4,
+      "finalStateHash": "94646bf7e3f4978a6522ea0a35541b0adc8bcfcbb86a9aa588e0909bba0583e1",
+      "finalRng": "584666338553722866",
+      "reportBytes": 69290,
+      "reportSha256": "04b357e52f7316783990a37dea9fa8358336948c536042497390d6229fc2b38b",
+      "orderedTickHashSha256": "57297682c41307042083047c071ad57ae0c152d9dc6ca4b33a125db2272562c5"
+    },
+    {
+      "scenario": 3,
+      "name": "portal-route-callback",
+      "seed": "18364758544493064720",
+      "snapshots": [
+        {
+          "label": "normalized-initial-world",
+          "tick": "1",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "34e86ed973290a93c9933b64496f7dee05e3361be59201cccbf32823c4dd87f2",
+          "stateHash": "5c70509f8c8af20706395ba3234a136c53feb13bdf1b4f704fdb6c9b019573ba"
+        },
+        {
+          "label": "vm-route-pending",
+          "tick": "2",
+          "epoch": "1",
+          "bytes": 10421,
+          "sha256": "2c0b0b974c390604ee92dde021753d11bc4d669ca17a0798a3fd600c2619ca97",
+          "stateHash": "c279e20970a34a5ad3b8cdcdb486cbf40ea23e4f5f4dd2e4ca44f713986fede0"
+        },
+        {
+          "label": "portal-script-pending",
+          "tick": "13",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "68edafdccbb9fa7c3bb2e7fa7a294f236c31369d1c2e344964cbfceb71a0817b",
+          "stateHash": "6a555356c10fc2f1b78b8bd751dbb9b5bc3864dc9b76bb270ea3c451bb830768"
+        },
+        {
+          "label": "portal-script-held",
+          "tick": "16",
+          "epoch": "1",
+          "bytes": 10682,
+          "sha256": "1801f7e609ea7ec848aaa99acd70b51e9f8261751fe9f525f1a870c48cb40ed9",
+          "stateHash": "2743ca9b7c61e1af23aa429d146298d42800c825d8b41b218f89abf6defaf5e0"
+        },
+        {
+          "label": "portal-crossed",
+          "tick": "17",
+          "epoch": "1",
+          "bytes": 10590,
+          "sha256": "c2fa92f42b4c8b9ac49845472b13243c5db0bd905d97edafa68e9bedd784bb26",
+          "stateHash": "a668025441910087bda82d1a572797d25862570e8989a67353d3f80d703d1a92"
+        },
+        {
+          "label": "final",
+          "tick": "65",
+          "epoch": "1",
+          "bytes": 9978,
+          "sha256": "b797e22180290935a96d770b144b2004a50d0917dc66d59416abf0ce6e84d48b",
+          "stateHash": "e1b6f15da03672cad6cc3c318dc6e970a49fcdc5cc81a71dc7cfb29aa41cabff"
+        }
+      ],
+      "probes": {
+        "normalized_initial_tick": "1",
+        "portal_callbacks": "1",
+        "portal_wait_ticks": "3",
+        "vm_suspended_frames": "1",
+        "route_finished_count": "1",
+        "vm_route_success_count": "1",
+        "vm_route_failure_count": "0",
+        "rejected_route_callbacks": "5",
+        "portal_final_level": "2",
+        "portal_final_x": "104",
+        "portal_final_y": "40",
+        "post_snapshot_replayed_ticks": "64",
+        "duplicate_tick_noops": "5"
+      },
+      "tickCount": 64,
+      "firstAcceptedTick": "2",
+      "lastAcceptedTick": "65",
+      "instructions": 4,
+      "finalStateHash": "e1b6f15da03672cad6cc3c318dc6e970a49fcdc5cc81a71dc7cfb29aa41cabff",
+      "finalRng": "12185068765772642789",
+      "reportBytes": 69290,
+      "reportSha256": "90063fc0b6011d2193ba5ed6821d4ec76d961a255e4138da94c8fc5745ce0397",
+      "orderedTickHashSha256": "45b1d041b264299ade6cec9754634af9b69b0c90c765fe7996d09b293068a42a"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)
+binary: rustc
+commit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112
+commit-date: 2023-12-21
+host: x86_64-unknown-linux-gnu
+release: 1.75.0
+LLVM version: 17.0.6
+    Finished dev [unoptimized] target(s) in 0.03s
+/usr/bin/mcs
+/usr/bin/mono
+/usr/bin/ffplay
+test_explicit_external_mp3_codec_decodes_real_synthetic_payload (test_cooker.CookerTests.test_explicit_external_mp3_codec_decodes_real_synthetic_payload) ... ok
+test_external_decoder_refuses_playlist_inputs_before_starting_a_process (test_cooker.CookerTests.test_external_decoder_refuses_playlist_inputs_before_starting_a_process) ... ok
+test_fast_exiting_child_cannot_bypass_diagnostic_budget (test_cooker.CookerTests.test_fast_exiting_child_cannot_bypass_diagnostic_budget) ... ok
+test_outside_root_and_unsupported_mp3_do_not_create_outputs (test_cooker.CookerTests.test_outside_root_and_unsupported_mp3_do_not_create_outputs) ... ok
+test_process_deadline_and_output_budget_kill_child (test_cooker.CookerTests.test_process_deadline_and_output_budget_kill_child) ... ok
+test_wave_cooking_and_provenance_are_measured_and_atomic (test_cooker.CookerTests.test_wave_cooking_and_provenance_are_measured_and_atomic) ... ok
+test_xa_requires_normalized_provider_metadata_and_truncation_fails (test_cooker.CookerTests.test_xa_requires_normalized_provider_metadata_and_truncation_fails) ... ok
+test_pcm16_roundtrip_and_metadata_rejection (test_decoder_cli.DecoderCliTests.test_pcm16_roundtrip_and_metadata_rejection) ... ok
+test_actual_dummy_output_finishes_with_explicit_capability_boundary (test_native_player.NativePlayerTests.test_actual_dummy_output_finishes_with_explicit_capability_boundary) ... ok
+test_pause_resume_stop_and_deadline_own_the_child (test_native_player.NativePlayerTests.test_pause_resume_stop_and_deadline_own_the_child) ... ok
+test_root_and_byte_budget_fail_before_player_start (test_native_player.NativePlayerTests.test_root_and_byte_budget_fail_before_player_start) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.958s
+
+OK
+{"passed": 32, "synthetic": true, "byte_equal": true}

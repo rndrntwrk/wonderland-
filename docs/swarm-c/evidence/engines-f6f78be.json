@@ -1,0 +1,5064 @@
+{
+  "commit": "f6f78be1fef247f2db47e19f56d94054f0c9e88c",
+  "run_id": 37353615543,
+  "run_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543",
+  "conclusion": "failure",
+  "evidence": "Actual hosted native software runtimes and Chromium browser runs. These do not qualify physical hardware or production content.",
+  "jobs": [
+    {
+      "variant": "bevy-native",
+      "job_id": 111910340268,
+      "job_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340268",
+      "conclusion": "success",
+      "artifact_id": 11363682471,
+      "artifact_sha256": "7f02aea6761e0d431f004a4e27e31474d153502adeced1d69e5f6b535e5a914c",
+      "report_sha256": "d77e04b4c30302b49d4bc3ca7fdd61134d241038b1976e80709444202ef1aba3",
+      "tests_passed": 9,
+      "report": {
+        "evidence": "hosted-native-software-runtime",
+        "processExitedSuccessfully": true,
+        "hardwareQualified": false,
+        "imageParityQualified": false,
+        "lastState": {
+          "authoritativeTicksAdvanced": 0,
+          "avatars": 64,
+          "engine": "bevy-0.19.1",
+          "engineErrors": [],
+          "fixtureRevision": 1,
+          "gpuReadback": "pending",
+          "lastCommand": 0,
+          "meshCount": 148,
+          "mode": "hybrid2d",
+          "pass": "color",
+          "readiness": "scene-uploaded",
+          "ready": true,
+          "renderScheduleVisits": 16,
+          "sceneHash": "419f8032082b36daa613b25c328e49dfabf1994feabcbf9a126253d2369c340f",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "selectionSource": "cpu-reference-generation-checked",
+          "spriteCount": 3,
+          "suspended": false,
+          "tick": 30,
+          "updateCount": 18,
+          "vertexCount": 20740
+        }
+      }
+    },
+    {
+      "variant": "fyrox-native",
+      "job_id": 111910340397,
+      "job_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340397",
+      "conclusion": "success",
+      "artifact_id": 11364270456,
+      "artifact_sha256": "b8c4def7677f4e1520c021f0fa8466c391b030e2f721a8db9459042e84542ebe",
+      "report_sha256": "a9f440ec92e36508006aab75f758592285e61a45119fdd0c2f7c60f97bf81f7b",
+      "tests_passed": 12,
+      "report": {
+        "evidence": "hosted-native-software-runtime",
+        "processExitedSuccessfully": true,
+        "hardwareQualified": false,
+        "imageParityQualified": false,
+        "lastState": {
+          "authoritativeTicksAdvanced": 0,
+          "avatars": 64,
+          "engine": "fyrox-1.0.1",
+          "engineErrors": [],
+          "fixtureRevision": 1,
+          "gpuReadback": "pending",
+          "lastCommand": 0,
+          "meshCount": 148,
+          "mode": "hybrid2d",
+          "pass": "color",
+          "readiness": "scene-uploaded",
+          "ready": true,
+          "renderScheduleVisits": 17,
+          "sceneHash": "419f8032082b36daa613b25c328e49dfabf1994feabcbf9a126253d2369c340f",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "selectionSource": "cpu-reference-generation-checked",
+          "spriteCount": 3,
+          "suspended": false,
+          "tick": 30,
+          "updateCount": 229,
+          "vertexCount": 20740
+        }
+      }
+    },
+    {
+      "variant": "bevy-webgl2",
+      "job_id": 111910340419,
+      "job_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340419",
+      "conclusion": "failure",
+      "artifact_id": 11364421509,
+      "artifact_sha256": "735bfb3dee5631ed02e2d1003cee07ca3877ec6fc1cbed45d4c2776157699411",
+      "report_sha256": "c923c79b747595686c8ecabd22fc9b780d6ed24d10bd82b9b3b795ecd7a21c7e",
+      "evidenceClass": "headless Chromium with explicitly requested software graphics",
+      "browserVersion": "151.0.7922.34",
+      "browserArgs": [
+        "--use-gl=angle",
+        "--use-angle=swiftshader-webgl",
+        "--enable-unsafe-swiftshader"
+      ],
+      "status": "failed",
+      "rendererQualified": false,
+      "physicalDevices": "pending",
+      "gpuExecutionTiming": "unavailable; submission intervals are not GPU time",
+      "gpuAsyncPickReadback": "pending; screenshot visualization readback tested here",
+      "tolerances": {
+        "idStableInteriorMismatches": 0,
+        "colorMeanAbsoluteByteError": 4,
+        "colorRootMeanSquareByteError": 12,
+        "colorChannelFractionOver8": 0.03
+      },
+      "lifecycle": [
+        {
+          "name": "DOM-focus-32",
+          "passed": true
+        },
+        {
+          "name": "pointer-cancellation-32",
+          "passed": true
+        },
+        {
+          "name": "resize-and-DPR-32",
+          "passed": true
+        },
+        {
+          "name": "presentation-suspend-32",
+          "passed": true
+        },
+        {
+          "name": "audio-gesture-and-lifecycle-32",
+          "passed": true
+        },
+        {
+          "name": "repeat-resource-reset-32",
+          "passed": true
+        },
+        {
+          "name": "simulated-loss-32",
+          "passed": true
+        },
+        {
+          "name": "actual-device-loss-and-recovery-32",
+          "passed": true
+        },
+        {
+          "name": "DOM-focus-64",
+          "passed": true
+        },
+        {
+          "name": "pointer-cancellation-64",
+          "passed": true
+        },
+        {
+          "name": "resize-and-DPR-64",
+          "passed": true
+        },
+        {
+          "name": "presentation-suspend-64",
+          "passed": true
+        },
+        {
+          "name": "audio-gesture-and-lifecycle-64",
+          "passed": true
+        },
+        {
+          "name": "repeat-resource-reset-64",
+          "passed": true
+        },
+        {
+          "name": "simulated-loss-64",
+          "passed": true
+        },
+        {
+          "name": "actual-device-loss-and-recovery-64",
+          "passed": true
+        }
+      ],
+      "referenceEvidence": "synthetic-cpu-reference",
+      "checks": [
+        {
+          "name": "browser-pixel-density-32",
+          "passed": true
+        },
+        {
+          "name": "startup-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "color-parity-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "no-runtime-errors-before-loss-32",
+          "passed": true
+        },
+        {
+          "name": "no-console-errors-before-loss-32",
+          "passed": true
+        },
+        {
+          "name": "browser-pixel-density-64",
+          "passed": true
+        },
+        {
+          "name": "startup-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full2d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "no-runtime-errors-before-loss-64",
+          "passed": true
+        },
+        {
+          "name": "no-console-errors-before-loss-64",
+          "passed": true
+        }
+      ],
+      "failures": [
+        {
+          "name": "gpu-id-parity-full2d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 14845,
+            "mismatched": 3,
+            "ownerlessOcclusionChecked": 4642,
+            "examples": [
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 15158,
+            "mismatched": 3,
+            "ownerlessOcclusionChecked": 5329,
+            "examples": [
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "mode": "full2d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "c3fffc007d88eb8381b32ecffd46c9be081ffc5b1d1e088aabe6f1308dfd8c8c",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.059755859375,
+            "rootMeanSquareByteError": 2.4640446103944402,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.0005978732638888889
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3809,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 1556,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "full2d-32.ids",
+            "depth": "full2d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full2d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full2d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "5a54e163064af9629e5e62be32da427639f6b98756d2814a22b2fefd0a836f2d",
+            "pick": "8641d2e5d8c3daf07005217b08a2f17892ae316827430501c39337b95146115a"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "hybrid2d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "f268d3ff9c953af800df6069530e3cd973dcfdadb3bcb42459c8aa94e7a89ae0",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.162607421875,
+            "rootMeanSquareByteError": 2.7246386180479667,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.005393880208333333
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3889,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 1734,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "hybrid2d-32.ids",
+            "depth": "hybrid2d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/hybrid2d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/hybrid2d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "a84d7e2d908ac054414cff1106494f8eeccf46926fe7bf4a30cd770f2bef04a7",
+            "pick": "0f27428d8f2de41ce48d88942fb2892138f6e49949acd4361d02d19193e0ca3c"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full3d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "399578580a50590ee96ac799cd2cc893e49bdee4643e9c3d0377146e4e5f2591",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.07218098958333333,
+            "rootMeanSquareByteError": 1.6773375842470644,
+            "maximumByteError": 233,
+            "channelFractionOver8": 0.002529296875
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3162,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 852,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "full3d-32.ids",
+            "depth": "full3d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full3d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full3d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "53c910de817d75175585ed9894bf028e68282b13f504a89d097e95ebc28430cb",
+            "pick": "a06471eccde9b4497641eb5742199de8faf4cdc7b3f2fff30b7dd76b2d1a2bc1"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full2d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "b6ad53a975a2cea7bb0ffe280f323edaf9f42dcc9e093aae677b990832333c32",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.5064181857638889,
+            "rootMeanSquareByteError": 5.87476109517206,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.01072482638888889
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 14845,
+            "mismatched": 3,
+            "ownerlessOcclusionChecked": 4642,
+            "examples": [
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "full2d-64-dpr2.ids",
+            "depth": "full2d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full2d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full2d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "d8b74ad9e1ec67dfe1f5528363b99df0ad36a7cedf1b674f23c433878f81f821",
+            "pick": "4fed2d6263a1b58f4c1d4c54f5aab673bc9d2c33422017dc9a53e1b2c57382a5"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "hybrid2d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "419f8032082b36daa613b25c328e49dfabf1994feabcbf9a126253d2369c340f",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.6053070746527778,
+            "rootMeanSquareByteError": 5.920910394906673,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.015486111111111112
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 15158,
+            "mismatched": 3,
+            "ownerlessOcclusionChecked": 5329,
+            "examples": [
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "hybrid2d-64-dpr2.ids",
+            "depth": "hybrid2d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/hybrid2d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/hybrid2d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "8ce3abbe6636238881a01e76fda4bec0cdcff8f5bf7527776555ecd3fcad3890",
+            "pick": "ea7d69d16a74ac3c364d9fc97db3a93c6ace25b4729c20ffcc8baa7ec8a3bc5b"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full3d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "8ef4764fe1bf6ce3a57454a2eead29323a39ffe2da35fe9a646a71bf16d8cee9",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.3072092013888889,
+            "rootMeanSquareByteError": 3.9008390301176092,
+            "maximumByteError": 241,
+            "channelFractionOver8": 0.008364800347222222
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 12401,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 2475,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "full3d-64-dpr2.ids",
+            "depth": "full3d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full3d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgl2/browser/full3d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "cdc39de8b6968fed3d45407df90862676a201f4ff4e2eeded4165fb6af1e4773",
+            "pick": "305161dc561f76618b5f8df4cc943113818b87853b8a69b53a1174e2dc250d90"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        }
+      ],
+      "request_failures": [],
+      "retained_files": [
+        {
+          "path": "bevy-webgl2/browser/console.json",
+          "bytes": 27528,
+          "sha256": "1983fd533a4881b0032c514781db9210537ac39f2957a530e03bc83ee49210e6"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-32-dpr1-color-page.png",
+          "bytes": 113869,
+          "sha256": "efdcd76063123005da28db7751746cd1bb09ef3d2de7750b65b8e3ac97d4d49c"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-32-dpr1-color.png",
+          "bytes": 10764,
+          "sha256": "5a54e163064af9629e5e62be32da427639f6b98756d2814a22b2fefd0a836f2d"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-32-dpr1-pick-page.png",
+          "bytes": 104223,
+          "sha256": "30f62fc7eb125def33456c8794e294c55c1f5f93712c85e22e46d206e010847e"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-32-dpr1-pick.png",
+          "bytes": 4359,
+          "sha256": "8641d2e5d8c3daf07005217b08a2f17892ae316827430501c39337b95146115a"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-64-dpr2-color-page.png",
+          "bytes": 134395,
+          "sha256": "6a1c7721422eb411a4a2148e73d08f16789bdcdbd23944b7d23f4ecbc286389c"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-64-dpr2-color.png",
+          "bytes": 19560,
+          "sha256": "d8b74ad9e1ec67dfe1f5528363b99df0ad36a7cedf1b674f23c433878f81f821"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-64-dpr2-pick-page.png",
+          "bytes": 258304,
+          "sha256": "adfa3538be1a51023899969598255af45d73a041e81ba1040dbd91894689a439"
+        },
+        {
+          "path": "bevy-webgl2/browser/full2d-64-dpr2-pick.png",
+          "bytes": 18155,
+          "sha256": "4fed2d6263a1b58f4c1d4c54f5aab673bc9d2c33422017dc9a53e1b2c57382a5"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-32-dpr1-color-page.png",
+          "bytes": 112807,
+          "sha256": "c8c21461cb1c7099669d3fddc15f55bfa068bc796712df20e164c183b39737b2"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-32-dpr1-color.png",
+          "bytes": 10063,
+          "sha256": "53c910de817d75175585ed9894bf028e68282b13f504a89d097e95ebc28430cb"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-32-dpr1-pick-page.png",
+          "bytes": 103842,
+          "sha256": "14a56d6793d82119baadee1c68153c5299c4d68be951f9dea3090dae34dd475b"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-32-dpr1-pick.png",
+          "bytes": 3859,
+          "sha256": "a06471eccde9b4497641eb5742199de8faf4cdc7b3f2fff30b7dd76b2d1a2bc1"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-64-dpr2-color-page.png",
+          "bytes": 129579,
+          "sha256": "a8585aaebbc5768b534ecd8978abd22804ad28fba1e63d69a41c87143c5f6731"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-64-dpr2-color.png",
+          "bytes": 17386,
+          "sha256": "cdc39de8b6968fed3d45407df90862676a201f4ff4e2eeded4165fb6af1e4773"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-64-dpr2-pick-page.png",
+          "bytes": 255494,
+          "sha256": "7a6ed42e78fa4f11a5cc64c0e28cfc17f89d90a9d1abd490fa0d3a3aa9294245"
+        },
+        {
+          "path": "bevy-webgl2/browser/full3d-64-dpr2-pick.png",
+          "bytes": 15108,
+          "sha256": "305161dc561f76618b5f8df4cc943113818b87853b8a69b53a1174e2dc250d90"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-32-dpr1-color-page.png",
+          "bytes": 118822,
+          "sha256": "4be0bdba3c6d41043189a0331678efeb53c122da8706a9aa69196789e21688d0"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-32-dpr1-color.png",
+          "bytes": 14469,
+          "sha256": "a84d7e2d908ac054414cff1106494f8eeccf46926fe7bf4a30cd770f2bef04a7"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-32-dpr1-pick-page.png",
+          "bytes": 104036,
+          "sha256": "5e90adecd0ba1a98f99b3dea80696247e2a1fefda73f9dd1d13bf4fde60e2630"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-32-dpr1-pick.png",
+          "bytes": 4263,
+          "sha256": "0f27428d8f2de41ce48d88942fb2892138f6e49949acd4361d02d19193e0ca3c"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-64-dpr2-color-page.png",
+          "bytes": 140069,
+          "sha256": "15416f141ac95b33bacf19594646723b56b5869cb022160d049a60edda54c5ba"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-64-dpr2-color.png",
+          "bytes": 24002,
+          "sha256": "8ce3abbe6636238881a01e76fda4bec0cdcff8f5bf7527776555ecd3fcad3890"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-64-dpr2-pick-page.png",
+          "bytes": 259167,
+          "sha256": "c09edb23e89dc34791a3324ccb9e39dcd0cf6effb85bfebc09ba9e680e204ba2"
+        },
+        {
+          "path": "bevy-webgl2/browser/hybrid2d-64-dpr2-pick.png",
+          "bytes": 17697,
+          "sha256": "ea7d69d16a74ac3c364d9fc97db3a93c6ace25b4729c20ffcc8baa7ec8a3bc5b"
+        },
+        {
+          "path": "bevy-webgl2/browser/report.json",
+          "bytes": 400014,
+          "sha256": "c923c79b747595686c8ecabd22fc9b780d6ed24d10bd82b9b3b795ecd7a21c7e"
+        },
+        {
+          "path": "bevy-webgl2/browser/resize-32-dpr1-page.png",
+          "bytes": 104947,
+          "sha256": "87e341b78d9a09be31ea20b986ffd4650eb3891aaadef42163444df137830b9e"
+        },
+        {
+          "path": "bevy-webgl2/browser/resize-32-dpr1.png",
+          "bytes": 6157,
+          "sha256": "c2937f37f931778fbf5b3274da41ab55c1c1f18e6505e0385667dfe09018d708"
+        },
+        {
+          "path": "bevy-webgl2/browser/resize-64-dpr2-page.png",
+          "bytes": 120569,
+          "sha256": "9cabd4d0b9ac4e7e753798e83d175a019684da370afa1e4e518a990264503bf3"
+        },
+        {
+          "path": "bevy-webgl2/browser/resize-64-dpr2.png",
+          "bytes": 11910,
+          "sha256": "5c47ac388e0541122342606aefbfcdfdaac00f4b84e410d7090bfda9e0f77c0e"
+        }
+      ]
+    },
+    {
+      "variant": "fyrox-webgl2",
+      "job_id": 111910340404,
+      "job_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340404",
+      "conclusion": "failure",
+      "artifact_id": 11364695312,
+      "artifact_sha256": "4d3ddf8cd1db7e78f4882d1425a95a9bcbf56cbc09bedf736d36ca75ded8ccad",
+      "report_sha256": "04a09f5eec76857e0325e431ac84b428efd174cd3a67f75466ded747010829c1",
+      "evidenceClass": "headless Chromium with explicitly requested software graphics",
+      "browserVersion": "151.0.7922.34",
+      "browserArgs": [
+        "--use-gl=angle",
+        "--use-angle=swiftshader-webgl",
+        "--enable-unsafe-swiftshader"
+      ],
+      "status": "failed",
+      "rendererQualified": false,
+      "physicalDevices": "pending",
+      "gpuExecutionTiming": "unavailable; submission intervals are not GPU time",
+      "gpuAsyncPickReadback": "pending; screenshot visualization readback tested here",
+      "tolerances": {
+        "idStableInteriorMismatches": 0,
+        "colorMeanAbsoluteByteError": 4,
+        "colorRootMeanSquareByteError": 12,
+        "colorChannelFractionOver8": 0.03
+      },
+      "lifecycle": [
+        {
+          "name": "DOM-focus-32",
+          "passed": true
+        },
+        {
+          "name": "pointer-cancellation-32",
+          "passed": true
+        },
+        {
+          "name": "resize-and-DPR-32",
+          "passed": true
+        },
+        {
+          "name": "presentation-suspend-32",
+          "passed": true
+        },
+        {
+          "name": "audio-gesture-and-lifecycle-32",
+          "passed": true
+        },
+        {
+          "name": "repeat-resource-reset-32",
+          "passed": true
+        },
+        {
+          "name": "simulated-loss-32",
+          "passed": true
+        },
+        {
+          "name": "actual-device-loss-and-recovery-32",
+          "passed": true
+        },
+        {
+          "name": "DOM-focus-64",
+          "passed": true
+        },
+        {
+          "name": "pointer-cancellation-64",
+          "passed": true
+        },
+        {
+          "name": "resize-and-DPR-64",
+          "passed": true
+        },
+        {
+          "name": "presentation-suspend-64",
+          "passed": true
+        },
+        {
+          "name": "audio-gesture-and-lifecycle-64",
+          "passed": true
+        },
+        {
+          "name": "repeat-resource-reset-64",
+          "passed": true
+        },
+        {
+          "name": "simulated-loss-64",
+          "passed": true
+        },
+        {
+          "name": "actual-device-loss-and-recovery-64",
+          "passed": true
+        }
+      ],
+      "referenceEvidence": "synthetic-cpu-reference",
+      "checks": [
+        {
+          "name": "browser-pixel-density-32",
+          "passed": true
+        },
+        {
+          "name": "startup-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "color-parity-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "no-runtime-errors-before-loss-32",
+          "passed": true
+        },
+        {
+          "name": "no-console-errors-before-loss-32",
+          "passed": true
+        },
+        {
+          "name": "browser-pixel-density-64",
+          "passed": true
+        },
+        {
+          "name": "startup-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full2d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "gpu-id-parity-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "stable-selection-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "no-runtime-errors-before-loss-64",
+          "passed": true
+        },
+        {
+          "name": "no-console-errors-before-loss-64",
+          "passed": true
+        }
+      ],
+      "failures": [
+        {
+          "name": "gpu-id-parity-full2d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 14845,
+            "mismatched": 5,
+            "ownerlessOcclusionChecked": 4642,
+            "examples": [
+              {
+                "x": 633,
+                "y": 298,
+                "expected": 0,
+                "actual": 1,
+                "identity": "0:0",
+                "rgba": [
+                  1,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 638,
+                "y": 298,
+                "expected": 0,
+                "actual": 1,
+                "identity": "0:0",
+                "rgba": [
+                  1,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 15158,
+            "mismatched": 4,
+            "ownerlessOcclusionChecked": 5329,
+            "examples": [
+              {
+                "x": 638,
+                "y": 298,
+                "expected": 0,
+                "actual": 1,
+                "identity": "0:0",
+                "rgba": [
+                  1,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "mode": "full2d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "c3fffc007d88eb8381b32ecffd46c9be081ffc5b1d1e088aabe6f1308dfd8c8c",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.055498046875,
+            "rootMeanSquareByteError": 2.13822198860863,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.0004546440972222222
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3809,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 1556,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "full2d-32.ids",
+            "depth": "full2d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full2d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full2d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "061acb8227b9426a321d478e2017bb1c416c8a970c118033baa6f0711fa0bb13",
+            "pick": "7d17afdf73781200c83262f8ac6c63d657f1b811912d134baa69d91875ee4993"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "hybrid2d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "f268d3ff9c953af800df6069530e3cd973dcfdadb3bcb42459c8aa94e7a89ae0",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.17748480902777777,
+            "rootMeanSquareByteError": 2.5503586859662177,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.005899522569444445
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3889,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 1734,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "hybrid2d-32.ids",
+            "depth": "hybrid2d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/hybrid2d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/hybrid2d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "96614f13718acaf6087e506da08fb5b44e0ff2900691a948663ecd1838842973",
+            "pick": "7091b2d988ed9ca9db65c563d5556bb06f446394ce9c6462c1485a2cb35b4e21"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full3d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "399578580a50590ee96ac799cd2cc893e49bdee4643e9c3d0377146e4e5f2591",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.08478081597222223,
+            "rootMeanSquareByteError": 1.7874769326405928,
+            "maximumByteError": 229,
+            "channelFractionOver8": 0.002732204861111111
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3162,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 852,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "full3d-32.ids",
+            "depth": "full3d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full3d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full3d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "85fb0155ba5979ec3dda2114127ccb6eff6a95a7aa8a7fac623b51837a361495",
+            "pick": "cc1cff963c0299214d0998ea2ce019a6b946cb0b8fd15b0aedb59c95700f2e8c"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full2d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "b6ad53a975a2cea7bb0ffe280f323edaf9f42dcc9e093aae677b990832333c32",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.5400358072916667,
+            "rootMeanSquareByteError": 6.001997732381602,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.012135416666666666
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 14845,
+            "mismatched": 5,
+            "ownerlessOcclusionChecked": 4642,
+            "examples": [
+              {
+                "x": 633,
+                "y": 298,
+                "expected": 0,
+                "actual": 1,
+                "identity": "0:0",
+                "rgba": [
+                  1,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 638,
+                "y": 298,
+                "expected": 0,
+                "actual": 1,
+                "identity": "0:0",
+                "rgba": [
+                  1,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "full2d-64-dpr2.ids",
+            "depth": "full2d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full2d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full2d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "e96a6f5e2e9296fdb27ded042f872521dbb9598029dbab63c029cfc16e2016e0",
+            "pick": "da9d2a3ee2455f63f64affb162fd45aa50c71d636db37019cab6507ee0537c20"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "hybrid2d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "419f8032082b36daa613b25c328e49dfabf1994feabcbf9a126253d2369c340f",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.6437977430555556,
+            "rootMeanSquareByteError": 6.065672315775153,
+            "maximumByteError": 255,
+            "channelFractionOver8": 0.016934678819444444
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 15158,
+            "mismatched": 4,
+            "ownerlessOcclusionChecked": 5329,
+            "examples": [
+              {
+                "x": 638,
+                "y": 298,
+                "expected": 0,
+                "actual": 1,
+                "identity": "0:0",
+                "rgba": [
+                  1,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 433,
+                "y": 493,
+                "expected": 51,
+                "actual": 50,
+                "identity": "1050:1",
+                "rgba": [
+                  50,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 528,
+                "y": 493,
+                "expected": 44,
+                "actual": 43,
+                "identity": "1043:1",
+                "rgba": [
+                  43,
+                  0,
+                  0,
+                  255
+                ]
+              },
+              {
+                "x": 613,
+                "y": 618,
+                "expected": 64,
+                "actual": 63,
+                "identity": "1063:1",
+                "rgba": [
+                  63,
+                  0,
+                  0,
+                  255
+                ]
+              }
+            ]
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "hybrid2d-64-dpr2.ids",
+            "depth": "hybrid2d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/hybrid2d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/hybrid2d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "78cbeb6854351592154826c8942627b021ebf3e4139e3940a98c7b99c5949669",
+            "pick": "afd19ef82f3a06512b46bf1d6f821d2b148103e5f52f599511620aed86c195f8"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full3d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "8ef4764fe1bf6ce3a57454a2eead29323a39ffe2da35fe9a646a71bf16d8cee9",
+          "actual_backend": "webgl2",
+          "adapter": {
+            "api": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "color": {
+            "meanAbsoluteByteError": 0.33599500868055554,
+            "rootMeanSquareByteError": 4.002008095119596,
+            "maximumByteError": 240,
+            "channelFractionOver8": 0.009745008680555556
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 12401,
+            "mismatched": 0,
+            "ownerlessOcclusionChecked": 2475,
+            "examples": []
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "full3d-64-dpr2.ids",
+            "depth": "full3d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full3d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/fyrox-webgl2/browser/full3d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "fe9de624c9e86449e48d168019d5386a76f2f3ec938ff558dfac4d9b40798ca0",
+            "pick": "0378d3a72cb16da61756c5b9ad006b0337e587e75f896017a79039bcc1605490"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        }
+      ],
+      "request_failures": [],
+      "retained_files": [
+        {
+          "path": "fyrox-webgl2/browser/console.json",
+          "bytes": 77590,
+          "sha256": "0e875a28a255aecf61e43652bd588cf5598ec3e4168e63edb70f1cd5656cf51a"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-32-dpr1-color-page.png",
+          "bytes": 116727,
+          "sha256": "8a0200528f4e2d987974d82508ad9b37ef043d8ac62e694ce18ed3f96a7c1487"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-32-dpr1-color.png",
+          "bytes": 12955,
+          "sha256": "061acb8227b9426a321d478e2017bb1c416c8a970c118033baa6f0711fa0bb13"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-32-dpr1-pick-page.png",
+          "bytes": 104741,
+          "sha256": "15736fd7679bd6b44948db1400a9fc1c616615fa8b36d77ff2c7e7e1eb632a54"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-32-dpr1-pick.png",
+          "bytes": 4565,
+          "sha256": "7d17afdf73781200c83262f8ac6c63d657f1b811912d134baa69d91875ee4993"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-64-dpr2-color-page.png",
+          "bytes": 135549,
+          "sha256": "482db5e2f652f07e71ed3c26dce0df833aaea001c0d67d6c2a7b774ad135957e"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-64-dpr2-color.png",
+          "bytes": 20763,
+          "sha256": "e96a6f5e2e9296fdb27ded042f872521dbb9598029dbab63c029cfc16e2016e0"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-64-dpr2-pick-page.png",
+          "bytes": 261713,
+          "sha256": "7eb3ed860a4a310989d6a869ff5b7e34bc412cda8719a9e81040f786158594e0"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full2d-64-dpr2-pick.png",
+          "bytes": 20872,
+          "sha256": "da9d2a3ee2455f63f64affb162fd45aa50c71d636db37019cab6507ee0537c20"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-32-dpr1-color-page.png",
+          "bytes": 114747,
+          "sha256": "ec49d638c21269a5ca6b575be327745516ab64816d8e2789c3644d72b82339ba"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-32-dpr1-color.png",
+          "bytes": 11812,
+          "sha256": "85fb0155ba5979ec3dda2114127ccb6eff6a95a7aa8a7fac623b51837a361495"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-32-dpr1-pick-page.png",
+          "bytes": 104429,
+          "sha256": "88c09fe3d3f5ae5f931c2515c455d480011dd060e35117bb8e45b6d96278261e"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-32-dpr1-pick.png",
+          "bytes": 4095,
+          "sha256": "cc1cff963c0299214d0998ea2ce019a6b946cb0b8fd15b0aedb59c95700f2e8c"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-64-dpr2-color-page.png",
+          "bytes": 130232,
+          "sha256": "a8c72fabab7b28536c26e07242aac523e412bd939da8a92b00e92c4f1506791e"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-64-dpr2-color.png",
+          "bytes": 17870,
+          "sha256": "fe9de624c9e86449e48d168019d5386a76f2f3ec938ff558dfac4d9b40798ca0"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-64-dpr2-pick-page.png",
+          "bytes": 258749,
+          "sha256": "53464915481cf390ae353d2fb51817420957702b9ccc8fd511e6f11bda32195c"
+        },
+        {
+          "path": "fyrox-webgl2/browser/full3d-64-dpr2-pick.png",
+          "bytes": 17478,
+          "sha256": "0378d3a72cb16da61756c5b9ad006b0337e587e75f896017a79039bcc1605490"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-32-dpr1-color-page.png",
+          "bytes": 121046,
+          "sha256": "462549fcf042dc73d97746de6b5ca86e87076d92016574a0e02967bd71c72c1f"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-32-dpr1-color.png",
+          "bytes": 16281,
+          "sha256": "96614f13718acaf6087e506da08fb5b44e0ff2900691a948663ecd1838842973"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-32-dpr1-pick-page.png",
+          "bytes": 104549,
+          "sha256": "1c22c87d235ac07ed5f0f31d2164fb3c1c7b44471f545056316a264ccfef6bc5"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-32-dpr1-pick.png",
+          "bytes": 4453,
+          "sha256": "7091b2d988ed9ca9db65c563d5556bb06f446394ce9c6462c1485a2cb35b4e21"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-64-dpr2-color-page.png",
+          "bytes": 140415,
+          "sha256": "7f44e841600c52f0710fb5e24eef20557e232842714dbe70525a4ac04acdab68"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-64-dpr2-color.png",
+          "bytes": 24222,
+          "sha256": "78cbeb6854351592154826c8942627b021ebf3e4139e3940a98c7b99c5949669"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-64-dpr2-pick-page.png",
+          "bytes": 262553,
+          "sha256": "5c1f5643cd0c0aca54cd166fc808fdc2b3382f7cc44dd19b2f5f69096fb820d6"
+        },
+        {
+          "path": "fyrox-webgl2/browser/hybrid2d-64-dpr2-pick.png",
+          "bytes": 20380,
+          "sha256": "afd19ef82f3a06512b46bf1d6f821d2b148103e5f52f599511620aed86c195f8"
+        },
+        {
+          "path": "fyrox-webgl2/browser/report.json",
+          "bytes": 465626,
+          "sha256": "04a09f5eec76857e0325e431ac84b428efd174cd3a67f75466ded747010829c1"
+        },
+        {
+          "path": "fyrox-webgl2/browser/resize-32-dpr1-page.png",
+          "bytes": 107198,
+          "sha256": "95337ea39df30e4ae383ead24b817b5415e8bed463cbcf08b3e7621775c01bc1"
+        },
+        {
+          "path": "fyrox-webgl2/browser/resize-32-dpr1.png",
+          "bytes": 7784,
+          "sha256": "4dd22015c20206a2606f9aaab3d12d018e872f2b80aa3cbeda7c16ce8fb3a426"
+        },
+        {
+          "path": "fyrox-webgl2/browser/resize-64-dpr2-page.png",
+          "bytes": 121363,
+          "sha256": "7c23c9d59932327dbf0aea1d1cebfa5e3b47f6888dd881b38edffe04cf126fe0"
+        },
+        {
+          "path": "fyrox-webgl2/browser/resize-64-dpr2.png",
+          "bytes": 12453,
+          "sha256": "1d75748eba5e7d95327a8d0e4b2e5065a999314b634c72aa35a365c3d5d91aa8"
+        }
+      ]
+    },
+    {
+      "variant": "bevy-webgpu",
+      "job_id": 111910340515,
+      "job_url": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543/job/111910340515",
+      "conclusion": "failure",
+      "artifact_id": 11363737774,
+      "artifact_sha256": "2769788a1ce965f390e3d77c26cc6d943cc1d58ff98ffd4b462e08f944a6b8dd",
+      "report_sha256": "5d2d341c8a3c4e174964d8e039e6810846ad12b8ae5b2d7d448c7b1b773a967c",
+      "evidenceClass": "headless Chromium with explicitly requested software graphics",
+      "browserVersion": "151.0.7922.34",
+      "browserArgs": [
+        "--enable-features=Vulkan",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--use-vulkan=swiftshader",
+        "--use-webgpu-adapter=swiftshader",
+        "--disable-vulkan-surface",
+        "--enable-unsafe-webgpu"
+      ],
+      "status": "failed",
+      "rendererQualified": false,
+      "physicalDevices": "pending",
+      "gpuExecutionTiming": "unavailable; submission intervals are not GPU time",
+      "gpuAsyncPickReadback": "pending; screenshot visualization readback tested here",
+      "tolerances": {
+        "idStableInteriorMismatches": 0,
+        "colorMeanAbsoluteByteError": 4,
+        "colorRootMeanSquareByteError": 12,
+        "colorChannelFractionOver8": 0.03
+      },
+      "lifecycle": [
+        {
+          "name": "DOM-focus-32",
+          "passed": true
+        },
+        {
+          "name": "pointer-cancellation-32",
+          "passed": true
+        },
+        {
+          "name": "resize-and-DPR-32",
+          "passed": true
+        },
+        {
+          "name": "presentation-suspend-32",
+          "passed": true
+        },
+        {
+          "name": "audio-gesture-and-lifecycle-32",
+          "passed": true
+        },
+        {
+          "name": "repeat-resource-reset-32",
+          "passed": true
+        },
+        {
+          "name": "simulated-loss-32",
+          "passed": true
+        },
+        {
+          "name": "actual-device-loss-and-recovery-32",
+          "passed": true
+        },
+        {
+          "name": "DOM-focus-64",
+          "passed": true
+        },
+        {
+          "name": "pointer-cancellation-64",
+          "passed": true
+        },
+        {
+          "name": "resize-and-DPR-64",
+          "passed": true
+        },
+        {
+          "name": "presentation-suspend-64",
+          "passed": true
+        },
+        {
+          "name": "audio-gesture-and-lifecycle-64",
+          "passed": true
+        },
+        {
+          "name": "repeat-resource-reset-64",
+          "passed": true
+        },
+        {
+          "name": "simulated-loss-64",
+          "passed": true
+        },
+        {
+          "name": "actual-device-loss-and-recovery-64",
+          "passed": true
+        }
+      ],
+      "referenceEvidence": "synthetic-cpu-reference",
+      "checks": [
+        {
+          "name": "browser-pixel-density-32",
+          "passed": true
+        },
+        {
+          "name": "startup-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full2d-32",
+          "passed": false
+        },
+        {
+          "name": "color-parity-full2d-32",
+          "passed": false
+        },
+        {
+          "name": "gpu-id-parity-full2d-32",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-full2d-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-hybrid2d-32",
+          "passed": false
+        },
+        {
+          "name": "color-parity-hybrid2d-32",
+          "passed": false
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-32",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-hybrid2d-32",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full3d-32",
+          "passed": false
+        },
+        {
+          "name": "color-parity-full3d-32",
+          "passed": false
+        },
+        {
+          "name": "gpu-id-parity-full3d-32",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-full3d-32",
+          "passed": true
+        },
+        {
+          "name": "no-runtime-errors-before-loss-32",
+          "passed": true
+        },
+        {
+          "name": "no-console-errors-before-loss-32",
+          "passed": true
+        },
+        {
+          "name": "browser-pixel-density-64",
+          "passed": true
+        },
+        {
+          "name": "startup-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full2d-64",
+          "passed": false
+        },
+        {
+          "name": "gpu-id-parity-full2d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-full2d-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-hybrid2d-64",
+          "passed": false
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-hybrid2d-64",
+          "passed": true
+        },
+        {
+          "name": "fixture-hash-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "nonempty-render-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "color-parity-full3d-64",
+          "passed": false
+        },
+        {
+          "name": "gpu-id-parity-full3d-64",
+          "passed": false
+        },
+        {
+          "name": "stable-selection-full3d-64",
+          "passed": true
+        },
+        {
+          "name": "no-runtime-errors-before-loss-64",
+          "passed": true
+        },
+        {
+          "name": "no-console-errors-before-loss-64",
+          "passed": true
+        }
+      ],
+      "failures": [
+        {
+          "name": "nonempty-render-full2d-32",
+          "error": {
+            "distinctColors": 5
+          }
+        },
+        {
+          "name": "color-parity-full2d-32",
+          "error": {
+            "meanAbsoluteByteError": 23.66128146701389,
+            "rootMeanSquareByteError": 54.818601635635126,
+            "maximumByteError": 238,
+            "channelFractionOver8": 0.162646484375
+          }
+        },
+        {
+          "name": "gpu-id-parity-full2d-32",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3809,
+            "mismatched": 3809,
+            "ownerlessOcclusionChecked": 1556,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          }
+        },
+        {
+          "name": "nonempty-render-hybrid2d-32",
+          "error": {
+            "distinctColors": 5
+          }
+        },
+        {
+          "name": "color-parity-hybrid2d-32",
+          "error": {
+            "meanAbsoluteByteError": 22.63909830729167,
+            "rootMeanSquareByteError": 52.73242747432617,
+            "maximumByteError": 238,
+            "channelFractionOver8": 0.16866644965277777
+          }
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-32",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3889,
+            "mismatched": 3889,
+            "ownerlessOcclusionChecked": 1734,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          }
+        },
+        {
+          "name": "nonempty-render-full3d-32",
+          "error": {
+            "distinctColors": 5
+          }
+        },
+        {
+          "name": "color-parity-full3d-32",
+          "error": {
+            "meanAbsoluteByteError": 14.720735677083333,
+            "rootMeanSquareByteError": 40.07543689544895,
+            "maximumByteError": 238,
+            "channelFractionOver8": 0.0964453125
+          }
+        },
+        {
+          "name": "gpu-id-parity-full3d-32",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3162,
+            "mismatched": 3162,
+            "ownerlessOcclusionChecked": 852,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          }
+        },
+        {
+          "name": "color-parity-full2d-64",
+          "error": {
+            "meanAbsoluteByteError": 27.122785373263888,
+            "rootMeanSquareByteError": 56.152657622915044,
+            "maximumByteError": 246,
+            "channelFractionOver8": 0.35180772569444446
+          }
+        },
+        {
+          "name": "gpu-id-parity-full2d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 14845,
+            "mismatched": 14845,
+            "ownerlessOcclusionChecked": 4642,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          }
+        },
+        {
+          "name": "color-parity-hybrid2d-64",
+          "error": {
+            "meanAbsoluteByteError": 26.16274197048611,
+            "rootMeanSquareByteError": 54.44182670130249,
+            "maximumByteError": 246,
+            "channelFractionOver8": 0.35066080729166665
+          }
+        },
+        {
+          "name": "gpu-id-parity-hybrid2d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 15158,
+            "mismatched": 2321,
+            "ownerlessOcclusionChecked": 5329,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          }
+        },
+        {
+          "name": "color-parity-full3d-64",
+          "error": {
+            "meanAbsoluteByteError": 23.504144965277778,
+            "rootMeanSquareByteError": 45.851948019171196,
+            "maximumByteError": 241,
+            "channelFractionOver8": 0.47033854166666667
+          }
+        },
+        {
+          "name": "gpu-id-parity-full3d-64",
+          "error": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 12401,
+            "mismatched": 1622,
+            "ownerlessOcclusionChecked": 2475,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "mode": "full2d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "c3fffc007d88eb8381b32ecffd46c9be081ffc5b1d1e088aabe6f1308dfd8c8c",
+          "actual_backend": "webgpu",
+          "adapter": {
+            "vendor": "google",
+            "architecture": "swiftshader",
+            "device": "",
+            "description": "",
+            "requestedOptions": {
+              "powerPreference": "high-performance"
+            },
+            "observation": "engine canvas configure",
+            "format": "rgba8unorm",
+            "alphaMode": "opaque"
+          },
+          "color": {
+            "meanAbsoluteByteError": 23.66128146701389,
+            "rootMeanSquareByteError": 54.818601635635126,
+            "maximumByteError": 238,
+            "channelFractionOver8": 0.162646484375
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3809,
+            "mismatched": 3809,
+            "ownerlessOcclusionChecked": 1556,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "full2d-32.ids",
+            "depth": "full2d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full2d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full2d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be",
+            "pick": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "hybrid2d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "f268d3ff9c953af800df6069530e3cd973dcfdadb3bcb42459c8aa94e7a89ae0",
+          "actual_backend": "webgpu",
+          "adapter": {
+            "vendor": "google",
+            "architecture": "swiftshader",
+            "device": "",
+            "description": "",
+            "requestedOptions": {
+              "powerPreference": "high-performance"
+            },
+            "observation": "engine canvas configure",
+            "format": "rgba8unorm",
+            "alphaMode": "opaque"
+          },
+          "color": {
+            "meanAbsoluteByteError": 22.63909830729167,
+            "rootMeanSquareByteError": 52.73242747432617,
+            "maximumByteError": 238,
+            "channelFractionOver8": 0.16866644965277777
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3889,
+            "mismatched": 3889,
+            "ownerlessOcclusionChecked": 1734,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "hybrid2d-32.ids",
+            "depth": "hybrid2d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/hybrid2d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/hybrid2d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be",
+            "pick": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full3d",
+          "avatars": 32,
+          "dpr": 1,
+          "fixture_hash": "399578580a50590ee96ac799cd2cc893e49bdee4643e9c3d0377146e4e5f2591",
+          "actual_backend": "webgpu",
+          "adapter": {
+            "vendor": "google",
+            "architecture": "swiftshader",
+            "device": "",
+            "description": "",
+            "requestedOptions": {
+              "powerPreference": "high-performance"
+            },
+            "observation": "engine canvas configure",
+            "format": "rgba8unorm",
+            "alphaMode": "opaque"
+          },
+          "color": {
+            "meanAbsoluteByteError": 14.720735677083333,
+            "rootMeanSquareByteError": 40.07543689544895,
+            "maximumByteError": 238,
+            "channelFractionOver8": 0.0964453125
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 640,
+            "height": 480,
+            "checked": 3162,
+            "mismatched": 3162,
+            "ownerlessOcclusionChecked": 852,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 13491832,
+                "identity": "0:0",
+                "rgba": [
+                  120,
+                  222,
+                  205,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          },
+          "id_reference": {
+            "width": 640,
+            "height": 480,
+            "ids": "full3d-32.ids",
+            "depth": "full3d-32.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full3d-32-dpr1-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 640,
+                  "height": 480,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 1,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full3d-32-dpr1-pick-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            }
+          },
+          "screenshot_sha256": {
+            "color": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be",
+            "pick": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full2d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "b6ad53a975a2cea7bb0ffe280f323edaf9f42dcc9e093aae677b990832333c32",
+          "actual_backend": "webgpu",
+          "adapter": {
+            "vendor": "google",
+            "architecture": "swiftshader",
+            "device": "",
+            "description": "",
+            "requestedOptions": {
+              "powerPreference": "high-performance"
+            },
+            "observation": "engine canvas configure",
+            "format": "rgba8unorm",
+            "alphaMode": "opaque"
+          },
+          "color": {
+            "meanAbsoluteByteError": 27.122785373263888,
+            "rootMeanSquareByteError": 56.152657622915044,
+            "maximumByteError": 246,
+            "channelFractionOver8": 0.35180772569444446
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 14845,
+            "mismatched": 14845,
+            "ownerlessOcclusionChecked": 4642,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "full2d-64-dpr2.ids",
+            "depth": "full2d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full2d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full2d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "c4beef87af2565386d1608c2b89ab7c66e6b9ed7eeca95be62409699962db497",
+            "pick": "61c6d94a5fdf31b511624c216dbd6b6569d2f88580e6345be606fb0b746c5438"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "hybrid2d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "419f8032082b36daa613b25c328e49dfabf1994feabcbf9a126253d2369c340f",
+          "actual_backend": "webgpu",
+          "adapter": {
+            "vendor": "google",
+            "architecture": "swiftshader",
+            "device": "",
+            "description": "",
+            "requestedOptions": {
+              "powerPreference": "high-performance"
+            },
+            "observation": "engine canvas configure",
+            "format": "rgba8unorm",
+            "alphaMode": "opaque"
+          },
+          "color": {
+            "meanAbsoluteByteError": 26.16274197048611,
+            "rootMeanSquareByteError": 54.44182670130249,
+            "maximumByteError": 246,
+            "channelFractionOver8": 0.35066080729166665
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 15158,
+            "mismatched": 2321,
+            "ownerlessOcclusionChecked": 5329,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "hybrid2d-64-dpr2.ids",
+            "depth": "hybrid2d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/hybrid2d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/hybrid2d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "32bce33018814d6012bd674abc98e127e7ef0935119a2315535ba48bd7b4c3a1",
+            "pick": "3e7751ab94c80d4117a8d54e20bb9897c522045cbd3940a1dba3ba7150db49e7"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        },
+        {
+          "mode": "full3d",
+          "avatars": 64,
+          "dpr": 2,
+          "fixture_hash": "8ef4764fe1bf6ce3a57454a2eead29323a39ffe2da35fe9a646a71bf16d8cee9",
+          "actual_backend": "webgpu",
+          "adapter": {
+            "vendor": "google",
+            "architecture": "swiftshader",
+            "device": "",
+            "description": "",
+            "requestedOptions": {
+              "powerPreference": "high-performance"
+            },
+            "observation": "engine canvas configure",
+            "format": "rgba8unorm",
+            "alphaMode": "opaque"
+          },
+          "color": {
+            "meanAbsoluteByteError": 23.504144965277778,
+            "rootMeanSquareByteError": 45.851948019171196,
+            "maximumByteError": 241,
+            "channelFractionOver8": 0.47033854166666667
+          },
+          "id_comparison": {
+            "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+            "width": 1280,
+            "height": 960,
+            "checked": 12401,
+            "mismatched": 1622,
+            "ownerlessOcclusionChecked": 2475,
+            "examples": [
+              {
+                "x": 3,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 28,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 53,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 78,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 103,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 128,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 153,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              },
+              {
+                "x": 178,
+                "y": 3,
+                "expected": 0,
+                "actual": 2365969,
+                "identity": "0:0",
+                "rgba": [
+                  17,
+                  26,
+                  36,
+                  255
+                ]
+              }
+            ],
+            "examples_recorded_in_report": 24
+          },
+          "id_reference": {
+            "width": 1280,
+            "height": 960,
+            "ids": "full3d-64-dpr2.ids",
+            "depth": "full3d-64-dpr2.depth"
+          },
+          "captures": {
+            "color": {
+              "scale": "css",
+              "factor": 1,
+              "bounds": {
+                "x": 165,
+                "y": 325,
+                "width": 640,
+                "height": 480
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full3d-64-dpr2-color-page.png",
+              "fullWidth": 1400,
+              "fullHeight": 1100
+            },
+            "pick": {
+              "scale": "device",
+              "factor": 2,
+              "bounds": {
+                "x": 330,
+                "y": 650,
+                "width": 1280,
+                "height": 960
+              },
+              "document": {
+                "viewport": {
+                  "width": 1280,
+                  "height": 960,
+                  "cssWidth": 640,
+                  "cssHeight": 480,
+                  "cssX": 165,
+                  "cssY": 325,
+                  "documentX": 165,
+                  "documentY": 325
+                },
+                "dpr": 2,
+                "scrollX": 0,
+                "scrollY": 0,
+                "documentWidth": 1400,
+                "documentHeight": 1100
+              },
+              "fullPage": "/home/runner/work/wonderland-/wonderland-/tools/swarm-c/output/bevy-webgpu/browser/full3d-64-dpr2-pick-page.png",
+              "fullWidth": 2800,
+              "fullHeight": 2200
+            }
+          },
+          "screenshot_sha256": {
+            "color": "365ab3b2ac3fb1f00805a7f8ee55b4281873a629bf90e3eb84b049f354ee0a9a",
+            "pick": "9cb08c4260e72ae3512fa46e83cc796d9968a2d34872a88d329acd287b4a1028"
+          },
+          "authoritative_ticks_advanced": 0,
+          "interactive_selection_source": "cpu-reference-generation-checked"
+        }
+      ],
+      "request_failures": [],
+      "separate_webgpu_diagnostic": {
+        "passed": true,
+        "pixels": [
+          64,
+          128,
+          191,
+          255
+        ],
+        "expected": [
+          64,
+          128,
+          191,
+          255
+        ],
+        "loss": null,
+        "errors": [],
+        "framesRequested": 3,
+        "adapter": {
+          "vendor": "google",
+          "architecture": "swiftshader"
+        },
+        "evidence": "separate WebGPU clear and mapped pixel readback; no engine qualification"
+      },
+      "retained_files": [
+        {
+          "path": "bevy-webgpu/browser/console.json",
+          "bytes": 68996,
+          "sha256": "7aa9241355ca51a100c9182aedf6c5c4b5f7ccb45920acb1d9a112f4ffd08c3c"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-32-dpr1-color-page.png",
+          "bytes": 95171,
+          "sha256": "6edc77bd3b268fe6d3608a4217c121dfe998105dbaccbcd40a45476694f77879"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-32-dpr1-color.png",
+          "bytes": 2384,
+          "sha256": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-32-dpr1-pick-page.png",
+          "bytes": 95171,
+          "sha256": "6edc77bd3b268fe6d3608a4217c121dfe998105dbaccbcd40a45476694f77879"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-32-dpr1-pick.png",
+          "bytes": 2384,
+          "sha256": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-64-dpr2-color-page.png",
+          "bytes": 119920,
+          "sha256": "483483fec257cb34a80495fef06e59f011e56633246dee7308da27e3f5d5547c"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-64-dpr2-color.png",
+          "bytes": 17281,
+          "sha256": "c4beef87af2565386d1608c2b89ab7c66e6b9ed7eeca95be62409699962db497"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-64-dpr2-pick-page.png",
+          "bytes": 250303,
+          "sha256": "5d81ee2410cdf8eec138006b36e6394cedbba65690ee76d88e8f168bea3f92c3"
+        },
+        {
+          "path": "bevy-webgpu/browser/full2d-64-dpr2-pick.png",
+          "bytes": 28657,
+          "sha256": "61c6d94a5fdf31b511624c216dbd6b6569d2f88580e6345be606fb0b746c5438"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-32-dpr1-color-page.png",
+          "bytes": 95171,
+          "sha256": "6e1d05c4d70e931938f680d24085d615f2fcedbf1d27c558b0931f2a40ff6e4c"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-32-dpr1-color.png",
+          "bytes": 2384,
+          "sha256": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-32-dpr1-pick-page.png",
+          "bytes": 95171,
+          "sha256": "6e1d05c4d70e931938f680d24085d615f2fcedbf1d27c558b0931f2a40ff6e4c"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-32-dpr1-pick.png",
+          "bytes": 2384,
+          "sha256": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-64-dpr2-color-page.png",
+          "bytes": 134139,
+          "sha256": "2a3a242732d4508c31e9854abe70d257219bcf8c1764c8c7563828763dfab11c"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-64-dpr2-color.png",
+          "bytes": 18376,
+          "sha256": "365ab3b2ac3fb1f00805a7f8ee55b4281873a629bf90e3eb84b049f354ee0a9a"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-64-dpr2-pick-page.png",
+          "bytes": 252063,
+          "sha256": "0cfd8834f14abba73ae03da25ddf193c2d8c0bde3ef00b70fbb9650786da1a74"
+        },
+        {
+          "path": "bevy-webgpu/browser/full3d-64-dpr2-pick.png",
+          "bytes": 8571,
+          "sha256": "9cb08c4260e72ae3512fa46e83cc796d9968a2d34872a88d329acd287b4a1028"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-32-dpr1-color-page.png",
+          "bytes": 94985,
+          "sha256": "aab0916abce5792e96678f6f8916fa939a989069dfd3eb1989a34dacedd6d91c"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-32-dpr1-color.png",
+          "bytes": 2384,
+          "sha256": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-32-dpr1-pick-page.png",
+          "bytes": 94985,
+          "sha256": "aab0916abce5792e96678f6f8916fa939a989069dfd3eb1989a34dacedd6d91c"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-32-dpr1-pick.png",
+          "bytes": 2384,
+          "sha256": "27cf2e4bfd2179493375252f9f286e477ff7c8718a105a5bc45fedd01fc880be"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-64-dpr2-color-page.png",
+          "bytes": 120114,
+          "sha256": "00db9bcf7d5b50f06a4bfc2686d552717c948c88fe2c1930bc4fa78ded68e366"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-64-dpr2-color.png",
+          "bytes": 17282,
+          "sha256": "32bce33018814d6012bd674abc98e127e7ef0935119a2315535ba48bd7b4c3a1"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-64-dpr2-pick-page.png",
+          "bytes": 254083,
+          "sha256": "9134d6c400016c3e87f055340d9e955de2b71cb852bd6f82a41136ae3ef3b333"
+        },
+        {
+          "path": "bevy-webgpu/browser/hybrid2d-64-dpr2-pick.png",
+          "bytes": 8571,
+          "sha256": "3e7751ab94c80d4117a8d54e20bb9897c522045cbd3940a1dba3ba7150db49e7"
+        },
+        {
+          "path": "bevy-webgpu/browser/report.json",
+          "bytes": 630244,
+          "sha256": "5d2d341c8a3c4e174964d8e039e6810846ad12b8ae5b2d7d448c7b1b773a967c"
+        },
+        {
+          "path": "bevy-webgpu/browser/resize-32-dpr1-page.png",
+          "bytes": 90010,
+          "sha256": "ee5c2f087629bb7f96f120c681d0953d8506a053cc5949d9d7ae08b935ba3912"
+        },
+        {
+          "path": "bevy-webgpu/browser/resize-32-dpr1.png",
+          "bytes": 1205,
+          "sha256": "5e82648826cbfac93c821a9a58ce5ad6e52dffce3ed7cbe1fa98509946a4fdc3"
+        },
+        {
+          "path": "bevy-webgpu/browser/resize-64-dpr2-page.png",
+          "bytes": 107706,
+          "sha256": "da1fa4fbeb25aac6a475e8f3ca050dc708aa2c651a9ed13b41079da57ec34e08"
+        },
+        {
+          "path": "bevy-webgpu/browser/resize-64-dpr2.png",
+          "bytes": 10572,
+          "sha256": "0a35d47d9183db11cd6fbcd7c96e547868530564b746edd39aec1a1415035336"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Both native process gates passed; native image parity was not tested.",
+    "All six colors and sixteen lifecycle checks passed in each WebGL2 variant, but exact physical-ID comparisons failed at Full2D/64 and Hybrid2D/64.",
+    "WebGPU returned invalid scene capture contents. Exact crops and a separate mapped clear do not establish actual engine framebuffer correctness.",
+    "Interactive picks remain CPU reference picks; screenshot ID visualization does not implement asynchronous GPU picking.",
+    "Browser presentation, full client integration, source material/lighting passes, real providers/content and physical devices remain open."
+  ]
+}

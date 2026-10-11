@@ -121,7 +121,9 @@ try {
     await page.getByRole('heading', { name: 'Controlled City', exact: true }).waitFor();
     await page.getByRole('button', { name: 'Select Controlled Source Lot', exact: true }).click();
     await page.getByRole('button', { name: 'Visit', exact: true }).click();
-    await page.locator('.connected-world canvas[data-renderer="source-software-3d"]').waitFor();
+    const worldCanvas = page.locator('.connected-world .world-viewport[data-source-kind="LegacySnapshot"] canvas[data-renderer]');
+    await worldCanvas.waitFor();
+    assert.match(await worldCanvas.getAttribute('data-renderer'), /^source-(webgl2|software-3d)$/);
     const batches = await page.evaluate(() => window.__vmIngressTest.batches);
     assert.equal(batches.length, 1);
     assert.equal(batches[0].length, 2);
@@ -130,7 +132,7 @@ try {
     await page.evaluate(() => window.__vmIngressTest.inject(257));
     await page.getByRole('alert').filter({ hasText: 'World updates could not be kept in order' }).waitFor();
     await page.getByRole('button', { name: 'Reconnect', exact: true }).waitFor();
-    assert.equal(await page.locator('.connected-world canvas[data-renderer="source-software-3d"]').count(), 0);
+    assert.equal(await page.locator('.connected-world canvas').count(), 0);
     await page.screenshot({ path: resolve(output, `overflow-recovery-${width}x${height}.png`) });
     results.checks.push({ width, height, name: 'Overflow disconnects and removes the stale playable view',
       injected: await page.evaluate(() => window.__vmIngressTest.injected) });
