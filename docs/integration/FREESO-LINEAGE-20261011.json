@@ -1,0 +1,141 @@
+{
+  "observed_at_utc": "2026-10-11T14:29:00Z",
+  "repository": "rndrntwrk/wonderland-",
+  "fork": true,
+  "parent": "riperiperi/FreeSO",
+  "source": "riperiperi/FreeSO",
+  "reference_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "inspected_wonderland_commit": "2474596dd4c8e3420276a5994eea630e1279c226",
+  "preserved_paths": [
+    "TSOClient",
+    "Other",
+    "README.md"
+  ],
+  "preserved_paths_diff_empty": true,
+  "eod_registry": {
+    "path": "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+    "entries": [
+      {
+        "id": "0x2a6356a0",
+        "handler": "VMEODSignsPlugin"
+      },
+      {
+        "id": "0x4a5be8ab",
+        "handler": "VMEODDanceFloorPlugin"
+      },
+      {
+        "id": "0xea47ae39",
+        "handler": "VMEODPizzaMakerPlugin"
+      },
+      {
+        "id": "0xca418206",
+        "handler": "VMEODPaperChasePlugin"
+      },
+      {
+        "id": "0x2b58020b",
+        "handler": "VMEODRackOwnerPlugin"
+      },
+      {
+        "id": "0xcb492685",
+        "handler": "VMEODRackPlugin"
+      },
+      {
+        "id": "0x8b300068",
+        "handler": "VMEODDresserPlugin"
+      },
+      {
+        "id": "0x0949E698",
+        "handler": "VMEODScoreboardPlugin"
+      },
+      {
+        "id": "0x0A69F29F",
+        "handler": "VMEODPermissionDoorPlugin"
+      },
+      {
+        "id": "0xCB2819CB",
+        "handler": "VMEODSlotsPlugin"
+      },
+      {
+        "id": "0xAA5E36DC",
+        "handler": "VMEODTrunkPlugin"
+      },
+      {
+        "id": "0x2D642D39",
+        "handler": "VMEODWarGamePlugin"
+      },
+      {
+        "id": "0xAA65FE9E",
+        "handler": "VMEODTimerPlugin"
+      },
+      {
+        "id": "0x895C1CEB",
+        "handler": "VMEODGameCompDrawACardPlugin"
+      },
+      {
+        "id": "0x8ADFC7A2",
+        "handler": "VMEODBandPlugin"
+      },
+      {
+        "id": "0x0B2A6B83",
+        "handler": "VMEODRoulettePlugin"
+      },
+      {
+        "id": "0x897f82f5",
+        "handler": "VMEODSecureTradePlugin"
+      },
+      {
+        "id": "0x2B2FC514",
+        "handler": "VMEODBlackjackPlugin"
+      },
+      {
+        "id": "0x4A245A22",
+        "handler": "VMEODTwoPersonJobObjectMazePlugin"
+      },
+      {
+        "id": "0x6D113845",
+        "handler": "VMEODNCDanceFloorPlugin"
+      },
+      {
+        "id": "0xEC55D705",
+        "handler": "VMEODDancePlatformPlugin"
+      },
+      {
+        "id": "0x6C5C7555",
+        "handler": "VMEODDJStationPlugin"
+      },
+      {
+        "id": "0xCCC5BC43",
+        "handler": "VMEODNightclubControllerPlugin"
+      },
+      {
+        "id": "0x00001000",
+        "handler": "VMEODFNewspaperPlugin"
+      },
+      {
+        "id": "0x00001001",
+        "handler": "VMEODHoldEmCasinoPlugin"
+      },
+      {
+        "id": "0x00001003",
+        "handler": "VMEODBulletinPlugin"
+      },
+      {
+        "id": "0x00001004",
+        "handler": "VMEODCooldownEventPlugin"
+      },
+      {
+        "id": "0x00001005",
+        "handler": "VMEODGameshowBuzzerPlayerPlugin"
+      },
+      {
+        "id": "0x00001006",
+        "handler": "VMEODGameshowBuzzerHostPlugin"
+      },
+      {
+        "id": "0x00002000",
+        "handler": "VMEODPropertySelectPlugin"
+      }
+    ]
+  },
+  "qualification": "Lineage and source inventory only. Does not establish Rust or browser parity, asset redistribution rights, or completion of every registered handler."
+}
