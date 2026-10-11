@@ -1,20 +1,13 @@
 //! Memory-only browser transport for the configured gateway.
 use crate::connected_adapter::{state::*, *};
+pub use crate::vm_inbox::VmDelivery;
+use crate::vm_inbox::{InboxError, VmInbox, VmStream};
 use leptos::prelude::*;
 use serde::de::DeserializeOwned;
 use std::{cell::Cell, collections::BTreeMap, rc::Rc};
 use wasm_bindgen::{JsCast, JsValue, closure::Closure};
 use wasm_bindgen_futures::{JsFuture, spawn_local};
 use wonderland_game_services::*;
-
-#[derive(Clone, Debug)]
-pub struct VmDelivery {
-    pub browser_epoch: u64,
-    pub source_epoch: u64,
-    pub lot_incarnation: Option<u64>,
-    pub direct: bool,
-    pub data: Vec<u8>,
-}
 
 struct Socket {
     ws: web_sys::WebSocket,
@@ -61,8 +54,9 @@ impl Resources {
 pub struct ConnectedUi {
     pub state: RwSignal<ConnectedState>,
     pub reduced_motion: RwSignal<bool>,
-    /// Only original validated bytes; a runtime adapter must decode these before rendering.
-    pub latest_vm: RwSignal<Option<VmDelivery>>,
+    /// Wake-up only. Payloads live in an ordered inbox, never a latest-value signal.
+    pub vm_pending: RwSignal<()>,
+    vm_inbox: StoredValue<VmInbox>,
     resources: StoredValue<Resources, LocalStorage>,
 }
 
@@ -73,7 +67,8 @@ impl ConnectedUi {
         let this = Self {
             state,
             reduced_motion: RwSignal::new(false),
-            latest_vm: RwSignal::new(None),
+            vm_pending: RwSignal::new(()),
+            vm_inbox: StoredValue::new(VmInbox::default()),
             resources: StoredValue::new_local(Resources {
                 base: base.clone().unwrap_or_default(),
                 token: None,
@@ -85,6 +80,7 @@ impl ConnectedUi {
         };
         on_cleanup(move || {
             this.resources.try_update_value(Resources::clear);
+            this.vm_inbox.try_update_value(VmInbox::reset);
             this.state.try_update(|s| s.ledger.logout());
         });
         match base {
@@ -92,6 +88,53 @@ impl ConnectedUi {
             Err(error) => state.update(|s| s.notice = error.message),
         }
         this
+    }
+
+    fn reset_vm(self) {
+        self.vm_inbox.try_update_value(VmInbox::reset);
+        self.vm_pending.try_update(|_| {});
+    }
+
+    fn vm_stream(self) -> Option<VmStream> {
+        self.state
+            .try_with_untracked(|state| {
+                let session = state.session.as_ref()?;
+                if !state.ledger.authenticated
+                    || !state.ledger.transport_ready
+                    || session.state != SessionState::LotReady
+                {
+                    return None;
+                }
+                Some(VmStream {
+                    browser_epoch: state.ledger.epoch,
+                    source_epoch: session.epoch,
+                    lot_incarnation: session.lot_incarnation?,
+                })
+            })
+            .flatten()
+    }
+
+    /// Called by the single active world adapter after tracking `vm_pending`.
+    /// Ordinary UI rerenders see an empty queue, not the last source frame again.
+    pub fn drain_vm(self, stream: VmStream) -> Result<Vec<VmDelivery>, InboxError> {
+        if self.vm_stream() != Some(stream) {
+            return Err(InboxError::WrongStream);
+        }
+        self.vm_inbox
+            .try_update_value(|inbox| inbox.drain(stream))
+            .unwrap_or(Err(InboxError::WrongStream))
+    }
+
+    /// Malformed/overflowed streams cannot leave the world falsely marked live.
+    /// Reconnection must request authoritative state; writes are never retried here.
+    pub fn require_vm_recovery(self, message: &str) {
+        let epoch = self.state.try_with_untracked(|state| state.ledger.epoch);
+        let generation = self
+            .resources
+            .try_with_value(|resources| resources.generation);
+        if let (Some(epoch), Some(generation)) = (epoch, generation) {
+            self.disconnected(epoch, generation, message);
+        }
     }
 
     pub fn check_health(self) {
@@ -121,6 +164,7 @@ impl ConnectedUi {
             return;
         }
         self.resources.update_value(Resources::clear);
+        self.reset_vm();
         let epoch = self.state.try_update(|s| {
             let health = s.health.clone();
             let epoch = s.ledger.begin_login();
@@ -197,7 +241,7 @@ impl ConnectedUi {
             .resources
             .with_value(|r| (r.base.clone(), r.token.clone()));
         self.resources.update_value(Resources::clear);
-        self.latest_vm.set(None);
+        self.reset_vm();
         self.state.update(|s| {
             let health = s.health.clone();
             s.ledger.logout();
@@ -262,6 +306,7 @@ impl ConnectedUi {
 
     fn connect_socket(self) {
         self.resources.update_value(Resources::disconnect);
+        self.reset_vm();
         let (base, generation) = self
             .resources
             .with_value(|r| (r.base.clone(), r.generation));
@@ -368,24 +413,28 @@ impl ConnectedUi {
                 }
                 _ => None,
             };
-            let session_changed = match &envelope.event {
-                GatewayEvent::Session { session } => self.state.with_untracked(|s| {
-                    s.session.as_ref().is_none_or(|old| {
-                        old.epoch != session.epoch || old.lot_incarnation != session.lot_incarnation
-                    })
-                }),
-                _ => false,
-            };
             let applied = self
                 .state
                 .try_update(|s| s.receive(local_epoch, envelope))
                 .unwrap_or(false);
             if applied {
-                if session_changed {
-                    self.latest_vm.set(None);
-                }
+                // Derive the inbox scope from the accepted authenticated state,
+                // not from an unaccepted message or a DOM selection.
+                let stream = self.vm_stream();
+                self.vm_inbox.update_value(|inbox| inbox.bind(stream));
                 if let Some(frame) = vm {
-                    self.latest_vm.set(Some(frame));
+                    if !matches!(
+                        self.vm_inbox.try_update_value(|inbox| inbox.push(frame)),
+                        Some(Ok(()))
+                    ) {
+                        self.disconnected(
+                            local_epoch,
+                            generation,
+                            "World updates could not be kept in order. Reconnect to receive a complete world state. Unconfirmed actions remain unknown.",
+                        );
+                        return;
+                    }
+                    self.vm_pending.set(());
                 }
                 if refresh && accepted {
                     self.refresh_roster();
@@ -445,7 +494,7 @@ impl ConnectedUi {
             s.socket_connecting = false;
             s.notice = message.into();
         });
-        self.latest_vm.set(None);
+        self.reset_vm();
         // A malformed or closed socket cannot later restore this transport with another callback.
         // Defer dropping its callback closures until the current browser callback has returned.
         self.resources
