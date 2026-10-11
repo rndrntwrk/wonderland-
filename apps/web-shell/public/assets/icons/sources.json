@@ -47,6 +47,7 @@
     "lock": "package/icons/filled/lock.svg",
     "circle-check": "package/icons/filled/circle-check.svg",
     "cube": "package/icons/outline/cube.svg",
-    "palette": "package/icons/filled/palette.svg"
+    "palette": "package/icons/filled/palette.svg",
+    "user": "package/icons/outline/user.svg"
   }
 }
