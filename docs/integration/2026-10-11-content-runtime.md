@@ -52,3 +52,20 @@ PR #56's previously pending full hosted browser checks are now verified: Native
 browser run 38124670691 and Browser UI run 38124670597 passed. All 37 recorded
 source hashes and both WASM hashes matched the downloaded artifacts. Those
 receipts qualify PR #56 only; this new integration needs its own hosted run.
+
+## Live-frame selection recovery
+
+The first full hosted browser run reached Buy/Build but a click was cancelled when
+an incoming live frame replaced its in-flight GPU pixel read. A separately labelled
+local diagnostic reproduced `AbortError: Frame replaced`; merely extending the
+browser wait did not fix it. The viewport now retries only that same bounded click
+intent against a fresh admitted frame. Newer picks, camera/size changes, view
+cleanup, lot/epoch/content/architecture changes and backwards ticks cancel it.
+Receipts still require exact coordinates, current frame generation and normal
+world selection validation. The retry is bounded to 12 attempts/1.5 seconds and
+does not approve purchases or replay an old receipt.
+
+The final rebuilt application passed all 17 Buy/Build checks both normally and
+with 4x browser CPU throttling, including reconnect, exact-price consent, lost
+reply recovery, touch placement and clean exit. Hosted qualification of this
+repair remains required.

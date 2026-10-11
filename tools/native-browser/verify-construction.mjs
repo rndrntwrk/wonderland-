@@ -31,16 +31,22 @@ async function enter(){
 async function stage(name){await page.locator(`.native-build-panel[data-build-stage="${name}"]`).waitFor({timeout:15000});}
 async function chooseTile(index=0,touch=false){
  await page.waitForFunction(presentedCanvas,'.native-lot canvas');
- const canvas=page.locator('.native-lot canvas');const bounds=await canvas.boundingBox();
+ const canvas=page.locator('.native-lot canvas');
  // Real canvas clicks only. Probe several ground regions without injecting
  // a WorldPick or modifying game state; the UI reports the tile it selected.
  const probes=index===0?[[.45,.56],[.40,.56],[.50,.63],[.35,.60],[.48,.5]]:[[.30,.45],[.36,.46],[.40,.42],[.46,.42],[.27,.52]];
  for(const [x,y] of probes){
+  // Retained pixels can be visible while a newer frame is still preparing.
+  // The production picker intentionally ignores input in world-busy state.
+  await page.locator('.native-lot .world-viewport:not(.world-busy)').waitFor();
+  await page.waitForFunction(presentedCanvas,'.native-lot canvas');
+  const bounds=await canvas.boundingBox();
   if(touch)await page.touchscreen.tap(bounds.x+bounds.width*x,bounds.y+bounds.height*y);else await page.mouse.click(bounds.x+bounds.width*x,bounds.y+bounds.height*y);
   try{
    // GPU tile selection is asynchronous. Waiting only for the already-visible
-   // disabled button cancels each pending pick with the next probe.
-   await page.waitForFunction(()=>[...document.querySelectorAll('.native-build-panel button')].some(b=>b.textContent.trim()==='Review placement & price'&&!b.disabled),null,{timeout:800});
+   // disabled button cancels each pending pick with the next probe. Allow the
+   // real renderer's bounded 3-second GPU transfer to settle before retrying.
+   await page.waitForFunction(()=>[...document.querySelectorAll('.native-build-panel button')].some(b=>b.textContent.trim()==='Review placement & price'&&!b.disabled),null,{timeout:3500});
    return;
   }catch{}
  }

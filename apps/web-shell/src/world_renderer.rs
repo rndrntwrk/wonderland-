@@ -466,57 +466,98 @@ pub fn WorldViewport(
         }
     });
     let choose = move |x: u32, y: u32| {
-        if busy.get_untracked() {
-            return;
-        }
         let Some(canvas) = canvas.get_untracked() else {
             return;
         };
         pick_request.update(|value| *value = value.saturating_add(1));
         let serial = pick_request.get_untracked();
-        let frame_request = requested.get_untracked();
+        let intended_settings = controls.get_untracked();
+        let intended_world = displayed.get_untracked().revision;
+        let intended_size = (canvas.width(), canvas.height());
         wasm_bindgen_futures::spawn_local(async move {
-            let result = wasm_bindgen_futures::JsFuture::from(gpu_pick(&canvas, x, y)).await;
-            if requested.try_get_untracked() != Some(frame_request)
-                || pick_request.try_get_untracked() != Some(serial)
-                || busy.try_get_untracked() != Some(false)
-            {
-                return;
-            }
-            let encoded = match result {
-                Ok(value) => value.as_string(),
-                Err(reason) => {
-                    let cancelled = js_sys::Reflect::get(&reason, &JsValue::from_str("name"))
-                        .ok()
-                        .and_then(|value| value.as_string())
-                        .is_some_and(|name| name == "AbortError");
-                    if !cancelled {
-                        error.set(js_message(reason));
-                    }
+            // Live ticks may replace a frame while its pixel fence settles.
+            // Retry the same user intent against a fresh admitted frame, never
+            // accept the old receipt or carry a click across navigation/camera edits.
+            let started = js_sys::Date::now();
+            let current_intent = || {
+                pick_request.try_get_untracked() == Some(serial)
+                    && controls.try_get_untracked() == Some(intended_settings)
+                    && (canvas.width(), canvas.height()) == intended_size
+                    && displayed.try_get_untracked().is_some_and(|document| {
+                        let now = document.revision;
+                        now.lot_id == intended_world.lot_id
+                            && now.epoch == intended_world.epoch
+                            && now.content == intended_world.content
+                            && now.architecture_revision == intended_world.architecture_revision
+                            && now.tick >= intended_world.tick
+                    })
+            };
+            for _ in 0..12 {
+                if !current_intent() || js_sys::Date::now() - started > 1500. {
                     return;
                 }
-            };
-            let Some(encoded) = encoded.filter(|value| value.len() <= 512) else {
-                return;
-            };
-            let Ok(receipt) = serde_json::from_str::<GpuPickReceipt>(&encoded) else {
-                return;
-            };
-            let Ok(generation) = receipt.generation.parse::<u64>() else {
-                return;
-            };
-            if receipt.x != x || receipt.y != y {
-                return;
-            }
-            let picked = runtime
-                .try_with_value(|slot| {
-                    slot.as_ref().and_then(|renderer| {
-                        renderer.resolve_gpu_pick(generation, receipt.index, x, y)
+                if busy.try_get_untracked() != Some(false) {
+                    let _ = wasm_bindgen_futures::JsFuture::from(next_paint()).await;
+                    continue;
+                }
+                let Some(frame_request) = requested.try_get_untracked() else {
+                    return;
+                };
+                let result = wasm_bindgen_futures::JsFuture::from(gpu_pick(&canvas, x, y)).await;
+                if !current_intent() {
+                    return;
+                }
+                let encoded = match result {
+                    Ok(value) => value.as_string(),
+                    Err(reason) => {
+                        let name = js_sys::Reflect::get(&reason, &JsValue::from_str("name"))
+                            .ok()
+                            .and_then(|value| value.as_string());
+                        let message = js_sys::Reflect::get(&reason, &JsValue::from_str("message"))
+                            .ok()
+                            .and_then(|value| value.as_string())
+                            .unwrap_or_default();
+                        if name.as_deref() == Some("AbortError")
+                            && matches!(message.as_str(), "Frame replaced" | "Stale GPU selection")
+                        {
+                            let _ = wasm_bindgen_futures::JsFuture::from(next_paint()).await;
+                            continue;
+                        }
+                        if name.as_deref() != Some("AbortError") {
+                            error.try_set(js_message(reason));
+                        }
+                        return;
+                    }
+                };
+                if requested.try_get_untracked() != Some(frame_request)
+                    || busy.try_get_untracked() != Some(false)
+                {
+                    let _ = wasm_bindgen_futures::JsFuture::from(next_paint()).await;
+                    continue;
+                }
+                let Some(encoded) = encoded.filter(|value| value.len() <= 512) else {
+                    return;
+                };
+                let Ok(receipt) = serde_json::from_str::<GpuPickReceipt>(&encoded) else {
+                    return;
+                };
+                let Ok(generation) = receipt.generation.parse::<u64>() else {
+                    return;
+                };
+                if receipt.x != x || receipt.y != y {
+                    return;
+                }
+                let picked = runtime
+                    .try_with_value(|slot| {
+                        slot.as_ref().and_then(|renderer| {
+                            renderer.resolve_gpu_pick(generation, receipt.index, x, y)
+                        })
                     })
-                })
-                .flatten();
-            if let Some(picked) = picked {
-                on_pick.run(picked);
+                    .flatten();
+                if let Some(picked) = picked {
+                    on_pick.run(picked);
+                }
+                return;
             }
         });
     };
