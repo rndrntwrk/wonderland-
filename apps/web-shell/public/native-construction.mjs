@@ -25,7 +25,7 @@ function cancelBody(response) {
  * confirmation just because the promise rejected. Dispose does not undo a debit.
  */
 export function createConstructionTransport(endpoint, {
-  allowedOrigin, csrfToken, timeoutMs = 15_000, fetchImpl = globalThis.fetch,
+  allowedOrigin, csrfToken, bearerToken, timeoutMs = 15_000, fetchImpl = globalThis.fetch,
 } = {}) {
   let url;
   let origin;
@@ -42,13 +42,18 @@ export function createConstructionTransport(endpoint, {
       || !Number.isSafeInteger(timeoutMs) || timeoutMs <= 0 || timeoutMs > 300_000) {
     throw failure('INVALID_CONFIG', 'Construction transport configuration is invalid');
   }
+  if (bearerToken !== undefined && (typeof bearerToken !== 'string' || bearerToken.length === 0 || bearerToken.length > 4096 || /[^\x21-\x7e]/.test(bearerToken))) {
+    throw failure('INVALID_CONFIG', 'Construction authentication is invalid');
+  }
   const target = url.href;
   let csrf = csrfToken;
+  let bearer = bearerToken;
   let disposed = false;
   let active = null;
   function dispose() {
     disposed = true;
     csrf = '';
+    bearer = undefined;
     active?.abort();
   }
   async function send(bytes, { signal } = {}) {
@@ -81,7 +86,7 @@ export function createConstructionTransport(endpoint, {
       const fetching = Promise.resolve(fetchImpl(target, {
         method: 'POST', credentials: 'include', mode: 'cors', redirect: 'error',
         cache: 'no-store', referrerPolicy: 'no-referrer', signal: controller.signal,
-        headers: { 'Content-Type': REQUEST_TYPE, 'Accept': REPLY_TYPE, 'X-Wonderland-CSRF': csrf },
+        headers: { 'Content-Type': REQUEST_TYPE, 'Accept': REPLY_TYPE, 'X-Wonderland-CSRF': csrf, ...(bearer === undefined ? {} : {Authorization: `Bearer ${bearer}`}) },
         body,
       }));
       // A test host or unusual adapter may ignore AbortSignal. Cancel any late
@@ -123,6 +128,7 @@ export function createConstructionTransport(endpoint, {
     } catch {
       disposed = true;
       csrf = '';
+    bearer = undefined;
       controller.abort();
       if (reader) { try { Promise.resolve(reader.cancel()).catch(() => {}); } catch { /* Preserve uncertainty. */ } }
       else cancelBody(response);

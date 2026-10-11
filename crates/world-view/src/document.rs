@@ -176,7 +176,7 @@ pub struct WorldObject {
     pub model: Option<usize>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ModelContext {
     Dgrp {
@@ -189,7 +189,7 @@ pub enum ModelContext {
     /// Source format 1 here is this normalized posed-mesh contract, not FSOm.
     Vitaboy,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ModelTextureSelector {
     Sprite { rotation: u16, ordinal: u16 },

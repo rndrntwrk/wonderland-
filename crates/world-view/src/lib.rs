@@ -30,3 +30,5 @@ impl From<wonderland_render_core::reference::ReferenceError> for WorldError {
         Self(value.to_string())
     }
 }
+
+mod model_binary;
