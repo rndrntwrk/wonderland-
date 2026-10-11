@@ -437,6 +437,18 @@ fn target_broken_fact_comes_from_the_actual_multitile_base() {
     for thread in state.threads.values_mut() {
         thread.mode = VmMode::Tso;
     }
+    // This fixture changes dialect before any interaction is queued. Recreate
+    // each empty queue with that dialect; production restoration must still
+    // reject a TS1 queue in a TSO snapshot.
+    for queue in state.interaction_queues.values_mut() {
+        assert!(queue.entries().is_empty());
+        *queue = interaction_rules::ActionQueue::new(
+            queue.owner(),
+            interaction_rules::LegacyMode::Tso,
+            InteractionLimits::default(),
+        )
+        .unwrap();
+    }
     for entity in [target, base] {
         let item = state.entities.get_mut(&entity.object_id).unwrap();
         item.info.base_object = base.object_id;
