@@ -7,6 +7,8 @@
     <meta name="description" content="Choose your Sim, explore your city, and make a place of your own in Wonderland." />
     <title>Wonderland</title>
     <link data-trunk rel="rust" data-bin="wonderland-web-shell" />
+    <link data-trunk rel="rust" data-bin="wonderland-facade-worker" data-type="worker" data-bindgen-target="web" />
+    <link data-trunk rel="copy-file" href="public/facade-worker-entry.mjs" />
     <link data-trunk rel="css" href="public/styles.css" />
     <link data-trunk rel="css" href="public/authoring.css" />
     <link data-trunk rel="css" href="public/connected.css" />

@@ -4,6 +4,9 @@
 mod assets;
 mod blueprint;
 mod document;
+mod lighting;
+mod materials;
+pub use lighting::*;
 mod renderer;
 mod scene;
 pub use assets::*;
@@ -31,4 +34,9 @@ impl From<wonderland_render_core::reference::ReferenceError> for WorldError {
     }
 }
 
+mod facade;
 mod model_binary;
+pub use facade::*;
+
+mod facade_worker;
+pub use facade_worker::{encode_facade_worker_request, execute_facade_worker_request};

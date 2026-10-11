@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 import {chromium} from 'playwright';
 import {createFixture} from './peer.mjs';
 import {presentedCanvas} from './canvas-readiness.mjs';
+import {observeNativeCanvas} from './canvas-observation.mjs';
 const output=resolve(process.env.WONDERLAND_NATIVE_QA_OUTPUT??'/tmp/wonderland-native-construction');
 const dist=resolve(process.env.WONDERLAND_NATIVE_QA_DIST??'apps/web-shell/dist');
 await mkdir(output,{recursive:true});
@@ -36,8 +37,11 @@ async function chooseTile(index=0,touch=false){
  const probes=index===0?[[.45,.56],[.40,.56],[.50,.63],[.35,.60],[.48,.5]]:[[.30,.45],[.36,.46],[.40,.42],[.46,.42],[.27,.52]];
  for(const [x,y] of probes){
   if(touch)await page.touchscreen.tap(bounds.x+bounds.width*x,bounds.y+bounds.height*y);else await page.mouse.click(bounds.x+bounds.width*x,bounds.y+bounds.height*y);
-  try{await page.getByRole('button',{name:'Review placement & price',exact:true}).waitFor({timeout:800});
-   if(await page.getByRole('button',{name:'Review placement & price',exact:true}).isEnabled())return;
+  try{
+   // GPU tile selection is asynchronous. Waiting only for the already-visible
+   // disabled button cancels each pending pick with the next probe.
+   await page.waitForFunction(()=>[...document.querySelectorAll('.native-build-panel button')].some(b=>b.textContent.trim()==='Review placement & price'&&!b.disabled),null,{timeout:800});
+   return;
   }catch{}
  }
  throw Error('No real selectable property tile found');
@@ -61,6 +65,7 @@ try{
  page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce',hasTouch:true});
  page.on('pageerror',e=>results.errors.push({type:'pageerror',message:e.message}));
  page.on('console',m=>{if(m.type()==='warning')results.warnings.push(m.text());else if(m.type()==='error'){if(expectedNetworkFailure&&/net::ERR_EMPTY_RESPONSE/.test(m.text()))results.warnings.push('Expected deliberately lost construction response');else results.errors.push({type:'console',message:m.text()});}});
+ await observeNativeCanvas(page);
  await enter();await page.getByRole('button',{name:'Buy / Build',exact:true}).click();
  await page.getByRole('button',{name:'Select Construction test plinth',exact:true}).waitFor();
  assert.equal(await page.locator('.native-build-item').count(),8);assert.equal(await page.getByRole('button',{name:'Next',exact:true}).textContent(),'Next');

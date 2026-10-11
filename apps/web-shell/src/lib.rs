@@ -37,6 +37,7 @@ pub mod source_city;
 pub mod source_identity;
 pub mod source_needs;
 pub mod startup;
+pub mod world_capture;
 pub mod world_draft;
 
 #[cfg(target_arch = "wasm32")]
@@ -60,3 +61,5 @@ pub mod native_build;
 
 #[cfg(target_arch = "wasm32")]
 pub(crate) mod native_build_browser;
+#[cfg(target_arch = "wasm32")]
+pub mod world_facade;
