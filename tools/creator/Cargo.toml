@@ -24,9 +24,8 @@ path = "../../tests/tools/city.rs"
 sha2 = "0.10"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+png = "=0.18.1"
 wonderland-legacy-formats = { path = "../../crates/legacy-formats" }
-
-[dev-dependencies]
 wonderland-asset-cooker = { path = "../asset-cooker" }
 wonderland-content-ir = { path = "../../crates/content-ir" }
 
@@ -41,3 +40,7 @@ path = "../../tests/tools/cli.rs"
 [[test]]
 name = "authoring"
 path = "../../tests/tools/authoring.rs"
+
+[[test]]
+name = "extended_authoring"
+path = "../../tests/tools/extended_authoring.rs"

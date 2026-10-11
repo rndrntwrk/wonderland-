@@ -2209,14 +2209,18 @@ pub fn decode_ttab_with_variant(
         });
     }
     let version = reader.u16_le()?;
-    if !(4..=10).contains(&version) {
+    if version <= 3 {
         return Err(Error::new(
             ErrorKind::UnsupportedVersion,
             2,
             format!("TTAB {version}"),
         ));
     }
-    let compression_code = if version >= 9 {
+    // TTAB.Read: versions above 10 are normal fields in the standard
+    // baseline, but still carry a compression selector for the TSBO variant.
+    let has_compression_code =
+        (9..=10).contains(&version) || (version > 10 && variant == TtabVariant::Tsbo);
+    let compression_code = if has_compression_code {
         Some(reader.u8()?)
     } else {
         None
@@ -2324,16 +2328,18 @@ pub fn encode_ttab(value: &Ttab, limits: &Limits) -> Result<Vec<u8>> {
     let version = value
         .version
         .ok_or_else(|| invalid(0, "TTAB missing version"))?;
-    if !(4..=10).contains(&version) {
+    if version <= 3 {
         return Err(Error::new(ErrorKind::UnsupportedVersion, 2, "TTAB version"));
     }
     writer.u16(version)?;
-    if version >= 9 {
+    let has_compression_code =
+        (9..=10).contains(&version) || (version > 10 && value.variant == TtabVariant::Tsbo);
+    if has_compression_code {
         writer.u8(value
             .compression_code
             .ok_or_else(|| invalid(4, "TTAB missing compression code"))?)?;
     } else if value.compression_code.is_some() {
-        return Err(invalid(4, "old TTAB has no compression code"));
+        return Err(invalid(4, "TTAB layout has no compression code"));
     }
     let mut output = FieldOutput {
         writer,

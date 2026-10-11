@@ -49,10 +49,10 @@ production authentication or independently authenticated multiplayer users.
 ## Remaining acceptance
 
 The source-application GPU import/export journey could not launch full Chromium
-locally: its profile socket creation returned EPERM. The permitted escalation
-failed in platform bubblewrap mount setup before execution. This is unverified,
-not a pass and not a product failure diagnosis. The existing hosted Native browser
-workflow runs that exact journey on the packaged release; its result must be read
-before merge acceptance. Combined audio/avatar and terrain variants, all original
-content/device coverage, and independent review also remain distinct gates.
-No main-branch merge or deployment is claimed.
+locally because profile socket creation was denied. The existing hosted Native
+browser run 38124670691 subsequently passed that exact journey, including terrain
+and combined audio/avatar checks. Browser UI run 38124670597 also passed. All 37
+recorded source hashes and both WASM hashes matched downloaded evidence.
+
+Original content/device coverage, durable production accounting, independent
+review and default-branch merge remain separate gates. No deployment is claimed.

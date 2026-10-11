@@ -1,0 +1,3867 @@
+[
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Show",
+          "02012cff"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "1",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "2",
+        "25403"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 5,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 6,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 7,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 9,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 10,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_raw_casts_and_bounds",
+    "step": 11,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Show",
+          "00000809"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "3",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 3,
+    "vm": [
+      [
+        "101",
+        "4",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 4,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "0",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 6,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 7,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "Timer_Update",
+          "313a37"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopped_refresh_fifth_tick",
+    "step": 9,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Show",
+          "00000809"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "3",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 3,
+    "vm": [
+      [
+        "101",
+        "4",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "0",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "Timer_Update",
+          "383a39"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "3",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "4",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 7,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 9,
+    "vm": [
+      [
+        "101",
+        "3",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 10,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 11,
+    "vm": [
+      [
+        "101",
+        "4",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 12,
+    "vm": [
+      [
+        "101",
+        "0",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "Timer_Update",
+          "313a37"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stale_tock_requires_running_tick",
+    "step": 13,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_countdown_off_before_update",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_countdown_off_before_update",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Show",
+          "01000001"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_countdown_off_before_update",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_countdown_off_before_update",
+    "step": 3,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Off",
+          "00"
+        ],
+        [
+          "aa65fe9e",
+          "text",
+          "Timer_Update",
+          "303a30"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_countdown_off_before_update",
+    "step": 4,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_countdown_off_before_update",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_already_running_pause_skips_refresh",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_already_running_pause_skips_refresh",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Show",
+          "01000102"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_already_running_pause_skips_refresh",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "4",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_already_running_pause_skips_refresh",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_already_running_pause_skips_refresh",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopwatch_zero_waits_for_mode_change",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopwatch_zero_waits_for_mode_change",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Show",
+          "01010000"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopwatch_zero_waits_for_mode_change",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopwatch_zero_waits_for_mode_change",
+    "step": 3,
+    "vm": [
+      [
+        "101",
+        "1",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopwatch_zero_waits_for_mode_change",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "binary",
+          "Timer_Off",
+          "00"
+        ],
+        [
+          "aa65fe9e",
+          "text",
+          "Timer_Update",
+          "303a30"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "timer_stopwatch_zero_waits_for_mode_change",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "aa65fe9e",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 1,
+    "vm": [
+      [
+        "700",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "4a5be8ab",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "4a5be8ab",
+          "text",
+          "dance_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 3,
+    "vm": [
+      [
+        "102",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1002": [
+        [
+          "4a5be8ab",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "4a5be8ab",
+          "text",
+          "dance_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 4,
+    "vm": [
+      [
+        "700",
+        "1",
+        "2001"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 5,
+    "vm": [
+      [
+        "700",
+        "255",
+        "2002"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 6,
+    "vm": [
+      [
+        "700",
+        "25",
+        "2001"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 7,
+    "vm": [
+      [
+        "700",
+        "25",
+        "2001"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 9,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 10,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 11,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 12,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "4a5be8ab",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 13,
+    "vm": [
+      [
+        "700",
+        "7",
+        "2002"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 14,
+    "vm": [
+      [
+        "700",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 15,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_private_recipients_controller_and_departure",
+    "step": 16,
+    "vm": [
+      [
+        "102",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1002": [
+        [
+          "4a5be8ab",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_no_controller_has_no_button_effect",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_no_controller_has_no_button_effect",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "4a5be8ab",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "4a5be8ab",
+          "text",
+          "dance_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_no_controller_has_no_button_effect",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "dance_no_controller_has_no_button_effect",
+    "step": 3,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "4a5be8ab",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "0",
+        "-"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "310a3136"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "0f0000"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "1",
+        "1"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "0f000568656c6c6f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "1",
+        "0"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "0f0000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_roommate_defaults_write_preserves_flags",
+    "step": 7,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "1",
+        "050006736563726574"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "320a3136"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "050006736563726574"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 5,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_visitor_read_rejects_write",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "1",
+        "200006736563726574"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "310a3136"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "200000"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "1",
+        "1"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "2000046e657874"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 7,
+    "vm": [
+      [
+        "102",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "1",
+        "2000046e657874"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 9,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "310a3136"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "200000"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_read_denial_keeps_write_mode_quirk",
+    "step": 10,
+    "vm": [
+      [
+        "102",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "0",
+        "-"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 3,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "330a33"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "0f0000"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "1",
+        "1"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "3f000541f09f9880"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "1",
+        "1"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "09000151"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 6,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 7,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 8,
+    "vm": [
+      [
+        "101",
+        "1",
+        "0"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "3f0000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_utf16_and_trailing_bytes",
+    "step": 9,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "1",
+        "0f00820178787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "340a30"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "0f00820178787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "1",
+        "0"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "3f0000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "signs_owner_zero_limit_and_long_length_prefix",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "0949e698",
+          "text",
+          "scoreboard_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "77",
+        "0949e698"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 3,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "000100000000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "result",
+        "77",
+        "0949e698",
+        "0",
+        "-"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "1",
+        "999"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "0001e7030000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "0001e7030000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "1",
+        "0"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "000100000000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "000100000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "4",
+        "5"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "000500000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 7,
+    "vm": [
+      [
+        "101",
+        "4",
+        "255"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "00ff00000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 8,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "00ff00000000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "00ff00000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 9,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "00ff00000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 10,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 11,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 12,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 13,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 14,
+    "vm": [
+      [
+        "101",
+        "1",
+        "24"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "00ff18000000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "00ff18000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_async_load_numeric_and_enum_parsing",
+    "step": 15,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "0949e698",
+          "text",
+          "scoreboard_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "77",
+        "0949e698"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 3,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "ff07ff7f0080"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "result",
+        "77",
+        "0949e698",
+        "1",
+        "ff07ff7f0080aabb"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "1",
+        "0"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "ff0700000080"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "ff0700000080"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "2",
+        "0"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "ff0700000000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "ff0700000000"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_loaded_extremes_wrap_and_tails",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "0949e698",
+          "text",
+          "scoreboard_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "77",
+        "0949e698"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 2,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "000100000000"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "result",
+        "77",
+        "0949e698",
+        "0",
+        "-"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 3,
+    "vm": [
+      [
+        "101",
+        "2",
+        "27"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "000100001b00"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "000100001b00"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "3",
+        "3"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "77",
+        "0949e698",
+        "030100001b00"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 6,
+    "vm": [
+      [
+        "102",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "0949e698",
+          "text",
+          "scoreboard_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "77",
+        "0949e698"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 7,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "binary",
+          "scoreboard_state",
+          "030100001b00"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "result",
+        "77",
+        "0949e698",
+        "1",
+        "030100001b00"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "scoreboard_saved_state_reopens",
+    "step": 8,
+    "vm": [
+      [
+        "102",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 4,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "31323334"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 5,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "300a3230300a310a32300a323532"
+        ],
+        [
+          "0a69f29f",
+          "text",
+          "door_code",
+          "31323334"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 6,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "79",
+        "0a69f29f",
+        "39383736"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 7,
+    "vm": [
+      [
+        "101",
+        "2",
+        "2"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 9,
+    "vm": [
+      [
+        "101",
+        "3",
+        "200"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 10,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 11,
+    "vm": [
+      [
+        "101",
+        "4",
+        "252"
+      ]
+    ],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 12,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 13,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 14,
+    "vm": [
+      [
+        "101",
+        "1",
+        "-"
+      ],
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 15,
+    "vm": [
+      [
+        "102",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 16,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "39383736"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 17,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "300a3230300a310a32300a323532"
+        ],
+        [
+          "0a69f29f",
+          "text",
+          "door_code",
+          "39383736"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_editor_bounds_cache_and_reopen",
+    "step": 18,
+    "vm": [
+      [
+        "102",
+        "1",
+        "-"
+      ],
+      [
+        "102",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "31323334"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "310a3230300a310a32300a323532"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 5,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 6,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 7,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 8,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 9,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_view_hides_code_and_ignores_edits",
+    "step": 10,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_matching",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_matching",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_matching",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_matching",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "31323334"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_matching",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "320a3230300a310a32300a323532"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_matching",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "7",
+        "1"
+      ],
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_wrong",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_wrong",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_wrong",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_wrong",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "31323334"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_wrong",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "320a3230300a310a32300a323532"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_wrong",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "7",
+        "0"
+      ],
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_malformed",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_malformed",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_malformed",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_malformed",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "31323334"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_malformed",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "320a3230300a310a32300a323532"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_malformed",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_before_init_closes",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_before_init_closes",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_code_input_before_init_closes",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_corrupt_decimal_load_defaults_to_zero",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_corrupt_decimal_load_defaults_to_zero",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_corrupt_decimal_load_defaults_to_zero",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_corrupt_decimal_load_defaults_to_zero",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "ff3432"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_corrupt_decimal_load_defaults_to_zero",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "320a3230300a310a32300a323532"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_corrupt_decimal_load_defaults_to_zero",
+    "step": 5,
+    "vm": [
+      [
+        "101",
+        "7",
+        "1"
+      ],
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "79",
+        "0a69f29f"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "79",
+        "0a69f29f",
+        "1",
+        "34323934393637323935"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 4,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "door_init",
+          "300a3230300a310a32300a323532"
+        ],
+        [
+          "0a69f29f",
+          "text",
+          "door_code",
+          "34323934393637323935"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 5,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "door_uint32_persist_value_exceeds_edit_limit",
+    "step": 6,
+    "vm": [
+      [
+        "101",
+        "1",
+        "-"
+      ],
+      [
+        "101",
+        "-1",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0a69f29f",
+          "text",
+          "eod_leave",
+          "-"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_preinitialization_write",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_preinitialization_write",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_preinitialization_write",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "0",
+        "-"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_preinitialization_write",
+    "step": 3,
+    "vm": [
+      [
+        "101",
+        "1",
+        "1"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "3f000158"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_invalid_utf8",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_invalid_utf8",
+    "step": 1,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "eod_enter",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "78",
+        "2a6356a0"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_invalid_utf8",
+    "step": 2,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "78",
+        "2a6356a0",
+        "0",
+        "-"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_invalid_utf8",
+    "step": 3,
+    "vm": [],
+    "ui": {
+      "1001": [
+        [
+          "2a6356a0",
+          "text",
+          "signs_init",
+          "340a3130"
+        ],
+        [
+          "2a6356a0",
+          "binary",
+          "signs_show",
+          "0f0000"
+        ]
+      ]
+    },
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "policy_signs_invalid_utf8",
+    "step": 4,
+    "vm": [
+      [
+        "101",
+        "1",
+        "1"
+      ]
+    ],
+    "ui": {},
+    "provider": [
+      [
+        "save",
+        "78",
+        "2a6356a0",
+        "3f0003efbfbd"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_malformed_provider_record",
+    "step": 0,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "policy_malformed_provider_record",
+    "step": 1,
+    "vm": [],
+    "ui": {},
+    "provider": [],
+    "errors": []
+  },
+  {
+    "case": "policy_malformed_provider_record",
+    "step": 2,
+    "vm": [
+      [
+        "101",
+        "-2",
+        "-"
+      ]
+    ],
+    "ui": {
+      "1001": [
+        [
+          "0949e698",
+          "text",
+          "eod_enter",
+          "-"
+        ],
+        [
+          "0949e698",
+          "text",
+          "scoreboard_show",
+          "-"
+        ]
+      ]
+    },
+    "provider": [
+      [
+        "request",
+        "77",
+        "0949e698"
+      ]
+    ],
+    "errors": []
+  },
+  {
+    "case": "policy_malformed_provider_record",
+    "step": 3,
+    "vm": [],
+    "ui": {},
+    "provider": [
+      [
+        "result",
+        "77",
+        "0949e698",
+        "1",
+        "00"
+      ]
+    ],
+    "errors": [
+      "EndOfStreamException"
+    ]
+  }
+]

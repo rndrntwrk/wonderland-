@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "sources": [
+    {
+      "path": "TSOClient/tso.simantics/Model/VMPersonDataVariable.cs",
+      "kind": "compile",
+      "sha256": "cd071d2c03241b81dbb5fde007163ea644fecbccd54a1060e85f9a1e2d102589",
+      "git_blob": "f98875405e12eac7b8e78a5704b20d9e3b12dd49"
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/VMStackObjectVariable.cs",
+      "kind": "compile",
+      "sha256": "1338c1540f445b0d93d0c3e1782970c8c48c75247eee6ced2f2f7b5068ce45b7",
+      "git_blob": "b522b7287be0249eb628afcf14815faf6c446cec"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Model/VMEODEvent.cs",
+      "kind": "compile",
+      "sha256": "3ad26ce223625fef23a002149842fa319d8d350784cfca90576583008f89901e",
+      "git_blob": "07efbbea05e9a6f1a54b36ca1648d89cd79af8e8"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODLobby.cs",
+      "kind": "compile",
+      "sha256": "4b1ce377ffe2a7e64319a855e34c2a48d68ce88bab36b8f551d624fa4cc88984",
+      "git_blob": "73faeed79b05111933891f3b132df3b205ba5508"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODGameCompDrawACardData.cs",
+      "kind": "compile",
+      "sha256": "ca9bd347a830031f4d5c10d5eb4a29a01522cc9eeaa6c2f36bf74e1a5dd0f51f",
+      "git_blob": "0d28bf47aea8d6b60a399d8ccffbd309e23d9383"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODFreshnessTracker.cs",
+      "kind": "compile",
+      "sha256": "57e4b103f7d737d1991f2a0fd9871b69d85aca8649adc9ee69a2a95409f53296",
+      "git_blob": "f909046e8c4291b88eb044686a0779a39765647e"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEOD3x5Font.cs",
+      "kind": "compile",
+      "sha256": "7976c5aa4de1195c1c47492beaa19740085fcf98ef6501240d597b95916f8ee6",
+      "git_blob": "4c047e5c39637dead4d387e99a31532bd9c3485f"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODWarGamePlugin.cs",
+      "kind": "compile",
+      "sha256": "8fa2a81ed38fd9f215fdfc6584308b18cfdd30a3b56c8f25b5fb5cdfb04a3238",
+      "git_blob": "d45b15778c7a889388c21b730fccd4481bb7ad7d"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBandPlugin.cs",
+      "kind": "compile",
+      "sha256": "8bb4a703b8b8567b2b814fc3d37e0df3790b147aafef1d5e9bfbf1e3dab0108d",
+      "git_blob": "af9a1cebce53ed5cb2d250306032392230040959"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODAbstractGameshowBuzzerPlugin.cs",
+      "kind": "compile",
+      "sha256": "1c7b424223fa8750946a24163316935eaf2b872f94bdbdc1cc86e19fcb9c2e92",
+      "git_blob": "043a9f91b126cdbd50abe0705558df3e3ddbfa3d"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerHostPlugin.cs",
+      "kind": "compile",
+      "sha256": "ce67a394ecfd4b2f1207650a3091a308c3bf403ff1b6be50fed84946d2bbcb22",
+      "git_blob": "28cbb3fc3322ed32c4a1aedc4af4ac08d41c2aa6"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerPlayerPlugin.cs",
+      "kind": "compile",
+      "sha256": "d5ab32db83d6e934846dc8186ffce352a3baae039370fa3ce2ce14abf43bf1e5",
+      "git_blob": "a133edaedfd141e834ff443074804eb6c5e7e905"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDJStationPlugin.cs",
+      "kind": "compile",
+      "sha256": "ee4838085dfd66b33b86c7d8875c9f791e619dc9f23aaefd4346e19b237397be",
+      "git_blob": "5d003a5262bfeabdb37aea5adb84c0f2bacc5a22"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDancePlatformPlugin.cs",
+      "kind": "compile",
+      "sha256": "20903d3d7c32b4565f2adcebc7456eb86661f87e34e24b4be48c54a9dff45e21",
+      "git_blob": "f5ce9f430ecca504573fa544675b4f2d2d9092c8"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNightclubControllerPlugin.cs",
+      "kind": "compile",
+      "sha256": "e544bf7caa67abeb679046b9b6338744f4d758f24f659869109d4a09b83d771f",
+      "git_blob": "a4581aa2a5cef35e55beddb2c7effdaca2eb28b0"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNCDanceFloorPlugin.cs",
+      "kind": "compile",
+      "sha256": "b68e9376bbe1df1fc7bfb25f42576a26959192d4c4b4051d18df0ab4ad9629b2",
+      "git_blob": "f843edebbe6568f53051f82ed46f95981dcf2b9e"
+    },
+    {
+      "path": "TSOClient/tso.client/Monogame/MacOS/MonoGame.Framework.dll",
+      "kind": "reference",
+      "sha256": "dbb1c9203614fcea82e5a4e66df288f8144288b6adbea2b2ee525e4afa4a433d",
+      "git_blob": "40da3e1cc13efa4ee96cafc2089590febfb5bfec"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIWarGameEOD.cs",
+      "kind": "inspection",
+      "sha256": "c77fe83608b78a70438ddcaf5bd183ffe5907544d3ffe14221bd4a1e056ee8b3",
+      "git_blob": "0e4e73ded3efda28a67aa8ae20f960080f840735"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIBandEOD.cs",
+      "kind": "inspection",
+      "sha256": "6c7f7a9a9e54b15854366016a755568b909ccf9cb94c78a56f6fd3839c74ab04",
+      "git_blob": "9266019e33c39d4e21a938d958a82f536d411ae4"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerHostEOD.cs",
+      "kind": "inspection",
+      "sha256": "589cc77bf69724cd06cb90e41e801eb72ef133518aa2ebec7a6d2acdd2d26df9",
+      "git_blob": "e8fd3df1f786aabf48addb2b758c4827f2c501a3"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerPlayerEOD.cs",
+      "kind": "inspection",
+      "sha256": "1d50c042bcb86a09dbaeac6424f6c21db19895df198f15368f9c9944bb73166d",
+      "git_blob": "7ef223ffdc46e60b4d5d0ca16b7eb357484c740c"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIDJStationEOD.cs",
+      "kind": "inspection",
+      "sha256": "bbb9c612fc55526c96240bf3215fbd7e7981f4a619e34b20868b1bd20213e774",
+      "git_blob": "ef6f425bd801ec5d7595474e75a9d10b4cc80c1b"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UINCDanceFloorEOD.cs",
+      "kind": "inspection",
+      "sha256": "cc30f6af73b4c7df2ed639b9b37bc3933d652644257b43a2cac080b3793e726e",
+      "git_blob": "2a4adbadd24edd70b465fd481d898faf5e147180"
+    }
+  ]
+}

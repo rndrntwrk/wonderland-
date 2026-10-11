@@ -1,0 +1,8 @@
+{
+  "schema": "wonderland.creator-web.browser-verification.v1",
+  "checks": [],
+  "browser": "141.0.7390.37",
+  "status": "failed",
+  "error": "Error: ENOENT: no such file or directory, open '/workspace/scratch/378e4c36af7b/wonderland/tools/creator-web/dist/pkg/wonderland_creator_web_bg.wasm'\n    at async open (node:internal/fs/promises:697:25)\n    at async readFile (node:internal/fs/promises:1348:14)\n    at async file:///workspace/scratch/378e4c36af7b/wonderland/tools/creator-web/tests/browser.mjs:104:26",
+  "completed_at": "2026-10-05T21:09:19.598Z"
+}

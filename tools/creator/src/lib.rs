@@ -7,6 +7,8 @@ pub use hash::sha256;
 pub use workspace::Workspace;
 pub mod city;
 pub mod editors;
+pub mod json_support;
+pub mod patch_view;
 mod resources;
 pub use resources::{
     Edit, EditGuard, ResourceDocument, ResourceGuard, ResourceOperation, ResourceTransaction,

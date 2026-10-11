@@ -13,6 +13,7 @@ members = [
     "crates/sim-core",
     "crates/content-ir",
     "crates/content-runtime-bridge",
+    "crates/eod-runtime",
     "crates/game-runtime",
     "crates/game-services",
     "crates/player-authoring",

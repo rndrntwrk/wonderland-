@@ -1,0 +1,147 @@
+   Compiling wonderland-eod-runtime v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/crates/eod-runtime)
+    Finished `test` profile [unoptimized] target(s) in 2.62s
+     Running unittests src/lib.rs (/tmp/wonderland-b-eod-k78qhquf/debug/deps/wonderland_eod_runtime-74a1f125aa915877)
+
+running 32 tests
+test source_plugins::tests::door_set_code_persists_canonical_decimal_without_public_code_event ... ok
+test source_plugins::tests::door_load_uses_source_u32_parse_and_zero_fallback ... ok
+test source_plugins::tests::numeric_parser_preserves_source_nul_and_whitespace_rules ... ok
+test source_plugins::tests::door_code_is_only_in_authorized_private_edit_initialization ... ok
+test source_plugins::tests::door_edit_actions_validate_ranges_and_mask_flags ... ok
+test source_plugins::tests::door_code_attempts_close_with_only_the_source_validation_event ... ok
+test source_plugins::tests::door_persistence_match_enforces_nonedit_cache_and_canonical_edit_intents ... ok
+test source_plugins::tests::private_checkpoint_decoders_reject_corruption_and_trailing_data ... ok
+test source_plugins::tests::private_restore_preserves_loading_initialized_and_rebind_states ... ok
+test source_plugins::tests::privileged_modes_require_authoritative_invocation_permission ... ok
+test source_plugins::tests::scoreboard_load_and_rebind_use_source_binary_state ... ok
+test source_plugins::tests::scoreboard_load_preserves_raw_fields_but_rejects_truncation ... ok
+test source_plugins::tests::scoreboard_numeric_enum_values_preserve_noop_and_color_quirks ... ok
+test source_plugins::tests::scoreboard_persistence_match_rejects_independent_state_or_intent_changes ... ok
+test source_plugins::tests::scoreboard_score_updates_wrap_before_source_clamp ... ok
+test source_plugins::tests::signs_denied_read_redacts_session_copy_with_source_write_mode_quirk ... ok
+test source_plugins::tests::signs_load_and_initialization_gate_changes ... ok
+test source_plugins::tests::signs_malformed_payloads_leave_state_unchanged ... ok
+test source_plugins::tests::signs_multibyte_string_length_round_trips ... ok
+test source_plugins::tests::signs_persistence_match_distinguishes_redaction_from_pending_writes ... ok
+test source_plugins::tests::signs_readonly_and_owner_modes_follow_source_permissions ... ok
+test source_plugins::tests::source_payload_tails_are_ignored_but_not_retained ... ok
+test timer::tests::connect_preserves_source_wire_bytes ... ok
+test timer::tests::countdown_fallback_completes_but_stopwatch_does_not ... ok
+test timer::tests::immediate_start_pause_retains_source_tock_quirk_instead_of_resetting ... ok
+test source_plugins::tests::signs_writer_preserves_flags_and_counts_supplementary_utf16_units ... ok
+test source_plugins::tests::source_object_event_codes_and_registers_are_exact ... ok
+test timer::tests::pause_refreshes_after_exactly_five_ticks ... ok
+test source_plugins::tests::canonical_writes_reject_source_tails_and_excess_sign_utf16_units ... ok
+test timer::tests::set_time_packs_minutes_exactly ... ok
+test source_plugins::tests::signs_rejects_a_split_surrogate_without_mutating_session ... ok
+test timer::tests::toggles_are_transition_only_and_initial_running_pause_has_no_refresh ... ok
+
+test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/adversarial.rs (/tmp/wonderland-b-eod-k78qhquf/debug/deps/adversarial-19bc295438fc65b9)
+
+running 24 tests
+test checkpoint_requires_quiescence_and_failed_store_does_not_advance_stamp ... ok
+test checkpoints_reject_schema_version_epochs_stamps_and_timeout_policy_drift ... ok
+test authentication_is_required_and_revocation_invalidates_even_known_tickets ... ok
+test deterministic_idle_timeout_has_exact_tick_and_instance_order ... ok
+test effect_records_payloads_and_reservation_scope_are_bounded ... ok
+test effect_request_retry_reuses_identity_after_provider_applies_and_loses_response ... ok
+test checkpoint_parser_rejects_all_truncations_counts_duplicates_and_unverified_plugin_state ... ok
+test detached_restoration_times_out_without_a_vm_or_transport_binding ... ok
+test missing_vm_input_rolls_back_all_timer_and_tick_changes ... ok
+test frame_version_size_lengths_utf8_and_forged_verified_or_recipient_fields_are_rejected ... ok
+test participants_instances_and_timers_are_bounded_without_counter_consumption ... ok
+test forged_session_cannot_send_or_extract_another_recipients_private_outputs ... ok
+test per_tick_rate_limit_is_atomic_and_resets_only_on_authoritative_tick ... ok
+test event_allowlist_includes_payload_kind_and_excludes_host_control_events ... ok
+test private_byte_cap_and_failed_tick_are_atomic ... ok
+test private_debug_and_public_projection_never_include_private_state_or_payloads ... ok
+test source_invalid_timer_payloads_are_noops_and_do_not_poison_the_session ... ok
+test stale_generations_wrong_epoch_wrong_plugin_and_sequence_replay_are_rejected ... ok
+test all_unverified_registrations_and_unknown_ids_fail_closed ... ok
+test wrong_provider_receipt_is_not_recorded_and_declined_receipts_are_terminal ... ok
+test registry_is_exact_and_never_claims_original_runtime_verification ... ok
+test reassigned_transport_cannot_inherit_private_queue ... ok
+test queue_backpressure_does_not_apply_a_message_or_consume_its_sequence ... ok
+test restored_timer_preserves_pending_five_tick_refresh_and_rebinds_only_recorded_actor ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cooperative_games.rs (/tmp/wonderland-b-eod-k78qhquf/debug/deps/cooperative_games-081f7552d9611c3c)
+
+running 28 tests
+test controller_teardown_closes_all_seats_and_rejects_old_capabilities ... ok
+test checkpoints_reject_dangling_and_duplicate_seats_and_impossible_card_state ... ok
+test game_role_and_envelope_rejections_leave_sequences_and_bindings_usable ... ok
+test cooperative_invocations_require_the_typed_native_game_boundary ... ok
+test maze_replacement_cannot_overwrite_the_queued_reset ... ok
+test cooperative_timeout_and_revocation_purge_private_roles_and_resume_safely ... ok
+test maze_restore_rejects_broken_graph_and_preserves_each_roles_view ... ok
+test maze_can_be_solved_through_native_role_messages_and_reveals_solution_only_to_logic ... ok
+test maze_sends_map_only_to_logic_and_obeys_queued_phase_ticks ... ok
+test maze_tick_output_pressure_does_not_apply_a_queued_phase_or_partial_role_map ... ok
+test paperchase_join_pressure_rolls_back_the_draw_and_both_identity_counters ... ok
+test paperchase_bad_and_duplicate_choices_do_not_replace_the_first_choice ... ok
+test paperchase_checkpoint_cannot_invent_a_previous_guess_score ... ok
+test maze_checkpoint_cannot_move_the_player_before_solving ... ok
+test pizza_callback_output_pressure_rolls_back_all_random_draws_and_cards ... ok
+test paperchase_checkpoint_rng_exhaustion_rejects_join_atomically ... ok
+test paperchase_checkpoint_restores_incomplete_lobbies_but_rejects_full_lobby ... ok
+test pizza_checkpoint_cannot_change_the_result_before_payout ... ok
+test pizza_checkpoint_requires_the_pool_to_contain_each_returned_contribution ... ok
+test maze_waiting_rebind_preserves_each_roles_uninitialized_private_view ... ok
+test pizza_restore_preserves_hands_rng_and_authoritative_callback_fences ... ok
+test pizza_uses_controller_callbacks_private_hands_and_source_noop_close ... ok
+test pizza_preserves_constructor_deck_tuning_and_automatic_phase_deadlines ... ok
+test pizza_checkpoint_rejects_unreachable_deadlines_and_inactive_frames ... ok
+test pizza_restore_preserves_source_zero_negative_and_positive_timer_tuning ... ok
+test paperchase_restore_pauses_until_every_recorded_binding_returns ... ok
+test paperchase_shared_choices_preserve_packed_events_and_strict_tick_thresholds ... ok
+test maze_round_timeout_queues_reaction_and_restores_both_random_streams ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s
+
+     Running tests/host_scope.rs (/tmp/wonderland-b-eod-k78qhquf/debug/deps/host_scope-8d77fdabc07b4c5b)
+
+running 6 tests
+test a_stale_ticket_from_another_host_scope_must_not_control_the_new_timer ... ok
+test another_scopes_ticket_cannot_extract_private_outputs_or_disconnect ... ok
+test text_wire_roundtrip_preserves_distinct_identity_fields_and_utf8 ... ok
+test binary_wire_vector_preserves_scope_epoch_and_all_payload_bytes ... ok
+test checkpoint_restore_and_rebind_require_the_same_scoped_instance_address ... ok
+test scoped_header_counts_toward_frame_limit_and_unscoped_draft_is_rejected ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/source_handlers.rs (/tmp/wonderland-b-eod-k78qhquf/debug/deps/source_handlers-79954336ebfcf357)
+
+running 18 tests
+test door_editor_and_code_input_follow_source_event_and_secret_rules ... ok
+test checkpointed_lost_response_replays_original_write_and_gates_restored_ui ... ok
+test dance_routes_buttons_to_only_the_bound_controller_with_native_avatar_identity ... ok
+test failed_checkpoint_does_not_make_a_write_dispatchable_and_ambiguous_work_cannot_be_aborted ... ok
+test malformed_or_oversized_provider_reads_and_wrong_receipts_remain_recoverable ... ok
+test malformed_handler_commands_are_noops_and_do_not_queue_provider_writes ... ok
+test premature_door_attempt_closes_without_loading_or_revealing_a_code ... ok
+test new_handler_allowlists_reject_wrong_kinds_scope_and_recipient_without_consuming_sequence ... ok
+test orphaned_intent_requires_canonical_plugin_bytes_even_when_source_loads_allow_tails ... ok
+test inconsistent_scoreboard_handler_and_intent_bytes_fail_before_provider_dispatch ... ok
+test format_two_rejects_every_truncation_schema_length_and_record_count_bomb ... ok
+test pending_record_byte_and_output_limits_roll_back_source_state_and_sequence ... ok
+test ready_scoreboard_snapshot_must_match_its_reconciled_provider_binding ... ok
+test restored_dance_controller_is_detached_scoped_and_not_charged_as_a_timer ... ok
+test scoreboard_load_edit_and_write_ahead_checkpoint_use_real_host_dispatch ... ok
+test signs_permission_calculation_and_utf16_text_limit_are_private_and_host_bound ... ok
+test restored_normal_sign_writer_cannot_change_baseline_permissions_even_if_actor_is_owner ... ok
+test provider_divergence_and_conflicts_are_explicit_and_do_not_overwrite_data ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland_eod_runtime
+
+running 1 test
+test src/protocol.rs - protocol::PrivateUiMessage (line 175) - compile fail ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+

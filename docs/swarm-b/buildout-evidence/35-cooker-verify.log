@@ -1,0 +1,3 @@
+    Finished `dev` profile [unoptimized] target(s) in 0.01s
+     Running `/tmp/wonderland-b-cooker-oxq2kuea/debug/wonderland-asset-cooker verify /tmp/wonderland-b-demo-d733as1q/second --manifest-sha256 5ea34ee7ebda50e70f6adb77d14c82d08161ecd8442e58858a2f5ec2b6b24b66`
+verified 4 resources in 2 packs; manifest sha256 5ea34ee7ebda50e70f6adb77d14c82d08161ecd8442e58858a2f5ec2b6b24b66

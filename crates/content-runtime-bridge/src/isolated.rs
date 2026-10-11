@@ -4,7 +4,7 @@ use sim_core::{
     runtime::{AcceptedTick, QueryOutcome, RuntimeRole, SimRuntime, TickOutcome},
     snapshot::SnapshotExpectation,
     state::ContentSet,
-    vm::{FrameContext, RoutineKey, VmStop},
+    vm::{EntityField, FrameContext, MemoryAddress, RoutineKey, VmStop},
 };
 
 #[derive(Clone, Debug)]
@@ -27,6 +27,19 @@ pub enum WatchField {
     ObjectData(u16),
     Temp(u16),
     TempXl(u16),
+    /// Depth zero is the oldest stored frame; the final depth is current.
+    Local {
+        depth: u16,
+        index: u16,
+    },
+    Argument {
+        depth: u16,
+        index: u16,
+    },
+    /// These use A's source-computed memory reader, not raw backing shorts.
+    PersonData(u16),
+    Motive(u16),
+    Global(u16),
     Stop,
 }
 
@@ -138,6 +151,43 @@ impl IsolatedRuntime {
                 .temp_xl
                 .get(usize::from(index))
                 .map(|v| i64::from(*v)),
+            WatchField::Local { depth, index } => thread
+                .frames
+                .get(usize::from(depth))
+                .and_then(|frame| frame.locals.get(usize::from(index)))
+                .map(|v| i64::from(*v)),
+            WatchField::Argument { depth, index } => thread
+                .frames
+                .get(usize::from(depth))
+                .and_then(|frame| frame.args.get(usize::from(index)))
+                .map(|v| i64::from(*v)),
+            WatchField::PersonData(index) | WatchField::Motive(index) => {
+                let field = if matches!(watch.field, WatchField::PersonData(_)) {
+                    EntityField::PersonData
+                } else {
+                    EntityField::Motive
+                };
+                Some(i64::from(
+                    sim_core::runtime_memory::read_memory(
+                        self.runtime.state(),
+                        self.runtime.content(),
+                        &MemoryAddress::Entity {
+                            entity: watch.entity,
+                            field,
+                            index,
+                        },
+                    )
+                    .map_err(|error| error.to_string())?,
+                ))
+            }
+            WatchField::Global(index) => Some(i64::from(
+                sim_core::runtime_memory::read_memory(
+                    self.runtime.state(),
+                    self.runtime.content(),
+                    &MemoryAddress::Global(index),
+                )
+                .map_err(|error| error.to_string())?,
+            )),
             WatchField::Stop => return Ok(WatchValue::Stop(thread.stop.clone())),
         };
         value

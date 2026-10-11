@@ -1,42 +1,53 @@
 {
   "schema": "wonderland.tool-disposition.v1",
-  "scope": "Swarm B W16 offline creator foundations",
+  "scope": "Swarm B W16 portable and graphical Creator authoring, interchange and explicit provider/extension gaps",
   "source_revision": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
   "tools": [
     {
       "name": "Volcanic / FSO.IDE",
       "source": "TSOClient/FSO.IDE/FSO.IDE.csproj",
-      "disposition": "partial-offline-foundation",
+      "disposition": "portable-authoring-and-runtime-adapter-subset",
       "implemented": [
-        "IFF resource inspection and JSON metadata",
-        "guarded BHAV branch and operand edits with CFG validation",
-        "STR#/CTSS/TTAs text edits",
-        "BCON constant edits",
-        "SLOT position edits",
-        "guarded external OTF constant edits preserving unrelated XML"
+        "IFF resource identities, payload hashes, guarded JSON metadata and exact untouched export",
+        "atomic add/remove/key/flags/label/typed resource transactions with source-aware indexed-map rebuilding",
+        "guarded BHAV branch/operand edits and source sentinel CFG validation",
+        "STR#/CTSS/TTAs text, BCON constants and SLOT position editing",
+        "guarded external OTF edits preserving unrelated source XML",
+        "contextual SPR2/PALT authoring with exact index/alpha/depth and explicit alpha quantization",
+        "actual ordered PIFF source/effective views and export with user-patch precedence",
+        "source-shaped upgrades.json authoring and ordered group/constant substitution expansion",
+        "guarded standalone mesh/animation/skeleton/binding/appearance/outfit/reference metadata edits",
+        "FSOm and NBHm source metadata editing through actual binary codecs",
+        "source OBJ/MTL conversion and guarded FSOm attribute editing preserving unchanged float/gzip bits",
+        "FSOm glTF/GLB attribute exchange with protected indices, metadata and bounded buffers",
+        "actual skeleton/animation glTF/GLB transfer with source 36 Hz axes and ordered event metadata",
+        "six persistent browser workbenches over real IFF, upgrade, city, neighborhood, asset and ordered patch sources",
+        "bounded browser undo/redo, generation-checked uploads, source-bound field drafts and exact source export"
       ],
       "unsupported": [
-        "graphical resource browser",
-        "object placement and rendered preview",
-        "live VM step/debug",
-        "EOD editor",
-        "upgrade authoring",
-        "OBJD/TTAB authoring",
-        "mesh animation authoring"
-      ]
+        "complete graphical Volcanic feature parity and all primitive-specific dialogs",
+        "live object placement and rendered lot preview without actual runtime/render providers",
+        "instruction pause/break/step/trace: absent from the current A interface",
+        "OBJD/TTAB field authoring and contextual SPR#/DGRP editing UI",
+        "full skinned-avatar assembly, general glTF scene import and arbitrary retargeting",
+        "indexed-source PIFF chain application and PIFF descriptor generation",
+        "live catalog upgrade price/object-level selection and production debug role integration"
+      ],
+      "companion_graphical_surface": "tools/creator-web provides real file uploads/downloads, typed forms, metadata views, stored geometry/map previews and guarded interchange; see its browser evidence"
     },
     {
       "name": "Iffinator",
       "source": "Other/tools/Iffinator/Iffinator/Iffinator.csproj",
-      "disposition": "partial-offline-foundation",
+      "disposition": "portable-resource-and-sprite-replacement-subset",
       "implemented": [
         "bounded IFF import and exact untouched export",
-        "unknown chunk extraction and guarded replacement"
+        "unknown resource inspection and guarded replacement",
+        "atomic resource creation/removal/metadata editing",
+        "source-backed SPR2/PALT sample authoring and indexed IFF repacking"
       ],
       "unsupported": [
-        "Flash UI",
-        "spritesheet visual editor",
-        "arbitrary new resources"
+        "historical Flash UI compatibility",
+        "full legacy sprite/mesh editor feature parity"
       ]
     },
     {
@@ -55,19 +66,24 @@
     {
       "name": "City Painter",
       "source": "TSOClient/tso.client/Rendering/City/Plugins/MapPainterPlugin.cs",
-      "disposition": "partial-offline-foundation",
+      "disposition": "portable-city-authoring-subset",
       "implemented": [
-        "source palette validation",
-        "exact RGB24/RGBA32 uncompressed BMP pixel edits",
-        "P6 RGB PPM export"
+        "source layer palette validation and explicit 512x512 authoring bounds",
+        "exact untouched RGB24/RGB32 BMP envelope and one-pixel edits, preserving the unused fourth byte",
+        "bounded PNG sample import/export and normalized BMP conversion",
+        "indexed 1/4/8-bit and RLE4/RLE8 Windows BMP decoding",
+        "source cosine categorical brush footprint and clipped painting",
+        "source reciprocal road strokes/corner rules for four directions with atomic bounds rejection",
+        "offline neighborhood JSON field editing preserving unknown fields and explicit GUIDs",
+        "source nearest-neighborhood assignment with first-entry tie order",
+        "graphical city pixel/road authoring, neighborhood forms and source-order location previews"
       ],
       "unsupported": [
-        "PNG import/export",
-        "compressed or indexed BMP",
-        "road stroke reciprocity authoring",
-        "brushes",
-        "rendered city preview",
-        "neighbourhood database import"
+        "original temporal elevation raise/lower/median-flatten state machines",
+        "PNG16-bit precision conversion and animated PNG city maps",
+        "unimplemented BMP bitfields and other source image variants",
+        "rendered city geometry/lighting preview without the actual C renderer",
+        "neighborhood database import/publication and live lot reassignment"
       ]
     },
     {
@@ -82,10 +98,15 @@
     {
       "name": "TSO MeshViewer",
       "source": "Other/tools/TSO MeshViewer/XNAWinForms/XNAWinForms.csproj",
-      "disposition": "unsupported",
-      "implemented": [],
+      "disposition": "portable-inspection-and-interchange-subset",
+      "implemented": [
+        "actual standalone avatar/mesh metadata inspection and bounded authoring",
+        "source FSOm OBJ/MTL and glTF/GLB attribute workflows",
+        "browser stored-vector forms, visible FSOm bounds updates and bounded source-triangle projection"
+      ],
       "unsupported": [
-        "interactive mesh viewing and authoring"
+        "historical XNA WinForms UI compatibility",
+        "complete skinned avatar viewer/animation retargeting and live rendered preview"
       ]
     },
     {
@@ -121,7 +142,8 @@
       "source": "Other/tools/SimsLib/SimsLib/SimsLib.csproj",
       "disposition": "parser-foundation-in-legacy-formats",
       "implemented": [
-        "creator consumes source-derived bounded legacy parser APIs"
+        "source-derived bounded legacy parser/writer APIs consumed by Creator",
+        "TS1 BCF/CMX/BMF/SKN and contextual CFP codecs in legacy-formats, separately classified from full Simitone runtime compatibility"
       ],
       "unsupported": [
         "full historical API replacement"
@@ -138,8 +160,37 @@
     }
   ],
   "debug_provider": {
-    "mode": "isolated snapshot adapter only",
+    "cli_default": "UnsupportedDebugProvider reports actual execution capabilities as false",
+    "isolated_runtime_adapter": "tools/swarm-b-runtime-bridge supplies actual A stored frames/scoped watches, queues/routes and whole-tick isolated stepping",
+    "instruction_step_supported": false,
+    "execution_trace_supported": false,
+    "production_role_integration": "not supplied by the offline Creator CLI",
+    "mode": "offline CLI; actual isolated runtime adapter is a separate consumer",
     "live_step_supported": false,
     "provider_installed": false
-  }
+  },
+  "documentation": "docs/swarm-b/creator-authoring.md",
+  "optional_extensions": [
+    {
+      "name": "TS1 / Simitone",
+      "source": "TSOClient/tso.simantics/Utils/SimitoneNeighbourGenerator.cs",
+      "disposition": "limited-source-codec-and-metadata-subset",
+      "coverage": "BCF/CMX/BMF/SKN plus contextual CFP and NBHm codecs; current Creator asset commands cover the explicitly listed standalone types",
+      "remaining": "full Simitone neighborhood/runtime/renderer/tool workflows are not certified by those codecs"
+    },
+    {
+      "name": "Direct control",
+      "source": "TSOClient/tso.simantics/Engine/VMDirectControlFrame.cs",
+      "disposition": "actual-runtime-provider-required",
+      "coverage": "retained source/runtime inspection is distinct from executing direct-control handlers",
+      "remaining": "Creator does not invent control execution, physics or instruction debugger capabilities"
+    },
+    {
+      "name": "Optional SM64",
+      "source": "TSOClient/tso.world/Components/SM64Component.cs",
+      "disposition": "optional-external-runtime-and-content-not-supplied",
+      "coverage": "source capability is recorded separately from standard Creator authoring",
+      "remaining": "native SM64 runtime, ROM/content, collision and rendering integration are not bundled or claimed"
+    }
+  ]
 }

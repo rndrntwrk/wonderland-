@@ -1,0 +1,47 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling wonderland-manifest-check v0.1.0 (/workspace/scratch/378e4c36af7b/wonderland/tools/swarm-b-check/manifest)
+    Finished `test` profile [unoptimized] target(s) in 6.75s
+     Running unittests ../../../crates/content-ir/src/manifest.rs (/tmp/wonderland-b-manifest-xx52d707/debug/deps/wonderland_manifest_check-a54a1b00f571567e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../../tests/content/manifest.rs (/tmp/wonderland-b-manifest-xx52d707/debug/deps/manifest-b41b9ba5d1edcc3e)
+
+running 7 tests
+test digest_uses_sha256_and_rejects_noncanonical_input ... ok
+test duplicate_dependencies_and_path_like_resource_ids_are_rejected ... ok
+test missing_dependencies_cycles_and_noncritical_tick_inputs_fail_closed ... ok
+test reverse_pack_index_digest_and_schema_are_verified ... ok
+test simulation_plan_loads_exact_transitive_subset_and_deduplicates_cached_packs ... ok
+test canonicalization_ignores_dependency_enumeration_but_preserves_patch_order ... ok
+test limits_variants_and_distribution_rights_are_enforced ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland_manifest_check
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

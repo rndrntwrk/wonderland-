@@ -1,0 +1,10 @@
+[package]
+name = "wonderland-eod-runtime"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MPL-2.0"
+description = "Native private EOD host foundations and source registration census"
+
+[lib]
+path = "src/lib.rs"

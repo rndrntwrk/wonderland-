@@ -1,0 +1,113 @@
+{
+  "schema": "wonderland.creator-web.browser-verification.v1",
+  "checks": [
+    {
+      "name": "native file chooser imports actual IFF bytes",
+      "status": "passed"
+    },
+    {
+      "name": "no-op export is byte-identical",
+      "status": "passed"
+    },
+    {
+      "name": "filter, typed tuning edit and exact binary export",
+      "status": "passed"
+    },
+    {
+      "name": "tab keyboard navigation and invalid branch atomicity",
+      "status": "passed"
+    },
+    {
+      "name": "guarded branch edit, history undo and redo",
+      "status": "passed"
+    },
+    {
+      "name": "UTF-8 text, emoji and markup stay literal",
+      "status": "passed"
+    },
+    {
+      "name": "palette and slot edits use the real typed codecs",
+      "status": "passed"
+    },
+    {
+      "name": "malformed and oversized imports preserve the active document",
+      "status": "passed"
+    },
+    {
+      "name": "reimport validates edited output and clears bounded history",
+      "status": "passed"
+    },
+    {
+      "name": "hostile labels are text and truncated raw previews cannot silently replace resources",
+      "status": "passed"
+    },
+    {
+      "name": "390px viewport retains usable resource and edit controls without page overflow",
+      "status": "passed"
+    },
+    {
+      "name": "metadata, resource addition and removal preserve exact unaffected bytes",
+      "status": "passed"
+    },
+    {
+      "name": "empty IFF can acquire its first valid resource",
+      "status": "passed"
+    },
+    {
+      "name": "source-bound sprite package export, edit, stale rejection and undo",
+      "status": "passed"
+    },
+    {
+      "name": "upgrade panel preserves no-op bytes and applies typed price changes",
+      "status": "passed"
+    },
+    {
+      "name": "neighborhood panel enforces identities and keeps source-order nearest ties",
+      "status": "passed"
+    },
+    {
+      "name": "asset panel edits real binary references without rounding 64-bit identities",
+      "status": "passed"
+    },
+    {
+      "name": "city painter modifies real 512px map pixels and rejects invalid categorical colors",
+      "status": "passed"
+    },
+    {
+      "name": "patch panel resolves ordered PIFF bytes, suppression and exact source names",
+      "status": "passed"
+    },
+    {
+      "name": "workbench navigation preserves independent documents, undo history and dirty state",
+      "status": "passed"
+    },
+    {
+      "name": "all workbench panels stay usable at 390px with keyboard focus and no page overflow",
+      "status": "passed"
+    },
+    {
+      "name": "advanced draft cannot silently apply to a replacement source revision",
+      "status": "passed"
+    },
+    {
+      "name": "unchanged neighborhood form preserves absent optional source fields byte-for-byte",
+      "status": "passed"
+    },
+    {
+      "name": "FSOm transform preserves element selection, recomputes bounds and roundtrips source-bound GLB",
+      "status": "passed"
+    },
+    {
+      "name": "missing application module produces an actionable startup error",
+      "status": "passed"
+    }
+  ],
+  "browser": "141.0.7390.37",
+  "wasm_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "served_wasm_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "input_sha256": "f4a543618c606e50e6eb56d0df723346cbc017440b81ec0876af461310d791e2",
+  "external_requests": [],
+  "page_errors": [],
+  "status": "passed",
+  "completed_at": "2026-10-05T21:22:06.020Z"
+}

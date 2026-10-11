@@ -1,0 +1,10 @@
+{
+  "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_path": "TSOClient/tso.files/Formats/IFF/Chunks/SPR2FrameEncoder.cs",
+  "source_sha256": "d130ac0c2f6e94046b3748ddebe9b7b60646b2c705109acc5eb5edf79ebac789",
+  "vectors": 257,
+  "alpha_values": 254,
+  "command_stream_sha256": "fc27c24370758905ed03846d98ff9862b2bf89cd421c84d6a713d30e49640ce0",
+  "result": "pass",
+  "scope": "unchanged source SPR2FrameEncoder commands; authored inputs; container and renderer not executed"
+}

@@ -1,0 +1,58 @@
+toolchain: PASS
+formats-tests: PASS
+formats-fmt: PASS
+formats-clippy: PASS
+formats-wasm32: PASS
+original-indexed-iff-reader: PASS
+original-sprite-writer: PASS
+original-sprite-reader: PASS
+original-avatar-text-compile: PASS
+original-avatar-text-reader: PASS
+content-tests: PASS
+content-fmt: PASS
+content-clippy: PASS
+content-wasm32: PASS
+pinned-content-census: PASS
+manifest-tests: PASS
+manifest-fmt: PASS
+manifest-clippy: PASS
+interactions-tests: PASS
+interactions-fmt: PASS
+interactions-clippy: PASS
+interactions-wasm32: PASS
+eod-tests: PASS
+eod-fmt: PASS
+eod-clippy: PASS
+eod-native-boundary: PASS
+eod-oracle-comparator-tests: PASS
+original-eod-handlers: PASS
+original-eod-casino: PASS
+original-eod-social: PASS
+original-eod-service: PASS
+creator-tests: PASS
+creator-fmt: PASS
+creator-clippy: PASS
+cooker-tests: PASS
+cooker-fmt: PASS
+cooker-clippy: PASS
+cooker-demo: PASS
+cooker-rebuild: PASS
+cooker-verify: PASS
+creator-web-tests: PASS
+creator-web-fmt: PASS
+creator-web-clippy: PASS
+creator-browser-build: PASS
+creator-browser-clippy: PASS
+creator-browser-workflows: PASS
+eod-census: PASS
+object-census: PASS
+catalog-tests: PASS
+native-wasm-execution: FAIL
++ /root/.cargo/bin/cargo build --locked --manifest-path /workspace/scratch/378e4c36af7b/wonderland/tools/swarm-b-check/parity/Cargo.toml --target-dir /tmp/wonderland-b-verify-root/wonderland-b-parity-kc3snpxm
+    Updating crates.io index
+error: the lock file /workspace/scratch/378e4c36af7b/wonderland/tools/swarm-b-check/parity/Cargo.lock needs to be updated but --locked was passed to prevent this
+If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.
+FAIL: command exited 101: /root/.cargo/bin/cargo
+
+verification failed: native-wasm-execution; log: /workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/50-native-wasm-execution.log
+Verification FAIL; logs: /workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean

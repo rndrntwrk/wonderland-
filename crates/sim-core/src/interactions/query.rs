@@ -51,6 +51,20 @@ impl CheckState {
         Ok(())
     }
 
+    /// Move an already detached, bounded provider snapshot without a second
+    /// copy. Spare retained capacity belongs to the same admission limit.
+    pub fn set_provider_state_owned(
+        &mut self,
+        bytes: Vec<u8>,
+        limits: &InteractionLimits,
+    ) -> Result<()> {
+        if bytes.capacity() > limits.max_provider_state_bytes {
+            return Err(Error::LimitExceeded("check provider state bytes"));
+        }
+        self.provider_state = bytes;
+        Ok(())
+    }
+
     pub fn advertisements(&self) -> &[AdvertisementChange] {
         &self.advertisements
     }
