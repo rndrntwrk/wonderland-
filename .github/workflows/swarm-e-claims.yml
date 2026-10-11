@@ -1,0 +1,103 @@
+name: Swarm E ownership claims
+on:
+  pull_request:
+    paths:
+      - 'crates/persistence/**'
+      - 'tools/swarm-e/**'
+      - 'tests/swarm_e/**'
+      - '.github/workflows/swarm-e-claims.yml'
+  push:
+    branches: ['work/swarm-e-*']
+    paths:
+      - 'crates/persistence/**'
+      - 'tools/swarm-e/**'
+      - 'tests/swarm_e/**'
+      - '.github/workflows/swarm-e-claims.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  claims:
+    name: Claims (${{ matrix.engine }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: mysql
+            image: mysql:8.4
+            client: mysql
+          - engine: mariadb
+            image: mariadb:11.4
+            client: mariadb
+    env:
+      IMAGE: ${{ matrix.image }}
+      CLIENT: ${{ matrix.client }}
+      ENGINE: ${{ matrix.engine }}
+      DB_CONTAINER: claims-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.engine }}
+      EVIDENCE: ${{ runner.temp }}/claims-evidence
+      WONDERLAND_CLAIMS_DISPOSABLE: "1"
+      # Explicit disposable CI fixture credential, never a production secret.
+      MYSQL_PWD: claims-fixture-only
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate evidence rules and CI wiring
+        run: python3 -m unittest discover -s tests/swarm_e -v
+      - name: Install the manifest-pinned compiler
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+      - name: Start one fresh loopback-only database
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          docker pull "$IMAGE"
+          IMAGE_ID="$(docker image inspect "$IMAGE" --format '{{.Id}}')"
+          docker image inspect "$IMAGE_ID" --format '{{json .}}' > "$EVIDENCE/image-identity.json"
+          docker run --detach --name "$DB_CONTAINER" \
+            --memory=2g --cpus=2 --pids-limit=512 \
+            --publish 127.0.0.1::3306 \
+            --env MYSQL_ROOT_PASSWORD=claims-fixture-only \
+            --env MYSQL_DATABASE=wonderland_claimstest \
+            --env MYSQL_USER=claims_test --env MYSQL_PASSWORD=claims-fixture-only \
+            --env TZ=UTC "$IMAGE_ID"
+          READY=0
+          for _ in $(seq 1 90); do
+            if docker exec -e MYSQL_PWD "$DB_CONTAINER" "$CLIENT" \
+                --user=claims_test --batch --skip-column-names wonderland_claimstest \
+                --execute='SELECT VERSION(),DATABASE(),@@default_storage_engine' \
+                > "$EVIDENCE/server-identity.tsv" 2> "$EVIDENCE/startup-last-error.log"; then
+              READY=1; break
+            fi
+            sleep 2
+          done
+          test "$READY" = 1
+          PORT="$(docker port "$DB_CONTAINER" 3306/tcp | sed -n 's/^127\.0\.0\.1://p')"
+          [[ "$PORT" =~ ^[0-9]+$ ]]
+          echo "DATABASE_URL=mysql://claims_test:claims-fixture-only@127.0.0.1:$PORT/wonderland_claimstest" >> "$GITHUB_ENV"
+      - name: Execute every named unit and real SQL claim test
+        run: |
+          python3 tools/swarm-e/run_claims.py --engine "$ENGINE" \
+            --server-identity "$EVIDENCE/server-identity.tsv" \
+            --image-identity "$EVIDENCE/image-identity.json" \
+            --output "$EVIDENCE/run"
+      - name: Preserve diagnostics and remove the disposable database
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$EVIDENCE"
+          docker logs "$DB_CONTAINER" > "$EVIDENCE/database.log" 2>&1 || true
+          docker rm --force "$DB_CONTAINER" > "$EVIDENCE/container-cleanup.log" 2>&1 || true
+          git rev-parse HEAD > "$EVIDENCE/checkout-commit.txt"
+          git rev-parse 'HEAD^{tree}' > "$EVIDENCE/checkout-tree.txt"
+          git diff --exit-code HEAD --
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: claims-${{ matrix.engine }}-${{ github.sha }}
+          path: ${{ runner.temp }}/claims-evidence/
+          retention-days: 14
+          if-no-files-found: error
