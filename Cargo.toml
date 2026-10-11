@@ -22,6 +22,7 @@ members = [
     "tools/asset-cooker",
     "apps/web-shell",
 ]
+exclude = ["crates/render-iso"]
 resolver = "3"
 
 [workspace.package]

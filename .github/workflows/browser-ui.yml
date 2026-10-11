@@ -43,6 +43,8 @@ jobs:
         run: cargo test --workspace --locked
       - name: Browser audio bridge tests
         run: node --test crates/audio-runtime/browser/*.test.mjs
+      - name: Source GPU and PNG capture regression tests
+        run: node --test apps/web-shell/tests/gpu/*.test.mjs
       - name: Native clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Browser clippy
@@ -52,6 +54,25 @@ jobs:
       - name: Build the actual WASM application
         working-directory: apps/web-shell
         run: trunk build --release --locked
+      - name: Exercise the built source-world application and actual GPU recovery
+        run: |
+          set -euo pipefail
+          cargo run -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu
+          node --check apps/web-shell/tests/gpu/application.mjs
+          npm install --prefix /tmp/source-app-playwright --ignore-scripts --no-audit --no-fund playwright@1.62.1
+          /tmp/source-app-playwright/node_modules/.bin/playwright install --with-deps --no-shell chromium
+          WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/browser.mjs
+          WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/application.mjs
+      - name: Preserve exact application observations, including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: source-application-${{ github.sha }}
+          path: |
+            tests/output/source-application/
+            tests/output/source-gpu/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload the verified browser preview bundle
         uses: actions/upload-artifact@v4
         with:

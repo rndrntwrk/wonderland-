@@ -1,3 +1,4 @@
+import {observeNativeCanvas,canvasPixels} from './canvas-evidence.mjs';
 // Actual optimized player + original-format fixture: an animation starts in the
 // checkpoint and ends inside its supplied recovery tail. No edited wire/DOM/WASM.
 import assert from 'node:assert/strict';
@@ -81,12 +82,13 @@ try {
       if(message.type()==='error')report.errors.push(message.text());
       if(message.type()==='warning' && report.warnings.length<50)report.warnings.push(message.text());
     });
+    await observeNativeCanvas(page);
     await enter(page);
     const canvas=page.locator('.native-lot canvas');
     const initial=await fixture.state();
     assert.equal(initial.avatars[0].animations.layers[0].current_frame,0);
     assert.equal(initial.avatars[0].animations.layers[0].end_reached,false);
-    const initialPixels=await canvas.evaluate(c=>c.toDataURL());
+    const initialPixels=await canvasPixels(canvas);
     if(mode==='live') {
       await fixture.burst(18);
     } else {
@@ -94,7 +96,7 @@ try {
       await page.locator('.native-lot[data-native-live="false"]').waitFor();
       for(let n=0;n<100 && fixture.active()!==0;n++)await delay(20);
       assert.equal(fixture.active(),0);
-      assert.equal(await canvas.evaluate(c=>c.toDataURL()),initialPixels,'Disconnected view must freeze');
+      assert.equal(await canvasPixels(canvas),initialPixels,'Disconnected view must freeze');
       fixture.recoverWithTail(18);
       await page.getByRole('button',{name:'Reconnect',exact:true}).click();
       await page.locator('.native-lot[data-native-live="true"][data-native-avatar-models="1"]').waitFor();
@@ -105,7 +107,7 @@ try {
     assert.equal(BigInt(ended.tick),BigInt(initial.tick)+18n);
     assert.equal(ended.avatars[0].animations.layers[0].end_reached,true);
     assert.equal(ended.avatars[0].animations.layers[0].current_frame,2);
-    const pixels=await canvas.evaluate(c=>c.toDataURL());
+    const pixels=await canvasPixels(canvas);
     assert.ok(pixels !== initialPixels,'RECOVERY_TAIL_ASSERTION: supplied intermediate bone transforms were discarded');
     if(mode==='live'){livePixels=pixels;liveHash=ended.hash;}
     else {assert.equal(pixels,livePixels,'Recovery must reconstruct the same supplied pose as live replay');assert.equal(ended.hash,liveHash);}
@@ -114,11 +116,11 @@ try {
     await shot(page,`${mode}-ended-pose`);
     record('Ended pose on raised terrain matches live replay',{mode,tailTicks:18,canvasSha256:digest(pixels),authorityHash:ended.hash,actions:fixture.stats.actions,history:0});
     await painted(page,(await fixture.burst(3)).tick);
-    assert.equal(await canvas.evaluate(c=>c.toDataURL()),pixels,'Idle ticks must retain recovered channels');
+    assert.equal(await canvasPixels(canvas),pixels,'Idle ticks must retain recovered channels');
     await page.getByRole('button',{name:'Rotate right',exact:true}).click();await delay(100);
-    assert.notEqual(await canvas.evaluate(c=>c.toDataURL()),pixels);
+    assert.notEqual(await canvasPixels(canvas),pixels);
     await page.getByRole('button',{name:'Rotate left',exact:true}).click();await delay(100);
-    assert.equal(await canvas.evaluate(c=>c.toDataURL()),pixels);
+    assert.equal(await canvasPixels(canvas),pixels);
     record('Recovered pose survives idle ticks and camera redraws',{mode});
     await page.getByRole('button',{name:'Your Sim',exact:true}).click();
     await page.locator('.native-source-action').first().click();

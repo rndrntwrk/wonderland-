@@ -41,3 +41,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "wonderland-web-shell"
 path = "src/main.rs"
+
+[[bin]]
+name = "wonderland-facade-worker"
+path = "src/facade_worker.rs"
