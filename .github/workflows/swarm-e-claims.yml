@@ -36,11 +36,12 @@ jobs:
       CLIENT: ${{ matrix.client }}
       ENGINE: ${{ matrix.engine }}
       DB_CONTAINER: claims-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.engine }}
-      EVIDENCE: ${{ runner.temp }}/claims-evidence
       WONDERLAND_CLAIMS_DISPOSABLE: "1"
       # Explicit disposable CI fixture credential, never a production secret.
       MYSQL_PWD: claims-fixture-only
     steps:
+      - name: Set runner-local evidence directory
+        run: echo "EVIDENCE=$RUNNER_TEMP/claims-evidence" >> "$GITHUB_ENV"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
