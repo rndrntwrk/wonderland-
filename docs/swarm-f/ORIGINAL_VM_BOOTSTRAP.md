@@ -33,10 +33,20 @@ Microsoft references must already exist on the reference host and are copied
 into that isolated search root. There is **no network archive fallback** or
 replacement of the portable project with a different target.
 
-The actual declared MonoGame.Framework.Portable 3.6.0.1625 runtime DLL is copied
-alongside the witness because original projects mark it Private=false. No fake
-renderer/runtime type is provided. Graphics are disabled through the original
-VM.UseWorld setting, not by replacing a VM class.
+MonoGame.Framework.Portable 3.6.0.1625 is a compile-time skeleton, not a
+runtime implementation. The headless witness stages the official same-release
+MonoGame.Framework.DesktopGL implementation and requires exact assembly identity
+agreement with the portable reference. A separate executable first reproduces
+invalid geometry under the portable skeleton, then requires real Point,
+Rectangle and transformed Vector2 results under DesktopGL before any VM witness.
+Package and DLL hashes, loaded assembly identity and both executions are retained.
+Original project/source files remain unchanged. Graphics are disabled through
+VM.UseWorld. This qualifies stock DesktopGL headless SimAntics behavior, not the
+FSOMonoGame fork or client/GPU parity. Older witnesses that staged the portable
+skeleton do not qualify runtime geometry or placement and must be rerun.
+
+Official provenance: [DesktopGL package](https://www.nuget.org/packages/MonoGame.Framework.DesktopGL/3.6.0.1625),
+[Portable bait-and-switch declaration](https://github.com/MonoGame/MonoGame/blob/v3.6/NuGetPackages/MonoGame.Framework.Portable.nuspec).
 
 Restore and compilation can access package feeds. The controlled simulation has
 no authenticated user, account endpoint, database/global-link or EOD provider;

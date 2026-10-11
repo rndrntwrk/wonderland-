@@ -113,6 +113,8 @@ jobs:
           }
           nuget install Microsoft.NETFramework.ReferenceAssemblies.net45 -Version 1.0.3 -OutputDirectory "$out/framework" -Source https://api.nuget.org/v3/index.json -NonInteractive -Verbosity quiet
           if ($LASTEXITCODE) { throw 'Framework reference restoration failed' }
+          nuget install MonoGame.Framework.DesktopGL -Version 3.6.0.1625 -OutputDirectory "$out/runtime" -Source https://api.nuget.org/v3/index.json -NonInteractive -Verbosity quiet
+          if ($LASTEXITCODE) { throw 'Headless MonoGame implementation restoration failed' }
           & "$src/tools/reference-csharp/prepare-portable-references.ps1" -Output $out
       - name: Build the actual original assembly without replacing source classes
         shell: pwsh
@@ -174,6 +176,8 @@ jobs:
             ${{ runner.temp }}/swarm-f-vm/source-after.json
             ${{ runner.temp }}/swarm-f-vm/restore.log
             ${{ runner.temp }}/swarm-f-vm/portable-references.json
+            ${{ runner.temp }}/swarm-f-vm/monogame-runtime.json
+            ${{ runner.temp }}/swarm-f-vm/monogame-*.txt
             ${{ runner.temp }}/swarm-f-vm/build.log
             ${{ runner.temp }}/swarm-f-vm/assembly.txt
             ${{ runner.temp }}/swarm-f-vm/witness-compile.log

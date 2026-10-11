@@ -14,12 +14,42 @@ foreach ($name in @('FSO.SimAntics','FSO.LotView','FSO.Content','FSO.Files','FSO
     if (-not (Test-Path "$bin/$name.dll")) { throw "Missing real original assembly: $name" }
     $baseArguments += "/reference:$bin/$name.dll"
 }
-# The declared original MonoGame reference is Private=false in the projects.
-# Supply that exact runtime dependency, not another package version or a shim.
-$monogame = Join-Path $src 'TSOClient/packages/MonoGame.Framework.Portable.3.6.0.1625/lib/portable-net45+win8+wpa81/MonoGame.Framework.dll'
-if (-not (Test-Path $monogame)) { throw 'Declared MonoGame dependency missing' }
-Copy-Item $monogame "$bin/MonoGame.Framework.dll"
+# Portable is a compile-time skeleton. Stage its same-release DesktopGL
+# implementation for this headless cohort, never the skeleton as a runtime.
+$portable = Join-Path $src 'TSOClient/packages/MonoGame.Framework.Portable.3.6.0.1625/lib/portable-net45+win8+wpa81/MonoGame.Framework.dll'
+$package = Join-Path $Output 'runtime/MonoGame.Framework.DesktopGL.3.6.0.1625'
+$monogame = Join-Path $package 'lib/net40/MonoGame.Framework.dll'
+foreach ($path in @($portable, $monogame)) {
+    if (-not (Test-Path $path)) { throw "MonoGame dependency missing: $path" }
+}
+$referenceIdentity = [Reflection.AssemblyName]::GetAssemblyName($portable).FullName
+$runtimeIdentity = [Reflection.AssemblyName]::GetAssemblyName($monogame).FullName
+if ($referenceIdentity -ne $runtimeIdentity) { throw "MonoGame binding mismatch: $referenceIdentity / $runtimeIdentity" }
+Copy-Item $portable "$bin/MonoGame.Framework.dll"
 $baseArguments += "/reference:$bin/MonoGame.Framework.dll"
+$sanity = Join-Path $bin 'monogame-sanity.exe'
+& $csc @baseArguments "/out:$sanity" "$src/tools/reference-csharp/monogame-sanity.cs"
+if ($LASTEXITCODE) { throw 'MonoGame runtime probe compilation failed' }
+$nativeErrorPreference = $PSNativeCommandUseErrorActionPreference
+try {
+    $PSNativeCommandUseErrorActionPreference = $false
+    & $sanity 2>&1 | Set-Content "$Output/monogame-portable.txt"
+    $portableExit = $LASTEXITCODE
+} finally { $PSNativeCommandUseErrorActionPreference = $nativeErrorPreference }
+if ($portableExit -ne 1) { throw 'Expected compile-only Portable geometry failure was not reproduced' }
+Copy-Item $monogame "$bin/MonoGame.Framework.dll" -Force
+& $sanity 2>&1 | Set-Content "$Output/monogame-desktopgl.txt"
+if ($LASTEXITCODE -ne 0) { throw 'Real MonoGame runtime geometry failed' }
+$runtimeRecord = @{
+    schema = 1; scope = 'stock-desktopgl-headless-original-vm';
+    fsomonogame_client_gpu_parity = 'not-tested';
+    reference_identity = $referenceIdentity; runtime_identity = $runtimeIdentity;
+    portable_sha256 = (Get-FileHash $portable -Algorithm SHA256).Hash.ToLowerInvariant();
+    implementation_sha256 = (Get-FileHash $monogame -Algorithm SHA256).Hash.ToLowerInvariant();
+    package_sha256 = (Get-FileHash "$package/MonoGame.Framework.DesktopGL.3.6.0.1625.nupkg" -Algorithm SHA256).Hash.ToLowerInvariant();
+    portable_geometry_rejected = $true; implementation_geometry_passed = $true;
+}
+$runtimeRecord | ConvertTo-Json | Set-Content "$Output/monogame-runtime.json"
 $source = Join-Path $src 'tools/reference-csharp/vm-bootstrap.cs'
 $header = "tick`tobject_id`tattribute_0`tattribute_1`tattribute_2`tattribute_3`tstack_count`tclock_ticks`trng`tentities"
 $seed = [System.Numerics.BigInteger]::Parse('1311768467463790320')
