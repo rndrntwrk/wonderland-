@@ -1,0 +1,871 @@
+{
+  "schema": 1,
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "feat/native-player-continuation",
+  "base_pr": 29,
+  "base_commit": "ce54857000c253249f0bdd7b880038f9227e6cbc",
+  "base_tree": "f8ac2ba0151e14940dc2331760f7cc227cf7890e",
+  "scope": "Native accepted action feedback, reactive queue state and bounded completion/cancellation history",
+  "verification_origin": "fresh local execution; hosted CI status is separate",
+  "native_workspace": {
+    "passed": 1406,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 206
+  },
+  "new_native_tests": {
+    "player_event_boundary": 3,
+    "activity_reducer": 5,
+    "browser_fixture_source_branches": 1,
+    "included_in_workspace_total": true
+  },
+  "socket_tests": {
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0
+  },
+  "audio_tests": {
+    "passed": 59,
+    "failed": 0,
+    "skipped": 0
+  },
+  "ignored": [
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+  ],
+  "commands": {
+    "workspace": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "fcf0664dbf6114a3491931643ecd4425947a47b0103a71b14a53ddc846e387dc"
+    },
+    "native_lint": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "5d849acd83b89d64ec352780564540105adfcee5d4978ff8ebaf865dff72dc0f"
+    },
+    "wasm_lint": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "e7b53a96035972b1f862e5fcb0ca93f2e0d9331d9428dea09b01f782ed5d9ab2"
+    },
+    "socket": {
+      "command": "node --test apps/web-shell/scripts/native-socket.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "de28582d038ac360b69a555afc9130c2be65ce4cfab2d46b9fc2735ae06fd418"
+    },
+    "audio": {
+      "command": "node --test crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "2098ba94e57882c96e48a847de0aec6850fcaefa4f0f451cd1102d1639ec158f"
+    },
+    "format": {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "browser_release": {
+      "command": "trunk build --release --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "03fcd644663f7aa39113f1e1afc18156e2babee35c5a19e481292606d76ca0db"
+    },
+    "browser": {
+      "command": "node tools/native-browser/verify.mjs",
+      "exit_code": 0,
+      "log_sha256": "d44316a582be98ced900b988bc49191875835510a56fadb63b9aae5460eacd78"
+    }
+  },
+  "browser": {
+    "passed": true,
+    "environment": {
+      "runner": "Playwright 1.56.1",
+      "scope": "Controlled original gateway + real native runtime; declared original-BHAV fixtures",
+      "chromium": "141.0.7390.37"
+    },
+    "checks": [
+      {
+        "name": "Full browser admission",
+        "evidence": {
+          "url": "http://127.0.0.1:18888/",
+          "title": "Wonderland",
+          "nativeConnections": 1
+        }
+      },
+      {
+        "name": "Runtime completion is shown separately from server acceptance",
+        "evidence": {
+          "completion": "Action #1 completed",
+          "history": 1
+        }
+      },
+      {
+        "name": "Accepted original source action updates needs",
+        "evidence": {
+          "accepted": 1,
+          "canvasRetained": true,
+          "names": [
+            "Energy",
+            "Hunger",
+            "Hygiene",
+            "Bladder",
+            "Social",
+            "Fun"
+          ],
+          "values": [
+            100,
+            100,
+            100,
+            50,
+            50,
+            50
+          ],
+          "serverTicksDuringAction": 3
+        }
+      },
+      {
+        "name": "Independent browser receives the same accepted need change",
+        "evidence": {
+          "independentBrowserContexts": 2,
+          "sharedAuthority": true,
+          "names": [
+            "Energy",
+            "Hunger",
+            "Hygiene",
+            "Bladder",
+            "Social",
+            "Fun"
+          ],
+          "values": [
+            100,
+            100,
+            100,
+            50,
+            50,
+            50
+          ]
+        }
+      },
+      {
+        "name": "Unconfirmed action survives recovery without automatic replay",
+        "evidence": {
+          "sentOnce": true,
+          "unknownResults": 1,
+          "checkpoints": 3
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 1440,
+          "height": 1000,
+          "header": {
+            "x": 20,
+            "y": 20,
+            "width": 374,
+            "height": 90.734375
+          },
+          "toolbar": {
+            "x": 285,
+            "y": 912,
+            "width": 870,
+            "height": 68
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Your Sim",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 60,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 85,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 390,
+          "height": 844,
+          "header": {
+            "x": 12,
+            "y": 76,
+            "width": 366,
+            "height": 78.234375
+          },
+          "toolbar": {
+            "x": 12,
+            "y": 672,
+            "width": 366,
+            "height": 160
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 81.234375,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "width": 81.25,
+              "height": 40
+            },
+            {
+              "name": "Your Sim",
+              "width": 109.984375,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 110,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 109.984375,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 320,
+          "height": 600,
+          "header": {
+            "x": 12,
+            "y": 76,
+            "width": 296,
+            "height": 78.234375
+          },
+          "toolbar": {
+            "x": 12,
+            "y": 428,
+            "width": 296,
+            "height": 160
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 63.734375,
+              "height": 44
+            },
+            {
+              "name": "Cutaway",
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Walls up",
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Roof",
+              "width": 63.75,
+              "height": 44
+            },
+            {
+              "name": "Your Sim",
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 86.65625,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 86.671875,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Native responsive panels",
+        "evidence": {
+          "width": 844,
+          "height": 390,
+          "header": {
+            "x": 12,
+            "y": 12,
+            "width": 344,
+            "height": 74.234375
+          },
+          "toolbar": {
+            "x": 133,
+            "y": 264,
+            "width": 578,
+            "height": 114
+          },
+          "controls": [
+            {
+              "name": "Rotate left",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Rotate right",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom out",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Zoom in",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor down",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Floor up",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "name": "Walls down",
+              "width": 92,
+              "height": 40
+            },
+            {
+              "name": "Cutaway",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Walls up",
+              "width": 75,
+              "height": 40
+            },
+            {
+              "name": "Roof",
+              "width": 52,
+              "height": 40
+            },
+            {
+              "name": "Your Sim",
+              "width": 73,
+              "height": 40
+            },
+            {
+              "name": "Needs",
+              "width": 60,
+              "height": 40
+            },
+            {
+              "name": "Buy / Build",
+              "width": 85,
+              "height": 40
+            }
+          ],
+          "pageOverflow": false
+        }
+      },
+      {
+        "name": "Queued cancellation and terminal history follow accepted source state",
+        "evidence": {
+          "cancelledId": "6",
+          "remainingQueue": 1,
+          "historyPreserved": true,
+          "noRetry": true
+        }
+      },
+      {
+        "name": "Queue labels remain separate from cancellation controls",
+        "evidence": {
+          "width": 1440,
+          "height": 1000,
+          "rows": [
+            {
+              "id": "5",
+              "label": "Wait (test harness)",
+              "card": {
+                "x": 23,
+                "y": 129,
+                "width": 185,
+                "height": 86
+              },
+              "cancel": {
+                "x": 161,
+                "y": 140,
+                "width": 36,
+                "height": 36
+              },
+              "text": [
+                {
+                  "x": 38,
+                  "y": 143,
+                  "width": 61,
+                  "height": 18
+                },
+                {
+                  "x": 38,
+                  "y": 159.890625,
+                  "width": 52,
+                  "height": 18
+                }
+              ],
+              "style": {
+                "whiteSpace": "normal",
+                "paddingRight": "52px",
+                "overflowWrap": "anywhere"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Queue labels remain separate from cancellation controls",
+        "evidence": {
+          "width": 390,
+          "height": 844,
+          "rows": [
+            {
+              "id": "5",
+              "label": "Wait (test harness)",
+              "card": {
+                "x": 15,
+                "y": 169,
+                "width": 185,
+                "height": 76
+              },
+              "cancel": {
+                "x": 153,
+                "y": 180,
+                "width": 36,
+                "height": 36
+              },
+              "text": [
+                {
+                  "x": 28,
+                  "y": 181,
+                  "width": 117,
+                  "height": 18
+                }
+              ],
+              "style": {
+                "whiteSpace": "normal",
+                "paddingRight": "52px",
+                "overflowWrap": "anywhere"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Queue labels remain separate from cancellation controls",
+        "evidence": {
+          "width": 320,
+          "height": 600,
+          "rows": [
+            {
+              "id": "5",
+              "label": "Wait (test harness)",
+              "card": {
+                "x": 15,
+                "y": 169,
+                "width": 185,
+                "height": 76
+              },
+              "cancel": {
+                "x": 153,
+                "y": 180,
+                "width": 36,
+                "height": 36
+              },
+              "text": [
+                {
+                  "x": 28,
+                  "y": 181,
+                  "width": 117,
+                  "height": 18
+                }
+              ],
+              "style": {
+                "whiteSpace": "normal",
+                "paddingRight": "52px",
+                "overflowWrap": "anywhere"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Queue labels remain separate from cancellation controls",
+        "evidence": {
+          "width": 844,
+          "height": 390,
+          "rows": [
+            {
+              "id": "5",
+              "label": "Wait (test harness)",
+              "card": {
+                "x": 23,
+                "y": 99,
+                "width": 185,
+                "height": 86
+              },
+              "cancel": {
+                "x": 161,
+                "y": 110,
+                "width": 36,
+                "height": 36
+              },
+              "text": [
+                {
+                  "x": 38,
+                  "y": 113,
+                  "width": 61,
+                  "height": 18
+                },
+                {
+                  "x": 38,
+                  "y": 129.890625,
+                  "width": 52,
+                  "height": 18
+                }
+              ],
+              "style": {
+                "whiteSpace": "normal",
+                "paddingRight": "52px",
+                "overflowWrap": "anywhere"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Native sockets disposed after route exit and browser closure",
+        "evidence": {
+          "active": 0
+        }
+      },
+      {
+        "name": "Console and framework health",
+        "evidence": {
+          "pageErrors": 0,
+          "consoleErrors": 0
+        }
+      }
+    ],
+    "screenshots": [
+      {
+        "file": "01-desktop-native-needs.png",
+        "sha256": "eb59f414d9ec11087d518c77cbccbc07d9edb1ecff2c6589b20ad7e128d622a1"
+      },
+      {
+        "file": "02-mobile-native-needs.png",
+        "sha256": "b5be5a0530bf57db105b71d984bc6959c92f959135482c6aca4c41786423fb0e"
+      },
+      {
+        "file": "03-reconnected-unknown-result.png",
+        "sha256": "9c93fd5c0820e4be4698561e451f6efa5808f1556b069c03f4cd41afec514bde"
+      },
+      {
+        "file": "04-native-1440x1000.png",
+        "sha256": "1ed7df03af0d4231af9964d6e30afa756e7b030b6a5109227ba4e9bb3d635127"
+      },
+      {
+        "file": "04-native-390x844.png",
+        "sha256": "39d5be71b129c92a0b0b78ab99c0ba721291dde898431c6ce990493746fbd13c"
+      },
+      {
+        "file": "04-native-320x600.png",
+        "sha256": "b773dcfbb42c15aec63a9564e5056406c94ec4b3276c341784c413c5d7a0de61"
+      },
+      {
+        "file": "04-native-844x390.png",
+        "sha256": "b205ba56fceaccaf507e8c397b5ccc977132c21b79a9456136259c7268cea3a5"
+      },
+      {
+        "file": "05-native-cancelled-action.png",
+        "sha256": "2cf859fda10063ab3db3e277e759e3d3d45708c231150dc5a495d4728695d32d"
+      },
+      {
+        "file": "06-native-queue-1440x1000.png",
+        "sha256": "6b45cbcee26238575962823cc76ace0208b03a2f61c658ce773cca1617b1ed06"
+      },
+      {
+        "file": "06-native-queue-390x844.png",
+        "sha256": "579cba2d7479f2ffc89cc2c51e297909216948f705d8b064312ef1fa2d3855f8"
+      },
+      {
+        "file": "06-native-queue-320x600.png",
+        "sha256": "0e256fdcdfd8629f01c0b389b6205ee0f1b10de7fa91c2571b5f4bd9a3de09a3"
+      },
+      {
+        "file": "06-native-queue-844x390.png",
+        "sha256": "4f34c35aed0c0ecde555860cea0a9188cb7b57b53efa47596879c942b04799e3"
+      }
+    ],
+    "errors": [],
+    "warnings": [
+      "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information",
+      "The `integrity` attribute is currently ignored for preload destinations that do not support subresource integrity. See https://crbug.com/981419 for more information"
+    ],
+    "stats": {
+      "admissions": 4,
+      "opens": 4,
+      "checkpoints": 4,
+      "actions": 7,
+      "accepted": 7,
+      "unknownDrops": 1,
+      "ticks": 99
+    }
+  },
+  "repeat_browser": {
+    "passed": true,
+    "scenarios": 16,
+    "results_sha256": "0a4aa4cc210367b6f620153d6a09791c4ae408e32fa118a1dcd21d8ec3102ad0",
+    "log_sha256": "68d014cafa12ffe243f26c0de9f6425b758a21507d253b310efa8090e76001e1"
+  },
+  "native_source_branches": {
+    "invocations": 32,
+    "exact_vectors": [
+      [
+        100,
+        100,
+        100,
+        50,
+        50,
+        50
+      ],
+      [
+        50,
+        50,
+        50,
+        100,
+        100,
+        100
+      ]
+    ],
+    "names": [
+      "Energy",
+      "Hunger",
+      "Hygiene",
+      "Bladder",
+      "Social",
+      "Fun"
+    ],
+    "green_log_sha256": "211fa0e1015e23db74e00e4c96e734583ad5284f7828700002ab30362dbe4fb5"
+  },
+  "release_wasm": {
+    "name": "wonderland-web-shell-dcd17c26d8c26c52_bg.wasm",
+    "bytes": 11942698,
+    "sha256": "e0c94a05660ca48131913ba030f01d1fec393a2de895cba91e369224d7345f40"
+  },
+  "source_inputs_sha256": {
+    "apps/web-shell/src/native_lot.rs": "fa68dff748e98ff6f7f2d326a3faa1b72989d07cf0e7dc24ec254168e3f57537",
+    "crates/game-runtime/src/live_wire/player.rs": "efc8b1fc5e834bda645f221ce9d15db30d0743327813fe624f241f4a5e1b0f45",
+    "crates/game-runtime/src/live_wire/player/activity.rs": "b442c8f25fe6daec8716f5b9a3542f62ffdd2d74b1c27966681f525002ccbb80",
+    "crates/game-runtime/tests/native_player.rs": "c5446df342deb75cced3c64583d5555aa9bfc5ab99f96556d3dcf5f672629f7f",
+    "crates/game-runtime/examples/native_browser_peer.rs": "d5de1453d388975643bce8c2af8da3399e30ba89be531d457df232e7dc56b27b",
+    "tools/native-browser/verify.mjs": "627d22959327a7d9480813014431b434ef65bef929b6203a4679b5e86da99fd1",
+    "docs/design/action-first/native-action-feedback.md": "bc849a4e98a0612c780f61189645a0a3a3f8004119a61f2cafadb2ed15749371"
+  },
+  "source_preservation": {
+    "original_files_checked": 5384,
+    "changed": [],
+    "Cargo.lock_sha256": "a9f197f493440ded0af8507efa80c33e7b1e1fdb36d34e822510bac6c66af153",
+    "dependency_versions_changed": false,
+    "shared_stylesheet_changed": false
+  },
+  "red_before_green": {
+    "absent_api": {
+      "log_sha256": "1a67d46ae10fee74f5661846cdebce85583bfdb2b1301c2fb4634a0738521835",
+      "qualification": "compile failure, not behavioral RED"
+    },
+    "no_op_event_boundary": {
+      "failed": 2,
+      "log_sha256": "a49ac6abd94169a2aa8af62ae03dea07788771c2d02a730e9f083d206867d08a"
+    },
+    "no_op_activity_reducer": {
+      "failed": 5,
+      "log_sha256": "989181449fe9d16ab1b9586f5706ce104d1969088aa50669ae4acb280900bd92"
+    },
+    "previous_browser_without_feedback": {
+      "log_sha256": "86aaba892d54b9849e820a2466c9a5e8a91ed52650a6b1bb9f42478498d23a8e",
+      "qualification": "actual older application entered the lot and executed the action but lacked the completion element"
+    },
+    "motive_oracle": {
+      "failed": 1,
+      "log_sha256": "e44d16aa4b6a52f284d9591f7d0ef0fc7152f2e5f23ac403d4a24441aaae09a4",
+      "browser_failure_log_sha256": "e70a7e29a074f90fc8bbd66159df33f3e938d7aeb327a6f285844412dfb0c034",
+      "diagnostic_log_sha256": "85d7df53744c5adefcaa11bde4e7fd167fd332694a7185ad789904ecb384530e",
+      "qualification": "The old fixture reset only one possible group; original random branch execution remained correct"
+    },
+    "queue_label_overlap": {
+      "log_sha256": "cb5cde0e04284ed3b76292ec90182b5ac1836d660e28d2192db51263da064a62",
+      "result_sha256": "701c292a3dac53034e6adafbc6a5c54beec2c26d10146d57259cd48c470d8d75",
+      "qualification": "actual built application text rectangle intersected the cancel control before the padding correction"
+    }
+  },
+  "qualification": {
+    "actual_optimized_browser": true,
+    "controlled_websocket_authority": true,
+    "unchanged_source_needs_behavior": true,
+    "authored_wait_cancellation_harness": true,
+    "two_contexts_same_test_actor": true,
+    "production_services": false,
+    "distinct_real_player_multiplayer": false,
+    "full_source_assets": false,
+    "walking_contact_animation": false,
+    "original_fsov_vmnet_translation": false,
+    "synchronized_game_audio": false,
+    "physical_devices": false,
+    "independent_review": false,
+    "merge": false,
+    "deployment": false
+  },
+  "notes": [
+    "Checkpoint recovery and duplicate ticks do not append historical terminal activity. Other event consumers (avatar animation/audio) remain unconnected.",
+    "The empty 8x8 visual fixture is not evidence of complete scenery or avatar rendering. No invented asset models were added.",
+    "Repeated browser timeouts exposed the old needs oracle: original BHAV4107 randomly selects one of two groups. Initial timeout logs were overwritten, but the later failing repeat and diagnostic traces are retained. The corrected fixture resets all six needs, asserts exactly either original group, and compares both browser contexts. Two final full browser runs pass; the 32-invocation native regression requires both groups. No source bytecode, RNG or runtime semantics were changed.",
+    "The existing preload-integrity browser warning, proc-macro-error2 future-Rust notice, and optional source/corpus dispositions are not hidden or counted as passed optional checks.",
+    "A duplicate fixture-module Clippy failure was corrected by reusing the same source-loader module, not by suppressing the lint.",
+    "Temporary source/blob transfer workflows are excluded from the final tree and do not constitute test execution."
+  ]
+}

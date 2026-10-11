@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "feat/native-terrain-contact",
+  "base_pr": 34,
+  "base_commit": "13580dd2d0e2fefbefb73e4d0011032f80c06fb0",
+  "base_tree": "bafd69697b69ecebb8c08c8d62dac1097018a911",
+  "scope": "native presentation-only terrain contact and current-scene mesh picking",
+  "toolchain": {
+    "rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "node": "v22.16.0",
+    "trunk": "0.21.14",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37"
+  },
+  "native_workspace": {
+    "passed": 1431,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 208
+  },
+  "added_tests": {
+    "terrain": 9,
+    "current_scene_picking": 3,
+    "included_in_workspace": true
+  },
+  "ignored_tests": [
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+  ],
+  "node": {
+    "socket": {
+      "tests": 20,
+      "pass": 20,
+      "fail": 0,
+      "skipped": 0
+    },
+    "audio": {
+      "tests": 59,
+      "pass": 59,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "browser": {
+    "standard": {
+      "passed": true,
+      "records": 16,
+      "screenshots": 12,
+      "report_sha256": "3ba31de38ac43287ccd211ac203d1acfa32963f7efae980f78e6582d2de464fa",
+      "errors": []
+    },
+    "avatars": {
+      "passed": true,
+      "records": 10,
+      "screenshots": 6,
+      "report_sha256": "c2c9bfe7ad45b5cb4c4ae905250bc83e0e72f500d9ad4b34189860d150f00377",
+      "errors": []
+    },
+    "terrain": {
+      "passed": true,
+      "records": 12,
+      "screenshots": 7,
+      "report_sha256": "cac70b4c4bdb0d1d2e467269384a3a673841931b14aa3335edf3bc3769310b2e",
+      "errors": []
+    },
+    "receipt-deadline": {
+      "passed": true,
+      "records": 7,
+      "screenshots": 4,
+      "report_sha256": "832619bf1d6abb1725f7506a58e85b890aeaf7d694331967cfd9d828c4fd0a8e",
+      "errors": []
+    }
+  },
+  "release_wasm": {
+    "name": "wonderland-web-shell-1f1c1d1150b5ab7a_bg.wasm",
+    "bytes": 12021368,
+    "sha256": "c1339f42998de0d36edabec465a6a837a6d48a6f036a7f17ffd62e7faf74266e"
+  },
+  "commands": {
+    "workspace-final": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "25f9625018395e08a091c704b470623d6f3d33718241bad7a553d3973e9f862e"
+    },
+    "native-clippy": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "a269b28e7fbd0cdee45184ddd34c0dcd22ea3d5029e318e4533ba54cf844e196"
+    },
+    "wasm-clippy": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "90d0f5c5c54a5d81eacbad04cc2408e14d565ae0822bd3b3fe802904d2abd8d9"
+    },
+    "socket": {
+      "command": "node --test apps/web-shell/scripts/native-socket.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "1b7375e898acef4bbd8ecab7169a9d2878ae518f2fec452218919a2891c6c76a"
+    },
+    "audio": {
+      "command": "node --test crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "e59e4da3ed6a50b4e8c66f5a9620722a804e821fd909c5dbd15f754c2fe9f66e"
+    },
+    "browser-build-final": {
+      "command": "trunk build --release --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "919bead2eede010f2b44942fc3e77c1d893be2fc5935e3d1816c861963d7a9fd"
+    },
+    "browser-standard": {
+      "command": "node tools/native-browser/verify.mjs",
+      "exit_code": 0,
+      "log_sha256": "9ec6e62b3d8982105b388c0767c3144f50234ea400be7248a79442916c9e3bcf"
+    },
+    "browser-avatars": {
+      "command": "node tools/native-browser/verify-avatars.mjs",
+      "exit_code": 0,
+      "log_sha256": "576928e4473ad472a9aedc07b881377fd9eca953a010cafef69d18d59fab4888"
+    },
+    "browser-terrain": {
+      "command": "WONDERLAND_NATIVE_TERRAIN_FIXTURE=1 node tools/native-browser/verify-avatars.mjs",
+      "exit_code": 0,
+      "log_sha256": "1e9c201ab45071452d43d4483e79a07287b8e8ddfed1ae832b43cd10b901eb51"
+    },
+    "browser-receipt-deadline": {
+      "command": "node tools/native-browser/verify-receipt-deadline.mjs",
+      "exit_code": 0,
+      "log_sha256": "f23259e4e23630de41bd57a51c106b7be7c4ae7715c98dfad505e15171613f55"
+    }
+  },
+  "red_before_green": {
+    "terrain": {
+      "passed_before": 1,
+      "failed_before": 8,
+      "log_sha256": "4e2f103fe7ede5a3e2e95d5feafd4961940e1e7947e2f66a967bc8d7f455c74c"
+    },
+    "newly_hidden_pick": {
+      "failed_before": 1,
+      "log_sha256": "15338df1ebc07b18501589354e464cee3f89b5e9e37fb72ac1718cebf6e164d9"
+    }
+  },
+  "source_inputs_sha256": {
+    ".github/workflows/native-browser.yml": "09a7333941df00ec00ace359cc4b165c928b2665eaadfc8baa4f7ce9d073a0a6",
+    "apps/web-shell/src/native_avatar.rs": "81d188e076d4e5ed8c768a5e2c7db77433fea6d990ff4b7cf7746632088a1001",
+    "apps/web-shell/src/native_lot.rs": "5df7d35bd0518e52f6d8a5e79a4a005713f00d33390a29220a68998d21bacb32",
+    "apps/web-shell/tests/native_avatar.rs": "5f1b4882d6ba98fa29ff772cda11da3dd34effa4d022a343daeeb14884f9be70",
+    "crates/game-runtime/examples/native_browser_peer.rs": "d323c3a88e6e2805e1a0c92f726b1835e1d9ef6673766eb490a257709a4d8e69",
+    "crates/game-runtime/src/world_projection.rs": "f4033975584bee6726f4116c443bb47122c3d1cfca84ab138c73daf7cc77b7e3",
+    "crates/game-runtime/tests/native_ground_contact.rs": "3091bbb40655d42f3e06867c4e9b5954b951957005b6cbcf2d403166fd020d99",
+    "tools/native-browser/peer.mjs": "740d29fcfaa410e5bfaded4cca7fcf82af60f893951d217be8617a6af93d5dca",
+    "tools/native-browser/verify-avatars.mjs": "a4e245157b9b0868db9a4b46013a3ddc86c3b9df424027f44ed590ffc972a4ef"
+  },
+  "original_source": {
+    "raw_files_checked": 5384,
+    "changed": []
+  },
+  "cargo_lock_changed": false,
+  "qualifications": {
+    "synthetic_mesh_in_original_formats": true,
+    "rendered_browser_and_real_websocket_fixture": true,
+    "native_numerical_subtile_floor_edge_tests": true,
+    "original_human_art": false,
+    "foot_ik_terrain_normal_alignment": false,
+    "container_bone_multitile_attachment_placement": false,
+    "walking_contact_animation_fidelity": false,
+    "synchronized_gameplay_audio": false,
+    "distinct_production_players": false,
+    "production_native_services": false,
+    "original_fsov_vmnet_translation": false,
+    "physical_device": false,
+    "independent_review": false,
+    "merged": false,
+    "deployed": false
+  },
+  "notes": [
+    "Native explicit boundary vertices follow the existing native rendered surface, not legacy edge clamping/wrapping.",
+    "Earlier missing-renderer-import and NO_COLOR setup errors are retained, not treated as behavioral RED tests.",
+    "The first pick test filter omitted the failing case; the separately retained exact test failed before its fix.",
+    "Existing proc-macro-error2 future-Rust and browser preload/Node color warnings remain in logs.",
+    "Four browser suites share paths; the 45 records are not 45 new unique features.",
+    "Source code hashes were unchanged across the final frozen-source build and all browser executions.",
+    "Hosted verification is separate from these local execution results."
+  ]
+}

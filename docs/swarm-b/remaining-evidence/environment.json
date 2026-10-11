@@ -1,0 +1,15 @@
+{
+  "schema": "wonderland.swarm-b.verification-environment.v1",
+  "cargo_toolchain": "1.90.0",
+  "node": "24.19.0",
+  "playwright": "1.56.1",
+  "chromium": "141.0.7390.37",
+  "wasm_bindgen": "0.2.129",
+  "temporary_build_root": "/tmp/wonderland-b-verify-root",
+  "creator_dist_override": "../../../creator-web-verified-dist",
+  "directory_resolution": "Relative Creator directories resolve from tools/creator-web",
+  "wasm_bytes": 2985883,
+  "wasm_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "served_wasm_sha256": "c2cf91400bf653188682cc8aa9df8347241e5d5252f4f41d07a9ba0cfc8e8a59",
+  "verification_inputs_sha256": "d297337d4a117845241cfb847e4f073cacdc0026ae81cbf72ac490214aa8b85c"
+}

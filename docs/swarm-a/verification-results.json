@@ -1,0 +1,853 @@
+{
+  "format": "swarm-a-verification-results-v1",
+  "recordedAtUtc": "2026-10-05T10:34:02.026239Z",
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "feat/swarm-a-simulation",
+  "baselineCommit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "applicationSourceSha256": "9cd1618636c91b28db0b8a8cfeb8a7ab701122a74e4d6ccb47d22df96fde13e8",
+  "environment": {
+    "rustc": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)\nbinary: rustc\ncommit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112\ncommit-date: 2023-12-21\nhost: x86_64-unknown-linux-gnu\nrelease: 1.75.0\nLLVM version: 17.0.6",
+    "cargo": "cargo 1.75.0",
+    "node": "v24.19.0",
+    "nativePlatform": "linux-x64",
+    "mono": "6.8.0.105",
+    "dependencies": "distro-provided offline source registry; committed locks retain crates.io identities and checksums",
+    "wasmStandardLibrary": "separate prebuilt sysroot from matching signed Ubuntu Rust source; application builds did not use build-std or RUSTC_BOOTSTRAP",
+    "artifactPermissionNote": "Two initial debug attempts stopped before a generated test executable ran. Generated ELF permissions were corrected to 0755, and the entire final suite exited 0. The final release gate built with --no-run before checking artifact permissions and running the entire suite."
+  },
+  "nativePackageProfiles": [
+    {
+      "profile": "debug",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/sim-core/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "exitCode": 0,
+      "passed": 351,
+      "failed": 0,
+      "ignored": 1,
+      "measured": 0,
+      "filteredOut": 0,
+      "suiteResultCount": 36,
+      "suites": [
+        {
+          "suite": "unittests src/lib.rs",
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_autonomy.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_events.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_motives.rs",
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_social.rs",
+          "status": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_source_reference.rs",
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 1,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_state.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/clock_reference.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/effect_boundary.rs",
+          "status": "ok",
+          "passed": 19,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/numeric_reference.rs",
+          "status": "ok",
+          "passed": 14,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_autonomy.rs",
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_basic.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_behavior.rs",
+          "status": "ok",
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_entities.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_external.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_fire.rs",
+          "status": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_legacy.rs",
+          "status": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_presentation.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_relationships.rs",
+          "status": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_avatar_integration.rs",
+          "status": "ok",
+          "passed": 15,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_memory_reference.rs",
+          "status": "ok",
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_query_alias.rs",
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_review_regressions.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_routes_source.rs",
+          "status": "ok",
+          "passed": 22,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_semantics.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_tick.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/scheduler_reference.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/snapshot_contract.rs",
+          "status": "ok",
+          "passed": 26,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/vm_behavior.rs",
+          "status": "ok",
+          "passed": 18,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/vm_host.rs",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/vm_memory.rs",
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_build.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_model.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_placement.rs",
+          "status": "ok",
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_routing.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "doc-tests",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        }
+      ],
+      "executionLogSha256": "3d12329aded174c0127d4945aa63581fd783632d783c6562d9db71eada31bf3c"
+    },
+    {
+      "profile": "release",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/sim-core/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--release"
+      ],
+      "exitCode": 0,
+      "passed": 351,
+      "failed": 0,
+      "ignored": 1,
+      "measured": 0,
+      "filteredOut": 0,
+      "suiteResultCount": 36,
+      "suites": [
+        {
+          "suite": "unittests src/lib.rs",
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_autonomy.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_events.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_motives.rs",
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_social.rs",
+          "status": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_source_reference.rs",
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 1,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/avatar_state.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/clock_reference.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/effect_boundary.rs",
+          "status": "ok",
+          "passed": 19,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/numeric_reference.rs",
+          "status": "ok",
+          "passed": 14,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_autonomy.rs",
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_basic.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_behavior.rs",
+          "status": "ok",
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_entities.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_external.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_fire.rs",
+          "status": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_legacy.rs",
+          "status": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_presentation.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/primitives_relationships.rs",
+          "status": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_avatar_integration.rs",
+          "status": "ok",
+          "passed": 15,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_memory_reference.rs",
+          "status": "ok",
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_query_alias.rs",
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_review_regressions.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_routes_source.rs",
+          "status": "ok",
+          "passed": 22,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_semantics.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/runtime_tick.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/scheduler_reference.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/snapshot_contract.rs",
+          "status": "ok",
+          "passed": 26,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/vm_behavior.rs",
+          "status": "ok",
+          "passed": 18,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/vm_host.rs",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/vm_memory.rs",
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_build.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_model.rs",
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_placement.rs",
+          "status": "ok",
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "tests/world_routing.rs",
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        },
+        {
+          "suite": "doc-tests",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0
+        }
+      ],
+      "executionLogSha256": "de03c9a5893f297d476e28e66546ff66a6f6a10411696110e94302d32263fcd6"
+    }
+  ],
+  "sourceReferences": [
+    {
+      "gate": "avatar-extracted-source",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/sim-core/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "avatar_source_reference",
+        "--",
+        "--ignored"
+      ],
+      "exitCode": 0,
+      "passedTests": 1,
+      "executionLogSha256": "bf27ffad49bd6446d30d0cab66650712c7db223937635ea3a1dfde090ccda113",
+      "fullLegacyEngine": false,
+      "failedTests": 0,
+      "ignoredTests": 0
+    },
+    {
+      "gate": "numeric-extracted-expressions",
+      "command": [
+        "mcs -checked- -out:<temporary>/reference-numeric.exe tools/swarm-a/reference-numeric.cs",
+        "mono <temporary>/reference-numeric.exe"
+      ],
+      "exitCode": 0,
+      "observationLines": 93,
+      "executionLogSha256": "a1b898b795008eaf7196c38c32617f4fa3da8c2d2e6061013850f2b05e624e5d",
+      "fullLegacyEngine": false
+    },
+    {
+      "gate": "hash-pinned-lifecycle",
+      "command": [
+        "python3",
+        "tools/swarm-a/reference-lifecycle.py"
+      ],
+      "exitCode": 0,
+      "matchingExpectedTsvLines": 49,
+      "executionLogSha256": "2e1c78009d5ecd0b28cd1039081d70ac7677332efe3581c674dc87a6477b2701",
+      "fullLegacyEngine": false,
+      "sourceFilesHashChecked": 10
+    }
+  ],
+  "nativeReplayPackage": {
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "tools/swarm-a/replay/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--target-dir",
+      "tools/swarm-a/replay/target-replay"
+    ],
+    "exitCode": 0,
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "executionLogSha256": "8c481b4449fd3417a9cdb0bb397244c9bf87fb48fa4c3291c0add0d7eb47bf7e"
+  },
+  "nativeWasmReplay": {
+    "applicationSourceSha256": "9cd1618636c91b28db0b8a8cfeb8a7ab701122a74e4d6ccb47d22df96fde13e8",
+    "wasmBytes": 2969275,
+    "wasmSha256": "4d0a0da1c130062d937243342207ad5665951c23af7970d7c712a2e743cb8e75",
+    "wasmImports": [],
+    "nativeRecordsBytes": 2260356,
+    "nativeRecordsSha256": "beb1d7cedc3ee66151ef584726b0f18a624169e65ca71e38351a9fede382fab4",
+    "scenarioCount": 4,
+    "seeds": [
+      "0",
+      "1",
+      "123",
+      "18364758544493064720"
+    ],
+    "freshInstancesPerCase": 2,
+    "repetitionsPerInstance": 2,
+    "wasmScenarioExecutions": 64,
+    "comparedTickRecords": 5840,
+    "comparedSnapshotRecords": 320,
+    "legacyEngineOracle": false,
+    "nativeCases": 16,
+    "evidencePath": "../../tools/swarm-a/replay/results.json",
+    "recordedEvidenceSha256": "ea75b49e8cb373d9461f96704706c1e3cf917c7a175afcc119e7427bc9139a8e",
+    "independentRootCheckerExitCode": 0,
+    "independentRootEvidenceSha256": "b4487edca2f437309224872cedd93e6587db84c84774790a3a487468d30805f5",
+    "independentRootLogSha256": "f5421d8e3281db8dffac3f3f55d118d905e920ebf1ff5013e15e5eb1854e6c7a"
+  },
+  "headlessExample": {
+    "command": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "crates/sim-core/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--example",
+      "headless"
+    ],
+    "exitCode": 0,
+    "tick": 30,
+    "attribute0": 10,
+    "snapshotBytes": 5194,
+    "restoredStateHash": "0ee2c1537049637ae0f97b830bc1c9d2b4dddbaaea2302a8727fdd4752260cad"
+  },
+  "staticChecks": {
+    "coreRustfmtExitCode": 0,
+    "replayRustfmtExitCode": 0,
+    "verifyShellSyntaxExitCode": 0,
+    "replaySourceDigestMatchesRecordedEvidence": true,
+    "addedFileCount": 124,
+    "stagedWhitespaceExitCode": 0,
+    "checkedLocalDocumentLinks": 38,
+    "brokenLocalDocumentLinks": 0,
+    "stagedFilesMatchWorktree": true,
+    "onlySwarmAPathsChanged": true,
+    "originalSourceFilesChanged": 0,
+    "worldBuildSourceIncluded": true,
+    "verifyEntrypointExecutable": true,
+    "compilerArtifactsOrLocalMachineConfigIncluded": false,
+    "replayDefaultAndDocumentedBuildDirectoriesIgnored": true
+  },
+  "countingNotes": [
+    "Debug and release run the same 351 ordinary tests, not 702 unique tests.",
+    "The Mono avatar reference test is ignored by ordinary package commands and was explicitly run separately.",
+    "The numeric probe records observations; 93 is not a test count.",
+    "Focused review suites overlap with the complete package and are not additional distinct tests."
+  ],
+  "unqualifiedAcceptanceGates": [
+    "Full original C# engine differential replay",
+    "Real object-family content corpus and source routing frame traces",
+    "Legacy FSOv decoder",
+    "Physical browser, renderer, and 32-client load test",
+    "Deployed transaction ledger, durable recovery, and service fencing",
+    "Shared schema/workspace adoption and cross-swarm provider integration"
+  ]
+}

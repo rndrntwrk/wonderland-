@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "feat/native-live-wire",
+  "integration_base": "9fe3a7cd404f4aca35cd3dd6db557fe555c5eb17",
+  "archive_parent": "705530c1c99721ff9055ff1c44bd2cfb24e2097e",
+  "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "node": "v22.16.0",
+  "native_workspace": {
+    "passed": 1375,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 204
+  },
+  "existing_ignored": [
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+  ],
+  "new_tests": {
+    "wire_integration": 21,
+    "decode_guard": 4,
+    "included_in_native_workspace": true
+  },
+  "audio_tests": {
+    "passed": 59,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native_wasm": {
+    "result": "pass",
+    "schema": 1,
+    "native_wasm_equal": true,
+    "complete_record_bytes": 60754,
+    "output_sha256": "c36e6029a5cf499ee63f74e85bbe8682e9d49864cf75f82126cec31bf7b504ee",
+    "wasm_sha256": "27f3953d25ac2689bd30d75b6265e06c11a14ccb23a79c61d21565c498d78ed9",
+    "wasm_imports": 0,
+    "shared_memory": false,
+    "semantic_negative_controls": 8,
+    "changed_output_negative_controls": 1,
+    "repeated_reads": "equal"
+  },
+  "source_preservation": {
+    "base_commit": "705530c1c99721ff9055ff1c44bd2cfb24e2097e",
+    "raw_files_compared": 5385,
+    "changed": []
+  },
+  "verified_gates": {
+    "full-native": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "d47836364be97b5251612fc895fbe5202dcc6985fd650bbecebc432c8c3a1a5c"
+    },
+    "audio-tests": {
+      "command": "node --test crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "0cf00967e991da88b7d7ebd8ef7db7cd8db7c77e3b8a365b4df9b68bfce20da9"
+    },
+    "native-clippy": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "83d277e4dc60c752bfbe6064eddb258b81300e5065ad4121a06ab07dfdcb0095"
+    },
+    "wasm-clippy": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "a4b94b34fd857df8b6f03351fa140b3eff2021f0ff230e3d6f81fc15601862eb"
+    },
+    "wire-wasm-build": {
+      "command": "cargo build -p wonderland-game-runtime --example live_wire_probe --target wasm32-unknown-unknown --release --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "4185c23d07272598173f08b00a7478c8e37108fd3889e9a9ba428b452ede378e"
+    },
+    "wire-comparison": {
+      "command": "node crates/game-runtime/scripts/verify-live-wire.mjs wire-native.json live_wire_probe.wasm wire-wasm.json",
+      "exit_code": 0,
+      "log_sha256": "5af767f63d11bc0c2f86532e3aa52c2569d24f3e8b62653748d2985fe7e6e55f"
+    },
+    "format": {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "whitespace": {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "unchanged_verification_inputs_sha256": {
+    "crates/game-runtime/examples/live_wire_probe.rs": "0ddcb24a31b385210f1bb74b2c00795244a99d8a9851e357f245d69ca4e455a1",
+    "crates/game-runtime/scripts/verify-live-wire.mjs": "5af7df3d290fe9fcf20ba94dfe9b3357758d2262c0dff0f984d68b2440e4e3ab",
+    "crates/game-runtime/src/lib.rs": "e11e6edb58269361b8ed965383641a41bfa053f3081f2f6a1af27e4370544637",
+    "crates/game-runtime/src/live_wire.rs": "64bb38d7946d196703d488f4952f9f1a8d8f584656cda98315db92d0bd555b6c",
+    "crates/game-runtime/src/live_wire/guard.rs": "3f73a20b121f287a450bed726d8e7165f172a0e005bf7925f44ef9bcd68e31ee",
+    "crates/game-runtime/tests/live_wire.rs": "656eebfeb81c490e1671cda9c4a8c0979791ba9270c145519c2bbc8aee8e150b"
+  },
+  "verified_blobs": {
+    ".github/workflows/native-live-wire.yml": "1559daae50bc54a8d2e2113ebe6bcefa973a95ce",
+    "crates/game-runtime/examples/live_wire_probe.rs": "82de744874e46131b84af36376713b5e246c204e",
+    "crates/game-runtime/scripts/verify-live-wire.mjs": "c0414b42bb1221843637e387a34decbbd3d12e0a",
+    "crates/game-runtime/src/lib.rs": "19a21b73df7f0a83294357cf7d79d9939c475478",
+    "crates/game-runtime/src/live_wire.rs": "3148c5c68b839aeaa15f169a0f256fde4e5fec80",
+    "crates/game-runtime/src/live_wire/guard.rs": "7b373f9b79526be3df308c60605b35f93e9a557c",
+    "crates/game-runtime/tests/live_wire.rs": "94d9f69de0be9fe4280c62ada5c0b44d7973ba58",
+    "docs/design/action-first/native-live-wire.md": "0da67a12b16e52c56f71ec1ca7206e48cce3360e"
+  },
+  "qualification": {
+    "original_bhav": "unchanged source routines with declared harness metadata",
+    "authenticated_native_server": false,
+    "main_browser_wire_mounted": false,
+    "original_fsov_vmnet_translation": false,
+    "rendered_browser_test": false,
+    "physical_device_test": false,
+    "deployed_multiplayer_acceptance": false
+  },
+  "notes": [
+    "Native/WASM equality describes complete 60754-byte records, not just expected counters.",
+    "The existing proc-macro-error2 future-Rust compatibility notice remains in the successful browser-target lint log.",
+    "The first release build attempt timed out; the uninterrupted fresh final run succeeded.",
+    "Initial compiling API skeleton had 12 red tests; request and limit regressions were observed failing separately before correction.",
+    "No compiler, font files or original resource bundles are included in the published patch."
+  ]
+}

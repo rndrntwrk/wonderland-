@@ -1,0 +1,20 @@
+compile-original-reader: PASS
+toolchain: PASS
+bounded-rust-corpus-edits: PASS
+original-reader-batch-01: PASS
+original-reader-batch-02: PASS
+original-reader-batch-03: PASS
+original-reader-batch-04: PASS
+original-reader-batch-05: PASS
+original-reader-batch-06: PASS
+original-reader-batch-07: PASS
+original-reader-batch-08: PASS
+original-reader-batch-09: PASS
+original-reader-batch-10: PASS
+original-reader-batch-11: PASS
+original-reader-batch-12: PASS
+original-reader-batch-13: PASS
+original-reader-batch-14: PASS
+original-reader-batch-15: PASS
+original-reader-batch-16: PASS
+Indexed IFF oracle: PASS; logs: /workspace/scratch/378e4c36af7b/swarm-b-buildout-verification-final/indexed-iff

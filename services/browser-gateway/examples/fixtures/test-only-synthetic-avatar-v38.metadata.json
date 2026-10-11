@@ -1,0 +1,89 @@
+{
+  "animation_count": 0,
+  "body": {
+    "key": "0x0000024a0000000d",
+    "name": "mab000_leathers.oft"
+  },
+  "bound_appearance_count": 0,
+  "bytes": 2470,
+  "carry": false,
+  "clock_ticks": 123,
+  "compressed": false,
+  "decorations": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "dimensions": [
+    8,
+    8,
+    1
+  ],
+  "file": "test-only-synthetic-avatar-v38.fsov",
+  "guid": "0x7fd96b54",
+  "head": {
+    "key": "0x000003a10000000d",
+    "name": "mah001_robin.oft"
+  },
+  "label": "TEST ONLY - Synthetic Avatar FSOv38",
+  "lot_location": 16777472,
+  "motives": {
+    "bladder": {
+      "percent": 60.0,
+      "raw": 20,
+      "source_index": 9
+    },
+    "comfort": {
+      "percent": 80.0,
+      "raw": 60,
+      "source_index": 6
+    },
+    "energy": {
+      "percent": 50.0,
+      "raw": 0,
+      "source_index": 5
+    },
+    "fun": {
+      "percent": 40.0,
+      "raw": -20,
+      "source_index": 15
+    },
+    "hunger": {
+      "percent": 90.0,
+      "raw": 80,
+      "source_index": 7
+    },
+    "hygiene": {
+      "percent": 70.0,
+      "raw": 40,
+      "source_index": 8
+    },
+    "room": {
+      "percent": 20.0,
+      "raw": -60,
+      "source_index": 13
+    },
+    "social": {
+      "percent": 30.0,
+      "raw": -40,
+      "source_index": 14
+    }
+  },
+  "object_id": 7,
+  "persist_id": 42,
+  "position": [
+    64,
+    64,
+    1
+  ],
+  "proprietary_asset_bytes_in_payload": false,
+  "scale": 1.0,
+  "semantics": "First restored zero-time source resource-skeleton pose",
+  "sha256": "6d7538153e03a2b16076b4188cda82f27054a10c75da9510126f8f436054a753",
+  "skin": "Light",
+  "synthetic_state": true,
+  "test_only": true,
+  "version": 38,
+  "yaw": 0.0
+}

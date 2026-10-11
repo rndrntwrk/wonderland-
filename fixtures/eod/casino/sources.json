@@ -1,0 +1,76 @@
+{
+  "original_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "files": [
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs",
+      "sha256": "89dd97a8cef1e4f0ffac2aab0e4af5198a241e4aea246563d284de9455adda17"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs",
+      "sha256": "bfccf0b83d16cf3e42ffcf826a3b7ab0ffec1d424652c93e420b972f176387e2"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+      "sha256": "a77a31c729b52ffe89c4ee401faef42b2c04db6241f5916e2601bd6475be0547"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs",
+      "sha256": "d4184b04e7a10a98dedfdcd4b53bc25bab7afb1c603ce1352ec9f94d894defdb"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Utils/AbstractPlayingCardsDeck.cs",
+      "sha256": "0d008744778624f660b933ea01515bb2f7d83b190e7fa1115582c3cacaaf7838"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Utils/EODLobby.cs",
+      "sha256": "4b1ce377ffe2a7e64319a855e34c2a48d68ce88bab36b8f551d624fa4cc88984"
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/Data/VMEODGameCompDrawACardData.cs",
+      "sha256": "ca9bd347a830031f4d5c10d5eb4a29a01522cc9eeaa6c2f36bf74e1a5dd0f51f"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UISlotsEOD.cs",
+      "sha256": "a200537b79a308aa8c4ad554e0d1152ff78e418e19aba47cb50ed19821710863"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIRouletteEOD.cs",
+      "sha256": "300a9b15813d04ea455d25731ca815e89a0855a35c90e1fdcde5586eecb2f8a4"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIBlackjackEOD.cs",
+      "sha256": "aab72c6ffa56def6f507ea95c18495503a43431ff7c7c2183f502f83bc933d5d"
+    },
+    {
+      "path": "TSOClient/tso.client/UI/Panels/EODs/UIHoldEmCasinoEOD.cs",
+      "sha256": "512e2188daccd4a50b4abfce3b381bbaf4cf54d64fab1a3ca4c9c37b300642ae"
+    }
+  ],
+  "helper_oracle": {
+    "scope": "Executed unchanged original deck and byte-exact BlackjackPlayer/value-table/enums helpers, compared to literal expectations. Native host acceptance and poker combinatorial validation remain separate evidence.",
+    "compiled_whole_files": [
+      "TSOClient/tso.simantics/NetPlay/EODs/Utils/AbstractPlayingCardsDeck.cs"
+    ],
+    "source_slices": [
+      {
+        "name": "blackjack_values",
+        "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+        "start_byte": 1156,
+        "end_byte_exclusive": 1698,
+        "start_line": 36,
+        "end_line": 51,
+        "sha256": "7269fd7880d8769707ee3fc86908a4c383e02b72792b8f064a645e2b882f33ef"
+      },
+      {
+        "name": "blackjack_player_and_enums",
+        "path": "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+        "start_byte": 91444,
+        "end_byte_exclusive": 111143,
+        "start_line": 1783,
+        "end_line": 2274,
+        "sha256": "774cb130ea7567e84859be54f9f85187b70d5aab36f80319d1e175a9f9c0e6d1"
+      }
+    ],
+    "scaffolding": "Generated namespace/import/static-class containers and an empty opaque VMEODClient type used only by an unused stored identity field. No helper method body or value-table entry is modified; no VM or provider behavior is stubbed."
+  }
+}

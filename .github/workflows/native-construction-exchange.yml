@@ -1,0 +1,87 @@
+name: Native construction exchange
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/native-construction-exchange]
+  pull_request:
+    paths:
+      - crates/game-runtime/**
+      - crates/sim-core/**
+      - crates/content-runtime-bridge/**
+      - crates/legacy-formats/**
+      - apps/web-shell/public/native-construction.mjs
+      - apps/web-shell/scripts/native-construction.test.mjs
+      - .github/workflows/native-construction-exchange.yml
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: construction-exchange-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned compiler and ordinary browser target
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+      - name: Test and lint actual tracked workspace
+        run: |
+          set -euo pipefail
+          mkdir -p construction-evidence
+          cargo fmt --all -- --check
+          cargo test --workspace --locked 2>&1 | tee construction-evidence/workspace.log
+          cargo clippy --workspace --all-targets --locked -- -D warnings
+          cargo clippy -p wonderland-game-runtime --target wasm32-unknown-unknown --lib --locked -- -D warnings
+          node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs | tee construction-evidence/native-node.log
+          node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs | tee construction-evidence/audio-node.log
+      - name: Execute native and ordinary-WASM construction exchange
+        run: |
+          set -euo pipefail
+          cargo run -p wonderland-game-runtime --example construction_exchange_probe --locked > construction-evidence/native.json
+          cargo build -p wonderland-game-runtime --example construction_exchange_probe --target wasm32-unknown-unknown --release --locked
+          node crates/game-runtime/scripts/verify-construction-exchange.mjs \
+            construction-evidence/native.json \
+            target/wasm32-unknown-unknown/release/examples/construction_exchange_probe.wasm \
+            | tee construction-evidence/comparison.json
+      - name: Record source identity without modifying it
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p construction-evidence
+          git rev-parse HEAD > construction-evidence/revision.txt
+          git rev-parse 'HEAD^{tree}' >> construction-evidence/revision.txt
+          rustc -vV >> construction-evidence/revision.txt
+          node --version >> construction-evidence/revision.txt
+          sha256sum \
+            crates/game-runtime/src/live_wire/construction.rs \
+            crates/game-runtime/src/live_wire/construction/session.rs \
+            crates/game-runtime/src/live_wire/construction/exchange.rs \
+            crates/game-runtime/src/live_wire/construction/exchange/client.rs \
+            crates/game-runtime/tests/construction_exchange.rs \
+            crates/game-runtime/examples/construction_exchange_probe.rs \
+            crates/game-runtime/scripts/verify-construction-exchange.mjs \
+            apps/web-shell/public/native-construction.mjs \
+            apps/web-shell/scripts/native-construction.test.mjs \
+            > construction-evidence/source-sha256.txt
+          git diff --exit-code
+          git diff --cached --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-construction-exchange-evidence
+          path: construction-evidence/
+          retention-days: 7
+          if-no-files-found: error

@@ -1,0 +1,5 @@
+/target/
+
+# The legacy repository ignores any directory named build; this is Rust source.
+!/src/world/build/
+!/src/world/build/**

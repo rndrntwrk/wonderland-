@@ -1,0 +1,8 @@
+
+running 3 tests
+test boundary_tests::operation_error_still_observes_real_native_disconnect_outputs ... ok
+test boundary_tests::operation_error_still_checkpoints_and_observes_a_no_ui_color_save ... ok
+test boundary_tests::later_provider_error_preserves_earlier_load_ui_and_primary_error ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "base_commit": "0c9f2c194bd6280d16cf6c4438941c1974da2690",
+  "test_first_commit": "58843911ea9549a7418bfb74ee6931f5f7089eb2",
+  "native_workspace": {
+    "passed": 1482,
+    "failed": 0,
+    "ignored": 5
+  },
+  "new_native_tests": 16,
+  "ignored_tests": [
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+  ],
+  "node": {
+    "native_socket_device": 27,
+    "audio": 59
+  },
+  "native_wasm": {
+    "result": "pass",
+    "complete_record_bytes": 21559,
+    "output_sha256": "5735297093623025da8b5b3cbc70e5c0dbdfaa3f5db6429f5d31329efb7d9027",
+    "wasm_sha256": "3fb9e5443a421b36a8629279fc6d7ff82c016102b2ed390b3527f5d97c73f844",
+    "native_wasm_equal": true,
+    "wasm_imports": 0,
+    "equal_batch_sizes": [
+      1,
+      3,
+      18
+    ],
+    "accepted_avatar_frames": 18,
+    "repeated_draws": 120,
+    "semantic_negative_controls": 10,
+    "changed_output_negative_controls": 1,
+    "recovery_avatar_frames": 19,
+    "recovery_matches_live": true,
+    "shared_memory": false,
+    "browser_interaction_test": false
+  },
+  "browser": {
+    "checkpoint-tail": {
+      "report": "browser-tail-green/report.json",
+      "passed": true,
+      "checks": 8,
+      "screenshots": 3,
+      "sha256": "f87cd3b1dd82c86092354b22fb784695af0cfedeea6a767a904b8adfe9f56960",
+      "errors": []
+    },
+    "actions": {
+      "report": "browser-regression/actions/results.json",
+      "passed": true,
+      "checks": 16,
+      "screenshots": 12,
+      "sha256": "c30f6218ca1459fd30055f4c13abf6853ccfd72119c692f52877045528a4d031",
+      "errors": []
+    },
+    "audio": {
+      "report": "browser-regression/audio/report.json",
+      "passed": true,
+      "checks": 14,
+      "screenshots": 3,
+      "sha256": "c2003fd790983e010e00c1e4ac1ca6681812010b4b1a74096dfa678794148bcb",
+      "errors": []
+    },
+    "avatars": {
+      "report": "browser-regression/avatars/report.json",
+      "passed": true,
+      "checks": 10,
+      "screenshots": 6,
+      "sha256": "d42434d977707e09664770b3ebc66b16848f698e5c5a84711851a8e7c60abd81",
+      "errors": []
+    },
+    "combined": {
+      "report": "browser-regression/combined/report.json",
+      "passed": true,
+      "checks": 18,
+      "screenshots": 3,
+      "sha256": "0740f492e55a668cfbf5cca1394e796c86f3e2f68f57f517124acef647e4feba",
+      "errors": []
+    },
+    "pose-batches": {
+      "report": "browser-regression/pose-batches/report.json",
+      "passed": true,
+      "checks": 8,
+      "screenshots": 4,
+      "sha256": "a0cb0ce0bd5f90041b8cc6fdb54dab9b897e3f851d2849a7ff682aa277961022",
+      "errors": []
+    },
+    "pose-retention": {
+      "report": "browser-regression/pose-retention/report.json",
+      "passed": true,
+      "checks": 6,
+      "screenshots": 4,
+      "sha256": "d5bb9e9d03358dc8b3d0e5e1adc6732d1cfae0cb3d4852fcffd7822b4fffa5fc",
+      "errors": []
+    },
+    "receipt-deadline": {
+      "report": "browser-regression/receipt-deadline/receipt-deadline/results.json",
+      "passed": true,
+      "checks": 7,
+      "screenshots": 4,
+      "sha256": "064d318f00a31673f234e20a731f84ef9ccd4aebe5253c86c467a5adaadc63ca",
+      "errors": []
+    },
+    "terrain": {
+      "report": "browser-regression/terrain/report.json",
+      "passed": true,
+      "checks": 12,
+      "screenshots": 7,
+      "sha256": "cceeee5d69e1bc653afbd8c7ec8b67df52ecba0c6d1e8c87a848714df31c1baf",
+      "errors": []
+    }
+  },
+  "browser_totals": {
+    "journeys": 9,
+    "overlapping_check_records": 99,
+    "screenshots": 46
+  },
+  "gates": {
+    "full-native-final": {
+      "exit_code": 0,
+      "log_sha256": "240c75633086540570eef322beaa5ef999b39a249a70610f124f4479a7d46c11"
+    },
+    "final-format": {
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-native-lint": {
+      "exit_code": 0,
+      "log_sha256": "80721edb8a8ab7a4cf454d47ee1ec6740407fbf41d7167628ca8aee2d02aec18"
+    },
+    "full-lints": {
+      "exit_code": 0,
+      "log_sha256": "8d25216562fad6c902bf56434de2d8b411403349effeca49183e87cd5ae52b9f"
+    },
+    "browser-build": {
+      "exit_code": 0,
+      "log_sha256": "49cbb9805d1118b500763fe0c266be869539333cdc719159610386a02c505c43"
+    },
+    "pose-wasm-conformance": {
+      "exit_code": 0,
+      "log_sha256": "aa473e35ba65dc5ac1a0cf05807e82d8f2ff753c19857e884968738f63da2da9"
+    },
+    "socket-device": {
+      "exit_code": 0,
+      "log_sha256": "486eaab10520e8b41d88a3570a3ed007225c568383fac6d2839bfc5a5925d88c"
+    },
+    "audio": {
+      "exit_code": 0,
+      "log_sha256": "1dba8010809372e1b0e0a6d3d26463147b7d6ed40843e74d61fe5de5961e8756"
+    },
+    "browser-regressions": {
+      "exit_code": 0,
+      "log_sha256": "86fa46a782f27e7b9fae232d0ba02bc11e83f63f9b46821b40787c01df840222"
+    },
+    "browser-tail-green": {
+      "exit_code": 0,
+      "log_sha256": "c8ea3d4b40d21dfd8b4a761a32c00008ee0c5e4a1a42bee9047f052014422fb5"
+    }
+  },
+  "source_sha256": {
+    ".github/workflows/native-browser.yml": "277abb6ada9ea36b3d892b5d446faa85fab7ec762ffe456844a779f8ba9daf01",
+    ".github/workflows/native-pose-retention.yml": "701b6431ca57e99e4224f59f74fa03706c55d1d7d50a20997155440c16e270b5",
+    "apps/web-shell/examples/native_pose_retention_probe.rs": "7ecf390dc402105b0b2af88c0b0e01613cf74a041e2388f7e65d3ece1eb634ce",
+    "apps/web-shell/scripts/verify-native-pose-retention.mjs": "3e7ef44d8c1fa4a39f35eaba90db8a47ee9614498560e4b7a26b47f99f3809c4",
+    "crates/game-runtime/examples/native_browser_peer.rs": "1945a163339274155307af74299445781793f7b54ac061d3fc3e973cb8b01cb7",
+    "crates/game-runtime/src/live_session.rs": "a40c968a5c352737dfa373a2aff4353561519debdac72dcf011c34cd52157d3d",
+    "crates/game-runtime/src/live_wire.rs": "5812a17e4d529a2176fd62de183bf844c02c31b9cd260dde3b52f8d8e010e4a5",
+    "crates/game-runtime/tests/checkpoint_avatar_recovery.rs": "401704fdbf0982201d03ab3ffc4d170cd39248ba04ded81067bcdd7525420a43",
+    "docs/design/action-first/checkpoint-pose-tail.md": "27883b29733ec090c0664839e67c8d16321d073b92cb6222281957a72bc94f47",
+    "tools/native-browser/peer.mjs": "15db455d37fd54f2a96f1ce6939a3409ad662a38c7fa30b2f15fd7de763f1a6b",
+    "tools/native-browser/verify-checkpoint-tail.mjs": "aaef5c47ad571712097a958b4e48f54980b373aa23090c2110e4695fa5a45a65"
+  },
+  "release_wasm": {
+    "name": "wonderland-web-shell-5551302a358229b1_bg.wasm",
+    "bytes": 12368949,
+    "sha256": "badec2eef1d884288a2c31a094a9fce090e542e071ccc510c37e32deefb7e07c"
+  },
+  "original_files_unchanged": 5384,
+  "historical_red": {
+    "recovered_specifications": "5 passed / 6 behavioral failures",
+    "native_geometry_probe": "exit101; expected19 frames, got1",
+    "browser": "PR47 live path passes; recovery tail final pixels equal bind pose (failure)",
+    "standalone_budget_attempt": "local tool timeout waiting for Cargo lock; final full suite executes case successfully"
+  },
+  "scope": {
+    "historical_outcomes_replayed": false,
+    "pre_checkpoint_history_reconstructed": false,
+    "synthetic_original_format_art": true,
+    "actual_browser": true,
+    "chromium": "141.0.7390.37",
+    "playwright": "1.56.1",
+    "independent_review": false,
+    "production_multiplayer": false,
+    "full_game": false,
+    "merge": false,
+    "deployment": false,
+    "wire_packet_formats_unchanged": true
+  },
+  "hosted_status": "not yet run for this publication"
+}

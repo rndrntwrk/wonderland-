@@ -1,0 +1,20 @@
+A revision 8a0e251d19e222a0a6833d7408ca629f674e1729; manifest /tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/content-runtime-bridge/Cargo.toml
+   Compiling generic-array v0.14.7
+    Checking typenum v1.20.1
+   Compiling serde v1.0.195
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking cfg-if v1.0.5
+    Checking sha2 v0.10.8
+    Checking memchr v2.8.3
+    Checking quick-xml v0.38.4
+   Compiling serde_json v1.0.111
+    Checking ryu v1.0.23
+    Checking itoa v1.0.18
+    Checking wonderland-legacy-formats v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/legacy-formats)
+    Checking bincode v1.3.3
+    Checking sim-core v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/sim-core)
+    Checking wonderland-content-ir v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/content-ir)
+    Checking wonderland-content-runtime-bridge v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/content-runtime-bridge)
+    Finished `dev` profile [unoptimized] target(s) in 27.92s

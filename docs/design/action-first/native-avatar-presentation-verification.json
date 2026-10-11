@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "base_pr": 30,
+  "base_commit": "0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16",
+  "base_tree": "3476c3d0dd3aab6dd4ecbeac0cbc5fcef19c1923",
+  "native_workspace": {
+    "passed": 1419,
+    "failed": 0,
+    "ignored": 5
+  },
+  "added_tests": {
+    "native_avatar": 12,
+    "read_only_admission": 1,
+    "included_in_workspace": true
+  },
+  "socket": {
+    "passed": 10,
+    "failed": 0
+  },
+  "audio": {
+    "passed": 59,
+    "failed": 0
+  },
+  "ignored": [
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+  ],
+  "gates": {
+    "native_workspace": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "0d32ecd16b33dbade83663328470f2486101c11d7888c6a5785ac2642ed0ce03"
+    },
+    "native_clippy": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "2db6e7c0ff3d5cf5da2027004c1e9b59c19ea4fea874cf886901de2f99cf2265"
+    },
+    "wasm_clippy": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "ba003743c028b285bf0d6ea495c3b5f70d6c4874be21db4000a379a037eeea5c"
+    },
+    "format": {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "browser_build": {
+      "command": "trunk build --release --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "44901cac5b365d72824369035e5c905bb58c4fcde2ca63b63b5d779f93e98e11"
+    },
+    "socket": {
+      "command": "node --test apps/web-shell/scripts/native-socket.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "d2536dff49651796a67bfb0acaafb945fa03e32bb9515d889f34d52dca9bd9f1"
+    },
+    "audio": {
+      "command": "node --test crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "803e350b75b72caf4b8f7a18156fc6f312ce1356b12719af3e215a60dad64ddb"
+    },
+    "standard_browser": {
+      "command": "node tools/native-browser/verify.mjs",
+      "exit_code": 0,
+      "log_sha256": "625ac6f78bce4e3cde618a3b92ac39b4cbbb7863ef87a0e8509cc69ad06738db"
+    },
+    "avatar_browser": {
+      "command": "node tools/native-browser/verify-avatars.mjs",
+      "exit_code": 0,
+      "log_sha256": "4e6359cd21ed9842672c3062cf128df9792e4efb7abbd73324687b67184c5444"
+    }
+  },
+  "standard_browser": {
+    "passed": true,
+    "scenario_records": 16,
+    "screenshots": 12,
+    "errors": [],
+    "report_sha256": "c349914e93482160659ea84f8f28f1d8a3bc34ea4799d99d0a961989c5683c50"
+  },
+  "avatar_browser": {
+    "passed": true,
+    "scope": "Synthetic standalone-format avatar assets, real Rust native runtime and real browser content loader",
+    "checks": [
+      {
+        "name": "Synthetic PNG accepted by the real browser decoder",
+        "decoded": {
+          "width": 1,
+          "height": 1,
+          "pixel": [
+            255,
+            0,
+            0,
+            255
+          ]
+        }
+      },
+      {
+        "name": "Real content loader binds the admitted native avatar",
+        "models": 1
+      },
+      {
+        "name": "Accepted animation changes render real pixels",
+        "distinctCanvasFrames": 5
+      },
+      {
+        "name": "Depth-tested avatar selection opens actual source actions"
+      },
+      {
+        "name": "Disconnect freezes accepted avatar pixels"
+      },
+      {
+        "name": "Reconnect restores original-format avatar resources"
+      }
+    ],
+    "errors": [],
+    "screenshots": [
+      {
+        "file": "native-avatar-desktop.png",
+        "sha256": "c38e47fcb70d6e71918060eddbf1149eb756130eda393966fa1007040e8d6938"
+      },
+      {
+        "file": "native-avatar-mobile.png",
+        "sha256": "a3e0aaa8bb32fb0d52ba66796d449d6e7f2db72b052c0c2a47a8d74c7ad5f7d9"
+      },
+      {
+        "file": "native-avatar-mobile-scene.png",
+        "sha256": "f5d6f5bfe186b12a2797a571f4f6ec003291066ec8881c77e5defc3142afd6ac"
+      }
+    ],
+    "browser": "141.0.7390.37"
+  },
+  "release_wasm": {
+    "name": "wonderland-web-shell-14f4e626f6f00e23_bg.wasm",
+    "bytes": 12017000,
+    "sha256": "424efab59e6f8d6bcfa87212f08d8e1d09328e8130448cd39dc37d5ca9368972"
+  },
+  "original_source": {
+    "base_commit": "0df5bf4c10272e2dc9fee976cf4d2b744e9d7e16",
+    "base_tree": "3476c3d0dd3aab6dd4ecbeac0cbc5fcef19c1923",
+    "original_raw_files": 5384,
+    "changed": [],
+    "Cargo.lock_unchanged": true
+  },
+  "source_sha256": {
+    ".github/workflows/native-browser.yml": "2602965edae72bf5f81427628ea6062094d481a64f4021f6ae38303568a67754",
+    "apps/web-shell/examples/native_avatar_resources.rs": "dee1a85ff401ed1863ce096cc74fb93a67b34134fbdcecba5f1ffcbb1c07c060",
+    "apps/web-shell/src/connected_world.rs": "600bd68b8828bc6dca988aa6c8664f09ce65fafb8f8733cb596474e30edcef2a",
+    "apps/web-shell/src/lib.rs": "1e2d3a2db0875b235271bb453e53b124a6b72fc51dab077833223ad3026dd80f",
+    "apps/web-shell/src/native_avatar.rs": "47123aca7418f67ec73c39fbe88669a41fc16fa189b38e41b180449e994b7f84",
+    "apps/web-shell/src/native_lot.rs": "fa4855ce99cedbb689eb1d55e2dc54252ee3b5ef86ffa129d5cf6c579a65c1a8",
+    "apps/web-shell/tests/native_avatar.rs": "be0ee9ff371a1d2555eefd2f7525755ccd6f2734176714cbf5688ac88f932931",
+    "apps/web-shell/tests/support/native_avatar_bank.rs": "2f09794249cb69fdd397fdc824453c567fd935683c4a39b8956e6a2bb24fe227",
+    "crates/game-runtime/examples/native_browser_peer.rs": "4aa4cc050a90f30cf8875b6d7123829e5de0aad479edd492c2f47817f5383b13",
+    "crates/game-runtime/src/avatar_projection.rs": "5d47b5205a0054d7a7f4c93ac18a9321dc14eb17a126b8f6f72b715b5ee76bf3",
+    "crates/game-runtime/src/lib.rs": "471e740a2b15048910ed28db3f72281a4de2b3a2e13e5cb7bf76e57e2671e65d",
+    "crates/game-runtime/src/live_wire/player.rs": "10f4b0e1c16e82af9ff0476d6d4e9e72c73b7cdbd6daa8943e5f7e951dcf9b23",
+    "crates/game-runtime/tests/native_player.rs": "b989ea08f0a521dad0847b80bc40c9458ca9f7be7898c2bcddf4d3d932313cc8",
+    "docs/design/action-first/native-avatar-presentation.md": "cdf0198101f8fbde77396b6a8f50288aec5401e83af6b65da7b46b662576bec1",
+    "tools/native-browser/verify-avatars.mjs": "521a738ee995d29679e050e2f153c7767a3cae05d2a25996e0698d6a6730edc2"
+  },
+  "red_before_green": {
+    "initial_adapter": "Seven behavioral tests failed against a compiling no-op after fixture correction.",
+    "frame_store": {
+      "observed_error": "UnversionedVisualChange",
+      "log_sha256": "1b4b3fa42030e846b17d9fd4f2231f1407f0505cc4d737144b38d63ba04b9fef"
+    },
+    "fixture_png": "Browser rejected a synthetic PNG with invalid IDAT CRC. Only the new test fixture was corrected.",
+    "browser_runner": "Successful import auto-collapses the content details; test now checks attached success text. Wrong close-button selector corrected from the existing component."
+  },
+  "environment": {
+    "rust": "1.99.0",
+    "trunk": "0.21.14",
+    "node": "22.16.0",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37",
+    "local_browser_child_environment": "LD_PRELOAD and DISPLAY removed; normal multi-process headless SwiftShader. Initial browser-launch failure occurred before app execution."
+  },
+  "qualification": {
+    "actual_built_application": true,
+    "current_accepted_avatar_frames": true,
+    "real_depth_picking": true,
+    "synthetic_standalone_format_resources": true,
+    "original_human_asset_acceptance": false,
+    "historical_skeletal_retention": false,
+    "head_seeking_or_container_attachments": false,
+    "walking_contact_animation": false,
+    "production_content_or_distinct_player_multiplayer": false,
+    "independent_review": false,
+    "merge": false,
+    "deployment": false
+  },
+  "hosted_ci": "Not yet run for this continuation; record local verification separately."
+}

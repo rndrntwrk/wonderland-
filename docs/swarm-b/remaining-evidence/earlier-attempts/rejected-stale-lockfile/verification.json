@@ -1,0 +1,903 @@
+{
+  "schema_version": 1,
+  "status": "fail",
+  "toolchain": "1.90.0",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "verification_inputs_sha256": "c4471e69abb5eb1c04a0d23be747d07538a9b515540eba9c45da3bd7e25ad6bf",
+  "gates": [
+    {
+      "gate": "toolchain",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "--version"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "01-toolchain.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "formats-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "crates/legacy-formats/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "02-formats-tests.log",
+      "tests_passed": 123,
+      "tests_ignored": 3,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "formats-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/legacy-formats/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "03-formats-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "formats-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "crates/legacy-formats/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "04-formats-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "formats-wasm32",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "check",
+        "--locked",
+        "--manifest-path",
+        "crates/legacy-formats/Cargo.toml",
+        "--lib",
+        "--target",
+        "wasm32-unknown-unknown"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "05-formats-wasm32.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "original-indexed-iff-reader",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b/indexed-iff-oracle.py",
+        "--cargo",
+        "/root/.cargo/bin/cargo",
+        "--target-dir",
+        "/tmp/wonderland-b-verify-root/wonderland-b-formats-v9qxdaw7",
+        "--logs-dir",
+        "/workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/indexed-iff"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "06-original-indexed-iff-reader.log",
+      "tests_passed": 2,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "details": "indexed-iff/indexed-iff-oracle.json"
+    },
+    {
+      "gate": "original-sprite-writer",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b/sprite-oracle.py",
+        "--output",
+        "/workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/sprite-oracle.json"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "07-original-sprite-writer.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "original-sprite-reader",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b/sprite-reader-oracle.py",
+        "--cargo",
+        "/root/.cargo/bin/cargo"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "08-original-sprite-reader.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "original-avatar-text-compile",
+      "command": [
+        "mcs",
+        "-out:/tmp/wonderland-b-verify-root/wonderland-b-formats-v9qxdaw7/LegacyTextSourceProbe.exe",
+        "TSOClient/tso.files/Utils/BCFReadProxy.cs",
+        "docs/swarm-b/format-evidence/legacy-text-source-probe.cs"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "09-original-avatar-text-compile.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "original-avatar-text-reader",
+      "command": [
+        "mono",
+        "/tmp/wonderland-b-verify-root/wonderland-b-formats-v9qxdaw7/LegacyTextSourceProbe.exe"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "10-original-avatar-text-reader.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "content-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "crates/content-ir/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "11-content-tests.log",
+      "tests_passed": 14,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "content-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/content-ir/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "12-content-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "content-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "crates/content-ir/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "13-content-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "content-wasm32",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "check",
+        "--locked",
+        "--manifest-path",
+        "crates/content-ir/Cargo.toml",
+        "--lib",
+        "--target",
+        "wasm32-unknown-unknown"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "14-content-wasm32.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "pinned-content-census",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "run",
+        "--locked",
+        "--manifest-path",
+        "crates/content-ir/Cargo.toml",
+        "--bin",
+        "content-census",
+        "--",
+        "/workspace/scratch/378e4c36af7b/wonderland",
+        "/tmp/wonderland-b-verify-root/wonderland-b-census-ni5hfq2v/corpus.json"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "15-pinned-content-census.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "manifest-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "tools/swarm-b-check/manifest/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "16-manifest-tests.log",
+      "tests_passed": 7,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "manifest-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/swarm-b-check/manifest/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "17-manifest-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "manifest-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "tools/swarm-b-check/manifest/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "18-manifest-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "interactions-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "tools/swarm-b-check/interactions/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "19-interactions-tests.log",
+      "tests_passed": 55,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "interactions-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/swarm-b-check/interactions/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "20-interactions-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "interactions-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "tools/swarm-b-check/interactions/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "21-interactions-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "interactions-wasm32",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "check",
+        "--locked",
+        "--manifest-path",
+        "tools/swarm-b-check/interactions/Cargo.toml",
+        "--lib",
+        "--target",
+        "wasm32-unknown-unknown"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "22-interactions-wasm32.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "eod-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "crates/eod-runtime/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "23-eod-tests.log",
+      "tests_passed": 221,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "eod-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/eod-runtime/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "24-eod-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "eod-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "crates/eod-runtime/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "25-eod-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "eod-native-boundary",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "check",
+        "--locked",
+        "--manifest-path",
+        "crates/eod-runtime/Cargo.toml",
+        "--lib",
+        "--target",
+        "wasm32-unknown-unknown"
+      ],
+      "status": "pass",
+      "exit_code": 101,
+      "log": "26-eod-native-boundary.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "expected_rejection": "authoritative private EOD state is native-only"
+    },
+    {
+      "gate": "eod-oracle-comparator-tests",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "fixtures/eod/source-oracle",
+        "-p",
+        "test_*.py"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "27-eod-oracle-comparator-tests.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 21
+    },
+    {
+      "gate": "original-eod-handlers",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b/eod-source-oracle.py",
+        "--cargo",
+        "/root/.cargo/bin/cargo",
+        "--target-dir",
+        "/tmp/wonderland-b-verify-root/wonderland-b-eod-q0tcni4i",
+        "--logs-dir",
+        "/workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/eod-source-oracle"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "28-original-eod-handlers.log",
+      "tests_passed": 3,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "details": "eod-source-oracle/eod-source-oracle.json"
+    },
+    {
+      "gate": "original-eod-casino",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "fixtures/eod/casino/verify.py",
+        "--report",
+        "/workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/eod-casino-source.json"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "29-original-eod-casino.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "details": "eod-casino-source.json"
+    },
+    {
+      "gate": "original-eod-social",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "fixtures/eod/social/verify.py",
+        "--report",
+        "/workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/eod-social-source.json"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "30-original-eod-social.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "details": "eod-social-source.json"
+    },
+    {
+      "gate": "original-eod-service",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "fixtures/eod/service/verify.py",
+        "--report",
+        "/workspace/scratch/378e4c36af7b/swarm-b-remaining-verification-clean/eod-service-source.json"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "31-original-eod-service.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "details": "eod-service-source.json"
+    },
+    {
+      "gate": "creator-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "tools/creator/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "32-creator-tests.log",
+      "tests_passed": 73,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/creator/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "33-creator-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "tools/creator/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "34-creator-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "cooker-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "tools/asset-cooker/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "35-cooker-tests.log",
+      "tests_passed": 26,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "cooker-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/asset-cooker/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "36-cooker-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "cooker-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "tools/asset-cooker/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "37-cooker-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "cooker-demo",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "run",
+        "--locked",
+        "--manifest-path",
+        "tools/asset-cooker/Cargo.toml",
+        "--",
+        "demo",
+        "/tmp/wonderland-b-verify-root/wonderland-b-demo-uo52q8b5/first"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "38-cooker-demo.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "cooker-rebuild",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "run",
+        "--locked",
+        "--manifest-path",
+        "tools/asset-cooker/Cargo.toml",
+        "--",
+        "cook",
+        "/tmp/wonderland-b-verify-root/wonderland-b-demo-uo52q8b5/first/demo.json",
+        "/tmp/wonderland-b-verify-root/wonderland-b-demo-uo52q8b5/second",
+        "--public"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "39-cooker-rebuild.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "cooker-verify",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "run",
+        "--locked",
+        "--manifest-path",
+        "tools/asset-cooker/Cargo.toml",
+        "--",
+        "verify",
+        "/tmp/wonderland-b-verify-root/wonderland-b-demo-uo52q8b5/second",
+        "--manifest-sha256",
+        "5ea34ee7ebda50e70f6adb77d14c82d08161ecd8442e58858a2f5ec2b6b24b66"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "40-cooker-verify.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-web-tests",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "tools/creator-web/Cargo.toml"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "41-creator-web-tests.log",
+      "tests_passed": 23,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-web-fmt",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/creator-web/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "42-creator-web-fmt.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-web-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "tools/creator-web/Cargo.toml",
+        "--all-targets",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "43-creator-web-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-browser-build",
+      "command": [
+        "node",
+        "tools/creator-web/scripts/build.mjs"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "44-creator-browser-build.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-browser-clippy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "tools/creator-web/Cargo.toml",
+        "--release",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--lib",
+        "--no-deps",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "45-creator-browser-clippy.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "creator-browser-workflows",
+      "command": [
+        "node",
+        "tools/creator-web/tests/browser.mjs"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "46-creator-browser-workflows.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0,
+      "browser_checks_passed": 25,
+      "details": "creator-browser/report.json"
+    },
+    {
+      "gate": "eod-census",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b/eod-census.py",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "47-eod-census.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "object-census",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b/object-census.py",
+        "--check"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "48-object-census.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    },
+    {
+      "gate": "catalog-tests",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/compat/catalog",
+        "-p",
+        "test_*.py"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "log": "49-catalog-tests.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 14
+    },
+    {
+      "gate": "native-wasm-execution",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/swarm-b-check/parity/check.py",
+        "--target-dir",
+        "/tmp/wonderland-b-verify-root/wonderland-b-parity-kc3snpxm"
+      ],
+      "status": "fail",
+      "exit_code": 1,
+      "log": "50-native-wasm-execution.log",
+      "tests_passed": 0,
+      "tests_ignored": 0,
+      "python_tests_passed": 0
+    }
+  ],
+  "rust_tests_passed": 547,
+  "rust_tests_ignored": 3,
+  "python_tests_passed": 35,
+  "browser_checks_passed": 25,
+  "requested_optional_checks": {
+    "authored_native_wasi_parity": true,
+    "original_source_comparisons": true,
+    "pinned_runtime_bridge": true,
+    "creator_browser_workflows": true
+  },
+  "simulation_revision": "8a0e251d19e222a0a6833d7408ca629f674e1729"
+}

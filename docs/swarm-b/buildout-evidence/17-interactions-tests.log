@@ -1,0 +1,93 @@
+   Compiling wonderland-interactions-check v0.0.0 (/workspace/scratch/378e4c36af7b/wonderland/tools/swarm-b-check/interactions)
+    Finished `test` profile [unoptimized] target(s) in 0.92s
+     Running unittests ../../../crates/sim-core/src/interactions/mod.rs (/tmp/wonderland-b-interactions-nnf09xzn/debug/deps/wonderland_interactions_check-5b3853cee6c61e03)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../../tests/interactions/module_integration_shape.rs (/tmp/wonderland-b-interactions-nnf09xzn/debug/deps/module_integration_shape-0aeb34fede8a1c40)
+
+running 1 test
+test actual_interactions_source_can_be_nested_under_a_simulation_module ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../../tests/interactions/query_and_intents.rs (/tmp/wonderland-b-interactions-nnf09xzn/debug/deps/query_and_intents-c1fdb11be282ff80)
+
+running 25 tests
+test absent_local_ttab_hides_full_menu_but_preserves_single_global_validation ... ok
+test autonomous_check_arg_is_one_while_variant_does_not_enter_check_args ... ok
+test explicit_tick_query_persists_register_rng_and_provider_effects ... ok
+test false_yield_abort_and_error_queries_leave_live_state_unchanged ... ok
+test budgets_and_output_bounds_fail_even_when_provider_ignores_the_error ... ok
+test cancellation_validates_owner_permission_revision_and_monotonic_operation_identity ... ok
+test duplicate_ttab_keys_and_zero_test_binding_are_explicit_errors ... ok
+test in_tick_temp_arrays_keep_rejected_check_writes_for_later_entry ... ok
+test local_and_global_tta_indices_stay_distinct_and_in_source_order ... ok
+test queue_snapshot_dialect_mismatch_is_explicit ... ok
+test repeated_gameplay_entries_are_legal_but_replayed_command_sequences_are_not ... ok
+test hidden_checks_reset_per_interaction_and_snapshot_only ... ok
+test permits_become_stale_after_queue_or_world_changes_without_consuming_commands ... ok
+test missing_ttas_and_check_defaults_follow_get_pie_menu ... ok
+test offers_and_prepared_permits_do_not_bypass_later_authorization_changes ... ok
+test source_rng_zero_bound_does_not_advance_state_and_wrapping_is_deterministic ... ok
+test stale_entity_generation_entity_revision_and_world_revision_are_rejected ... ok
+test ui_temp_arrays_reset_per_check_after_rejection_and_match_targeted_validation ... ok
+test user_limit_counts_all_entries_and_does_not_remove_cleanup_on_rejection ... ok
+test validated_intent_uses_server_definition_and_four_source_action_args ... ok
+test validation_checks_variant_ignores_occupied_only_in_detached_state_and_rechecks_at_start ... ok
+test ui_query_isolates_rng_temps_ads_and_all_owned_provider_bytes ... ok
+test ui_temp_arrays_reset_without_resetting_rng_or_other_detached_state ... ok
+test variants_keep_source_order_names_and_param0_without_duplicating_default_ads ... ok
+test snapshot_and_offer_resource_growth_is_bounded ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../../tests/interactions/queue_semantics.rs (/tmp/wonderland-b-interactions-nnf09xzn/debug/deps/queue_semantics-7ede375c179d8676)
+
+running 22 tests
+test cancellation_retains_running_and_must_run_entries_but_removes_waiting_normal_actions ... ok
+test cancelling_active_parent_idle_keeps_active_descendant_frames_and_parent_exit ... ok
+test direct_control_can_skip_hidden_idle_and_emits_disconnect_before_cancel_at_index_zero ... ok
+test directly_cancelled_parent_exit_is_retained_and_still_executes ... ok
+test check_thread_bypasses_check_action_and_does_not_hide_run_immediately_entries ... ok
+test failed_check_prunes_only_rejected_pending_action_and_can_start_following_action ... ok
+test immediate_start_failure_never_extends_active_prefix_and_keeps_cleanup ... ok
+test impossible_parent_idle_cancel_faults_before_deleting_an_active_parent_idle_descendant ... ok
+test interpreter_push_mapping_sets_only_source_continuation_and_permission_flags ... ok
+test parent_idle_cancellation_removes_following_idles_but_runs_cancelled_parent_exit_cleanup ... ok
+test priority_refresh_allows_autonomous_interruption_and_prunes_only_pending_dead_targets ... ok
+test push_head_overrides_priorities_without_moving_the_active_prefix ... ok
+test queue_limit_rejections_unknown_cancellation_and_empty_finish_are_atomic ... ok
+test rejected_frame_start_keeps_action_and_source_priority_without_fictitious_frame ... ok
+test route_failure_or_abort_finishes_only_active_leaf_preserving_parent_exit_cleanup ... ok
+test runtime_error_preserves_candidate_and_reports_ordered_failure_after_prior_rejection ... ok
+test source_numeric_priorities_modes_and_overloaded_flags_are_stable ... ok
+test same_priority_queue_is_fifo_and_identical_interactions_are_not_deduplicated ... ok
+test tail_and_tso_leapfrog_step_before_lower_priority_parent_exit_but_ts1_bit_does_not ... ok
+test run_immediately_is_hidden_until_injection_and_does_not_overwrite_parent_priority ... ok
+test ts1_queue_skips_original_tail_once_and_preserves_must_run_without_spinning ... ok
+test transition_events_are_totally_ordered_revision_stamped_and_not_retained_in_queue ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../../tests/interactions/source_contract.rs (/tmp/wonderland-b-interactions-nnf09xzn/debug/deps/source_contract-02ce810f282f9501)
+
+running 7 tests
+test skip_permissions_checks_only_when_tso_run_check_always_is_set ... ok
+test nonempty_defaults_exclude_visitors_but_allow_roommates ... ok
+test pet_permissions_preserve_tso_admin_exception_and_ts1_human_pet_flag_quirk ... ok
+test ts1_age_visitor_and_debug_rules_ignore_tso_permission_flags ... ok
+test tso_debug_skips_check_for_admin_but_csr_flag_restricts_nonowner_nonadmin ... ok
+test tso_global_repair_exception_and_repair_flag_match_executable_source ... ok
+test tso_owner_positive_override_does_not_bypass_carrying_or_repair ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests wonderland_interactions_check
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

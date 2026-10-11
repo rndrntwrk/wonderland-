@@ -1,0 +1,36 @@
+[package]
+name = "sim-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MPL-2.0"
+description = "Deterministic, presentation-independent Wonderland simulation"
+
+[lib]
+name = "sim_core"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+bincode = "=1.3.3"
+sha2 = "0.10"
+
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[[test]]
+name = "interactions_source_contract"
+path = "../../tests/interactions/source_contract.rs"
+
+[[test]]
+name = "interactions_query_and_intents"
+path = "../../tests/interactions/query_and_intents.rs"
+
+[[test]]
+name = "interactions_queue_semantics"
+path = "../../tests/interactions/queue_semantics.rs"
+
+[[test]]
+name = "interactions_module_integration_shape"
+path = "../../tests/interactions/module_integration_shape.rs"

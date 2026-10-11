@@ -1,0 +1,256 @@
+{
+  "version": 1,
+  "revision": 1,
+  "profiles": [
+    {
+      "character": {
+        "id": "maya",
+        "name": "Maya",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "identity": "maya",
+      "look_id": "maya-everyday",
+      "home": {
+        "owner_id": "maya",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": []
+      }
+    },
+    {
+      "character": {
+        "id": "jules",
+        "name": "Jules",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "identity": "jules",
+      "look_id": "jules-everyday",
+      "home": {
+        "owner_id": "jules",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": []
+      }
+    },
+    {
+      "character": {
+        "id": "nico",
+        "name": "Nico",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "identity": "nico",
+      "look_id": "nico-everyday",
+      "home": {
+        "owner_id": "nico",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": []
+      }
+    },
+    {
+      "character": {
+        "id": "amara",
+        "name": "Amara",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "identity": "amara",
+      "look_id": "amara-everyday",
+      "home": {
+        "owner_id": "amara",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": []
+      }
+    },
+    {
+      "character": {
+        "id": "leo",
+        "name": "Leo",
+        "availability": {
+          "status": "available"
+        },
+        "money": 1250,
+        "needs": {
+          "Energy": 72,
+          "Hunger": 61,
+          "Fun": 85,
+          "Social": 68,
+          "Hygiene": 90,
+          "Bladder": 54,
+          "Comfort": 78,
+          "Room": 82
+        }
+      },
+      "identity": "leo",
+      "look_id": "leo-everyday",
+      "home": {
+        "owner_id": "leo",
+        "permissions": {
+          "purchase": {
+            "status": "available"
+          },
+          "arrange": {
+            "status": "available"
+          }
+        },
+        "instances": []
+      }
+    }
+  ],
+  "catalog": [
+    {
+      "id": "armchair",
+      "name": "Harbor armchair",
+      "category": "living",
+      "price": 180,
+      "footprint": {
+        "width": 1,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      }
+    },
+    {
+      "id": "coffee-table",
+      "name": "Oak coffee table",
+      "category": "living",
+      "price": 120,
+      "footprint": {
+        "width": 2,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      }
+    },
+    {
+      "id": "floor-lamp",
+      "name": "Linen floor lamp",
+      "category": "lighting",
+      "price": 90,
+      "footprint": {
+        "width": 1,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      }
+    },
+    {
+      "id": "fern",
+      "name": "Potted fern",
+      "category": "decor",
+      "price": 45,
+      "footprint": {
+        "width": 1,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      }
+    },
+    {
+      "id": "bookcase",
+      "name": "Oak bookcase",
+      "category": "storage",
+      "price": 260,
+      "footprint": {
+        "width": 2,
+        "depth": 1
+      },
+      "availability": {
+        "status": "available"
+      }
+    },
+    {
+      "id": "woven-rug",
+      "name": "Woven rug",
+      "category": "decor",
+      "price": 160,
+      "footprint": {
+        "width": 2,
+        "depth": 2
+      },
+      "availability": {
+        "status": "available"
+      }
+    }
+  ]
+}

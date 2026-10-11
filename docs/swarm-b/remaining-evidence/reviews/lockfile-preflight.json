@@ -1,0 +1,47 @@
+[
+  {
+    "manifest": "crates/content-ir/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "crates/eod-runtime/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "crates/legacy-formats/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "tools/asset-cooker/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "tools/creator/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "tools/creator-web/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "tools/swarm-b-check/interactions/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "tools/swarm-b-check/manifest/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  },
+  {
+    "manifest": "tools/swarm-b-check/parity/Cargo.toml",
+    "exit_code": 0,
+    "error": ""
+  }
+]

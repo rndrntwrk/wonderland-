@@ -1,0 +1,183 @@
+A revision 8a0e251d19e222a0a6833d7408ca629f674e1729; manifest /tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/content-runtime-bridge/Cargo.toml
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling syn v2.0.119
+   Compiling serde v1.0.195
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.8
+   Compiling serde_json v1.0.111
+   Compiling memchr v2.8.3
+   Compiling quick-xml v0.38.4
+   Compiling serde_derive v1.0.195
+   Compiling ryu v1.0.23
+   Compiling itoa v1.0.18
+   Compiling wonderland-legacy-formats v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/legacy-formats)
+   Compiling bincode v1.3.3
+   Compiling sim-core v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/sim-core)
+   Compiling wonderland-content-ir v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/content-ir)
+   Compiling wonderland-creator v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/tools/creator)
+   Compiling wonderland-asset-cooker v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/tools/asset-cooker)
+   Compiling wonderland-content-runtime-bridge v0.1.0 (/tmp/wonderland-b-runtime-geu5o6vt/assembly/crates/content-runtime-bridge)
+    Finished `test` profile [unoptimized] target(s) in 42.60s
+     Running unittests src/lib.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/wonderland_content_runtime_bridge-51b866c8a6b71520)
+
+running 23 tests
+test budget::tests::cumulative_admission_uses_the_smaller_configured_or_runtime_limit ... ok
+test budget::tests::fixed_capacity_decoding_rejects_an_insufficient_budget ... ok
+test budget::tests::decoded_ttab_remains_charged_when_the_next_string_table_is_decoded ... ok
+test budget::tests::legacy_text_reserves_worst_case_replacement_bytes_before_conversion ... ok
+test budget::tests::fixed_capacity_decoding_matches_legacy_text_for_every_encoding ... ok
+test budget::tests::decoded_ttab_storage_counts_spare_capacity_in_every_public_container ... ok
+test budget::tests::decoded_ttab_charges_the_preserved_original_source_buffer ... ok
+test budget::tests::decoded_strings_remain_charged_while_output_text_is_allocated ... ok
+test budget::tests::decoded_legacy_string_capacity_fits_its_admitted_allocation ... ok
+test budget::tests::decoded_string_storage_counts_spare_capacity_in_every_container ... ok
+test budget::tests::map_admission_includes_node_storage ... ok
+test budget::tests::metadata_counts_placement_sets_and_validates_geometry_first ... ok
+test budget::tests::overflowing_admissions_fail_without_consuming_the_remaining_budget ... ok
+test budget::tests::moved_animation_storage_counts_existing_spare_capacity ... ok
+test budget::tests::nested_animation_properties_and_runtime_tuning_share_the_budget ... ok
+test cooked_json::tests::escaped_metadata_output_uses_exact_capacity_and_exact_byte_limit ... ok
+test cooked_json::tests::parser_scratch_is_reserved_before_metadata_parsing ... ok
+test cooked_json::tests::node_workspace_is_admitted_before_typed_metadata_loading ... ok
+test content::allocation_tests::validation_workspace_matches_actual_content_and_rejects_insufficient_budget ... ok
+test cooked_json::tests::decoded_escaped_strings_are_admitted_with_conversion_workspace ... ok
+test cooked_json::tests::raw_byte_limit_rejects_metadata_before_admission_charges ... ok
+test cooked_json::tests::recursive_unknown_payload_hits_depth_limit_before_typed_schema_loading ... ok
+test content::allocation_tests::scope_hash_admits_empty_chunk_headers_and_duplicate_key_workspace ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/runtime_bridge-2b3492a89c65de29)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/integration/swarm_b_runtime/content_import.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/content_import-fba435cd88692d4e)
+
+running 10 tests
+test missing_function_and_truncated_objf_reject_instead_of_dropping_entrypoints ... ok
+test objf_bindings_attributes_strings_and_signed_tuning_reach_actual_content_set ... ok
+test changes_after_effective_resolution_are_rejected ... ok
+test unrelated_shared_scopes_cannot_supply_each_others_missing_callees ... ok
+test multipart_subobject_inherits_missing_interaction_table_and_master_raw_definition ... ok
+test ttab_outputs_use_effective_bytes_instead_of_mutable_cached_semantics ... ok
+test source_objd_version_bounds_exclude_preserved_extra_words_and_136_repair ... ok
+test attribute_and_cumulative_output_budgets_reject_before_runtime_construction ... ok
+test runtime_definition_scope_reads_source_version_guid_and_attribute_indices ... ok
+test real_chair_requires_its_effective_semiglobal_before_import ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running ../../tests/integration/swarm_b_runtime/cooked_cli.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/cooked_cli-dfbea7bc39daa53f)
+
+running 5 tests
+test observed_symlink_inputs_and_output_parents_are_refused ... ok
+test fifo_binding_and_selected_pack_are_rejected_without_blocking_open ... ok
+test failed_prepare_never_replaces_output_and_untrusted_or_missing_inputs_reject ... ok
+test commands_prepare_plan_load_and_replay_using_only_selected_cooked_files ... ok
+test bounded_strict_scenario_and_command_arguments_reject_before_replay ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running ../../tests/integration/swarm_b_runtime/cooked_metadata.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/cooked_metadata-5a6c4cf6ff6d34b3)
+
+running 15 tests
+test all_runtime_options_and_tso_tuning_survive_json_conversion ... ok
+test duplicate_animation_keys_never_coalesce_or_overwrite ... ok
+test duplicate_ignored_entity_references_are_rejected_instead_of_coalesced ... ok
+test nested_object_metadata_rejects_undeclared_fields ... ok
+test nested_options_and_event_properties_reject_undeclared_fields ... ok
+test duplicate_relationship_multiplier_keys_never_coalesce_or_overwrite ... ok
+test duplicate_routing_slot_indices_never_coalesce_or_overwrite ... ok
+test duplicate_tuning_tuple_keys_never_coalesce_or_overwrite ... ok
+test nonfinite_relationship_bits_never_reach_runtime_tuning ... ok
+test duplicate_time_property_keys_never_coalesce_or_overwrite ... ok
+test float_bits_and_descending_animation_encounter_order_are_preserved ... ok
+test every_explicit_object_field_survives_json_into_actual_runtime_metadata ... ok
+test nullable_fields_require_explicit_presence_and_accept_explicit_null ... ok
+test positional_options_and_enum_objects_cannot_bypass_named_field_checks ... ok
+test positional_metadata_cannot_bypass_named_field_checks ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running ../../tests/integration/swarm_b_runtime/cooked_rejection.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/cooked_rejection-829c97f787795aeb)
+
+running 6 tests
+test duplicate_chunk_keys_are_rejected_even_for_unused_semantic_resources ... ok
+test embedded_tuning_identity_and_scope_presence_are_bound_to_the_recipe ... ok
+test missing_dependency_bindings_and_mixed_runtime_namespaces_reject ... ok
+test criticality_codec_and_provenance_are_checked_even_with_valid_release_hashes ... ok
+test duplicate_scopes_members_objects_and_wrong_objd_binding_reject ... ok
+test strict_nested_schema_and_input_allocation_limits_apply_before_conversion ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running ../../tests/integration/swarm_b_runtime/cooked_release.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/cooked_release-c15885c370f38e1b)
+
+running 4 tests
+test objf_remains_a_verified_semantic_member_and_reaches_runtime_entrypoints ... ok
+test first_glob_in_source_order_controls_presence_even_when_its_name_is_empty ... ok
+test hashes_pack_members_and_sealed_descriptor_are_required_before_content_is_exposed ... ok
+test patched_tuned_object_runs_from_selected_packs_after_sources_are_removed ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running ../../tests/integration/swarm_b_runtime/cooked_scopes.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/cooked_scopes-f69b9a10d33e4b04)
+
+running 2 tests
+test private_calls_semiglobal_then_global_from_cooked_members_and_tuning ... ok
+test verified_members_cannot_supply_a_wrong_or_missing_bound_shared_scope ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running ../../tests/integration/swarm_b_runtime/query_bounds.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/query_bounds-c843f607bf1b089c)
+
+running 8 tests
+test creator::every_watch_is_parsed_before_snapshot_restoration ... ok
+test query_budget_is_checked_before_entity_or_routine_lookup ... ok
+test creator::every_watch_identity_is_validated_before_snapshot_restoration ... ok
+test query_argument_limit_applies_even_to_an_empty_routine ... ok
+test query_accepts_the_argument_and_runtime_budget_boundaries ... ok
+test creator::unknown_watch_kind_is_rejected_before_snapshot_restoration ... ok
+test creator::oversized_watch_field_is_rejected_before_snapshot_restoration ... ok
+test creator::bounded_watch_grammar_preserves_all_supported_fields ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running ../../tests/integration/swarm_b_runtime/source_runtime.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/source_runtime-3728b3ee18b59465)
+
+running 6 tests
+test imported_source_bhav_retains_the_three_attribute_writes ... ok
+test dispatch_limit_remains_a_real_fault_and_frame_positions_are_not_a_trace ... ok
+test typed_watches_are_generation_and_index_checked_on_the_restored_state ... ok
+test creator_provider_reads_real_snapshots_and_labels_tick_stepping_honestly ... ok
+test real_source_query_discards_attribute_writes_and_rejects_stale_generations ... ok
+test restored_snapshot_replays_the_unmodified_source_behavior_in_the_accepted_tail ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running ../../tests/integration/swarm_b_runtime/watch_output.rs (/tmp/wonderland-b-runtime-geu5o6vt/target/debug/deps/watch_output-04921b61d100630b)
+
+running 3 tests
+test bounded_reports_preserve_exact_escaped_stop_and_scalar_values ... ok
+test repeated_large_stop_watches_reject_a_valid_snapshot_without_a_partial_report ... ok
+test exact_output_budget_accepts_its_boundary_and_rejects_one_additional_byte ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+   Doc-tests wonderland_content_runtime_bridge
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

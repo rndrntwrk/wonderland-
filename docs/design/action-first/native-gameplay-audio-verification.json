@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "repository": "rndrntwrk/wonderland-",
+  "branch": "feat/native-gameplay-audio",
+  "base_pr": 35,
+  "base_commit": "8d0f78c60a885c6968abe349afd8c89ef890c8f8",
+  "base_tree": "4aef37efa737fe340afaf4f1a3ab5f747bf36513",
+  "native_workspace": {
+    "passed": 1446,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 210
+  },
+  "new_native_tests": {
+    "audio_pack": 7,
+    "accepted_native_audio": 8,
+    "included_in_workspace": true
+  },
+  "native_browser_node": {
+    "tests": 27,
+    "pass": 27,
+    "fail": 0,
+    "skipped": 0
+  },
+  "existing_audio_node": {
+    "tests": 59,
+    "pass": 59,
+    "fail": 0,
+    "skipped": 0
+  },
+  "new_device_node_tests": 7,
+  "ignored": [
+    "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+    "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+    "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+    "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+    "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+  ],
+  "commands": {
+    "fmt-final": {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "workspace-final": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "363342da0d760c957ed0658dd6335a74d90c0583f7257dfe53d9a6c716364cad"
+    },
+    "native-lint-final": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "bd78efc584786aedeff4a2938ba22269233ac68fe183a1ecbdd47ccc783b7a43"
+    },
+    "wasm-lint-final": {
+      "command": "cargo clippy -p wonderland-web-shell --target wasm32-unknown-unknown --lib --bin wonderland-web-shell --locked --offline -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "b79fe3560a4e09a38ef4203f4ca608348c0a75317aa1c67444b95ec50d32057c"
+    },
+    "sockets-final": {
+      "command": "node --test --test-reporter=tap apps/web-shell/scripts/native-*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "ddcae168f5a568d7a896d2227e1c936b849724f1e9c5110ca1fdf23592c7cde5"
+    },
+    "audio-final": {
+      "command": "node --test --test-reporter=tap crates/audio-runtime/browser/*.test.mjs",
+      "exit_code": 0,
+      "log_sha256": "74eb630e3fbe86bee3f326732662ac4c73737ea9fd6f22779153fa940d4dc586"
+    },
+    "audio-browser-build3": {
+      "command": "trunk build --release --locked --offline",
+      "exit_code": 0,
+      "log_sha256": "63fc27986ded169c673eee9a495e294b4b171ced29bb2d22eddcc166a12aa7aa"
+    },
+    "browser-standard": {
+      "command": "node tools/native-browser/verify.mjs",
+      "exit_code": 0,
+      "log_sha256": "68d014cafa12ffe243f26c0de9f6425b758a21507d253b310efa8090e76001e1"
+    },
+    "browser-avatars": {
+      "command": "node tools/native-browser/verify-avatars.mjs",
+      "exit_code": 0,
+      "log_sha256": "544f1107cf1a123b34e3f7b8e807292e212ddfb74f1e1160864b33b3efc69550"
+    },
+    "browser-terrain": {
+      "command": "WONDERLAND_NATIVE_TERRAIN_FIXTURE=1 node tools/native-browser/verify-avatars.mjs",
+      "exit_code": 0,
+      "log_sha256": "7ea519518daa08b94c696a6efe16c267338c35f4d9e6a30979bc1f40bc57c953"
+    },
+    "browser-receipts": {
+      "command": "node tools/native-browser/verify-receipt-deadline.mjs",
+      "exit_code": 0,
+      "log_sha256": "6a431b08936968597c56af3bf273c6b8f64a9a6a8d7e1ae46cb7e2452e9e337c"
+    },
+    "browser-audio-repeat": {
+      "command": "node tools/native-browser/verify-audio.mjs",
+      "exit_code": 0,
+      "log_sha256": "0da8ae2fa4ad28b07d05cabd43288974efb1280b6ffe1189b7047e91375dc788"
+    }
+  },
+  "browser": {
+    "standard": {
+      "report_path": "standard/results.json",
+      "report_sha256": "62def0fd214bb87185b38ee6b98867d669becdf95aa803a427148d0a1bcaa927",
+      "checks": 16,
+      "screenshots": 12,
+      "passed": true,
+      "errors": []
+    },
+    "avatar": {
+      "report_path": "avatars/report.json",
+      "report_sha256": "544f1107cf1a123b34e3f7b8e807292e212ddfb74f1e1160864b33b3efc69550",
+      "checks": 10,
+      "screenshots": 6,
+      "passed": true,
+      "errors": []
+    },
+    "terrain": {
+      "report_path": "terrain/report.json",
+      "report_sha256": "7ea519518daa08b94c696a6efe16c267338c35f4d9e6a30979bc1f40bc57c953",
+      "checks": 12,
+      "screenshots": 7,
+      "passed": true,
+      "errors": []
+    },
+    "receipt": {
+      "report_path": "receipt-deadline/results.json",
+      "report_sha256": "2be92fbfb3a94de79bc06d38d4d9ad0082c569b4b80c54927d4ad7963ccaa553",
+      "checks": 7,
+      "screenshots": 4,
+      "passed": true,
+      "errors": []
+    },
+    "game_audio": {
+      "report_path": "game-audio-repeat/report.json",
+      "report_sha256": "0da8ae2fa4ad28b07d05cabd43288974efb1280b6ffe1189b7047e91375dc788",
+      "checks": 11,
+      "screenshots": 3,
+      "passed": true,
+      "errors": []
+    }
+  },
+  "real_audio_output": {
+    "passed": true,
+    "scope": "Authored original-format sound fixtures and accepted native primitives; real browser device graph",
+    "checks": [
+      {
+        "name": "Real content UI imports the explicit local HIT/EVT/TRK/PCM/FWAV cohort",
+        "selectedFiles": 6
+      },
+      {
+        "name": "Unactivated playback discards accepted cues, not game actions",
+        "accepted": 1,
+        "voices": 0
+      },
+      {
+        "name": "Real gesture unlock does not replay pre-activation history",
+        "voices": 0
+      },
+      {
+        "name": "Accepted source primitive reaches real nonzero WebAudio output",
+        "rms": 0.08813084040555018,
+        "context": "AudioContext",
+        "state": "running",
+        "gain": 0.32429710030555725,
+        "pan": 0,
+        "looped": true
+      },
+      {
+        "name": "Existing mute controls silence the actual game voice",
+        "rms": 0,
+        "context": "AudioContext",
+        "state": "running",
+        "gain": 0,
+        "pan": 0,
+        "looped": true
+      },
+      {
+        "name": "Existing effects volume scales real game output",
+        "rms": 0.022036835487149742,
+        "context": "AudioContext",
+        "state": "running",
+        "gain": 0.08107427507638931,
+        "pan": 0,
+        "looped": true
+      },
+      {
+        "name": "Accepted StopSound releases the exact owning sound",
+        "voices": 0
+      },
+      {
+        "name": "Disconnect releases voices and imported native resource residency",
+        "voices": 0,
+        "samples": 0,
+        "actions": 4
+      },
+      {
+        "name": "Recovery checkpoint does not replay sound or commands",
+        "voices": 0,
+        "actions": 4
+      },
+      {
+        "name": "An explicit new action plays after reconnect",
+        "rms": 0.08806768744503392,
+        "context": "AudioContext",
+        "state": "running",
+        "gain": 0.32429710030555725,
+        "pan": 0,
+        "looped": true
+      },
+      {
+        "name": "Route exit disposes native voices and samples",
+        "voices": 0,
+        "samples": 0
+      }
+    ],
+    "screenshots": [
+      {
+        "file": "01-native-game-sound.png",
+        "sha256": "cb747488eca939f8b6001afeb6a54e32a8f4128de117e3717733dd4c414aec2e"
+      },
+      {
+        "file": "02-mobile-native-game-sound.png",
+        "sha256": "b9ea74297f0ff76ba4c66ee7d7003c71d59e8823318f312fa7c6dfdfb17f2f5f"
+      },
+      {
+        "file": "03-city-after-game-audio.png",
+        "sha256": "b24d3ec8df79bb98e02a3ed06a9310a74c130a06b46d0a05cdbf4c946b598bb3"
+      }
+    ],
+    "errors": [],
+    "browser": "141.0.7390.37",
+    "stats": {
+      "admissions": 2,
+      "opens": 2,
+      "checkpoints": 2,
+      "actions": 5,
+      "accepted": 5,
+      "unknownDrops": 0,
+      "ticks": 59,
+      "silentReceipts": 0
+    }
+  },
+  "prior_identical_release_audio_run": {
+    "passed": true,
+    "checks": 11,
+    "report_sha256": "1c0c2877f6f142fed036bb302c5df8e5146d0589accf320808087e5b32dde4df"
+  },
+  "release_wasm": {
+    "name": "wonderland-web-shell-b3404af0221cf131_bg.wasm",
+    "bytes": 12323864,
+    "sha256": "984a39f85f0c5a37dbedd8980ebafe258ee557a737cfc1e11cbd27104ba71637"
+  },
+  "source_sha256": {
+    ".github/workflows/native-browser.yml": "e84183fa11aff7a2f260c338c8359ef27b0c258dac8739700f77147b0f9212e4",
+    "apps/web-shell/index.html": "4252fff03320d731187b2ba612f47f8042e879252b100e7a70cd37c7dbded1f8",
+    "apps/web-shell/public/audio/source-audio.mjs": "926279a879a19d817b28fe67740a41de0f56f26fbdc589262c5c3a0fe9187620",
+    "apps/web-shell/public/native-audio.mjs": "1b13459fbd48652e087a729da17b2ca068ca5ba4eb1d0d7c83ade71615dfb75f",
+    "apps/web-shell/scripts/native-audio.test.mjs": "8818eec4fe8012149e138cd79c167ad34acef433319248482e9102e5a1e22751",
+    "apps/web-shell/src/avatar_content.rs": "7ee571faf9580acbd5563b317254e21547067122b847d4a5254ffa2f2f89fb53",
+    "apps/web-shell/src/lib.rs": "d4e2e6cb5c442fffac9af953479f9797281acf78e10d7ffd8a140f9ad3c4f6ee",
+    "apps/web-shell/src/native_audio.rs": "70f2d2551c8d1cb14fe29d7bb3068d08f6c640279fd049eae2320b974a5a25a2",
+    "apps/web-shell/src/native_audio_browser.rs": "50d6c73563dfdb27c33b0bd4416ffcb426e1fe78a77ad3a4372515713da3e42b",
+    "apps/web-shell/src/native_lot.rs": "05b762439be856e51ba6655ad0da21ce700e56b7d23d65d9fbfa4449804a303d",
+    "apps/web-shell/tests/native_audio.rs": "abb5ae862c9bc15dd3a901c8bb7df2ad0968c2a22f1fd367d9c35e0e9c4c169a",
+    "crates/audio-content/src/lib.rs": "a033f926d61b15d40bbc1ab8db4a0b1374eafad2f59db849745171bcbf6b6b26",
+    "crates/audio-content/src/pack.rs": "58790cb7345d9bbc7260314fe1e33c38832ac8bdf4250dd0c6ad185c82512214",
+    "crates/audio-content/tests/pack.rs": "9b06a18bdd354ccc40019bce168696e6bfe75b7bd945891bfd05fd33d28f7bf6",
+    "crates/audio-runtime/browser/source-audio.mjs": "926279a879a19d817b28fe67740a41de0f56f26fbdc589262c5c3a0fe9187620",
+    "crates/game-runtime/examples/native_browser_peer.rs": "7173c8c97e0d739c733e0a889e7f5f40f348fe8a2b96a004779205e86c28c1dd",
+    "crates/world-view/src/scene.rs": "2023b4d9fb2d3a01fb5b09fd7c75d85169c76c5c7c8298cdd238a595f8ad164d",
+    "docs/design/action-first/native-gameplay-audio.md": "dbcb47a6d05eb4d5a7ad91ee026593f8eee0c2bb6d454fcd74837aff8313dab7",
+    "tools/native-browser/audio-fixture.mjs": "aca5adc5c0bd437de262c0285e2cbeeb9ee7126c2731a795c0680fc1252aef33",
+    "tools/native-browser/verify-audio.mjs": "0605a9319dc0d6c02682677dd93fa1ef6330351a293ef1779b859ee1eaa89ef3"
+  },
+  "original_files": {
+    "count": 5384,
+    "changed": []
+  },
+  "lockfile_unchanged": true,
+  "dependency_versions_changed": false,
+  "observed_failures": {
+    "pack_behavior": {
+      "log_sha256": "1f75f4c573ef597b83a9ef8c3b41546dac7651e84d3378304c1c5e81842d5b26",
+      "before_implementation": true
+    },
+    "accepted_cues": {
+      "log_sha256": "11c396e00ddbc1f16cf370de59b2b4dc0d6b7f92fd12a58f79c3087873730f6e",
+      "before_implementation": true
+    },
+    "device_lifetime": {
+      "log_sha256": "8c74ce85e97e8852863e7392994d3a61780d3e7b5e3e9399dd197f9d9b471fb8",
+      "before_implementation": true
+    },
+    "needs_actions_overlap": {
+      "log_sha256": "b4c73011f679c7a6291bea3f0be4cd2a9eb18b479594e1290d1ee311af367acc",
+      "fixed_in_native_lot": true
+    },
+    "setup_not_product_regressions": [
+      "Initial audio test used serde_json from the wrong crate; relocated test without adding dependencies.",
+      "Initial Trunk attempt waited for tools in the wrong cache path; final recovered pinned-tool build passed.",
+      "An interrupted browser run was still alive when another was started; EADDRINUSE was resolved by disposing only owned test processes.",
+      "An initial browser test waited for visible content status after the existing Apply action intentionally collapsed that section; corrected the assertion."
+    ]
+  },
+  "qualification": {
+    "built_browser": true,
+    "actual_audio_context_and_analyser": true,
+    "real_pcm_graph_signal": true,
+    "test_sound_is_authored_sine_wave": true,
+    "test_native_sound_primitives_authored": true,
+    "physical_speaker_listening": false,
+    "original_audio_art_and_full_object_variables": false,
+    "station_hitlist_fsc_cohorts": false,
+    "historical_loop_restoration": false,
+    "production_distinct_players": false,
+    "original_fsov_vmnet_translation": false,
+    "physical_device": false,
+    "independent_review": false,
+    "merge": false,
+    "deployment": false
+  },
+  "notes": [
+    "Browser records include overlapping journeys, not unique new features.",
+    "Final execution ran locally. Hosted execution belongs to the exact published commit and is not inferred here.",
+    "Permanent read-only CI now includes this audio witness; the workflow edit does not change the tested application or test source.",
+    "Browser audio measurement proves a signal in the real output graph, not that a physical speaker was heard."
+  ]
+}

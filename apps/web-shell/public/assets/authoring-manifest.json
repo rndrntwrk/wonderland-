@@ -1,0 +1,1189 @@
+{
+  "created": "2026-10-05",
+  "source": "OpenAI built-in ImageGen; selected artwork derived from approved Wonderland visual family",
+  "kind": "illustrated-authoring-ui-fixtures",
+  "image_editing": "Generated images and targeted built-in image edits only; selected PNG bytes copied unchanged. Read-only metadata/alpha inspection. No pixel/crop/geometric processing.",
+  "files": [
+    {
+      "path": "authoring/amara-active.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1732933,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "d0bf9b866ec0c42aee44ad578ad957aecbcaddadcf7944d0635585a994423467",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        221,
+        25,
+        794,
+        1507
+      ],
+      "generation": {
+        "desired_filename": "amara-active.png",
+        "original_generated_path": "generated-image:exec-6a7d7c79-c42d-4cb1-becc-00d01a3921d1.png",
+        "sha256": "d0bf9b866ec0c42aee44ad578ad957aecbcaddadcf7944d0635585a994423467",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "transparent_pixels": 1146022,
+        "alpha_nonzero_bounds": [
+          207,
+          17,
+          972,
+          1520
+        ],
+        "prompt": "Use case: identity-preserve\nAsset type: production full-body character wardrobe sprite for Wonderland life-sim game UI, one independent PNG.\nInput image: the supplied amara.png is the edit target and strict identity/style reference.\nPrimary request: Change only clothing and footwear to: Coral athletic jacket over a plain white top, charcoal leggings, light trainers.\nIdentity and pose: Preserve long blonde hair, sunglasses, face, jewelry, and relaxed standing pose. Keep the exact adult identity, face, skin tone, body shape/proportions, hairstyle/color, visual age, expression, and head angle from the source.\nStyle/medium: match the source's warm polished stylized 3D life-sim rendering, soft PBR lighting, coherent human anatomy, detailed material texture, appealing game proportions and softly defined edges.\nComposition/framing: same 2:3 portrait aspect and whole-body composition as the 1024x1536 source. Keep the entire head and both shoes comfortably inside the frame with transparent outer padding.\nScene/backdrop: actual fully transparent alpha background, no colored haze or studio backdrop, isolated character cutout only.\nConstraints: no background, floor, platform, diamond, logo, UI, text, watermark, shopping bag, phone, held object, or additional character. Preserve clean transparent silhouette. Do not crop head or shoes.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/amara.png"
+        ],
+        "inspection": "Visually inspected generated output: requested clothing, adult identity, full head and both shoes retained. Nico guitar removed and empty hands resting naturally.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/amara-smart.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1672175,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "117a8b6a3c05ca3d0dc8494d2c064aa85f8dfce7e18a0c9617bf75f6a29014f6",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        209,
+        23,
+        792,
+        1508
+      ],
+      "generation": {
+        "desired_filename": "amara-smart.png",
+        "original_generated_path": "generated-image:exec-3ea11f15-d8f3-4c96-8d52-b35e220a88f3.png",
+        "sha256": "117a8b6a3c05ca3d0dc8494d2c064aa85f8dfce7e18a0c9617bf75f6a29014f6",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "transparent_pixels": 1074394,
+        "alpha_nonzero_bounds": [
+          0,
+          15,
+          1002,
+          1513
+        ],
+        "prompt": "Use case: identity-preserve\nAsset type: production full-body character wardrobe sprite for Wonderland life-sim game UI, one independent PNG.\nInput image: the supplied amara.png is the edit target and strict identity/style reference.\nPrimary request: Change only clothing and footwear to: Soft lavender blouse, white wide-leg trousers, light tan loafers.\nIdentity and pose: Preserve long blonde hair, sunglasses, face, jewelry, and relaxed standing pose. Keep the exact adult identity, face, skin tone, body shape/proportions, hairstyle/color, visual age, expression, and head angle from the source.\nStyle/medium: match the source's warm polished stylized 3D life-sim rendering, soft PBR lighting, coherent human anatomy, detailed material texture, appealing game proportions and softly defined edges.\nComposition/framing: same 2:3 portrait aspect and whole-body composition as the 1024x1536 source. Keep the entire head and both shoes comfortably inside the frame with transparent outer padding.\nScene/backdrop: actual fully transparent alpha background, no colored haze or studio backdrop, isolated character cutout only.\nConstraints: no background, floor, platform, diamond, logo, UI, text, watermark, shopping bag, phone, held object, or additional character. Preserve clean transparent silhouette. Do not crop head or shoes.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/amara.png"
+        ],
+        "inspection": "Visually inspected generated output: requested clothing, adult identity, full head and both shoes retained. Nico guitar removed and empty hands resting naturally.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/armchair-back.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 1881945,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "sha256": "0dc5b44daf751bf8058aae8e4e935e163969f763d538cafd0ca1bd28d0c6c0c9",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_ge_32_bounds": [
+        29,
+        182,
+        1225,
+        1145
+      ],
+      "generation": {
+        "desired_filename": "armchair-back.png",
+        "original_generated_path": "generated-image:exec-ab9dd425-6457-45b7-92ac-7a72462a5517.png",
+        "prompt": "Use case: precise-object-edit. Asset type: transparent independent furniture sprite. Input reference is the approved FRONT armchair sprite, exact object identity and material reference. Render the SAME chair after physically rotating the OBJECT 180 degrees around its vertical axis, while keeping the fixed orthographic isometric camera unchanged (elevation 30–35 degrees, floor axes ±28 degrees). This is the matching BACK view: show the continuous rounded upholstered rear back panel and rear-facing sides/legs, not the seat front. Preserve exactly the seafoam-blue woven fabric color, piping, softly rounded rolled arms, padded rounded back shape, body proportions, short tapered natural oak legs, overall size and framing. Soft warm PBR lighting stays upper-left in world/image coordinates. Full object extents centered with modest transparent padding, actual transparent background. One object only. No person, room, floor, rug, platform, text, UI, logo or giant cast shadow. Do not rotate, mirror or geometrically manipulate the 2D PNG; make a true rear-angle 3D depiction.",
+        "refs": [
+          "generated-image:exec-3429bafd-f1ae-4ad0-876e-8797883e19a9.png"
+        ],
+        "sha256": "0dc5b44daf751bf8058aae8e4e935e163969f763d538cafd0ca1bd28d0c6c0c9",
+        "width": 1254,
+        "height": 1254,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_gt_10_bounds": [
+          29,
+          181,
+          1224,
+          1144
+        ],
+        "tool": "built-in image_gen.imagegen",
+        "inspection": "Independently visually inspected generated output. Original retained, staging copy unmodified.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/armchair-front.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 2014431,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "sha256": "70990b521bfe60ef19e8e3f67cc16abfcc1217515127a02ef57866c43df5e24f",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_ge_32_bounds": [
+        81,
+        110,
+        1218,
+        1176
+      ],
+      "generation": {
+        "desired_filename": "armchair-front.png",
+        "original_generated_path": "generated-image:exec-3429bafd-f1ae-4ad0-876e-8797883e19a9.png",
+        "prompt": "Use case: stylized-concept. Asset type: independent transparent runtime furniture sprite for Wonderland, a polished warm stylized 3D life-sim. Reference images show MATERIAL/RENDER STYLE ONLY, not objects or scenes to copy. Create exactly ONE isolated cozy seafoam-blue upholstered armchair with rounded padded arms and rounded padded back, one generous seat cushion, short natural oak legs, subtly woven fabric, a one-seat square footprint. FRONT VIEW: fixed orthographic isometric camera elevated 30–35 degrees, floor axes approximately ±28 degrees, front and RIGHT side visible; no perspective convergence. Soft warm PBR lighting from upper-left, appealing game proportions, softly defined edges, believable materials matching coastal café references. Entire chair and every leg visible, centered with modest transparent padding, actual transparent background. No room, floor, platform, person, rug, cushion accessory, text, logo, UI, diamond or other object. No large baked cast shadow; only subtle contact grounding.",
+        "refs": [
+          "apps/web-shell/public/assets/art/coffee-machine.png",
+          "apps/web-shell/public/assets/art/cafe-scene.png"
+        ],
+        "sha256": "70990b521bfe60ef19e8e3f67cc16abfcc1217515127a02ef57866c43df5e24f",
+        "width": 1254,
+        "height": 1254,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_gt_10_bounds": [
+          81,
+          109,
+          1217,
+          1175
+        ],
+        "tool": "built-in image_gen.imagegen",
+        "inspection": "Independently visually inspected generated output. Original retained, staging copy unmodified.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/bookcase-back.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 2047360,
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "c3ffc4128e160350f0c83612c6c5a47a053a5933692e90f0908a88253c74f693",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        198,
+        35,
+        1344,
+        1015
+      ],
+      "generation": {
+        "desired_filename": "bookcase-back.png",
+        "original_generated_path": "generated-image:exec-1b87ae41-94d7-4376-8b16-6a622813afd4.png",
+        "prompt": "Use case: precise-object-edit. Asset type: transparent independent furniture sprite. Input is the exact FRONT bookcase identity and style reference. Render the SAME oak bookcase physically rotated 180 degrees around its vertical axis with the CAMERA unchanged: fixed orthographic isometric elevation 30–35 degrees, floor axes ±28 degrees. Matching BACK VIEW: a solid continuous finished oak rear panel, with subtle natural oak grain, visible side/top and short sturdy base; no books or shelves visible through the back. Preserve exact two-by-one footprint, compact waist-to-shoulder height, outer dimensions, softened rounded slab top edges, warm natural oak color, base geometry and overall style. Soft warm PBR lighting stays upper-left. Full extents of bookcase including base/feet within frame with 8 percent transparent outer padding on every side, centered. Actual alpha transparent background outside silhouette, no visible glow/halo/aura, room, floor, platform, person, separate objects, decoration, plant, text, logo, UI or shadow backdrop. Do not rotate or mirror the 2D PNG; create the correct rear-angle depiction of the same 3D furniture.",
+        "refs": [
+          "generated-image:exec-bfddff18-5d8f-45b3-80cb-dfa636e66e41.png"
+        ],
+        "sha256": "c3ffc4128e160350f0c83612c6c5a47a053a5933692e90f0908a88253c74f693",
+        "width": 1536,
+        "height": 1024,
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_gt_10_bounds": [
+          198,
+          34,
+          1343,
+          1014
+        ],
+        "tool": "built-in image_gen.imagegen",
+        "inspection": "Independently visually inspected generated output. Original retained, staging copy unmodified.",
+        "concerns": [
+          "Warm halo visible in RGB preview is alpha-zero outside silhouette in sampled locations; harmless at runtime. Maximum object alpha 254.",
+          "Finished oak rear correctly hides shelves; top/bottom padding is tighter than requested 8 percent."
+        ]
+      }
+    },
+    {
+      "path": "authoring/bookcase-front.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 1897975,
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "200d0104d1b67005289e11df243aa8c53ca8d4e4a856d2455bd4c3c76b086c22",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        290,
+        89,
+        1264,
+        942
+      ],
+      "generation": {
+        "desired_filename": "bookcase-front.png",
+        "original_generated_path": "generated-image:exec-885e2d9d-8d94-48a1-bee5-3aafc9881d6b.png",
+        "prompt": "Use case: precise-object-edit. Asset type: transparent furniture sprite. Edit the supplied bookcase-front image ONLY to correct framing: pull the composition back so the SAME complete bookcase is slightly smaller within the canvas, centered, with every foot completely visible and 7–9 percent transparent bottom margin plus modest transparent outer padding on all sides. Preserve the object exactly: same oak grain/color/material, same rounded top and base, two vertical sections and three shelf levels in each, identical colorful books, ceramic vases, leafy arrangements, coral and shell decor, and their positions. Preserve exact front/right orthographic isometric camera elevation/orientation, upper-left warm lighting, proportions and polished 3D life-sim rendering style. Reveal only the previously cut-off lowest foot as needed; do not redesign, move or remove contents. Background remains true transparent alpha outside object silhouette. No added floor, platform, backdrop, text, logo, shadow or other object. This is a framing correction of the same front sprite, not a new view.",
+        "refs": [
+          "generated-image:exec-bfddff18-5d8f-45b3-80cb-dfa636e66e41.png"
+        ],
+        "sha256": "200d0104d1b67005289e11df243aa8c53ca8d4e4a856d2455bd4c3c76b086c22",
+        "width": 1536,
+        "height": 1024,
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_gt_10_bounds": [
+          290,
+          89,
+          1263,
+          942
+        ],
+        "tool": "built-in image_gen.imagegen",
+        "inspection": "Independently inspected cleanup: all feet are visible, front/right camera and shelf contents retained, transparent bottom margin restored.",
+        "concerns": [
+          "Leafy ceramic arrangements and shell/coral decor from original remain, as instructed. Warm RGB halo is alpha-zero in sampled outer regions and invisible during compositing."
+        ],
+        "lineage": [
+          {
+            "desired_filename": "bookcase-front.png",
+            "original_generated_path": "generated-image:exec-bfddff18-5d8f-45b3-80cb-dfa636e66e41.png",
+            "prompt": "Use case: stylized-concept. Asset type: ONE independent transparent runtime furniture sprite for Wonderland, warm polished stylized 3D life-sim art. Input coffee-machine/café images are STYLE references only. Create a compact waist-to-shoulder-height natural oak bookcase, wide two-by-one floor footprint. It has TWO equal side-by-side vertical sections separated by a central upright, THREE shelf levels in EACH section, colorful books and just a few restrained ceramic decor pieces arranged on shelves. Warm oak grain, rounded softened edges, a solid finished oak back panel, sturdy short base. FRONT VIEW: fixed orthographic isometric camera elevated 30–35 degrees, floor axes approximately ±28 degrees, see front shelves and RIGHT side. No perspective convergence. Soft warm PBR lighting from upper-left, attractive game proportions and softly defined edges, bright coastal book colors, detailed believable wood/ceramic texture. Whole bookcase within frame centered with modest transparent padding, actual transparent background outside silhouette. No room, person, floor, platform, extra furniture, plants, rug, text, logos, UI or diamond. No giant baked cast shadow or aura.",
+            "refs": [
+              "apps/web-shell/public/assets/art/coffee-machine.png",
+              "apps/web-shell/public/assets/art/cafe-scene.png"
+            ],
+            "sha256": "2f697fd236931829434f08b7fa13cffc79ef936344465f780189a632e77bcedd",
+            "width": 1536,
+            "height": 1024,
+            "alpha_extrema": [
+              0,
+              254
+            ],
+            "alpha_gt_10_bounds": [
+              219,
+              50,
+              1347,
+              1023
+            ],
+            "tool": "built-in image_gen.imagegen",
+            "inspection": "Independently visually inspected generated output. Original retained, staging copy unmodified.",
+            "concerns": [
+              "Warm halo visible in RGB preview is alpha-zero outside silhouette in sampled locations; harmless at runtime. Maximum object alpha 254.",
+              "Two small leafy arrangements and shell/coral decor accompany ceramics despite prompt avoiding plants. Bottom foot has very tight padding; inspect during import."
+            ]
+          },
+          {
+            "operation": "One authorized framing-only imagegen correction",
+            "prompt": "Use case: precise-object-edit. Asset type: transparent furniture sprite. Edit the supplied bookcase-front image ONLY to correct framing: pull the composition back so the SAME complete bookcase is slightly smaller within the canvas, centered, with every foot completely visible and 7–9 percent transparent bottom margin plus modest transparent outer padding on all sides. Preserve the object exactly: same oak grain/color/material, same rounded top and base, two vertical sections and three shelf levels in each, identical colorful books, ceramic vases, leafy arrangements, coral and shell decor, and their positions. Preserve exact front/right orthographic isometric camera elevation/orientation, upper-left warm lighting, proportions and polished 3D life-sim rendering style. Reveal only the previously cut-off lowest foot as needed; do not redesign, move or remove contents. Background remains true transparent alpha outside object silhouette. No added floor, platform, backdrop, text, logo, shadow or other object. This is a framing correction of the same front sprite, not a new view.",
+            "refs": [
+              "generated-image:exec-bfddff18-5d8f-45b3-80cb-dfa636e66e41.png"
+            ],
+            "original_generated_path": "generated-image:exec-885e2d9d-8d94-48a1-bee5-3aafc9881d6b.png"
+          }
+        ]
+      }
+    },
+    {
+      "path": "authoring/coffee-table-back.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 1991249,
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "9b997381d2c67a732aeacbb6c84cacfbc4941a7248be0a3888b45b0dc70ca2e1",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        81,
+        98,
+        1466,
+        976
+      ],
+      "generation": {
+        "desired_filename": "coffee-table-back.png",
+        "original_generated_path": "generated-image:exec-afaacea1-d0aa-4cc6-bbc3-3634c80b4c4c.png",
+        "prompt": "Use case: precise-object-edit. Asset type: transparent independent furniture sprite. The input is the exact oak coffee table identity/geometry reference. Render the SAME table after rotating the OBJECT 180 degrees around its vertical axis, camera unchanged: fixed orthographic isometric elevation 30–35 degrees with floor axes ±28 degrees. Matching BACK view of the same rectangular two-by-one oak table, rounded-corner slab tabletop, four tapered oak legs, one open lower oak shelf. Keep object dimensions, warm oak grain and material style, empty top and shelf. IMPORTANT: remove the input's warm surrounding halo entirely. Everything outside the exact object silhouette must be completely transparent alpha 0; no blurred aura, vignette, glow, colored background, haze or backdrop. Solid object must be opaque. Full object extents centered with modest transparent padding. Soft warm PBR lighting from upper-left remains on the object only. One isolated object, no floor/platform, room, people, decoration, text, UI, logo, diamond or baked cast shadow. Create a true rotated 3D rear depiction, not a rotated or mirrored 2D image.",
+        "refs": [
+          "generated-image:exec-8673b0ce-c0f2-4b97-a078-cb1929361d49.png"
+        ],
+        "sha256": "9b997381d2c67a732aeacbb6c84cacfbc4941a7248be0a3888b45b0dc70ca2e1",
+        "width": 1536,
+        "height": 1024,
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_gt_10_bounds": [
+          81,
+          97,
+          1466,
+          975
+        ],
+        "tool": "built-in image_gen.imagegen",
+        "inspection": "Independently visually inspected generated output. Original retained, staging copy unmodified.",
+        "concerns": [
+          "Warm halo visible in RGB preview is alpha-zero outside silhouette in sampled locations; harmless at runtime. Maximum object alpha 254.",
+          "Table design is symmetric front/rear, so rear looks similar; matching object has subtle grain/geometry differences from regenerated view."
+        ]
+      }
+    },
+    {
+      "path": "authoring/coffee-table-front.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 1877539,
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "e8de6a04e72a2c788e0e5a2b435b8705b3ea8251f24330ee95ac38f30b90e2cb",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        98,
+        133,
+        1443,
+        958
+      ],
+      "generation": {
+        "desired_filename": "coffee-table-front.png",
+        "original_generated_path": "generated-image:exec-8673b0ce-c0f2-4b97-a078-cb1929361d49.png",
+        "prompt": "Use case: stylized-concept. Asset type: ONE independent transparent runtime furniture sprite for Wonderland. Reference coffee-machine and café images provide only the polished warm stylized 3D life-sim material/render style. Create ONE low rectangular oak coffee table, two-by-one floor footprint, rounded corners, warm natural oak grain, four tapered oak legs, and one small open lower shelf below the table top. Entire table is oak. Bare uncluttered tabletop and empty lower shelf. FRONT VIEW: fixed orthographic isometric camera elevated 30–35 degrees, floor axes approximately ±28 degrees, front long face and RIGHT short side visible. No perspective convergence. Appealing cozy game proportions with softly defined edges and detailed wood texture. Soft warm PBR lighting from upper-left. Full object, all extents and feet within frame, centered with modest transparent padding and actual transparent background. No other objects, decor, books, people, floor, room, rug, platform, text, logo, UI or diamond. No giant baked cast shadow; only subtle contact grounding.",
+        "refs": [
+          "apps/web-shell/public/assets/art/coffee-machine.png",
+          "apps/web-shell/public/assets/art/cafe-scene.png"
+        ],
+        "sha256": "e8de6a04e72a2c788e0e5a2b435b8705b3ea8251f24330ee95ac38f30b90e2cb",
+        "width": 1536,
+        "height": 1024,
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_gt_10_bounds": [
+          98,
+          133,
+          1442,
+          957
+        ],
+        "tool": "built-in image_gen.imagegen",
+        "inspection": "Independently visually inspected generated output. Original retained, staging copy unmodified.",
+        "concerns": [
+          "Warm halo visible in RGB preview is alpha-zero outside silhouette in sampled locations; harmless at runtime. Maximum object alpha 254."
+        ]
+      }
+    },
+    {
+      "path": "authoring/fern.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 1932045,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "sha256": "15ec3d90f28daad24904ec6d70f9460b5663026ad035b2390bf2ebafa1f9d872",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_ge_32_bounds": [
+        50,
+        59,
+        1220,
+        1156
+      ],
+      "generation": {
+        "desired_filename": "fern.png",
+        "original_generated_path": "generated-image:exec-9ddd3a61-8095-40a8-835f-1ef7dc77fc32.png",
+        "prompt": "Use case: stylized-concept. Asset type: standalone transparent runtime decor sprite for a warm coastal life-sim game. Input images: image 1 coffee-machine and image 2 café scene are STYLE references only; do not reproduce their objects, scene, or people. Primary request: ONE lush green fern planted in ONE warm terracotta ceramic pot. Full fern fronds arch naturally above the simple slightly tapered terracotta pot, with restrained realistic leaf detail readable as polished stylized 3D game art. Match the reference soft PBR shading, detailed materials, softly defined edges and bright coastal palette. Camera: fixed orthographic isometric elevated 30–35 degrees, floor axes at about ±26–30 degrees; front and right side visible. Lighting: soft warm light from upper-left, consistent with the furniture catalog. Center the complete plant and full pot within frame, leave modest transparent padding around every frond and below the pot. Real transparent background, isolated object only; very subtle grounding, no large baked cast shadow. No person, room, floor surface, platform, pedestal, plinth, diamond, text, logo, UI, watermark, or extra objects.",
+        "concerns": [],
+        "sha256": "15ec3d90f28daad24904ec6d70f9460b5663026ad035b2390bf2ebafa1f9d872",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          21,
+          1230,
+          1254
+        ],
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/coffee-machine.png",
+          "apps/web-shell/public/assets/art/cafe-scene.png"
+        ]
+      }
+    },
+    {
+      "path": "authoring/floor-lamp.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 462515,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "sha256": "e8acbb79460bb2ff24e1fbe288a40d7f786ab304c05bddd467222ffa2da378a8",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_ge_32_bounds": [
+        413,
+        46,
+        842,
+        1199
+      ],
+      "generation": {
+        "desired_filename": "floor-lamp.png",
+        "original_generated_path": "generated-image:exec-e1db4279-ea57-4931-858c-17c6b702c565.png",
+        "prompt": "Use case: stylized-concept. Asset type: standalone transparent runtime decor sprite for a warm coastal life-sim game. Input images: image 1 coffee-machine and image 2 café scene are STYLE references only; do not reproduce their objects, scene, or people. Primary request: ONE complete floor lamp with a cream linen drum shade, warm brushed brass slim straight stem, and a simple round brass base. Match the polished stylized 3D game art, soft PBR shading, detailed linen and metal textures, softly defined edges and appealing game proportions in the references. Camera: fixed orthographic isometric elevated 30–35 degrees, floor axes at about ±26–30 degrees; front and right side visible. Lighting: soft warm light from upper-left. Center the complete lamp with its full shade and full base within frame and modest transparent padding. Real transparent background, isolated object only; grounding extremely subtle, no large baked cast shadow. No person, room, floor surface, platform, plinth, diamond, text, logo, UI, watermark, or extra objects. The only round base is the lamp's own functional base.",
+        "concerns": [],
+        "sha256": "e8acbb79460bb2ff24e1fbe288a40d7f786ab304c05bddd467222ffa2da378a8",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          41,
+          21,
+          1214,
+          1214
+        ],
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/coffee-machine.png",
+          "apps/web-shell/public/assets/art/cafe-scene.png"
+        ]
+      }
+    },
+    {
+      "path": "authoring/home-scene.png",
+      "purpose": "Fixed-camera empty Home scene",
+      "bytes": 2695819,
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "sha256": "3fb57f64c2aaebc29784c802fe753c96fc076e9c74321d1714822c837e5d33ff",
+      "alpha_extrema": null,
+      "alpha_ge_32_bounds": null,
+      "generation": {
+        "filename": "home-scene.png",
+        "original_generated_path": "generated-image:exec-065314bb-9364-471f-adf9-6f9b6ac50071.png",
+        "prompt": "Use case: precise-object-edit. This is a game room background. Preserve the warm seaside cottage design, materials, sunlight, empty oak floor, white walls, sea/garden views and wide 16:9 framing of the reference. Correct the camera to TRUE ORTHOGRAPHIC ISOMETRIC: parallel opposite room edges, no vanishing points, equal scale at front and back. The floor is one rectangular isometric parallelogram, rear corner at roughly 52% width/28% height, left corner at 9% width/66% height, right corner at 90% width/58% height, near corner at 47% width/96% height. Two far walls only, two near walls cut away. Floor axes slope about +0.5 and -0.5 on screen; same slope on every parallel plank and room edge. The entire floor perimeter should fit within the frame with only a small exterior margin, making a generous open rectangular room for furniture placement. Move the open doorway close to the rear central corner on the left far wall; retain a sunny coastal-view window farther along each far wall. No furniture, decor on floor, rugs, people, text, UI, grid, icons or watermark. Keep it a coherent polished stylized 3D life-sim room render, not a technical diagram. Opaque image.",
+        "reference_paths": [
+          "generated-image:exec-eaa4422d-264a-4cf7-8299-a061e9b780f2.png"
+        ],
+        "initial_generation": {
+          "prompt": "Use case: stylized-concept. Asset type: a runtime background illustration for the Wonderland life-simulation game's interactive Home furnishing screen. Reference image is ONLY for warm polished stylized 3D materials, coastal atmosphere, color palette and lighting; create a completely new private home, not the reference cafe. Wide 16:9 landscape composition, fixed orthographic isometric cutaway camera elevated approximately 32 degrees, floor axes slope about +27 and -27 degrees on screen. A small unfurnished seaside cottage room with a huge clean empty rectangular warm oak plank floor dominating the center and lower two-thirds of the picture, with enough open contiguous usable floor for an 8 by 6 tile furnishing grid. Two far walls meet at the upper central rear corner; pale cream plaster, simple white baseboard, a wide sunny window on each far wall, one clear doorway near the left end of the back wall. Cut away the two near walls entirely so the full empty floor and near edges are visible. Airy warm morning sun from upper left, subtle believable soft shadows, glimpses of blue sea, coastal garden and pastel neighboring homes beyond the windows, small lawn outside the building edges. Floor should be visually broad, unobstructed and cover most of the image from roughly the upper middle to the lower image; minimal exterior margin. Camera must be orthographic, with parallel opposing floor edges, not strong perspective or fisheye. High-quality soft PBR game render with detailed wood grain, appealing softly rounded architecture. No furniture whatsoever, no decorations on the floor, no rugs, no people, no UI, no grid lines, no icons, no text, no logo, no watermark. Full opaque illustration.",
+          "reference_paths": [
+            "apps/web-shell/public/assets/art/cafe-scene.png"
+          ]
+        },
+        "concerns": "Fixed camera presentation background; approximate isometric perspective, not a production 3D render. Placement grid is calibrated within the unobstructed floor.",
+        "sha256": "3fb57f64c2aaebc29784c802fe753c96fc076e9c74321d1714822c837e5d33ff",
+        "width": 1672,
+        "height": 941,
+        "alpha_extrema": null
+      }
+    },
+    {
+      "path": "authoring/jules-active.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1500466,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "59a12c73797690ad2bfb4a9bb551ca2c54633a879e325dc9ff66e3a946d5d301",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        251,
+        15,
+        737,
+        1498
+      ],
+      "generation": {
+        "desired_filename": "jules-active.png",
+        "original_generated_path": "generated-image:exec-92dcfa7f-6963-4307-b042-3b15a5f1e0e0.png",
+        "prompt": "Use case: identity-preserve\nAsset type: transparent full-body wardrobe sprite for the Wonderland life-sim game.\nInput image 1: local Jules character image is the edit target and authoritative identity, style, pose and framing reference.\nPrimary request: change Jules's clothing and footwear to a cobalt lightweight zip windbreaker, black joggers, and white trainers.\nPreserve Jules's exact adult face, skin tone, distinctive swept-back vivid pink hair, slight facial stubble, body build and proportions, calm expression, head angle, hands casually in trouser pockets, relaxed stance, and whole-body composition. Preserve the warm polished stylized 3D life-sim rendering, soft PBR light and detailed material texture.\nComposition: portrait 1024 by 1536, same aspect and framing as the reference. The complete pink hairstyle, full head and both trainers are inside the image with generous transparent outer padding.\nBackground: genuine alpha transparency, clean isolated character only. No visible colored glow behind the figure; preserve transparency around the silhouette.\nConstraints: requested clothing/footwear are the only character changes. No shopping bag, phone, held object, background, platform, diamond, logo, UI, text or watermark.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/jules.png"
+        ],
+        "concerns": [
+          "Alpha maximum is 254, matching source assets; no alpha rescaling was applied.",
+          "Very faint alpha 1–7 pixels extend beyond the silhouette; alpha>=8 bounds track the complete character. Preview renders hidden RGB glow, but sampled outside-character alpha is 0. Review using normal alpha compositing."
+        ],
+        "sha256": "59a12c73797690ad2bfb4a9bb551ca2c54633a879e325dc9ff66e3a946d5d301",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_nonzero_bbox": [
+          45,
+          12,
+          1012,
+          1504
+        ],
+        "alpha_zero_pixels": 1166126,
+        "alpha_corner_values": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha_threshold_bounds": {
+          "1": [
+            45,
+            12,
+            1012,
+            1504
+          ],
+          "8": [
+            250,
+            15,
+            737,
+            1499
+          ],
+          "32": [
+            251,
+            15,
+            737,
+            1498
+          ],
+          "128": [
+            251,
+            16,
+            736,
+            1498
+          ],
+          "240": [
+            252,
+            23,
+            735,
+            1497
+          ]
+        },
+        "alpha_inspection_samples": {
+          "(200, 500)": 0,
+          "(800, 500)": 0,
+          "(512, 1500)": 0,
+          "(512, 300)": 253,
+          "(0, 750)": 0,
+          "(1000, 750)": 0
+        },
+        "inspection": "Full head and both shoes visible; requested clothing/colors present; identity, hairstyle, relaxed pose and stylized 3D rendering preserved. No held objects, text, logos or UI."
+      }
+    },
+    {
+      "path": "authoring/jules-smart.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1530292,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "2fccf9829b9035c08d03043705956f66e5ddfdc9ece137577340c967273f7595",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        250,
+        15,
+        743,
+        1502
+      ],
+      "generation": {
+        "desired_filename": "jules-smart.png",
+        "original_generated_path": "generated-image:exec-29b190b0-c86d-47d5-a44f-5455510eb99c.png",
+        "prompt": "Use case: identity-preserve\nAsset type: transparent full-body wardrobe sprite for the Wonderland life-sim game.\nInput image 1: local Jules character image is the edit target and authoritative identity, style, pose and framing reference.\nPrimary request: change Jules's clothing and footwear to a charcoal tailored blazer, plain cream shirt, dark olive chinos, and cognac shoes.\nPreserve Jules's exact adult face, skin tone, distinctive swept-back vivid pink hair, slight facial stubble, body build and proportions, calm expression, head angle, hands casually in trouser pockets, relaxed stance, and whole-body composition. Preserve the warm polished stylized 3D life-sim rendering, soft PBR light and detailed material texture.\nComposition: portrait 1024 by 1536, same aspect and framing as the reference. The complete pink hairstyle, full head and both cognac shoes are inside the image with generous transparent outer padding.\nBackground: genuine alpha transparency, clean isolated character only. No visible colored glow behind the figure; preserve transparency around the silhouette.\nConstraints: requested clothing/footwear are the only character changes. The cream shirt is plain with no print. No shopping bag, phone, held object, background, platform, diamond, logo, UI, text or watermark.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/jules.png"
+        ],
+        "concerns": [
+          "Alpha maximum is 254, matching source assets; no alpha rescaling was applied.",
+          "Very faint alpha 1–7 pixels extend beyond the silhouette; alpha>=8 bounds track the complete character. Preview renders hidden RGB glow, but sampled outside-character alpha is 0. Review using normal alpha compositing."
+        ],
+        "sha256": "2fccf9829b9035c08d03043705956f66e5ddfdc9ece137577340c967273f7595",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_nonzero_bbox": [
+          49,
+          13,
+          972,
+          1504
+        ],
+        "alpha_zero_pixels": 1164351,
+        "alpha_corner_values": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha_threshold_bounds": {
+          "1": [
+            49,
+            13,
+            972,
+            1504
+          ],
+          "8": [
+            250,
+            15,
+            743,
+            1502
+          ],
+          "32": [
+            250,
+            15,
+            743,
+            1502
+          ],
+          "128": [
+            250,
+            16,
+            742,
+            1501
+          ],
+          "240": [
+            251,
+            23,
+            742,
+            1500
+          ]
+        },
+        "alpha_inspection_samples": {
+          "(200, 500)": 0,
+          "(800, 500)": 0,
+          "(512, 1500)": 0,
+          "(512, 300)": 253,
+          "(0, 750)": 0,
+          "(1000, 750)": 0
+        },
+        "inspection": "Full head and both shoes visible; requested clothing/colors present; identity, hairstyle, relaxed pose and stylized 3D rendering preserved. No held objects, text, logos or UI."
+      }
+    },
+    {
+      "path": "authoring/leo-active.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1639082,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "c3122d7a44cc37fa6153f04d1383aaf020d68f9c97d7626918f8ad68710396f0",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        246,
+        17,
+        786,
+        1509
+      ],
+      "generation": {
+        "desired_filename": "leo-active.png",
+        "original_generated_path": "generated-image:exec-2533a292-01dc-4680-8529-92a2ef6e7887.png",
+        "sha256": "c3122d7a44cc37fa6153f04d1383aaf020d68f9c97d7626918f8ad68710396f0",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "transparent_pixels": 1115812,
+        "alpha_nonzero_bounds": [
+          75,
+          14,
+          790,
+          1514
+        ],
+        "prompt": "Use case: precise-object-edit\nAsset type: production transparent full-body Wonderland character sprite.\nInput image: supplied generated leo-active.png is the edit target.\nPrimary request: Replace ONLY the two sneakers' sides with plain unbranded black-and-white leather panels. Remove all swooshes, motifs, symbols, logos, lettering and brand-like marks from both sneakers. Simple blank white side panels with black toe, heel and lace panels, white soles; no side decorations of any kind.\nConstraints: Preserve Leo's exact face, black side-swept hair, skin tone, muscular adult proportions, head angle, expression, necklace, relaxed pose, hands, jade athletic T-shirt, mid-gray joggers, full-body 1024x1536 portrait framing and existing lighting/style. Change only shoe side details. Both shoes and full head stay inside frame. Preserve genuine transparent alpha and transparent outer padding. No background, platform, floor, UI or text. Do not introduce any new motifs.",
+        "reference_paths": [
+          "generated-image:exec-0ecef055-7f3e-49b0-8d7c-3a895415dcd4.png"
+        ],
+        "inspection": "Visually inspected corrected output: no recognizable shoe marks; Leo identity, head/feet framing, jade shirt, gray joggers and pose preserved.",
+        "concerns": [],
+        "lineage": [
+          {
+            "generated_path": "generated-image:exec-0ecef055-7f3e-49b0-8d7c-3a895415dcd4.png",
+            "prompt": "Use case: identity-preserve\nAsset type: production full-body character wardrobe sprite for Wonderland life-sim game UI, one independent PNG.\nInput image: the supplied leo.png is the edit target and strict identity/style reference.\nPrimary request: Change only clothing and footwear to: Jade athletic T-shirt, mid-gray joggers, black-and-white trainers.\nIdentity and pose: Preserve black side-swept hair, face, necklace, muscular adult proportions, and relaxed standing pose. Keep the exact adult identity, face, skin tone, body shape/proportions, hairstyle/color, visual age, expression, and head angle from the source.\nStyle/medium: match the source's warm polished stylized 3D life-sim rendering, soft PBR lighting, coherent human anatomy, detailed material texture, appealing game proportions and softly defined edges.\nComposition/framing: same 2:3 portrait aspect and whole-body composition as the 1024x1536 source. Keep the entire head and both shoes comfortably inside the frame with transparent outer padding.\nScene/backdrop: actual fully transparent alpha background, no colored haze or studio backdrop, isolated character cutout only.\nConstraints: no background, floor, platform, diamond, logo, UI, text, watermark, shopping bag, phone, held object, or additional character. Preserve clean transparent silhouette. Do not crop head or shoes.",
+            "reference_paths": [
+              "apps/web-shell/public/assets/art/leo.png"
+            ],
+            "status": "rejected",
+            "reason": "Recognizable swoosh-like marks on trainers."
+          },
+          {
+            "generated_path": "generated-image:exec-2533a292-01dc-4680-8529-92a2ef6e7887.png",
+            "prompt": "Use case: precise-object-edit\nAsset type: production transparent full-body Wonderland character sprite.\nInput image: supplied generated leo-active.png is the edit target.\nPrimary request: Replace ONLY the two sneakers' sides with plain unbranded black-and-white leather panels. Remove all swooshes, motifs, symbols, logos, lettering and brand-like marks from both sneakers. Simple blank white side panels with black toe, heel and lace panels, white soles; no side decorations of any kind.\nConstraints: Preserve Leo's exact face, black side-swept hair, skin tone, muscular adult proportions, head angle, expression, necklace, relaxed pose, hands, jade athletic T-shirt, mid-gray joggers, full-body 1024x1536 portrait framing and existing lighting/style. Change only shoe side details. Both shoes and full head stay inside frame. Preserve genuine transparent alpha and transparent outer padding. No background, platform, floor, UI or text. Do not introduce any new motifs.",
+            "reference_paths": [
+              "generated-image:exec-0ecef055-7f3e-49b0-8d7c-3a895415dcd4.png"
+            ],
+            "status": "selected",
+            "reason": "Targeted shoe edit removed recognizable logos; visually inspected."
+          }
+        ]
+      }
+    },
+    {
+      "path": "authoring/leo-smart.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1482264,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "0f4ab5c48b425f81c702b52a208793518a8f35edf21aabe310f6baba23ba330d",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        246,
+        17,
+        783,
+        1504
+      ],
+      "generation": {
+        "desired_filename": "leo-smart.png",
+        "original_generated_path": "generated-image:exec-5357ba34-89ba-4b7c-83fe-203ed83687b6.png",
+        "sha256": "0f4ab5c48b425f81c702b52a208793518a8f35edf21aabe310f6baba23ba330d",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "transparent_pixels": 1131888,
+        "alpha_nonzero_bounds": [
+          75,
+          14,
+          1010,
+          1507
+        ],
+        "prompt": "Use case: identity-preserve\nAsset type: production full-body character wardrobe sprite for Wonderland life-sim game UI, one independent PNG.\nInput image: the supplied leo.png is the edit target and strict identity/style reference.\nPrimary request: Change only clothing and footwear to: Black short-sleeve textured knit shirt, dark tailored trousers, black loafers.\nIdentity and pose: Preserve black side-swept hair, face, necklace, muscular adult proportions, and relaxed standing pose. Keep the exact adult identity, face, skin tone, body shape/proportions, hairstyle/color, visual age, expression, and head angle from the source.\nStyle/medium: match the source's warm polished stylized 3D life-sim rendering, soft PBR lighting, coherent human anatomy, detailed material texture, appealing game proportions and softly defined edges.\nComposition/framing: same 2:3 portrait aspect and whole-body composition as the 1024x1536 source. Keep the entire head and both shoes comfortably inside the frame with transparent outer padding.\nScene/backdrop: actual fully transparent alpha background, no colored haze or studio backdrop, isolated character cutout only.\nConstraints: no background, floor, platform, diamond, logo, UI, text, watermark, shopping bag, phone, held object, or additional character. Preserve clean transparent silhouette. Do not crop head or shoes.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/leo.png"
+        ],
+        "inspection": "Visually inspected generated output: requested clothing, adult identity, full head and both shoes retained. Nico guitar removed and empty hands resting naturally.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/maya-active.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1514434,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "b7a944c0166aed91e811c14beb026780695d6fdd4ece6d7d706c2c20120fcca2",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        294,
+        19,
+        775,
+        1488
+      ],
+      "generation": {
+        "desired_filename": "maya-active.png",
+        "original_generated_path": "generated-image:exec-82768091-0390-49a2-887d-a0a551349aed.png",
+        "prompt": "Use case: identity-preserve\nAsset type: transparent full-body wardrobe sprite for the Wonderland life-sim game.\nInput image 1: local Maya character image is the edit target and authoritative identity, style, pose and framing reference.\nPrimary request: change Maya's clothing and footwear to a teal athletic zip jacket, navy fitted athletic trousers, and clean white trainers.\nPreserve Maya's exact adult face, warm brown skin tone, body shape and proportions, joyful expression, curly dark high puff hairstyle and loose curls, gold hoop earrings, head angle, relaxed hand positions, stance, and whole-body composition. Preserve the warm polished stylized 3D life-sim rendering, soft PBR light and detailed material texture.\nComposition: portrait 1024 by 1536, same aspect and framing as the reference. The complete high puff, full head and both trainers are inside the image with generous transparent outer padding.\nBackground: genuine alpha transparency, clean isolated character only. No visible colored glow behind the figure; preserve transparency around the silhouette.\nConstraints: requested clothing/footwear are the only character changes; no shopping bag, phone, held object, background, platform, diamond, logo, UI, text or watermark.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/maya.png"
+        ],
+        "concerns": [
+          "Alpha maximum is 254, matching source assets; no alpha rescaling was applied.",
+          "Very faint alpha 1–7 pixels extend beyond the silhouette; alpha>=8 bounds track the complete character. Preview renders hidden RGB glow, but sampled outside-character alpha is 0. Review using normal alpha compositing."
+        ],
+        "sha256": "b7a944c0166aed91e811c14beb026780695d6fdd4ece6d7d706c2c20120fcca2",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_nonzero_bbox": [
+          65,
+          15,
+          964,
+          1492
+        ],
+        "alpha_zero_pixels": 1194739,
+        "alpha_corner_values": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha_threshold_bounds": {
+          "1": [
+            65,
+            15,
+            964,
+            1492
+          ],
+          "8": [
+            294,
+            18,
+            776,
+            1488
+          ],
+          "32": [
+            294,
+            19,
+            775,
+            1488
+          ],
+          "128": [
+            295,
+            20,
+            775,
+            1487
+          ],
+          "240": [
+            296,
+            31,
+            774,
+            1487
+          ]
+        },
+        "alpha_inspection_samples": {
+          "(200, 500)": 0,
+          "(800, 500)": 0,
+          "(512, 1500)": 0,
+          "(512, 300)": 253,
+          "(0, 750)": 0,
+          "(1000, 750)": 0
+        },
+        "inspection": "Full head and both shoes visible; requested clothing/colors present; identity, hairstyle, relaxed pose and stylized 3D rendering preserved. No held objects, text, logos or UI."
+      }
+    },
+    {
+      "path": "authoring/maya-smart.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1533228,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "9ec718ce07fd5892c542c4f7dd2927c8ca1992363fa1381ee45d034d493bc37e",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        314,
+        23,
+        765,
+        1474
+      ],
+      "generation": {
+        "desired_filename": "maya-smart.png",
+        "original_generated_path": "generated-image:exec-4087260d-8832-4e11-9211-71365c8513ed.png",
+        "prompt": "Use case: identity-preserve\nAsset type: transparent full-body wardrobe sprite for the Wonderland life-sim game.\nInput image 1: local Maya character image is the edit target and authoritative identity, style, pose and framing reference.\nPrimary request: change Maya's clothing and footwear to an ivory tailored short blazer over a rust-colored plain top, sand pleated trousers, and tan loafers.\nPreserve Maya's exact adult face, warm brown skin tone, body shape and proportions, joyful expression, curly dark high puff hairstyle and loose curls, gold hoop earrings, head angle, relaxed hand positions, stance, and whole-body composition. Preserve the warm polished stylized 3D life-sim rendering, soft PBR light and detailed material texture.\nComposition: portrait 1024 by 1536, same aspect and framing as the reference. The complete high puff, full head and both loafers are inside the image with generous transparent outer padding.\nBackground: genuine alpha transparency, clean isolated character only. Remove the colored glow behind the figure and preserve transparency around the silhouette.\nConstraints: requested clothing/footwear are the only character changes; no shopping bag, phone, held object, background, platform, diamond, logo, UI, text or watermark.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/maya.png"
+        ],
+        "concerns": [
+          "Alpha maximum is 254, matching source assets; no alpha rescaling was applied.",
+          "Very faint alpha 1–7 pixels extend beyond the silhouette; alpha>=8 bounds track the complete character. Preview renders hidden RGB glow, but sampled outside-character alpha is 0. Review using normal alpha compositing."
+        ],
+        "sha256": "9ec718ce07fd5892c542c4f7dd2927c8ca1992363fa1381ee45d034d493bc37e",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "alpha_nonzero_bbox": [
+          65,
+          19,
+          962,
+          1476
+        ],
+        "alpha_zero_pixels": 1194007,
+        "alpha_corner_values": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha_threshold_bounds": {
+          "1": [
+            65,
+            19,
+            962,
+            1476
+          ],
+          "8": [
+            314,
+            23,
+            766,
+            1475
+          ],
+          "32": [
+            314,
+            23,
+            765,
+            1474
+          ],
+          "128": [
+            315,
+            24,
+            765,
+            1474
+          ],
+          "240": [
+            316,
+            29,
+            764,
+            1473
+          ]
+        },
+        "alpha_inspection_samples": {
+          "(200, 500)": 0,
+          "(800, 500)": 0,
+          "(512, 1500)": 0,
+          "(512, 300)": 253,
+          "(0, 750)": 0,
+          "(1000, 750)": 0
+        },
+        "inspection": "Full head and both shoes visible; requested clothing/colors present; identity, hairstyle, relaxed pose and stylized 3D rendering preserved. No held objects, text, logos or UI."
+      }
+    },
+    {
+      "path": "authoring/nico-active.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1585795,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "8373dcaa657e2a0cf353c391b6b5ebf89b99645d60deb913e974e76cfc0d175c",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        210,
+        21,
+        716,
+        1492
+      ],
+      "generation": {
+        "desired_filename": "nico-active.png",
+        "original_generated_path": "generated-image:exec-42fbeee6-700e-48e9-89e8-95a628f7f4a4.png",
+        "sha256": "8373dcaa657e2a0cf353c391b6b5ebf89b99645d60deb913e974e76cfc0d175c",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "transparent_pixels": 1149758,
+        "alpha_nonzero_bounds": [
+          206,
+          16,
+          940,
+          1506
+        ],
+        "prompt": "Use case: identity-preserve\nAsset type: production full-body character wardrobe sprite for Wonderland life-sim game UI, one independent PNG.\nInput image: the supplied nico.png is the edit target and strict identity/style reference.\nPrimary request: Change only clothing and footwear to: Muted red athletic top, navy track trousers, white trainers.\nIdentity and pose: Preserve auburn curls, sunglasses and smiling face. Remove the guitar and guitar strap completely; rest his empty hands naturally so the outfit is visible. Keep the exact adult identity, face, skin tone, body shape/proportions, hairstyle/color, visual age, expression, and head angle from the source.\nStyle/medium: match the source's warm polished stylized 3D life-sim rendering, soft PBR lighting, coherent human anatomy, detailed material texture, appealing game proportions and softly defined edges.\nComposition/framing: same 2:3 portrait aspect and whole-body composition as the 1024x1536 source. Keep the entire head and both shoes comfortably inside the frame with transparent outer padding.\nScene/backdrop: actual fully transparent alpha background, no colored haze or studio backdrop, isolated character cutout only.\nConstraints: no background, floor, platform, diamond, logo, UI, text, watermark, shopping bag, phone, held object, or additional character. Preserve clean transparent silhouette. Do not crop head or shoes.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/nico.png"
+        ],
+        "inspection": "Visually inspected generated output: requested clothing, adult identity, full head and both shoes retained. Nico guitar removed and empty hands resting naturally.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/nico-smart.png",
+      "purpose": "Identity-preserving full-body wardrobe preset",
+      "bytes": 1595593,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "a2be427db12665bb3164389de44785e19ce1df87a2e4ad7bb9967b46fa30d5e8",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "alpha_ge_32_bounds": [
+        198,
+        21,
+        724,
+        1468
+      ],
+      "generation": {
+        "desired_filename": "nico-smart.png",
+        "original_generated_path": "generated-image:exec-acffeee3-8b20-495e-ab6a-7393e1a922dd.png",
+        "sha256": "a2be427db12665bb3164389de44785e19ce1df87a2e4ad7bb9967b46fa30d5e8",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "transparent_pixels": 1161542,
+        "alpha_nonzero_bounds": [
+          0,
+          16,
+          964,
+          1512
+        ],
+        "prompt": "Use case: identity-preserve\nAsset type: production full-body character wardrobe sprite for Wonderland life-sim game UI, one independent PNG.\nInput image: the supplied nico.png is the edit target and strict identity/style reference.\nPrimary request: Change only clothing and footwear to: Midnight-blue linen button shirt, camel chinos, brown loafers.\nIdentity and pose: Preserve auburn curls, sunglasses and smiling face. Remove the guitar and guitar strap completely; rest his empty hands naturally so the outfit is visible. Keep the exact adult identity, face, skin tone, body shape/proportions, hairstyle/color, visual age, expression, and head angle from the source.\nStyle/medium: match the source's warm polished stylized 3D life-sim rendering, soft PBR lighting, coherent human anatomy, detailed material texture, appealing game proportions and softly defined edges.\nComposition/framing: same 2:3 portrait aspect and whole-body composition as the 1024x1536 source. Keep the entire head and both shoes comfortably inside the frame with transparent outer padding.\nScene/backdrop: actual fully transparent alpha background, no colored haze or studio backdrop, isolated character cutout only.\nConstraints: no background, floor, platform, diamond, logo, UI, text, watermark, shopping bag, phone, held object, or additional character. Preserve clean transparent silhouette. Do not crop head or shoes.",
+        "reference_paths": [
+          "apps/web-shell/public/assets/art/nico.png"
+        ],
+        "inspection": "Visually inspected generated output: requested clothing, adult identity, full head and both shoes retained. Nico guitar removed and empty hands resting naturally.",
+        "concerns": []
+      }
+    },
+    {
+      "path": "authoring/woven-rug.png",
+      "purpose": "Fixed-camera furniture/catalog sprite",
+      "bytes": 1578520,
+      "width": 1858,
+      "height": 846,
+      "mode": "RGBA",
+      "sha256": "3b5ec7b4ae1461b4aca31846241ba135a8125cd987eaa031856c2cb317e730b4",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_ge_32_bounds": [
+        122,
+        44,
+        1752,
+        820
+      ],
+      "generation": {
+        "original_generated_path": "generated-image:exec-61af633a-6993-482f-94ae-3eb5306cae8e.png",
+        "prompt": "Use case: precise-object-edit. Asset type: transparent standalone runtime rug sprite. Input image is the EDIT TARGET. Make a FRAMING-ONLY edit: preserve this exact rug texture, cream color, blue border, short fringe, shape, thin thickness, warm upper-left lighting, and approved shallow isometric perspective completely. Preserve its diamond silhouette width:height approximately 2.2:1 and floor-edge angles about ±25 degrees. Change only the canvas framing: show the complete rug smaller and centered so every fringe strand is contained, with empty transparent margin on all four sides. The rug should occupy approximately 85% of canvas width AND 85% of canvas height; choose a landscape canvas with a matching aspect so this can occur without altering the rug's proportions. Maintain the same camera and exact shape. No clipping of corners or fringe. Genuinely transparent background, no floor, no platform, no extra shadow, no new objects, no room, no people, no text, UI, logo, or watermark.",
+        "reference_paths": [
+          "generated-image:exec-fa6a6887-de85-432e-a3b3-260029b2c4e4.png"
+        ],
+        "concerns": [
+          "Full fringe is visibly contained and all four canvas edge rows/columns have alpha 0. Alpha bounds imply padding approximately 6.4% left, 5.3% right, 4.6% top, 2.1% bottom, below requested 7.5–8%; final selected per root's no-further-attempt instruction.",
+          "Approved shallow projection and cream/blue materials preserved; no remaining clipping observed."
+        ],
+        "desired_filename": "woven-rug.png",
+        "sha256": "3b5ec7b4ae1461b4aca31846241ba135a8125cd987eaa031856c2cb317e730b4",
+        "width": 1858,
+        "height": 846,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          119,
+          39,
+          1759,
+          828
+        ],
+        "lineage": [
+          {
+            "desired_filename": "woven-rug.png",
+            "original_generated_path": "generated-image:exec-af174331-c62e-4f70-b392-ecfc3b74ff4c.png",
+            "prompt": "Use case: stylized-concept. Asset type: standalone transparent floor decor sprite for a warm coastal life-sim game. Input images: image 1 coffee-machine and image 2 café scene are STYLE references only; do not reproduce their objects, scene, or people. Primary request: ONE square cream woven rug with a subtle muted coastal-blue narrow border and short cream fringe at two opposite edges. This is a square rug in world space, lying flat on the isometric floor plane; its square corners project to a clear symmetric isometric diamond/rhombus. No curled corners. Match the reference polished stylized 3D game art, soft PBR shading, detailed tactile woven fibers, softly defined edges and bright coastal palette. Camera: fixed orthographic isometric elevated 30–35 degrees; its floor-plane axes project at ±26–30 degrees. Lighting: soft warm light from upper-left, consistent with furniture catalog. Center the entire rug including every fringe within frame with modest transparent padding. Real transparent background everywhere around the rug, isolated object only; no floor texture or floor tile underneath, no thick pedestal or platform, no large baked cast shadow. No person, room, furniture, extra objects, diamond floating above it, text, logo, UI, watermark. Thin flat fabric thickness only.",
+            "concerns": [
+              "Rug projected edge slopes appear roughly ±38–42 degrees rather than the requested ±26–30 degrees; root should review against actual home floor calibration.",
+              "Left and right fringe extents approach the canvas edge, though the full rug appears contained."
+            ],
+            "sha256": "215538d4013fbebe01f8493a49aa2bf426fa3a8fc6dee607e33d1a0726f7fe3b",
+            "width": 1254,
+            "height": 1254,
+            "mode": "RGBA",
+            "alpha_extrema": [
+              0,
+              255
+            ],
+            "alpha_bbox": [
+              0,
+              178,
+              1254,
+              1212
+            ],
+            "reference_paths": [
+              "apps/web-shell/public/assets/art/coffee-machine.png",
+              "apps/web-shell/public/assets/art/cafe-scene.png"
+            ]
+          },
+          {
+            "prompt": "Use case: precise-object-edit. Asset type: transparent standalone runtime decor sprite. Input image 1 is the EDIT TARGET: the cream woven rug with a muted blue border and short cream fringe. Input image 2 is ONLY the orthographic isometric CAMERA/FLOOR-PLANE reference; do not reproduce the house, floor, sea, garden, sunlight patches, or any surrounding scene. Change only the rug viewing camera/projection and frame padding. Re-render the SAME square rug on the shallower floor plane matching image 2: diamond/rhombus silhouette width:height approximately 2.1–2.25, projected floor edges at ±25–28 degrees from horizontal. The old steep ±40-degree projection must become shallower. Keep the original rug design exactly: cream chunky woven fiber texture, same narrow muted coastal-blue border, same short cream fringe on the same two opposite edges, same thin flat fabric, same warm upper-left lighting and polished stylized PBR materials. No color/material/pattern changes. Center all four complete corners and every fringe strand in the frame with at least 8% transparent padding on left and right and all sides. Maintain genuine transparent background and isolated rug cutout. No new objects, no house or floor beneath it, no room, no platform or pedestal, no text, UI, logo, diamond floating above, people or watermark. Do not merely rotate the old PNG: depict the square rug from the newly specified camera.",
+            "reference_paths": [
+              "generated-image:exec-af174331-c62e-4f70-b392-ecfc3b74ff4c.png",
+              ".superpowers/sdd/2026-10-05-character-and-home-ui/asset-staging/home/home-scene.png"
+            ],
+            "original_generated_path": "generated-image:exec-fa6a6887-de85-432e-a3b3-260029b2c4e4.png",
+            "concerns": [
+              "Projection corrected to approximately 2.2:1 diamond and ±25 degree edges.",
+              "Requested 8% padding was not followed: canvas is tightly fitted vertically and horizontally; alpha bbox reaches bottom edge and weak residual alpha reaches left edge. Bottom row max alpha is 10; left row max alpha is 1. Candidate retained for root review; selected prior rug remains unchanged."
+            ],
+            "sha256": "690d3cdf3e0d234418b72daa383e9af0e3715bd5c3e31fe1d8574c3581f36e8b",
+            "width": 1817,
+            "height": 866,
+            "mode": "RGBA",
+            "alpha_extrema": [
+              0,
+              255
+            ],
+            "alpha_bbox": [
+              0,
+              55,
+              1789,
+              866
+            ]
+          }
+        ],
+        "selection_status": "selected_final"
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "created": "2026-10-05",
+  "source": "OpenAI ImageGen; derived from user-approved Wonderland design references",
+  "kind": "illustrated-ui-fixtures",
+  "files": [
+    {
+      "path": "art/character-garden.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2748224,
+      "sha256": "1bb5779cf8a2d8f979e59652c5de276188f6ee7d5a9b4a564b809b08be5541bf",
+      "purpose": "Scenery and physical display stage for character selection"
+    },
+    {
+      "path": "art/city-map.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 3429853,
+      "sha256": "eba7124f6705c98f802616ffdc699cbca3445d5f12a877b5728bb437eaca5fd1",
+      "purpose": "Illustrated city terrain and neighborhood fixture"
+    },
+    {
+      "path": "art/cafe-scene.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2485181,
+      "sha256": "7130105b13e3e8c20038b4320d5dd1d97e6417896628fd2a33f0e19131807598",
+      "purpose": "Illustrated caf\u00e9 interior; interactive player and coffee machine removed"
+    },
+    {
+      "path": "art/maya.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "bytes": 1567412,
+      "sha256": "33858a18dbf0057f2f23b6c7744822ac7582b1b49eb72f3c9900e079070b52aa",
+      "purpose": "Selected character, grid portrait and HUD portrait"
+    },
+    {
+      "path": "art/jules.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "bytes": 1628549,
+      "sha256": "08d2a4fb3c35109de5780f2abde25e686d3895f4ab9dcfe075275931343bfce5",
+      "purpose": "Selectable character and grid/HUD portrait"
+    },
+    {
+      "path": "art/nico.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "bytes": 1839837,
+      "sha256": "0780f780a64cf8717662777332143e62b195b3f2069f93132376ec032190defc",
+      "purpose": "Selectable character with guitar and grid/HUD portrait"
+    },
+    {
+      "path": "art/amara.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "bytes": 1853294,
+      "sha256": "68b3e06c07772d3d5b1bd6a36ac0c1c55cbb3b5868a60a05feefd0637ead7dc2",
+      "purpose": "Selectable character and grid/HUD portrait"
+    },
+    {
+      "path": "art/leo.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "bytes": 1543288,
+      "sha256": "f71e48d8cb6632eabf02308f326d949a18a90357259ba0504606d86732d4be73",
+      "purpose": "Selectable character and grid/HUD portrait"
+    },
+    {
+      "path": "art/coffee-machine.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "bytes": 1844883,
+      "sha256": "07a05a9b74491936cdf910852657dc727767c778e7f971e489ee50f16e2468ce",
+      "purpose": "Independent interactive fixture object sprite"
+    },
+    {
+      "path": "art/selection-diamond.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "bytes": 1190572,
+      "sha256": "e70a3d82bf4bc4cad8438f44c77eca0354a44841a81a288e9448ce7887d5dd67",
+      "purpose": "Character selection marker"
+    }
+  ]
+}
