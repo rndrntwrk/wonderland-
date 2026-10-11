@@ -1,18 +1,32 @@
 # Wonderland playable game completion design
 
-Status: proposed detailed specification for owner review. The owner approved the Cloudflare Containers and Durable Objects direction on 11 October 2026. Implementation of the new host is not yet approved by this document.
+Status: scope approved by the owner on 11 October 2026, followed by an explicit full-original-game preservation clarification. The implementation sequence remains to be reviewed. No new host has been implemented by this document.
 
 ## Outcome and scope
 
-Deliver an expansive multiplayer life simulation in the browser, using the original FreeSO source as the behavioral inventory and the merged Rust work as the starting point. Swarms A–F are foundations, not the definition of completion. A static scene, a working menu, a forwarded packet, a test peer or a merged pull request is not a completed gameplay system.
+Deliver the full Wonderland Rust/browser rewrite of FreeSO, the reimplementation of The Sims Online, including its expansive playable 3D world, multiplayer simulation, economy and creator capabilities. Use the original FreeSO source as the behavioral inventory and the merged Rust work as the starting point. Swarms A–F are foundations, not the definition of completion. A static scene, a working menu, a forwarded packet, a test peer or a merged pull request is not a completed gameplay system.
 
 Players must be able to join, create a usable character, enter a shared world, move, interact, maintain needs, build and furnish homes, own and exchange items, socialize and participate in the supported jobs and activities. Their progress survives reconnects, service replacement and releases. Ordinary play must not require uploading game files. Preserve the approved action-first interface, original project capabilities and shared runtime contracts; do not replace the game with a new disconnected demo.
 
 The first connected milestone is deliberately smaller than the final game. Two independent browser sessions are the minimum multiplayer proof, not a player limit. Every later capability has its own integrated play journey and restart/recovery evidence.
 
+## Original-game fidelity is the completion contract
+
+GitHub repository metadata confirms that both the parent and source of `rndrntwrk/wonderland-` are `riperiperi/FreeSO`. The preserved `TSOClient`, `Other` and `README.md` trees match the pinned upstream revision exactly at the inspected planning commit. See `docs/integration/FREESO-LINEAGE-20261011.json` for the read-only receipt. “Sims-style” is not a scope definition or permission to substitute a smaller original game.
+
+Full playable 3D is a required release outcome. Preserve FreeSO's hybrid/isometric and full-3D rendering behavior, world/city camera controls, sprite-depth reconstruction and authored mesh overrides, walls/floors/roofs/pools, room and lighting behavior, live avatar rigs/animation, depth picking and interactive construction. A flat illustration, orbitable mock scene, software screenshot or static restored pose cannot satisfy this gate. Browser-native implementation may replace platform machinery while preserving its actual player/creator capability.
+
+The in-game economy includes earning and spending, property and object ownership, inventory and secure trade, service/job rewards, source payout tuning, visitor/property bonuses and scheduled event/gift behavior where active in the original source. Instanced grade-matched robot-factory, restaurant and nightclub jobs are explicit requirements, not a single generic task panel. Preserve their rules, permissions, durable effects and recovery; do not silently simplify them to fit a first shared-lot demo.
+
+Volcanic's live object/resource/script editing and debugging must be mapped into the browser creator toolchain. Import/export alone is insufficient. The original source's registered activities, social/neighborhood governance, server tasks and moderation remain in scope with specific source-backed acceptance cases.
+
+A source feature that is disabled, stubbed, incomplete or optional must be labelled with evidence. That is not permission to silently delete it: the ledger records its exact upstream condition and intended Wonderland disposition for owner review. Separate TS1/Simitone integration is inventoried as compatibility lineage; do not claim FreeSO already ships the complete separate Simitone game. Content licensing is a distribution gate to resolve, never a reason to quietly remove gameplay or downgrade 3D.
+
+The refined action-focused UI replaces outdated presentation, not underlying gameplay depth. Character choices, city/lot maps, direct world actions, build tools and social/economic controls must remain complete. No final completion claim while a required capability is only a fixture, disabled control, unsupported provider, mock balance, menu or source decoder.
+
 ## Verified starting point
 
-The consolidated source is master `a62301e2629e4824dee8f025fd0af22732912863`, including PR58 and the small PR59 fallback-icon repair. PR58's merged source was `2e3197185a98092b26ad3e1453d33cfe17125a18`. The public Cloudflare demo initially serves the latter with explicit preview mode and no gateway. It is a usable UI/local-fixture demonstration, not hosted multiplayer.
+The consolidated source is master `a62301e2629e4824dee8f025fd0af22732912863`, including PR58 and the small PR59 fallback-icon repair. PR58's merged source was `2e3197185a98092b26ad3e1453d33cfe17125a18`. The public Cloudflare demo now serves the merge-equivalent PR59 artifact with explicit preview mode and no gateway. It is a usable UI/local-fixture demonstration, not hosted multiplayer. Postmerge Browser UI run 38145271336 passed for a62301e2.
 
 Reusable components include deterministic simulation, imported-content conversion, `GameRuntime`, native accepted-tick/checkpoint transport, browser replica and presentation, original-protocol decoding, native construction intent/receipt handling, and reference/differential tooling. Their capabilities and limitations are documented in their source. Preserve these implementations and tests.
 
@@ -68,7 +82,7 @@ Construction specifically follows the existing runtime order: exact quoted conse
 
 The existing `CompleteBuild` contract can return `NeedsReconciliation` after a durable receipt exists but source-object initialization fails and local geometry is rolled back. Persist that exact receipt and reconciliation state. Do not report the purchase as playable, silently retry initialization as a new purchase, refund merely because the client disconnected, or lose the charged receipt. A reconciler checks the committed runtime outcome and account operation, then either completes the same permitted operation or records an explicit idempotent compensating ledger entry with its own stable ID. It must prove that no matching committed item remains before compensation. The browser retains the existing reconciliation state until the authoritative result is known.
 
-Start with game currency only. This plan does not introduce cryptocurrency, cash payments, wagering or real-money item trading. Any later financial feature requires its own economic and authorization design.
+Preserve the original game-currency economy, including its registered casino games and their nonredeemable Simoleon bets, machine bankrolls and owner management. This does not introduce cryptocurrency, cash payments, redeemable wagering, cashout or real-money item trading. Any new financial feature requires a separate economic and authorization design. Do not silently remove existing game-currency activities under a blanket no-wagering rule.
 
 ## Playable content and first play
 
