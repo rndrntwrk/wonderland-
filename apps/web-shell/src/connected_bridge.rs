@@ -948,6 +948,13 @@ async fn fetch_json<T: DeserializeOwned>(
     token: Option<String>,
     controller: web_sys::AbortController,
 ) -> Result<T, ServiceError> {
+    // Catalogue metadata has a smaller independent transfer ceiling. It is
+    // parsed in Rust so u64 revisions never pass through JavaScript Number.
+    let response_limit = if path == "/v1/native-lot/construction/catalogue" {
+        crate::native_build::MAX_CATALOGUE_BYTES
+    } else {
+        MAX_RESPONSE_BYTES
+    };
     let window = web_sys::window()
         .ok_or_else(|| safe_error(ErrorCode::Transport, "The browser is not available."))?;
     let timed_out = Rc::new(Cell::new(false));
@@ -1015,7 +1022,7 @@ async fn fetch_json<T: DeserializeOwned>(
         .ok()
         .flatten()
         .and_then(|s| s.parse::<usize>().ok())
-        .is_some_and(|n| n > MAX_RESPONSE_BYTES)
+        .is_some_and(|n| n > response_limit)
     {
         controller.abort();
         return Err(safe_error(
@@ -1044,7 +1051,7 @@ async fn fetch_json<T: DeserializeOwned>(
             let array = value
                 .dyn_into::<js_sys::Uint8Array>()
                 .map_err(|_| failure())?;
-            if bytes.len().saturating_add(array.length() as usize) > MAX_RESPONSE_BYTES {
+            if bytes.len().saturating_add(array.length() as usize) > response_limit {
                 controller.abort();
                 let _ = reader.cancel();
                 return Err(safe_error(
@@ -1183,5 +1190,79 @@ impl ConnectedUi {
             .set_scheme(scheme)
             .map_err(|_| "Invalid native endpoint.")?;
         Ok((socket.into(), allowed, response.ticket))
+    }
+}
+
+/// Memory-only access to an operator-supplied native construction service.
+/// This is a capability read, not a client-supplied construction grant.
+pub(crate) struct NativeConstructionAccess {
+    pub endpoint: String,
+    pub origin: String,
+    pub bearer: String,
+    pub catalogue: crate::native_build::Catalogue,
+}
+impl ConnectedUi {
+    pub(crate) fn native_construction_is_current(
+        self,
+        browser_epoch: u64,
+        binding: wonderland_game_runtime::live_wire::player::PlayerBinding,
+    ) -> bool {
+        self.state
+            .try_with_untracked(|s| {
+                s.ledger.authenticated
+                    && s.ledger.transport_ready
+                    && s.ledger.epoch == browser_epoch
+                    && s.session.as_ref().is_some_and(|v| {
+                        v.state == SessionState::LotReady
+                            && v.epoch == binding.source_epoch
+                            && v.lot_incarnation == Some(binding.lot_incarnation)
+                            && v.lot_location == Some(binding.lot_location)
+                            && v.avatar_id == Some(binding.avatar_id)
+                    })
+            })
+            .unwrap_or(false)
+    }
+    pub(crate) async fn native_construction_access(
+        self,
+        browser_epoch: u64,
+        binding: wonderland_game_runtime::live_wire::player::PlayerBinding,
+    ) -> Result<NativeConstructionAccess, String> {
+        let current = || self.native_construction_is_current(browser_epoch, binding);
+        if !current() {
+            return Err("This property session has changed.".into());
+        }
+        let body=serde_json::json!({"source_epoch":binding.source_epoch.to_string(),"lot_incarnation":binding.lot_incarnation.to_string(),"lot_location":binding.lot_location,"avatar_id":binding.avatar_id}).to_string();
+        let catalogue = self
+            .http::<crate::native_build::Catalogue>(
+                "POST",
+                "/v1/native-lot/construction/catalogue",
+                Some(body),
+                true,
+            )
+            .await
+            .map_err(|_| {
+                "This world has not provided an available construction catalogue for this account."
+                    .to_string()
+            })?;
+        if !current() {
+            return Err("This property session has changed.".into());
+        }
+        let (base, bearer) = self
+            .resources
+            .try_with_value(|r| (r.base.clone(), r.token.clone()))
+            .ok_or("This session is closed.")?;
+        let bearer = bearer.ok_or("Sign in before construction.")?;
+        let origin = web_sys::window()
+            .and_then(|w| w.location().origin().ok())
+            .ok_or("Invalid browser origin.")?;
+        let endpoint = url::Url::parse(&origin)
+            .and_then(|root| root.join(&format!("{base}/v1/native-lot/construction")))
+            .map_err(|_| "Invalid construction endpoint.")?;
+        Ok(NativeConstructionAccess {
+            origin: endpoint.origin().ascii_serialization(),
+            endpoint: endpoint.into(),
+            bearer,
+            catalogue,
+        })
     }
 }

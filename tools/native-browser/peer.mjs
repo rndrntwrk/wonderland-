@@ -9,12 +9,13 @@ import { createInterface } from 'node:readline';
 import { randomBytes } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
 
-export async function createFixture({dist, gateway, runtimeExecutable, port=18888, actionDelayTicks=0, manualTicks=false}) {
+export async function createFixture({dist, gateway, runtimeExecutable, port=18888, actionDelayTicks=0, manualTicks=false, construction=false}) {
   assert.equal(new URL(gateway).hostname,'127.0.0.1');
   assert.ok(Number.isInteger(actionDelayTicks) && actionDelayTicks>=0 && actionDelayTicks<=128);
   assert.equal(typeof manualTicks,'boolean');
+  assert.equal(typeof construction,'boolean');
   const root=resolve(dist), origin=`http://127.0.0.1:${port}`;
-  const child=spawn(runtimeExecutable,[],{env:{...process.env,WONDERLAND_NATIVE_PEER_TEST_ONLY:'1'},stdio:['pipe','pipe','inherit']});
+  const child=spawn(runtimeExecutable,[],{env:{...process.env,WONDERLAND_NATIVE_PEER_TEST_ONLY:'1',WONDERLAND_NATIVE_CONSTRUCTION_FIXTURE:construction?'1':'0'},stdio:['pipe','pipe','inherit']});
   const requests=[];let poisoned=false;
   createInterface({input:child.stdout}).on('line',line=>{
     const slot=requests.shift();if(!slot)return;
@@ -27,7 +28,9 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
   });
   const tickets=new Map(), clients=new Set(), relays=new Set();
   const stats={admissions:0,opens:0,checkpoints:0,actions:0,accepted:0,unknownDrops:0,ticks:0,silentReceipts:0,bursts:0};
-  let serial=Promise.resolve(), dropNext=false, loseNext=false, recoveryTail=0;
+  let serial=Promise.resolve(), dropNext=false, loseNext=false, recoveryTail=0, dropConstruction=false, holdConstruction=false;
+  const constructionGrants=new Map();
+  Object.assign(stats,{constructionCalls:0,constructionBuilds:0,constructionLostReplies:0});
   const transact=fn=>{const result=serial.then(fn);serial=result.catch(()=>{});return result;};
   const packet=result=>Buffer.from(result.packet,'hex');
   const send=(ws,bytes)=>{if(ws.readyState===1){if(ws.bufferedAmount>2*1024*1024)ws.close(1013);else ws.send(bytes,{binary:true});}};
@@ -53,6 +56,57 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
         assert.ok(tickets.size<32);
         const ticket=randomBytes(24).toString('hex');tickets.set(ticket,{authorization,binding,expires:Date.now()+15000});stats.admissions++;
         res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify({ticket}));return;
+      }
+      if(construction && /^\/construction-fixture\/(plinth|block|floor)\.svg$/.test(url.pathname)) {
+        const color=url.pathname.includes('plinth')?'#be412d':url.pathname.includes('block')?'#2d5abe':'#507da0';
+        // Authored fixture thumbnail only; not original catalogue artwork.
+        res.writeHead(200,{'content-type':'image/svg+xml','cache-control':'no-store'});
+        res.end(`<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64"><path d="M18 42L48 56L78 42L48 28Z" fill="#dce8dc"/><path d="M26 20L48 10L70 20L70 43L48 54L26 43Z" fill="${color}"/><path d="M26 20L48 31L70 20M48 31V54" fill="none" stroke="#fff" opacity=".5"/></svg>`);return;
+      }
+      if(construction && url.pathname==='/gateway/v1/native-lot/construction/catalogue') {
+        assert.equal(req.method,'POST');assert.equal(req.headers.origin,origin);
+        const authorization=req.headers.authorization??'';
+        const binding=await body(req),session=await current(authorization);
+        assert.ok(matches(session,binding));
+        for(const [key,g] of constructionGrants)if(g.expires<Date.now())constructionGrants.delete(key);
+        // One current anti-CSRF token for this authenticated account/session.
+        for(const [key,g] of constructionGrants)if(g.authorization===authorization)constructionGrants.delete(key);
+        assert.ok(constructionGrants.size<32);
+        const value=await transact(()=>execute({op:'construction_catalogue',...binding}));
+        const token=randomBytes(24).toString('hex');
+        constructionGrants.set(token,{authorization,binding,expires:Date.now()+300000});
+        value.csrf_token=token;
+        res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});
+        res.end(JSON.stringify(value));return;
+      }
+      if(construction && url.pathname==='/gateway/v1/native-lot/construction') {
+        assert.equal(req.method,'POST');assert.equal(req.headers.origin,origin);
+        assert.equal(req.headers['content-type'],'application/vnd.wonderland.construction-call');
+        const authorization=req.headers.authorization??'';
+        const grant=constructionGrants.get(req.headers['x-wonderland-csrf']);
+        assert.ok(grant && grant.authorization===authorization && grant.expires>=Date.now());
+        const session=await current(authorization);assert.ok(matches(session,grant.binding));
+        let length=0;const chunks=[];
+        for await(const part of req){length+=part.length;assert.ok(length<=131200,'Construction request size');chunks.push(part);}
+        assert.ok(length>=16);
+        const value=await transact(async()=>{
+          // Admission and completion are test-only trusted providers in Rust.
+          // The endpoint cannot accept browser prices, receipts or grants.
+          const result=await execute({op:'construction',...grant.binding,hold_completion:holdConstruction,request:Buffer.concat(chunks,length).toString('hex'),now_ms:Math.floor(performance.now())});
+          stats.constructionCalls++;stats.constructionBuilds=result.builds;if(result.kind==='confirm')holdConstruction=false;
+          if(dropConstruction && result.kind==='confirm'){
+            dropConstruction=false;stats.constructionLostReplies++;
+            // Commit exists only in the authority. Lose the HTTP reply and both
+            // update frames; reconnect must obtain the checkpoint, not retry.
+            for(const ws of clients){ws.live=false;ws.close(1012);}
+            return null;
+          }
+          for(const transition of result.transitions)broadcast(transition);
+          return result;
+        });
+        if(value===null){res.destroy();return;}
+        res.writeHead(200,{'content-type':'application/vnd.wonderland.construction-reply','cache-control':'no-store'});
+        res.end(Buffer.from(value.reply,'hex'));return;
       }
       if(url.pathname.startsWith('/gateway/')) {
         const upstream=http.request(gateway+url.pathname.slice('/gateway'.length),{method:req.method,headers:req.headers},reply=>{res.writeHead(reply.statusCode,reply.headers);reply.pipe(res);});
@@ -144,6 +198,9 @@ export async function createFixture({dist, gateway, runtimeExecutable, port=1888
       assert.ok(Number.isInteger(count) && count>=1 && count<=64);
       recoveryTail=count;
     },
+    holdNextConstruction:()=>{assert.ok(construction);holdConstruction=true;},
+    completeConstruction:()=>transact(async()=>{assert.ok(construction);const result=await execute({op:'construction_complete'});broadcast(result);return result;}),
+    dropNextConstructionReply:()=>{assert.ok(construction);dropConstruction=true;},
     dropNextReceipt:()=>{dropNext=true;},
     loseNextReceipt:()=>{loseNext=true;},
     disconnect:()=>{for(const ws of clients)ws.close(1012);},

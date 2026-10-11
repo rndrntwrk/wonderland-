@@ -121,3 +121,15 @@ test('timeout also fences an uncooperative body read after response headers',asy
  assert.equal(outcome,'DELIVERY_UNKNOWN');
  await assert.rejects(transport.send(payload),error=>error.code==='CLOSED');
 });
+test('configured gateway bearer accompanies CSRF in headers only',async()=>{
+ let seen=0;const secret='fixture-bearer';
+ const transport=createConstructionTransport(endpoint,options(async(url,init)=>{
+  seen++;assert.equal(init.headers.Authorization,`Bearer ${secret}`);assert.ok(!url.includes(secret));return reply();
+ },{bearerToken:secret}));
+ await transport.send(payload);assert.equal(seen,1);transport.dispose();
+});
+test('invalid bearer input is rejected before any dispatch without echoing it',()=>{
+ for(const bearerToken of ['', 'x\r\nInjected: secret','x'.repeat(4097)]){
+  assert.throws(()=>createConstructionTransport(endpoint,options(()=>assert.fail('must not fetch'),{bearerToken})),e=>e.code==='INVALID_CONFIG'&&!e.message.includes('secret'));
+ }
+});
