@@ -57,11 +57,12 @@ pub struct ConnectedUi {
     /// Wake-up only. Payloads live in an ordered inbox, never a latest-value signal.
     pub vm_pending: RwSignal<()>,
     vm_inbox: StoredValue<VmInbox>,
+    legacy_vm: bool,
     resources: StoredValue<Resources, LocalStorage>,
 }
 
 impl ConnectedUi {
-    pub fn new(gateway_url: String) -> Self {
+    pub fn new(gateway_url: String, legacy_vm: bool) -> Self {
         let base = canonical_base(&gateway_url);
         let state = RwSignal::new(ConnectedState::default());
         let this = Self {
@@ -69,6 +70,7 @@ impl ConnectedUi {
             reduced_motion: RwSignal::new(false),
             vm_pending: RwSignal::new(()),
             vm_inbox: StoredValue::new(VmInbox::default()),
+            legacy_vm,
             resources: StoredValue::new_local(Resources {
                 base: base.clone().unwrap_or_default(),
                 token: None,
@@ -96,6 +98,9 @@ impl ConnectedUi {
     }
 
     fn vm_stream(self) -> Option<VmStream> {
+        if !self.legacy_vm {
+            return None;
+        }
         self.state
             .try_with_untracked(|state| {
                 let session = state.session.as_ref()?;
@@ -393,7 +398,7 @@ impl ConnectedUi {
                     lot_incarnation,
                     direct,
                     data,
-                } => {
+                } if self.legacy_vm => {
                     let valid = self.state.with_untracked(|s| {
                         s.session.as_ref().is_some_and(|session| {
                             session.state == SessionState::LotReady

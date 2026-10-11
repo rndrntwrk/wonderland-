@@ -24,3 +24,9 @@ Historical C recovery workflows that push branches or retrieve old handoffs are 
 - Static preview server now serves .mjs as JavaScript for browser module loading.
 
 These are local integration results, not proof of original full-object parity, production multiplayer, hosted SQL claims, every hardware/engine backend, or a Cloudflare deployment. Hosted workflows and content differential runs must qualify this final branch before merge. The controlled gateway and authored fixtures must never be presented as the production service.
+
+## Integration review corrections
+
+The restored legacy FIFO initially queued legacy VM frames in native-lot mode, which has a separate authoritative socket and no legacy consumer. An immutable client-mode flag now prevents that unused queue while retaining gateway/session state processing. Actual native desktop/mobile browsers survive 300 original legacy callbacks and continue advancing accepted native ticks; legacy mode still disconnects safely on overflow. Both journeys are wired into their hosted workflows.
+
+The boundary map was re-reviewed for the integrated resource codecs, frozen WLB1 appearance serializer, checkpoint avatar reconstruction, accepted terrain/visibility, and separate construction protocol. Current pins are refreshed with semantic notes; previous source and boundary maps remain historical records. This does not promote inspection to an ABI freeze or original-engine equivalence.

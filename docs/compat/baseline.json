@@ -241,7 +241,7 @@
     "Other/libs/FSOMonoGame": "74f7ef558111e62a7d0a2228b6f9714980e000fa",
     "Other/libs/assimp-net": null
   },
-  "inspected_commit": "a453894c83969f8bdfa1f584e1c763c8231e9fc3",
+  "inspected_commit": "a1f6ece5021a89506e6113b81379c2921c54ae00",
   "limits": "Declared FreeSO.sln projects and explicit Compile entries only. Conditions, SDK defaults, imports, ProjectReference closure, registries, source outside this solution, content families and asset rights are not evaluated. Owner routing follows the program lanes and is an intake assignment, not CODEOWNERS or implementation/acceptance proof. No W00 or W17 parent package is marked complete.",
   "schema": 1,
   "source": {

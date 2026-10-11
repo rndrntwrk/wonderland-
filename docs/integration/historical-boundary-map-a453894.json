@@ -1,0 +1,367 @@
+{
+  "boundaries": [
+    {
+      "consumers": [
+        "crates/game-runtime/src/lib.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/content-ir/tests/resolution.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/content-ir/tests/tuning_pack.rs"
+        }
+      ],
+      "id": "content-identity",
+      "notes": "Manifest/pack/binding versions and source/cooked/runtime descriptors are separately meaningful. Exact hashes and declared resource codecs/patch/tuning/dependency inputs must accompany native sessions. Verified bytes do not prove license rights, original whole-object closure, original engine equivalence, or production readiness. GameRuntime extends content identity with its integrated interaction metadata; do not equate the sealed B report with the final native descriptor.",
+      "owner": "B",
+      "realm": "content",
+      "sources": [
+        {
+          "path": "crates/content-ir/src/manifest.rs",
+          "sha256": "569a31b3c4aeb02a32435ea2621fe94a3af2beafba7cc7601ba765a479dff122"
+        },
+        {
+          "path": "crates/content-ir/src/packs.rs",
+          "sha256": "09d07493b09c6151d0abc14638b2f3c31673828d14e42505ef459c27786107ed"
+        },
+        {
+          "path": "crates/content-runtime-bridge/src/cooked.rs",
+          "sha256": "d0f129047cd80b4eff10683596ed7f6f438cc69f692b5293cb92399598b49013"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "services/browser-gateway/src/lib.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "services/browser-gateway/tests/native_contract.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-services/tests/session_contract.rs"
+        }
+      ],
+      "id": "legacy-gateway",
+      "notes": "The existing gateway authenticates against original account HTTP and Aries/TCP services. Its native.rs name does not mean a new authoritative Rust lot or SQL claim store. Session correlation, original directory/lot admission and legacy messages remain separate from F-owned native runtime envelopes. Do not infer complete W13-W15 services or production native endpoints from the controlled browser fixtures.",
+      "owner": "E",
+      "realm": "legacy",
+      "sources": [
+        {
+          "path": "services/browser-gateway/src/server.rs",
+          "sha256": "8a681fa63c8b845f95bc1090ad29b41c130310e9c6a05601188d5649b6b874bb"
+        },
+        {
+          "path": "services/browser-gateway/src/native.rs",
+          "sha256": "752d3fb08d9114411d6b62efbb10361c2252299b1274772ef7660214567a5d91"
+        },
+        {
+          "path": "crates/game-services/src/gateway.rs",
+          "sha256": "3c545ff1f161645374e7296f8678378a3fe871a6fc2127a0ff23c36b2a898163"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/player-authoring/src/lib.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/vm-protocol/tests/tick_wire.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/vm-protocol/tests/snapshot_wire.rs"
+        }
+      ],
+      "id": "legacy-vmnet",
+      "notes": "This is the original FreeSO compatibility lane. FSOv version 38 is decoded as RefreshOnly presentation, not an A SimState restore or proof of identical RNG consumption. Original VM tick IDs are u32 and random seeds u64; numeric/string/wire conversions are explicit. Original native pre-tick snapshot semantics must not be relabelled native state-after-N. No FSOv-to-native continuous VM translation is established by this source map.",
+      "owner": "D",
+      "realm": "legacy",
+      "sources": [
+        {
+          "path": "crates/vm-protocol/src/lib.rs",
+          "sha256": "26697da0e26e3d41d70aeeae26c31cfa4ee4c78d614aded36ea31a4cd9b87f57"
+        },
+        {
+          "path": "crates/vm-protocol/src/snapshot.rs",
+          "sha256": "62af87166a3c5ca49af4fcb1eae20f5c88d4c70087c1fbef763520307f700431"
+        },
+        {
+          "path": "crates/vm-protocol/src/command.rs",
+          "sha256": "2b6d88bb0edf82e5021e2d01c784c884731a179c7de1bda976ecb141240d4255"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/game-runtime/src/lib.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/runtime_tick.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/runtime_semantics.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/clock_reference.rs"
+        }
+      ],
+      "id": "native-accepted-tick",
+      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion.",
+      "owner": "A",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/sim-core/src/runtime.rs",
+          "sha256": "f4609e5f7d899cd4e2f1d1ab64734f9ee58ac8d589257c30fe8ad8fe605c928a"
+        },
+        {
+          "path": "crates/sim-core/src/clock.rs",
+          "sha256": "33cf7bd221fa1b2cdb5e10a15d636a1f4b3170bf09414d910d4dec79cab0d2b0"
+        },
+        {
+          "path": "crates/sim-core/src/rng.rs",
+          "sha256": "d224667b01127201064f199cef9bd58028b744b366536deb5a11f659a93120c5"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/game-runtime/src/live_session.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/snapshot_contract.rs"
+        }
+      ],
+      "id": "native-checkpoint",
+      "notes": "WLDSNAP with format version 1 and separately versioned simulation state is state AFTER completed tick N; accepted tail begins N+1. Fixed-width little-endian canonical payload, content/lot/epoch and semantic validation are distinct from transport authentication. The checksum is corruption detection, not an ownership grant or a database ledger. Historical avatar bone channels and private EOD provider state must not be guessed from this public snapshot.",
+      "owner": "A",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/sim-core/src/snapshot.rs",
+          "sha256": "2c751e5d3959a15b77e037b604bc5106bda69d6a7f5d1348354c0f280e61b2b7"
+        },
+        {
+          "path": "crates/sim-core/src/state.rs",
+          "sha256": "fb703f39f4c061cae99848562769dc1deab116d03a764fffc0a8df6066f8ffa3"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/sim-core/src/runtime.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/effect_boundary.rs"
+        }
+      ],
+      "id": "native-effects",
+      "notes": "OperationId contains a big-endian u64 namespace plus a monotonically allocated nonce in 16 bytes; epochs are separate fencing credentials. The stable operation identity survives retries/takeover. Public typed continuation data does not authorize arbitrary memory writes, restore money, execute transactions or contain private EOD state. E must authenticate/reconcile durable outcomes and avoid charging twice after lost receipts; that production provider is not proved here.",
+      "owner": "A",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/sim-core/src/effects.rs",
+          "sha256": "d7e656f734ce4331279196551663ba0df90e6428109cc9e02c1a1764cf7de665"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/sim-core/src/runtime.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/numeric_reference.rs"
+        }
+      ],
+      "id": "native-identity",
+      "notes": "ObjectId is signed i16; raw zero/negative sentinels remain representable but only positive IDs and nonzero u32 generations denote live native entities. PersistentId is u32. Preserve exact widths and generation checks across browser/service mappings; presentation string IDs are a separate domain.",
+      "owner": "A",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/sim-core/src/ids.rs",
+          "sha256": "38c175e6778d8f0917be5bfccd46734ab0cfe4ecef38a3352895970345ae84b6"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "apps/web-shell/src/native_lot.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/native_player.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/native_player_admission.rs"
+        }
+      ],
+      "id": "native-player-admission",
+      "notes": "Current WLB1 bootstrap, WLC1 invocation/cancellation and WLA1 correlated acknowledgement are distinct from WLR1 replay. Admitted source_epoch/lot_incarnation are u64 and avatar_id/lot_location u32. The server supplies the authenticated principal/actor and revalidates the exact source action and current queue under its authority lock. A matching receipt is not VM completion or durable transaction truth; unresolved writes stay Unknown and are not replayed. Declared bootstrap content and the local test authority do not supply production account, claims or persistence services.",
+      "owner": "F",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/game-runtime/src/live_wire/player.rs",
+          "sha256": "0d64b255bbaad622528757f674f00f2675125d9a66210d880c8eca172c49b013"
+        },
+        {
+          "path": "crates/game-runtime/src/live_wire/player/admission.rs",
+          "sha256": "e8aa449f2d38910f9b4323b969ccfbc8a5e828cfa4e2c7f852b6375709528244"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/game-runtime/src/live_wire.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/live_session.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/live_session/recovery.rs"
+        }
+      ],
+      "id": "native-replay",
+      "notes": "Browser/source/lot identity and local callback/request generations fence recovery. Accepted batches commit only after all ticks/post-state hashes validate; failures expose no prefix. Checkpoints cannot rewind the committed cursor, and older checkpoints must cross its exact hash with a contiguous tail. Recovered historical presentation outcomes and duplicate ticks are not new effects. Per-tick avatar samples are bounded presentation traces, not a second simulation or altered wire ABI.",
+      "owner": "F",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/game-runtime/src/live_session.rs",
+          "sha256": "eb1f1c475cc0779497afd1354d44a36c56a88fe2df5560484671200e3d83ae6f"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "apps/web-shell/src/native_avatar.rs",
+        "apps/web-shell/src/native_lot.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/avatar_replay.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/world_projection.rs"
+        },
+        {
+          "kind": "extracted-reference-not-executed",
+          "path": "crates/sim-core/tests/avatar_source_reference.rs"
+        }
+      ],
+      "id": "native-visual-projection",
+      "notes": "Read-only world/appearance and per-accepted-tick avatar frames consume native state with explicit source resources and identities. Camera/GPU tickets and retained bone history confer no simulation authority. Missing models/resources stay diagnosed; fresh checkpoint or exhausted presentation history resets missing channels instead of inventing them. Client #35 terrain and #38 audio are separate branch inputs requiring map refresh when integrated; this intake is pinned to #39/#40.",
+      "owner": "C",
+      "realm": "native-presentation",
+      "sources": [
+        {
+          "path": "crates/game-runtime/src/avatar_projection.rs",
+          "sha256": "363b8e24967829576898c0c180384c1de0f8f0d763abba4502169ff42acffa65"
+        },
+        {
+          "path": "crates/game-runtime/src/world_projection.rs",
+          "sha256": "dbf42d3291dd7d07ba865813f223d5ca90407a50777b32d16d510c173c73e307"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/game-runtime/src/live_wire/player.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/game-runtime/tests/live_wire.rs"
+        }
+      ],
+      "id": "native-wire",
+      "notes": "WLR1 is the current native checkpoint/tick framing, not FSOv/VMNet. It uses bounded canonical fixed-width little-endian native serialization and local connection/request correlation. Pass native u64 values as bytes rather than JavaScript Number. Guarded allocation/depth credits are not a process-RSS limit. Transport still owns prebuffer message bounds, authenticated admission, revocation and overload policy.",
+      "owner": "F",
+      "realm": "native",
+      "sources": [
+        {
+          "path": "crates/game-runtime/src/live_wire.rs",
+          "sha256": "92e4028506295e5190b4312ce0e60f341c5f1f6106dc301ad5e33b24b037584f"
+        },
+        {
+          "path": "crates/game-runtime/src/live_wire/guard.rs",
+          "sha256": "3f73a20b121f287a450bed726d8e7165f172a0e005bf7925f44ef9bcd68e31ee"
+        }
+      ],
+      "status": "observed-not-frozen"
+    },
+    {
+      "consumers": [
+        "crates/client-app/src/lib.rs"
+      ],
+      "evidence": [
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/contracts/tests/capability_preservation.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/contracts/tests/fixture.rs"
+        }
+      ],
+      "id": "ui-preview",
+      "notes": "Opaque presentation IDs and display Availability are not native object IDs, permissions, or a multiplayer wire ABI. The existing EntityRef uses a string ObjectId and u64 generation; do not cast it into the source-width native EntityRef. This map does not freeze or upgrade the UI contract.",
+      "owner": "D",
+      "realm": "presentation",
+      "sources": [
+        {
+          "path": "crates/contracts/src/lib.rs",
+          "sha256": "482f9404cf0cf9b910a0157632085b8eefe020e855f26f8fc7a0a57ebcf3386c"
+        }
+      ],
+      "status": "observed-not-frozen"
+    }
+  ],
+  "inspected_commit": "a453894c83969f8bdfa1f584e1c763c8231e9fc3",
+  "open_decisions": [
+    "Review and freeze the real native service/session/claim envelope with A/B/E and local Codex; current observed source pins are not a completed ABI freeze.",
+    "Evaluate the three SDK projects, imported targets, transitive ProjectReferences, source registries and effective resource cohorts before claiming a complete active capability census.",
+    "Reconcile original C# extracted probes and the real original runtime harness; native=WASM is not original-engine differential equivalence.",
+    "Establish independent authenticated players, fenced SQL claims and stable durable operations against real providers; fixture replicas of one actor are not W17.2 acceptance.",
+    "Define explicit exclusion/projection of private EOD state before production snapshot/hash/trace qualification; public payload comments alone are not a privacy audit.",
+    "Coordinate #35/#38 runtime-interface changes and #37 overlap with local Codex; refresh pins only alongside reviewed mapping changes and rerun the appropriate original gates."
+  ],
+  "schema": 1
+}
