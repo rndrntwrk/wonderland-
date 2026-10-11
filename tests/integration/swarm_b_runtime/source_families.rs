@@ -72,7 +72,13 @@ fn source_entries_keep_missing_global_calls_and_replay_their_real_error() {
             "{}",
             source.name
         );
-        assert_eq!(result["query"]["stop"]["Completed"], "Error");
+        // The integrated runtime deliberately faults unsupported source calls;
+        // they must never masquerade as a completed behavior result.
+        let fault = result["query"]["stop"]["Faulted"]["HostUnsupported"]
+            .as_str()
+            .expect("missing global routine must fault as unsupported");
+        assert!(fault.contains("MissingRoutine") && fault.contains("id: 280"));
+        assert!(result["query"]["stop"].get("Completed").is_none());
         assert_eq!(result["accepted"]["authority_matches"], true);
         assert!(!harness.unresolved_calls().is_empty());
     }
