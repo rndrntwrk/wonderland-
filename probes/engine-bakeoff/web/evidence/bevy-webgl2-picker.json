@@ -1,0 +1,1153 @@
+{
+  "variant": "bevy-webgl2",
+  "scenes": [
+    {
+      "mode": "full2d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 297,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 420,
+            "y": 219,
+            "object_id": 1013,
+            "generation": 1,
+            "kind": "entity-1013"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1013
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 351,
+            "y": 189,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 291,
+            "y": 192,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 327,
+            "y": 201,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 420,
+            "y": 219,
+            "object_id": 1013,
+            "generation": 1,
+            "kind": "entity-1013"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1013
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "full3d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 318,
+            "y": 60,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 282,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 402,
+            "y": 222,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 393,
+            "y": 225,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 432,
+            "y": 231,
+            "object_id": 1004,
+            "generation": 1,
+            "kind": "entity-1004"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1004
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 237,
+            "object_id": 1014,
+            "generation": 1,
+            "kind": "entity-1014"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1014
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 426,
+            "y": 240,
+            "object_id": 1009,
+            "generation": 1,
+            "kind": "entity-1009"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1009
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "full2d",
+      "avatars": 64,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 297,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 225,
+            "y": 204,
+            "object_id": 1035,
+            "generation": 1,
+            "kind": "entity-1035"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1035
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 64,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 351,
+            "y": 189,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 291,
+            "y": 192,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 327,
+            "y": 201,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 225,
+            "y": 204,
+            "object_id": 1035,
+            "generation": 1,
+            "kind": "entity-1035"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1035
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "full3d",
+      "avatars": 64,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 318,
+            "y": 60,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 282,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 402,
+            "y": 222,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 261,
+            "y": 225,
+            "object_id": 1035,
+            "generation": 1,
+            "kind": "entity-1035"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1035
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 393,
+            "y": 225,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 252,
+            "y": 231,
+            "object_id": 1040,
+            "generation": 1,
+            "kind": "entity-1040"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1040
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 432,
+            "y": 231,
+            "object_id": 1004,
+            "generation": 1,
+            "kind": "entity-1004"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1004
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    }
+  ],
+  "raw": [],
+  "console": [],
+  "presentationQualified": false,
+  "artifact": {
+    "path": "web/pkg/bevy-webgl2/engine_bg.wasm",
+    "sha256": "a78287e0f1f5ca7d64eefc913eef2fb432eca754bb7bd65fa8426b702e17f927",
+    "profile": "dev-opt1-debug0"
+  },
+  "browser": "141.0.7390.37",
+  "args": [
+    "--use-gl=angle",
+    "--use-angle=swiftshader-webgl",
+    "--enable-unsafe-swiftshader"
+  ]
+}

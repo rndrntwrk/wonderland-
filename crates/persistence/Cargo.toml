@@ -1,0 +1,15 @@
+[package]
+name = "wonderland-persistence"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "MPL-2.0"
+
+# Isolated W15.1 leaf; no change to F's root workspace or shared contracts.
+[workspace]
+
+[dependencies]
+sqlx = { version = "=0.8.6", default-features = false, features = ["runtime-tokio", "tls-rustls-ring", "mysql"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }

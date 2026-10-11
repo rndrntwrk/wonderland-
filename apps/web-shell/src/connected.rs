@@ -21,7 +21,7 @@ pub fn ConnectedGame(
     #[prop(into)] gateway_url: String,
     #[prop(default = false)] native_lots: bool,
 ) -> impl IntoView {
-    let ui = ConnectedUi::new(gateway_url);
+    let ui = ConnectedUi::new(gateway_url, !native_lots);
     let content = ContentUi::new();
     provide_context(ui);
     provide_context(crate::connected_authoring::SourceAuthoringUi::attach(ui));

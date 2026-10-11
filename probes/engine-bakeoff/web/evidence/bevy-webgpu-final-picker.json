@@ -1,0 +1,5004 @@
+{
+  "variant": "bevy-webgpu",
+  "observations": [
+    {
+      "avatars": 32,
+      "engine": "bevy-0.19.1",
+      "actualBackend": "webgpu",
+      "adapter": {
+        "vendor": "google",
+        "architecture": "swiftshader",
+        "device": "",
+        "description": "",
+        "requestedOptions": {
+          "powerPreference": "high-performance"
+        },
+        "observation": "engine canvas configure",
+        "format": "bgra8unorm",
+        "alphaMode": "opaque"
+      },
+      "wasmMemoryShared": false,
+      "crossOriginIsolated": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "avatars": 64,
+      "engine": "bevy-0.19.1",
+      "actualBackend": "webgpu",
+      "adapter": {
+        "vendor": "google",
+        "architecture": "swiftshader",
+        "device": "",
+        "description": "",
+        "requestedOptions": {
+          "powerPreference": "high-performance"
+        },
+        "observation": "engine canvas configure",
+        "format": "bgra8unorm",
+        "alphaMode": "opaque"
+      },
+      "wasmMemoryShared": false,
+      "crossOriginIsolated": false,
+      "devicePixelRatio": 1
+    }
+  ],
+  "scenes": [
+    {
+      "mode": "full2d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 297,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 420,
+            "y": 219,
+            "object_id": 1013,
+            "generation": 1,
+            "kind": "entity-1013"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1013
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 351,
+            "y": 189,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 291,
+            "y": 192,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 327,
+            "y": 201,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 420,
+            "y": 219,
+            "object_id": 1013,
+            "generation": 1,
+            "kind": "entity-1013"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1013
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "full3d",
+      "avatars": 32,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 318,
+            "y": 60,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 282,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 402,
+            "y": 222,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 393,
+            "y": 225,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 432,
+            "y": 231,
+            "object_id": 1004,
+            "generation": 1,
+            "kind": "entity-1004"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1004
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 237,
+            "object_id": 1014,
+            "generation": 1,
+            "kind": "entity-1014"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1014
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 426,
+            "y": 240,
+            "object_id": 1009,
+            "generation": 1,
+            "kind": "entity-1009"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1009
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "full2d",
+      "avatars": 64,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 297,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 225,
+            "y": 204,
+            "object_id": 1035,
+            "generation": 1,
+            "kind": "entity-1035"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1035
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 64,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 351,
+            "y": 189,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 291,
+            "y": 192,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 417,
+            "y": 195,
+            "object_id": 1002,
+            "generation": 1,
+            "kind": "entity-1002"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1002
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 240,
+            "y": 198,
+            "object_id": 1030,
+            "generation": 1,
+            "kind": "entity-1030"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1030
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 327,
+            "y": 201,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 450,
+            "y": 201,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 225,
+            "y": 204,
+            "object_id": 1035,
+            "generation": 1,
+            "kind": "entity-1035"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1035
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 435,
+            "y": 210,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    },
+    {
+      "mode": "full3d",
+      "avatars": 64,
+      "picks": [
+        {
+          "point": {
+            "x": 3,
+            "y": 3,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "background"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 318,
+            "y": 60,
+            "object_id": 0,
+            "generation": 0,
+            "kind": "ownerless"
+          },
+          "selection": null,
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 282,
+            "y": 153,
+            "object_id": 100,
+            "generation": 1,
+            "kind": "entity-100"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 339,
+            "y": 153,
+            "object_id": 101,
+            "generation": 1,
+            "kind": "entity-101"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 101
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 315,
+            "y": 165,
+            "object_id": 102,
+            "generation": 1,
+            "kind": "entity-102"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 102
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 402,
+            "y": 222,
+            "object_id": 1003,
+            "generation": 1,
+            "kind": "entity-1003"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1003
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 261,
+            "y": 225,
+            "object_id": 1035,
+            "generation": 1,
+            "kind": "entity-1035"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1035
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 393,
+            "y": 225,
+            "object_id": 1008,
+            "generation": 1,
+            "kind": "entity-1008"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1008
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 252,
+            "y": 231,
+            "object_id": 1040,
+            "generation": 1,
+            "kind": "entity-1040"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1040
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        },
+        {
+          "point": {
+            "x": 432,
+            "y": 231,
+            "object_id": 1004,
+            "generation": 1,
+            "kind": "entity-1004"
+          },
+          "selection": {
+            "generation": 1,
+            "object_id": 1004
+          },
+          "state": "completed",
+          "error": null,
+          "source": "gpu-id-readback-generation-checked"
+        }
+      ],
+      "interruptions": [
+        {
+          "interrupt": "reloadFixture",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "suspend",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        },
+        {
+          "interrupt": "simulateLoss",
+          "state": "cancelled",
+          "selection": {
+            "generation": 1,
+            "object_id": 100
+          },
+          "actualGpuCompletionDelayed": true
+        }
+      ]
+    }
+  ],
+  "raw": [
+    {
+      "mode": "full2d",
+      "avatars": 32,
+      "pass": "color",
+      "readback": {
+        "request": 1,
+        "stage": "mapped",
+        "elapsedMs": 224,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "8a02eb6628b45fc1a9fe4a1724f9409e39a5c45f5803dc36534143448b5d7b8e",
+          "mode": "full2d",
+          "pass": "color",
+          "lastCommand": 25
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 23,
+            "textureSerial": 131
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 26,
+            "textureSerial": 131
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 27,
+            "textureSerial": 131,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 28
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 63
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 142
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "8a02eb6628b45fc1a9fe4a1724f9409e39a5c45f5803dc36534143448b5d7b8e",
+        "mode": "full2d",
+        "pass": "color",
+        "lastCommand": 25
+      },
+      "color": {
+        "meanAbsoluteByteError": 0.07194552951388888,
+        "rootMeanSquareByteError": 2.807496127371921,
+        "maximumByteError": 255,
+        "channelFractionOver8": 0.0007150607638888889
+      }
+    },
+    {
+      "mode": "full2d",
+      "avatars": 32,
+      "pass": "pick",
+      "readback": {
+        "request": 2,
+        "stage": "mapped",
+        "elapsedMs": 246,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "8a02eb6628b45fc1a9fe4a1724f9409e39a5c45f5803dc36534143448b5d7b8e",
+          "mode": "full2d",
+          "pass": "pick",
+          "lastCommand": 26
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 19,
+            "textureSerial": 146
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 25,
+            "textureSerial": 146
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 26,
+            "textureSerial": 146,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 26
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 79
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 148
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "8a02eb6628b45fc1a9fe4a1724f9409e39a5c45f5803dc36534143448b5d7b8e",
+        "mode": "full2d",
+        "pass": "pick",
+        "lastCommand": 26
+      },
+      "ids": {
+        "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+        "width": 640,
+        "height": 480,
+        "checked": 3799,
+        "mismatched": 0,
+        "ownerlessOcclusionChecked": 1540,
+        "groups": [
+          {
+            "identity": "0:0",
+            "checked": 3528,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 3,
+                "y": 3
+              },
+              {
+                "x": 28,
+                "y": 3
+              },
+              {
+                "x": 53,
+                "y": 3
+              }
+            ]
+          },
+          {
+            "identity": "100:1",
+            "checked": 94,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 298,
+                "y": 153
+              },
+              {
+                "x": 303,
+                "y": 153
+              },
+              {
+                "x": 308,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "101:1",
+            "checked": 79,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 338,
+                "y": 153
+              },
+              {
+                "x": 343,
+                "y": 153
+              },
+              {
+                "x": 348,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "102:1",
+            "checked": 27,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 318,
+                "y": 163
+              },
+              {
+                "x": 328,
+                "y": 163
+              },
+              {
+                "x": 328,
+                "y": 168
+              }
+            ]
+          },
+          {
+            "identity": "1030:1",
+            "checked": 11,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 243,
+                "y": 198
+              },
+              {
+                "x": 238,
+                "y": 203
+              },
+              {
+                "x": 238,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "1003:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 448,
+                "y": 203
+              },
+              {
+                "x": 453,
+                "y": 203
+              },
+              {
+                "x": 448,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "1008:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 433,
+                "y": 213
+              },
+              {
+                "x": 433,
+                "y": 218
+              },
+              {
+                "x": 433,
+                "y": 223
+              }
+            ]
+          },
+          {
+            "identity": "1013:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 418,
+                "y": 218
+              },
+              {
+                "x": 418,
+                "y": 223
+              },
+              {
+                "x": 418,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1004:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 488,
+                "y": 223
+              },
+              {
+                "x": 488,
+                "y": 228
+              },
+              {
+                "x": 488,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1009:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 473,
+                "y": 228
+              },
+              {
+                "x": 473,
+                "y": 233
+              },
+              {
+                "x": 473,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1014:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 458,
+                "y": 238
+              },
+              {
+                "x": 458,
+                "y": 243
+              },
+              {
+                "x": 458,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1019:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 443,
+                "y": 243
+              },
+              {
+                "x": 438,
+                "y": 248
+              },
+              {
+                "x": 443,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1024:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 428,
+                "y": 253
+              },
+              {
+                "x": 428,
+                "y": 258
+              },
+              {
+                "x": 428,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1029:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 413,
+                "y": 258
+              },
+              {
+                "x": 403,
+                "y": 263
+              },
+              {
+                "x": 413,
+                "y": 263
+              }
+            ]
+          }
+        ],
+        "examples": []
+      }
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 32,
+      "pass": "color",
+      "readback": {
+        "request": 3,
+        "stage": "mapped",
+        "elapsedMs": 254,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "48a136a66cced234d1de22451ba90d86ab261bac298b3472dc408d4709ec58e4",
+          "mode": "hybrid2d",
+          "pass": "color",
+          "lastCommand": 51
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 22,
+            "textureSerial": 281
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 26,
+            "textureSerial": 281
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 26,
+            "textureSerial": 281,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 27
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 73
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 171
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "48a136a66cced234d1de22451ba90d86ab261bac298b3472dc408d4709ec58e4",
+        "mode": "hybrid2d",
+        "pass": "color",
+        "lastCommand": 51
+      },
+      "color": {
+        "meanAbsoluteByteError": 0.19409722222222223,
+        "rootMeanSquareByteError": 3.13381707535803,
+        "maximumByteError": 255,
+        "channelFractionOver8": 0.006156684027777777
+      }
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 32,
+      "pass": "pick",
+      "readback": {
+        "request": 4,
+        "stage": "mapped",
+        "elapsedMs": 315,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "48a136a66cced234d1de22451ba90d86ab261bac298b3472dc408d4709ec58e4",
+          "mode": "hybrid2d",
+          "pass": "pick",
+          "lastCommand": 52
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 23,
+            "textureSerial": 297
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 27,
+            "textureSerial": 297
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 28,
+            "textureSerial": 297,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 28
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 106
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 230
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "48a136a66cced234d1de22451ba90d86ab261bac298b3472dc408d4709ec58e4",
+        "mode": "hybrid2d",
+        "pass": "pick",
+        "lastCommand": 52
+      },
+      "ids": {
+        "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+        "width": 640,
+        "height": 480,
+        "checked": 3879,
+        "mismatched": 0,
+        "ownerlessOcclusionChecked": 1718,
+        "groups": [
+          {
+            "identity": "0:0",
+            "checked": 3692,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 3,
+                "y": 3
+              },
+              {
+                "x": 28,
+                "y": 3
+              },
+              {
+                "x": 53,
+                "y": 3
+              }
+            ]
+          },
+          {
+            "identity": "101:1",
+            "checked": 47,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 353,
+                "y": 188
+              },
+              {
+                "x": 343,
+                "y": 193
+              },
+              {
+                "x": 348,
+                "y": 193
+              }
+            ]
+          },
+          {
+            "identity": "100:1",
+            "checked": 51,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 293,
+                "y": 193
+              },
+              {
+                "x": 288,
+                "y": 198
+              },
+              {
+                "x": 293,
+                "y": 198
+              }
+            ]
+          },
+          {
+            "identity": "1030:1",
+            "checked": 11,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 243,
+                "y": 198
+              },
+              {
+                "x": 238,
+                "y": 203
+              },
+              {
+                "x": 238,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "102:1",
+            "checked": 18,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 328,
+                "y": 203
+              },
+              {
+                "x": 328,
+                "y": 208
+              },
+              {
+                "x": 328,
+                "y": 213
+              }
+            ]
+          },
+          {
+            "identity": "1003:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 448,
+                "y": 203
+              },
+              {
+                "x": 453,
+                "y": 203
+              },
+              {
+                "x": 448,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "1008:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 433,
+                "y": 213
+              },
+              {
+                "x": 433,
+                "y": 218
+              },
+              {
+                "x": 433,
+                "y": 223
+              }
+            ]
+          },
+          {
+            "identity": "1013:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 418,
+                "y": 218
+              },
+              {
+                "x": 418,
+                "y": 223
+              },
+              {
+                "x": 418,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1004:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 488,
+                "y": 223
+              },
+              {
+                "x": 488,
+                "y": 228
+              },
+              {
+                "x": 488,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1009:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 473,
+                "y": 228
+              },
+              {
+                "x": 473,
+                "y": 233
+              },
+              {
+                "x": 473,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1014:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 458,
+                "y": 238
+              },
+              {
+                "x": 458,
+                "y": 243
+              },
+              {
+                "x": 458,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1019:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 443,
+                "y": 243
+              },
+              {
+                "x": 438,
+                "y": 248
+              },
+              {
+                "x": 443,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1024:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 428,
+                "y": 253
+              },
+              {
+                "x": 428,
+                "y": 258
+              },
+              {
+                "x": 428,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1029:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 413,
+                "y": 258
+              },
+              {
+                "x": 403,
+                "y": 263
+              },
+              {
+                "x": 413,
+                "y": 263
+              }
+            ]
+          }
+        ],
+        "examples": []
+      }
+    },
+    {
+      "mode": "full3d",
+      "avatars": 32,
+      "pass": "color",
+      "readback": {
+        "request": 5,
+        "stage": "mapped",
+        "elapsedMs": 191,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "db5037d950947f3e6c9cafb1cf0c5e42399d85acc72c613173ad8a8aa6a3470e",
+          "mode": "full3d",
+          "pass": "color",
+          "lastCommand": 77
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 15,
+            "textureSerial": 436
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 18,
+            "textureSerial": 436
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 19,
+            "textureSerial": 436,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 19
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 55
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 111
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "db5037d950947f3e6c9cafb1cf0c5e42399d85acc72c613173ad8a8aa6a3470e",
+        "mode": "full3d",
+        "pass": "color",
+        "lastCommand": 77
+      },
+      "color": {
+        "meanAbsoluteByteError": 0.08030056423611111,
+        "rootMeanSquareByteError": 1.8335301149126695,
+        "maximumByteError": 233,
+        "channelFractionOver8": 0.002758246527777778
+      }
+    },
+    {
+      "mode": "full3d",
+      "avatars": 32,
+      "pass": "pick",
+      "readback": {
+        "request": 6,
+        "stage": "mapped",
+        "elapsedMs": 205,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "db5037d950947f3e6c9cafb1cf0c5e42399d85acc72c613173ad8a8aa6a3470e",
+          "mode": "full3d",
+          "pass": "pick",
+          "lastCommand": 78
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 18,
+            "textureSerial": 450
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 21,
+            "textureSerial": 450
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 21,
+            "textureSerial": 450,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 22
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 61
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 120
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "db5037d950947f3e6c9cafb1cf0c5e42399d85acc72c613173ad8a8aa6a3470e",
+        "mode": "full3d",
+        "pass": "pick",
+        "lastCommand": 78
+      },
+      "ids": {
+        "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+        "width": 640,
+        "height": 480,
+        "checked": 3150,
+        "mismatched": 0,
+        "ownerlessOcclusionChecked": 847,
+        "groups": [
+          {
+            "identity": "0:0",
+            "checked": 3020,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 3,
+                "y": 3
+              },
+              {
+                "x": 28,
+                "y": 3
+              },
+              {
+                "x": 53,
+                "y": 3
+              }
+            ]
+          },
+          {
+            "identity": "100:1",
+            "checked": 48,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 283,
+                "y": 153
+              },
+              {
+                "x": 288,
+                "y": 153
+              },
+              {
+                "x": 293,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "101:1",
+            "checked": 51,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 338,
+                "y": 153
+              },
+              {
+                "x": 343,
+                "y": 153
+              },
+              {
+                "x": 348,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "102:1",
+            "checked": 19,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 318,
+                "y": 163
+              },
+              {
+                "x": 323,
+                "y": 163
+              },
+              {
+                "x": 328,
+                "y": 163
+              }
+            ]
+          },
+          {
+            "identity": "1003:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 403,
+                "y": 223
+              }
+            ]
+          },
+          {
+            "identity": "1008:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 393,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1004:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 433,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1019:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 408,
+                "y": 243
+              },
+              {
+                "x": 408,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1014:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 418,
+                "y": 243
+              }
+            ]
+          },
+          {
+            "identity": "1024:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 398,
+                "y": 253
+              },
+              {
+                "x": 398,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1029:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 388,
+                "y": 263
+              },
+              {
+                "x": 393,
+                "y": 263
+              },
+              {
+                "x": 388,
+                "y": 268
+              }
+            ]
+          }
+        ],
+        "examples": []
+      }
+    },
+    {
+      "mode": "full2d",
+      "avatars": 64,
+      "pass": "color",
+      "readback": {
+        "request": 1,
+        "stage": "mapped",
+        "elapsedMs": 309,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "24139c48a2e69181315c39baf10f2f241817749370cd179b1397dc60ba7e9edd",
+          "mode": "full2d",
+          "pass": "color",
+          "lastCommand": 25
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 23,
+            "textureSerial": 126
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 30,
+            "textureSerial": 126
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 31,
+            "textureSerial": 126,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 31
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 101
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 213
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "24139c48a2e69181315c39baf10f2f241817749370cd179b1397dc60ba7e9edd",
+        "mode": "full2d",
+        "pass": "color",
+        "lastCommand": 25
+      },
+      "color": {
+        "meanAbsoluteByteError": 0.04530381944444444,
+        "rootMeanSquareByteError": 2.361481078040738,
+        "maximumByteError": 255,
+        "channelFractionOver8": 0.0004557291666666667
+      }
+    },
+    {
+      "mode": "full2d",
+      "avatars": 64,
+      "pass": "pick",
+      "readback": {
+        "request": 2,
+        "stage": "mapped",
+        "elapsedMs": 266,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "24139c48a2e69181315c39baf10f2f241817749370cd179b1397dc60ba7e9edd",
+          "mode": "full2d",
+          "pass": "pick",
+          "lastCommand": 26
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 12,
+            "textureSerial": 139
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 20,
+            "textureSerial": 139
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 21,
+            "textureSerial": 139,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 25
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 80
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 167
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "24139c48a2e69181315c39baf10f2f241817749370cd179b1397dc60ba7e9edd",
+        "mode": "full2d",
+        "pass": "pick",
+        "lastCommand": 26
+      },
+      "ids": {
+        "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+        "width": 640,
+        "height": 480,
+        "checked": 3279,
+        "mismatched": 0,
+        "ownerlessOcclusionChecked": 889,
+        "groups": [
+          {
+            "identity": "0:0",
+            "checked": 2860,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 3,
+                "y": 3
+              },
+              {
+                "x": 28,
+                "y": 3
+              },
+              {
+                "x": 53,
+                "y": 3
+              }
+            ]
+          },
+          {
+            "identity": "100:1",
+            "checked": 94,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 298,
+                "y": 153
+              },
+              {
+                "x": 303,
+                "y": 153
+              },
+              {
+                "x": 308,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "101:1",
+            "checked": 76,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 338,
+                "y": 153
+              },
+              {
+                "x": 343,
+                "y": 153
+              },
+              {
+                "x": 348,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "102:1",
+            "checked": 27,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 318,
+                "y": 163
+              },
+              {
+                "x": 328,
+                "y": 163
+              },
+              {
+                "x": 328,
+                "y": 168
+              }
+            ]
+          },
+          {
+            "identity": "1030:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 243,
+                "y": 198
+              },
+              {
+                "x": 238,
+                "y": 203
+              },
+              {
+                "x": 238,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "1003:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 448,
+                "y": 203
+              },
+              {
+                "x": 453,
+                "y": 203
+              },
+              {
+                "x": 448,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "1040:1",
+            "checked": 10,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 208,
+                "y": 213
+              },
+              {
+                "x": 213,
+                "y": 213
+              },
+              {
+                "x": 208,
+                "y": 218
+              }
+            ]
+          },
+          {
+            "identity": "1035:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 223,
+                "y": 213
+              },
+              {
+                "x": 228,
+                "y": 213
+              },
+              {
+                "x": 223,
+                "y": 218
+              }
+            ]
+          },
+          {
+            "identity": "1008:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 433,
+                "y": 213
+              },
+              {
+                "x": 433,
+                "y": 218
+              },
+              {
+                "x": 433,
+                "y": 223
+              }
+            ]
+          },
+          {
+            "identity": "1013:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 418,
+                "y": 218
+              },
+              {
+                "x": 418,
+                "y": 223
+              },
+              {
+                "x": 418,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1045:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 193,
+                "y": 223
+              },
+              {
+                "x": 193,
+                "y": 228
+              },
+              {
+                "x": 193,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1004:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 488,
+                "y": 223
+              },
+              {
+                "x": 488,
+                "y": 228
+              },
+              {
+                "x": 488,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1050:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 178,
+                "y": 228
+              },
+              {
+                "x": 178,
+                "y": 233
+              },
+              {
+                "x": 178,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1009:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 473,
+                "y": 228
+              },
+              {
+                "x": 473,
+                "y": 233
+              },
+              {
+                "x": 473,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1041:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 248,
+                "y": 233
+              },
+              {
+                "x": 248,
+                "y": 238
+              },
+              {
+                "x": 248,
+                "y": 243
+              }
+            ]
+          },
+          {
+            "identity": "1055:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 163,
+                "y": 238
+              },
+              {
+                "x": 163,
+                "y": 243
+              },
+              {
+                "x": 163,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1046:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 233,
+                "y": 238
+              },
+              {
+                "x": 233,
+                "y": 243
+              },
+              {
+                "x": 233,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1036:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 278,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1014:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 458,
+                "y": 238
+              },
+              {
+                "x": 458,
+                "y": 243
+              },
+              {
+                "x": 458,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1037:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 303,
+                "y": 243
+              },
+              {
+                "x": 303,
+                "y": 248
+              },
+              {
+                "x": 303,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1019:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 443,
+                "y": 243
+              },
+              {
+                "x": 438,
+                "y": 248
+              },
+              {
+                "x": 443,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1060:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 138,
+                "y": 248
+              },
+              {
+                "x": 148,
+                "y": 248
+              },
+              {
+                "x": 148,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1051:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 218,
+                "y": 248
+              },
+              {
+                "x": 218,
+                "y": 253
+              },
+              {
+                "x": 218,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1042:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 288,
+                "y": 248
+              },
+              {
+                "x": 288,
+                "y": 253
+              },
+              {
+                "x": 288,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1056:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 203,
+                "y": 253
+              },
+              {
+                "x": 203,
+                "y": 258
+              },
+              {
+                "x": 203,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1033:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 358,
+                "y": 253
+              },
+              {
+                "x": 358,
+                "y": 258
+              },
+              {
+                "x": 358,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1024:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 428,
+                "y": 253
+              },
+              {
+                "x": 428,
+                "y": 258
+              },
+              {
+                "x": 428,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1047:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 273,
+                "y": 258
+              },
+              {
+                "x": 273,
+                "y": 263
+              },
+              {
+                "x": 273,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1038:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 343,
+                "y": 258
+              },
+              {
+                "x": 343,
+                "y": 263
+              },
+              {
+                "x": 343,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1029:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 413,
+                "y": 258
+              },
+              {
+                "x": 413,
+                "y": 263
+              },
+              {
+                "x": 413,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1061:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 188,
+                "y": 263
+              },
+              {
+                "x": 188,
+                "y": 268
+              },
+              {
+                "x": 188,
+                "y": 273
+              }
+            ]
+          },
+          {
+            "identity": "1052:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 258,
+                "y": 263
+              },
+              {
+                "x": 258,
+                "y": 268
+              },
+              {
+                "x": 258,
+                "y": 273
+              }
+            ]
+          },
+          {
+            "identity": "1043:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 328,
+                "y": 268
+              },
+              {
+                "x": 328,
+                "y": 273
+              },
+              {
+                "x": 328,
+                "y": 278
+              }
+            ]
+          },
+          {
+            "identity": "1034:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 398,
+                "y": 268
+              },
+              {
+                "x": 398,
+                "y": 273
+              },
+              {
+                "x": 398,
+                "y": 278
+              }
+            ]
+          },
+          {
+            "identity": "1057:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 243,
+                "y": 273
+              },
+              {
+                "x": 243,
+                "y": 278
+              },
+              {
+                "x": 243,
+                "y": 283
+              }
+            ]
+          },
+          {
+            "identity": "1048:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 313,
+                "y": 273
+              },
+              {
+                "x": 313,
+                "y": 278
+              },
+              {
+                "x": 313,
+                "y": 283
+              }
+            ]
+          },
+          {
+            "identity": "1039:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 383,
+                "y": 278
+              },
+              {
+                "x": 383,
+                "y": 283
+              },
+              {
+                "x": 383,
+                "y": 288
+              }
+            ]
+          },
+          {
+            "identity": "1053:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 298,
+                "y": 283
+              },
+              {
+                "x": 298,
+                "y": 293
+              },
+              {
+                "x": 303,
+                "y": 293
+              }
+            ]
+          },
+          {
+            "identity": "1044:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 368,
+                "y": 283
+              },
+              {
+                "x": 363,
+                "y": 288
+              },
+              {
+                "x": 368,
+                "y": 288
+              }
+            ]
+          },
+          {
+            "identity": "1062:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 228,
+                "y": 288
+              },
+              {
+                "x": 228,
+                "y": 293
+              },
+              {
+                "x": 228,
+                "y": 298
+              }
+            ]
+          },
+          {
+            "identity": "1049:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 353,
+                "y": 293
+              },
+              {
+                "x": 348,
+                "y": 298
+              },
+              {
+                "x": 353,
+                "y": 303
+              }
+            ]
+          },
+          {
+            "identity": "1063:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 268,
+                "y": 298
+              },
+              {
+                "x": 263,
+                "y": 303
+              },
+              {
+                "x": 263,
+                "y": 308
+              }
+            ]
+          },
+          {
+            "identity": "1058:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 283,
+                "y": 298
+              },
+              {
+                "x": 283,
+                "y": 303
+              },
+              {
+                "x": 283,
+                "y": 308
+              }
+            ]
+          },
+          {
+            "identity": "1059:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 323,
+                "y": 308
+              },
+              {
+                "x": 318,
+                "y": 313
+              },
+              {
+                "x": 318,
+                "y": 318
+              }
+            ]
+          },
+          {
+            "identity": "1054:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 333,
+                "y": 308
+              },
+              {
+                "x": 338,
+                "y": 308
+              },
+              {
+                "x": 338,
+                "y": 313
+              }
+            ]
+          }
+        ],
+        "examples": []
+      }
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 64,
+      "pass": "color",
+      "readback": {
+        "request": 3,
+        "stage": "mapped",
+        "elapsedMs": 315,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "9c3adbc7b934fd87a0703a0979e438840cc24400de61f286ed4f04a20f0bcd26",
+          "mode": "hybrid2d",
+          "pass": "color",
+          "lastCommand": 51
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 22,
+            "textureSerial": 276
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 25,
+            "textureSerial": 276
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 26,
+            "textureSerial": 276,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 26
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 84
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 207
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "9c3adbc7b934fd87a0703a0979e438840cc24400de61f286ed4f04a20f0bcd26",
+        "mode": "hybrid2d",
+        "pass": "color",
+        "lastCommand": 51
+      },
+      "color": {
+        "meanAbsoluteByteError": 0.1674555121527778,
+        "rootMeanSquareByteError": 2.7414171223186132,
+        "maximumByteError": 255,
+        "channelFractionOver8": 0.005897352430555555
+      }
+    },
+    {
+      "mode": "hybrid2d",
+      "avatars": 64,
+      "pass": "pick",
+      "readback": {
+        "request": 4,
+        "stage": "mapped",
+        "elapsedMs": 288,
+        "acquisitions": 6,
+        "submissions": 12,
+        "stamp": {
+          "sceneHash": "9c3adbc7b934fd87a0703a0979e438840cc24400de61f286ed4f04a20f0bcd26",
+          "mode": "hybrid2d",
+          "pass": "pick",
+          "lastCommand": 52
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 33,
+            "textureSerial": 290
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 46,
+            "textureSerial": 290
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 47,
+            "textureSerial": 290,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 48
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 97
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 187
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "9c3adbc7b934fd87a0703a0979e438840cc24400de61f286ed4f04a20f0bcd26",
+        "mode": "hybrid2d",
+        "pass": "pick",
+        "lastCommand": 52
+      },
+      "ids": {
+        "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+        "width": 640,
+        "height": 480,
+        "checked": 3359,
+        "mismatched": 0,
+        "ownerlessOcclusionChecked": 1067,
+        "groups": [
+          {
+            "identity": "0:0",
+            "checked": 3024,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 3,
+                "y": 3
+              },
+              {
+                "x": 28,
+                "y": 3
+              },
+              {
+                "x": 53,
+                "y": 3
+              }
+            ]
+          },
+          {
+            "identity": "101:1",
+            "checked": 44,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 353,
+                "y": 188
+              },
+              {
+                "x": 343,
+                "y": 193
+              },
+              {
+                "x": 348,
+                "y": 193
+              }
+            ]
+          },
+          {
+            "identity": "100:1",
+            "checked": 51,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 293,
+                "y": 193
+              },
+              {
+                "x": 288,
+                "y": 198
+              },
+              {
+                "x": 293,
+                "y": 198
+              }
+            ]
+          },
+          {
+            "identity": "1030:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 243,
+                "y": 198
+              },
+              {
+                "x": 238,
+                "y": 203
+              },
+              {
+                "x": 238,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "102:1",
+            "checked": 18,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 328,
+                "y": 203
+              },
+              {
+                "x": 328,
+                "y": 208
+              },
+              {
+                "x": 328,
+                "y": 213
+              }
+            ]
+          },
+          {
+            "identity": "1003:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 448,
+                "y": 203
+              },
+              {
+                "x": 453,
+                "y": 203
+              },
+              {
+                "x": 448,
+                "y": 208
+              }
+            ]
+          },
+          {
+            "identity": "1040:1",
+            "checked": 10,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 208,
+                "y": 213
+              },
+              {
+                "x": 213,
+                "y": 213
+              },
+              {
+                "x": 208,
+                "y": 218
+              }
+            ]
+          },
+          {
+            "identity": "1035:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 223,
+                "y": 213
+              },
+              {
+                "x": 228,
+                "y": 213
+              },
+              {
+                "x": 223,
+                "y": 218
+              }
+            ]
+          },
+          {
+            "identity": "1008:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 433,
+                "y": 213
+              },
+              {
+                "x": 433,
+                "y": 218
+              },
+              {
+                "x": 433,
+                "y": 223
+              }
+            ]
+          },
+          {
+            "identity": "1013:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 418,
+                "y": 218
+              },
+              {
+                "x": 418,
+                "y": 223
+              },
+              {
+                "x": 418,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1045:1",
+            "checked": 8,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 193,
+                "y": 223
+              },
+              {
+                "x": 193,
+                "y": 228
+              },
+              {
+                "x": 193,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1004:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 488,
+                "y": 223
+              },
+              {
+                "x": 488,
+                "y": 228
+              },
+              {
+                "x": 488,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1050:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 178,
+                "y": 228
+              },
+              {
+                "x": 178,
+                "y": 233
+              },
+              {
+                "x": 178,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1009:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 473,
+                "y": 228
+              },
+              {
+                "x": 473,
+                "y": 233
+              },
+              {
+                "x": 473,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1041:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 248,
+                "y": 233
+              },
+              {
+                "x": 248,
+                "y": 238
+              },
+              {
+                "x": 248,
+                "y": 243
+              }
+            ]
+          },
+          {
+            "identity": "1055:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 163,
+                "y": 238
+              },
+              {
+                "x": 163,
+                "y": 243
+              },
+              {
+                "x": 163,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1046:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 233,
+                "y": 238
+              },
+              {
+                "x": 233,
+                "y": 243
+              },
+              {
+                "x": 233,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1036:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 278,
+                "y": 238
+              }
+            ]
+          },
+          {
+            "identity": "1014:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 458,
+                "y": 238
+              },
+              {
+                "x": 458,
+                "y": 243
+              },
+              {
+                "x": 458,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1037:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 303,
+                "y": 243
+              },
+              {
+                "x": 303,
+                "y": 248
+              },
+              {
+                "x": 303,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1019:1",
+            "checked": 6,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 443,
+                "y": 243
+              },
+              {
+                "x": 438,
+                "y": 248
+              },
+              {
+                "x": 443,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1060:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 138,
+                "y": 248
+              },
+              {
+                "x": 148,
+                "y": 248
+              },
+              {
+                "x": 148,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1051:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 218,
+                "y": 248
+              },
+              {
+                "x": 218,
+                "y": 253
+              },
+              {
+                "x": 218,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1042:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 288,
+                "y": 248
+              },
+              {
+                "x": 288,
+                "y": 253
+              },
+              {
+                "x": 288,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1056:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 203,
+                "y": 253
+              },
+              {
+                "x": 203,
+                "y": 258
+              },
+              {
+                "x": 203,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1033:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 358,
+                "y": 253
+              },
+              {
+                "x": 358,
+                "y": 258
+              },
+              {
+                "x": 358,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1024:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 428,
+                "y": 253
+              },
+              {
+                "x": 428,
+                "y": 258
+              },
+              {
+                "x": 428,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1047:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 273,
+                "y": 258
+              },
+              {
+                "x": 273,
+                "y": 263
+              },
+              {
+                "x": 273,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1038:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 343,
+                "y": 258
+              },
+              {
+                "x": 343,
+                "y": 263
+              },
+              {
+                "x": 343,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1029:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 413,
+                "y": 258
+              },
+              {
+                "x": 413,
+                "y": 263
+              },
+              {
+                "x": 413,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1061:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 188,
+                "y": 263
+              },
+              {
+                "x": 188,
+                "y": 268
+              },
+              {
+                "x": 188,
+                "y": 273
+              }
+            ]
+          },
+          {
+            "identity": "1052:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 258,
+                "y": 263
+              },
+              {
+                "x": 258,
+                "y": 268
+              },
+              {
+                "x": 258,
+                "y": 273
+              }
+            ]
+          },
+          {
+            "identity": "1043:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 328,
+                "y": 268
+              },
+              {
+                "x": 328,
+                "y": 273
+              },
+              {
+                "x": 328,
+                "y": 278
+              }
+            ]
+          },
+          {
+            "identity": "1034:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 398,
+                "y": 268
+              },
+              {
+                "x": 398,
+                "y": 273
+              },
+              {
+                "x": 398,
+                "y": 278
+              }
+            ]
+          },
+          {
+            "identity": "1057:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 243,
+                "y": 273
+              },
+              {
+                "x": 243,
+                "y": 278
+              },
+              {
+                "x": 243,
+                "y": 283
+              }
+            ]
+          },
+          {
+            "identity": "1048:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 313,
+                "y": 273
+              },
+              {
+                "x": 313,
+                "y": 278
+              },
+              {
+                "x": 313,
+                "y": 283
+              }
+            ]
+          },
+          {
+            "identity": "1039:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 383,
+                "y": 278
+              },
+              {
+                "x": 383,
+                "y": 283
+              },
+              {
+                "x": 383,
+                "y": 288
+              }
+            ]
+          },
+          {
+            "identity": "1053:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 298,
+                "y": 283
+              },
+              {
+                "x": 298,
+                "y": 293
+              },
+              {
+                "x": 303,
+                "y": 293
+              }
+            ]
+          },
+          {
+            "identity": "1044:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 368,
+                "y": 283
+              },
+              {
+                "x": 363,
+                "y": 288
+              },
+              {
+                "x": 368,
+                "y": 288
+              }
+            ]
+          },
+          {
+            "identity": "1062:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 228,
+                "y": 288
+              },
+              {
+                "x": 228,
+                "y": 293
+              },
+              {
+                "x": 228,
+                "y": 298
+              }
+            ]
+          },
+          {
+            "identity": "1049:1",
+            "checked": 5,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 353,
+                "y": 293
+              },
+              {
+                "x": 348,
+                "y": 298
+              },
+              {
+                "x": 353,
+                "y": 303
+              }
+            ]
+          },
+          {
+            "identity": "1063:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 268,
+                "y": 298
+              },
+              {
+                "x": 263,
+                "y": 303
+              },
+              {
+                "x": 263,
+                "y": 308
+              }
+            ]
+          },
+          {
+            "identity": "1058:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 283,
+                "y": 298
+              },
+              {
+                "x": 283,
+                "y": 303
+              },
+              {
+                "x": 283,
+                "y": 308
+              }
+            ]
+          },
+          {
+            "identity": "1059:1",
+            "checked": 7,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 323,
+                "y": 308
+              },
+              {
+                "x": 318,
+                "y": 313
+              },
+              {
+                "x": 318,
+                "y": 318
+              }
+            ]
+          },
+          {
+            "identity": "1054:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 333,
+                "y": 308
+              },
+              {
+                "x": 338,
+                "y": 308
+              },
+              {
+                "x": 338,
+                "y": 313
+              }
+            ]
+          }
+        ],
+        "examples": []
+      }
+    },
+    {
+      "mode": "full3d",
+      "avatars": 64,
+      "pass": "color",
+      "readback": {
+        "request": 5,
+        "stage": "mapped",
+        "elapsedMs": 348,
+        "acquisitions": 5,
+        "submissions": 10,
+        "stamp": {
+          "sceneHash": "c4308b803c2242c90dc0b405cba01469dcb7cb8018162b918aaa0e61753eefbe",
+          "mode": "full3d",
+          "pass": "color",
+          "lastCommand": 77
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 38,
+            "textureSerial": 424
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 44,
+            "textureSerial": 424
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 45,
+            "textureSerial": 424,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 45
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 169
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 276
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "c4308b803c2242c90dc0b405cba01469dcb7cb8018162b918aaa0e61753eefbe",
+        "mode": "full3d",
+        "pass": "color",
+        "lastCommand": 77
+      },
+      "color": {
+        "meanAbsoluteByteError": 0.08366427951388888,
+        "rootMeanSquareByteError": 1.988905589189274,
+        "maximumByteError": 233,
+        "channelFractionOver8": 0.0027918836805555557
+      }
+    },
+    {
+      "mode": "full3d",
+      "avatars": 64,
+      "pass": "pick",
+      "readback": {
+        "request": 6,
+        "stage": "mapped",
+        "elapsedMs": 329,
+        "acquisitions": 5,
+        "submissions": 10,
+        "stamp": {
+          "sceneHash": "c4308b803c2242c90dc0b405cba01469dcb7cb8018162b918aaa0e61753eefbe",
+          "mode": "full3d",
+          "pass": "pick",
+          "lastCommand": 78
+        },
+        "progress": [
+          {
+            "stage": "awaiting-texture",
+            "elapsedMs": 0
+          },
+          {
+            "stage": "awaiting-submission",
+            "elapsedMs": 36,
+            "textureSerial": 438
+          },
+          {
+            "stage": "copy-scheduled",
+            "elapsedMs": 51,
+            "textureSerial": 438
+          },
+          {
+            "stage": "copy-submitted",
+            "elapsedMs": 54,
+            "textureSerial": 438,
+            "bytesPerRow": 2560,
+            "byteLength": 1228800
+          },
+          {
+            "stage": "awaiting-validation",
+            "elapsedMs": 55
+          },
+          {
+            "stage": "awaiting-map",
+            "elapsedMs": 147
+          },
+          {
+            "stage": "mapped",
+            "elapsedMs": 256
+          }
+        ]
+      },
+      "format": "bgra8unorm",
+      "stamp": {
+        "sceneHash": "c4308b803c2242c90dc0b405cba01469dcb7cb8018162b918aaa0e61753eefbe",
+        "mode": "full3d",
+        "pass": "pick",
+        "lastCommand": 78
+      },
+      "ids": {
+        "method": "GPU ID visualization at physical pixel centers; fixed 5x5 physical CPU interiors",
+        "width": 640,
+        "height": 480,
+        "checked": 2853,
+        "mismatched": 0,
+        "ownerlessOcclusionChecked": 499,
+        "groups": [
+          {
+            "identity": "0:0",
+            "checked": 2663,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 3,
+                "y": 3
+              },
+              {
+                "x": 28,
+                "y": 3
+              },
+              {
+                "x": 53,
+                "y": 3
+              }
+            ]
+          },
+          {
+            "identity": "100:1",
+            "checked": 48,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 283,
+                "y": 153
+              },
+              {
+                "x": 288,
+                "y": 153
+              },
+              {
+                "x": 293,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "101:1",
+            "checked": 49,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 338,
+                "y": 153
+              },
+              {
+                "x": 343,
+                "y": 153
+              },
+              {
+                "x": 348,
+                "y": 153
+              }
+            ]
+          },
+          {
+            "identity": "102:1",
+            "checked": 19,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 318,
+                "y": 163
+              },
+              {
+                "x": 323,
+                "y": 163
+              },
+              {
+                "x": 328,
+                "y": 163
+              }
+            ]
+          },
+          {
+            "identity": "1003:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 403,
+                "y": 223
+              }
+            ]
+          },
+          {
+            "identity": "1045:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 238,
+                "y": 228
+              },
+              {
+                "x": 238,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1035:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 263,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1008:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 393,
+                "y": 228
+              }
+            ]
+          },
+          {
+            "identity": "1004:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 433,
+                "y": 233
+              }
+            ]
+          },
+          {
+            "identity": "1050:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 228,
+                "y": 243
+              }
+            ]
+          },
+          {
+            "identity": "1019:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 408,
+                "y": 243
+              },
+              {
+                "x": 408,
+                "y": 248
+              }
+            ]
+          },
+          {
+            "identity": "1014:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 418,
+                "y": 243
+              }
+            ]
+          },
+          {
+            "identity": "1051:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 248,
+                "y": 248
+              },
+              {
+                "x": 253,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1046:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 263,
+                "y": 248
+              },
+              {
+                "x": 263,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1060:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 203,
+                "y": 253
+              }
+            ]
+          },
+          {
+            "identity": "1042:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 298,
+                "y": 253
+              },
+              {
+                "x": 298,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1038:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 338,
+                "y": 253
+              },
+              {
+                "x": 338,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1033:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 348,
+                "y": 253
+              },
+              {
+                "x": 348,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1024:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 398,
+                "y": 253
+              },
+              {
+                "x": 398,
+                "y": 258
+              }
+            ]
+          },
+          {
+            "identity": "1061:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 223,
+                "y": 258
+              },
+              {
+                "x": 223,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1056:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 238,
+                "y": 258
+              },
+              {
+                "x": 238,
+                "y": 263
+              },
+              {
+                "x": 238,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1052:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 273,
+                "y": 258
+              },
+              {
+                "x": 273,
+                "y": 263
+              },
+              {
+                "x": 273,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1047:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 288,
+                "y": 263
+              },
+              {
+                "x": 288,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1029:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 388,
+                "y": 263
+              },
+              {
+                "x": 393,
+                "y": 263
+              }
+            ]
+          },
+          {
+            "identity": "1048:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 313,
+                "y": 268
+              },
+              {
+                "x": 313,
+                "y": 273
+              },
+              {
+                "x": 313,
+                "y": 278
+              }
+            ]
+          },
+          {
+            "identity": "1043:1",
+            "checked": 1,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 328,
+                "y": 268
+              }
+            ]
+          },
+          {
+            "identity": "1034:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 378,
+                "y": 268
+              },
+              {
+                "x": 378,
+                "y": 273
+              }
+            ]
+          },
+          {
+            "identity": "1062:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 248,
+                "y": 273
+              },
+              {
+                "x": 248,
+                "y": 278
+              },
+              {
+                "x": 248,
+                "y": 283
+              }
+            ]
+          },
+          {
+            "identity": "1057:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 263,
+                "y": 273
+              },
+              {
+                "x": 263,
+                "y": 278
+              },
+              {
+                "x": 263,
+                "y": 283
+              }
+            ]
+          },
+          {
+            "identity": "1053:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 303,
+                "y": 273
+              },
+              {
+                "x": 303,
+                "y": 283
+              },
+              {
+                "x": 303,
+                "y": 288
+              }
+            ]
+          },
+          {
+            "identity": "1039:1",
+            "checked": 2,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 368,
+                "y": 273
+              },
+              {
+                "x": 368,
+                "y": 278
+              }
+            ]
+          },
+          {
+            "identity": "1044:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 358,
+                "y": 278
+              },
+              {
+                "x": 358,
+                "y": 283
+              },
+              {
+                "x": 358,
+                "y": 288
+              }
+            ]
+          },
+          {
+            "identity": "1058:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 288,
+                "y": 283
+              },
+              {
+                "x": 288,
+                "y": 288
+              },
+              {
+                "x": 288,
+                "y": 293
+              }
+            ]
+          },
+          {
+            "identity": "1049:1",
+            "checked": 3,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 348,
+                "y": 283
+              },
+              {
+                "x": 348,
+                "y": 293
+              },
+              {
+                "x": 348,
+                "y": 298
+              }
+            ]
+          },
+          {
+            "identity": "1063:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 273,
+                "y": 293
+              },
+              {
+                "x": 278,
+                "y": 298
+              },
+              {
+                "x": 278,
+                "y": 303
+              }
+            ]
+          },
+          {
+            "identity": "1054:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 333,
+                "y": 293
+              },
+              {
+                "x": 333,
+                "y": 298
+              },
+              {
+                "x": 333,
+                "y": 303
+              }
+            ]
+          },
+          {
+            "identity": "1059:1",
+            "checked": 4,
+            "mismatched": 0,
+            "points": [
+              {
+                "x": 318,
+                "y": 303
+              },
+              {
+                "x": 323,
+                "y": 308
+              },
+              {
+                "x": 323,
+                "y": 313
+              }
+            ]
+          }
+        ],
+        "examples": []
+      }
+    }
+  ],
+  "console": [],
+  "presentationQualified": false,
+  "artifact": {
+    "path": "web/pkg/bevy-webgpu/engine_bg.wasm",
+    "sha256": "5a0d7e90b1010eaaa47cb67fa5c92c66a6c57bb2ddc986427bf73a42a8ff9075",
+    "profile": "dev-opt1-debug0"
+  },
+  "browser": "141.0.7390.37",
+  "args": [
+    "--enable-features=Vulkan",
+    "--use-gl=angle",
+    "--use-angle=swiftshader",
+    "--use-vulkan=swiftshader",
+    "--use-webgpu-adapter=swiftshader",
+    "--disable-vulkan-surface",
+    "--enable-unsafe-webgpu"
+  ]
+}

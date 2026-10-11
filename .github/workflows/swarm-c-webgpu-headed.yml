@@ -1,0 +1,46 @@
+name: Swarm C headed WebGPU diagnosis
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths: ['.github/workflows/swarm-c-webgpu-headed.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  headed-control:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Prepare browser and virtual display
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libvulkan1 mesa-vulkan-drivers
+          npm ci --prefix tools/swarm-c --ignore-scripts --no-audit --no-fund
+          tools/swarm-c/node_modules/.bin/playwright install --with-deps --no-shell chromium
+      - name: Run the identical clear and page-pixel control in a headed browser
+        run: |
+          mkdir -p tools/swarm-c/output/launch-matrix
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path('.github/workflows/swarm-c-webgpu-launch.yml').read_text()
+          script=source.split("<<'JS'\n",1)[1].split('\n          JS\n',1)[0]
+          script='\n'.join(line[10:] for line in script.splitlines())+'\n'
+          assert script.count('headless:true')==1
+          script=script.replace('headless:true','headless:false')
+          Path('tools/swarm-c/launch-diagnosis.mjs').write_text(script)
+          PY
+          xvfb-run -a -s '-screen 0 1400x1100x24' node tools/swarm-c/launch-diagnosis.mjs
+      - name: Retain actual headed observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: webgpu-headed-${{ github.sha }}
+          path: tools/swarm-c/output/launch-matrix/
+          retention-days: 14
+          if-no-files-found: error

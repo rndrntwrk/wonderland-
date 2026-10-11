@@ -1,0 +1,157 @@
+{
+  "commit": "f6f78be1fef247f2db47e19f56d94054f0c9e88c",
+  "fixture_version": 1,
+  "mode": [
+    "full2d",
+    "hybrid2d"
+  ],
+  "avatars": 64,
+  "tick": 30,
+  "reference_dimensions": [
+    1280,
+    960
+  ],
+  "browser_run": "https://github.com/rndrntwrk/wonderland-/actions/runs/37353615543",
+  "diagnostic": {
+    "evidence": "standalone diagnostic linked against existing fixture rlib; no GPU depth readback claimed",
+    "points": [
+      {
+        "pixel": [
+          433,
+          493
+        ],
+        "cpu_depth": 0.2032877504825592,
+        "cpu_depth_bits": 1045441194,
+        "coplanar_candidates": [
+          {
+            "name": "avatar-49",
+            "id": 1049,
+            "triangle": 74,
+            "world_z": [
+              14.079999
+            ],
+            "weights": [
+              0.00938394449356371,
+              0.3595053631688752,
+              0.6311106923375611
+            ]
+          },
+          {
+            "name": "avatar-49",
+            "id": 1049,
+            "triangle": 87,
+            "world_z": [
+              14.079999
+            ],
+            "weights": [
+              0.14049499875740296,
+              0.7022227785874593,
+              0.1572822226551378
+            ]
+          },
+          {
+            "name": "avatar-50",
+            "id": 1050,
+            "triangle": 51,
+            "world_z": [
+              14.079999
+            ],
+            "weights": [
+              0.46861948136211434,
+              0.3324319072020869,
+              0.19894861143579876
+            ]
+          }
+        ],
+        "cpu_winner": 1050,
+        "upload_order_reference_winner": 1050,
+        "upload_order_reference_depth": 0.2032877653837204
+      },
+      {
+        "pixel": [
+          528,
+          493
+        ],
+        "cpu_depth": 0.2021508514881134,
+        "cpu_depth_bits": 1045364898,
+        "coplanar_candidates": [
+          {
+            "name": "avatar-42",
+            "id": 1042,
+            "triangle": 87,
+            "world_z": [
+              11.9800005
+            ],
+            "weights": [
+              0.15920897590763017,
+              0.10362460118973958,
+              0.7371664229026302
+            ]
+          },
+          {
+            "name": "avatar-43",
+            "id": 1043,
+            "triangle": 50,
+            "world_z": [
+              11.9800005
+            ],
+            "weights": [
+              0.2211679094636392,
+              0.5126687907752997,
+              0.2661632997610612
+            ]
+          }
+        ],
+        "cpu_winner": 1043,
+        "upload_order_reference_winner": 1043,
+        "upload_order_reference_depth": 0.2021508365869522
+      },
+      {
+        "pixel": [
+          613,
+          618
+        ],
+        "cpu_depth": 0.1635085493326187,
+        "cpu_depth_bits": 1042771657,
+        "coplanar_candidates": [
+          {
+            "name": "avatar-62",
+            "id": 1062,
+            "triangle": 87,
+            "world_z": [
+              16.179998
+            ],
+            "weights": [
+              0.08583922235476528,
+              0.5792050148236461,
+              0.3349557628215887
+            ]
+          },
+          {
+            "name": "avatar-63",
+            "id": 1063,
+            "triangle": 51,
+            "world_z": [
+              16.179998
+            ],
+            "weights": [
+              0.41395933869088986,
+              0.20941923085379088,
+              0.37662143045531926
+            ]
+          }
+        ],
+        "cpu_winner": 1063,
+        "upload_order_reference_winner": 1063,
+        "upload_order_reference_depth": 0.1635085493326187
+      }
+    ]
+  },
+  "source_diagnostic_sha256": "56bbc5136fd868ebd7d419abfe69c1c5131a5d18c48461b7912769a4b0dfd8bb",
+  "limits": [
+    "This is CPU triangle/depth inspection of the failing synthetic scene, not GPU depth readback.",
+    "Both WebGL2 engines select the earlier neighboring owner at these three pixels. The CPU and pretransformed CPU reference select the later owner.",
+    "Coincident, separately tessellated mannequin arm surfaces explain why the synthetic fixture needs noninterpenetrating placement; no CPU reference bug or exact GPU rounding mechanism was demonstrated.",
+    "Changing the synthetic fixture does not prove general coplanar GPU agreement. The existing source LessEqual regression and zero-ID criterion remain required."
+  ]
+}

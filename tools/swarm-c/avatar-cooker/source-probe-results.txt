@@ -1,0 +1,17 @@
+source_baseline 4c6b3e8f5835b228723caea3c9f683c62f244f73
+assembly_sha256 dbb1c9203614fcea82e5a4e66df288f8144288b6adbea2b2ee525e4afa4a433d
+probe_method_sha256 dfb1c7e297205a8bfe3ddecca13507bce5f69da150fd19965ccd0aa1830a0b69
+assembly MonoGame.Framework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+root 1 0 0
+child -0.9999999 1.1920929E-07 0
+negative_fraction 2 0 0
+track_end 8 0 0
+prefix_mix 6 0 0
+seek_vertical 0 0.382683426 0 0.923879564
+seek_horizontal -0.537299633 3.66828523E-09 -2.33695552E-09 0.8433914
+slerp_endpoint 0 0.4794256 0 0.877582669
+slerp_antipode 0 0 0 1
+slerp_near 0 0.001849999 0 0.999998331
+slerp_half_turn 0 0.707106769 0 0.707106769
+slerp_nonunit 0 0.707106769 0 1.41421354
+dual_local 1.5 0.75 0

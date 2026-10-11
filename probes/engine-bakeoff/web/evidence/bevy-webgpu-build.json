@@ -1,0 +1,48 @@
+{
+  "variant": "bevy-webgpu",
+  "rustc": "1.95.0",
+  "bevy": "0.19.1",
+  "profile": {
+    "name": "dev",
+    "opt_level": 1,
+    "debug": 0,
+    "incremental": false,
+    "jobs": 2
+  },
+  "wasm_bindgen": "0.2.129",
+  "metadataOnlyPreparation": {
+    "tool": "rust-objcopy from Rust 1.95.0 llvm-tools",
+    "args": [
+      "--remove-section=name",
+      "--remove-section=producers",
+      "--strip-debug"
+    ],
+    "executableSectionsIdentical": true,
+    "executableSectionCount": 10
+  },
+  "binderArgs": [
+    "--target",
+    "web",
+    "--out-name",
+    "engine",
+    "--no-demangle",
+    "--remove-name-section"
+  ],
+  "binderEnvironment": {
+    "RAYON_NUM_THREADS": "1"
+  },
+  "artifacts": {
+    "rustcOutput": {
+      "bytes": 89430117,
+      "sha256": "0653803cad76a8c7d3285ef0604ece7f3845b80bba97427723c16a8138d70e82"
+    },
+    "binderInput": {
+      "bytes": 56354982,
+      "sha256": "7da7743d95c931f9c5ca04bfd77dffaa39c1c136b9783ce1433039d8be01be64"
+    },
+    "packagedWasm": {
+      "bytes": 51502382,
+      "sha256": "5a0d7e90b1010eaaa47cb67fa5c92c66a6c57bb2ddc986427bf73a42a8ff9075"
+    }
+  }
+}

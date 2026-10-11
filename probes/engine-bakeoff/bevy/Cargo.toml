@@ -1,0 +1,33 @@
+[package]
+name = "bevy-gate"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bevy = { version = "=0.19.1", default-features = false, features = ["std", "default_app", "bevy_winit", "3d_bevy_render"] }
+wonderland-render-core = { path = "../../../crates/render-core" }
+wonderland-engine-fixture = { path = "../fixture" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+[features]
+default = []
+x11 = ["bevy/x11", "bevy/multi_threaded"]
+webgpu = ["bevy/web", "bevy/webgpu"]
+webgl2 = ["bevy/web", "bevy/webgl2"]
+
+[profile.release]
+opt-level = 2
+debug = 0
+strip = "debuginfo"

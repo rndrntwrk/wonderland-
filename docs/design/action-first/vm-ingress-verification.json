@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "base_commit": "02c0b66e569e0702a640b84bfe4c3ae742fc5070",
+  "capture_merge_commit": "ce0127597c2a3be9efe3576590780a5af8d1ec78",
+  "capture_tree": "33920415bf8d6abd233b2c13d00764f15fe66511",
+  "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "source_preservation": {
+    "raw_files_checked": 5385,
+    "changed": 0,
+    "scope": [
+      "TSOClient/",
+      "Other/",
+      "Cargo.lock"
+    ]
+  },
+  "native": {
+    "passed": 1345,
+    "failed": 0,
+    "ignored": 5,
+    "harness_summaries": 206,
+    "command": "cargo test --workspace --locked --offline"
+  },
+  "audio": {
+    "passed": 59,
+    "failed": 0,
+    "skipped": 0,
+    "command": "node --test crates/audio-runtime/browser/*.test.mjs"
+  },
+  "new_tests": {
+    "inbox": 10,
+    "legacy_decoder_burst": 3,
+    "native_original_action_replay": 5
+  },
+  "native_clippy": "passed",
+  "wasm_clippy": "passed",
+  "wasm_check": "passed",
+  "format": "passed",
+  "whitespace": "passed",
+  "browser_release": "not yet run on this head",
+  "browser_adversarial_scheduling": "script added; not yet executed against this release",
+  "limits": [
+    "Legacy FSOv/VMNet remains refresh-only; no native checkpoint translation is added.",
+    "Native source-action evidence uses declared harness metadata and in-process replicas.",
+    "No deployed endpoint/account, original complete content corpus or physical-device qualification."
+  ],
+  "local_logs": [
+    {
+      "name": "workspace-tests-final.log",
+      "sha256": "82377e752f813ec0e4f3cddd10834882d3bb3999af6a05dfd87eb5279b99f418"
+    },
+    {
+      "name": "native-clippy-final.log",
+      "sha256": "8c1cac666ca82d8e819b7bb4018f77f40abaa03d125b832beb0602abe2920233"
+    },
+    {
+      "name": "wasm-clippy.log",
+      "sha256": "2cf11337286ea8c5e6ccd8d5dad579c2cc67ceced498a3bbd39e9189c77ff0a9"
+    },
+    {
+      "name": "browser-check-final.log",
+      "sha256": "ed03ca8413bf6b4eb7d442735b4f71de4fa06ac52712fcdc048de4747b2c1d04"
+    },
+    {
+      "name": "vm-inbox-red.log",
+      "sha256": "18b261fd6d2ffac52478b7523d580eddd2fe5ff223a55fc0d520c78838ab5aa2"
+    },
+    {
+      "name": "vm-inbox-source.log",
+      "sha256": "944bdae89cb09fe16732724666585677986b0f1f540cc407f6f4e721c6e8a572"
+    },
+    {
+      "name": "live-source-session.log",
+      "sha256": "382852df0cae89de6da0e41acf7147a1afa60b0fc96942aa2bdf40117f1d2db4"
+    },
+    {
+      "name": "audio-tests.log",
+      "sha256": "39e0541a1cd529a762d559b78aa66262d961497b49b6efbb0d08b26fc4aadec0"
+    }
+  ]
+}

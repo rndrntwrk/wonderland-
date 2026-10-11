@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "variant": "bevy-webgpu",
+  "startedAt": "2026-10-06T00:24:02.423Z",
+  "status": "failed",
+  "rendererQualified": false,
+  "evidenceClass": "headed Chromium under authenticated Xvfb TCP with explicitly requested software graphics",
+  "physicalDevices": "pending",
+  "gpuExecutionTiming": "unavailable; submission intervals are not GPU time",
+  "gpuAsyncPickReadback": "pending; screenshot visualization readback tested here",
+  "tolerances": {
+    "idStableInteriorMismatches": 0,
+    "colorMeanAbsoluteByteError": 4,
+    "colorRootMeanSquareByteError": 12,
+    "colorChannelFractionOver8": 0.03
+  },
+  "checks": [],
+  "scenes": [],
+  "lifecycle": [],
+  "failures": [
+    {
+      "name": "runner",
+      "error": "Error: Protocol error (Browser.getVersion): Internal server error, session closed. Failed to launch browser.\n<launching> /root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --enable-features=Vulkan --use-gl=angle --use-angle=swiftshader --use-vulkan=swiftshader --use-webgpu-adapter=swiftshader --disable-vulkan-surface --enable-unsafe-webgpu --force-device-scale-factor=1 --user-data-dir=/tmp/playwright_chromiumdev_profile-YP4Gy0 --remote-debugging-pipe --no-startup-window\n<launched> pid=17\n[pid=17][err] [17:17:1005/172403.297907:FATAL:chrome/browser/process_singleton_posix.cc:292] Check failed: . socket() failed: Operation not permitted (1)\n[pid=17][err] [1005/172403.301455:ERROR:third_party/crashpad/crashpad/util/linux/scoped_ptrace_attach.cc:27] ptrace: Operation not permitted (1)\n[pid=17][err] [1005/172403.302304:ERROR:third_party/crashpad/crashpad/util/file/directory_reader_posix.cc:43] opendir /proc/17/task: No such file or directory (2)\n[pid=17] <gracefully close start>\n[pid=17] <kill>\n[pid=17] <will force kill>\n[pid=17] <process did exit: exitCode=null, signal=SIGTRAP>\n[pid=17] starting temporary directories cleanup\n[pid=17] finished temporary directories cleanup\n[pid=17] <gracefully close end>\n    at /workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/chromium/crConnection.js:116:57\n    at new Promise (<anonymous>)\n    at CRSession.send (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/chromium/crConnection.js:115:12)\n    at CRBrowser.connect (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/chromium/crBrowser.js:76:35)\n    at Chromium.connectToTransport (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/chromium/chromium.js:126:47)\n    at Chromium._innerLaunch (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/browserType.js:137:48)\n    at async Chromium._innerLaunchWithRetries (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/browserType.js:99:14)\n    at async /workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/browserServerImpl.js:77:18\n    at async ProgressController.run (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/server/progress.js:78:22)\n    at async BrowserServerLauncherImpl.launchServer (/workspace/scratch/378e4c36af7b/creator-browser-tools/node_modules/playwright-core/lib/browserServerImpl.js:68:17)"
+    }
+  ],
+  "console": [],
+  "requests": [],
+  "referenceEvidence": "synthetic-cpu-reference",
+  "browserArgs": [
+    "--enable-features=Vulkan",
+    "--use-gl=angle",
+    "--use-angle=swiftshader",
+    "--use-vulkan=swiftshader",
+    "--use-webgpu-adapter=swiftshader",
+    "--disable-vulkan-surface",
+    "--enable-unsafe-webgpu"
+  ],
+  "browserProcesses": [],
+  "activePhase": {
+    "name": "runner-teardown",
+    "startedAt": "2026-10-06T00:24:08.311Z"
+  },
+  "finishedAt": "2026-10-06T00:24:08.312Z"
+}

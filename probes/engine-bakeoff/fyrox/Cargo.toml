@@ -1,0 +1,27 @@
+[package]
+name = "fyrox-gate"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+fyrox = { version = "=1.0.1", default-features = false, features = ["fyrox-impl"] }
+wonderland-render-core = { path = "../../../crates/render-core" }
+wonderland-engine-fixture = { path = "../fixture" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+[profile.release]
+opt-level = 2
+debug = 0
+strip = "debuginfo"

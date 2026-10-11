@@ -9,6 +9,7 @@ use crate::{
     snapshot_avatar::SnapshotAvatarProjection,
     snapshot_world::snapshot_world,
     source_needs::{SOURCE_NEED_LABELS, source_needs},
+    vm_inbox::{InboxError, VmStream},
     world_renderer::WorldViewport,
 };
 use leptos::prelude::*;
@@ -173,116 +174,145 @@ pub fn ConnectedLotView() -> impl IntoView {
             controls.set(ViewportControls::default());
             notice.set("Waiting for the property’s world state…".into());
         }
-        let frame = ui.latest_vm.get();
-        let (Some(current), Some(frame)) = (current, frame) else {
+        ui.vm_pending.get();
+        let Some(current) = current else {
             return;
         };
-        if frame.browser_epoch != current.browser_epoch
-            || frame.source_epoch != current.source_epoch
-            || frame.lot_incarnation != Some(current.lot_incarnation)
-        {
-            return;
-        }
-        let Some(result) =
-            gate.try_update_value(|gate| gate.admit(current, frame.direct, &frame.data))
-        else {
-            return;
+        let frames = match ui.drain_vm(VmStream {
+            browser_epoch: current.browser_epoch,
+            source_epoch: current.source_epoch,
+            lot_incarnation: current.lot_incarnation,
+        }) {
+            Ok(frames) => frames,
+            Err(InboxError::WrongStream) => return,
+            Err(_) => {
+                authoring.invalidate_world_projection();
+                stale.set(true);
+                ui.require_vm_recovery(
+                    "World update buffering failed. Reconnect for a complete world state.",
+                );
+                return;
+            }
         };
-        match result {
-            Ok(mut update) => {
-                let mut displayed_snapshot = false;
-                if let Some(source) = update.snapshots.pop() {
-                    // This presentation field retains the source clock. It is
-                    // not the VMNetTickList sequence or an A-runtime revision.
-                    let Ok(clock_tick) = u64::try_from(source.context.clock.ticks) else {
-                        stale.set(true);
-                        authoring.invalidate_world_projection();
-                        notice.set("This snapshot contains an unsupported world clock. Request a new snapshot to continue.".into());
-                        return;
-                    };
-                    match snapshot_world(
-                        &source,
-                        current.source_epoch,
-                        clock_tick,
-                        update.generation,
-                    ) {
-                        Ok(document) => {
-                            if authoring
-                                .observe_snapshot(&source, update.generation)
-                                .is_err()
-                            {
-                                authoring.invalidate_world_projection();
-                            }
-                            let levels = document.lot.levels;
-                            controls.update(|controls| {
-                                controls.visible_level = controls.visible_level.clamp(1, levels)
-                            });
-                            accepted_world.set(Some(Arc::new(document)));
-                            selected.set(None);
-                            if let Some(entity) = source
-                                .entities
-                                .iter()
-                                .find(|entity| entity.persist_id == current.avatar_id)
-                                && let (
-                                    EntityPlatform::Avatar { budget, .. },
-                                    Appearance::Avatar(avatar),
-                                ) = (&entity.platform, &entity.appearance)
-                            {
-                                let motives = source_needs(&avatar.motives);
-                                ui.state.update(|state| {
-                                    if state.ledger.epoch != current.browser_epoch
-                                        || state.session.as_ref().is_none_or(|session| {
-                                            session.epoch != current.source_epoch
-                                                || session.lot_incarnation
-                                                    != Some(current.lot_incarnation)
-                                                || session.avatar_id != Some(current.avatar_id)
-                                        })
-                                    {
-                                        return;
-                                    }
-                                    if let Some(entry) = state
-                                        .roster
-                                        .iter_mut()
-                                        .find(|entry| entry.avatar_id == current.avatar_id)
-                                    {
-                                        entry.money = Some(i64::from(*budget));
-                                        entry.motives = motives;
-                                    }
-                                });
-                            }
-                            snapshot.set(Some(Arc::new(source)));
-                            notice.set(String::new());
-                            displayed_snapshot = true;
-                        }
-                        Err(_) => {
+        for frame in frames {
+            if frame.browser_epoch != current.browser_epoch
+                || frame.source_epoch != current.source_epoch
+                || frame.lot_incarnation != Some(current.lot_incarnation)
+            {
+                ui.require_vm_recovery(
+                    "The world update no longer matches this session. Reconnect to continue.",
+                );
+                return;
+            }
+            let Some(result) =
+                gate.try_update_value(|gate| gate.admit(current, frame.direct, &frame.data))
+            else {
+                return;
+            };
+            match result {
+                Ok(mut update) => {
+                    let mut displayed_snapshot = false;
+                    if let Some(source) = update.snapshots.pop() {
+                        // This presentation field retains the source clock. It is
+                        // not the VMNetTickList sequence or an A-runtime revision.
+                        let Ok(clock_tick) = u64::try_from(source.context.clock.ticks) else {
                             stale.set(true);
                             authoring.invalidate_world_projection();
-                            notice.set("This world snapshot needs source content or geometry the browser cannot display yet.".into());
+                            notice.set("This snapshot contains an unsupported world clock. Reconnect to continue.".into());
+                            ui.require_vm_recovery("This snapshot contains an unsupported world clock. Reconnect to continue.");
+                            return;
+                        };
+                        match snapshot_world(
+                            &source,
+                            current.source_epoch,
+                            clock_tick,
+                            update.generation,
+                        ) {
+                            Ok(document) => {
+                                if authoring
+                                    .observe_snapshot(&source, update.generation)
+                                    .is_err()
+                                {
+                                    authoring.invalidate_world_projection();
+                                }
+                                let levels = document.lot.levels;
+                                controls.update(|controls| {
+                                    controls.visible_level = controls.visible_level.clamp(1, levels)
+                                });
+                                accepted_world.set(Some(Arc::new(document)));
+                                selected.set(None);
+                                if let Some(entity) = source
+                                    .entities
+                                    .iter()
+                                    .find(|entity| entity.persist_id == current.avatar_id)
+                                    && let (
+                                        EntityPlatform::Avatar { budget, .. },
+                                        Appearance::Avatar(avatar),
+                                    ) = (&entity.platform, &entity.appearance)
+                                {
+                                    let motives = source_needs(&avatar.motives);
+                                    ui.state.update(|state| {
+                                        if state.ledger.epoch != current.browser_epoch
+                                            || state.session.as_ref().is_none_or(|session| {
+                                                session.epoch != current.source_epoch
+                                                    || session.lot_incarnation
+                                                        != Some(current.lot_incarnation)
+                                                    || session.avatar_id != Some(current.avatar_id)
+                                            })
+                                        {
+                                            return;
+                                        }
+                                        if let Some(entry) = state
+                                            .roster
+                                            .iter_mut()
+                                            .find(|entry| entry.avatar_id == current.avatar_id)
+                                        {
+                                            entry.money = Some(i64::from(*budget));
+                                            entry.motives = motives;
+                                        }
+                                    });
+                                }
+                                snapshot.set(Some(Arc::new(source)));
+                                notice.set(String::new());
+                                displayed_snapshot = true;
+                            }
+                            Err(_) => {
+                                stale.set(true);
+                                authoring.invalidate_world_projection();
+                                notice.set("This world snapshot needs source content or geometry the browser cannot display yet.".into());
+                            }
                         }
                     }
+                    if update.needs_refresh {
+                        stale.set(true);
+                        authoring.invalidate_world_projection();
+                    } else if displayed_snapshot {
+                        stale.set(false);
+                    }
                 }
-                if update.needs_refresh {
+                Err(FrameError::WrongSession | FrameError::StaleTick) => {}
+                Err(FrameError::WrongLot) => {
                     stale.set(true);
                     authoring.invalidate_world_projection();
-                } else if displayed_snapshot {
-                    stale.set(false);
+                    notice.set(
+                        "The world update belongs to another property. Reconnect to continue."
+                            .into(),
+                    );
+                    ui.require_vm_recovery(
+                        "The world update belongs to another property. Reconnect to continue.",
+                    );
+                    return;
                 }
-            }
-            Err(FrameError::WrongSession | FrameError::StaleTick) => {}
-            Err(FrameError::WrongLot) => {
-                stale.set(true);
-                authoring.invalidate_world_projection();
-                notice.set(
-                    "The world update belongs to another property. Reconnect to continue.".into(),
-                );
-            }
-            Err(FrameError::InvalidProtocol) => {
-                stale.set(true);
-                authoring.invalidate_world_projection();
-                notice.set(
-                    "This world update could not be read. Request a new snapshot or reconnect."
-                        .into(),
-                );
+                Err(FrameError::InvalidProtocol) => {
+                    stale.set(true);
+                    authoring.invalidate_world_projection();
+                    notice
+                        .set("This world update could not be read. Reconnect to continue.".into());
+                    ui.require_vm_recovery(
+                        "This world update could not be read. Reconnect to continue.",
+                    );
+                    return;
+                }
             }
         }
     });

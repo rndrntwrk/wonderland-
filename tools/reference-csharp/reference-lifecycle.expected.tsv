@@ -1,0 +1,49 @@
+init.default	checks=4096,4104	queued=1	main_param=0	main_stack=0	idle_end=1	events=fetch:7,tuning:7
+init.default.check	routine=4096	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.default.check	routine=4104	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.default.queued	routine=4097	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=False
+init.default.first	routine=4097	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=False
+init.default.restart	routine=4097	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=False
+init.creation	checks=4096,4104	queued=1	main_param=0	main_stack=0	idle_end=1	events=fetch:7,tuning:7
+init.creation.check	routine=4096	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.creation.check	routine=4104	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.creation.queued	routine=4097	caller=7	callee=7	stack=9	args=321,0,0,0	locals=4	check=False
+init.creation.first	routine=4097	caller=7	callee=7	stack=9	args=321,0,0,0	locals=4	check=False
+init.creation.restart	routine=4097	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=False
+init.unresolved_stack	checks=4096,4104	queued=1	main_param=0	main_stack=0	idle_end=1	events=fetch:7,tuning:7
+init.unresolved_stack.check	routine=4096	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.unresolved_stack.check	routine=4104	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.unresolved_stack.queued	routine=4097	caller=7	callee=7	stack=0	args=-123,0,0,0	locals=4	check=False
+init.unresolved_stack.first	routine=4097	caller=7	callee=7	stack=0	args=-123,0,0,0	locals=4	check=False
+init.unresolved_stack.restart	routine=4097	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=False
+init.missing_main	checks=4096,4104	queued=0	main_param=0	main_stack=0	idle_end=1	events=fetch:7,tuning:7
+init.missing_main.check	routine=4096	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.missing_main.check	routine=4104	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.unresolved_main	checks=4096,4104	queued=0	main_param=0	main_stack=0	idle_end=1	events=fetch:7,tuning:7
+init.unresolved_main.check	routine=4096	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.unresolved_main.check	routine=4104	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.empty_main	checks=4096,4104	queued=0	main_param=0	main_stack=0	idle_end=1	events=fetch:7,tuning:7
+init.empty_main.check	routine=4096	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.empty_main.check	routine=4104	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=True
+init.ghost	checks=4096,4104	has_thread=False	main_param=321	main_stack=9	room=-1	light_refreshes=1	entities=1	calendar=	events=fetch:7,sandbox,restore,sandbox,restore,tuning:7
+reset	checks=4099	main_param=55	main_stack=9	interrupt=True	temp0=22	calendar=1:7
+reset.queued	routine=4097	caller=7	callee=7	stack=0	args=0,0,0,0	locals=4	check=False
+reset.temps	running=False	temp0=11	xl0=22	queued=1
+reset.temps	running=True	temp0=77	xl0=88	queued=1
+check.temps	running=False	aborting=False	result=4	temp0=11	xl0=22
+check.temps	running=True	aborting=False	result=4	temp0=77	xl0=88
+check.temps	running=True	aborting=True	result=6	temp0=77	xl0=88
+scheduler.sorted	ticks=1:1,1:5,1:7	calendar=2:1,5,7;5:2	rng=104	current_object=32767	running=False
+notify.active	during=higher=1,lower=2,results=0,0	ticks=1:5,1:8	higher_interrupt=True	lower_interrupt=True	calendar=2:2,5,8	rng=103
+notify.null	result=0	calendar=
+notify.no_thread	result=0	calendar=
+notify.unscheduled	result=0	interrupt=True	idle_end=0	calendar=
+notify.current	result=0	interrupt=True	idle_end=1	calendar=
+notify.outside_run	result=0	interrupt=True	idle_end=2	calendar=2:9
+scheduler.every_frame	ordinary=130	headline=41	disabled=41
+scheduler.uint32_wrap	idle_end=0	calendar=0:7
+scheduler.resync_before	calendar=100:1,7	one_idle=1	seven_idle=1
+scheduler.resync_after	ticks=100:1,100:7	calendar=101:1,7	rng=102
+scheduler.multiple_wakes_before	calendar=2:1;5:1	idle_end=5
+scheduler.multiple_wakes_after	ticks=2:1,5:1	calendar=102:1;105:1	rng=139645673477529697
+scheduler.deferred_delete	rng=103	entities=2	deletions=3:103:3:False	pending=0

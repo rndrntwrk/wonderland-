@@ -1,0 +1,23 @@
+[package]
+name = "wonderland-engine-fixture"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MPL-2.0"
+publish = false
+
+[workspace]
+
+[[bin]]
+name = "reference"
+path = "src/reference.rs"
+
+[dependencies]
+wonderland-render-core = { path = "../../../crates/render-core" }
+wonderland-render-iso = { path = "../../../crates/render-iso" }
+wonderland-render-3d = { path = "../../../crates/render-3d" }
+wonderland-avatar-view = { path = "../../../crates/avatar-view" }
+wonderland-audio-runtime = { path = "../../../crates/audio-runtime" }
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+sha2 = "0.10"

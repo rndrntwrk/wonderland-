@@ -1,0 +1,54 @@
+name: Swarm C source handoff
+on:
+  push:
+    branches: [feat/swarm-c-views-audio]
+    paths:
+      - '.github/workflows/swarm-c-source-handoff.yml'
+      - 'probes/engine-bakeoff/web/**'
+      - 'tools/swarm-c/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-handoff:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          path: core-input
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: a318581f33770540808aefcf132018255a3a1d94
+          persist-credentials: false
+          path: client-input
+      - name: Archive tracked rewrite sources, never local credentials or build caches
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source-handoff
+          python3 - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          destination = pathlib.Path('source-handoff')
+          records = []
+          for name in ('core-input', 'client-input'):
+              root = pathlib.Path(name)
+              commit = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+              tree = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD^{tree}'], text=True).strip()
+              paths = subprocess.check_output(['git', '-C', str(root), 'ls-tree', '--name-only', 'HEAD'], text=True).splitlines()
+              # Original game resources retain their existing repository provenance.
+              # This transport contains the tracked rewrite sources and tests only.
+              selected = [p for p in paths if p in ('crates', 'apps', 'tools', 'probes', 'tests', 'fixtures', 'docs', 'web', 'ops', '.github', '.cargo', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'Trunk.toml', '.gitignore', 'README.md', 'LICENSE.md')]
+              archive = destination / (name + '.tar.gz')
+              with archive.open('wb') as output:
+                  subprocess.run(['git', '-C', str(root), 'archive', '--format=tar.gz', commit, '--', *selected], stdout=output, check=True)
+              records.append({'name': name, 'commit': commit, 'tree': tree, 'paths': selected, 'archive': archive.name, 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(), 'bytes': archive.stat().st_size})
+          (destination / 'manifest.json').write_text(json.dumps({'schema': 'wonderland-source-handoff-v1', 'scope': 'tracked rewrite source inputs; not a completed client or test result', 'sources': records}, indent=2) + '\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: swarm-c-source-handoff-${{ github.sha }}
+          path: source-handoff/
+          retention-days: 14
+          if-no-files-found: error

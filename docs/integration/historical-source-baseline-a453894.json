@@ -1,0 +1,712 @@
+{
+  "dispositions": {
+    "Other/libs/ColorQuantizer/SimplePaletteQuantizer/SimplePaletteQuantizer.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Content-cooking/image conversion dependency disposition.",
+      "owner": "B"
+    },
+    "Other/libs/FSOMina.NET/Mina.NET/Mina.NET.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected transport submodule; native service/legacy protocol mapping.",
+      "owner": "E"
+    },
+    "Other/libs/FSOMonoGame/MonoGame.Framework.Content.Pipeline/MonoGame.Framework.Content.Pipeline.Windows.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected renderer submodule replaced by reviewed Rust/browser engine; preserve rendering/input scope.",
+      "owner": "C"
+    },
+    "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.Linux.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected renderer submodule replaced by reviewed Rust/browser engine; preserve rendering/input scope.",
+      "owner": "C"
+    },
+    "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.Net.WindowsGL.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected renderer submodule replaced by reviewed Rust/browser engine; preserve rendering/input scope.",
+      "owner": "C"
+    },
+    "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.Windows.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected renderer submodule replaced by reviewed Rust/browser engine; preserve rendering/input scope.",
+      "owner": "C"
+    },
+    "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.WindowsGL.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected renderer submodule replaced by reviewed Rust/browser engine; preserve rendering/input scope.",
+      "owner": "C"
+    },
+    "Other/libs/FSOMonoGame/ThirdParty/Lidgren.Network/Lidgren.Network.WindowsGL.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Uninspected legacy network dependency; protocol scope unresolved.",
+      "owner": "E"
+    },
+    "Other/libs/MSDFData/MSDFData.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Font data/layout dependency disposition; no redistribution entitlement.",
+      "owner": "C"
+    },
+    "Other/libs/MSDFExtension/MSDFExtension.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Font pipeline dependency disposition; no redistribution entitlement.",
+      "owner": "C"
+    },
+    "Other/libs/TargaImage/TargaImage.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Original image decoding/conversion dependency disposition.",
+      "owner": "B"
+    },
+    "Other/libs/TargaImagePCL/TargaImagePCL.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Original image decoding/conversion dependency disposition.",
+      "owner": "B"
+    },
+    "Other/libs/VoronoiLib/VoronoiLib.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Source geometry helper requirements and native replacement mapping.",
+      "owner": "C"
+    },
+    "Other/libs/mp3sharp/mp3sharp/Mp3Sharp.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Audio decoding dependency disposition; original payload rights separate.",
+      "owner": "C"
+    },
+    "TSOClient/FSO.Common.DatabaseService/FSO.Common.DatabaseService.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native data/persistence adapters and permission boundaries.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Common.Domain/FSO.Common.Domain.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native account/city/domain contracts, coordinated through F.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Content.TSO/FSO.Content.TSO.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Original content cohort identity and rights-aware import/cooking.",
+      "owner": "B"
+    },
+    "TSOClient/FSO.IDE/FSO.IDE.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Creator/debugging tool capabilities, not a copy of obsolete desktop UI.",
+      "owner": "B"
+    },
+    "TSOClient/FSO.Patcher/FSO.Patcher.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Explicit replacement by versioned browser/server release delivery.",
+      "owner": "F"
+    },
+    "TSOClient/FSO.Server.Api.Core/FSO.Server.Api.Core.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Clients/FSO.Server.Clients.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Common/FSO.Server.Common.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Core/FSO.Server.Core.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.DataService/FSO.Common.DataService.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service DTOs/providers; retain legacy adapter separately.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Database/FSO.Server.Database.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Debug/FSO.Server.Debug.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Domain/FSO.Server.Domain.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Protocol/FSO.Server.Protocol.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.Server.Updater/FSO.Server.Watchdog.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service operations and release/recovery supervision.",
+      "owner": "F"
+    },
+    "TSOClient/FSO.Server/FSO.Server.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Native service/protocol/database equivalent; production acceptance requires real providers.",
+      "owner": "E"
+    },
+    "TSOClient/FSO.SimAntics.JIT.Roslyn/FSO.SimAntics.JIT.Roslyn.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "SDK/JIT source scope needs evaluation; browser execution strategy not inferred.",
+      "owner": "A"
+    },
+    "TSOClient/FSO.SimAntics.JIT/FSO.SimAntics.JIT.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Interpreter/JIT disposition must preserve declared VM behavior.",
+      "owner": "A"
+    },
+    "TSOClient/FSO.UI/FSO.UI.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Semantic browser UI components; preserve source interaction behaviors.",
+      "owner": "D"
+    },
+    "TSOClient/FSO.Windows/FSO.Windows.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Replace desktop launcher with browser delivery, not removal of gameplay.",
+      "owner": "D"
+    },
+    "TSOClient/FSO.iOS/FSOiOS.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Replace platform wrapper with browser delivery; preserve needed input/lifecycle behavior.",
+      "owner": "D"
+    },
+    "TSOClient/FSODroid/FSODroid.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Replace platform wrapper with browser delivery; preserve needed input/lifecycle behavior.",
+      "owner": "D"
+    },
+    "TSOClient/FSOFacadeWorker/FSOFacadeWorker.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Derived visual workers; never durable VM snapshots or authority.",
+      "owner": "C"
+    },
+    "TSOClient/tso.client/FSO.Client.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Browser client and action-first screens; retain every player surface.",
+      "owner": "D"
+    },
+    "TSOClient/tso.common/FSO.Common.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Map shared source utilities to A-E; no blanket equivalence for the whole library.",
+      "owner": "F"
+    },
+    "TSOClient/tso.content/FSO.Content.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Effective content/resource resolution and patch/tuning manifests.",
+      "owner": "B"
+    },
+    "TSOClient/tso.debug/FSO.Debug.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Source VM/object inspection and creator/debug tool requirements.",
+      "owner": "B"
+    },
+    "TSOClient/tso.files/FSO.Files.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Bounded original formats and resource readers.",
+      "owner": "B"
+    },
+    "TSOClient/tso.simantics/FSO.SimAntics.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Shared deterministic VM; B owns object/EOD leaves within source scope.",
+      "owner": "A"
+    },
+    "TSOClient/tso.sound/FSO.HIT.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Source audio scheduler/decoder/mixer and browser sound host.",
+      "owner": "C"
+    },
+    "TSOClient/tso.vitaboy.engine/FSO.Vitaboy.Engine.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Rig/pose/animation presentation consuming B-decoded resources.",
+      "owner": "C"
+    },
+    "TSOClient/tso.vitaboy.model/FSO.Vitaboy.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "Source rig and animation semantics with B format-reader inputs.",
+      "owner": "C"
+    },
+    "TSOClient/tso.world/FSO.LotView.csproj": {
+      "acceptance": "not-assessed",
+      "destination": "World rendering, Full2D/Hybrid2D/Full3D and camera/picking behavior.",
+      "owner": "C"
+    }
+  },
+  "gitlinks": {
+    "Other/libs/FSOMina.NET": "b2216c27fe6e17e4392130f778b6b54bf8c62bda",
+    "Other/libs/FSOMonoGame": "74f7ef558111e62a7d0a2228b6f9714980e000fa",
+    "Other/libs/assimp-net": null
+  },
+  "inspected_commit": "a453894c83969f8bdfa1f584e1c763c8231e9fc3",
+  "limits": "Declared FreeSO.sln projects and explicit Compile entries only. Conditions, SDK defaults, imports, ProjectReference closure, registries, source outside this solution, content families and asset rights are not evaluated. Owner routing follows the program lanes and is an intake assignment, not CODEOWNERS or implementation/acceptance proof. No W00 or W17 parent package is marked complete.",
+  "schema": 1,
+  "source": {
+    "census_sha256": "990054a2101f863f61760a39b8efffc15aa66bb08717373e5feaff20bf4b46ee",
+    "counts": {
+      "compile_declarations": 1977,
+      "declared_projects": 47,
+      "missing_compile": 0,
+      "missing_projects": 0,
+      "present_compile": 1977,
+      "present_projects": 40,
+      "sdk_projects_unevaluated": 3,
+      "submodule_compile": 0,
+      "submodule_projects": 7,
+      "unevaluated_compile": 0,
+      "unique_present_compile_paths": 1977
+    },
+    "gitmodules_sha256": "a859175dbb84898c3588db8460429db90f17d2a85130ca4af7d0e97c479a89e5",
+    "projects": [
+      {
+        "compile_declarations": 74,
+        "compile_sha256": "117f125569ea9f645ec07e098ec1025cc23dfb1e046ca910ad2d17a89211cd84",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "SimplePaletteQuantizer",
+        "path": "Other/libs/ColorQuantizer/SimplePaletteQuantizer/SimplePaletteQuantizer.csproj",
+        "sha256": "af0dfe1210f426d7b2ea3979254ee5e97aff129b872698dfd147c25f6ebf14d5",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "Mina.NET",
+        "path": "Other/libs/FSOMina.NET/Mina.NET/Mina.NET.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "MonoGame.Framework.Content.Pipeline.Windows",
+        "path": "Other/libs/FSOMonoGame/MonoGame.Framework.Content.Pipeline/MonoGame.Framework.Content.Pipeline.Windows.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "MonoGame.Framework.Linux",
+        "path": "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.Linux.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "MonoGame.Framework.Net.WindowsGL",
+        "path": "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.Net.WindowsGL.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "MonoGame.Framework.Windows",
+        "path": "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.Windows.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "MonoGame.Framework.WindowsGL",
+        "path": "Other/libs/FSOMonoGame/MonoGame.Framework/MonoGame.Framework.WindowsGL.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "not-inspected",
+        "name": "Lidgren.Network.WindowsGL",
+        "path": "Other/libs/FSOMonoGame/ThirdParty/Lidgren.Network/Lidgren.Network.WindowsGL.csproj",
+        "sha256": null,
+        "state": "submodule-not-inspected"
+      },
+      {
+        "compile_declarations": 7,
+        "compile_sha256": "f58d6f0329f869ec1a46d59cd48de9d76073e595ed8c30abd99d86ff7a90a1ca",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "MSDFData",
+        "path": "Other/libs/MSDFData/MSDFData.csproj",
+        "sha256": "7ed10a83fa008b64f9ac874e8350e07578e125f2a96b9681204396fe0c237176",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 5,
+        "compile_sha256": "400407e6498f48ba488dd07527b01c87ed6e5aebf8bc3d8495830f795eb37e7e",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "MSDFExtension",
+        "path": "Other/libs/MSDFExtension/MSDFExtension.csproj",
+        "sha256": "d2cc95303487fe85658227b92abb0f7d638197a81378ed3323330823e19acc36",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 3,
+        "compile_sha256": "682221bab4286726395b43ff9fcaa036870558b53f0eadf2c54b1fd0929af5e1",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "TargaImage",
+        "path": "Other/libs/TargaImage/TargaImage.csproj",
+        "sha256": "4c409d817d137fec1068e9bae9438add6fe1b64727c345a35a02c30f5c0d244a",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 5,
+        "compile_sha256": "3f059b1c855517d53ffad08e2e279e3142ef28d63d3734d353c915e6b9c91691",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "TargaImagePCL",
+        "path": "Other/libs/TargaImagePCL/TargaImagePCL.csproj",
+        "sha256": "f526fcfaaa720116aa2c85a4d70378246957fccafcaca7f3672062ba31d28471",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 12,
+        "compile_sha256": "e440543cf36c2c4d103f1312552d01da2e0081cb5fd97ecf2e94b7354143bc2b",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "VoronoiLib",
+        "path": "Other/libs/VoronoiLib/VoronoiLib.csproj",
+        "sha256": "f7bae86f11d7ee9398cb016e3b5ce195455b4cefdd4254ea2736b23cdb748e5d",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 36,
+        "compile_sha256": "af2ee3a746462d62ab5abf5209a46c41304ba66a70c882ad857039b1ab601fae",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "Mp3Sharp",
+        "path": "Other/libs/mp3sharp/mp3sharp/Mp3Sharp.csproj",
+        "sha256": "4ae2f96f221cde9f50e8cc17bd58f3c239a980357d8127f7689f2cd160c7c180",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 14,
+        "compile_sha256": "913b89fb21d1d887af6cc5d7a76de69d6d3efd0ee8b12849d9a56f398d5cad4e",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Common.DatabaseService",
+        "path": "TSOClient/FSO.Common.DatabaseService/FSO.Common.DatabaseService.csproj",
+        "sha256": "3b449565f42c63ea8cdeb3a54c630c4ccd9d6466b0f8ed74673159f6c4da4997",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 12,
+        "compile_sha256": "690b8f098a3959f143b116f3152837414a56f98757e3ebdac80931556de85e76",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Common.Domain",
+        "path": "TSOClient/FSO.Common.Domain/FSO.Common.Domain.csproj",
+        "sha256": "d96cfe0b33a177b0f17d772738a4875e21f271415f3b33283422ad6eee6abea0",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 1,
+        "compile_sha256": "4e3df93f42432236f5073f14349139e79d6b7e80b24b2a6f6d5b9edc9c46564c",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Content.TSO",
+        "path": "TSOClient/FSO.Content.TSO/FSO.Content.TSO.csproj",
+        "sha256": "211ef7eb2320deac8a2198b6d57e3316d1b1c150269636d584d18c14ce6a829d",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 203,
+        "compile_sha256": "8583c7838e4d71f5033efe4ac80b76be48c1e1a8aa31aa2d6895af0a65df0625",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.IDE",
+        "path": "TSOClient/FSO.IDE/FSO.IDE.csproj",
+        "sha256": "fc34c892654a8ea6a6aabf9a82aa634c14721086c31d606303862da27d44bd0f",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 10,
+        "compile_sha256": "a14fae8c5aa4d8eec1870435af4b576e959cbb4ba7e1d79bb0cb97d2357bb6ae",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Patcher",
+        "path": "TSOClient/FSO.Patcher/FSO.Patcher.csproj",
+        "sha256": "8d27629da05298b28e64ca332c639d061fc3bb5d9a6ccab711deb547f579b90a",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "unevaluated-sdk-defaults",
+        "name": "FSO.Server.Api.Core",
+        "path": "TSOClient/FSO.Server.Api.Core/FSO.Server.Api.Core.csproj",
+        "sha256": "0425f7db9fa3dc51cf118be71ee60c2f755b1523db8d8ffce898f7429d10dff5",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 8,
+        "compile_sha256": "fcc9d7c4472ad3f91f572b590d01b6335f6974683df3d4d5061390a3d2027adc",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Clients",
+        "path": "TSOClient/FSO.Server.Clients/FSO.Server.Clients.csproj",
+        "sha256": "0a4bc3f2faf0730e053203c0950a2074de4ac4920ce30b3ea6633c5f3f018064",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 19,
+        "compile_sha256": "006a96e2540d24db4d35967dff2d0006e94174c2d8c383ab2d904cf3ed7ece70",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Common",
+        "path": "TSOClient/FSO.Server.Common/FSO.Server.Common.csproj",
+        "sha256": "bc1a97fb96adfc2fca494aa9bdca8bbe79fb4b240080a902f047f09f284a8023",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "unevaluated-sdk-defaults",
+        "name": "FSO.Server.Core",
+        "path": "TSOClient/FSO.Server.Core/FSO.Server.Core.csproj",
+        "sha256": "5b89be6648e98dd17bdcb6a5a49925fdab96b80c7999475f3b56deb7857283ae",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 41,
+        "compile_sha256": "92bcd303d2944c4b30bd2586c0755af72223032a5cfc5f2f94d804cb541c411b",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Common.DataService",
+        "path": "TSOClient/FSO.Server.DataService/FSO.Common.DataService.csproj",
+        "sha256": "5f084c26698701920ed80bd141fd8d766c10282c7c89226df33c9c3163c22e87",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 127,
+        "compile_sha256": "f87e2d50a9dcc5a23ba7fac8124010477e3cae7d3afcf421207a4c678c6b0453",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Database",
+        "path": "TSOClient/FSO.Server.Database/FSO.Server.Database.csproj",
+        "sha256": "ea9870f4581b71fe7104100339b7a49621d6333b861352d486d4283de343f772",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 18,
+        "compile_sha256": "1070c293cfa0fc3805cedd48d48f501901a0082d8c7db51edc94f55c5a06772a",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Debug",
+        "path": "TSOClient/FSO.Server.Debug/FSO.Server.Debug.csproj",
+        "sha256": "14ecb611d87efcbed33ab703936fb0fb097feda06db2bb986948f859431c9fe5",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 3,
+        "compile_sha256": "b4648d83ca80e529bf029717f72e25f835b23e393a0a8bdc7f690af0173a4140",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Domain",
+        "path": "TSOClient/FSO.Server.Domain/FSO.Server.Domain.csproj",
+        "sha256": "4f16921028ce55371446de4a4ef6b9476cb5efbd70084018ba124f2627686145",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 126,
+        "compile_sha256": "ddbc79462bb724ebd7ad0448815e9ac4fcebbb9629d3d515a236ccc52f312cac",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Protocol",
+        "path": "TSOClient/FSO.Server.Protocol/FSO.Server.Protocol.csproj",
+        "sha256": "ad57172a0ca957ed53ed4d4db5e114be1df430cdb8fd74079309889f2a2623a8",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 4,
+        "compile_sha256": "c5a98660696bca7763a43efe9e5ba25e7398c6269ad7e83fa1b8e38aac82470d",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server.Watchdog",
+        "path": "TSOClient/FSO.Server.Updater/FSO.Server.Watchdog.csproj",
+        "sha256": "08a0b8c51e8b6fc04b1afaf4497f3fb50f5b9c937b5340cf6a2f354568ce213e",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 97,
+        "compile_sha256": "7715f1e04653f99afb1c9df933a8d6c4fe48204c49883b93162aa9051da503eb",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Server",
+        "path": "TSOClient/FSO.Server/FSO.Server.csproj",
+        "sha256": "eb47e3864123e4c53bcfb90d734ff77b37d173e10bd630c5a0a308435439e662",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 0,
+        "compile_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "implicit_compile": "unevaluated-sdk-defaults",
+        "name": "FSO.SimAntics.JIT.Roslyn",
+        "path": "TSOClient/FSO.SimAntics.JIT.Roslyn/FSO.SimAntics.JIT.Roslyn.csproj",
+        "sha256": "d679b1b7509fb5e554cf29aa809dd1215d85cdc8b0a78086a25fdb56ebe5ba19",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 27,
+        "compile_sha256": "393539b63e55674f00ab4bbe17437408821ae9f1794a14f0824f7b8f5ec19c60",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.SimAntics.JIT",
+        "path": "TSOClient/FSO.SimAntics.JIT/FSO.SimAntics.JIT.csproj",
+        "sha256": "86d6517dc445ab4ce9640e790a3d5f802410bd353c5abe551912cf7eb7c4af07",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 82,
+        "compile_sha256": "587ca690dadcd202ffc9432e54208891cdf577a8f3693eafe88081339ccf06fa",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.UI",
+        "path": "TSOClient/FSO.UI/FSO.UI.csproj",
+        "sha256": "3b7dbf5beb1aa9dc92ec5460cb534c74959d707d253f5ae2502252b43b121409",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 6,
+        "compile_sha256": "f09d3f221f1e8b4bb371eea9ffd2bbbbcf96b9e8e746d0782fc08aeb41b43692",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Windows",
+        "path": "TSOClient/FSO.Windows/FSO.Windows.csproj",
+        "sha256": "36a022f68ead4b90785adccf1eedc97c426a8b501cb6d67a8940edbbcaf85616",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 6,
+        "compile_sha256": "9abe653ca6d3b140677d6f35504872c9579e81634a036c2e245ca3bdea6c2cbb",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSOiOS",
+        "path": "TSOClient/FSO.iOS/FSOiOS.csproj",
+        "sha256": "475bde7edcba465f2d6bd72c31ade70edc1342bb0081cef209c13df4c21db683",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 6,
+        "compile_sha256": "625982e8b5cb51e57e74d4384cb341c7a8c7362194485ba4e2d96c8aa56b44f3",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSODroid",
+        "path": "TSOClient/FSODroid/FSODroid.csproj",
+        "sha256": "69618d1d98861e5a1c601aaae32368300458105b50b1792b27a823045b150b46",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 4,
+        "compile_sha256": "284b7cf612b7301ebd02dd8df08ba2009199338760a8e35db762219c0285d399",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSOFacadeWorker",
+        "path": "TSOClient/FSOFacadeWorker/FSOFacadeWorker.csproj",
+        "sha256": "8634d5dc4c04f20f3b4b1e5ee681a0076e652bf7842abc029dffad6189ae9c73",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 264,
+        "compile_sha256": "7e866ac8fd99409b5c9aae324757441ba324474ff91842d21033424ef6149be0",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Client",
+        "path": "TSOClient/tso.client/FSO.Client.csproj",
+        "sha256": "f0db2804708997bc2407f8d4951bdf5b3e934d82c2075b1f4887b606c0c1a1d3",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 119,
+        "compile_sha256": "b9f88ab11d1399b73a70d9d2af1ef1237a8a3cd056314016b5ea11511dd7933e",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Common",
+        "path": "TSOClient/tso.common/FSO.Common.csproj",
+        "sha256": "421e408f919d65a536d1c7e27a3470c6670a877722434a15abc3c86f394ca63d",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 90,
+        "compile_sha256": "840cb2a4c93ae4eea315a0a26e70c0080d5eb3e8e6fffba80615f3bfdc212bec",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Content",
+        "path": "TSOClient/tso.content/FSO.Content.csproj",
+        "sha256": "eada658506188fdf63aa163d0193b938c4117811b9823877fdb6453a4a4c25dd",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 20,
+        "compile_sha256": "588428bada6df9ae5b6d329783fec0ad21eeb1413087f480ef350a7f580f26d9",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Debug",
+        "path": "TSOClient/tso.debug/FSO.Debug.csproj",
+        "sha256": "58e72001fac99c184d94e3fc7208955d5d9fd7ae81ac106c4234eede49e88985",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 96,
+        "compile_sha256": "9d4a49782014d8414ae6af96358f3d25c2c99cc8f98a1d88021d7a0b7d5c807d",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Files",
+        "path": "TSOClient/tso.files/FSO.Files.csproj",
+        "sha256": "18352ae6f890874bd5576b54f95d2b9f54c0282064766122e325f0d26246ca5a",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 302,
+        "compile_sha256": "914e44cb6f353f4bdd5572b6f3fae172301152f068b48eca9d69a56bf2700893",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.SimAntics",
+        "path": "TSOClient/tso.simantics/FSO.SimAntics.csproj",
+        "sha256": "db74387c817f3173b99e2484b3491e39d77ed909ef732cb47694b72dd2717066",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 8,
+        "compile_sha256": "a916ae7ee4f77ec150c7a2ce08d4a24a1d2c95dc0e19607fc51c0b84c02570a0",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.HIT",
+        "path": "TSOClient/tso.sound/FSO.HIT.csproj",
+        "sha256": "4f4d26167d0f67003f0c908c75c2afe7afdffd33bd60c0f155eaf41eda6ba6c6",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 5,
+        "compile_sha256": "8d3f801a3cf8b1c9065363c453c57c6083b1db94a76289d6e4c2da148ec3e5e8",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Vitaboy.Engine",
+        "path": "TSOClient/tso.vitaboy.engine/FSO.Vitaboy.Engine.csproj",
+        "sha256": "2c4b1bb8f6b709bbf845552db02f4f8619431ddd192cc65dbe6db1b40edea868",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 19,
+        "compile_sha256": "5cb05bfbd5bdb518251464620bf85a90f997ae9d440e2385e28456ed709d015a",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.Vitaboy",
+        "path": "TSOClient/tso.vitaboy.model/FSO.Vitaboy.csproj",
+        "sha256": "c01c4b13fbf9c601cbda1d7c783bc545a986e94a424b0d7700f69828d00b1355",
+        "state": "present"
+      },
+      {
+        "compile_declarations": 98,
+        "compile_sha256": "db376afa007a3c92a78ea5d40fdbb97c3dfc8c8d5e13555ca8970081f1e85120",
+        "implicit_compile": "not-msbuild-evaluated",
+        "name": "FSO.LotView",
+        "path": "TSOClient/tso.world/FSO.LotView.csproj",
+        "sha256": "2eff816f9ef53730d8c718773b3355c0908fe415079f458391a2c08850aaa230",
+        "state": "present"
+      }
+    ],
+    "scope": "declared-solution-not-msbuild-evaluated",
+    "solution": {
+      "path": "TSOClient/FreeSO.sln",
+      "sha256": "f22e07457310a8ae629f65727dfade5b4746162d3edc3f70c54bce3970cf9767"
+    },
+    "submodules": [
+      {
+        "path": "Other/libs/FSOMina.NET",
+        "scope": "declaration-only-no-payload-or-rights-approval",
+        "url": "https://github.com/riperiperi/FSOMina.NET.git"
+      },
+      {
+        "path": "Other/libs/FSOMonoGame",
+        "scope": "declaration-only-no-payload-or-rights-approval",
+        "url": "https://github.com/riperiperi/FSOMonoGame.git"
+      },
+      {
+        "path": "Other/libs/assimp-net",
+        "scope": "declaration-only-no-payload-or-rights-approval",
+        "url": "https://github.com/kebby/assimp-net.git"
+      }
+    ]
+  },
+  "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73"
+}

@@ -5,7 +5,130 @@ use crate::{
 };
 use sha2::{Digest, Sha256};
 use std::fmt::Write;
-use wonderland_render_core::{Aabb, AssetKey, Mat4, Mesh, Vec3};
+use wonderland_render_core::derivatives::{
+    fsof::{Fsof, FsofLimits},
+    ImageRole,
+};
+use wonderland_render_core::{Aabb, AssetKey, Mat4, Mesh, RgbaImage, Vec3};
+
+pub struct SourceFacadeNight {
+    pub floor: RgbaImage,
+    pub wall: RgbaImage,
+    pub light_color: [u8; 4],
+}
+/// Original facade geometry/material split, prepared in city coordinates.
+pub struct TexturedFacade {
+    pub floor: Mesh,
+    pub wall: Mesh,
+    pub floor_day: RgbaImage,
+    pub wall_day: RgbaImage,
+    pub night: Option<SourceFacadeNight>,
+    pub bounds: Aabb,
+    pub identity: AssetKey,
+}
+pub fn load_source_facade(
+    bytes: &[u8],
+    city: (u16, u16),
+    corner_elevation: [u8; 4],
+    y_squish: f32,
+    limits: FsofLimits,
+) -> Result<TexturedFacade, Error> {
+    let transform = super::facade_transform(city, corner_elevation, y_squish)?;
+    let normals = transform
+        .inverse()
+        .ok_or(Error::InvalidInput("source facade transform"))?
+        .transpose();
+    let source =
+        Fsof::decode(bytes, limits).map_err(|_| Error::InvalidInput("source FSOf container"))?;
+    let pixels = (source.floor_width as u64 * source.floor_height as u64
+        + source.wall_width as u64 * source.wall_height as u64)
+        * if source.night.is_some() { 2 } else { 1 };
+    let geometry_vertices =
+        source.geometry.floor.vertices.len() + source.geometry.wall.vertices.len();
+    let geometry_indices = source.geometry.floor.indices.len() + source.geometry.wall.indices.len();
+    if pixels
+        .checked_mul(4)
+        .and_then(|p| {
+            p.checked_add(
+                geometry_vertices as u64
+                    * std::mem::size_of::<wonderland_render_core::Vertex>() as u64
+                    + geometry_indices as u64 * 4,
+            )
+        })
+        .filter(|n| *n <= limits.max_decoded_bytes)
+        .is_none()
+    {
+        return Err(Error::InvalidInput("source facade resident budget"));
+    }
+    let render_limits = wonderland_render_core::RenderLimits {
+        max_vertices: limits.max_vertices,
+        max_indices: limits.max_indices,
+        ..Default::default()
+    };
+    let mut floor = source
+        .geometry
+        .floor
+        .to_mesh(render_limits)
+        .map_err(|_| Error::InvalidInput("source facade floor"))?;
+    let mut wall = source
+        .geometry
+        .wall
+        .to_mesh(render_limits)
+        .map_err(|_| Error::InvalidInput("source facade wall"))?;
+    let mut low = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+    let mut high = Vec3::new(f32::NEG_INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY);
+    for mesh in [&mut floor, &mut wall] {
+        for vertex in &mut mesh.vertices {
+            // FSOf stores tile units already: apply the source city transform once.
+            vertex.position = transform.transform_point3(vertex.position);
+            vertex.normal = normals.transform_vector3(vertex.normal).normalize_or_zero();
+            low.x = low.x.min(vertex.position.x);
+            low.y = low.y.min(vertex.position.y);
+            low.z = low.z.min(vertex.position.z);
+            high.x = high.x.max(vertex.position.x);
+            high.y = high.y.max(vertex.position.y);
+            high.z = high.z.max(vertex.position.z);
+        }
+        mesh.validate(&render_limits)
+            .map_err(|_| Error::InvalidInput("source facade transformed mesh"))?;
+    }
+    let bounds = Aabb::new(low, high).ok_or(Error::InvalidInput("empty source facade"))?;
+    let image = |role| {
+        source
+            .texture(role, limits)
+            .map_err(|_| Error::InvalidInput("source facade texture"))
+    };
+    let floor_day = image(ImageRole::FloorDay)?;
+    let wall_day = image(ImageRole::WallDay)?;
+    let night = source
+        .night
+        .as_ref()
+        .map(|night| {
+            Ok::<_, Error>(SourceFacadeNight {
+                floor: image(ImageRole::FloorNight)?,
+                wall: image(ImageRole::WallNight)?,
+                light_color: night.light_color,
+            })
+        })
+        .transpose()?;
+    let mut hash = Sha256::new();
+    hash.update(b"original-fsof-city-v1\0");
+    hash.update(bytes);
+    for column in transform.cols {
+        for value in column {
+            hash.update(value.to_bits().to_le_bytes());
+        }
+    }
+    Ok(TexturedFacade {
+        floor,
+        wall,
+        floor_day,
+        wall_day,
+        night,
+        bounds,
+        identity: AssetKey(hash.finalize().into()),
+    })
+}
 pub struct Facade {
     pub mesh: Mesh,
     pub bounds: Aabb,
