@@ -49,7 +49,7 @@ Create focused modules rather than another monolithic gateway:
 - `tools/hosted-game/`: E2E runner, real-service lifecycle/fault driver and evidence collection.
 - `docs/compat/game-capabilities.json`: source-to-implementation-to-browser-evidence ledger.
 
-Existing Rust crates and browser components are extended, not forked into a new demo. Native and original-server compatibility modes are explicit. Preserve device-local preview saves.
+Existing Rust crates and browser components are extended, not forked into a new demo. Read `docs/integration/RUST-REUSE-AND-INTEGRATION-GAPS-20261011.md` before implementation: reconstruction, FSOm, GPU rendering/picking, native adult animation, all 30 EOD handlers and substantial creator tools already exist. Fix actual gaps and connect providers; do not rebuild these modules from their older README summaries. Native and original-server compatibility modes are explicit. Preserve device-local preview saves.
 
 ### Task 1: Establish the full source completion ledger
 
