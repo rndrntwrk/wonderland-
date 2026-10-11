@@ -23,8 +23,10 @@ fn sky_dome_uses_source_65_subdivisions_and_real_gradient_uvs() {
     assert_eq!(sky.key(), wrapped.key());
     let dusk = build_sky_dome(0.8, 256, EnvironmentBudget::default()).unwrap();
     assert_ne!(sky.key(), dusk.key());
-    let mut budget = EnvironmentBudget::default();
-    budget.max_vertices = 4224;
+    let budget = EnvironmentBudget {
+        max_vertices: 4224,
+        ..EnvironmentBudget::default()
+    };
     assert!(build_sky_dome(0.5, 256, budget).is_err());
 }
 
@@ -155,8 +157,10 @@ fn weather_reset_camera_modes_and_budget_failures_are_atomic() {
         .prepare(&moved, EnvironmentBudget::default())
         .unwrap();
     assert_eq!(cut.batches()[0].uniforms().camera_velocity, Vec3::ZERO);
-    let mut budget = EnvironmentBudget::default();
-    budget.max_particles = 1;
+    let budget = EnvironmentBudget {
+        max_particles: 1,
+        ..EnvironmentBudget::default()
+    };
     assert!(weather.prepare(&frame(0.2), budget).is_err());
     assert_eq!(
         weather

@@ -75,9 +75,11 @@ jobs:
         if: always()
         env:
           RUSTUP_TOOLCHAIN: '1.99.0'
-          SWARM_A_PATH: ${{ github.workspace }}/swarm-a-input
+          SWARM_A_PATH: ${{ runner.temp }}/swarm-a-input
         run: |
-          cargo fetch --locked --manifest-path swarm-a-input/crates/sim-core/Cargo.toml
+          test ! -e "$SWARM_A_PATH"
+          cp -a "$GITHUB_WORKSPACE/swarm-a-input" "$SWARM_A_PATH"
+          cargo fetch --locked --manifest-path "$SWARM_A_PATH/crates/sim-core/Cargo.toml"
           python3 tools/swarm-c/avatar-integration/run.py tools/swarm-c/output/avatar-a 2>&1 | tee tools/swarm-c/output/avatar-a.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
