@@ -1,0 +1,45 @@
+name: Native host boundary
+on:
+  pull_request:
+    paths:
+      - .github/workflows/native-host.yml
+      - crates/**
+      - services/native-lot-host/**
+      - tools/hosted-game/**
+      - tests/integration/swarm_b_runtime/support/cooked_fixture.rs
+      - Cargo.toml
+      - Cargo.lock
+permissions:
+  contents: read
+concurrency:
+  group: native-host-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  host-process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Install pinned compiler
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+      - name: Verify format and private host boundary
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy -p wonderland-native-lot-host -p wonderland-native-host-contracts --all-targets --locked -- -D warnings
+          cargo build -p wonderland-content-runtime-bridge --bin runtime-bridge --locked
+          cargo build -p wonderland-native-lot-host --all-targets --locked
+      - name: Exercise actual host processes and cooked content
+        run: |
+          set -o pipefail
+          mkdir -p tests/output/native-host
+          timeout 120s node tools/hosted-game/verify-host-boundary.mjs 2>&1 | tee tests/output/native-host/process.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: native-host-boundary-evidence
+          path: tests/output/native-host/
+          if-no-files-found: warn
+          retention-days: 7

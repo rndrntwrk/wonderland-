@@ -19,6 +19,8 @@ members = [
     "crates/player-authoring",
     "crates/vm-protocol",
     "services/browser-gateway",
+    "crates/native-host-contracts",
+    "services/native-lot-host",
     "tools/creator",
     "tools/asset-cooker",
     "apps/web-shell",

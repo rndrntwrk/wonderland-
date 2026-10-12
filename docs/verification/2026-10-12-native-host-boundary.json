@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "scope": "Actual local host and real runtime with declared authored cooker fixture; no hosted durability/auth qualification",
+  "checks": [
+    "Actual cooked behavior executes; committed WLR1 replay matches hash and attribute 41",
+    "Tentative state hidden; stable retry/unknown/lookup; no duplicate execution",
+    "Rejected candidate unchanged; decimal identities, content/incarnation, predecessor and byte/count bounds rejected",
+    "Real BeginBuild retained through commit/lookup; rejection leaves checkpoint unchanged; operation beyond JS safe integer remains exact",
+    "Actual dialog effect is withheld on rejection and retained on commit with epochs beyond JS safe integer",
+    "Wrong independently pinned cooked binding prevents startup",
+    "Overlong input closes host without unbounded line allocation"
+  ]
+}

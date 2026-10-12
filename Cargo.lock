@@ -2909,6 +2909,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "wonderland-native-host-contracts"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "wonderland-native-lot-host"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "serde",
+ "serde_json",
+ "wonderland-asset-cooker",
+ "wonderland-content-ir",
+ "wonderland-content-runtime-bridge",
+ "wonderland-game-runtime",
+ "wonderland-legacy-formats",
+ "wonderland-native-host-contracts",
+]
+
+[[package]]
 name = "wonderland-player-authoring"
 version = "0.1.0"
 dependencies = [
