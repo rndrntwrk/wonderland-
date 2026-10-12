@@ -65,7 +65,10 @@ export default {
       } = (await request.json()) as any;
       const stub = env.COORD.get(env.COORD.idFromName(lot));
       let result;
-      if (op === "pauseCheckpoint") result = await stub.pauseCheckpoint();
+      if (op === "beginRecovery") result = await stub.beginRecovery(...args);
+      else if (op === "finishRecovery")
+        result = await stub.finishRecovery(args[0], Uint8Array.from(args[1]));
+      else if (op === "pauseCheckpoint") result = await stub.pauseCheckpoint();
       else if (op === "checkpointPaused")
         result = await stub.checkpointPaused();
       else if (op === "resumeCheckpoint")

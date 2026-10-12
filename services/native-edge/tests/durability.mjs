@@ -307,10 +307,28 @@ try {
   const competing = structuredClone(nextProposal);
   competing.payload.batch_id = "5";
   competing.digest = sha(canonical(competing.payload));
+  const competingLot = "competing-successors";
+  await call(
+    "initialize",
+    [initial.binding, state.cursor, sha(checkpointBytes)],
+    competingLot,
+  );
   const races = await Promise.allSettled([
-    call("commitBatch", [nextProposal]),
-    call("commitBatch", [competing]),
+    call("commitBatch", [nextProposal], competingLot),
+    call("commitBatch", [competing], competingLot),
   ]);
+  const winner = await call("commitBatch", [nextProposal]);
+  assert.equal(
+    (
+      await ask({
+        kind: "resolve",
+        batch_id: "4",
+        digest: winner.digest,
+        decision: { status: "committed", cursor: winner.cursor },
+      })
+    ).kind,
+    "committed",
+  );
   assert.equal(races.filter((r) => r.status === "fulfilled").length, 1);
   assert.equal((await call("inspect")).journal.count, 4);
   checks.push(
@@ -328,7 +346,7 @@ try {
   checks.push(
     "R2 checkpoint readback and SQLite manifest survive restart; stale/bad checkpoints refused",
   );
-  const winner = races.find((r) => r.status === "fulfilled").value;
+
   const durableTail = await call("readBatch", ["1", winner.batch_id]);
   assert.equal(durableTail.ticks_hex, nextProposal.payload.ticks_hex);
   await writeFile(join(release, "checkpoint.bin"), checkpointBytes);
@@ -377,6 +395,200 @@ try {
     "Replacement Rust process restores exact R2 checkpoint plus actual accepted multi-chunk journal tail; wrong terminal hash prevents ready output",
   );
 
+  const beforeEffect = await ask({ kind: "inspect" });
+  const pendingEffectProposal = await ask({
+    ...request,
+    batch_id: "6",
+    predecessor: beforeEffect.cursor,
+    commands_hex: (
+      await readFile(join(release, "effect-commands.txt"), "utf8")
+    ).trim(),
+  });
+  assert.equal(pendingEffectProposal.kind, "proposal");
+  const effectReceipt = await call("commitBatch", [pendingEffectProposal]);
+  assert.equal(
+    (
+      await ask({
+        kind: "resolve",
+        batch_id: "6",
+        digest: effectReceipt.digest,
+        decision: { status: "committed", cursor: effectReceipt.cursor },
+      })
+    ).kind,
+    "committed",
+  );
+  const persistedEffect = await call("readBatch", ["1", "6"]);
+  await writeFile(
+    join(release, "recovery-batches.json"),
+    JSON.stringify([durableTail.ticks_hex, persistedEffect.ticks_hex]),
+  );
+  run("examples/host-boundary-fixture", ["join-tail", release]);
+  config.recovery.tail_sha256 = sha(await readFile(join(release, "tail.bin")));
+  const current = await ask({ kind: "inspect" });
+  const staleProposal = await ask({
+    ...request,
+    batch_id: "99",
+    predecessor: current.cursor,
+    commands_hex: "01000000000000000000000000000000",
+  });
+  assert.equal(staleProposal.kind, "proposal");
+  const manifestsBeforeFence = await call("listCheckpoints");
+  await call("pauseCheckpoint");
+  const oldCheckpointPublish = call("publishCheckpoint", [
+    initial.binding,
+    current.cursor,
+    sha(Buffer.from(current.checkpoint_hex, "hex")),
+    [...Buffer.from(current.checkpoint_hex, "hex")],
+  ]).then(
+    (value) => ({ value }),
+    (error) => ({ error: String(error) }),
+  );
+  for (let i = 0; !(await call("checkpointPaused")); i++) {
+    if (i >= 100) throw Error("old checkpoint did not reach R2 fence window");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  const grant = await call("beginRecovery", ["1"]);
+  await call("resumeCheckpoint");
+  assert.match((await oldCheckpointPublish).error, /recovery in progress/);
+  assert.deepEqual(await call("listCheckpoints"), manifestsBeforeFence);
+  await assert.rejects(call("beginRecovery", ["2"]), /recovery in progress/);
+  await assert.rejects(
+    call("commitBatch", [staleProposal]),
+    /recovery in progress/,
+  );
+  await mf.dispose();
+  await start();
+  assert.deepEqual(await call("beginRecovery", ["1"]), grant);
+  config.recovery.expected_cursor = current.cursor;
+  await writeFile(
+    join(release, "recovery-original.json"),
+    JSON.stringify(config),
+  );
+  config.recovery.takeover = grant;
+  await writeFile(join(release, "takeover.json"), JSON.stringify(config));
+  const malformedGrantConfig = structuredClone(config);
+  malformedGrantConfig.recovery.takeover.new_authority_epoch =
+    "9007199254740995";
+  await writeFile(
+    join(release, "bad-grant.json"),
+    JSON.stringify(malformedGrantConfig),
+  );
+  assert.throws(
+    () =>
+      execFileSync(
+        join(repo, "target/debug/wonderland-native-lot-host"),
+        [join(release, "bad-grant.json")],
+        {
+          input: "",
+          encoding: "utf8",
+          timeout: 10000,
+          stdio: ["pipe", "pipe", "pipe"],
+        },
+      ),
+    /recovery grant/,
+  );
+  const replacement = JSON.parse(
+    execFileSync(
+      join(repo, "target/debug/wonderland-native-lot-host"),
+      [join(release, "takeover.json")],
+      { input: "", encoding: "utf8", timeout: 10000 },
+    ),
+  );
+  assert.equal(replacement.kind, "recovery_candidate");
+  assert.equal(replacement.recovery_pending, true);
+  assert.equal(replacement.binding.lot_incarnation, "2");
+  assert.equal(replacement.cursor.authority_epoch, "9007199254740994");
+  run("examples/host-boundary-fixture", ["takeover", release]);
+  const marker = replacement.takeover_marker;
+  const anchor = Buffer.from(replacement.checkpoint_hex, "hex");
+  await assert.rejects(
+    call("finishRecovery", [marker, [...Buffer.alloc(anchor.length)]]),
+    /digest/,
+  );
+  const changedGrantMarker = structuredClone(marker);
+  changedGrantMarker.grant.old_checkpoint_sha256 = "0".repeat(64);
+  await assert.rejects(
+    call("finishRecovery", [changedGrantMarker, [...anchor]]),
+    /changed recovery grant/,
+  );
+  const finished = await call("finishRecovery", [marker, [...anchor]]);
+  const retainedCheckpoints = await call("listCheckpoints");
+  assert.equal(retainedCheckpoints.length, 2);
+  assert.equal(
+    retainedCheckpoints[0].cursor.authority_epoch,
+    "9007199254740994",
+  );
+  assert.equal(
+    retainedCheckpoints[1].cursor.authority_epoch,
+    "9007199254740993",
+  );
+  assert.equal((await call("inspect")).pending_outbox, 3);
+  await mf.dispose();
+  await start();
+  assert.deepEqual(
+    await call("finishRecovery", [marker, [...anchor]]),
+    finished,
+  );
+  assert.deepEqual(await call("beginRecovery", ["1"]), grant);
+  await assert.rejects(call("commitBatch", [staleProposal]), /stale binding/);
+  const changedCompletion = structuredClone(marker);
+  changedCompletion.new_cursor.state_hash = "0".repeat(64);
+  await assert.rejects(
+    call("finishRecovery", [changedCompletion, [...anchor]]),
+    /changed recovery completion/,
+  );
+  for (const field of ["incarnation", "epoch"]) {
+    const lot = `overflow-${field}`;
+    const b = { ...initial.binding },
+      c = { ...initial.cursor };
+    if (field === "incarnation") b.lot_incarnation = "18446744073709551615";
+    else c.authority_epoch = "18446744073709551615";
+    await call("initialize", [b, c, sha(initialBytes)], lot);
+    const before = await call("inspect", [], lot);
+    await assert.rejects(
+      call("beginRecovery", [b.lot_incarnation], lot),
+      /decimal identity/,
+    );
+    assert.deepEqual(await call("inspect", [], lot), before);
+  }
+  const nextRequest = {
+    kind: "prepare",
+    batch_id: "1",
+    binding: replacement.binding,
+    predecessor: replacement.cursor,
+    commands_hex: "01000000000000000000000000000000",
+  };
+  const replacementOutput = execFileSync(
+    join(repo, "target/debug/wonderland-native-lot-host"),
+    [join(release, "takeover.json")],
+    {
+      input:
+        JSON.stringify(nextRequest) +
+        "\n" +
+        JSON.stringify({ kind: "activate_recovery", marker: finished }) +
+        "\n" +
+        JSON.stringify(nextRequest) +
+        "\n",
+      encoding: "utf8",
+      timeout: 10000,
+    },
+  )
+    .trim()
+    .split("\n")
+    .map(JSON.parse);
+  assert.equal(replacementOutput[1].kind, "denied");
+  assert.match(
+    replacementOutput[1].reason,
+    /awaits durable recovery activation/,
+  );
+  assert.equal(replacementOutput[2].kind, "committed_state");
+  assert.equal(replacementOutput[3].kind, "proposal");
+  const acceptedReplacement = await call("commitBatch", [replacementOutput[3]]);
+  assert.equal(acceptedReplacement.cursor.authority_epoch, "9007199254740994");
+  checks.push(
+    "Durable recovery grant survives restart, fences live old host, preserves pending logical effects, gates activation and accepts actual replacement successor",
+  );
+
   await mkdir(join(repo, "tests/output/native-durability"), {
     recursive: true,
   });
@@ -386,7 +598,7 @@ try {
       {
         passed: true,
         scope:
-          "Local real workerd SQLite Durable Object and R2 plus actual native host; no deployment or takeover acceptance",
+          "Local real workerd SQLite Durable Object and R2 plus actual native host; local fenced takeover only; no deployment",
         checks,
       },
       null,

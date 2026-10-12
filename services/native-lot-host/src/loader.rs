@@ -11,7 +11,9 @@ use wonderland_game_runtime::{
     GameRuntime, LotModel, RuntimeConfig, RuntimeRole, VmMode,
     content_bridge::cooked::{CookedLoadLimits, PackBytes, PreparedRelease, SOURCE_BASELINE},
 };
-use wonderland_native_host_contracts::{CursorV1, DecimalId, HostBindingV1};
+use wonderland_native_host_contracts::{
+    CursorV1, DecimalId, HostBindingV1, RecoveryGrantV1, TakeoverMarkerV1,
+};
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -39,6 +41,8 @@ pub struct Recovery {
     pub tail_file: String,
     pub tail_sha256: String,
     pub expected_cursor: CursorV1,
+    #[serde(default)]
+    pub takeover: Option<RecoveryGrantV1>,
 }
 fn pinned(path: &str, expected: &str, cap: usize) -> Result<Vec<u8>> {
     let bytes = read(Path::new(path), cap)?;
@@ -76,7 +80,14 @@ pub fn read(path: &Path, cap: usize) -> Result<Vec<u8>> {
     }
     Ok(bytes)
 }
-pub fn load(path: &Path) -> Result<(GameRuntime, RuntimeConfig, HostBindingV1, serde_json::Value)> {
+pub type LoadedHost = (
+    GameRuntime,
+    RuntimeConfig,
+    HostBindingV1,
+    serde_json::Value,
+    Option<TakeoverMarkerV1>,
+);
+pub fn load(path: &Path) -> Result<LoadedHost> {
     let config: Config = serde_json::from_slice(&read(path, 65536)?)?;
     if config.schema_version != 1
         || config.lot_id.0 == 0
@@ -142,6 +153,13 @@ pub fn load(path: &Path) -> Result<(GameRuntime, RuntimeConfig, HostBindingV1, s
     runtime_config.utc_start_dotnet_ticks = i64::try_from(config.utc_start_dotnet_ticks.0)?;
     let mut runtime =
         GameRuntime::from_cooked(loaded, lot, runtime_config.clone(), RuntimeRole::Authority)?;
+    let mut identity = HostBindingV1 {
+        protocol: 1,
+        source_pin: SOURCE_BASELINE.into(),
+        binding_sha256: config.binding_sha256.clone(),
+        lot_incarnation: config.lot_incarnation,
+    };
+    let mut takeover_marker = None;
     if let Some(recovery) = config.recovery {
         let checkpoint = pinned(
             &recovery.checkpoint_file,
@@ -179,12 +197,49 @@ pub fn load(path: &Path) -> Result<(GameRuntime, RuntimeConfig, HostBindingV1, s
         if actual != recovery.expected_cursor {
             return Err("recovery did not reach committed cursor".into());
         }
+        if let Some(grant) = recovery.takeover {
+            let mut next_binding = identity.clone();
+            next_binding.lot_incarnation = DecimalId(
+                identity
+                    .lot_incarnation
+                    .0
+                    .checked_add(1)
+                    .ok_or("incarnation exhausted")?,
+            );
+            let next_epoch = actual
+                .authority_epoch
+                .0
+                .checked_add(1)
+                .ok_or("authority epoch exhausted")?;
+            if grant.schema_version != 1
+                || grant.old_binding != identity
+                || grant.old_cursor != actual
+                || grant.new_binding != next_binding
+                || grant.new_authority_epoch.0 != next_epoch
+                || grant.old_checkpoint_sha256 != Digest::of(&runtime.snapshot()?).as_str()
+            {
+                return Err("recovery grant does not bind restored predecessor".into());
+            }
+            runtime.adopt_authority_epoch(next_epoch)?;
+            runtime_config.authority_epoch = next_epoch;
+            identity = next_binding;
+            let new_cursor = CursorV1 {
+                authority_epoch: DecimalId(next_epoch),
+                state_hash: runtime
+                    .sim()
+                    .state_hash()?
+                    .iter()
+                    .map(|b| format!("{b:02x}"))
+                    .collect(),
+                ..actual
+            };
+            takeover_marker = Some(TakeoverMarkerV1 {
+                schema_version: 1,
+                grant,
+                new_cursor,
+                checkpoint_sha256: Digest::of(&runtime.snapshot()?).as_str().to_owned(),
+            });
+        }
     }
-    let identity = HostBindingV1 {
-        protocol: 1,
-        source_pin: SOURCE_BASELINE.into(),
-        binding_sha256: config.binding_sha256,
-        lot_incarnation: config.lot_incarnation,
-    };
-    Ok((runtime, runtime_config, identity, report))
+    Ok((runtime, runtime_config, identity, report, takeover_marker))
 }

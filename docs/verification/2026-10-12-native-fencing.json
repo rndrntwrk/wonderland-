@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "scope": "Local real workerd SQLite Durable Object and R2 plus actual native host; local fenced takeover only; no deployment",
+  "checks": [
+    "Fault-injected count and byte capacity boundaries reject a genuine proposal without changing state",
+    "Actual native host proposal survives workerd restart and caller retry with exact durable receipt and journal",
+    "Nonempty durable build and dialog effect outbox references survive actual workerd restart",
+    "A genuine successor committed during paused R2 I/O prevents obsolete checkpoint publication",
+    "Digest alteration and changed-ID reuse denied; competing successors atomically admit one",
+    "R2 checkpoint readback and SQLite manifest survive restart; stale/bad checkpoints refused",
+    "Replacement Rust process restores exact R2 checkpoint plus actual accepted multi-chunk journal tail; wrong terminal hash prevents ready output",
+    "Durable recovery grant survives restart, fences live old host, preserves pending logical effects, gates activation and accepts actual replacement successor"
+  ]
+}

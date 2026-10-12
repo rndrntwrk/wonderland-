@@ -12,8 +12,9 @@ fn run() -> Result<()> {
     if args.len() != 2 {
         return Err("usage: wonderland-native-lot-host CONFIG.json".into());
     }
-    let (state, config, binding, report) = loader::load(std::path::Path::new(&args[1]))?;
-    let mut host = runtime::Host::new(state, config, binding, report)?;
+    let (state, config, binding, report, takeover_marker) =
+        loader::load(std::path::Path::new(&args[1]))?;
+    let mut host = runtime::Host::new(state, config, binding, report, takeover_marker)?;
     let mut out = io::BufWriter::new(io::stdout().lock());
     serde_json::to_writer(&mut out, &host.handle(RequestV1::Inspect)?)?;
     writeln!(out)?;
