@@ -11,7 +11,7 @@ use wonderland_game_runtime::{
     GameRuntime, LotModel, RuntimeConfig, RuntimeRole, VmMode,
     content_bridge::cooked::{CookedLoadLimits, PackBytes, PreparedRelease, SOURCE_BASELINE},
 };
-use wonderland_native_host_contracts::{DecimalId, HostBindingV1};
+use wonderland_native_host_contracts::{CursorV1, DecimalId, HostBindingV1};
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -28,6 +28,24 @@ pub struct Config {
     pub seed: DecimalId,
     pub utc_start_dotnet_ticks: DecimalId,
     pub effect_namespace: DecimalId,
+    #[serde(default)]
+    pub recovery: Option<Recovery>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Recovery {
+    pub checkpoint_file: String,
+    pub checkpoint_sha256: String,
+    pub tail_file: String,
+    pub tail_sha256: String,
+    pub expected_cursor: CursorV1,
+}
+fn pinned(path: &str, expected: &str, cap: usize) -> Result<Vec<u8>> {
+    let bytes = read(Path::new(path), cap)?;
+    if Digest::of(&bytes).as_str() != expected {
+        return Err("recovery input digest mismatch".into());
+    }
+    Ok(bytes)
 }
 pub fn read(path: &Path, cap: usize) -> Result<Vec<u8>> {
     // Deployment owns these immutable files. Reject observed symlinks/traversal.
@@ -122,8 +140,46 @@ pub fn load(path: &Path) -> Result<(GameRuntime, RuntimeConfig, HostBindingV1, s
     );
     runtime_config.effect_namespace = config.effect_namespace.0;
     runtime_config.utc_start_dotnet_ticks = i64::try_from(config.utc_start_dotnet_ticks.0)?;
-    let runtime =
+    let mut runtime =
         GameRuntime::from_cooked(loaded, lot, runtime_config.clone(), RuntimeRole::Authority)?;
+    if let Some(recovery) = config.recovery {
+        let checkpoint = pinned(
+            &recovery.checkpoint_file,
+            &recovery.checkpoint_sha256,
+            8 * 1024 * 1024,
+        )?;
+        runtime.restore(&checkpoint)?;
+        let tail = pinned(&recovery.tail_file, &recovery.tail_sha256, 8 * 1024 * 1024)?;
+        match wonderland_game_runtime::live_wire::decode_packet(&tail, Default::default())? {
+            wonderland_game_runtime::live_wire::Packet::Ticks(frames) => {
+                if frames.len() > 64 {
+                    return Err("recovery tail count limit".into());
+                }
+                for frame in frames {
+                    let result = runtime.apply_accepted(&frame.accepted)?;
+                    if result.state_hash != frame.state_hash {
+                        return Err("recovery accepted state hash mismatch".into());
+                    }
+                }
+            }
+            _ => return Err("recovery requires accepted tick tail".into()),
+        }
+        let state = runtime.sim().state();
+        let actual = CursorV1 {
+            lot_id: DecimalId(state.lot_id),
+            authority_epoch: DecimalId(state.authority_epoch),
+            completed_tick: DecimalId(state.completed_tick),
+            state_hash: runtime
+                .sim()
+                .state_hash()?
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect(),
+        };
+        if actual != recovery.expected_cursor {
+            return Err("recovery did not reach committed cursor".into());
+        }
+    }
     let identity = HostBindingV1 {
         protocol: 1,
         source_pin: SOURCE_BASELINE.into(),

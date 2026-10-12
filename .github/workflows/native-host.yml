@@ -5,6 +5,7 @@ on:
       - .github/workflows/native-host.yml
       - crates/**
       - services/native-lot-host/**
+      - services/native-edge/**
       - tools/hosted-game/**
       - tests/integration/swarm_b_runtime/support/cooked_fixture.rs
       - Cargo.toml
@@ -36,10 +37,21 @@ jobs:
           set -o pipefail
           mkdir -p tests/output/native-host
           timeout 120s node tools/hosted-game/verify-host-boundary.mjs 2>&1 | tee tests/output/native-host/process.log
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Exercise real local Cloudflare durability and host recovery
+        run: |
+          npm --prefix services/native-edge ci
+          npm --prefix services/native-edge run check
+          npm --prefix services/native-edge run build
+          timeout 120s npm --prefix services/native-edge run e2e
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: native-host-boundary-evidence
-          path: tests/output/native-host/
+          path: |
+            tests/output/native-host/
+            tests/output/native-durability/
           if-no-files-found: warn
           retention-days: 7
