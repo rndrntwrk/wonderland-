@@ -1,0 +1,1908 @@
+{
+  "schema_version": 1,
+  "reference_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "intake": [
+    {
+      "id": "intake.original-pin",
+      "state": "resolved",
+      "requirement": "Original commit/tree fetched directly from riperiperi/FreeSO and every original blob compared. All 5,465 source/asset blobs match; only declared .gitignore metadata differs. Two pinned gitlinks remain part of unresolved registration/submodule closure, not gameplay qualification."
+    },
+    {
+      "id": "intake.registration-closure",
+      "state": "unresolved",
+      "requirement": "Expand active screens, primitives, network commands, packet maps, handlers, data providers, database/tasks, creator editors, SDK-default compilation, non-solution projects and submodule dispositions. The 71 seeded capability rows are not the entire game census."
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "source.3d-mesh-pipeline",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.content/RCMeshProvider.cs",
+        "TSOClient/tso.files/RC/DGRP3DMesh.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.content/RCMeshProvider.cs": "40287c60b6ee6c5c5463a2997af223c56c0283888a5b30cea7dcfc9adaaa7bc1",
+        "TSOClient/tso.files/RC/DGRP3DMesh.cs": "e15a9b3d11d014852abe5bdca9ef60e1a65564b669bbd7c7cbfa4de76cf267dd"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Sprite/depth reconstruction, embedded FSOM, replacement meshes/textures, cache precedence and invalidation",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Load an original object family in 3D, verify replacement precedence and reconstructed fallback, rotate and pick it after cache reload.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.graphics-camera-modes",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.world/GraphicsModeControl.cs",
+        "TSOClient/tso.world/Model/GraphicsModes.cs",
+        "TSOClient/tso.world/Utils/Camera/CameraControllers.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.world/GraphicsModeControl.cs": "0b9417311f24f8f81e65ae1a22241d25e41bdb4e1c30d16145e25e98d4c2f861",
+        "TSOClient/tso.world/Model/GraphicsModes.cs": "8f9acf76079ba7a24630fbbf96312f95af122b6e482e5c2ffcc102951b90a912",
+        "TSOClient/tso.world/Utils/Camera/CameraControllers.cs": "75aba63dde9d3601d524e4885d9ec427ad15e89b10125c5fc3095e878e5a4ebf"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Full2D, Hybrid2D, Full3D and perspective/first-person camera transitions",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Switch supported modes while interacting, preserving camera/picks and actual world state.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.city-lot-continuity",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/Rendering/City/CityFoliage.cs",
+        "TSOClient/tso.client/Rendering/City/CityNeighGeom.cs",
+        "TSOClient/tso.world/Components/SubWorldComponent.cs",
+        "TSOClient/tso.world/Facade/LotFacadeGenerator.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/Rendering/City/CityFoliage.cs": "273cc03ecb6ec0042e22f45003b4e2ad1e601cfcb2e0dc59a793fa107e316c7e",
+        "TSOClient/tso.client/Rendering/City/CityNeighGeom.cs": "1ea6125cf4d71fd07b235ebcbd08c406b9151229c5ce986c8e05783898d399fa",
+        "TSOClient/tso.world/Components/SubWorldComponent.cs": "27588581d28ac5e9973365878df450ae36f064216e4031a39102f040d01c732b",
+        "TSOClient/tso.world/Facade/LotFacadeGenerator.cs": "e84d59b4795cb9a939628fc4c945ebf785e0d9f78459178bf00cbc903c3cd58e"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Neighboring subworlds/facades, city roads/foliage, neighborhood geometry and thumbnails",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Discover, inspect and enter a property with correct facade/thumbnail/neighbors; edit and reverify its representation.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.environment-rendering",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.world/LMap/GPURoomMaps.cs",
+        "TSOClient/tso.world/LMap/LMapBatch.cs",
+        "TSOClient/tso.world/LMap/ShadowGeometry.cs",
+        "TSOClient/tso.world/Model/WeatherController.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.world/LMap/GPURoomMaps.cs": "917a786d5b13e15719b1a38d63ea6eb3baa93caf286199c7d41f970d84dd70e2",
+        "TSOClient/tso.world/LMap/LMapBatch.cs": "b5b29bac9dea5a77b66e5bc20620a2dd0e1db16195c7c68e611e5ff8c999e424",
+        "TSOClient/tso.world/LMap/ShadowGeometry.cs": "b7ca53666307c10a676a3bbaf7c2fa7422dc022243902d4f7f633b7e4e9a0d40",
+        "TSOClient/tso.world/Model/WeatherController.cs": "ea18edc262102d3a17178e916e9ab853a910915b811ece52d22ff30f52c51890"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Room lighting/shadows, sky, particles and source-driven weather",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Change room structure and time/weather inputs; inspect lighting, particles, visibility and context recovery.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.job-worlds",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Domain/JobMatchmaker.cs",
+        "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOJobInfo.cs",
+        "TSOClient/tso.simantics/Primitives/VMOnlineJobsCall.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/City/Domain/JobMatchmaker.cs": "50c677c2fa7a0f51e8d8c4bc56d80703777188a4773add9de2498b449c7ef355",
+        "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOJobInfo.cs": "cf5f2bcbf19212736d83d367a1537122876b81cb0266bc03a126bc82a40e6f96",
+        "TSOClient/tso.simantics/Primitives/VMOnlineJobsCall.cs": "38f04c38a5478cfe32d48bf3164c6181c47bf099d5eb4d56a44135ce89f3547a"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Instanced career/grade/role-matched robot-factory, restaurant and nightclub shifts",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Match eligible players, respect ignore lists/roles, complete rounds, persist progression and return after disconnect.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.earning-dynamic-payouts",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/JobBalanceTask.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/JobBalanceTask.cs": "556cbb1838e0860f59122bd8977af39fd8bbd652167e765773b74c88946ec024",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs": "84da0dd6b542f01be3f1fc7c5ecb7e8822b3139625e9801c7294e9e7474477f4"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Single-object earning cohorts, economic history and dynamic payout tuning",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Earn via supported object chains, apply an idempotent tuning period and verify authority-derived newspaper/economic projection.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.visitor-bonuses-rankings",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/BonusTask.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/BonusTask.cs": "dd83dae458ecf0f1ca601c00eb325f659d05efd00278ac57582f2a9b21c6252b"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Durable visits, Top 100 and category-scaled visitor/property bonuses",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Visit across a period boundary, calculate once, rerun after failure and verify ranking and bonus without double payment.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.player-shops",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs",
+        "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs": "07299b42b2e229a0369eaa3a5e3f98297843d005c299140b1f688979b54a5741",
+        "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs": "cb349ba3a008b66682f457ec339795d669bf0a833240efb0e261e0c9591237db",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs": "d95f2b0df125ed473d2a46928468e8a9220442fd477de99986f75ebe9ab1bea4",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs": "dcbbc8e4d7449783e6355f8f5e5e134e6eac8599456e76b564a42e3c907e886e"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Rack stock/try/buy/defaults/pricing, player object sales, business discounts",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "One user stocks/prices a shop, another buys an owned item/outfit; recover lost receipt with correct two-party ownership and balance.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.secure-property-trade",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs": "07299b42b2e229a0369eaa3a5e3f98297843d005c299140b1f688979b54a5741",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs": "40bed698f504c240ccba6f7eb7983a3038670f7fe97fd1693b5fc160ea62885d"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Bilateral money/items/property trade including optional furnishings and ownership side effects",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Exchange a furnished property through mutual consent, interrupt settlement, verify all-or-nothing durable ownership and reject community-lot trade.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.object-lifecycle-upgrades",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.content/Upgrades/ObjectUpgradeProvider.cs",
+        "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOObjectState.cs",
+        "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetUpgradeCmd.cs",
+        "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.content/Upgrades/ObjectUpgradeProvider.cs": "49dcb4df9d7364a108bb6828464fe73bb18bc66e3be812b1f91c974692d17a10",
+        "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOObjectState.cs": "40f744d413cc199013102f08d90575e8b1a4015cead08d58722443755b62c333",
+        "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetUpgradeCmd.cs": "9ac402b666b504f9adcd3fad5d003899f2b6c1ec2f51ddba54d5398c0591015f",
+        "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs": "356b5568013dd9fc8baa3a9738b8adc657798b4ae88c5d6602c97b3ad1c9f20b"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Wear, breakage, repair/skill effects, harvest components and upgrades",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Use until worn/broken, repair and upgrade, verify costs/tuning/reinitialization/value and persistence.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.property-growth-capacity",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs": "cb349ba3a008b66682f457ec339795d669bf0a833240efb0e261e0c9591237db"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Size/floor upgrades, roommate costs, object capacity/disable rules and discounts",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Expand a lot and floors, verify capacity and costs with roommate changes; reject invalid over-budget edits.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.community-property",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Handlers/PurchaseLotHandler.cs",
+        "TSOClient/tso.simantics/Model/Platform/VMFSOCommunityValidator.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/City/Handlers/PurchaseLotHandler.cs": "9df3e2c1cafdbedef9a3be02fbeafdba23f8dacbde260afb38b283521aa9696f",
+        "TSOClient/tso.simantics/Model/Platform/VMFSOCommunityValidator.cs": "126487aa1d823cc6b45f15479f3be65b6076d01c6ab3dd340b928b91cda955ed"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Distinct community donations/build rights/sale rules and mayor property actions",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Operate a community lot with builder/donor/visitor roles; verify donation value/wear treatment and denied private-sale paths.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.skills-social-multipliers",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UILotSkillModeDialog.cs",
+        "TSOClient/tso.simantics/Entities/VMAvatar.cs",
+        "TSOClient/tso.simantics/Primitives/VMRelationship.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UILotSkillModeDialog.cs": "bbc7e29b8519a158e5e2dcf1726b92d83e52b6b0b3fcb320badcaeacdfaac809",
+        "TSOClient/tso.simantics/Entities/VMAvatar.cs": "d0744894cfd4c12abf3608318787e07491ede264d4fd86972b8645890d9d0204",
+        "TSOClient/tso.simantics/Primitives/VMRelationship.cs": "eeabefffc5d3fe227963558e9bb1e3812111a6ce9198a5ad891f6cd0ea6f393d"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Six skills/locks, lot skill modes, welcome boosts and directional relationships",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Train and lock skills, interact in different lot modes, reload and verify asymmetric relationships/economic multipliers.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.avatar-interaction-fidelity",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.simantics/Engine/VMSlotParser.cs",
+        "TSOClient/tso.simantics/Engine/VMSuitProvider.cs",
+        "TSOClient/tso.simantics/Primitives/VMDropOnto.cs",
+        "TSOClient/tso.simantics/Primitives/VMGrab.cs",
+        "TSOClient/tso.simantics/Primitives/VMReach.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.simantics/Engine/VMSlotParser.cs": "ad7366fba08c949a10aa12c20d17799c0cd3cf6603250f05ea1e617d8173fc16",
+        "TSOClient/tso.simantics/Engine/VMSuitProvider.cs": "c599e53c95420a8dcc04521164df8d3ad4f65b98abb5b12ca29b5699d3286981",
+        "TSOClient/tso.simantics/Primitives/VMDropOnto.cs": "57dfe3d3949f0f585f0b459c4c1a050c81281fff24864e058b387537020335b5",
+        "TSOClient/tso.simantics/Primitives/VMGrab.cs": "701da125d5074fc5fad7549ba7ade1b16867b7d92ca9729846874687a9ad5b53",
+        "TSOClient/tso.simantics/Primitives/VMReach.cs": "ff74e9ed33e919f8dd2945f8d2abd02933a9ae4f46830353e5094af576704445"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Multi-actor acceptance/timeouts, held/contained objects, slots/reach, suits/accessories, headlines and pet rigs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Complete and decline multi-actor interactions; hold/place objects and change outfit/rig while observing contact, picks and recovery.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.calendar-events-cooldowns",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Domain/EventSystem.cs",
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs",
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/BirthdayGiftTask.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/City/Domain/EventSystem.cs": "773d4aa236892889b16713e98835ab22d64332c4dd84c720366b017303a1efaf",
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs": "07299b42b2e229a0369eaa3a5e3f98297843d005c299140b1f688979b54a5741",
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/BirthdayGiftTask.cs": "139540e306dbd28caf084203b7a3fa740473161c744d3f58aae8af100fcb28f9"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Timed tuning/events, participation dedup, configured age gifts, game token attributes and global cooldowns",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Run a configured event/age boundary, retry after replacement and verify one reward, correct eligibility and durable cooldown.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.election-lifecycle",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Domain/Neighborhoods.cs",
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/NeighborhoodsTask.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.Server/Servers/City/Domain/Neighborhoods.cs": "4aeaaf4a3e4ef01de46493bbf2c31bfe77bd4926994a1a3fd46688c05fc1e91e",
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/NeighborhoodsTask.cs": "f42d63b3692440b2054688ba34568c0d23e5308a4a643786c999b5db12877214"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Nominations/eligibility/voting/failsafe/winner/mayor replacement and announcements",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Complete an election period with eligible accounts; recover scheduled boundary and verify one authoritative outcome and recipient notices.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.all-eod-registrations",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "30 server registrations reconciled to client and server-only controllers",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Qualify each registered handler separately with participants, actual outcomes, cancellation, private-state boundaries and recovery.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.game-currency-casino",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs": "a77a31c729b52ffe89c4ee401faef42b2c04db6241f5916e2601bd6475be0547",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs": "d4184b04e7a10a98dedfdcd4b53bc25bab7afb1c603ce1352ec9f94d894defdb",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs": "bfccf0b83d16cf3e42ffcf826a3b7ab0ffec1d424652c93e420b972f176387e2",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs": "89dd97a8cef1e4f0ffac2aab0e4af5198a241e4aea246563d284de9455adda17"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Original nonredeemable Simoleon casino games, owner bankroll management, bets and payouts",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Play each supported game with isolated game-currency accounts, recover mid-hand/reply loss and verify hidden data and balances without real-world value.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.volcanic-live-authoring",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/FSO.IDE/BHAVEditor.cs",
+        "TSOClient/FSO.IDE/Managers/BHAVEditManager.cs",
+        "TSOClient/FSO.IDE/ObjectWindow.cs",
+        "TSOClient/FSO.IDE/ResourceBrowser/FSOMEditor.cs",
+        "TSOClient/FSO.IDE/ResourceBrowser/PIFFEditor.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/FSO.IDE/BHAVEditor.cs": "bb02046df22d373e6c543e4577d2ceeb49caa181e3295eb4e3849a0c0efdcd2f",
+        "TSOClient/FSO.IDE/Managers/BHAVEditManager.cs": "5d495e2d2c979269f5e40c7dbf22c62cad121f141501083e880f22fcdb70ad10",
+        "TSOClient/FSO.IDE/ObjectWindow.cs": "25de9230dc2590014c0b233c32ed17ddcf60d040c9461bcfc65981519878d1d9",
+        "TSOClient/FSO.IDE/ResourceBrowser/FSOMEditor.cs": "a3703cdd4318aca39497bbc4f76051753d90897697d239abce00ae80effe5a63",
+        "TSOClient/FSO.IDE/ResourceBrowser/PIFFEditor.cs": "eb3d6eed7c390e8fbb1adc518538a333d5f529696d325eb4d1dfd026226f693c"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Object/GUID creation, BHAV graphs, tracing/stack inspection, resource-specific editors, PIFF/mesh/avatar work and undo/redo",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Create/edit an object, step live behavior and inspect stack, undo/redo, cook/export/reload and retain exact behavior/dependencies.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "source.object-family-breadth",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.content/RCMeshProvider.cs",
+        "TSOClient/tso.content/Upgrades/ObjectUpgradeProvider.cs",
+        "TSOClient/tso.content/WorldObjectProvider.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.content/RCMeshProvider.cs": "40287c60b6ee6c5c5463a2997af223c56c0283888a5b30cea7dcfc9adaaa7bc1",
+        "TSOClient/tso.content/Upgrades/ObjectUpgradeProvider.cs": "49dcb4df9d7364a108bb6828464fe73bb18bc66e3be812b1f91c974692d17a10",
+        "TSOClient/tso.content/WorldObjectProvider.cs": "d1e70b2706f4b46bc83c87a532c4a3720d4daec71eb78f49d288281004e2d099"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Full deployed family/dependency denominator across household, pets, commercial, jobs and activities",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Qualify complete family interactions and patch/global/tuning/mesh variants; record missing distribution rights/resources as unresolved gates.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.01",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UICitySelector.cs",
+        "TSOClient/tso.client/UI/Screens/LoginScreen.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UICitySelector.cs": "eb157dbb750d18c056691118cc874632bbd3c6526351b8a1f7e3cc4ca8ca111c",
+        "TSOClient/tso.client/UI/Screens/LoginScreen.cs": "85892331315592c202053ee7a45535cb40f1147688346faa861177ddae311fba"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Login, progress, city/shard choice and reconnect. UI/Screens/LoginScreen.cs; UI/Panels/UICitySelector.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **External:** operator account API, allowed browser origin, pinned city/lot destinations and a test account. Controlled peers verify the protocol path; no deployed Wonderland connection has been observed.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.02",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Screens/PersonSelection.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Screens/PersonSelection.cs": "7e396674a17d3181cb473d45eca6cf0e421e424c24af4a2a9b296e15cc1db0c2"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Character roster, create, retire, city/home entry. UI/Screens/PersonSelection.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: Retirement has no durable source receipt and must be reconciled through a later roster. **External:** account policy, actual home record and city/lot acceptance. The home shortcut is unavailable when no source home is listed.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.03",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/Controllers/PersonSelectionEditController.cs",
+        "TSOClient/tso.client/UI/Screens/PersonSelectionEdit.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/Controllers/PersonSelectionEditController.cs": "d4d08e93e9598463b279ee930c5f02adc477d02599c2d034467bdab957b122a9",
+        "TSOClient/tso.client/UI/Screens/PersonSelectionEdit.cs": "2213d9dcf41a7f032500f4a674aefa6899ad28275804325c48990876805aa2ed"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Independent head/body, gender, skin, name and description. UI/Screens/PersonSelectionEdit.cs; Controllers/PersonSelectionEditController.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **External:** original collections and referenced appearance resources, plus source creation acceptance. The server's name/description policy applies to new connected Sims; existing preview names remain preserved.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.04",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Screens/PersonSelectionEdit.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Screens/PersonSelectionEdit.cs": "2213d9dcf41a7f032500f4a674aefa6899ad28275804325c48990876805aa2ed"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Rotating avatar preview. PersonSelectionEdit.cs creates UISim",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **External:** original base avatar resources, loaded through Game content. **Code:** continuous animation, contained SLOT/bone placement, custom/pet rigs, and full original lighting/material behavior remain; a restored pose is not live VM playback.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.05",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIDresserEOD.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIDresserEOD.cs": "c8d5c45bf21ebd5d5d178f914c2660ce0a2825d78711eee0d140075bd6fef4fc"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Owned Day/Sleep/Swim outfits and decorations. UI/Panels/EODs/UIDresserEOD.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** rack stocking chooser and complete source thumbnail/collection provider integration remain. **External:** admitted source EOD session, actual stock and appearance resources. Opening the original object dialog also needs the interaction adapter in row 8.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.06",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIGizmo.cs",
+        "TSOClient/tso.client/UI/Screens/CoreGameScreen.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIGizmo.cs": "b0b44abfb048991b4ff7d54146b980813b57d5a39bb975450f4a2c72bfec2709",
+        "TSOClient/tso.client/UI/Screens/CoreGameScreen.cs": "f74da459d718e8b515be4977edacfeadf17238a22ff55ccf3a34d30dfb92cdcd"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "City map, property/people/neighborhood discovery, filters and Top 100. UI/Screens/CoreGameScreen.cs; UI/Panels/UIGizmo.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** maps beyond bundled `city_0100`, detailed texture blending, roads, trees and lot facades need rendering/provider adapters. Unsupported map IDs retain directory access. **External:** real directory results and the other cities' original resources.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.07",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UILotPage.cs",
+        "TSOClient/tso.client/UI/Panels/UILotPurchaseDialog.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UILotPage.cs": "7b936809783ca6ffc9335e6629579c66d93b2bd8746e614335cc03c24c95ccab",
+        "TSOClient/tso.client/UI/Panels/UILotPurchaseDialog.cs": "7045a5a3529a85a4804a4294b1f12b4f5440c543fc2479ff99c314879be7bc78"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Property details, purchase and entry. UI/Panels/UILotPage.cs; UI/Panels/UILotPurchaseDialog.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** purchase offer/quote provider, empty-location purchase selection and transaction UI are not connected. The existence of a purchase encoder does not make purchasing playable. **External:** actual property terms, permissions and server result.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.08",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UILiveMode.cs",
+        "TSOClient/tso.client/UI/Panels/UILotControl.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UILiveMode.cs": "8412554b4fd007fb04e7bc7564c76c48e83baedbf2ce86b76484cba43ff756d2",
+        "TSOClient/tso.client/UI/Panels/UILotControl.cs": "685c06cc3a476c69b3b13eeeee42703968f4dc34366d8b9a5c4c975983f0145d"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Lot live view, person/object actions, queue and needs. UI/Panels/UILotControl.cs; UI/Panels/UILiveMode.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** original snapshot-to-A restoration, continuous source VM replay, complete object/person action discovery, remaining object-model/resource resolution and advanced avatar attachment/rigs remain. Goto requests require actual source menu `interaction` and `param0`; the client does not guess them. **External:** effective global/semiglobal content, tuning and live lot. A refresh view is not continuous gameplay.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.09",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIUCP.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIUCP.cs": "5b0f0d0199d48e42df05f76d2dff4cffafb98d109719f3c7e6b1c5056ff66f11"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Camera, floors and Walls Down/Cutaway/Up/Roof. UI/Panels/UIUCP.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** source room/support/cutaway graph and material providers, GPU backend, source shadows/lightmaps, weather and advanced lighting remain. Without required room graphs, cutaway/roof geometry stays unavailable with diagnostics. **External:** missing source textures/models.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.10",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Controls/Catalog/UICatalog.cs",
+        "TSOClient/tso.client/UI/Panels/UIBuyMode.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Controls/Catalog/UICatalog.cs": "c8fb450ccb49a9c081b416bb244031b96a5656ea709254c54bb1e5b4bdaaa49f",
+        "TSOClient/tso.client/UI/Panels/UIBuyMode.cs": "30c5e0443f83f55a1ab2d80ac90f1d1f6535d1e379351142b83bee657ebf890b"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Full Buy catalog, categories, search and pages. UI/Panels/UIBuyMode.cs; UI/Controls/Catalog/UICatalog.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** install the real connected catalog/capacity provider, thumbnails, category navigation and complete scalable browsing; the current palette is not a complete catalog UI. **External:** original catalog/resources and actual permission/price state. No fixture catalog is installed as connected stock.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.11",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIObjectHolder.cs",
+        "TSOClient/tso.client/UI/Panels/Upgrades/UIUpgradeList.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIObjectHolder.cs": "3ea6d82ff257b1de4be73f2d47e18c42ac2cd69102cd7378ac3241d7f86af5b3",
+        "TSOClient/tso.client/UI/Panels/Upgrades/UIUpgradeList.cs": "19c337c8d7528ad3a0d69b21a08407429c48166bf28dfcdc8549d8a6ad5fa322"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Inventory, move/store/sell, sale price, donation and upgrades. UI/Panels/UIObjectHolder.cs; UI/Panels/Upgrades/UIUpgradeList.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** inventory subscriptions/restoration, source `IsUserMovable`, quotes/capacity, sale-price/donation/upgrade controls and multi-part/contained placement are incomplete. FSOv alone does not supply these values. **External:** actual ownership, inventory and transaction reconciliation.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.12",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIBuildMode.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIBuildMode.cs": "666a5cdce99bc53c0cb5149be1467d4e4726de581991bd1046c49e95e21d9199"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Terrain, Water, Wall, Wallpaper, Stair, Fireplace, Plant, Floor, Door, Window, Roof, Hand. UI/Panels/UIBuildMode.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** complete tool rail and family-specific controls/provider bindings. Stairs/doors/windows/fireplaces/plants require actual catalog objects; terrain/water/roof are not replaced by furniture movement. **External:** corresponding source resources and authority.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.13",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/LotControls/UIFloorPainter.cs",
+        "TSOClient/tso.client/UI/Panels/LotControls/UIWallPainter.cs",
+        "TSOClient/tso.client/UI/Panels/LotControls/UIWallPlacer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/LotControls/UIFloorPainter.cs": "efeb2ea40626cef63f3c776d16f2bec0a4ae53e0ccc1be83ad0b03cd0914bff0",
+        "TSOClient/tso.client/UI/Panels/LotControls/UIWallPainter.cs": "e07b09677150735cf7f6e9942029af2828b7d08900ff62a2ebbe49aa5bf79c70",
+        "TSOClient/tso.client/UI/Panels/LotControls/UIWallPlacer.cs": "9bcf37b5d15c0fe203e965f3e4781c532d77aaf1a7f50c39cfd06304a0624dab"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Wall line/rectangle/delete; wall/floor painting and fill. UI/Panels/LotControls/UIWallPlacer.cs; UIWallPainter.cs; UIFloorPainter.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** wall-side selection, diagonal half-floor selection, remaining brush/drag controls, cost/refund display and source result reconciliation. Supplied build resources are also required; an empty palette is an unavailable state, not finished construction.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.14",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/LotControls/UIGrassPaint.cs",
+        "TSOClient/tso.client/UI/Panels/LotControls/UIRoofer.cs",
+        "TSOClient/tso.client/UI/Panels/LotControls/UITerrainFlatten.cs",
+        "TSOClient/tso.client/UI/Panels/LotControls/UITerrainRaiser.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/LotControls/UIGrassPaint.cs": "847d379232b11112ae81f3b6533d8ce88c9fee2bfbf2df60f2a75c35a71daae7",
+        "TSOClient/tso.client/UI/Panels/LotControls/UIRoofer.cs": "a203f94984aa4951c9b30ed0f7e2e4052381d028f93d85fdfbbbb5e078045da3",
+        "TSOClient/tso.client/UI/Panels/LotControls/UITerrainFlatten.cs": "9b311a7b5df9d20b6d048f9056d5471b183191097d7326cb7d87c70895368712",
+        "TSOClient/tso.client/UI/Panels/LotControls/UITerrainRaiser.cs": "a51d201bb5690e12b92e4155290048fa8285a4634fdc08e0385bd9cc49655f0c"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Terrain raise/flatten/grass and roof style/pitch. UI/Panels/LotControls/UITerrainRaiser.cs; UITerrainFlatten.cs; UIGrassPaint.cs; UIRoofer.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** height/intensity brush selection, terrain previews, roof style/pitch editing controls and accepted edit reconciliation. A roof visibility switch does not edit roof architecture. **External:** source resource/permission and transaction state.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.15",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIEnvPanel.cs",
+        "TSOClient/tso.client/UI/Panels/UIHouseMode.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIEnvPanel.cs": "ff8eea87036b93df21ac5d4d78b50b66260808f3ed75869b89f4f55d7feb9a2d",
+        "TSOClient/tso.client/UI/Panels/UIHouseMode.cs": "856b84fe6e71ffc3bdfd5448fcc2f16dc03d485a1f9517ba05204856e5a9ba4b"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Property information, residents/donors, rights, environment and resizing. UI/Panels/UIHouseMode.cs; UIEnvPanel.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** full admit/ban lists, donor/build rights, environment and resize model subscriptions and edit UI. **External:** current management data and original service acceptance. Original disabled Statistics/Bills/Log are not represented as working features.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.16",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/Controllers/Panels/PersonPageController.cs",
+        "TSOClient/tso.client/UI/Panels/UIPersonPage.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/Controllers/Panels/PersonPageController.cs": "27721c852bbc4e3644d6a39341709ccdbcf6f8fd08eed099801641b9a7e3d5db",
+        "TSOClient/tso.client/UI/Panels/UIPersonPage.cs": "7a842e800b35758c1d477aecd26c43b2a1268d522ded0a4d38c372423febfa85"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Player profile, description, skills/jobs and social options. UI/Panels/UIPersonPage.cs; Controllers/Panels/PersonPageController.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** editable profile data-service adapter, full job/skill projections and associated controls. **External:** authenticated source models. A heading or unavailable notice is not profile-edit/skill parity.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.17",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/Controllers/CoreGameScreenController.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/Controllers/CoreGameScreenController.cs": "378709caf170a8908c977acf5e410632fa3ae2a762ae0e2968b28d32db660c13"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Relationships and bookmarks. Controllers/CoreGameScreenController.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** original bookmark/ignore/relationship subscriptions, updates and relationship presentation. These are missing client/service adapters, not merely a missing account login. **External:** their actual source records once connected.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.18",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIInbox.cs",
+        "TSOClient/tso.client/UI/Panels/UILotControl.cs",
+        "TSOClient/tso.client/UI/Panels/UIMessageWindow.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIInbox.cs": "2d5c341acfd16886a934c4be23de323cda7fe84fca8a11985ee2c02e6c0a9720",
+        "TSOClient/tso.client/UI/Panels/UILotControl.cs": "685c06cc3a476c69b3b13eeeee42703968f4dc34366d8b9a5c4c975983f0145d",
+        "TSOClient/tso.client/UI/Panels/UIMessageWindow.cs": "e5bec0245f419ead600609a12e96f0361e620d36d490edd44dd207b2542bb7ba"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Lot chat, private messages, inbox/mail. UI/Panels/UILotControl.cs; UIInbox.cs; UIMessageWindow.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** persistent source read/filter preference synchronization and remaining specialized original chat presentation remain. Unacknowledged deletes require a later authoritative read. **External:** real recipients, message service and connected lot; controlled tests do not contact other people.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.19",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/Neighborhoods/UINeighPage.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/Neighborhoods/UINeighPage.cs": "b268733e47178a95433dcbbe2ca676e7f29ab737978c82e113e09b94157e0a82"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Neighborhood profiles, rankings, mayor/rating, bulletins and elections. UI/Panels/Neighborhoods/UINeighPage.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** complete original neighborhood ranking/rating presentation and any missing model subscriptions remain; the current source profile/directory pages do not establish all legacy tabs. **External:** actual neighborhoods, permissions and source responses.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.20",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Object-specific dresser, racks, trade, jobs, games, music, signs/doors and other EODs. UI/Panels/EODs/UIEODController.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** specialized trade/job/game/music/sign/door interfaces and their result adapters, plus source interaction opening in row 8. Recognizing a plugin ID does not implement its game. **External:** original sessions, content and participants.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "player.21",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/UIGraphicsOptionsDialog.cs",
+        "TSOClient/tso.client/UI/Panels/UIOptions.cs",
+        "TSOClient/tso.client/UI/Panels/UIUCP.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/UIGraphicsOptionsDialog.cs": "2c6c5e18e2237bf131242c9175e4903eff741bb729a5bc0c0b4a2fe466cd1c73",
+        "TSOClient/tso.client/UI/Panels/UIOptions.cs": "e85c8d54b849188dd6e9bb1fed510f870f4443be99a44664d4581d14c80938b6",
+        "TSOClient/tso.client/UI/Panels/UIUCP.cs": "5b0f0d0199d48e42df05f76d2dff4cffafb98d109719f3c7e6b1c5056ff66f11"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Graphics/display/camera, audio, chat/filter preferences, switch Sim, help and exit. UI/Panels/UIOptions.cs; UIGraphicsOptionsDialog.cs; UIUCP.cs",
+      "rust_paths": [],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Verify original controls, permissions, rendering and accepted/rejected outcomes. Remaining source-map requirement: **Code:** full source graphics/display and chat/filter preference adapters; source cue/content/camera wiring into the active lot; remaining source renderer features. **External:** original HIT/EVT/HSM, track/sample/station/FSC resources. **Browser QA:** current playback evidence is recorded in the [continuation](connected-continuation.md); the earlier PR #18 import failure remains historical evidence. Local music playback does not establish synchronized game sound.",
+      "evidence": [],
+      "status": "unassessed"
+    },
+    {
+      "id": "eod.4096",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UINewspaperEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UINewspaperEOD.cs": "94f254cf0cdbfa9a6d6493f7f247f1d9373d701f7db42ad750b386bfbfcbc555",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs": "84da0dd6b542f01be3f1fc7c5ecb7e8822b3139625e9801c7294e9e7474477f4",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODFNewspaperPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/simple.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.4097",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIHoldEmCasinoEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIHoldEmCasinoEOD.cs": "512e2188daccd4a50b4abfce3b381bbaf4cf54d64fab1a3ca4c9c37b300642ae",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs": "d4184b04e7a10a98dedfdcd4b53bc25bab7afb1c603ce1352ec9f94d894defdb",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODHoldEmCasinoPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/casino/table.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.4099",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIBulletinEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBulletinPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIBulletinEOD.cs": "524e144eede2bc4df3a996ab7171bc5088f1d4477f2fee3124d3a736698f3e0b",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBulletinPlugin.cs": "fb9138029606f564e0180b94dd1307d297a9002cdb31351dffb4562395e87732",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODBulletinPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/simple.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.4100",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UICooldownEventEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODCooldownEventPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UICooldownEventEOD.cs": "6b20100a3675a14a96a1463811f0ab362f30c9f2df31735373e1ccde72a44094",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODCooldownEventPlugin.cs": "74af8fdffe55a83354c250c813e48bf5ca73c4f9b3ce6c8263445bedac735ebe",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODCooldownEventPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/simple.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.4101",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerPlayerEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerPlayerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerPlayerEOD.cs": "1d50c042bcb86a09dbaeac6424f6c21db19895df198f15368f9c9944bb73166d",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerPlayerPlugin.cs": "d5ab32db83d6e934846dc8186ffce352a3baae039370fa3ce2ce14abf43bf1e5",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODGameshowBuzzerPlayerPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/buzzer_player.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.4102",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerHostEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerHostPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIGameshowBuzzerHostEOD.cs": "589cc77bf69724cd06cb90e41e801eb72ef133518aa2ebec7a6d2acdd2d26df9",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameshowBuzzerHostPlugin.cs": "ce67a394ecfd4b2f1207650a3091a308c3bf403ff1b6be50fed84946d2bbcb22",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODGameshowBuzzerHostPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/buzzer_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.8192",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPropertySelectEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPropertySelectPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPropertySelectEOD.cs": "691a707fccc1551dba9986cef9e71883ab19aa5f0b09da28c431e4f47c832f2b",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPropertySelectPlugin.cs": "7cecc6e29b3c4919a7ca987862f89e6adb5393c3b8df04052ee72307f766749b",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODPropertySelectPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/simple.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.155838104",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIScoreboardEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODScoreboardPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIScoreboardEOD.cs": "0f94383ff46a33f1dc281e98e32c5d7701442b14dd5e1221b25074001d942f20",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODScoreboardPlugin.cs": "fb6a2f71cb147e3813a406d7ed615000629be092ccf25f3215754dd804f29101",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODScoreboardPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.174715551",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPermissionDoorEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPermissionDoorPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPermissionDoorEOD.cs": "b861460d84ca688f5832fbef0fbb7680a4e805256b398373dfb38e3c1a845762",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPermissionDoorPlugin.cs": "e9bcbe861ba445d766f5d597d4ab5687187592e1368eb5ffba5dad3bd5832ba5",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODPermissionDoorPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.187329411",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIRouletteEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIRouletteEOD.cs": "300a9b15813d04ea455d25731ca815e89a0855a35c90e1fdcde5586eecb2f8a4",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs": "bfccf0b83d16cf3e42ffcf826a3b7ab0ffec1d424652c93e420b972f176387e2",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODRoulettePlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/casino/table.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.711153312",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UISignsEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSignsPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UISignsEOD.cs": "0219463a283945d826b0b9cc2f91a0aef9bb093c58a1b42ceae8d3d43a6df5d3",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSignsPlugin.cs": "51b26aededbe620d24fdbbeb54dbc690e3563f58981567b89ceb4af07952fd75",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODSignsPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.724550932",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIBlackjackEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIBlackjackEOD.cs": "aab72c6ffa56def6f507ea95c18495503a43431ff7c7c2183f502f83bc933d5d",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs": "a77a31c729b52ffe89c4ee401faef42b2c04db6241f5916e2601bd6475be0547",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODBlackjackPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/casino/table.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.727187979",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIRackOwnerEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIRackOwnerEOD.cs": "54dd241af9c74bb7064963d398a70c42edddb6d5bc77835144b7fb250fe203ce",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs": "d95f2b0df125ed473d2a46928468e8a9220442fd477de99986f75ebe9ab1bea4",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODRackOwnerPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/wardrobe.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.761539897",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIWarGameEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODWarGamePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIWarGameEOD.cs": "c77fe83608b78a70438ddcaf5bd183ffe5907544d3ffe14221bd4a1e056ee8b3",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODWarGamePlugin.cs": "8fa2a81ed38fd9f215fdfc6584308b18cfdd30a3b56c8f25b5fb5cdfb04a3238",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODWarGamePlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/war.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.1243896354",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UITwoPersonJobObjectMazeEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTwoPersonJobObjectMazePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UITwoPersonJobObjectMazeEOD.cs": "9246d59b7dd4365ddd31972ab5f768d3d175123f1ddf8d1eb0b0a633f4ec4ab0",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTwoPersonJobObjectMazePlugin.cs": "cbd4487ef61b120c467e9e56270827e3cc9d3e15090b8ae109bfde862beedb4f",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODTwoPersonJobObjectMazePlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.1247537323",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIDanceFloorEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDanceFloorPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIDanceFloorEOD.cs": "2871d4ac9ee0eeb89b5c888fc77a3d51006dec39903014c3f879056b58122ad3",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDanceFloorPlugin.cs": "40fdd6267c7f68a93b89224d6138566b69bb5213ebc32a752502a463dd449e9e",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODDanceFloorPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.1817998677",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIDJStationEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDJStationPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIDJStationEOD.cs": "bbb9c612fc55526c96240bf3215fbd7e7981f4a619e34b20868b1bd20213e774",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDJStationPlugin.cs": "ee4838085dfd66b33b86c7d8875c9f791e619dc9f23aaefd4346e19b237397be",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODDJStationPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/club.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.1829845061",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNCDanceFloorPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNCDanceFloorPlugin.cs": "b68e9376bbe1df1fc7bfb25f42576a26959192d4c4b4051d18df0ab4ad9629b2",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODNCDanceFloorPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/floor.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.2304515307",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIGameCompDrawACardPluginEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameCompDrawACardPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIGameCompDrawACardPluginEOD.cs": "229a52e73031307b63ee88ba13eaecee6bcd3a4998c1ad9b93e8ed3baac5f83a",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODGameCompDrawACardPlugin.cs": "497d13ce613a08f21a37f1f72b7d571641cf199b29e150c9a1355b19b9d03be1",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODGameCompDrawACardPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/draw.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.2306835189",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UISecureTradeEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UISecureTradeEOD.cs": "5735d667823c981cb36d05ff2f6b1d266a97a89c530aec9441485f6980c5e096",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs": "40bed698f504c240ccba6f7eb7983a3038670f7fe97fd1693b5fc160ea62885d",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODSecureTradePlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/trade.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.2329921442",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIBandEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBandPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIBandEOD.cs": "6c7f7a9a9e54b15854366016a755568b909ccf9cb94c78a56f6fd3839c74ab04",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBandPlugin.cs": "8bb4a703b8b8567b2b814fc3d37e0df3790b147aafef1d5e9bfbf1e3dab0108d",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODBandPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/band.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.2335178856",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIDresserEOD.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDresserPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIDresserEOD.cs": "c8d5c45bf21ebd5d5d178f914c2660ce0a2825d78711eee0d140075bd6fef4fc",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDresserPlugin.cs": "fa888ba49262035dc25d13d31c4af327203a7986eb0787fa7c1344a4e2f74ad0",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODDresserPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/wardrobe.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.2858301148",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UITrunkEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTrunkPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UITrunkEOD.cs": "75381ae079f9e9f323c16cd32af3f76a2bdc93abd8b8d3cd04e8a3d87338a565",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTrunkPlugin.cs": "1501eb652541a80864166f2c54b1742e0a03554f1f07ed4ffb7dd16bf19553b6",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODTrunkPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/simple.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.2858811038",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UITimerPluginEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTimerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UITimerPluginEOD.cs": "f7d077632ea522c8070d895fd602f1d6393380a7e5883a25174cc104abe4686d",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODTimerPlugin.cs": "70231132461a85d594f986f0c99b60cc8a01a5473bf29ddba2e636b9993c34ee",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODTimerPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.3393290758",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPaperChaseEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPaperChasePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPaperChaseEOD.cs": "449bcca532e2514cc7088d4761c318d9bbd528bec78f167dd52296fa2027845b",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPaperChasePlugin.cs": "4915b6470819ed83596488c908f0d65be2ad60f07ecb55dc055ef1f4f4a70c1a",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODPaperChasePlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.3408402891",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UISlotsEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UISlotsEOD.cs": "a200537b79a308aa8c4ad554e0d1152ff78e418e19aba47cb50ed19821710863",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs": "89dd97a8cef1e4f0ffac2aab0e4af5198a241e4aea246563d284de9455adda17",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODSlotsPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/casino/slots.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.3410568837",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIRackEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIRackEOD.cs": "a33f0a6b6278b106202b83955f0c541321fb8c2ffe9f42bffdffcf1c02b3bdfa",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs": "dcbbc8e4d7449783e6355f8f5e5e134e6eac8599456e76b564a42e3c907e886e",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODRackPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/service/wardrobe.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.3435510851",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNightclubControllerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODNightclubControllerPlugin.cs": "e544bf7caa67abeb679046b9b6338744f4d758f24f659869109d4a09b83d771f",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODNightclubControllerPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/club.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.3930566201",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPizzaMakerEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPizzaMakerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UIPizzaMakerEOD.cs": "c13612d40e827ded07fe97b8a0e72792b99dbb670c6e218f8c5de6f3b7f10230",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODPizzaMakerPlugin.cs": "5cd6b29c0b66c7b41d2864bd0f72c9ef86405f35e7e4327ae5fe7a610842d5af",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODPizzaMakerPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    },
+    {
+      "id": "eod.3965048581",
+      "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+      "source_paths": [
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UINCDanceFloorEOD.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDancePlatformPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs"
+      ],
+      "source_sha256": {
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs": "291a3e29e534cf0fdf506ce1e49a22fa52ac04462935abdda4e9c59a5af9e876",
+        "TSOClient/tso.client/UI/Panels/EODs/UINCDanceFloorEOD.cs": "cc30f6af73b4c7df2ed639b9b37bc3933d652644257b43a2cac080b3793e726e",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODDancePlatformPlugin.cs": "20903d3d7c32b4565f2adcebc7456eb86661f87e34e24b4be48c54a9dff45e21",
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs": "497d82c4d1905252d1b626d76f5fde44d34060ffe60c55b29fdcf1bafd27a1e0"
+      },
+      "upstream_status": "requires_behavior_inspection",
+      "product_behavior": "Preserve VMEODDancePlatformPlugin and its original public/private and economic effects.",
+      "rust_paths": [
+        "crates/eod-runtime/src/registry.rs",
+        "crates/eod-runtime/src/native_host.rs",
+        "crates/eod-runtime/src/plugins/social/club.rs"
+      ],
+      "provider": "requires_authoritative_provider_reconciliation",
+      "dependencies": [
+        "intake.original-pin",
+        "intake.registration-closure"
+      ],
+      "journey": "Enter original object activity with real native provider; exercise success, cancellation, disconnect/restart, private state and durable once-only effects.",
+      "evidence": [],
+      "status": "partial"
+    }
+  ],
+  "qualification": "Initial source-backed preservation ledger. No full-game completion claim; unresolved intake prevents release qualification."
+}
