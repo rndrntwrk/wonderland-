@@ -62,7 +62,7 @@ this new private transport. Existing original-service client behavior is unchang
 
 Public registration and account recovery, email verification/delivery, bans and
 maintenance controls, breached-password screening, HTTP origin/CSRF/cookie
-policy, the account UI connection, wardrobe/game-economy initialization, native
+policy, the account UI connection, wardrobe/economy mutations, native
 lot admission, duplicate-controller fencing and cross-lot travel remain open.
 The private account record alone cannot authorize a gameplay actor or claim a
 complete player identity lifecycle. No credentials, keys, provider grants,
@@ -90,3 +90,28 @@ operation receipt is inserted. Existing successful create receipts still replay
 at capacity after restart. The test-only driver seeds the boundary; actual
 successful creation and refused competing creates execute AccountAuthority.
 This does not yet claim native actor or cross-lot admission.
+
+## Durable initial assets
+
+Ordinary new avatars atomically receive selected daywear, source gender-specific
+sleepwear and swimwear as three independently identified, avatar-owned CAS outfit
+instances, with zero purchase/sale prices. The selected head is not a fourth
+outfit. A zero game-currency balance and initialization marker commit with the
+avatar and original operation receipt. The balance is authoritative stored game
+state; this slice adds no purchase, transfer, bank funding or moderator API.
+The Rust portable budget remains a mirror for later admission.
+
+The separate authenticated ownedAssets version-1 read checks session and avatar
+ownership. Pre-upgrade appearance-only avatars fail with a migration-required
+error; reads and successful historical create retries never mint missing grants.
+A staged migration and source-content availability qualification remain necessary
+before such records can enter native gameplay. The creator catalog remains a
+selection allowlist, not proof of outfit ownership or of cooked sleep/swim assets.
+
+Ten actual workerd/SQLite account scenario groups and five public-route refusals
+pass. A late receipt-insertion SQL trigger demonstrates rollback of every earlier
+creation write. Changed balances survive exact retries and orderly restart.
+Additional process-group SIGKILL cases terminate real workerd before creation and
+after durable creation but before HTTP response; recovered state has either no
+new rows or exactly one avatar, three outfits, balance, marker and original
+receipt. Test barriers/mutators are excluded from the production bundle.

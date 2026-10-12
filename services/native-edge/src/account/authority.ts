@@ -45,6 +45,10 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       CREATE INDEX IF NOT EXISTS sessions_idle ON sessions(idle);
       CREATE INDEX IF NOT EXISTS attempts_expiry ON attempts(start);
       CREATE INDEX IF NOT EXISTS avatar_roster ON avatars(account_id,length(id),id);
+      CREATE TABLE IF NOT EXISTS avatar_ownership_initializations(avatar_id TEXT PRIMARY KEY,version INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS avatar_balances(avatar_id TEXT PRIMARY KEY,balance TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS avatar_outfits(id TEXT PRIMARY KEY,avatar_id TEXT NOT NULL,asset_key TEXT NOT NULL,suit_type INTEGER NOT NULL,source TEXT NOT NULL,purchase_price TEXT NOT NULL,sale_price TEXT NOT NULL);
+      CREATE INDEX IF NOT EXISTS outfits_owner ON avatar_outfits(avatar_id,length(id),id);
       CREATE TABLE IF NOT EXISTS avatar_operations(account_id TEXT NOT NULL,operation TEXT NOT NULL,digest TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(account_id,operation));
     `);
   }
@@ -361,6 +365,37 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         nameKey,
         canonical(spec),
       );
+      // Original ordinary CAS creation grants selected daywear and source defaults.
+      // Catalog eligibility is not ownership; each grant has its own instance ID.
+      const defaults =
+        spec.gender === "male"
+          ? ["5789615915021", "5802500816909"]
+          : ["5587752452109", "420906795021"];
+      for (const [asset, suit] of [
+        [spec.body_key, 0],
+        [defaults[0], 5],
+        [defaults[1], 2],
+      ] as const) {
+        this.ctx.storage.sql.exec(
+          "INSERT INTO avatar_outfits(id,avatar_id,asset_key,suit_type,source,purchase_price,sale_price) VALUES(?,?,?,?,?,?,?)",
+          this.next("outfit_sequence"),
+          id,
+          asset,
+          suit,
+          "cas",
+          "0",
+          "0",
+        );
+      }
+      this.ctx.storage.sql.exec(
+        "INSERT INTO avatar_balances(avatar_id,balance) VALUES(?,?)",
+        id,
+        "0",
+      );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO avatar_ownership_initializations(avatar_id,version) VALUES(?,1)",
+        id,
+      );
       this.ctx.storage.sql.exec(
         "INSERT INTO avatar_operations(account_id,operation,digest,result) VALUES(?,?,?,?)",
         account.id,
@@ -416,6 +451,55 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         account_id: account.id,
         avatar_id: avatarId,
         ...JSON.parse(row.spec),
+      };
+    });
+  }
+  async ownedAssets(raw: unknown, id: unknown) {
+    const key = await this.tokenHash(raw),
+      avatarId = decimal(id);
+    return this.ctx.storage.transactionSync(() => {
+      const account = this.authorize(key);
+      if (
+        !this.ctx.storage.sql
+          .exec(
+            "SELECT id FROM avatars WHERE id=? AND account_id=?",
+            avatarId,
+            account.id,
+          )
+          .toArray().length
+      )
+        throw Error("avatar unavailable");
+      const initialized = this.ctx.storage.sql
+        .exec<{
+          version: number;
+        }>("SELECT version FROM avatar_ownership_initializations WHERE avatar_id=?", avatarId)
+        .toArray()[0];
+      // Existing avatars are never silently granted assets by a read or retry.
+      // They need an explicitly reviewed migration before native admission.
+      if (initialized?.version !== 1)
+        throw Error("avatar ownership migration required");
+      const balance = this.ctx.storage.sql
+        .exec<{
+          balance: string;
+        }>("SELECT balance FROM avatar_balances WHERE avatar_id=?", avatarId)
+        .toArray()[0];
+      if (!balance) throw Error("avatar balance unavailable");
+      const outfits = this.ctx.storage.sql
+        .exec<{
+          id: string;
+          asset_key: string;
+          suit_type: number;
+          source: string;
+          purchase_price: string;
+          sale_price: string;
+        }>("SELECT id,asset_key,suit_type,source,purchase_price,sale_price FROM avatar_outfits WHERE avatar_id=? ORDER BY length(id),id", avatarId)
+        .toArray();
+      return {
+        version: 1,
+        account_id: account.id,
+        avatar_id: avatarId,
+        balance: balance.balance,
+        outfits,
       };
     });
   }

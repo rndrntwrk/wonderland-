@@ -6,7 +6,7 @@
     "build": "node tools/build.mjs",
     "check": "tsc --noEmit",
     "e2e": "node tests/durability.mjs && node tests/crash-receipts.mjs",
-    "e2e:accounts": "node tests/accounts.mjs"
+    "e2e:accounts": "node tests/accounts.mjs && node tests/account-crash.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261012.1",
