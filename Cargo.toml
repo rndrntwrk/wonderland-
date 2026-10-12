@@ -20,6 +20,7 @@ members = [
     "crates/vm-protocol",
     "services/browser-gateway",
     "crates/native-host-contracts",
+    "crates/account-crypto",
     "services/native-lot-host",
     "tools/creator",
     "tools/asset-cooker",

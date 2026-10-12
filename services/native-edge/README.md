@@ -25,3 +25,14 @@ The native loader accepts a paired optional first tail and up to 64 total indepe
 Build `runtime-bridge` and `wonderland-native-lot-host --all-targets`, then run `npm ci`, `npm run check`, `npm run build`, and `npm run e2e` here. The journey runs actual Rust processes and local Cloudflare workerd with persisted SQLite/R2. It covers accepted behavior/build/dialog effects, process restart and caller retry, exact retained journal/outbox payloads, genuine multi-chunk accepted ticks, capacity faults, corrupted R2 objects, a successor during checkpoint I/O, and a replacement Rust process restoring a checkpoint plus accepted tail to the exact committed state hash. The test-only driver introduces storage/capacity faults and an R2 pause; it is excluded from production output. Capacity fixtures are not successful gameplay transitions.
 
 The original retry witness discards an already-returned response. A separate POSIX process journey now pauses the local HTTP driver before commit and after the real durable commit but before returning its HTTP response, then sends SIGKILL to a dedicated process group containing Miniflare and workerd. It restarts persisted SQLite, checks unknown versus exact committed receipts, retries the same real Rust proposal, and verifies a nonempty pending dialog outbox is retained without duplication. The native candidate remains unpublished until the recovered durable receipt is resolved. This exercises abrupt local process loss and an undelivered client reply; it does not model provider-wide power loss, filesystem corruption, or Cloudflare regional failure. Authenticated player admission, deployed supervisor orchestration, effect delivery/acknowledgment, safe compaction and live deployment remain open. Local old-owner fencing and same-grant retries are process-qualified. This is one Task 3 increment, not hosted multiplayer completion.
+
+## Private account authority
+
+`AccountAuthority` now provides a staged private account/appearance boundary.
+Build the Rust kernel with `bash tools/build-account-crypto.sh` from this directory
+(or its repository-root path), using the pinned Rust target and wasm-bindgen
+0.2.129, before `npm run check` / `npm run build`. The build emits a static WASM
+module beside the Worker; it is not downloaded or compiled from untrusted bytes.
+Run `npm run e2e:accounts` for actual local workerd/SQLite/Rust-WASM journeys.
+The public fetch handler remains 404. See `docs/security/NATIVE-ACCOUNT-BOUNDARY.md`
+for source policy, trust boundaries and the open UI/recovery/gameplay gates.

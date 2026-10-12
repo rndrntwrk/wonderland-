@@ -25,13 +25,18 @@ jobs:
           persist-credentials: false
           show-progress: false
       - name: Install pinned compiler
-        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
       - name: Verify format and private host boundary
         run: |
           cargo fmt --all -- --check
           cargo clippy -p wonderland-native-lot-host -p wonderland-native-host-contracts --all-targets --locked -- -D warnings
           cargo build -p wonderland-content-runtime-bridge --bin runtime-bridge --locked
           cargo build -p wonderland-native-lot-host --all-targets --locked
+      - name: Build pinned Rust account password kernel
+        run: |
+          cargo clippy -p wonderland-account-crypto --all-targets --locked -- -D warnings
+          cargo install wasm-bindgen-cli --version 0.2.129 --locked
+          bash services/native-edge/tools/build-account-crypto.sh
       - name: Exercise actual host processes and cooked content
         run: |
           set -o pipefail
@@ -46,6 +51,7 @@ jobs:
           npm --prefix services/native-edge run check
           npm --prefix services/native-edge run build
           timeout 120s npm --prefix services/native-edge run e2e
+          timeout 120s npm --prefix services/native-edge run e2e:accounts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -53,5 +59,6 @@ jobs:
           path: |
             tests/output/native-host/
             tests/output/native-durability/
+            tests/output/native-accounts/
           if-no-files-found: warn
           retention-days: 7
