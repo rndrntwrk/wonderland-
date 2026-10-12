@@ -418,12 +418,6 @@ try {
     "committed",
   );
   const persistedEffect = await call("readBatch", ["1", "6"]);
-  await writeFile(
-    join(release, "recovery-batches.json"),
-    JSON.stringify([durableTail.ticks_hex, persistedEffect.ticks_hex]),
-  );
-  run("examples/host-boundary-fixture", ["join-tail", release]);
-  config.recovery.tail_sha256 = sha(await readFile(join(release, "tail.bin")));
   const current = await ask({ kind: "inspect" });
   const staleProposal = await ask({
     ...request,
@@ -459,6 +453,67 @@ try {
   await mf.dispose();
   await start();
   assert.deepEqual(await call("beginRecovery", ["1"]), grant);
+  const bundle = await call("recoveryBundle", ["1"]);
+  const recoveryBucket = await mf.getR2Bucket("CHECKPOINTS");
+  const checkpointObject = Buffer.from(bundle.checkpoint_hex, "hex");
+  await recoveryBucket.delete(bundle.checkpoint.object_key);
+  await assert.rejects(call("recoveryBundle", ["1"]), /missing or wrong size/);
+  await recoveryBucket.put(
+    bundle.checkpoint.object_key,
+    Buffer.alloc(8 * 1024 * 1024 + 1),
+  );
+  await assert.rejects(call("recoveryBundle", ["1"]), /missing or wrong size/);
+  await recoveryBucket.put(
+    bundle.checkpoint.object_key,
+    Buffer.alloc(checkpointObject.length, 3),
+  );
+  await assert.rejects(
+    call("recoveryBundle", ["1"]),
+    /checkpoint digest mismatch/,
+  );
+  await recoveryBucket.put(bundle.checkpoint.object_key, checkpointObject);
+  const savedJournal = await call("damageJournal", ["1:4"]);
+  await assert.rejects(
+    call("recoveryBundle", ["1"]),
+    /journal integrity mismatch/,
+  );
+  await call("restoreJournal", ["1:4", savedJournal]);
+  await call("oversizeJournal", ["1:4"]);
+  await assert.rejects(call("readBatch", ["1", "4"]), /chunk bounds/);
+  await assert.rejects(
+    call("recoveryBundle", ["1"]),
+    /journal integrity mismatch/,
+  );
+  await call("restoreJournal", ["1:4", savedJournal]);
+  await call("nulJournal", ["1:4"]);
+  await assert.rejects(call("readBatch", ["1", "4"]), /chunk bounds/);
+  await assert.rejects(
+    call("recoveryBundle", ["1"]),
+    /journal integrity mismatch/,
+  );
+  await call("restoreJournal", ["1:4", savedJournal]);
+  assert.deepEqual(await call("recoveryBundle", ["1"]), bundle);
+  assert.deepEqual(bundle.grant, grant);
+  assert.deepEqual(
+    bundle.batches.map((p) => p.batch_id),
+    ["4", "6"],
+  );
+  await writeFile(
+    join(release, "bundle-checkpoint.bin"),
+    Buffer.from(bundle.checkpoint_hex, "hex"),
+  );
+  const pinnedParts = [];
+  for (const part of bundle.batches) {
+    const file = join(release, `bundle-tail-${part.batch_id}.bin`),
+      bytes = Buffer.from(part.ticks_hex, "hex");
+    await writeFile(file, bytes);
+    pinnedParts.push({ file, sha256: sha(bytes) });
+  }
+  config.recovery.checkpoint_file = join(release, "bundle-checkpoint.bin");
+  config.recovery.checkpoint_sha256 = bundle.checkpoint.sha256;
+  config.recovery.tail_file = pinnedParts[0].file;
+  config.recovery.tail_sha256 = pinnedParts[0].sha256;
+  config.recovery.additional_tail_files = pinnedParts.slice(1);
   config.recovery.expected_cursor = current.cursor;
   await writeFile(
     join(release, "recovery-original.json"),
@@ -511,7 +566,21 @@ try {
     call("finishRecovery", [changedGrantMarker, [...anchor]]),
     /changed recovery grant/,
   );
+  await call("pauseCheckpoint");
+  const racingBundle = call("recoveryBundle", ["1"]).then(
+    (value) => ({ value }),
+    (error) => ({ error: String(error) }),
+  );
+  for (let i = 0; !(await call("checkpointPaused")); i++) {
+    if (i >= 100) throw Error("bundle did not reach paused R2 read");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
   const finished = await call("finishRecovery", [marker, [...anchor]]);
+  await call("resumeCheckpoint");
+  assert.match(
+    (await racingBundle).error,
+    /recovery changed during bundle read/,
+  );
   const retainedCheckpoints = await call("listCheckpoints");
   assert.equal(retainedCheckpoints.length, 2);
   assert.equal(
@@ -585,8 +654,78 @@ try {
   assert.equal(replacementOutput[3].kind, "proposal");
   const acceptedReplacement = await call("commitBatch", [replacementOutput[3]]);
   assert.equal(acceptedReplacement.cursor.authority_epoch, "9007199254740994");
+  const replayInput =
+    [
+      { kind: "activate_recovery", marker: finished },
+      nextRequest,
+      {
+        kind: "resolve",
+        batch_id: "1",
+        digest: acceptedReplacement.digest,
+        decision: { status: "committed", cursor: acceptedReplacement.cursor },
+      },
+      { kind: "inspect" },
+    ]
+      .map((v) => JSON.stringify(v))
+      .join("\n") + "\n";
+  const replayOutput = execFileSync(
+    join(repo, "target/debug/wonderland-native-lot-host"),
+    [join(release, "takeover.json")],
+    { input: replayInput, encoding: "utf8", timeout: 10000 },
+  )
+    .trim()
+    .split("\n")
+    .map(JSON.parse);
+  const currentReplacement = replayOutput.at(-1);
+  assert.deepEqual(currentReplacement.cursor, acceptedReplacement.cursor);
+  const currentBytes = Buffer.from(currentReplacement.checkpoint_hex, "hex");
+  await call("publishCheckpoint", [
+    currentReplacement.binding,
+    currentReplacement.cursor,
+    sha(currentBytes),
+    [...currentBytes],
+  ]);
+  const nextGrant = await call("beginRecovery", ["2"]);
+  const emptyBundle = await call("recoveryBundle", ["2"]);
+  assert.deepEqual(emptyBundle.batches, []);
+  const emptyConfig = JSON.parse(
+    await readFile(join(release, "host.json"), "utf8"),
+  );
+  emptyConfig.authority_epoch = currentReplacement.cursor.authority_epoch;
+  emptyConfig.lot_incarnation = currentReplacement.binding.lot_incarnation;
+  await writeFile(
+    join(release, "empty-tail-checkpoint.bin"),
+    Buffer.from(emptyBundle.checkpoint_hex, "hex"),
+  );
+  emptyConfig.recovery = {
+    checkpoint_file: join(release, "empty-tail-checkpoint.bin"),
+    checkpoint_sha256: emptyBundle.checkpoint.sha256,
+    expected_cursor: nextGrant.old_cursor,
+    takeover: nextGrant,
+  };
+  await writeFile(
+    join(release, "empty-tail-recovery.json"),
+    JSON.stringify(emptyConfig),
+  );
+  const emptyRestored = JSON.parse(
+    execFileSync(
+      join(repo, "target/debug/wonderland-native-lot-host"),
+      [join(release, "empty-tail-recovery.json")],
+      { input: "", encoding: "utf8", timeout: 10000 },
+    ),
+  );
+  assert.equal(emptyRestored.binding.lot_incarnation, "3");
+  assert.equal(emptyRestored.kind, "recovery_candidate");
+  await call("finishRecovery", [
+    emptyRestored.takeover_marker,
+    [...Buffer.from(emptyRestored.checkpoint_hex, "hex")],
+  ]);
+  await assert.rejects(call("recoveryBundle", ["2"]), /no pending recovery/);
   checks.push(
-    "Durable recovery grant survives restart, fences live old host, preserves pending logical effects, gates activation and accepts actual replacement successor",
+    "Exact-current checkpoint recovery needs no fabricated tail and supports the next fenced incarnation",
+  );
+  checks.push(
+    "Durable recovery grant survives restart, assembles exact multi-batch bundle, fences live old host, preserves pending logical effects, gates activation and accepts actual replacement successor",
   );
 
   await mkdir(join(repo, "tests/output/native-durability"), {

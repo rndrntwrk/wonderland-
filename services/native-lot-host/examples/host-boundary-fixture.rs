@@ -164,23 +164,6 @@ fn main() -> Result<()> {
             [41]
         );
         println!("real cooked behavior and accepted-wire replay matched: attribute 41");
-    } else if args[1] == "join-tail" {
-        let parts: Vec<String> =
-            serde_json::from_slice(&fs::read(root.join("recovery-batches.json"))?)?;
-        let mut frames = Vec::new();
-        for part in parts {
-            match wonderland_game_runtime::live_wire::decode_packet(
-                &bytes(&part),
-                Default::default(),
-            )? {
-                wonderland_game_runtime::live_wire::Packet::Ticks(batch) => frames.extend(batch),
-                _ => return Err("expected tick batch".into()),
-            }
-        }
-        fs::write(
-            root.join("tail.bin"),
-            wonderland_game_runtime::live_wire::encode_ticks(&frames, Default::default())?,
-        )?;
     } else if args[1] == "takeover" {
         let (before, _, _, _, _) = loader::load(&root.join("recovery-original.json"))?;
         let (after, _, _, _, marker) = loader::load(&root.join("takeover.json"))?;
