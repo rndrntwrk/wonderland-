@@ -91,3 +91,6 @@ TSOClient/Mario
 /target/
 /apps/web-shell/dist/
 /apps/web-shell/.trunk/
+
+# Reproducible cloud build cache
+.cloud-tools/

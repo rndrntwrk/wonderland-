@@ -54,12 +54,13 @@ const server=createServer(async(req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const {chromium}=await import(process.env.WONDERLAND_PLAYWRIGHT_MODULE||'playwright');
-const browser=await chromium.launch({channel:'chromium',headless:true,args:['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader']});
-const report={schema:1,source:process.env.GITHUB_SHA||null,browser:browser.version(),bundle,scenarios:[],errors:[],requests:[],qualification:'Built application, source-world GPU viewer, desktop and narrow viewport; not multiplayer or physical mobile acceptance'};
+const browser=await chromium.launch({...(process.env.WONDERLAND_CHROMIUM_EXECUTABLE?{executablePath:process.env.WONDERLAND_CHROMIUM_EXECUTABLE}:{channel:'chromium'}),headless:true,args:['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader']});
+const report={schema:1,source:process.env.GITHUB_SHA||null,browser:browser.version(),bundle,scenarios:[],errors:[],requests:[],failedRequests:[],qualification:'Built application, source-world GPU viewer, desktop and narrow viewport; not multiplayer or physical mobile acceptance'};
 const context=await browser.newContext({viewport:{width:1364,height:936}}),page=await context.newPage();page.setDefaultTimeout(30000);
 await page.addInitScript(()=>{const revoke=URL.revokeObjectURL.bind(URL);window.__revokedPhotoUrls=[];URL.revokeObjectURL=url=>{window.__revokedPhotoUrls.push(url);return revoke(url);};});
 page.on('pageerror',error=>report.errors.push(String(error.stack||error)));
 page.on('console',message=>{if(message.type()==='error')report.errors.push(message.text());});
+page.on('requestfailed',request=>report.failedRequests.push({url:request.url(),error:request.failure()?.errorText||'unknown'}));
 page.on('response',response=>{if(response.status()>=400)report.requests.push({url:response.url(),status:response.status()});});
 const facadeWorkers=new Set();let facadeWorkersStarted=0;
 page.on('worker',worker=>{if(!worker.url().includes('facade-worker-entry.mjs'))return;facadeWorkersStarted++;facadeWorkers.add(worker);worker.on('close',()=>facadeWorkers.delete(worker));});
@@ -318,7 +319,7 @@ try{
   const beforeClose=await photo('before-close-export');
   await page.getByRole('button',{name:'Back to your Sims',exact:true}).click();await page.locator('.source-world-screen').waitFor({state:'detached'});await revoked(beforeClose);await revoked(beforeCloseFacade.urls);
   await page.getByRole('button',{name:'Original lot',exact:true}).click();await ready();report.scenarios.push({name:'close and reopen creates a fresh GPU owner'});
-  assert.deepEqual(report.requests,[]);assert.deepEqual(report.errors,[]);report.status='passed';
+  assert.deepEqual(report.requests,[]);assert.deepEqual(report.failedRequests,[]);assert.deepEqual(report.errors,[]);report.status='passed';
 }catch(error){report.status='failed';report.error=String(error.stack||error);await page.screenshot({path:resolve(output,'failure.png'),fullPage:true}).catch(()=>{});process.exitCode=1;}
 finally{await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)+'\n');await browser.close();await new Promise(resolve=>server.close(resolve));}
-console.log(JSON.stringify({status:report.status,scenarios:report.scenarios.length,errors:report.errors.length,requests:report.requests.length}));
+console.log(JSON.stringify({status:report.status,scenarios:report.scenarios.length,errors:report.errors.length,requests:report.requests.length,failedRequests:report.failedRequests.length}));
