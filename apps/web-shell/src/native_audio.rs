@@ -198,7 +198,7 @@ impl NativeAudio {
         let Ok(camera) = wonderland_world_view::orbit_camera(world, controls, aspect) else {
             return;
         };
-        let Ok(pose) = camera.pose() else {
+        let Ok(pose) = wonderland_world_view::active_camera(world, controls, aspect) else {
             return;
         };
         self.owners.retain(|(owner, event), (no_pan, no_zoom)| {
