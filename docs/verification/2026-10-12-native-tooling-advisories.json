@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-12",
+  "scope": "Local development and CI dependency remediation; no deployment",
+  "retained": { "miniflare": "4.20260730.0", "workerd": "1.20260730.1" },
+  "scopedOverrides": { "sharp": "0.35.5", "undici": "7.29.1" },
+  "node": "24.19.0",
+  "audit": { "beforeHighPackageEntries": 3, "afterTotal": 0 },
+  "verification": [
+    "Fresh npm ci from the regenerated lockfile",
+    "TypeScript check and production bundle build",
+    "Nine actual account E2E groups and five public route refusals",
+    "Nine genuine native-host/workerd/SQLite/R2 durability groups",
+    "Actual SIGKILL crash-receipt scenarios including post-commit lost reply"
+  ],
+  "limitations": [
+    "Overrides replace upstream exact transitive pins; qualified locally, not an upstream Miniflare 4.x patch release",
+    "No new production dependency imports or runtime upgrade",
+    "A clean advisory audit is not a universal security guarantee"
+  ],
+  "sources": [
+    "https://github.com/lovell/sharp/security/advisories/GHSA-rgj7-g3m4-5g8c",
+    "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+    "https://github.com/nodejs/undici/releases/tag/v7.29.1"
+  ]
+}
