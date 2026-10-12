@@ -22,6 +22,8 @@ pub struct WorldGpuDraw {
     pub light: Option<WorldGpuLight>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub texture_address: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub texture_filter: Option<&'static str>,
     pub pipeline: Option<wonderland_render_core::reference::FragmentPipeline>,
     pub mesh: usize,
     pub texture: Option<usize>,
@@ -38,6 +40,8 @@ pub struct WorldGpuFrame {
     pub generation: String,
     pub meshes: Vec<WorldGpuMesh>,
     pub textures: Vec<RgbaImage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub texture_mips: Option<Vec<Vec<RgbaImage>>>,
     pub draws: Vec<WorldGpuDraw>,
 }
 pub(super) struct DisplayedGpu {
@@ -87,12 +91,18 @@ impl WorldRenderer {
             .generation
             .checked_add(1)
             .ok_or_else(|| WorldError("world render generation exhausted".into()))?;
+        // Prepared source RCObject textures specify linear min/mag/mip with clamp.
+        // Avatar and architecture sampler changes require their own source qualification.
+        let linear_object = |p: &ScenePart| p.texture_mip.is_some();
+        let filtered = scene.parts.iter().any(linear_object);
         let addressed = scene
             .parts
             .iter()
             .any(|p| self.texture_address_for_part(p) == TextureAddress::Wrap);
         let mut packet = WorldGpuFrame {
-            schema: if addressed {
+            schema: if filtered {
+                5
+            } else if addressed {
                 4
             } else if self.lighting.is_some() {
                 3
@@ -104,6 +114,7 @@ impl WorldRenderer {
             generation: generation.to_string(),
             meshes: vec![],
             textures: vec![],
+            texture_mips: filtered.then(Vec::new),
             draws: vec![],
         };
         // Pointer keys are disposable deduplication only, never serialized IDs.
@@ -117,6 +128,9 @@ impl WorldRenderer {
                 .map_err(|e| WorldError(e.to_string()))?;
             reserve(&mut bytes, image.pixels.len() * 4)?;
             packet.textures.push(image.clone());
+            if let Some(mips) = &mut packet.texture_mips {
+                mips.push(Vec::new());
+            }
             Some(0)
         } else {
             None
@@ -138,7 +152,10 @@ impl WorldRenderer {
             if packet.draws.len() >= 262_144 {
                 return Err(WorldError("source GPU draw budget exceeded".into()));
             }
-            reserve(&mut bytes, 192 + usize::from(addressed) * 8)?;
+            reserve(
+                &mut bytes,
+                192 + usize::from(addressed || filtered) * 8 + usize::from(filtered) * 16,
+            )?;
             let mesh = match meshes.get(&Arc::as_ptr(&part.mesh)) {
                 Some(index) => *index,
                 None => {
@@ -180,8 +197,22 @@ impl WorldRenderer {
                             return Err(WorldError("source GPU texture budget exceeded".into()));
                         }
                         reserve(&mut bytes, image.pixels.len() * 4)?;
+                        if part.texture_mip.is_some() {
+                            let (mut w, mut h) = (image.width, image.height);
+                            while w > 1 || h > 1 {
+                                w = (w / 2).max(1);
+                                h = (h / 2).max(1);
+                                reserve(&mut bytes, w as usize * h as usize * 4)?;
+                            }
+                        }
                         let index = packet.textures.len();
                         packet.textures.push(image.as_ref().clone());
+                        if let Some(mips) = &mut packet.texture_mips {
+                            mips.push(match part.texture_mip {
+                                Some(policy) => super::source_mips::chain(image, policy)?,
+                                None => Vec::new(),
+                            });
+                        }
                         textures.insert(Arc::as_ptr(image), index);
                         index
                     }
@@ -229,9 +260,18 @@ impl WorldRenderer {
                 None
             };
             packet.draws.push(WorldGpuDraw {
-                texture_address: addressed.then(|| match self.texture_address_for_part(part) {
-                    TextureAddress::Clamp => "clamp",
-                    TextureAddress::Wrap => "wrap",
+                texture_filter: filtered.then(|| {
+                    if linear_object(part) {
+                        "linear_mipmap"
+                    } else {
+                        "nearest"
+                    }
+                }),
+                texture_address: (addressed || filtered).then(|| {
+                    match self.texture_address_for_part(part) {
+                        TextureAddress::Clamp => "clamp",
+                        TextureAddress::Wrap => "wrap",
+                    }
                 }),
                 light,
                 pipeline: part.pipeline,

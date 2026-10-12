@@ -3,7 +3,7 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
-import {validateWorldGpuFrame,applySourceMaterialState,applySourceTextureState} from '../../apps/web-shell/public/world-gpu.mjs';
+import {validateWorldGpuFrame,applySourceMaterialState,applySourceTextureState,applySourceTextureFilter} from '../../apps/web-shell/public/world-gpu.mjs';
 const dir=resolve(process.argv[2]||'tests/output/source-gpu');
 const source=await readFile(new URL('../../apps/web-shell/public/world-gpu.mjs',import.meta.url),'utf8');
 const shader=name=>{const value=source.match(new RegExp('const '+name+'=`([\\s\\S]*?)`;'));if(!value)throw Error('Shader source missing');return value[1];};
@@ -17,7 +17,7 @@ for(const scene of scenes){
    if(name==='getUniformLocation')return (_,uniform)=>uniform;
    return (...args)=>commands.push({name,args});
   }});
-  applySourceTextureState(gl,{},draw);applySourceMaterialState(gl,{},draw,picking);return commands;
+  applySourceTextureFilter(gl,draw);applySourceTextureState(gl,{},draw);applySourceMaterialState(gl,{},draw,picking);return commands;
  });
  frames.push({scene,frame,colorCalls:calls(false),pickCalls:calls(true)});
 }

@@ -20,7 +20,7 @@ const server=createServer(async(req,res)=>{
   }catch{if(!res.headersSent)res.writeHead(404);res.end();}
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-const browser=await chromium.launch({channel:'chromium',headless:true,args:['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader']});
+const browser=await chromium.launch({...(process.env.WONDERLAND_CHROMIUM_EXECUTABLE?{executablePath:process.env.WONDERLAND_CHROMIUM_EXECUTABLE}:{channel:'chromium'}),headless:true,args:['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader']});
 const report={schema:1,browser:browser.version(),evidence:'actual Chromium WebGL2 source frame owner; synthetic source document; CPU reference; not live server acceptance',scenes:[],lifecycle:[],errors:[]};
 const context=await browser.newContext({viewport:{width:1024,height:768}}),page=await context.newPage();
 page.on('pageerror',error=>report.errors.push(String(error)));
