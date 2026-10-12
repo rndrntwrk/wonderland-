@@ -1,0 +1,64 @@
+name: Native host boundary
+on:
+  pull_request:
+    paths:
+      - .github/workflows/native-host.yml
+      - crates/**
+      - services/native-lot-host/**
+      - services/native-edge/**
+      - tools/hosted-game/**
+      - tests/integration/swarm_b_runtime/support/cooked_fixture.rs
+      - Cargo.toml
+      - Cargo.lock
+permissions:
+  contents: read
+concurrency:
+  group: native-host-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  host-process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          show-progress: false
+      - name: Install pinned compiler
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+      - name: Verify format and private host boundary
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy -p wonderland-native-lot-host -p wonderland-native-host-contracts --all-targets --locked -- -D warnings
+          cargo build -p wonderland-content-runtime-bridge --bin runtime-bridge --locked
+          cargo build -p wonderland-native-lot-host --all-targets --locked
+      - name: Build pinned Rust account password kernel
+        run: |
+          cargo clippy -p wonderland-account-crypto --all-targets --locked -- -D warnings
+          cargo install wasm-bindgen-cli --version 0.2.129 --locked
+          bash services/native-edge/tools/build-account-crypto.sh
+      - name: Exercise actual host processes and cooked content
+        run: |
+          set -o pipefail
+          mkdir -p tests/output/native-host
+          timeout 120s node tools/hosted-game/verify-host-boundary.mjs 2>&1 | tee tests/output/native-host/process.log
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Exercise real local Cloudflare durability and host recovery
+        run: |
+          npm --prefix services/native-edge ci
+          npm --prefix services/native-edge run check
+          npm --prefix services/native-edge run build
+          timeout 120s npm --prefix services/native-edge run e2e
+          timeout 120s npm --prefix services/native-edge run e2e:accounts
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: native-host-boundary-evidence
+          path: |
+            tests/output/native-host/
+            tests/output/native-durability/
+            tests/output/native-accounts/
+          if-no-files-found: warn
+          retention-days: 7

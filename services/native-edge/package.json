@@ -1,0 +1,24 @@
+{
+  "name": "wonderland-native-edge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "check": "tsc --noEmit",
+    "e2e": "node tests/durability.mjs && node tests/crash-receipts.mjs",
+    "e2e:accounts": "node tests/accounts.mjs && node tests/account-crash.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261012.1",
+    "esbuild": "0.28.2",
+    "miniflare": "4.20260730.0",
+    "prettier": "3.6.2",
+    "typescript": "7.0.2"
+  },
+  "overrides": {
+    "miniflare@4.20260730.0": {
+      "sharp": "0.35.5",
+      "undici": "7.29.1"
+    }
+  }
+}

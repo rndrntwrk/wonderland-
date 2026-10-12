@@ -27,7 +27,7 @@ fn source_mask_passes_reach_the_gpu_packet_in_file_order() {
         let mut renderer = WorldRenderer::new(Arc::new(support::masked(kind))).unwrap();
         let (frame, _) = renderer.prepare_gpu(Default::default(), 256, 192).unwrap();
         let encoded = serde_json::to_value(frame).unwrap();
-        assert_eq!(encoded["schema"], 2);
+        assert_eq!(encoded["schema"], 5);
         let draws: Vec<_> = encoded["draws"]
             .as_array()
             .unwrap()
@@ -48,6 +48,9 @@ fn source_mask_passes_reach_the_gpu_packet_in_file_order() {
             if draw["pipeline"]["blend"] == "no_color" {
                 assert_eq!(draw["pick_id"], 0);
                 assert!(draw["texture"].is_null());
+                assert_eq!(draw["texture_filter"], "nearest");
+            } else {
+                assert_eq!(draw["texture_filter"], "linear_mipmap");
             }
         }
         if kind == ModelMaskKind::Portal {

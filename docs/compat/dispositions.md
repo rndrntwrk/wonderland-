@@ -65,3 +65,13 @@ The manifest is an observed baseline, not an immutable protocol freeze.
 
 See [the execution and evidence contract](../verification/swarm-f-baseline.md)
 and [the original-runtime reference intake](oracle.md).
+
+## Full-game intake continuation (12 October 2026)
+
+`game-capabilities.json` now retains the 21 player surfaces, all 30 registered
+EOD IDs and 20 concrete original-source obligations with current source hashes.
+`full-game-intake-20261012.md` records wider registry/build/content intake still
+required. This initial ledger neither supersedes existing source dispositions nor
+qualifies hosted gameplay. Original-object preservation is now directly verified;
+registration/build/submodule closure remains unresolved. The release check
+intentionally rejects the current ledger.

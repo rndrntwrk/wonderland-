@@ -61,6 +61,7 @@ jobs:
           node --check apps/web-shell/tests/gpu/application.mjs
           npm install --prefix /tmp/source-app-playwright --ignore-scripts --no-audit --no-fund playwright@1.62.1
           /tmp/source-app-playwright/node_modules/.bin/playwright install --with-deps --no-shell chromium
+          WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/sampling-browser.mjs
           WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/browser.mjs
           WONDERLAND_PLAYWRIGHT_MODULE=/tmp/source-app-playwright/node_modules/playwright/index.mjs node apps/web-shell/tests/gpu/application.mjs
       - name: Preserve exact application observations, including failures

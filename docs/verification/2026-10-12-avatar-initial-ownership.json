@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-12",
+  "scope": "ordinary avatar initial wardrobe and game balance",
+  "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "verified": [
+    "TypeScript check",
+    "production bundle build",
+    "10 real workerd SQLite account scenario groups",
+    "5 public route refusals",
+    "late receipt insertion rollback",
+    "real workerd SIGKILL pre-create and post-commit pre-HTTP-reply",
+    "existing lot durability and process-loss regression suite"
+  ],
+  "crash_evidence": {
+    "status": "passed",
+    "scenario": "actual workerd SIGKILL before creation and after durable commit before HTTP reply; exact retry with one complete grant set",
+    "terminatedGroups": [
+      {
+        "members": [
+          "MainThread",
+          "esbuild",
+          "workerd"
+        ],
+        "signal": "SIGKILL"
+      },
+      {
+        "members": [
+          "MainThread",
+          "esbuild",
+          "workerd"
+        ],
+        "signal": "SIGKILL"
+      }
+    ]
+  },
+  "limits": [
+    "private RPC only; no deployment",
+    "legacy ownership requires staged migration",
+    "no wardrobe/economy mutations",
+    "no native actor admission or travel",
+    "sleep/swim cooked asset availability not qualified"
+  ]
+}

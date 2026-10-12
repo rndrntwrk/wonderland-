@@ -8,11 +8,11 @@ function exactKeys(value,keys,name){
   if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(key=>!Object.hasOwn(value,key)))invalid(name+' shape');
 }
 export function validateWorldGpuFrame(frame){
-  if(!frame||![1,2,3,4].includes(frame.schema))invalid('unsupported schema');
+  if(!frame||![1,2,3,4,5].includes(frame.schema))invalid('unsupported schema');
   if(!integer(frame.width,1,4096)||!integer(frame.height,1,4096)||frame.width*frame.height>1048576)invalid('surface budget');
   if(typeof frame.generation!=='string'||!(/^[1-9][0-9]{0,19}$/).test(frame.generation)||BigInt(frame.generation)>18446744073709551615n)invalid('generation');
   if(!Array.isArray(frame.meshes)||!Array.isArray(frame.textures)||!Array.isArray(frame.draws)||frame.draws.length>262144||frame.meshes.length>262144||frame.textures.length>65535)invalid('collection budget');
-  let bytes=frame.width*frame.height*8+frame.draws.length*(frame.schema===4?280:frame.schema===3?272:frame.schema===2?192:96),vertices=0,indices=0;
+  let bytes=frame.width*frame.height*8+frame.draws.length*(frame.schema===5?296:frame.schema===4?280:frame.schema===3?272:frame.schema===2?192:96),vertices=0,indices=0;
   function reserve(amount){bytes+=amount;if(!Number.isSafeInteger(bytes)||bytes>MAX_BYTES)invalid('upload budget');}
   for(const mesh of frame.meshes){
     if(!mesh||!Array.isArray(mesh.vertices)||mesh.vertices.length%9||!Array.isArray(mesh.indices)||mesh.indices.length%3)invalid('mesh shape');
@@ -22,9 +22,23 @@ export function validateWorldGpuFrame(frame){
     if(mesh.vertices.some(value=>!Number.isFinite(value)||Math.abs(value)>3.4028234663852886e38))invalid('non-finite geometry');
     if(mesh.indices.some(index=>!integer(index,0,count-1)))invalid('mesh index');
   }
-  for(const image of frame.textures){
+  if(frame.schema<5&&Object.hasOwn(frame,'texture_mips'))invalid('mips need schema 5');
+  if(frame.schema===5&&(!Array.isArray(frame.texture_mips)||frame.texture_mips.length!==frame.textures.length))invalid('mip collection');
+  const mipmapped=new Set(frame.draws.filter(draw=>draw?.texture_filter==='linear_mipmap').map(draw=>draw.texture));
+  for(const [imageIndex,image] of frame.textures.entries()){
     if(!image||!integer(image.width,1,4096)||!integer(image.height,1,4096)||!Array.isArray(image.pixels)||image.pixels.length!==image.width*image.height)invalid('texture shape');
     reserve(image.pixels.length*4);
+    const levels=frame.schema===5?frame.texture_mips[imageIndex]:[];
+    if(!Array.isArray(levels)||levels.length>12)invalid('mip levels');
+    let w=image.width,h=image.height;
+    for(const level of levels){
+      if(w===1&&h===1)invalid('excess mip level');
+      w=Math.max(1,Math.floor(w/2));h=Math.max(1,Math.floor(h/2));
+      if(!level||level.width!==w||level.height!==h||!Array.isArray(level.pixels)||level.pixels.length!==w*h)invalid('mip shape');
+      reserve(w*h*4);
+      if(level.pixels.some(pixel=>!Array.isArray(pixel)||pixel.length!==4||pixel.some(value=>!integer(value,0,255))))invalid('mip bytes');
+    }
+    if(mipmapped.has(imageIndex)&&(w!==1||h!==1))invalid('incomplete source mip chain');
     if(image.pixels.some(pixel=>!Array.isArray(pixel)||pixel.length!==4||pixel.some(value=>!integer(value,0,255))))invalid('texture bytes');
   }
   for(const draw of frame.draws){
@@ -32,7 +46,10 @@ export function validateWorldGpuFrame(frame){
     if(!Array.isArray(draw.matrix)||draw.matrix.length!==16||draw.matrix.some(value=>!Number.isFinite(value)||Math.abs(value)>3.4028234663852886e38))invalid('matrix');
     if(!integer(draw.pick_id,0,0xffffff)||typeof draw.depth_equal!=='boolean')invalid('draw state');
     if(frame.schema<4&&Object.hasOwn(draw,'texture_address'))invalid('texture address needs schema 4');
-    if(frame.schema===4&&!['clamp','wrap'].includes(draw.texture_address))invalid('texture address');
+    if(frame.schema>=4&&!['clamp','wrap'].includes(draw.texture_address))invalid('texture address');
+    if(frame.schema<5&&Object.hasOwn(draw,'texture_filter'))invalid('texture filter needs schema 5');
+    if(frame.schema===5&&!['nearest','linear_mipmap'].includes(draw.texture_filter))invalid('texture filter');
+    if(draw.texture_filter==='linear_mipmap'&&draw.texture_address!=='clamp')invalid('linear mipmap requires qualified clamp addressing');
     if(frame.schema<3&&Object.hasOwn(draw,'light'))invalid('light needs schema 3');
     if(frame.schema>=3&&draw.light!==undefined&&draw.light!==null){
       exactKeys(draw.light,['texture','matrix'],'light');
@@ -134,6 +151,10 @@ export function applySourceMaterialState(gl,program,draw,picking){
 export function applySourceTextureState(gl,program,draw){
   gl.uniform1i(gl.getUniformLocation(program,'uWrap'),draw.texture_address==='wrap'?1:0);
 }
+export function applySourceTextureFilter(gl,draw){
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,draw.texture_filter==='linear_mipmap'?gl.LINEAR_MIPMAP_LINEAR:gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,draw.texture_filter==='linear_mipmap'?gl.LINEAR:gl.NEAREST);
+}
 function abort(message){return new DOMException(message,'AbortError');}
 function required(value,name){if(!value)throw new Error('Cannot allocate source GPU '+name);return value;}
 function compile(gl,type,source){
@@ -190,16 +211,17 @@ class WorldGpuOwner{
         for(const [location,size,offset] of [[0,3,0],[1,2,12],[2,4,20]]){gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,size,gl.FLOAT,false,36,offset);}
         meshes.push({vao,count:mesh.indices.length});
       }
-      const texture=image=>{
+      const texture=(image,mips=[])=>{
         if(image.width>gl.getParameter(gl.MAX_TEXTURE_SIZE)||image.height>gl.getParameter(gl.MAX_TEXTURE_SIZE))throw new Error('Source texture exceeds device limits');
         const handle=required(gl.createTexture(),'texture');candidate.textures.push(handle);gl.bindTexture(gl.TEXTURE_2D,handle);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA8,image.width,image.height,0,gl.RGBA,gl.UNSIGNED_BYTE,image.pixels?new Uint8Array(image.pixels.flat()):null);
+        for(const [index,mip] of mips.entries())gl.texImage2D(gl.TEXTURE_2D,index+1,gl.RGBA8,mip.width,mip.height,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(mip.pixels.flat()));
         gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
         return handle;
       };
-      for(const image of frame.textures)images.push(texture(image));
+      for(const [index,image] of frame.textures.entries())images.push(texture(image,frame.texture_mips?.[index]??[]));
       const white=texture({width:1,height:1,pixels:[[255,255,255,255]]});
       const ids=texture({width:frame.width,height:frame.height,pixels:null});
       const framebuffer=required(gl.createFramebuffer(),'ID framebuffer');candidate.framebuffers.push(framebuffer);gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);
@@ -256,6 +278,7 @@ class WorldGpuOwner{
       gl.uniform1i(gl.getUniformLocation(this.program,'uLight'),1);
       gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,light?scene.images[light.texture]:scene.white);gl.activeTexture(gl.TEXTURE0);
       gl.uniform3f(gl.getUniformLocation(this.program,'uId'),(draw.pick_id&255)/255,((draw.pick_id>>>8)&255)/255,((draw.pick_id>>>16)&255)/255);
+      applySourceTextureFilter(gl,draw);
       applySourceTextureState(gl,this.program,draw);applySourceMaterialState(gl,this.program,draw,picking);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_INT,0);
     }
     this.check();gl.colorMask(true,true,true,true);gl.depthMask(true);gl.disable(gl.STENCIL_TEST);gl.bindVertexArray(null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);

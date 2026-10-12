@@ -19,6 +19,8 @@ pub enum WallMode {
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ViewportControls {
+    #[serde(default)]
+    pub free_camera: Option<crate::FreeCameraState>,
     pub yaw_radians: f32,
     pub pitch_radians: f32,
     pub zoom: f32,
@@ -31,6 +33,7 @@ pub struct ViewportControls {
 impl Default for ViewportControls {
     fn default() -> Self {
         Self {
+            free_camera: None,
             yaw_radians: -std::f32::consts::FRAC_PI_4,
             pitch_radians: 1.1,
             zoom: 1.,
@@ -43,6 +46,11 @@ impl Default for ViewportControls {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SourceMipPolicy {
+    SpriteMaxAlpha,
+    CustomAverageAlpha,
+}
 #[derive(Clone, Debug)]
 pub struct ScenePart {
     /// One-based source floor, including tile-less roof geometry.
@@ -56,6 +64,7 @@ pub struct ScenePart {
     pub object: Option<usize>,
     pub material: u32,
     pub texture: Option<Arc<RgbaImage>>,
+    pub texture_mip: Option<SourceMipPolicy>,
 }
 #[derive(Clone)]
 pub struct PreparedWorld {
@@ -577,6 +586,7 @@ pub fn build_scene_with_budget(
             object: None,
             material: part.material,
             texture: texture.map(|(image, _)| Arc::clone(image)),
+            texture_mip: None,
         });
     }
     // Equal-depth authored flooring is drawn first. Strict default depth then
@@ -643,6 +653,7 @@ pub fn build_scene_with_budget(
                     object: Some(index),
                     material: part.texture as u32,
                     texture: Some(Arc::clone(&images[part.texture])),
+                    texture_mip: None,
                 });
             }
             continue;
@@ -703,6 +714,16 @@ pub fn build_scene_with_budget(
                 tile: None,
                 object: Some(index),
                 material,
+                texture_mip: texture.as_ref().map(|_| {
+                    match cached.source.textures()[material as usize].selector() {
+                        source_objects::TextureSelector::Sprite { .. } => {
+                            SourceMipPolicy::SpriteMaxAlpha
+                        }
+                        source_objects::TextureSelector::Custom { .. } => {
+                            SourceMipPolicy::CustomAverageAlpha
+                        }
+                    }
+                }),
                 texture,
             });
         }
@@ -881,8 +902,7 @@ pub fn camera_projection(
     controls: ViewportControls,
     aspect: f32,
 ) -> Result<Mat4, WorldError> {
-    let camera = orbit_camera(document, controls, aspect)?;
-    let mut pose = camera.pose()?;
+    let mut pose = crate::active_camera(document, controls, aspect)?;
     pose.far = (f32::from(document.lot.width.max(document.lot.height)) * 48.).max(800.);
     pose.view_projection(aspect).map_err(Into::into)
 }

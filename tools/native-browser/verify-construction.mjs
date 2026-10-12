@@ -72,7 +72,7 @@ try{
  page.on('pageerror',e=>results.errors.push({type:'pageerror',message:e.message}));
  page.on('console',m=>{if(m.type()==='warning')results.warnings.push(m.text());else if(m.type()==='error'){if(expectedNetworkFailure&&/net::ERR_EMPTY_RESPONSE/.test(m.text()))results.warnings.push('Expected deliberately lost construction response');else results.errors.push({type:'console',message:m.text()});}});
  await observeNativeCanvas(page);
- await enter();await page.getByRole('button',{name:'Buy / Build',exact:true}).click();
+ await enter();await page.getByRole('button',{name:'Free camera',exact:true}).click();await page.getByRole('button',{name:'Buy / Build',exact:true}).click();
  await page.getByRole('button',{name:'Select Construction test plinth',exact:true}).waitFor();
  assert.equal(await page.locator('.native-build-item').count(),8);assert.equal(await page.getByRole('button',{name:'Next',exact:true}).textContent(),'Next');
  assert.match(await page.locator('.native-build-balance').textContent(),/1000/);await capture('01-catalogue-desktop');

@@ -29,7 +29,8 @@ def gl(name, restype, args):
 K = dict(LESS=0x201, LEQUAL=0x203, ALWAYS=0x207, EQUAL=0x202,
          KEEP=0x1E00, ZERO=0, REPLACE=0x1E01, FRONT=0x404, BACK=0x405,
          CCW=0x901, STENCIL_TEST=0xB90, BLEND=0xBE2, SRC_ALPHA=0x302,
-         ONE_MINUS_SRC_ALPHA=0x303, ONE=1, FUNC_ADD=0x8006)
+         ONE_MINUS_SRC_ALPHA=0x303, ONE=1, FUNC_ADD=0x8006, TEXTURE_2D=0xDE1,
+         TEXTURE_MIN_FILTER=0x2801, TEXTURE_MAG_FILTER=0x2800, NEAREST=0x2600, LINEAR=0x2601, LINEAR_MIPMAP_LINEAR=0x2703)
 fns = {
  'glFrontFace': (None,[U]),'glDepthFunc': (None,[U]),'glDepthMask': (None,[B]),
  'glColorMask':(None,[B,B,B,B]),'glEnable':(None,[U]),'glDisable':(None,[U]),
@@ -74,12 +75,15 @@ def shader(kind,text):
         raise RuntimeError(msg.value.decode())
     return s
 
-def texture(image):
+def texture(image, mips=()):
     t=one('glGenTextures');call('glActiveTexture',0x84C0);call('glBindTexture',0xDE1,t)
     for key,value in [(0x2801,0x2600),(0x2800,0x2600),(0x2802,0x812F),(0x2803,0x812F)]:
         call('glTexParameteri',0xDE1,key,value)
     a=np.asarray(image['pixels'],dtype=np.uint8)
     call('glTexImage2D',0xDE1,0,0x8058,image['width'],image['height'],0,0x1908,0x1401,a.ctypes.data)
+    for level, mip in enumerate(mips, 1):
+        data=np.asarray(mip['pixels'],dtype=np.uint8)
+        call('glTexImage2D',0xDE1,level,0x8058,mip['width'],mip['height'],0,0x1908,0x1401,data.ctypes.data)
     return t
 
 def run(inputs,directory):
@@ -105,7 +109,7 @@ def run(inputs,directory):
     for entry in inputs['frames']:
         scene,frame=entry['scene'],entry['frame'];width,height=frame['width'],frame['height']
         assert (width,height)==(256,192)
-        arrays=[];buffers=[];textures=[texture(t) for t in frame['textures']]
+        arrays=[];buffers=[];textures=[texture(t,(frame.get('texture_mips') or [[] for _ in frame['textures']])[i]) for i,t in enumerate(frame['textures'])]
         white=texture({'width':1,'height':1,'pixels':[[255]*4]});textures.append(white)
         for mesh in frame['meshes']:
             va=one('glGenVertexArrays');call('glBindVertexArray',va);arrays.append(va)
@@ -127,6 +131,7 @@ def run(inputs,directory):
                 light=draw.get('light');call('glUniform1i',location('uHasLight'),int(bool(light)))
                 if light:
                     call('glActiveTexture',0x84C1);call('glBindTexture',0xDE1,textures[light['texture']]);matrix('uLightMatrix',light['matrix'])
+                call('glActiveTexture',0x84C0)
                 for cmd in commands:
                     name='gl'+cmd['name'][0].upper()+cmd['name'][1:];args=[]
                     for a in cmd['args']:args.append(location(a) if isinstance(a,str) and a.startswith('u') else K.get(a,a) if isinstance(a,str) else a)

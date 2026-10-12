@@ -1,0 +1,29 @@
+{
+  "source_repository": "https://github.com/riperiperi/FreeSO",
+  "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "source_tree": "ee7bd11065897bb6e00abb025777e0f72c2480d0",
+  "matched_blobs": 5465,
+  "allowed_metadata_changes": [
+    {
+      "path": ".gitignore",
+      "original_blob": "e1d397feeb63efa2ed543faed1a0720ff0316357",
+      "current_blob": "88fca7c14b4a4b69f7ac9ac276dc2fb23b4bf575"
+    }
+  ],
+  "missing": [],
+  "changed": [],
+  "gitlinks": [
+    {
+      "path": "Other/libs/FSOMina.NET",
+      "commit": "b2216c27fe6e17e4392130f778b6b54bf8c62bda",
+      "qualification": "unresolved submodule obligation"
+    },
+    {
+      "path": "Other/libs/FSOMonoGame",
+      "commit": "74f7ef558111e62a7d0a2228b6f9714980e000fa",
+      "qualification": "unresolved submodule obligation"
+    }
+  ],
+  "status": "passed",
+  "qualification": "Original pinned blob preservation only; submodule intake and Rust gameplay parity remain separate."
+}

@@ -1,0 +1,245 @@
+{
+  "reference_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "purpose": "Concrete source obligations to reconcile into the complete capability ledger; not a claim of complete registry discovery or executed parity.",
+  "entries": [
+    {
+      "id": "3d-mesh-pipeline",
+      "implementation_task": 5,
+      "source_paths": [
+        "TSOClient/tso.files/RC/DGRP3DMesh.cs",
+        "TSOClient/tso.content/RCMeshProvider.cs"
+      ],
+      "requirement": "Sprite/depth reconstruction, embedded FSOM, replacement meshes/textures, cache precedence and invalidation",
+      "acceptance_journey": "Load an original object family in 3D, verify replacement precedence and reconstructed fallback, rotate and pick it after cache reload.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "graphics-camera-modes",
+      "implementation_task": 5,
+      "source_paths": [
+        "TSOClient/tso.world/Model/GraphicsModes.cs",
+        "TSOClient/tso.world/GraphicsModeControl.cs",
+        "TSOClient/tso.world/Utils/Camera/CameraControllers.cs"
+      ],
+      "requirement": "Full2D, Hybrid2D, Full3D and perspective/first-person camera transitions",
+      "acceptance_journey": "Switch supported modes while interacting, preserving camera/picks and actual world state.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "city-lot-continuity",
+      "implementation_task": 5,
+      "source_paths": [
+        "TSOClient/tso.world/Components/SubWorldComponent.cs",
+        "TSOClient/tso.world/Facade/LotFacadeGenerator.cs",
+        "TSOClient/tso.client/Rendering/City/CityFoliage.cs",
+        "TSOClient/tso.client/Rendering/City/CityNeighGeom.cs"
+      ],
+      "requirement": "Neighboring subworlds/facades, city roads/foliage, neighborhood geometry and thumbnails",
+      "acceptance_journey": "Discover, inspect and enter a property with correct facade/thumbnail/neighbors; edit and reverify its representation.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "environment-rendering",
+      "implementation_task": 5,
+      "source_paths": [
+        "TSOClient/tso.world/LMap/LMapBatch.cs",
+        "TSOClient/tso.world/LMap/GPURoomMaps.cs",
+        "TSOClient/tso.world/LMap/ShadowGeometry.cs",
+        "TSOClient/tso.world/Model/WeatherController.cs"
+      ],
+      "requirement": "Room lighting/shadows, sky, particles and source-driven weather",
+      "acceptance_journey": "Change room structure and time/weather inputs; inspect lighting, particles, visibility and context recovery.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "job-worlds",
+      "implementation_task": 8,
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Domain/JobMatchmaker.cs",
+        "TSOClient/tso.simantics/Primitives/VMOnlineJobsCall.cs",
+        "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOJobInfo.cs"
+      ],
+      "requirement": "Instanced career/grade/role-matched robot-factory, restaurant and nightclub shifts",
+      "acceptance_journey": "Match eligible players, respect ignore lists/roles, complete rounds, persist progression and return after disconnect.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "earning-dynamic-payouts",
+      "implementation_task": 8,
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/JobBalanceTask.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODFNewspaperPlugin.cs"
+      ],
+      "requirement": "Single-object earning cohorts, economic history and dynamic payout tuning",
+      "acceptance_journey": "Earn via supported object chains, apply an idempotent tuning period and verify authority-derived newspaper/economic projection.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "visitor-bonuses-rankings",
+      "implementation_task": 8,
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/BonusTask.cs"
+      ],
+      "requirement": "Durable visits, Top 100 and category-scaled visitor/property bonuses",
+      "acceptance_journey": "Visit across a period boundary, calculate once, rerun after failure and verify ranking and bonus without double payment.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "player-shops",
+      "implementation_task": 6,
+      "source_paths": [
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackOwnerPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRackPlugin.cs",
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs",
+        "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs"
+      ],
+      "requirement": "Rack stock/try/buy/defaults/pricing, player object sales, business discounts",
+      "acceptance_journey": "One user stocks/prices a shop, another buys an owned item/outfit; recover lost receipt with correct two-party ownership and balance.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "secure-property-trade",
+      "implementation_task": 6,
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSecureTradePlugin.cs"
+      ],
+      "requirement": "Bilateral money/items/property trade including optional furnishings and ownership side effects",
+      "acceptance_journey": "Exchange a furnished property through mutual consent, interrupt settlement, verify all-or-nothing durable ownership and reject community-lot trade.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "object-lifecycle-upgrades",
+      "implementation_task": 7,
+      "source_paths": [
+        "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOObjectState.cs",
+        "TSOClient/tso.simantics/Primitives/VMGenericTSOCall.cs",
+        "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetUpgradeCmd.cs",
+        "TSOClient/tso.content/Upgrades/ObjectUpgradeProvider.cs"
+      ],
+      "requirement": "Wear, breakage, repair/skill effects, harvest components and upgrades",
+      "acceptance_journey": "Use until worn/broken, repair and upgrade, verify costs/tuning/reinitialization/value and persistence.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "property-growth-capacity",
+      "implementation_task": 6,
+      "source_paths": [
+        "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs"
+      ],
+      "requirement": "Size/floor upgrades, roommate costs, object capacity/disable rules and discounts",
+      "acceptance_journey": "Expand a lot and floors, verify capacity and costs with roommate changes; reject invalid over-budget edits.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "community-property",
+      "implementation_task": 9,
+      "source_paths": [
+        "TSOClient/tso.simantics/Model/Platform/VMFSOCommunityValidator.cs",
+        "TSOClient/FSO.Server/Servers/City/Handlers/PurchaseLotHandler.cs"
+      ],
+      "requirement": "Distinct community donations/build rights/sale rules and mayor property actions",
+      "acceptance_journey": "Operate a community lot with builder/donor/visitor roles; verify donation value/wear treatment and denied private-sale paths.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "skills-social-multipliers",
+      "implementation_task": 7,
+      "source_paths": [
+        "TSOClient/tso.simantics/Entities/VMAvatar.cs",
+        "TSOClient/tso.simantics/Primitives/VMRelationship.cs",
+        "TSOClient/tso.client/UI/Panels/UILotSkillModeDialog.cs"
+      ],
+      "requirement": "Six skills/locks, lot skill modes, welcome boosts and directional relationships",
+      "acceptance_journey": "Train and lock skills, interact in different lot modes, reload and verify asymmetric relationships/economic multipliers.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "avatar-interaction-fidelity",
+      "implementation_task": 7,
+      "source_paths": [
+        "TSOClient/tso.simantics/Primitives/VMGrab.cs",
+        "TSOClient/tso.simantics/Primitives/VMDropOnto.cs",
+        "TSOClient/tso.simantics/Primitives/VMReach.cs",
+        "TSOClient/tso.simantics/Engine/VMSlotParser.cs",
+        "TSOClient/tso.simantics/Engine/VMSuitProvider.cs"
+      ],
+      "requirement": "Multi-actor acceptance/timeouts, held/contained objects, slots/reach, suits/accessories, headlines and pet rigs",
+      "acceptance_journey": "Complete and decline multi-actor interactions; hold/place objects and change outfit/rig while observing contact, picks and recovery.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "calendar-events-cooldowns",
+      "implementation_task": 8,
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Domain/EventSystem.cs",
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/BirthdayGiftTask.cs",
+        "TSOClient/FSO.Server/Servers/Lot/Domain/LotServerGlobalLink.cs"
+      ],
+      "requirement": "Timed tuning/events, participation dedup, configured age gifts, game token attributes and global cooldowns",
+      "acceptance_journey": "Run a configured event/age boundary, retry after replacement and verify one reward, correct eligibility and durable cooldown.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "election-lifecycle",
+      "implementation_task": 9,
+      "source_paths": [
+        "TSOClient/FSO.Server/Servers/City/Domain/Neighborhoods.cs",
+        "TSOClient/FSO.Server/Servers/Tasks/Domain/NeighborhoodsTask.cs"
+      ],
+      "requirement": "Nominations/eligibility/voting/failsafe/winner/mayor replacement and announcements",
+      "acceptance_journey": "Complete an election period with eligible accounts; recover scheduled boundary and verify one authoritative outcome and recipient notices.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "all-eod-registrations",
+      "implementation_task": 8,
+      "source_paths": [
+        "TSOClient/tso.simantics/NetPlay/EODs/VMEODServer.cs",
+        "TSOClient/tso.client/UI/Panels/EODs/UIEODController.cs"
+      ],
+      "requirement": "30 server registrations reconciled to client and server-only controllers",
+      "acceptance_journey": "Qualify each registered handler separately with participants, actual outcomes, cancellation, private-state boundaries and recovery.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "game-currency-casino",
+      "implementation_task": 8,
+      "source_paths": [
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODSlotsPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODRoulettePlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODBlackjackPlugin.cs",
+        "TSOClient/tso.simantics/NetPlay/EODs/Handlers/VMEODHoldEmCasinoPlugin.cs"
+      ],
+      "requirement": "Original nonredeemable Simoleon casino games, owner bankroll management, bets and payouts",
+      "acceptance_journey": "Play each supported game with isolated game-currency accounts, recover mid-hand/reply loss and verify hidden data and balances without real-world value.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "volcanic-live-authoring",
+      "implementation_task": 10,
+      "source_paths": [
+        "TSOClient/FSO.IDE/BHAVEditor.cs",
+        "TSOClient/FSO.IDE/ObjectWindow.cs",
+        "TSOClient/FSO.IDE/Managers/BHAVEditManager.cs",
+        "TSOClient/FSO.IDE/ResourceBrowser/PIFFEditor.cs",
+        "TSOClient/FSO.IDE/ResourceBrowser/FSOMEditor.cs"
+      ],
+      "requirement": "Object/GUID creation, BHAV graphs, tracing/stack inspection, resource-specific editors, PIFF/mesh/avatar work and undo/redo",
+      "acceptance_journey": "Create/edit an object, step live behavior and inspect stack, undo/redo, cook/export/reload and retain exact behavior/dependencies.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    },
+    {
+      "id": "object-family-breadth",
+      "implementation_task": 7,
+      "source_paths": [
+        "TSOClient/tso.content/WorldObjectProvider.cs",
+        "TSOClient/tso.content/RCMeshProvider.cs",
+        "TSOClient/tso.content/Upgrades/ObjectUpgradeProvider.cs"
+      ],
+      "requirement": "Full deployed family/dependency denominator across household, pets, commercial, jobs and activities",
+      "acceptance_journey": "Qualify complete family interactions and patch/global/tuning/mesh variants; record missing distribution rights/resources as unresolved gates.",
+      "status": "requires_implementation_and_evidence_reconciliation"
+    }
+  ]
+}

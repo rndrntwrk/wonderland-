@@ -1,0 +1,42 @@
+name: Full game source preservation
+on:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: full-game-ledger-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Fetch the exact original tree for independent comparison
+        run: git -c credential.helper= fetch --no-tags --depth=1 --filter=blob:none https://github.com/riperiperi/FreeSO.git 4c6b3e8f5835b228723caea3c9f683c62f244f73
+      - name: Install the pinned schema validator
+        run: python3 -m pip install -r tools/completion/requirements.txt
+      - name: Check source preservation and inventory admission
+        run: |
+          set -o pipefail
+          mkdir -p tests/output/full-game-ledger
+          python3 tools/completion/verify-source-pin.py --reference 4c6b3e8f5835b228723caea3c9f683c62f244f73 | tee tests/output/full-game-ledger/original.json
+          python3 tools/completion/verify-ledger.py --reference 4c6b3e8f5835b228723caea3c9f683c62f244f73 --mode inventory | tee tests/output/full-game-ledger/inventory.json
+          python3 tools/completion/verify-ledger-admission.py | tee tests/output/full-game-ledger/admission.json
+      - name: Preserve the current incomplete release result
+        run: |
+          set +e
+          python3 tools/completion/verify-ledger.py --reference 4c6b3e8f5835b228723caea3c9f683c62f244f73 --mode release > tests/output/full-game-ledger/release.json
+          result=$?
+          set -e
+          test "$result" -eq 1
+          python3 -c 'import json; r=json.load(open("tests/output/full-game-ledger/release.json")); assert r["status"]=="failed" and "intake.registration-closure" in r["unresolved_intake"]'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: full-game-source-preservation
+          path: tests/output/full-game-ledger/
+          if-no-files-found: error
+          retention-days: 7
