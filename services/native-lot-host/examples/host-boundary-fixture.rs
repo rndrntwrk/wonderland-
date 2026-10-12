@@ -85,6 +85,30 @@ fn main() -> Result<()> {
                 .serialize(&external)?),
         )?;
 
+        // A genuine accepted stream larger than one durable SQL chunk.
+        let large_commands = vec![
+            vec![
+                AcceptedCommand::StartBehavior {
+                    entity: actor,
+                    routine: RoutineKey {
+                        scope: RoutineScope::Private(123),
+                        id: 4096
+                    },
+                    context: FrameContext::for_entity(actor, 123),
+                    args: vec![0; 255],
+                    replace: true,
+                };
+                100
+            ];
+            3
+        ];
+        fs::write(
+            root.join("large-commands.txt"),
+            hex(&bincode::DefaultOptions::new()
+                .with_fixint_encoding()
+                .serialize(&large_commands)?),
+        )?;
+
         let (mut runtime, _, _, _) = loader::load(&root.join("host.json"))?;
         for commands in commands {
             runtime.advance(commands)?;
