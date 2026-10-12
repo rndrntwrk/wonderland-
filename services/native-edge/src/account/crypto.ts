@@ -14,6 +14,18 @@ export const unhex = (value: string) =>
 export function password(value: unknown): Uint8Array {
   if (typeof value !== "string" || value.length > 1024)
     throw Error("invalid password");
+  // TextEncoder replaces lone surrogates with U+FFFD. Reject them before
+  // encoding so distinct JavaScript strings cannot share a verifier input.
+  for (let index = 0; index < value.length; index++) {
+    const code = value.charCodeAt(index);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(++index);
+      if (!(next >= 0xdc00 && next <= 0xdfff))
+        throw Error("invalid password Unicode");
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      throw Error("invalid password Unicode");
+    }
+  }
   const bytes = new TextEncoder().encode(value);
   if ([...value].length < 15 || bytes.length > 1024)
     throw Error(

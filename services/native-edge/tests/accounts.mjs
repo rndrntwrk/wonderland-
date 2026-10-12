@@ -112,6 +112,15 @@ try {
     call("initializeCatalog", [{ ...catalog, release: "c".repeat(64) }]),
     /already pinned/,
   );
+  const unicodeOrigin = "e".repeat(64);
+  for (const suffix of ["\ud800", "\udfff", "\ud800x", "x\udfff"]) {
+    await assert.rejects(call("register", ["unicode_reject", password + suffix, unicodeOrigin]), /invalid password Unicode/);
+  }
+  const unicodePassword = password + "💡é\ufffd";
+  await call("register", ["unicode_valid", unicodePassword, unicodeOrigin]);
+  await call("login", ["unicode_valid", unicodePassword, unicodeOrigin]);
+  await assert.rejects(call("login", ["unicode_valid", password + "💡é\ud800", unicodeOrigin]), /invalid password Unicode/);
+  checks.push("actual account RPC rejects lone surrogates while supplementary Unicode and literal replacement characters remain valid");
   const a = await call("register", ["Account_A", password, origin]);
   const b = await call("register", ["account_b", password + "-b", origin]);
   assert.notEqual(a.account_id, b.account_id);
@@ -223,10 +232,10 @@ try {
     live.token,
   ])
     assert.ok(!serialized.includes(secret));
-  assert.equal(snapshot.accounts.length, 2);
+  assert.equal(snapshot.accounts.length, 3);
   assert.equal(
     new Set(snapshot.accounts.map((x) => JSON.parse(x.verifier).salt)).size,
-    2,
+    3,
   );
   checks.push(
     "SQLite restart, exact retry, single-use rotation races and no stored plaintext secrets",
