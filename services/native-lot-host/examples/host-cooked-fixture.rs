@@ -1,4 +1,5 @@
 //! Authored process-test release. Production startup never constructs this.
+#[rustfmt::skip]
 #[allow(dead_code)]
 #[path = "../../../tests/integration/swarm_b_runtime/support/cooked_fixture.rs"]
 mod fixture;
