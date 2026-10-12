@@ -7,10 +7,12 @@ mod document;
 mod lighting;
 mod materials;
 pub use lighting::*;
+mod free_camera;
 mod renderer;
 mod scene;
 pub use assets::*;
 pub use document::*;
+pub use free_camera::*;
 pub use renderer::*;
 pub use scene::*;
 

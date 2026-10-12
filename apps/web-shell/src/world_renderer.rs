@@ -182,6 +182,7 @@ pub fn WorldViewport(
 ) -> impl IntoView {
     let canvas = NodeRef::<leptos::html::Canvas>::new();
     let displayed = RwSignal::new(world.get_untracked());
+    let flight = crate::world_flight::install(displayed, controls);
     let runtime = StoredValue::new(None::<WorldRenderer>);
     let painted = StoredValue::new(
         None::<(
@@ -563,9 +564,10 @@ pub fn WorldViewport(
     };
     view! {
         <style>{include_str!("../public/world.css")}</style>
-        <div class="world-viewport" class:world-busy=move ||busy.get() data-source-kind=move ||format!("{:?}",displayed.get().provenance.kind)>
-            <canvas node_ref=canvas tabindex="0" aria-label="Source world. Drag to pan, Shift-drag to rotate, or pinch to zoom. Arrow keys pan; Q and E rotate; plus and minus zoom; Page Up and Page Down change floors; Enter selects the center tile."
+        <div class="world-viewport" class:world-busy=move ||busy.get() data-camera-mode=move ||if controls.get().free_camera.is_some() {"free"} else {"orbit"} data-camera-position=move ||controls.get().free_camera.map(|c|format!("{:?}",c.position)).unwrap_or_default() data-source-kind=move ||format!("{:?}",displayed.get().provenance.kind)>
+            <canvas node_ref=canvas tabindex="0" aria-label="Source world. Drag to pan, Shift-drag to rotate, or pinch to zoom. Free camera: drag to look, WASD fly, Q/E height, Shift faster, Z/X lens. Orbit: Arrow keys pan; Q and E rotate; plus and minus zoom; Page Up and Page Down change floors; Enter selects the center tile."
                 on:webglcontextlost=move |_: web_sys::Event| {
+                    flight.stop();
                     requested.try_update(|value| *value = value.saturating_add(1));
                     painted.try_update_value(|value| *value = None);
                     retained_capture.try_update_value(|value| *value = None);
@@ -597,16 +599,16 @@ pub fn WorldViewport(
                             let before=(old[0].0-old[1].0).hypot(old[0].1-old[1].1).max(1.);
                             let after=(new[0].0-new[1].0).hypot(new[0].1-new[1].1).max(1.);
                             Some(Gesture::Pinch(after/before,delta.0/2.,delta.1/2.))
-                        } else if rotate { Some(Gesture::Rotate(delta.0,delta.1)) }
+                        } else if rotate || controls.get_untracked().free_camera.is_some() { Some(Gesture::Rotate(delta.0,delta.1)) }
                         else { Some(Gesture::Pan(delta.0,delta.1)) }
                     }).flatten();
                     let Some(gesture)=gesture else { return; };
                     let width=canvas.get_untracked().map(|canvas|canvas.get_bounding_client_rect().width() as f32).unwrap_or(800.);
                     let extent=displayed.with_untracked(|document|f32::from(document.lot.width.max(document.lot.height)));
                     controls.update(|controls| match gesture {
-                        Gesture::Pan(x,y)=>pan(controls,x,y,extent,width),
-                        Gesture::Rotate(x,y)=> { controls.yaw_radians=(controls.yaw_radians+x*0.008).rem_euclid(std::f32::consts::TAU);controls.pitch_radians=(controls.pitch_radians-y*0.006).clamp(0.,2.6); },
-                        Gesture::Pinch(scale,x,y)=> { controls.zoom=(controls.zoom*scale).clamp(0.25,8.);pan(controls,x,y,extent,width); },
+                        Gesture::Pan(x,y)=> { if controls.free_camera.is_none() {pan(controls,x,y,extent,width);} },
+                        Gesture::Rotate(x,y)=> { controls.yaw_radians=(controls.yaw_radians+x*0.008).rem_euclid(std::f32::consts::TAU);controls.pitch_radians=(controls.pitch_radians-y*0.006).clamp(0.,if controls.free_camera.is_some(){std::f32::consts::PI}else{2.6}); },
+                        Gesture::Pinch(scale,x,y)=> { if let Some(camera)=&mut controls.free_camera {camera.fov_y=(camera.fov_y/scale).clamp(std::f32::consts::PI*0.025,std::f32::consts::PI*0.6);} else { controls.zoom=(controls.zoom*scale).clamp(0.25,8.);pan(controls,x,y,extent,width); } },
                     });
                 }
                 on:pointerup=move |event| {
@@ -616,11 +618,18 @@ pub fn WorldViewport(
                         if pointer.is_some_and(|pointer|!pointer.moved&&!pointer.rotate) && let Some((x,y))=pixel(&canvas,event.client_x(),event.client_y()) { choose(x,y); }
                     }
                 }
-                on:pointercancel=move |event| { pointers.update_value(|map|{ map.remove(&event.pointer_id()); }); }
-                on:wheel=move |event| { event.prevent_default();let scale=(-event.delta_y()*0.0015).exp().clamp(0.67,1.5) as f32;controls.update(|controls|controls.zoom=(controls.zoom*scale).clamp(0.25,8.)); }
+                on:blur=move |_| { flight.stop(); pointers.update_value(|map|map.clear()); }
+                on:keyup=move |event|flight.release(&event.key())
+                on:pointercancel=move |event| { flight.stop(); pointers.update_value(|map|{ map.remove(&event.pointer_id()); }); }
+                on:wheel=move |event| { event.prevent_default();let scale=(-event.delta_y()*0.0015).exp().clamp(0.67,1.5) as f32;controls.update(|controls| { if let Some(camera)=&mut controls.free_camera { camera.fov_y=(camera.fov_y/scale).clamp(std::f32::consts::PI*0.025,std::f32::consts::PI*0.6); } else { controls.zoom=(controls.zoom*scale).clamp(0.25,8.); } }); }
                 on:keydown=move |event| {
                     if event.is_composing() { return; }
                     let key=event.key();
+                    if controls.get_untracked().free_camera.is_some() {
+                        if event.ctrl_key()||event.alt_key()||event.meta_key() { return; }
+                        if flight.press(&key) {event.prevent_default();return;}
+                        if key=="Escape" {event.prevent_default();flight.stop();return;}
+                    }
                     if key=="Enter" { event.prevent_default();if let Some(canvas)=canvas.get_untracked() { choose(canvas.width()/2,canvas.height()/2); }return; }
                     if !matches!(key.as_str(),"ArrowLeft"|"ArrowRight"|"ArrowUp"|"ArrowDown"|"q"|"Q"|"e"|"E"|"+"|"="|"-"|"_"|"PageUp"|"PageDown"|"Home") { return; }
                     event.prevent_default();
@@ -630,7 +639,7 @@ pub fn WorldViewport(
                         "q"|"Q"=>controls.yaw_radians-=std::f32::consts::FRAC_PI_4,"e"|"E"=>controls.yaw_radians+=std::f32::consts::FRAC_PI_4,
                         "+"|"="=>controls.zoom=(controls.zoom*1.15).min(8.),"-"|"_"=>controls.zoom=(controls.zoom/1.15).max(0.25),
                         "PageUp"=>controls.visible_level=controls.visible_level.saturating_add(1).min(levels),"PageDown"=>controls.visible_level=controls.visible_level.saturating_sub(1).max(1),
-                        "Home"=>{ let defaults=ViewportControls::default();controls.yaw_radians=defaults.yaw_radians;controls.pitch_radians=defaults.pitch_radians;controls.zoom=1.;controls.pan_x=0.;controls.pan_y=0.; },
+                        "Home"=>{ controls.free_camera=None; let defaults=ViewportControls::default();controls.yaw_radians=defaults.yaw_radians;controls.pitch_radians=defaults.pitch_radians;controls.zoom=1.;controls.pan_x=0.;controls.pan_y=0.; },
                         _=>{},
                     });
                 }
@@ -649,6 +658,7 @@ pub fn WorldViewport(
             <Show when=move ||!stats.get().diagnostics.is_empty()>
                 <details class="world-resource-status"><summary>"Some original scenery is unavailable"</summary><div>{move ||stats.get().diagnostics.into_iter().map(|diagnostic|view!{<p>{diagnostic.message}</p>}).collect_view()}</div></details>
             </Show>
+            <crate::world_flight::FlightPad input=flight controls/>
             <span class="world-render-evidence" data-frame-generation=move ||requested.get().to_string() data-triangles=move ||stats.get().triangles.to_string()>"GPU depth-tested source geometry"</span>
         </div>
     }

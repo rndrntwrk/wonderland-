@@ -7,6 +7,7 @@ import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {chromium} from 'playwright';
 import {createFixture} from './peer.mjs';
+import {observeNativeCanvas} from './canvas-observation.mjs';
 
 const output=resolve(process.env.WONDERLAND_NATIVE_QA_OUTPUT??'/tmp/wonderland-native-browser-evidence');
 const dist=resolve(process.env.WONDERLAND_NATIVE_QA_DIST??'apps/web-shell/dist');
@@ -50,7 +51,7 @@ async function usableControls(page){
     })};
   });
   const b=controls.toolbar;
-  assert.equal(controls.buttons.length,13,'Every original native view/action control stays reachable');
+  assert.equal(controls.buttons.length,14,'Every original native view/action control stays reachable');
   for(const r of controls.buttons){
     assert.ok(r.name.length>0,'Property button needs an accessible label');
     assert.ok(r.width>=30&&r.height>=30,`Unusable property control ${r.name}: ${JSON.stringify(r)}`);
@@ -115,8 +116,41 @@ try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   results.environment.chromium=browser.version();
   const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
-  const page=await context.newPage();watch(page);await enter(page);
+  const page=await context.newPage();watch(page);await observeNativeCanvas(page);await enter(page);
   record('Full browser admission',{url:page.url(),title:await page.title(),nativeConnections:fixture.stats.opens});
+  // Free-flight is presentation only: exercising it must not submit Sim commands.
+  const cameraViewport=page.locator('.native-lot .world-viewport');
+  const actionsBeforeCamera=fixture.stats.actions;
+  await page.getByRole('button',{name:'Free camera',exact:true}).click();
+  await page.getByRole('button',{name:'Orbit camera',exact:true}).waitFor();
+  await cameraViewport.locator('canvas').focus();
+  const cameraStart=await cameraViewport.getAttribute('data-camera-position');
+  const paintBefore=await cameraViewport.locator('canvas').evaluate(c=>window.__wonderlandCanvasEvidence.read(c)?.png);
+  await page.keyboard.down('w');await delay(600);
+  await page.waitForFunction(before=>{const c=document.querySelector('.native-lot canvas');const current=window.__wonderlandCanvasEvidence.read(c);return current&&current.png!==before;},paintBefore);
+  const paintedFlight=await cameraViewport.locator('canvas').evaluate(c=>window.__wonderlandCanvasEvidence.read(c)?.generation);
+  assert.ok(paintedFlight,'Free flight must produce a completed real framebuffer while moving');
+  await page.waitForFunction(start=>document.querySelector('.native-lot .world-viewport')?.dataset.cameraPosition!==start,cameraStart);
+  await capture(page,'00-free-camera-flight');
+  await page.getByRole('button',{name:'Needs',exact:true}).focus();
+  await delay(80);
+  const stopped=await cameraViewport.getAttribute('data-camera-position');
+  await delay(180);assert.equal(await cameraViewport.getAttribute('data-camera-position'),stopped,'Blur must cancel a still-held movement key');
+  await page.keyboard.up('w');
+  await cameraViewport.locator('canvas').focus();await page.keyboard.down('w');await delay(80);
+  await page.evaluate(()=>{
+    Object.defineProperty(document,'hidden',{configurable:true,value:true});
+    document.dispatchEvent(new Event('visibilitychange'));
+    delete document.hidden;
+  });
+  await delay(30);const hiddenStop=await cameraViewport.getAttribute('data-camera-position');
+  await delay(120);assert.equal(await cameraViewport.getAttribute('data-camera-position'),hiddenStop,'Hide/resume without an intervening timer must clear held flight input');
+  await page.keyboard.up('w');
+  assert.equal(fixture.stats.actions,actionsBeforeCamera,'Camera flight must never submit avatar movement');
+  await page.getByRole('button',{name:'Orbit camera',exact:true}).click();
+  assert.equal(await cameraViewport.getAttribute('data-camera-mode'),'orbit');
+  record('Connected free camera moves and stops without Sim commands',{actionsUnchanged:true,blurStopped:true});
+
   assert.ok(!await page.locator('vite-error-overlay,nextjs-portal').count());
   const first=await page.locator('#native-tick').textContent();await delay(500);
   assert.notEqual(await page.locator('#native-tick').textContent(),first);
@@ -199,6 +233,18 @@ try{
     await page.setViewportSize({width,height});
     record('Queue labels remain separate from cancellation controls',{width,height,rows:await usableQueueControls(page)});
     await capture(page,`06-native-queue-${width}x${height}`);
+    await page.getByRole('button',{name:'Free camera',exact:true}).click();
+    const flightControls=await page.locator('.world-flight-pad button').evaluateAll(buttons=>buttons.map(button=>{
+      const r=button.getBoundingClientRect();const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+      return {name:button.getAttribute('aria-label'),x:r.x,y:r.y,width:r.width,height:r.height,reachable:button===hit||button.contains(hit)};
+    }));
+    assert.equal(flightControls.length,6);
+    for(const button of flightControls){assert.ok(button.reachable,JSON.stringify(button));assert.ok(button.x>=0&&button.y>=0&&button.x+button.width<=width&&button.y+button.height<=height,JSON.stringify(button));}
+    await usableQueueControls(page);
+    record('Free camera controls remain reachable with populated queue',{width,height,flightControls});
+    await capture(page,`07-free-camera-queue-${width}x${height}`);
+    await page.getByRole('button',{name:'Orbit camera',exact:true}).click();
+
   }
 
   await page.getByRole('button',{name:'Return to city',exact:true}).click();

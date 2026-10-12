@@ -28,3 +28,13 @@
 .world-capture-panel a:focus-visible,.world-capture-panel button:focus-visible{outline:3px solid #fff4b0;outline-offset:3px}
 .source-world-screen .source-world-inspector{max-height:calc(100% - 300px);overflow-y:auto;overscroll-behavior:contain}
 @media(max-width:760px){.source-world-screen .source-world-inspector{max-height:calc(100% - 445px)}.world-capture-preview img{max-height:100px}}
+
+/* The free camera pad stays inside the viewport on touch and narrow screens. */
+.world-flight-pad{position:absolute;left:12px;bottom:calc(var(--lot-controls-height,68px) + 36px);z-index:8;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:8px;max-width:min(360px,calc(100% - 24px));}
+.world-flight-pad>span{grid-column:1/-1;font-size:11px;line-height:1.4;}
+.world-flight-pad>button{min-height:36px;padding:6px;font-size:11px;touch-action:none;}
+@media(max-width:480px){.world-flight-pad{max-width:calc(100% - 24px);} .world-flight-pad>span{display:none;}}
+.world-viewport[data-camera-mode="free"] .world-view-caption{display:none;}
+@media(max-width:760px){.source-world-tools:has(.source-camera-controls button[title]){grid-template-areas:"camera camera" "floor actions" "walls walls";grid-template-columns:minmax(86px,.8fr) minmax(0,1.5fr);}.source-camera-controls:has(button[title]){gap:3px;}}
+@media(max-height:480px){.world-flight-pad{left:auto;right:12px;bottom:calc(var(--lot-controls-height,68px) + 24px);grid-template-columns:repeat(6,minmax(0,1fr));width:360px;padding:4px;gap:3px;}.world-flight-pad>span{display:none;}.world-flight-pad>button{padding:3px;font-size:10px;}}
+@media(max-width:480px){.world-viewport[data-camera-mode="free"] .world-resource-status{bottom:calc(var(--lot-controls-height,68px) + 138px);z-index:9;}}

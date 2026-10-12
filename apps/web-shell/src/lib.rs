@@ -55,6 +55,8 @@ pub mod source_world_screen;
 #[cfg(target_arch = "wasm32")]
 pub mod startup_view;
 #[cfg(target_arch = "wasm32")]
+mod world_flight;
+#[cfg(target_arch = "wasm32")]
 pub mod world_renderer;
 
 pub mod native_build;

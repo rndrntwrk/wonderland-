@@ -19,6 +19,8 @@ pub enum WallMode {
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ViewportControls {
+    #[serde(default)]
+    pub free_camera: Option<crate::FreeCameraState>,
     pub yaw_radians: f32,
     pub pitch_radians: f32,
     pub zoom: f32,
@@ -31,6 +33,7 @@ pub struct ViewportControls {
 impl Default for ViewportControls {
     fn default() -> Self {
         Self {
+            free_camera: None,
             yaw_radians: -std::f32::consts::FRAC_PI_4,
             pitch_radians: 1.1,
             zoom: 1.,
@@ -881,8 +884,7 @@ pub fn camera_projection(
     controls: ViewportControls,
     aspect: f32,
 ) -> Result<Mat4, WorldError> {
-    let camera = orbit_camera(document, controls, aspect)?;
-    let mut pose = camera.pose()?;
+    let mut pose = crate::active_camera(document, controls, aspect)?;
     pose.far = (f32::from(document.lot.width.max(document.lot.height)) * 48.).max(800.);
     pose.view_projection(aspect).map_err(Into::into)
 }
