@@ -55,10 +55,58 @@ export class TestAccounts extends AccountAuthority {
     );
     return { seeded: true };
   }
+  failReceipt(enabled: boolean) {
+    this.ctx.storage.sql.exec("DROP TRIGGER IF EXISTS test_fail_receipt");
+    if (enabled)
+      this.ctx.storage.sql.exec(
+        "CREATE TRIGGER test_fail_receipt BEFORE INSERT ON avatar_operations BEGIN SELECT RAISE(ABORT, 'test receipt failure'); END",
+      );
+    return { enabled };
+  }
+  testBalance(id: string, balance: string) {
+    this.ctx.storage.sql.exec(
+      "UPDATE avatar_balances SET balance=? WHERE avatar_id=?",
+      balance,
+      id,
+    );
+    return { updated: true };
+  }
+  legacyOwnership(id: string) {
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec(
+        "DELETE FROM avatar_outfits WHERE avatar_id=?",
+        id,
+      );
+      this.ctx.storage.sql.exec(
+        "DELETE FROM avatar_balances WHERE avatar_id=?",
+        id,
+      );
+      this.ctx.storage.sql.exec(
+        "DELETE FROM avatar_ownership_initializations WHERE avatar_id=?",
+        id,
+      );
+    });
+    return { cleared: true };
+  }
   snapshot() {
     return {
       sequences: this.ctx.storage.sql
-        .exec("SELECT * FROM account_meta WHERE key='avatar_sequence'")
+        .exec(
+          "SELECT * FROM account_meta WHERE key IN ('avatar_sequence','outfit_sequence')",
+        )
+        .toArray(),
+      outfits: this.ctx.storage.sql
+        .exec("SELECT * FROM avatar_outfits ORDER BY length(id),id")
+        .toArray(),
+      balances: this.ctx.storage.sql
+        .exec(
+          "SELECT * FROM avatar_balances ORDER BY length(avatar_id),avatar_id",
+        )
+        .toArray(),
+      initializations: this.ctx.storage.sql
+        .exec(
+          "SELECT * FROM avatar_ownership_initializations ORDER BY length(avatar_id),avatar_id",
+        )
         .toArray(),
       operations: this.ctx.storage.sql
         .exec("SELECT * FROM avatar_operations")
@@ -78,6 +126,10 @@ const allowed = new Set([
   "createAvatar",
   "roster",
   "ownedAvatar",
+  "ownedAssets",
+  "failReceipt",
+  "testBalance",
+  "legacyOwnership",
   "advance",
   "snapshot",
   "seedAvatarSequence",

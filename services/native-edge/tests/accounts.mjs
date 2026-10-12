@@ -145,6 +145,10 @@ try {
   assert.deepEqual(afterExhaustion.avatars, beforeExhaustion.avatars);
   assert.deepEqual(afterExhaustion.operations, beforeExhaustion.operations);
   assert.deepEqual(afterExhaustion.sequences, beforeExhaustion.sequences);
+  for (const table of ["outfits", "balances", "initializations"])
+    assert.deepEqual(afterExhaustion[table], beforeExhaustion[table]);
+  assert.equal(beforeExhaustion.outfits.length, 3);
+  assert.equal(beforeExhaustion.balances[0].balance, "0");
   await mf.dispose();
   await start();
   assert.deepEqual(
@@ -157,6 +161,108 @@ try {
   );
   checks.push(
     "source avatar identity ceiling rejects concurrent exhaustion atomically and preserves last successful create after restart",
+  );
+  const ownershipRealm = "avatar-initial-ownership";
+  const ownCall = (op, args = []) => call(op, args, ownershipRealm);
+  await ownCall("initializeCatalog", [catalog]);
+  await ownCall("register", ["wardrobe_f", password, origin]);
+  await ownCall("register", ["wardrobe_m", password, origin]);
+  const of = await ownCall("login", ["wardrobe_f", password, origin]);
+  const om = await ownCall("login", ["wardrobe_m", password, origin]);
+  const createArgs = [of.token, "ownership_create_female", female];
+  const [first, replayed] = await Promise.all([
+    ownCall("createAvatar", createArgs),
+    ownCall("createAvatar", createArgs),
+  ]);
+  assert.deepEqual(first, replayed);
+  const second = await ownCall("createAvatar", [
+    om.token,
+    "ownership_create_male_01",
+    male,
+  ]);
+  const fa = await ownCall("ownedAssets", [of.token, first.avatar_id]);
+  const ma = await ownCall("ownedAssets", [om.token, second.avatar_id]);
+  for (const [actual, expected] of [
+    [fa, [female.body_key, "5587752452109", "420906795021"]],
+    [ma, [male.body_key, "5789615915021", "5802500816909"]],
+  ]) {
+    assert.equal(actual.balance, "0");
+    assert.equal(actual.version, 1);
+    assert.deepEqual(
+      actual.outfits.map((x) => x.asset_key),
+      expected,
+    );
+    assert.deepEqual(
+      actual.outfits.map((x) => x.suit_type),
+      [0, 5, 2],
+    );
+    for (const row of actual.outfits) {
+      assert.equal(row.source, "cas");
+      assert.equal(row.purchase_price, "0");
+      assert.equal(row.sale_price, "0");
+    }
+  }
+  assert.equal(
+    new Set([...fa.outfits, ...ma.outfits].map((x) => x.id)).size,
+    6,
+  );
+  await assert.rejects(
+    ownCall("ownedAssets", [om.token, first.avatar_id]),
+    /avatar unavailable/,
+  );
+  const beforeFault = await ownCall("snapshot");
+  await ownCall("failReceipt", [true]);
+  await assert.rejects(
+    ownCall("createAvatar", [
+      of.token,
+      "ownership_late_fail_01",
+      { ...female, name: "Rollback Traveller" },
+    ]),
+    /test receipt failure/,
+  );
+  const afterFault = await ownCall("snapshot");
+  for (const table of [
+    "avatars",
+    "operations",
+    "sequences",
+    "outfits",
+    "balances",
+    "initializations",
+  ])
+    assert.deepEqual(afterFault[table], beforeFault[table], table);
+  await ownCall("failReceipt", [false]);
+  await assert.rejects(
+    ownCall("createAvatar", [
+      of.token,
+      createArgs[1],
+      { ...female, name: "Changed Traveller" },
+    ]),
+    /operation identity reused/,
+  );
+  await ownCall("testBalance", [first.avatar_id, "123"]);
+  await mf.dispose();
+  await start();
+  assert.deepEqual(await ownCall("createAvatar", createArgs), first);
+  assert.deepEqual(await ownCall("ownedAssets", [of.token, first.avatar_id]), {
+    ...fa,
+    balance: "123",
+  });
+  // Simulate persisted pre-upgrade appearance-only state. Reads/retries must not mint ownership.
+  await ownCall("legacyOwnership", [second.avatar_id]);
+  await assert.rejects(
+    ownCall("ownedAssets", [om.token, second.avatar_id]),
+    /migration required/,
+  );
+  assert.deepEqual(
+    await ownCall("createAvatar", [om.token, "ownership_create_male_01", male]),
+    second,
+  );
+  await assert.rejects(
+    ownCall("ownedAssets", [om.token, second.avatar_id]),
+    /migration required/,
+  );
+  checks.push(
+    "real SQLite creation atomically grants three source CAS outfits and zero balance, rolls back late receipt failure, preserves changed balance on retry/restart, and refuses uninitialized legacy ownership",
   );
   const unicodeOrigin = "e".repeat(64);
   for (const suffix of ["\ud800", "\udfff", "\ud800x", "x\udfff"]) {

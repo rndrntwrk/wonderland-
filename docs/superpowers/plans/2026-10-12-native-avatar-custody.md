@@ -37,16 +37,23 @@ Reference pin: `4c6b3e8f5835b228723caea3c9f683c62f244f73`.
 
 ## Increment 1: source-compatible identity and durable initial ownership
 
-- [ ] Bound new avatar allocation to 1..16,777,215 while keeping exact decimal
+- [x] Bound new avatar allocation to 1..16,777,215 while keeping exact decimal
   external serialization. Accounts, outfits and epochs retain their wider types.
   Reject exhaustion before any avatar, wardrobe, ledger or operation row commits.
   Never truncate, hash, recycle or allocate a separate identity per lot.
-- [ ] Preserve idempotent old successful create receipts even after exhaustion.
-  Reject imported out-of-range avatars at admission; do not silently remap them.
-- [ ] Persist initial wardrobe ownership and zero-balance ledger exactly once
+- [x] Preserve idempotent old successful create receipts even after exhaustion.
+- [ ] Reject imported out-of-range avatars at admission; do not silently remap them.
+- [x] Persist initial wardrobe ownership and zero-balance ledger exactly once
   with avatar creation. Catalog availability does not establish outfit ownership.
-- [ ] Run real SQLite/workerd creation at the identity boundary, lost-reply
+- [x] Run real SQLite/workerd creation at the identity boundary, lost-reply
   retries and concurrent creation. Verify no partial ownership or receipt writes.
+
+Initial ownership uses selected daywear plus original gender-specific sleep/swim
+CAS grants, independent instance IDs, and an authoritative zero game balance.
+Existing pre-upgrade appearance-only records are explicitly refused by ownedAssets;
+reads and old create retries never silently grant missing assets. Such records
+require a separately reviewed staged migration before admission. This increment
+adds no transfer/purchase/moderator or public authentication route.
 
 ## Increment 2: exclusive durable control and replayed Rust admission
 
