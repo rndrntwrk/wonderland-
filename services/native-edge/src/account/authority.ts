@@ -51,14 +51,14 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
   protected now() {
     return Date.now();
   }
-  private next(key: string): string {
+  private next(key: string, maximum = 18446744073709551615n): string {
     const row = this.ctx.storage.sql
       .exec<{
         value: string;
       }>("SELECT value FROM account_meta WHERE key=?", key)
       .toArray()[0];
     const next = BigInt(row?.value ?? "0") + 1n;
-    if (next > 18446744073709551615n) throw Error("identity capacity");
+    if (next > maximum) throw Error("identity capacity");
     this.ctx.storage.sql.exec(
       "INSERT INTO account_meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
       key,
@@ -351,7 +351,8 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
           .toArray().length
       )
         throw Error("avatar name unavailable");
-      const id = this.next("avatar_sequence"),
+      // Source classifies persistent IDs >= 2^24 as objects, not avatars.
+      const id = this.next("avatar_sequence", 16777215n),
         result = { avatar_id: id, ...spec };
       this.ctx.storage.sql.exec(
         "INSERT INTO avatars(id,account_id,name_key,spec) VALUES(?,?,?,?)",
