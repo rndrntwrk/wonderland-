@@ -42,6 +42,46 @@ export class TestCoordinator extends LotCoordinator {
     return true;
   }
 
+  damageJournal(key: string) {
+    const rows = this.ctx.storage.sql
+      .exec<{
+        ordinal: number;
+        payload: string;
+      }>(
+        "SELECT ordinal,payload FROM journal_chunks WHERE batch_key=? ORDER BY ordinal",
+        key,
+      )
+      .toArray();
+    this.ctx.storage.sql.exec(
+      "UPDATE journal_chunks SET payload='!' || substr(payload,2) WHERE batch_key=? AND ordinal=0",
+      key,
+    );
+    return rows;
+  }
+  nulJournal(key: string) {
+    this.ctx.storage.sql.exec(
+      "UPDATE journal_chunks SET payload=payload || char(0) || hex(zeroblob(524288)) WHERE batch_key=? AND ordinal=0",
+      key,
+    );
+    return true;
+  }
+  oversizeJournal(key: string) {
+    this.ctx.storage.sql.exec(
+      "UPDATE journal_chunks SET payload=substr(hex(zeroblob(131073)),1,262145) WHERE batch_key=? AND ordinal=0",
+      key,
+    );
+    return true;
+  }
+  restoreJournal(key: string, rows: { ordinal: number; payload: string }[]) {
+    for (const row of rows)
+      this.ctx.storage.sql.exec(
+        "UPDATE journal_chunks SET payload=? WHERE batch_key=? AND ordinal=?",
+        row.payload,
+        key,
+        row.ordinal,
+      );
+    return true;
+  }
   faultCapacity(mode: string) {
     if (mode === "count")
       this.ctx.storage.sql.exec(
@@ -65,7 +105,26 @@ export default {
       } = (await request.json()) as any;
       const stub = env.COORD.get(env.COORD.idFromName(lot));
       let result;
-      if (op === "beginRecovery") result = await stub.beginRecovery(...args);
+      if (op === "nulJournal") result = await stub.nulJournal(...args);
+      else if (op === "oversizeJournal")
+        result = await stub.oversizeJournal(...args);
+      else if (op === "damageJournal")
+        result = await stub.damageJournal(...args);
+      else if (op === "restoreJournal")
+        result = await stub.restoreJournal(...args);
+      else if (op === "recoveryBundle") {
+        const bundle = await stub.recoveryBundle(...args);
+        const { checkpoint_bytes, ...rest } = bundle;
+        const chunks = [];
+        for (let i = 0; i < checkpoint_bytes.length; i += 8192)
+          chunks.push(
+            Array.from(checkpoint_bytes.subarray(i, i + 8192), (b: any) =>
+              b.toString(16).padStart(2, "0"),
+            ).join(""),
+          );
+        result = { ...rest, checkpoint_hex: chunks.join("") };
+      } else if (op === "beginRecovery")
+        result = await stub.beginRecovery(...args);
       else if (op === "finishRecovery")
         result = await stub.finishRecovery(args[0], Uint8Array.from(args[1]));
       else if (op === "pauseCheckpoint") result = await stub.pauseCheckpoint();

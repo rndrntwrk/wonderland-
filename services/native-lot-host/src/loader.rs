@@ -38,11 +38,21 @@ pub struct Config {
 pub struct Recovery {
     pub checkpoint_file: String,
     pub checkpoint_sha256: String,
-    pub tail_file: String,
-    pub tail_sha256: String,
+    #[serde(default)]
+    pub tail_file: Option<String>,
+    #[serde(default)]
+    pub tail_sha256: Option<String>,
+    #[serde(default)]
+    pub additional_tail_files: Vec<PinnedTail>,
     pub expected_cursor: CursorV1,
     #[serde(default)]
     pub takeover: Option<RecoveryGrantV1>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PinnedTail {
+    pub file: String,
+    pub sha256: String,
 }
 fn pinned(path: &str, expected: &str, cap: usize) -> Result<Vec<u8>> {
     let bytes = read(Path::new(path), cap)?;
@@ -167,20 +177,38 @@ pub fn load(path: &Path) -> Result<LoadedHost> {
             8 * 1024 * 1024,
         )?;
         runtime.restore(&checkpoint)?;
-        let tail = pinned(&recovery.tail_file, &recovery.tail_sha256, 8 * 1024 * 1024)?;
-        match wonderland_game_runtime::live_wire::decode_packet(&tail, Default::default())? {
-            wonderland_game_runtime::live_wire::Packet::Ticks(frames) => {
-                if frames.len() > 64 {
-                    return Err("recovery tail count limit".into());
-                }
-                for frame in frames {
-                    let result = runtime.apply_accepted(&frame.accepted)?;
-                    if result.state_hash != frame.state_hash {
-                        return Err("recovery accepted state hash mismatch".into());
+        if recovery.additional_tail_files.len() > 64 {
+            return Err("recovery tail file count limit".into());
+        }
+        let mut tail_bytes = 0usize;
+        let mut frame_count = 0usize;
+        let mut tails = match (recovery.tail_file, recovery.tail_sha256) {
+            (Some(file), Some(sha256)) => vec![PinnedTail { file, sha256 }],
+            (None, None) => Vec::new(),
+            _ => return Err("recovery tail path and digest must be paired".into()),
+        };
+        tails.extend(recovery.additional_tail_files);
+        if tails.len() > 64 {
+            return Err("recovery tail file count limit".into());
+        }
+        for part in tails {
+            let tail = pinned(&part.file, &part.sha256, 8 * 1024 * 1024 - tail_bytes)?;
+            tail_bytes += tail.len();
+            match wonderland_game_runtime::live_wire::decode_packet(&tail, Default::default())? {
+                wonderland_game_runtime::live_wire::Packet::Ticks(frames) => {
+                    frame_count += frames.len();
+                    if frame_count > 64 {
+                        return Err("recovery tail count limit".into());
+                    }
+                    for frame in frames {
+                        let result = runtime.apply_accepted(&frame.accepted)?;
+                        if result.state_hash != frame.state_hash {
+                            return Err("recovery accepted state hash mismatch".into());
+                        }
                     }
                 }
+                _ => return Err("recovery requires accepted tick tail".into()),
             }
-            _ => return Err("recovery requires accepted tick tail".into()),
         }
         let state = runtime.sim().state();
         let actual = CursorV1 {

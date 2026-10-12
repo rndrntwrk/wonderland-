@@ -12,6 +12,7 @@ import {
   type Binding,
   type Cursor,
 } from "./contracts";
+import { recoveryChain } from "./journal";
 import { successor, takeoverMarker, type RecoveryGrant } from "./recovery";
 interface Env {
   CHECKPOINTS: R2Bucket;
@@ -88,6 +89,117 @@ export class LotCoordinator extends DurableObject<Env> {
       );
       return grant;
     });
+  }
+  async recoveryBundle(expectedIncarnation: unknown) {
+    const incarnation = decimal(expectedIncarnation);
+    const pending = this.pendingRecovery();
+    if (!pending) throw Error("no pending recovery");
+    const grant = JSON.parse(pending.grant_json) as RecoveryGrant;
+    if (grant.old_binding.lot_incarnation !== incarnation)
+      throw Error("recovery incarnation mismatch");
+    const manifests = this.listCheckpoints();
+    const checkpoint = manifests.find(
+      (m) =>
+        equal(m.binding, grant.old_binding) &&
+        m.cursor.lot_id === grant.old_cursor.lot_id &&
+        m.cursor.authority_epoch === grant.old_cursor.authority_epoch &&
+        BigInt(m.cursor.completed_tick) <=
+          BigInt(grant.old_cursor.completed_tick),
+    );
+    if (!checkpoint) throw Error("no compatible retained checkpoint");
+    if (
+      !Number.isSafeInteger(checkpoint.byte_length) ||
+      checkpoint.byte_length < 1 ||
+      checkpoint.byte_length > 8 * 1024 * 1024
+    )
+      throw Error("checkpoint manifest bound");
+    const object = await this.env.CHECKPOINTS.get(checkpoint.object_key);
+    if (!object || object.size !== checkpoint.byte_length)
+      throw Error("recovery checkpoint missing or wrong size");
+    const bytes = new Uint8Array(await object.arrayBuffer());
+    if ((await digest(bytes)) !== checkpoint.sha256)
+      throw Error("recovery checkpoint digest mismatch");
+    const current = this.pendingRecovery();
+    if (!current || current.grant_json !== pending.grant_json)
+      throw Error("recovery changed during bundle read");
+    if (
+      BigInt(grant.old_cursor.completed_tick) -
+        BigInt(checkpoint.cursor.completed_tick) >
+      64n
+    )
+      throw Error("recovery tail exceeds admitted profile");
+    const rows = this.ctx.storage.sql
+      .exec<{
+        batch_key: string;
+        digest: string;
+        receipt: string;
+      }>("SELECT batch_key,digest,receipt FROM batches ORDER BY rowid")
+      .toArray();
+    const candidates = [];
+    let tailBytes = 0;
+    for (const row of rows) {
+      const receipt = JSON.parse(row.receipt);
+      if (
+        !receipt.cursor ||
+        receipt.cursor.authority_epoch !== grant.old_cursor.authority_epoch ||
+        BigInt(receipt.cursor.completed_tick) <=
+          BigInt(checkpoint.cursor.completed_tick)
+      )
+        continue;
+      const [owner, id] = row.batch_key.split(":");
+      if (owner !== incarnation) continue;
+      let p;
+      try {
+        p = this.readBatch(owner, id);
+      } catch {
+        throw Error("recovery journal integrity mismatch");
+      }
+      if (
+        !p ||
+        (await digest(encode(p))) !== row.digest ||
+        !equal(p.result, receipt.cursor) ||
+        receipt.digest !== row.digest ||
+        receipt.batch_id !== id ||
+        receipt.status !== "committed" ||
+        p.batch_id !== id
+      )
+        throw Error("recovery journal integrity mismatch");
+      try {
+        p = proposal({
+          kind: "proposal",
+          status: "pending",
+          digest: row.digest,
+          payload: p,
+        }).payload;
+      } catch {
+        throw Error("recovery journal contract mismatch");
+      }
+      tailBytes += p.ticks_hex.length / 2;
+      if (tailBytes > 8 * 1024 * 1024)
+        throw Error("recovery tail exceeds admitted profile");
+      // Keep only accepted replay data; large effect/event lanes stay in the journal.
+      candidates.push({ ...p, effects_hex: "", events_hex: "" });
+    }
+    // Hashing journal rows yields; ensure no completed/replaced recovery is advertised.
+    const final = this.pendingRecovery();
+    if (!final || final.grant_json !== pending.grant_json)
+      throw Error("recovery changed during journal read");
+    const chain = recoveryChain(
+      grant.old_binding,
+      checkpoint.cursor,
+      grant.old_cursor,
+      candidates,
+    );
+    return {
+      schema_version: 1,
+      grant,
+      checkpoint,
+      checkpoint_bytes: bytes,
+      batches: chain.map((p) => ({
+        batch_id: p.batch_id,
+        ticks_hex: p.ticks_hex,
+      })),
+    };
   }
   async finishRecovery(rawMarker: unknown, bytes: Uint8Array) {
     const marker = takeoverMarker(rawMarker),
@@ -319,6 +431,34 @@ export class LotCoordinator extends DurableObject<Env> {
   }
   readBatch(incarnation: unknown, id: unknown) {
     const key = decimal(incarnation) + ":" + decimal(id);
+    const shape = this.ctx.storage.sql
+      .exec<{
+        count: number;
+        total: number;
+        largest: number;
+        first: number | null;
+        last: number | null;
+      }>(
+        "SELECT COUNT(*) AS count,COALESCE(SUM(length(CAST(payload AS BLOB))),0) AS total,COALESCE(MAX(length(CAST(payload AS BLOB))),0) AS largest,MIN(ordinal) AS first,MAX(ordinal) AS last FROM journal_chunks WHERE batch_key=?",
+        key,
+      )
+      .one();
+    if (shape.count === 0) return null;
+    const stored = this.ctx.storage.sql
+      .exec<{
+        bytes: number;
+      }>("SELECT bytes FROM batches WHERE batch_key=?", key)
+      .toArray()[0];
+    if (
+      !stored ||
+      shape.count > 64 ||
+      shape.total > 16 * 1024 * 1024 ||
+      shape.largest > CHUNK ||
+      shape.first !== 0 ||
+      shape.last !== shape.count - 1 ||
+      shape.total !== stored.bytes
+    )
+      throw Error("journal chunk bounds or integrity mismatch");
     const rows = this.ctx.storage.sql
       .exec<{
         payload: string;
