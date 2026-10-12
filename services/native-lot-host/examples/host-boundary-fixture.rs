@@ -109,7 +109,7 @@ fn main() -> Result<()> {
                 .serialize(&large_commands)?),
         )?;
 
-        let (mut runtime, _, _, _) = loader::load(&root.join("host.json"))?;
+        let (mut runtime, _, _, _, _) = loader::load(&root.join("host.json"))?;
         for commands in commands {
             runtime.advance(commands)?;
         }
@@ -139,7 +139,7 @@ fn main() -> Result<()> {
                 }]])?),
         )?;
     } else if args[1] == "replay" {
-        let (mut runtime, _, _, _) = loader::load(&root.join("host.json"))?;
+        let (mut runtime, _, _, _, _) = loader::load(&root.join("host.json"))?;
         let initial: serde_json::Value =
             serde_json::from_slice(&fs::read(root.join("initial.json"))?)?;
         runtime.restore(&bytes(initial["checkpoint_hex"].as_str().unwrap()))?;
@@ -164,6 +164,38 @@ fn main() -> Result<()> {
             [41]
         );
         println!("real cooked behavior and accepted-wire replay matched: attribute 41");
+    } else if args[1] == "join-tail" {
+        let parts: Vec<String> =
+            serde_json::from_slice(&fs::read(root.join("recovery-batches.json"))?)?;
+        let mut frames = Vec::new();
+        for part in parts {
+            match wonderland_game_runtime::live_wire::decode_packet(
+                &bytes(&part),
+                Default::default(),
+            )? {
+                wonderland_game_runtime::live_wire::Packet::Ticks(batch) => frames.extend(batch),
+                _ => return Err("expected tick batch".into()),
+            }
+        }
+        fs::write(
+            root.join("tail.bin"),
+            wonderland_game_runtime::live_wire::encode_ticks(&frames, Default::default())?,
+        )?;
+    } else if args[1] == "takeover" {
+        let (before, _, _, _, _) = loader::load(&root.join("recovery-original.json"))?;
+        let (after, _, _, _, marker) = loader::load(&root.join("takeover.json"))?;
+        let old = before.sim().pending_effects()?;
+        let new = after.sim().pending_effects()?;
+        assert_eq!(old.len(), 1);
+        assert_eq!(new.len(), 1);
+        assert_eq!(old[0].request, new[0].request);
+        assert_eq!(new[0].request.issued_epoch, 9007199254740993);
+        assert_eq!(new[0].dispatch_epoch, 9007199254740994);
+        assert_eq!(
+            marker.unwrap().grant.old_cursor.authority_epoch.0,
+            9007199254740993
+        );
+        println!("logical effect preserved and dispatched under successor epoch");
     } else if args[1] == "effects" {
         let receipt: serde_json::Value =
             serde_json::from_slice(&fs::read(root.join("effect-receipt.json"))?)?;

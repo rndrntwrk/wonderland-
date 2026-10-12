@@ -8,7 +8,9 @@ use wonderland_game_runtime::{
     live_session::TickFrame,
     live_wire::{WireLimits, encode_ticks},
 };
-use wonderland_native_host_contracts::{CursorV1, DecimalId, DecisionV1, HostBindingV1, RequestV1};
+use wonderland_native_host_contracts::{
+    CursorV1, DecimalId, DecisionV1, HostBindingV1, RequestV1, TakeoverMarkerV1,
+};
 
 const MAX_COMMAND_BYTES: usize = 256 * 1024;
 const MAX_SNAPSHOT_BYTES: usize = 8 * 1024 * 1024;
@@ -73,6 +75,8 @@ pub struct Host {
     config: RuntimeConfig,
     binding: HostBindingV1,
     report: Value,
+    takeover_marker: Option<TakeoverMarkerV1>,
+    recovery_committed: bool,
     pending: Option<Pending>,
     history: BTreeMap<u64, Recorded>,
     history_bytes: usize,
@@ -83,6 +87,7 @@ impl Host {
         config: RuntimeConfig,
         binding: HostBindingV1,
         report: Value,
+        takeover_marker: Option<TakeoverMarkerV1>,
     ) -> Result<Self> {
         checkpoint(&runtime)?;
         Ok(Self {
@@ -90,6 +95,8 @@ impl Host {
             config,
             binding,
             report,
+            recovery_committed: takeover_marker.is_none(),
+            takeover_marker,
             pending: None,
             history: BTreeMap::new(),
             history_bytes: 0,
@@ -98,8 +105,15 @@ impl Host {
     pub fn handle(&mut self, request: RequestV1) -> Result<Value> {
         match request {
             RequestV1::Inspect => Ok(
-                json!({"kind":"committed_state","binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id))}),
+                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id))}),
             ),
+            RequestV1::ActivateRecovery { marker } => {
+                if self.takeover_marker.as_ref() != Some(&marker) {
+                    return Err("recovery activation marker mismatch".into());
+                }
+                self.recovery_committed = true;
+                self.handle(RequestV1::Inspect)
+            }
             RequestV1::Lookup { batch_id } => {
                 if let Some(p) = &self.pending
                     && p.id == batch_id.0
@@ -117,7 +131,12 @@ impl Host {
                 binding,
                 predecessor,
                 commands_hex,
-            } => self.prepare(batch_id, binding, predecessor, commands_hex),
+            } => {
+                if !self.recovery_committed {
+                    return Err("replacement awaits durable recovery activation".into());
+                }
+                self.prepare(batch_id, binding, predecessor, commands_hex)
+            }
             RequestV1::Resolve {
                 batch_id,
                 digest,

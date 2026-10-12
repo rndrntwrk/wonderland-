@@ -156,6 +156,10 @@ impl GameRuntime {
     pub fn restore(&mut self, bytes: &[u8]) -> Result<(), GameRuntimeError> {
         Ok(self.sim.restore(bytes)?)
     }
+    /// Only the private supervisor may invoke this after durable owner fencing.
+    pub fn adopt_authority_epoch(&mut self, new_epoch: u64) -> Result<(), GameRuntimeError> {
+        Ok(self.sim.adopt_epoch(new_epoch, RuntimeRole::Authority)?)
+    }
     pub fn projection(&self) -> RuntimeProjection {
         let state = self.sim.state();
         RuntimeProjection {

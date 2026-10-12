@@ -42,6 +42,9 @@ pub struct HostBindingV1 {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum RequestV1 {
     Inspect,
+    ActivateRecovery {
+        marker: TakeoverMarkerV1,
+    },
     Prepare {
         batch_id: DecimalId,
         binding: HostBindingV1,
@@ -63,4 +66,24 @@ pub enum DecisionV1 {
     Committed { cursor: CursorV1 },
     Rejected,
     Unknown,
+}
+
+/// Private coordinator-issued recovery record; not a browser credential.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RecoveryGrantV1 {
+    pub schema_version: u32,
+    pub old_binding: HostBindingV1,
+    pub old_cursor: CursorV1,
+    pub old_checkpoint_sha256: String,
+    pub new_binding: HostBindingV1,
+    pub new_authority_epoch: DecimalId,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TakeoverMarkerV1 {
+    pub schema_version: u32,
+    pub grant: RecoveryGrantV1,
+    pub new_cursor: CursorV1,
+    pub checkpoint_sha256: String,
 }
