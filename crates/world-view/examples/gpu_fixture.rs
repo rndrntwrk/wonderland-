@@ -16,6 +16,62 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .ok_or("supply an output directory")?,
     );
     fs::create_dir_all(&output)?;
+    let mut sampler_cases = Vec::new();
+    for (name, sprite, width, height, expected) in [
+        ("sprite-cutout", true, 64u32, 64u32, [255, 0, 0, 255]),
+        ("custom-cutout", false, 2, 2, [255, 0, 0, 63]),
+        ("sprite-wide", true, 4, 2, [32, 0, 0, 255]),
+        ("custom-wide", false, 4, 2, [35, 0, 0, 127]),
+        ("sprite-short-axis", true, 1, 4, [10, 0, 0, 255]),
+        ("custom-short-axis", false, 1, 4, [10, 0, 0, 63]),
+    ] {
+        let mut sample = mask_fixture::masked(ModelMaskKind::Normal);
+        sample.models[0].depth_mask = None;
+        sample.models[0].groups.truncate(1);
+        sample.models[0].textures.truncate(1);
+        if sprite {
+            sample.models[0].context = ModelContext::Dgrp {
+                effective_iff: wonderland_render_core::AssetKey([51; 32]),
+                chunk_id: 1,
+            };
+            sample.models[0].textures[0].selector = ModelTextureSelector::Sprite {
+                rotation: 0,
+                ordinal: 0,
+            };
+        }
+        sample.models[0].textures[0].image = wonderland_render_core::RgbaImage {
+            width,
+            height,
+            pixels: (0..width * height)
+                .map(|i| {
+                    if name.ends_with("cutout") {
+                        if i == 0 { [255, 0, 0, 255] } else { [0; 4] }
+                    } else {
+                        [(i * if width == 1 { 20 } else { 10 }) as u8, 0, 0, 255]
+                    }
+                })
+                .collect(),
+        };
+        mask_fixture::bind_content(&mut sample);
+        let mut renderer = WorldRenderer::new(Arc::new(sample))?;
+        let (frame, _) = renderer.prepare_gpu(Default::default(), 64, 64)?;
+        let draw = frame
+            .draws
+            .iter()
+            .find(|d| d.texture_filter == Some("linear_mipmap"))
+            .ok_or("missing source sampler")?;
+        let index = draw.texture.ok_or("missing source image")?;
+        let levels = &frame.texture_mips.as_ref().ok_or("missing source mips")?[index];
+        assert_eq!(levels.last().unwrap().pixels, vec![expected]);
+        sampler_cases.push(
+            serde_json::json!({"name": name, "image": frame.textures[index], "mips": levels}),
+        );
+    }
+    fs::write(
+        output.join("sampler-mips.json"),
+        serde_json::to_vec(&sampler_cases)?,
+    )?;
+
     fs::write(
         output.join("valid-overbudget.world.json"),
         serde_json::to_vec(&replacement_fixture::overbudget())?,

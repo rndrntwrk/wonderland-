@@ -21,6 +21,7 @@ pub struct WorldRenderStats {
 
 mod gpu;
 mod native_pose;
+mod source_mips;
 pub use gpu::WorldGpuFrame;
 
 struct DisplayedRaster {

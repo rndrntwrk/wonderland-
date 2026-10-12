@@ -46,6 +46,11 @@ impl Default for ViewportControls {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SourceMipPolicy {
+    SpriteMaxAlpha,
+    CustomAverageAlpha,
+}
 #[derive(Clone, Debug)]
 pub struct ScenePart {
     /// One-based source floor, including tile-less roof geometry.
@@ -59,6 +64,7 @@ pub struct ScenePart {
     pub object: Option<usize>,
     pub material: u32,
     pub texture: Option<Arc<RgbaImage>>,
+    pub texture_mip: Option<SourceMipPolicy>,
 }
 #[derive(Clone)]
 pub struct PreparedWorld {
@@ -580,6 +586,7 @@ pub fn build_scene_with_budget(
             object: None,
             material: part.material,
             texture: texture.map(|(image, _)| Arc::clone(image)),
+            texture_mip: None,
         });
     }
     // Equal-depth authored flooring is drawn first. Strict default depth then
@@ -646,6 +653,7 @@ pub fn build_scene_with_budget(
                     object: Some(index),
                     material: part.texture as u32,
                     texture: Some(Arc::clone(&images[part.texture])),
+                    texture_mip: None,
                 });
             }
             continue;
@@ -706,6 +714,16 @@ pub fn build_scene_with_budget(
                 tile: None,
                 object: Some(index),
                 material,
+                texture_mip: texture.as_ref().map(|_| {
+                    match cached.source.textures()[material as usize].selector() {
+                        source_objects::TextureSelector::Sprite { .. } => {
+                            SourceMipPolicy::SpriteMaxAlpha
+                        }
+                        source_objects::TextureSelector::Custom { .. } => {
+                            SourceMipPolicy::CustomAverageAlpha
+                        }
+                    }
+                }),
                 texture,
             });
         }
