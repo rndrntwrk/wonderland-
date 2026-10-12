@@ -20,6 +20,29 @@ The existing full browser journeys are in `apps/web-shell/tests/gpu/` and
 `tools/native-browser/`. Use their documented fixture/service setup and preserve
 their reports. Preview mode is not a hosted multiplayer acceptance result.
 
+## Use the default browser from a new shell
+
+The bootstrap runs as a child process, so its exports do not survive when it
+returns. Before running a browser journey, restore both the module location and
+browser download location in the current shell. Run this from the repository root
+and reuse the same `WONDERLAND_TOOLS_ROOT` value passed to the bootstrap:
+
+```sh
+ROOT=$(pwd)
+TOOLS="${WONDERLAND_TOOLS_ROOT:-$ROOT/.cloud-tools}"
+TOOLS=$(cd "$TOOLS" && pwd)
+export WONDERLAND_PLAYWRIGHT_MODULE="$TOOLS/browser/node_modules/playwright/index.mjs"
+export PLAYWRIGHT_BROWSERS_PATH="$TOOLS/playwright-browsers"
+export CARGO_HOME="$TOOLS/cargo" RUSTUP_HOME="$TOOLS/rustup"
+export PATH="$CARGO_HOME/bin:$PATH"
+cargo run -p wonderland-world-view --example gpu_fixture --locked -- tests/output/source-gpu
+GITHUB_SHA=$(git rev-parse HEAD) node apps/web-shell/tests/gpu/application.mjs
+```
+
+The application build must already exist. Other browser journeys still need
+their documented services and fixtures. When using the explicit baseline profile
+below, use its module and browser-directory exports instead of this default pair.
+
 ## Exact browser used for the 12 October baseline
 
 The saved 39-scenario baseline used Playwright 1.56.1 and its Chromium 141
