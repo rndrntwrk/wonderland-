@@ -112,15 +112,69 @@ try {
     call("initializeCatalog", [{ ...catalog, release: "c".repeat(64) }]),
     /already pinned/,
   );
+  const capacityRealm = "avatar-source-capacity";
+  await call("initializeCatalog", [catalog], capacityRealm);
+  await call("register", ["capacity_owner", password, origin], capacityRealm);
+  const capacitySession = await call(
+    "login",
+    ["capacity_owner", password, origin],
+    capacityRealm,
+  );
+  await call("seedAvatarSequence", ["16777214"], capacityRealm);
+  const finalAvatar = await call(
+    "createAvatar",
+    [capacitySession.token, "capacity_last_avatar_01", female],
+    capacityRealm,
+  );
+  assert.equal(finalAvatar.avatar_id, "16777215");
+  const beforeExhaustion = await call("snapshot", [], capacityRealm);
+  const exhausted = await Promise.allSettled(
+    ["Capacity First", "Capacity Second"].map((name, i) =>
+      call(
+        "createAvatar",
+        [capacitySession.token, "capacity_exhausted_" + i, { ...female, name }],
+        capacityRealm,
+      ),
+    ),
+  );
+  for (const result of exhausted) {
+    assert.equal(result.status, "rejected");
+    assert.match(result.reason.message, /identity capacity/);
+  }
+  const afterExhaustion = await call("snapshot", [], capacityRealm);
+  assert.deepEqual(afterExhaustion.avatars, beforeExhaustion.avatars);
+  assert.deepEqual(afterExhaustion.operations, beforeExhaustion.operations);
+  assert.deepEqual(afterExhaustion.sequences, beforeExhaustion.sequences);
+  await mf.dispose();
+  await start();
+  assert.deepEqual(
+    await call(
+      "createAvatar",
+      [capacitySession.token, "capacity_last_avatar_01", female],
+      capacityRealm,
+    ),
+    finalAvatar,
+  );
+  checks.push(
+    "source avatar identity ceiling rejects concurrent exhaustion atomically and preserves last successful create after restart",
+  );
   const unicodeOrigin = "e".repeat(64);
   for (const suffix of ["\ud800", "\udfff", "\ud800x", "x\udfff"]) {
-    await assert.rejects(call("register", ["unicode_reject", password + suffix, unicodeOrigin]), /invalid password Unicode/);
+    await assert.rejects(
+      call("register", ["unicode_reject", password + suffix, unicodeOrigin]),
+      /invalid password Unicode/,
+    );
   }
   const unicodePassword = password + "💡é\ufffd";
   await call("register", ["unicode_valid", unicodePassword, unicodeOrigin]);
   await call("login", ["unicode_valid", unicodePassword, unicodeOrigin]);
-  await assert.rejects(call("login", ["unicode_valid", password + "💡é\ud800", unicodeOrigin]), /invalid password Unicode/);
-  checks.push("actual account RPC rejects lone surrogates while supplementary Unicode and literal replacement characters remain valid");
+  await assert.rejects(
+    call("login", ["unicode_valid", password + "💡é\ud800", unicodeOrigin]),
+    /invalid password Unicode/,
+  );
+  checks.push(
+    "actual account RPC rejects lone surrogates while supplementary Unicode and literal replacement characters remain valid",
+  );
   const a = await call("register", ["Account_A", password, origin]);
   const b = await call("register", ["account_b", password + "-b", origin]);
   assert.notEqual(a.account_id, b.account_id);

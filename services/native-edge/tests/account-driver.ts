@@ -47,8 +47,22 @@ export class TestAccounts extends AccountAuthority {
     );
     return now;
   }
+  seedAvatarSequence(value: string) {
+    if (!/^[0-9]+$/.test(value)) throw Error("invalid test sequence");
+    this.ctx.storage.sql.exec(
+      "INSERT INTO account_meta(key,value) VALUES('avatar_sequence',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+      value,
+    );
+    return { seeded: true };
+  }
   snapshot() {
     return {
+      sequences: this.ctx.storage.sql
+        .exec("SELECT * FROM account_meta WHERE key='avatar_sequence'")
+        .toArray(),
+      operations: this.ctx.storage.sql
+        .exec("SELECT * FROM avatar_operations")
+        .toArray(),
       accounts: this.ctx.storage.sql.exec("SELECT * FROM accounts").toArray(),
       sessions: this.ctx.storage.sql.exec("SELECT * FROM sessions").toArray(),
       avatars: this.ctx.storage.sql.exec("SELECT * FROM avatars").toArray(),
@@ -66,6 +80,7 @@ const allowed = new Set([
   "ownedAvatar",
   "advance",
   "snapshot",
+  "seedAvatarSequence",
   "knownVector",
   "sparseCatalog",
 ]);

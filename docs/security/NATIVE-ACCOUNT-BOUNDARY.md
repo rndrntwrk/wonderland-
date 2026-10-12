@@ -78,3 +78,15 @@ and durable throttling. A fixed Argon2 vector is independently reproduced by
 libargon2 through argon2-cffi 25.1.0 and executed in workerd; it also confirms
 clearing of the mutable password byte input. These are test-only users/catalogs,
 not a live-account or distribution acceptance claim.
+
+## Source-compatible avatar identity range
+
+Avatar creation now allocates positive IDs below 16,777,216. The original
+fso_objects.sql begins object IDs at that boundary, and SqlAvatars/VMAvatar plus
+Rust social logic classify identities on that distinction. External IDs remain
+exact decimal strings; account, epoch and appearance-resource widths are not
+reduced. Exhaustion fails in the same SQLite transaction before any avatar or
+operation receipt is inserted. Existing successful create receipts still replay
+at capacity after restart. The test-only driver seeds the boundary; actual
+successful creation and refused competing creates execute AccountAuthority.
+This does not yet claim native actor or cross-lot admission.
