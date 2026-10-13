@@ -473,6 +473,212 @@ try {
     /temporarily busy/,
   );
   checks.push("network-wide throttling across distinct usernames");
+  {
+    const controlRealm = "exclusive-avatar-control";
+    const controlCall = (op, args = []) => call(op, args, controlRealm);
+    await controlCall("initializeCatalog", [catalog]);
+    await controlCall("register", ["control_owner", password, origin]);
+    await controlCall("register", ["other_owner", password, origin]);
+    const ownerSession = await controlCall("login", [
+      "control_owner",
+      password,
+      origin,
+    ]);
+    const secondSession = await controlCall("login", [
+      "control_owner",
+      password,
+      origin,
+    ]);
+    const outsider = await controlCall("login", [
+      "other_owner",
+      password,
+      origin,
+    ]);
+    const controlAvatar = await controlCall("createAvatar", [
+      ownerSession.token,
+      "control_avatar_create_01",
+      female,
+    ]);
+    const target = {
+      avatar_id: controlAvatar.avatar_id,
+      lot_id: "17",
+      content_release: release,
+      protocol_release: "e".repeat(64),
+    };
+    const reserve = [
+      ownerSession.token,
+      "control_reserve_operation_01",
+      target,
+    ];
+    const firstClaims = await Promise.all([
+      controlCall("reserveAvatarControl", reserve),
+      controlCall("reserveAvatarControl", reserve),
+    ]);
+    assert.deepEqual(firstClaims[0], firstClaims[1]);
+    assert.equal(firstClaims[0].state, "reserved");
+    assert.equal(firstClaims[0].generation, "1");
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        secondSession.token,
+        "control_reserve_operation_02",
+        target,
+      ]),
+      /already reserved/,
+    );
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        outsider.token,
+        "control_reserve_operation_03",
+        target,
+      ]),
+      /avatar unavailable/,
+    );
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        ownerSession.token,
+        reserve[1],
+        { ...target, lot_id: "18" },
+      ]),
+      /already reserved/,
+    );
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        ownerSession.token,
+        "control_out_of_range_01",
+        { ...target, avatar_id: "16777216" },
+      ]),
+      /invalid control target/,
+    );
+    const beforeControlAssets = await controlCall("ownedAssets", [
+      ownerSession.token,
+      target.avatar_id,
+    ]);
+    await mf.dispose();
+    await start();
+    assert.deepEqual(
+      await controlCall("reserveAvatarControl", reserve),
+      firstClaims[0],
+    );
+    assert.deepEqual(
+      await controlCall("ownedAssets", [ownerSession.token, target.avatar_id]),
+      beforeControlAssets,
+    );
+    const rotated = await controlCall("rotate", [ownerSession.token]);
+    assert.equal(
+      (await controlCall("avatarControl", [rotated.token, target.avatar_id]))
+        .state,
+      "fence_pending",
+    );
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        rotated.token,
+        "control_after_rotate_01",
+        target,
+      ]),
+      /already reserved/,
+    );
+    const secondAvatar = await controlCall("createAvatar", [
+      rotated.token,
+      "control_avatar_create_02",
+      { ...female, name: "Next Traveller" },
+    ]);
+    const nextTarget = { ...target, avatar_id: secondAvatar.avatar_id };
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        rotated.token,
+        reserve[1],
+        nextTarget,
+      ]),
+      /UNIQUE/,
+    );
+    const secondClaim = await controlCall("reserveAvatarControl", [
+      rotated.token,
+      "control_reserve_operation_04",
+      nextTarget,
+    ]);
+    assert.equal(secondClaim.generation, "2");
+    await controlCall("advance", [61000]);
+    assert.equal(
+      (
+        await controlCall("avatarControl", [
+          rotated.token,
+          nextTarget.avatar_id,
+        ])
+      ).state,
+      "fence_pending",
+    );
+    await assert.rejects(
+      controlCall("reserveAvatarControl", [
+        secondSession.token,
+        "control_after_expiry_01",
+        nextTarget,
+      ]),
+      /already reserved/,
+    );
+    const thirdAvatar = await controlCall("createAvatar", [
+      rotated.token,
+      "control_avatar_create_03",
+      { ...female, name: "Third Traveller" },
+    ]);
+    const thirdTarget = { ...target, avatar_id: thirdAvatar.avatar_id };
+    const races = await Promise.allSettled([
+      controlCall("reserveAvatarControl", [
+        rotated.token,
+        "control_distinct_race_01",
+        thirdTarget,
+      ]),
+      controlCall("reserveAvatarControl", [
+        secondSession.token,
+        "control_distinct_race_02",
+        thirdTarget,
+      ]),
+    ]);
+    assert.equal(races.filter((v) => v.status === "fulfilled").length, 1);
+    assert.equal(races.filter((v) => v.status === "rejected").length, 1);
+    assert.equal(
+      races.find((v) => v.status === "fulfilled").value.generation,
+      "3",
+    );
+    await controlCall("logout", [rotated.token]);
+    assert.equal(
+      (
+        await controlCall("avatarControl", [
+          secondSession.token,
+          nextTarget.avatar_id,
+        ])
+      ).state,
+      "fence_pending",
+    );
+    await controlCall("advance", [12 * 60 * 60 * 1000]);
+    const swept = await controlCall("pendingControlFences");
+    assert.equal(swept.fences.length, 3);
+    assert.ok(swept.fences.every((v) => v.claim.state === "fence_pending"));
+    assert.equal(swept.next, null);
+    // Use a fresh session for logout-all after absolute expiry.
+    const logoutSession = await controlCall("login", [
+      "control_owner",
+      password,
+      origin,
+    ]);
+    await controlCall("logout", [logoutSession.token, true]);
+    const afterAllLogout = await controlCall("login", [
+      "control_owner",
+      password,
+      origin,
+    ]);
+    assert.equal(
+      (
+        await controlCall("avatarControl", [
+          afterAllLogout.token,
+          thirdTarget.avatar_id,
+        ])
+      ).state,
+      "fence_pending",
+    );
+    checks.push(
+      "exclusive control reservation: concurrent replay, session isolation, changed target, namespace bounds, durable restart, rotation/expiry never release custody",
+    );
+  }
   const production = new Miniflare({
     modulesRoot: root,
     modules: [

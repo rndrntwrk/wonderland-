@@ -105,7 +105,9 @@ export default {
       } = (await request.json()) as any;
       const stub = env.COORD.get(env.COORD.idFromName(lot));
       let result;
-      if (op === "nulJournal") result = await stub.nulJournal(...args);
+      if (op === "recordControlFence")
+        result = await stub.recordControlFence(...args);
+      else if (op === "nulJournal") result = await stub.nulJournal(...args);
       else if (op === "oversizeJournal")
         result = await stub.oversizeJournal(...args);
       else if (op === "damageJournal")

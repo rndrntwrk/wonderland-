@@ -102,3 +102,23 @@ Independent review of cross-object serialization, operation retention, content
 qualification and public-auth policy remains necessary. Cloudflare deployment,
 new grants and provider spending require their separately applicable approvals.
 This plan is not an implementation or release claim.
+
+## Verified continuation: 13 October 2026
+
+Local account-control reservation now binds the authenticated session/revision,
+owned avatar, operation/digest, generation, target lot, qualified releases and
+bounded expiry. Concurrent sessions cannot acquire the same avatar. Rotation,
+logout and observed expiry retain custody as fence_pending. A private paginated
+sweeper can discover pending fences without relying on a revoked user's session.
+The actual workerd/SQLite account journeys and process-kill retry cases passed.
+
+The lot coordinator now records exact-idempotent private control-fence tombstones.
+Real SQLite/workerd and native-host durability journeys verified rejection of
+changed identity, restart persistence and persistence through two host replacements.
+This receipt proves durable recording only. It does not prove that an actor was
+revoked, detached or admitted: the controlled Rust admission/commit lane must consume
+these tombstones before any release or gameplay-control claim can be made. Generic
+legacy commit behavior remains unchanged until a versioned controlled lane exists.
+
+No public authentication route, deployment, custody release or completed native
+browser entry is claimed by this checkpoint. Increment 2 remains open.
