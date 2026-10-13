@@ -24,6 +24,16 @@ export class TestAccounts extends AccountAuthority {
       cleared: bytes.every((v) => v === 0),
     };
   }
+  controlSweepReadCost(after: number) {
+    const query =
+      "SELECT avatar_id,operation,digest,claim FROM avatar_control_claims WHERE CAST(avatar_id AS INTEGER)>? ORDER BY CAST(avatar_id AS INTEGER) LIMIT 51";
+    const plan = this.ctx.storage.sql
+      .exec("EXPLAIN QUERY PLAN " + query, after)
+      .toArray();
+    const cursor = this.ctx.storage.sql.exec(query, after);
+    const rows = cursor.toArray();
+    return { plan, returned: rows.length, rowsRead: cursor.rowsRead };
+  }
   protected now() {
     return this.ctx.storage.sql
       .exec<{
@@ -130,6 +140,7 @@ const allowed = new Set([
   "reserveAvatarControl",
   "avatarControl",
   "pendingControlFences",
+  "controlSweepReadCost",
   "failReceipt",
   "testBalance",
   "legacyOwnership",

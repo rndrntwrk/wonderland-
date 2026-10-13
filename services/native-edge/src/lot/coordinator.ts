@@ -32,7 +32,7 @@ export class LotCoordinator extends DurableObject<Env> {
       `CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
     );
   }
-  /** Fence receipt acknowledges durable refusal only, never avatar detach or custody release. */
+  /** Fence receipt acknowledges durable recording only, never avatar detach or custody release. */
   recordControlFence(raw: unknown) {
     const fence = controlFence(raw);
     return this.ctx.storage.transactionSync(() => {
@@ -42,7 +42,12 @@ export class LotCoordinator extends DurableObject<Env> {
       const existing = this.ctx.storage.sql
         .exec<{
           receipt: string;
-        }>("SELECT receipt FROM control_fences WHERE authority=? AND avatar_id=? AND generation=?", fence.authority, fence.avatar_id, fence.generation)
+        }>(
+          "SELECT receipt FROM control_fences WHERE authority=? AND avatar_id=? AND generation=?",
+          fence.authority,
+          fence.avatar_id,
+          fence.generation,
+        )
         .toArray()[0];
       if (existing) {
         const receipt = JSON.parse(existing.receipt);

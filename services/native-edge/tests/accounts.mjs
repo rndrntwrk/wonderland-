@@ -679,6 +679,113 @@ try {
       "exclusive control reservation: concurrent replay, session isolation, changed target, namespace bounds, durable restart, rotation/expiry never release custody",
     );
   }
+  {
+    const scoped = (op, args = []) => call(op, args, "live-logout-controls");
+    await scoped("initializeCatalog", [catalog]);
+    await scoped("register", ["logout_owner", password, origin]);
+    const a = await scoped("login", ["logout_owner", password, origin]);
+    const b = await scoped("login", ["logout_owner", password, origin]);
+    const ids = [];
+    for (let i = 0; i < 3; i++) {
+      const avatar = await scoped("createAvatar", [
+        a.token,
+        `logout_avatar_op_${i}`,
+        { ...female, name: `Logout Avatar ${String.fromCharCode(65 + i)}` },
+      ]);
+      ids.push(avatar.avatar_id);
+      await scoped("reserveAvatarControl", [
+        i === 0 ? a.token : b.token,
+        `logout_control_op_${i}`,
+        {
+          avatar_id: avatar.avatar_id,
+          lot_id: "17",
+          content_release: release,
+          protocol_release: "e".repeat(64),
+        },
+      ]);
+    }
+    assert.equal((await scoped("pendingControlFences")).fences.length, 0);
+    await scoped("logout", [a.token]);
+    assert.deepEqual(
+      (await scoped("pendingControlFences")).fences.map(
+        (v) => v.claim.avatar_id,
+      ),
+      [ids[0]],
+    );
+    assert.equal(
+      (await scoped("avatarControl", [b.token, ids[1]])).state,
+      "reserved",
+    );
+    await scoped("logout", [b.token, true]);
+    assert.deepEqual(
+      (await scoped("pendingControlFences")).fences.map(
+        (v) => v.claim.avatar_id,
+      ),
+      ids,
+    );
+    checks.push(
+      "Fresh live reservations: single-session logout fences only its avatar; logout-all immediately fences the other live claims without expiry",
+    );
+  }
+  {
+    const scoped = (op, args = []) => call(op, args, "paged-control-sweep");
+    await scoped("initializeCatalog", [catalog]);
+    const ids = [];
+    for (let owner = 0; owner < 18; owner++) {
+      const network = owner.toString(16).padStart(64, "0"),
+        username = `page_owner_${owner}`;
+      await scoped("register", [username, password, network]);
+      const session = await scoped("login", [username, password, network]);
+      for (let i = 0; i < 3; i++) {
+        const avatar = await scoped("createAvatar", [
+          session.token,
+          `page_avatar_op_${i}`,
+          {
+            ...female,
+            name: `Page Avatar ${String.fromCharCode(65 + owner)} ${String.fromCharCode(65 + i)}`,
+          },
+        ]);
+        ids.push(avatar.avatar_id);
+        await scoped("reserveAvatarControl", [
+          session.token,
+          `page_control_op_${i}`,
+          {
+            avatar_id: avatar.avatar_id,
+            lot_id: "17",
+            content_release: release,
+            protocol_release: "e".repeat(64),
+          },
+        ]);
+      }
+      await scoped("logout", [session.token]);
+    }
+    for (const cursor of [0, 50]) {
+      const cost = await scoped("controlSweepReadCost", [cursor]);
+      assert.match(JSON.stringify(cost.plan), /controls_avatar_numeric/);
+      assert.doesNotMatch(
+        JSON.stringify(cost.plan),
+        /TEMP B-TREE|SCAN avatar_control_claims/,
+      );
+      assert.ok(cost.rowsRead <= 2 * cost.returned + 2, JSON.stringify(cost));
+    }
+    const first = await scoped("pendingControlFences");
+    assert.equal(first.fences.length, 50);
+    assert.equal(first.next, "50");
+    const second = await scoped("pendingControlFences", [first.next]);
+    assert.equal(second.fences.length, 4);
+    assert.equal(second.next, null);
+    assert.deepEqual(
+      [...first.fences, ...second.fences].map((v) => v.claim.avatar_id),
+      ids,
+    );
+    assert.deepEqual(
+      await scoped("pendingControlFences", ["18446744073709551615"]),
+      { fences: [], next: null },
+    );
+    checks.push(
+      "Indexed fence sweep returns 54 genuine reservations in numeric order across two pages without omission or duplication",
+    );
+  }
   const production = new Miniflare({
     modulesRoot: root,
     modules: [

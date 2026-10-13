@@ -53,6 +53,7 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       CREATE TABLE IF NOT EXISTS avatar_control_claims(avatar_id TEXT PRIMARY KEY,account_id TEXT NOT NULL,session_hash TEXT NOT NULL,session_revision TEXT NOT NULL,operation TEXT NOT NULL,digest TEXT NOT NULL,claim TEXT NOT NULL);
       CREATE UNIQUE INDEX IF NOT EXISTS controls_operation ON avatar_control_claims(account_id,operation);
       CREATE INDEX IF NOT EXISTS controls_account ON avatar_control_claims(account_id);
+      CREATE INDEX IF NOT EXISTS controls_avatar_numeric ON avatar_control_claims(CAST(avatar_id AS INTEGER));
       CREATE TABLE IF NOT EXISTS avatar_operations(account_id TEXT NOT NULL,operation TEXT NOT NULL,digest TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(account_id,operation));
     `);
   }
@@ -399,6 +400,7 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
   /** Trusted binding sweeper: expiry fencing must not depend on a live user token. */
   pendingControlFences(after: unknown = "0") {
     const cursor = decimal(after);
+    if (BigInt(cursor) > 16777215n) return { fences: [], next: null };
     return this.ctx.storage.transactionSync(() => {
       const rows = this.ctx.storage.sql
         .exec<{
@@ -407,10 +409,8 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
           digest: string;
           claim: string;
         }>(
-          "SELECT avatar_id,operation,digest,claim FROM avatar_control_claims WHERE length(avatar_id)>length(?) OR (length(avatar_id)=length(?) AND avatar_id>?) ORDER BY length(avatar_id),avatar_id LIMIT 51",
-          cursor,
-          cursor,
-          cursor,
+          "SELECT avatar_id,operation,digest,claim FROM avatar_control_claims WHERE CAST(avatar_id AS INTEGER)>? ORDER BY CAST(avatar_id AS INTEGER) LIMIT 51",
+          Number(cursor),
         )
         .toArray();
       const fences = rows.slice(0, 50).flatMap((row) => {
