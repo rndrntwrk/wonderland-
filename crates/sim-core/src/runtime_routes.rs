@@ -846,43 +846,16 @@ fn find_location(
     let mut candidates = Vec::new();
     match mode {
         0 => {
-            let base = ref_position
-                .tile()
-                .ok_or_else(|| fault("reference tile overflow"))?;
-            for radius in 0_i16..10 {
-                if radius == 0 {
-                    for facing in [Facing::NORTH, Facing::EAST, Facing::SOUTH, Facing::WEST] {
-                        candidates.push((ref_position, facing));
-                    }
-                } else {
-                    for x in -radius..=radius {
-                        for j in 0_i16..8 {
-                            candidates.push((
-                                TilePos::new(
-                                    base.x + x,
-                                    base.y + ((j % 2) * 2 - 1) * radius,
-                                    base.level,
-                                )
-                                .center(),
-                                Facing(((j / 2) * 2) as u8),
-                            ));
-                        }
-                    }
-                    for y in 1 - radius..radius {
-                        for j in 0_i16..8 {
-                            candidates.push((
-                                TilePos::new(
-                                    base.x + ((j % 2) * 2 - 1) * radius,
-                                    base.y + y,
-                                    base.level,
-                                )
-                                .center(),
-                                Facing(((j / 2) * 2) as u8),
-                            ));
-                        }
-                    }
-                }
-            }
+            return find_location_for(
+                state,
+                content,
+                object,
+                reference,
+                flags,
+                request.operand[2] & 2 == 0,
+                budget,
+            )
+            .map(complete);
         }
         3 | 4 => {
             let direction = (ref_info.direction + if mode == 4 { 2 } else { 0 }) & 7;
@@ -934,6 +907,77 @@ fn find_location(
         }
     }
     Ok(complete(false))
+}
+
+/// Source direct FindLocationFor seam. Source join requires Default flags and
+/// prefer_non_empty=false; the primitive preserves its distinct flags/order.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn find_location_for(
+    state: &mut SimState,
+    content: &ContentSet,
+    object: EntityRef,
+    reference: EntityRef,
+    flags: PlaceRequestFlags,
+    prefer_non_empty: bool,
+    budget: &mut ScriptBudget,
+) -> Result<bool, VmFault> {
+    let ref_position = lot_position(live_entity(state, reference)?.info.position)?;
+    if !state.world.lot.contains_position(ref_position) {
+        return Ok(false);
+    }
+    let mut candidates = Vec::new();
+    let base = ref_position
+        .tile()
+        .ok_or_else(|| fault("reference tile overflow"))?;
+    for radius in 0_i16..10 {
+        if radius == 0 {
+            for facing in [Facing::NORTH, Facing::EAST, Facing::SOUTH, Facing::WEST] {
+                candidates.push((ref_position, facing));
+            }
+        } else {
+            for x in -radius..=radius {
+                for j in 0_i16..8 {
+                    candidates.push((
+                        TilePos::new(base.x + x, base.y + ((j % 2) * 2 - 1) * radius, base.level)
+                            .center(),
+                        Facing(((j / 2) * 2) as u8),
+                    ));
+                }
+            }
+            for y in 1 - radius..radius {
+                for j in 0_i16..8 {
+                    candidates.push((
+                        TilePos::new(base.x + ((j % 2) * 2 - 1) * radius, base.y + y, base.level)
+                            .center(),
+                        Facing(((j / 2) * 2) as u8),
+                    ));
+                }
+            }
+        }
+    }
+
+    let mut deferred = Vec::new();
+    for (position, facing) in candidates {
+        if prefer_non_empty
+            && state
+                .world
+                .objects()
+                .values()
+                .any(|o| o.position.tile() == position.tile())
+        {
+            deferred.push((position, facing));
+            continue;
+        }
+        if try_position(state, content, object, position, facing, flags, budget)?.is_success() {
+            return Ok(true);
+        }
+    }
+    for (position, facing) in deferred {
+        if try_position(state, content, object, position, facing, flags, budget)?.is_success() {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 fn slot_height(state: &SimState, container: EntityRef, index: u16) -> Result<Option<i32>, VmFault> {

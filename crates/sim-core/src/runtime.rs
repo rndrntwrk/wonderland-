@@ -155,6 +155,13 @@ pub enum AcceptedCommand {
     },
     /// Server-only durable receipt lane. A transport write is not this receipt.
     CompleteBuild(world::build::ServerBuildConfirmation),
+    /// Trusted synchronous source callback; never construct from public UI input.
+    /// Appended to preserve every existing accepted-command discriminant.
+    ExecuteNamedEntryPoint {
+        entity: EntityRef,
+        name: String,
+        args: Vec<i16>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -537,6 +544,58 @@ impl SimRuntime {
     }
 }
 
+/// ExecuteGenericEntryPoint(runImmediately=true) uses EvaluateCheck, preserving
+/// the controller's main stack while committing state and effect changes.
+fn execute_named_entrypoint(
+    state: &mut SimState,
+    content: &ContentSet,
+    work: &mut TickWork,
+    entity: EntityRef,
+    name: &str,
+    args: Vec<i16>,
+) -> Result<(), RuntimeError> {
+    let owner = live_entity(state, entity)?.info.guid;
+    let Some(key) = content.named_tree(owner, name) else {
+        return Ok(());
+    };
+    if key.id <= 255 {
+        return Ok(());
+    }
+    let Some(key) = content.routines().resolve(owner, key.id) else {
+        return Ok(());
+    };
+    let routine = content
+        .routines()
+        .get(key)
+        .ok_or_else(|| invalid("named routine missing"))?;
+    // Source returns a false check for an empty routine; no stack frame exists.
+    if routine.instructions().is_empty() {
+        return Ok(());
+    }
+
+    let (temps, temp_xl) = state
+        .threads
+        .get(&entity.object_id)
+        .map_or(([0; 20], [0; 2]), |thread| (thread.temps, thread.temp_xl));
+    let request = RoutineCheck {
+        routine: BoundRoutine {
+            routine: key,
+            code_owner: owner,
+            arguments: routine.arguments(),
+        },
+        context: FrameContext::for_entity(entity, owner),
+        args,
+        temps,
+        temp_xl,
+        run_in_owner: None,
+        use_current_thread: false,
+    };
+    // Accepted commands precede scheduler.begin_tick, matching source's cloned
+    // temporary banks for an immediate out-of-thread entrypoint.
+    RuntimeHost::new(state, content, work, entity, 0).evaluate_check(request)?;
+    Ok(())
+}
+
 fn refresh_usage_projections(state: &mut SimState) -> Result<(), RuntimeError> {
     let mut used = BTreeSet::new();
     for item in state.entities.values() {
@@ -657,6 +716,12 @@ fn apply_command(
     tick: u64,
 ) -> Result<(), RuntimeError> {
     match command {
+        AcceptedCommand::ExecuteNamedEntryPoint { entity, name, args } => {
+            if name.is_empty() || name.len() > 256 || args.len() > 16 {
+                return Err(invalid("named entrypoint bounds"));
+            }
+            execute_named_entrypoint(state, content, work, *entity, name, args.clone())?;
+        }
         AcceptedCommand::BeginBuild { preview, authority } => {
             build_adapter::begin(state, content, work, preview, authority)?
         }

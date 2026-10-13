@@ -122,3 +122,34 @@ legacy commit behavior remains unchanged until a versioned controlled lane exist
 
 No public authentication route, deployment, custody release or completed native
 browser entry is claimed by this checkpoint. Increment 2 remains open.
+
+### Source callback and placement seams (local, not full admission)
+
+The mode-0 placement search has been extracted without changing its existing
+primitive flags. A real accepted-command executable verifies placement, replica
+state equality, snapshot recovery, duplicate replay and continuation for both
+supported flags used in the fixture. Native player insertion still needs its
+source-ordered lifecycle and portable persistence implementation.
+
+A trusted ExecuteNamedEntryPoint command appends enum discriminant 25 without
+changing older tags. Named routines are resolved by owner and routine ID; low
+IDs, absent routines and empty bodies are no-ops. Temporary check execution copies
+the controller's existing Temp and TempXL banks and preserves its main stack.
+The real-runtime replay proves empty and sleeping main-thread cases, ReturnFalse
+mutation retention, snapshot/replica equality and duplicate handling. It also
+executes a callback that mutates a global then faults on an invalid global read:
+the accepted tick rejects and both replicas retain the original state hash.
+
+This fault policy is deliberately documented as a source-parity gap. FreeSO's
+ordinary non-THROW_SIMANTICS check-thread exception handling retains earlier
+world/RNG mutations, emits a dialog and clears only the temporary check stack.
+Our existing runtime rejects the entire staged tick on host/interpreter faults
+or exhausted execution budget. Explicit primitive ERROR returns are different
+and do not themselves imply rollback. Full native admission must resolve or
+explicitly qualify this difference; these seams do not establish complete join
+semantics or a public authorization boundary.
+
+Validation: cargo fmt, strict native-host/contracts clippy, placement-replay and
+named-entrypoint-replay executed successfully on 13 October 2026. The native-host
+workflow now runs both executable journeys and captures their output. This local
+continuation has not been deployed and does not consume account control fences.
