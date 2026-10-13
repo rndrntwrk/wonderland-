@@ -121,13 +121,13 @@
         }
       ],
       "id": "native-accepted-tick",
-      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion.",
+      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion. Appended ExecuteNamedEntryPoint (variant 25) executes a bounded synchronous trusted controller check using copied Temp/TempXL banks; it does not authorize native player admission. Host/interpreter faults currently roll back the accepted tick, an explicitly documented difference from ordinary FreeSO check-thread exception handling.",
       "owner": "A",
       "realm": "native",
       "sources": [
         {
           "path": "crates/sim-core/src/runtime.rs",
-          "sha256": "f4609e5f7d899cd4e2f1d1ab64734f9ee58ac8d589257c30fe8ad8fe605c928a"
+          "sha256": "82a83ef35e4d754283bc3c7ac80d90d70db07411ee1cb62ffb2b30388e848c6c"
         },
         {
           "path": "crates/sim-core/src/clock.rs",
