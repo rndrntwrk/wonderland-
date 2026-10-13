@@ -110,6 +110,35 @@ try {
     initial.cursor,
     sha(initialBytes),
   ]);
+  const fence = {
+    version: 1,
+    authority: "a".repeat(64),
+    avatar_id: "1",
+    generation: "1",
+    lot_id: initial.cursor.lot_id,
+    request_digest: "b".repeat(64),
+  };
+  const fenceReceipt = await call("recordControlFence", [fence]);
+  assert.equal(fenceReceipt.status, "fenced");
+  assert.deepEqual(await call("recordControlFence", [fence]), fenceReceipt);
+  await assert.rejects(
+    call("recordControlFence", [{ ...fence, request_digest: "c".repeat(64) }]),
+    /identity reused/,
+  );
+  await assert.rejects(
+    call("recordControlFence", [
+      { ...fence, lot_id: fence.lot_id === "999" ? "998" : "999" },
+    ]),
+    /lot mismatch/,
+  );
+  await assert.rejects(
+    call("recordControlFence", [{ ...fence, generation: "0" }]),
+    /invalid control/,
+  );
+  await assert.rejects(
+    call("recordControlFence", [{ ...fence, public_token: "not-a-grant" }]),
+    /unexpected record/,
+  );
   const commands_hex = (
     await readFile(join(release, "commands.txt"), "utf8")
   ).trim();
@@ -149,6 +178,8 @@ try {
   // then obtain exactly the previously committed receipt without executing again.
   await mf.dispose();
   await start();
+  assert.deepEqual(await call("recordControlFence", [fence]), fenceReceipt);
+
   assert.deepEqual(await call("getBatch", ["1", "1"]), receipt);
   assert.deepEqual(await call("commitBatch", [proposal]), receipt);
   assert.equal(
@@ -726,6 +757,11 @@ try {
   );
   checks.push(
     "Durable recovery grant survives restart, assembles exact multi-batch bundle, fences live old host, preserves pending logical effects, gates activation and accepts actual replacement successor",
+  );
+
+  assert.deepEqual(await call("recordControlFence", [fence]), fenceReceipt);
+  checks.push(
+    "Control fence tombstones are exact-idempotent, reject altered identity, survive workerd restart and two actual host replacements; receipt does not release custody or admit an actor",
   );
 
   await mkdir(join(repo, "tests/output/native-durability"), {

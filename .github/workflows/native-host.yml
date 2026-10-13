@@ -32,6 +32,12 @@ jobs:
           cargo clippy -p wonderland-native-lot-host -p wonderland-native-host-contracts --all-targets --locked -- -D warnings
           cargo build -p wonderland-content-runtime-bridge --bin runtime-bridge --locked
           cargo build -p wonderland-native-lot-host --all-targets --locked
+      - name: Replay actual placement and synchronous controller callbacks
+        run: |
+          set -o pipefail
+          mkdir -p tests/output/native-host
+          cargo run -p sim-core --example placement-replay --locked 2>&1 | tee tests/output/native-host/placement-replay.log
+          cargo run -p sim-core --example named-entrypoint-replay --locked 2>&1 | tee tests/output/native-host/named-entrypoint-replay.log
       - name: Build pinned Rust account password kernel
         run: |
           cargo clippy -p wonderland-account-crypto --all-targets --locked -- -D warnings

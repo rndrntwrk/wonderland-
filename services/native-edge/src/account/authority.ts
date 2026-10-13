@@ -1,3 +1,4 @@
+import { controlTarget, type ControlClaim } from "./control";
 import { DurableObject } from "cloudflare:workers";
 import {
   canonical,
@@ -49,6 +50,10 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       CREATE TABLE IF NOT EXISTS avatar_balances(avatar_id TEXT PRIMARY KEY,balance TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS avatar_outfits(id TEXT PRIMARY KEY,avatar_id TEXT NOT NULL,asset_key TEXT NOT NULL,suit_type INTEGER NOT NULL,source TEXT NOT NULL,purchase_price TEXT NOT NULL,sale_price TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS outfits_owner ON avatar_outfits(avatar_id,length(id),id);
+      CREATE TABLE IF NOT EXISTS avatar_control_claims(avatar_id TEXT PRIMARY KEY,account_id TEXT NOT NULL,session_hash TEXT NOT NULL,session_revision TEXT NOT NULL,operation TEXT NOT NULL,digest TEXT NOT NULL,claim TEXT NOT NULL);
+      CREATE UNIQUE INDEX IF NOT EXISTS controls_operation ON avatar_control_claims(account_id,operation);
+      CREATE INDEX IF NOT EXISTS controls_account ON avatar_control_claims(account_id);
+      CREATE INDEX IF NOT EXISTS controls_avatar_numeric ON avatar_control_claims(CAST(avatar_id AS INTEGER));
       CREATE TABLE IF NOT EXISTS avatar_operations(account_id TEXT NOT NULL,operation TEXT NOT NULL,digest TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(account_id,operation));
     `);
   }
@@ -242,6 +247,7 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
     const key = await this.tokenHash(raw);
     return this.ctx.storage.transactionSync(() => {
       const account = this.authorize(key);
+      this.fenceControls(account.id, all ? undefined : key);
       if (all) {
         const revision = BigInt(account.revision) + 1n;
         if (revision > 18446744073709551615n) throw Error("revision capacity");
@@ -271,6 +277,7 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       const current = this.ctx.storage.sql
         .exec<Session>("SELECT * FROM sessions WHERE token_hash=?", old)
         .one();
+      this.fenceControls(account.id, old);
       this.ctx.storage.sql.exec("DELETE FROM sessions WHERE token_hash=?", old);
       this.ctx.storage.sql.exec(
         "INSERT INTO sessions(token_hash,account_id,revision,expires,idle) VALUES(?,?,?,?,?)",
@@ -286,6 +293,165 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         expires_at: current.expires,
       };
     });
+  }
+  /** Reservation only: Rust admission and lot-side fencing must precede gameplay. */
+  async reserveAvatarControl(
+    rawToken: unknown,
+    rawOperation: unknown,
+    rawTarget: unknown,
+  ) {
+    const key = await this.tokenHash(rawToken),
+      op = operation(rawOperation),
+      target = controlTarget(rawTarget);
+    const sha = await digest(encode({ session_hash: key, target }));
+    return this.ctx.storage.transactionSync(() => {
+      const account = this.authorize(key);
+      const owned = this.ctx.storage.sql
+        .exec<{
+          spec: string;
+        }>(
+          "SELECT spec FROM avatars WHERE id=? AND account_id=?",
+          target.avatar_id,
+          account.id,
+        )
+        .toArray()[0];
+      if (!owned) throw Error("avatar unavailable");
+      if (JSON.parse(owned.spec).release !== target.content_release)
+        throw Error("content release mismatch");
+      const initialized = this.ctx.storage.sql
+        .exec<{
+          version: number;
+        }>(
+          "SELECT version FROM avatar_ownership_initializations WHERE avatar_id=?",
+          target.avatar_id,
+        )
+        .toArray()[0];
+      if (initialized?.version !== 1)
+        throw Error("avatar ownership migration required");
+      const old = this.ctx.storage.sql
+        .exec<{
+          operation: string;
+          digest: string;
+          claim: string;
+        }>(
+          "SELECT operation,digest,claim FROM avatar_control_claims WHERE avatar_id=?",
+          target.avatar_id,
+        )
+        .toArray()[0];
+      if (old) {
+        if (old.operation !== op || old.digest !== sha)
+          throw Error("avatar control already reserved");
+        return this.observeControl(target.avatar_id, old.claim);
+      }
+      const session = this.ctx.storage.sql
+        .exec<Session>("SELECT * FROM sessions WHERE token_hash=?", key)
+        .one();
+      const claim: ControlClaim = {
+        version: 1,
+        account_id: account.id,
+        ...target,
+        generation: this.next("control_generation"),
+        expires_at: Math.min(this.now() + 60000, session.expires, session.idle),
+        state: "reserved",
+      };
+      this.ctx.storage.sql.exec(
+        "INSERT INTO avatar_control_claims(avatar_id,account_id,session_hash,session_revision,operation,digest,claim) VALUES(?,?,?,?,?,?,?)",
+        target.avatar_id,
+        account.id,
+        key,
+        account.revision,
+        op,
+        sha,
+        canonical(claim),
+      );
+      return claim;
+    });
+  }
+  private observeControl(avatarId: string, encoded: string): ControlClaim {
+    const claim = JSON.parse(encoded) as ControlClaim;
+    if (claim.expires_at <= this.now() && claim.state === "reserved") {
+      claim.state = "fence_pending";
+      this.ctx.storage.sql.exec(
+        "UPDATE avatar_control_claims SET claim=? WHERE avatar_id=?",
+        canonical(claim),
+        avatarId,
+      );
+    }
+    return claim;
+  }
+  /** No timeout, read, logout or rotation releases custody for a second actor. */
+  async avatarControl(rawToken: unknown, rawAvatar: unknown) {
+    const key = await this.tokenHash(rawToken),
+      avatarId = decimal(rawAvatar);
+    return this.ctx.storage.transactionSync(() => {
+      const account = this.authorize(key);
+      const row = this.ctx.storage.sql
+        .exec<{
+          claim: string;
+        }>(
+          "SELECT claim FROM avatar_control_claims WHERE avatar_id=? AND account_id=?",
+          avatarId,
+          account.id,
+        )
+        .toArray()[0];
+      return row ? this.observeControl(avatarId, row.claim) : null;
+    });
+  }
+  /** Trusted binding sweeper: expiry fencing must not depend on a live user token. */
+  pendingControlFences(after: unknown = "0") {
+    const cursor = decimal(after);
+    if (BigInt(cursor) > 16777215n) return { fences: [], next: null };
+    return this.ctx.storage.transactionSync(() => {
+      const rows = this.ctx.storage.sql
+        .exec<{
+          avatar_id: string;
+          operation: string;
+          digest: string;
+          claim: string;
+        }>(
+          "SELECT avatar_id,operation,digest,claim FROM avatar_control_claims WHERE CAST(avatar_id AS INTEGER)>? ORDER BY CAST(avatar_id AS INTEGER) LIMIT 51",
+          Number(cursor),
+        )
+        .toArray();
+      const fences = rows.slice(0, 50).flatMap((row) => {
+        const claim = this.observeControl(row.avatar_id, row.claim);
+        return claim.state === "fence_pending"
+          ? [{ claim, operation: row.operation, request_digest: row.digest }]
+          : [];
+      });
+      return { fences, next: rows.length > 50 ? rows[49].avatar_id : null };
+    });
+  }
+  private fenceControls(accountId: string, sessionHash?: string) {
+    const rows = sessionHash
+      ? this.ctx.storage.sql
+          .exec<{
+            avatar_id: string;
+            claim: string;
+          }>(
+            "SELECT avatar_id,claim FROM avatar_control_claims WHERE account_id=? AND session_hash=?",
+            accountId,
+            sessionHash,
+          )
+          .toArray()
+      : this.ctx.storage.sql
+          .exec<{
+            avatar_id: string;
+            claim: string;
+          }>(
+            "SELECT avatar_id,claim FROM avatar_control_claims WHERE account_id=?",
+            accountId,
+          )
+          .toArray();
+    for (const row of rows) {
+      const claim = JSON.parse(row.claim) as ControlClaim;
+      claim.state = "fence_pending";
+      this.ctx.storage.sql.exec(
+        "UPDATE avatar_control_claims SET claim=? WHERE avatar_id=?",
+        canonical(claim),
+        row.avatar_id,
+      );
+    }
   }
   async createAvatar(rawToken: unknown, rawOperation: unknown, raw: unknown) {
     const key = await this.tokenHash(rawToken),
@@ -472,7 +638,10 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       const initialized = this.ctx.storage.sql
         .exec<{
           version: number;
-        }>("SELECT version FROM avatar_ownership_initializations WHERE avatar_id=?", avatarId)
+        }>(
+          "SELECT version FROM avatar_ownership_initializations WHERE avatar_id=?",
+          avatarId,
+        )
         .toArray()[0];
       // Existing avatars are never silently granted assets by a read or retry.
       // They need an explicitly reviewed migration before native admission.
@@ -492,7 +661,10 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
           source: string;
           purchase_price: string;
           sale_price: string;
-        }>("SELECT id,asset_key,suit_type,source,purchase_price,sale_price FROM avatar_outfits WHERE avatar_id=? ORDER BY length(id),id", avatarId)
+        }>(
+          "SELECT id,asset_key,suit_type,source,purchase_price,sale_price FROM avatar_outfits WHERE avatar_id=? ORDER BY length(id),id",
+          avatarId,
+        )
         .toArray();
       return {
         version: 1,
