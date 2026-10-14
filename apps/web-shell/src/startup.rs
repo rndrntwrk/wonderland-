@@ -8,6 +8,7 @@ pub const MAX_CONFIG_BYTES: usize = 8192;
 pub enum ClientMode {
     Preview,
     Connected,
+    NativeAccount,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -31,6 +32,7 @@ pub fn parse_configuration(input: &str) -> Result<RuntimeConfiguration, String> 
     }
     match (config.mode, config.gateway_url.as_deref()) {
         (ClientMode::Preview, None) => {}
+        (ClientMode::NativeAccount, Some("/native-account")) if !config.native_lots => {}
         (ClientMode::Connected, Some(gateway)) if valid_gateway(gateway) => {}
         _ => {
             return Err(
@@ -171,6 +173,24 @@ mod tests {
             )
             .is_err()
         );
+    }
+
+    #[test]
+    fn native_account_mode_is_explicit_same_origin_and_never_lot_ready() {
+        let native = parse_configuration(
+            r#"{"version":1,"mode":"native_account","gateway_url":"/native-account"}"#,
+        )
+        .unwrap();
+        assert_eq!(native.mode, ClientMode::NativeAccount);
+        assert!(!native.native_lots);
+        for input in [
+            r#"{"version":1,"mode":"native_account","gateway_url":"https://other.example/native-account"}"#,
+            r#"{"version":1,"mode":"native_account","gateway_url":"/gateway"}"#,
+            r#"{"version":1,"mode":"native_account","gateway_url":"/native-account","native_lots":true}"#,
+            r#"{"version":1,"mode":"native_account","gateway_url":null}"#,
+        ] {
+            assert!(parse_configuration(input).is_err());
+        }
     }
 
     #[test]

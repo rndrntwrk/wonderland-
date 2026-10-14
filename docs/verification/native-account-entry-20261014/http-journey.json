@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "unknown privileged/signup routes, cross-origin, cross-site and oversized body denied",
+    "actual Rust Argon2id and SQLite login, isolated roster, no-store replies, rotation and logout revocation",
+    "actual browser provider module login and roster with second real SQLite account; refresh, logout and no token in view state",
+    "duplicate login suppressed and disposed late response cannot restore account",
+    "cleartext public origin rejected before network; roster failure retains token for confirmed server logout",
+    "negative-only handler boundary: unclosed valid JSON body times out without authority invocation; unconfigured surface returns404",
+    "negative-only boundary: transient authority failure returns503 without private diagnostic or false revocation"
+  ],
+  "scope": "Real local workerd, SQLite and compiled Rust password WASM; browser transport module executed against real service. No Rust/WASM UI rendering or gameplay admission claimed by this suite."
+}

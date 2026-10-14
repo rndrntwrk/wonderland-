@@ -37,6 +37,7 @@ pub fn Startup() -> impl IntoView {
     view! {
         {move || match state.get() {
             StartupState::Ready(config) => match config.mode {
+                ClientMode::NativeAccount => view! { <crate::native_account::NativeAccountGame/> }.into_any(),
                 ClientMode::Preview => view! { <crate::app::PreviewApp/> }.into_any(),
                 ClientMode::Connected => view! { <crate::connected::ConnectedGame gateway_url=config.gateway_url.unwrap_or_default() native_lots=config.native_lots/> }.into_any(),
             },

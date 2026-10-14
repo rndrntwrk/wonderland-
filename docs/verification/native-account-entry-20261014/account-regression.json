@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "publicRoutesDenied": 5,
+  "checks": [
+    "source avatar identity ceiling rejects concurrent exhaustion atomically and preserves last successful create after restart",
+    "real SQLite creation atomically grants three source CAS outfits and zero balance, rolls back late receipt failure, preserves changed balance on retry/restart, and refuses uninitialized legacy ownership",
+    "actual account RPC rejects lone surrogates while supplementary Unicode and literal replacement characters remain valid",
+    "real Argon2id registration/login and two persisted isolated rosters",
+    "atomic operation retry, changed-body rejection, duplicate name and pinned independent appearances",
+    "SQLite restart, exact retry, single-use rotation races and no stored plaintext secrets",
+    "first-create concurrency and original three-avatar ownership policy",
+    "logout and idle/absolute expiry preserve the other account and saved avatars",
+    "durable bounded authentication rate windows, including unknown users and restart",
+    "network-wide throttling across distinct usernames",
+    "exclusive control reservation: concurrent replay, session isolation, changed target, namespace bounds, durable restart, rotation/expiry never release custody",
+    "Fresh live reservations: single-session logout fences only its avatar; logout-all immediately fences the other live claims without expiry",
+    "Indexed fence sweep returns 54 genuine reservations in numeric order across two pages without omission or duplication"
+  ],
+  "profile": "argon2id-v19-m19456-t2-p1-l32",
+  "runtime": "real local workerd with Rust WASM and SQLite",
+  "scope": "private account boundary; no public signup, email recovery, browser UI or lot/travel admission claimed"
+}
