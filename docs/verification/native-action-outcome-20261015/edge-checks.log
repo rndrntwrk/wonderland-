@@ -1,0 +1,31 @@
+UTC: 2026-10-15T09:19:34Z
+Base HEAD: 39983bf3dad370e55f2d2dd30bc036b2347a7740
+Node: v24.19.0
+TypeScript: Version 7.0.2
+Prettier: 3.6.2
+
+$ (cd services/native-edge && npm run check)
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> check
+> tsc --noEmit
+
+Exit: 0
+
+$ services/native-edge/node_modules/.bin/prettier --check [eight edge source/test/package files]
+Checking formatting...
+All matched files use Prettier code style!
+Exit: 0
+
+$ git diff --check -- services/native-edge
+Exit: 0
+
+Retained edge-action-tests.log terminal summary:
+ℹ tests 128
+ℹ suites 0
+ℹ pass 128
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 856.49209

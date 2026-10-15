@@ -150,12 +150,19 @@ runner metadata, and resume never recreates the demo accounts.
   intact. Recovery adopts a new incarnation before any new batch is prepared.
   The 4096-entry limits are hot-storage bounds, not a fixed 136-second session
   cutoff. Bounded-component tests alone are not sustained original-content play.
-- Exact archived action correlations survive retirement. A host loss between
-  durable batch commit and host resolve/export can still leave a pre-retirement
-  action result Unknown: its accepted state/effects are durable, but its original
-  correlation is not reconstructable from a checkpoint. Recovery does not infer
-  success or resend that action. This pre-existing crash window is separate from
-  checkpoint/journal/receipt archival preservation.
+- New player-action proposals bind the original WLC1 bytes and both native WLA1
+  decision receipts into the proposal digest. The coordinator stores the chosen
+  outcome atomically with the batch decision, before host resolve/export. A
+  same-account/session/control browser can retain a memory-only pending capsule
+  across a verified takeover and query that exact decision after a fresh matching
+  checkpoint. This never resubmits the action or imports the old runtime. Normal
+  authorization still records/drains expiry and fence obligations; lookup does
+  not execute game actions or renew custody/activity. Older batches without
+  evidence, lost browser memory, changed ownership/session or missing history
+  remain Unknown rather than inferring success. Acceptance does not mean that
+  the source interaction completed. See the
+  [recovery contract](../../../docs/verification/native-action-outcome-20261015/CONTRACT.md)
+  for exact qualification and remaining lifecycle work.
 - Outbox effects are retained, not a claim that every original-game external
   effect consumer exists. Source-content completeness, lifecycle completion,
   and deployment remain separate requirements.

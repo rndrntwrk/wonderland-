@@ -3,27 +3,13 @@ use super::*;
 use wonderland_game_runtime::{
     GameRuntime, LotModel, RuntimeConfig, RuntimeRole, VmMode,
     live_wire::{CheckpointRequest, encode_checkpoint_request},
-    sim_core::{
-        avatars::{motives::TsoMotiveTuning, state::TEMPLATE_PERSON},
-        lot_permissions::LotPermissionState,
-        state::{ContentSet, ObjectDefinition, TuningSet},
-        vm::RoutineStore,
-    },
+    sim_core::{avatars::state::TEMPLATE_PERSON, lot_permissions::LotPermissionState},
 };
+#[path = "../examples/support/owned_action_content.rs"]
+mod action_content;
+
 fn host() -> Host {
-    let content = ContentSet::new(
-        RoutineStore::new(),
-        vec![ObjectDefinition::new(TEMPLATE_PERSON, 0)],
-        vec![],
-        TuningSet {
-            tso_motives: Some(TsoMotiveTuning {
-                flat_sim: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                category_weights: [[1000; 7]; 11],
-            }),
-            ..Default::default()
-        },
-    )
-    .unwrap();
+    let content = action_content::content();
     let config = RuntimeConfig::new(VmMode::Tso, 41, 7, 123);
     let mut runtime = GameRuntime::new(
         content,
@@ -454,4 +440,119 @@ fn checkpoint_acknowledgements_keep_host_receipts_bounded_beyond_4096_batches() 
     assert_eq!(inspected["retired_through_batch_id"], "4160");
     assert_eq!(inspected["retained_receipts"], 0);
     assert_eq!(inspected["retained_receipt_bytes"], 0);
+}
+
+fn player_action_input(host: &Host, batch: u64, action: &Value) -> Value {
+    json!({"kind":"prepare_player_action","batch_id":DecimalId(batch),"binding":host.binding,
+        "predecessor":crate::runtime::cursor(&host.committed).unwrap(),"expected_control_revision":"1",
+        "control":action["control"],"action_hex":action["action_hex"]})
+}
+
+#[test]
+fn action_evidence_is_digest_bound_before_commit_and_preserves_original_observation() {
+    let mut host = host();
+    let admission = host.handle(prepare(&host, 17, 1)).unwrap();
+    commit(&mut host, &admission, 1);
+    let action = action_content::player_action(&host, 17, 1, false).unwrap();
+    // Revalidation may refresh the command's observed state, but the receipt
+    // must still echo the exact bytes originally submitted by this player.
+    host.committed.advance(vec![]).unwrap();
+    let original = player_action_input(&host, 2, &action);
+    let before = checkpoint(&host.committed).unwrap();
+    let proposal = host
+        .handle(serde_json::from_value(original.clone()).unwrap())
+        .unwrap();
+    assert_eq!(proposal["kind"], "proposal", "{proposal}");
+    let evidence = &proposal["payload"]["action_v1"];
+    assert_eq!(evidence["schema_version"], 1);
+    assert_eq!(evidence["request_hex"], action["action_hex"]);
+    assert_eq!(evidence["command_sequence"], "1");
+    assert_eq!(evidence["control"]["account_id"], "1017");
+    assert_eq!(evidence["control"]["principal"], "17");
+    assert_eq!(
+        evidence["input_sha256"],
+        json!(Digest::of(&serde_json::to_vec(&original).unwrap()))
+    );
+    assert_eq!(
+        evidence["request_sha256"],
+        json!(Digest::of(
+            &unhex(action["action_hex"].as_str().unwrap()).unwrap()
+        ))
+    );
+    assert_eq!(
+        proposal["digest"],
+        json!(Digest::of(
+            &serde_json::to_vec(&proposal["payload"]).unwrap()
+        ))
+    );
+    let mut tampered = proposal["payload"].clone();
+    tampered["action_v1"]["request_sha256"] = json!("0".repeat(64));
+    assert_ne!(
+        proposal["digest"],
+        json!(Digest::of(&serde_json::to_vec(&tampered).unwrap()))
+    );
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    let committed = commit(&mut host, &proposal, 2);
+    assert_eq!(committed["receipt_hex"], evidence["accepted_receipt_hex"]);
+    assert_ne!(committed["receipt_hex"], evidence["rejected_receipt_hex"]);
+    let exported = host.handle(RequestV1::ExportReceipts).unwrap();
+    assert_eq!(
+        exported["payload"]["records"][1]["input_sha256"],
+        evidence["input_sha256"]
+    );
+    assert_eq!(exported["payload"]["records"][1]["reply"], committed);
+}
+
+#[test]
+fn cancel_evidence_has_exact_terminal_variants_and_rejection_does_not_consume_vm_sequence() {
+    let mut host = host();
+    let admission = host.handle(prepare(&host, 17, 1)).unwrap();
+    commit(&mut host, &admission, 1);
+    let action = action_content::player_action(&host, 17, 1, false).unwrap();
+    let input = player_action_input(&host, 2, &action);
+    let proposal = host.handle(serde_json::from_value(input).unwrap()).unwrap();
+    assert_eq!(proposal["kind"], "proposal", "{proposal}");
+    commit(&mut host, &proposal, 2);
+    let action = action_content::player_action(&host, 17, 2, true).unwrap();
+    let input = player_action_input(&host, 3, &action);
+    let proposal = host.handle(serde_json::from_value(input).unwrap()).unwrap();
+    assert_eq!(proposal["kind"], "proposal", "{proposal}");
+    let before = checkpoint(&host.committed).unwrap();
+    let rejected = host
+        .handle(RequestV1::Resolve {
+            batch_id: DecimalId(3),
+            digest: proposal["digest"].as_str().unwrap().into(),
+            decision: DecisionV1::Rejected,
+        })
+        .unwrap();
+    assert_eq!(
+        rejected["receipt_hex"],
+        proposal["payload"]["action_v1"]["rejected_receipt_hex"]
+    );
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    host.committed.advance(vec![]).unwrap();
+    let next = action_content::player_action(&host, 17, 2, true).unwrap();
+    assert_ne!(next["action_hex"], action["action_hex"]);
+    let input = player_action_input(&host, 4, &next);
+    let next = host.handle(serde_json::from_value(input).unwrap()).unwrap();
+    assert_eq!(next["kind"], "proposal", "{next}");
+    assert_eq!(next["payload"]["action_v1"]["command_sequence"], "2");
+    let committed = commit(&mut host, &next, 4);
+    assert_eq!(
+        committed["receipt_hex"],
+        next["payload"]["action_v1"]["accepted_receipt_hex"]
+    );
+}
+
+#[test]
+fn ticks_and_admissions_keep_legacy_payload_without_action_evidence() {
+    let mut host = host();
+    let admission = host.handle(prepare(&host, 17, 1)).unwrap();
+    assert!(admission["payload"].get("action_v1").is_none());
+    commit(&mut host, &admission, 1);
+    let request = tick_request(&host, 2);
+    let tick = host
+        .handle(serde_json::from_value(request).unwrap())
+        .unwrap();
+    assert!(tick["payload"].get("action_v1").is_none());
 }

@@ -61,3 +61,42 @@ Build `cargo build -p wonderland-native-host-contracts --example control-state-v
 SQLite controlled-mode initialization races, legacy mutation denial against a real
 native proposal, concurrent tombstones, revision overflow rollback and persisted
 workerd restart. Existing legacy durability/replacement/crash tests remain intact.
+
+## Atomic player action outcomes
+
+New controlled action proposals carry optional `action_v1` evidence inside the
+canonical proposal digest: the authenticated five-field control identity, exact
+original WLC1 bytes and SHA-256, original typed prepare-input SHA-256, native
+command sequence, and Rust-generated accepted/rejected WLA1 bytes. The coordinator
+validates the bounded fixed native input/receipt ABI, exact principal/actor/sequence,
+input hash, installed account/session/control and unchanged actor registry.
+Controlled ticks/admissions and previously retained proposals can omit this field.
+
+`commitControlledBatchV2` retains the selected exact outcome in the same SQLite
+transaction as the accepted cursor, journal and outboxes, or the durable controlled
+denial. An outcome-storage failure rolls back the whole decision, including expiry
+fences. A host dying before `resolve` or receipt export cannot lose this evidence.
+Each immutable outcome cell is bounded to 100 KiB, independent of the journal and
+R2 archive lifecycle, with no TTL. A SHA-256 anchor in the independently retained
+batch/denial receipt binds the whole selected outcome and original input hash;
+historical reads cross-check that decision without depending on R2 availability.
+Exact batch retries return the prior decision.
+An exact request/control/original-incarnation reused by another batch fails closed
+before advancing the cursor or outboxes. Sequence is checked against the native
+packet but is not an outcome uniqueness key: rejected sequences do not advance the
+native VM queue high-water mark and can legitimately be reused with different bytes.
+
+Private `lookupPlayerActionV1({schema_version:1,lot_incarnation,control,request_hex})`
+requires runner-verified control, including account and session. It is a read-only
+lookup for the original incarnation and exact request. It returns versioned
+`unknown`, or `committed`/`rejected` with the original control, request, request hash,
+receipt, binding, batch, digest and cursor. Current incarnation, lease expiry and
+pending recovery do not prevent historical reads or mutate control state. This
+lookup is never a new player authorization or an instruction to resubmit an action.
+The host receipt archive verifies new action receipts/input hashes against atomic
+outcomes on its first export, while preserving compatibility with old archives.
+
+Run `npm run e2e:action-outcomes` and `npm run e2e:host-receipts` for lightweight
+real-SQLite contract and injected-rollback tests without workerd or Rust builds.
+These synthetic storage tests do not substitute for the native process-loss and
+verified-takeover integration journey.

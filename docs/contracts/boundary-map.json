@@ -237,13 +237,13 @@
         }
       ],
       "id": "native-player-admission",
-      "notes": "Current WLB1 bootstrap, WLC1 invocation/cancellation and WLA1 correlated acknowledgement are distinct from WLR1 replay. Admitted source_epoch/lot_incarnation are u64 and avatar_id/lot_location u32. The server supplies the authenticated principal/actor and revalidates the exact source action and current queue under its authority lock. A matching receipt is not VM completion or durable transaction truth; unresolved writes stay Unknown and are not replayed. Declared bootstrap content and the local test authority do not supply production account, claims or persistence services. WLB1 appearance uses a frozen positional appearance_v1 serializer; unsupported lighting is rejected instead of silently changing the bootstrap schema. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified.",
+      "notes": "Current WLB1 bootstrap, WLC1 invocation/cancellation and WLA1 correlated acknowledgement are distinct from WLR1 replay. Admitted source_epoch/lot_incarnation are u64 and avatar_id/lot_location u32. The server supplies the authenticated principal/actor and revalidates the exact source action and current queue under its authority lock. A matching receipt is not VM completion or durable transaction truth; unresolved writes stay Unknown and are not replayed. Declared bootstrap content and the local test authority do not supply production account, claims or persistence services. WLB1 appearance uses a frozen positional appearance_v1 serializer; unsupported lighting is rejected instead of silently changing the bootstrap schema. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified. Same-control action recovery retains an in-memory pending-request capsule across verified authority takeover; only exact durable decision receipts can resolve it after a matching accepted checkpoint. No missing historical evidence is inferred or replayed. See docs/verification/native-action-outcome-20261015/CONTRACT.md.",
       "owner": "F",
       "realm": "native",
       "sources": [
         {
           "path": "crates/game-runtime/src/live_wire/player.rs",
-          "sha256": "228e0da999e44f5f4c85cbb749d9f9e2f8581062cfb62b342c3006daf3c7114a"
+          "sha256": "c70e284b2c4b4d53b49b020836000bafb015ec9079f576aa2206034ff0a52f48"
         },
         {
           "path": "crates/game-runtime/src/live_wire/player/admission.rs",

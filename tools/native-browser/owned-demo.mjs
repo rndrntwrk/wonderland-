@@ -11,6 +11,7 @@ import { randomBytes, createHash } from "node:crypto";
 import { openOwnedHost } from "./owned-demo/process.mjs";
 import { drainControlFences } from "./owned-demo/fences.mjs";
 import { settlePlayerAction } from "./owned-demo/actions.mjs";
+import { reconcileAuthenticatedPlayerAction } from "./owned-demo/action-results.mjs";
 import { validateOwnedManifest } from "./owned-demo/manifest.mjs";
 import { stageRecovery } from "./owned-demo/recovery.mjs";
 import { loadOrCreateExport } from "./owned-demo/admission.mjs";
@@ -955,16 +956,27 @@ export async function createOwnedDemo({
             }
             return;
           }
-          await sweepFences();
-          await revalidate(socket.entry);
           if (!binary) {
-            assert.ok(socket.live && bytes.length <= 128);
-            assert.deepEqual(JSON.parse(bytes.toString("utf8")), {
-              type: "native_presence",
-            });
+            assert.ok(socket.live && bytes.length <= 33500);
+            const query = JSON.parse(bytes.toString("utf8"));
+            if (query.type === "native_action_result") {
+              await reconcileAuthenticatedPlayerAction(query, socket.entry, {
+                sweepFences,
+                revalidate,
+                lookup: (request) => lot("lookupPlayerActionV1", [request]),
+                receipt: (hex) => send(socket, packet(hex)),
+              });
+              return;
+            }
+            assert.ok(bytes.length <= 128);
+            assert.deepEqual(query, { type: "native_presence" });
+            await sweepFences();
+            await revalidate(socket.entry);
             await renewActivity(socket.entry, socket.entry.token, "presence");
             return;
           }
+          await sweepFences();
+          await revalidate(socket.entry);
           const magic = bytes.subarray(0, 4).toString();
           if (magic === "WLR1") {
             const checkpoint = await host.ask({

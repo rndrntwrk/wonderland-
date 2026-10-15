@@ -155,6 +155,26 @@ pub enum PlayerUpdate {
     Receipt(ActionStatus),
 }
 
+/// In-memory continuity only, never a snapshot or an authentication credential.
+/// Fields are private and can only originate from a validated owned checkpoint.
+/// Moving this capsule never imports an old runtime into a replacement authority.
+pub struct PlayerRecoveryCapsule {
+    binding: PlayerBinding,
+    lot_id: u64,
+    observed_tick: u64,
+    control: crate::sim_core::owned_admission::OwnedControl,
+    sequence: u64,
+    pending_after: u64,
+    pending_incarnation: u64,
+    pending: Option<Vec<u8>>,
+}
+
+/// Read-only lookup of exact previously prepared bytes, not permission to resend.
+pub struct PendingActionResult<'a> {
+    pub lot_incarnation: u64,
+    pub request: &'a [u8],
+}
+
 pub struct NativePlayer {
     wire: NativeWire,
     appearance: WorldDocument,
@@ -163,6 +183,7 @@ pub struct NativePlayer {
     principal: PrincipalKey,
     sequence: u64,
     pending_after: u64,
+    pending_incarnation: u64,
     pending: Option<Vec<u8>>,
     status: ActionStatus,
     activity: activity::ActivityLog,
@@ -216,9 +237,108 @@ impl NativePlayer {
             principal: value.principal,
             sequence: 0,
             pending_after: 0,
+            pending_incarnation: value.binding.lot_incarnation,
             pending: None,
             status: ActionStatus::Idle,
             activity: activity::ActivityLog::new(value.actor),
+        })
+    }
+    fn owned_control(&self) -> Result<&crate::sim_core::owned_admission::OwnedControl> {
+        let state = self
+            .wire
+            .replica()
+            .runtime()
+            .ok_or("Native session is closed")?
+            .sim()
+            .state();
+        let control = state
+            .owned_admission
+            .actors()
+            .and_then(|actors| actors.get(&self.principal.0))
+            .ok_or("No committed owned control")?;
+        if control.actor != self.actor
+            || control.avatar_id.0 != self.binding.avatar_id
+            || control.control_generation != self.binding.source_epoch
+            || !state.ids.is_live(self.actor)
+        {
+            return Err("Owned control does not match admission");
+        }
+        Ok(control)
+    }
+    /// Retain only correlation and sequence state from the last validated world.
+    /// Safe while disconnected; unavailable before the first owned checkpoint.
+    pub fn recovery_capsule(&self) -> Result<PlayerRecoveryCapsule> {
+        let cursor = self
+            .wire
+            .replica()
+            .cursor()
+            .ok_or("No accepted recovery anchor")?;
+        let state = self
+            .wire
+            .replica()
+            .runtime()
+            .ok_or("Native session is closed")?
+            .sim()
+            .state();
+        Ok(PlayerRecoveryCapsule {
+            binding: self.binding,
+            lot_id: state.lot_id,
+            observed_tick: cursor.completed_tick,
+            control: self.owned_control()?.clone(),
+            sequence: self.sequence,
+            pending_after: self.pending_after,
+            pending_incarnation: self.pending_incarnation,
+            pending: self.pending.clone(),
+        })
+    }
+    /// Restore only after a fresh bootstrap AND validated checkpoint. A different
+    /// account, session, admission, actor generation, lot or control is refused.
+    /// The caller must additionally retain the same authenticated browser session.
+    pub fn restore_recovery(&mut self, capsule: PlayerRecoveryCapsule) -> Result<()> {
+        self.validate_actor()?;
+        let state = self
+            .wire
+            .replica()
+            .runtime()
+            .ok_or("Native session is closed")?
+            .sim()
+            .state();
+        if self.sequence != 0
+            || self.pending.is_some()
+            || self.status != ActionStatus::Idle
+            || self.binding.lot_incarnation <= capsule.binding.lot_incarnation
+            || self.binding.source_epoch != capsule.binding.source_epoch
+            || self.binding.avatar_id != capsule.binding.avatar_id
+            || self.binding.lot_location != capsule.binding.lot_location
+            || state.lot_id != capsule.lot_id
+            || state.completed_tick < capsule.observed_tick
+            || self.owned_control()? != &capsule.control
+        {
+            return Err("Recovery capsule does not match the committed owned session");
+        }
+        self.sequence = capsule.sequence;
+        self.pending_after = capsule.pending_after;
+        self.pending_incarnation = capsule.pending_incarnation;
+        self.pending = capsule.pending;
+        self.status = if self.pending.is_some() {
+            ActionStatus::Unknown
+        } else {
+            ActionStatus::Idle
+        };
+        Ok(())
+    }
+    /// Only a restored live owned session can query a still-unknown decision.
+    /// The origin incarnation is retained across any number of host recoveries.
+    pub fn pending_action_result(&self) -> Result<Option<PendingActionResult<'_>>> {
+        self.validate_actor()?;
+        self.owned_control()?;
+        Ok(if self.status == ActionStatus::Unknown {
+            self.pending.as_deref().map(|request| PendingActionResult {
+                lot_incarnation: self.pending_incarnation,
+                request,
+            })
+        } else {
+            None
         })
     }
     pub fn checkpoint_request(&self) -> Option<CheckpointRequest> {
@@ -439,6 +559,7 @@ impl NativePlayer {
             .ok_or("Native cursor is unavailable")?
             .completed_tick;
         self.sequence = sequence;
+        self.pending_incarnation = self.binding.lot_incarnation;
         self.pending = Some(bytes.clone());
         self.status = ActionStatus::Pending;
         Ok(bytes)
@@ -467,6 +588,7 @@ impl NativePlayer {
             .ok_or("Native cursor is unavailable")?
             .completed_tick;
         self.sequence = sequence;
+        self.pending_incarnation = self.binding.lot_incarnation;
         self.pending = Some(bytes.clone());
         self.status = ActionStatus::Pending;
         Ok(bytes)

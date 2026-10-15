@@ -1,0 +1,2 @@
+PASS cargo fmt --all -- --check
+Toolchain: pinned Rust/rustfmt 1.99.0, matching runtime library path.

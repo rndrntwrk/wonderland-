@@ -26,6 +26,14 @@ import {
   type Cursor,
 } from "./contracts";
 import { recoveryChain } from "./journal";
+import {
+  ActionOutcomeStore,
+  actionLookup,
+  actionOutcomeHashes,
+  decodeActionRequest,
+  verifyActionEvidence,
+  type ActionControl,
+} from "./action-outcomes";
 import { HostReceiptStore } from "./host-receipts";
 import { successor, takeoverMarker, type RecoveryGrant } from "./recovery";
 import { controlFence, type ControlFence } from "./control";
@@ -46,12 +54,14 @@ const ARCHIVE_LIMIT = 16 * 1024 * 1024;
 const ARCHIVE_BATCHES = 64;
 export class LotCoordinator extends DurableObject<Env> {
   private hostReceipts: HostReceiptStore;
+  private actionOutcomes: ActionOutcomeStore;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     ctx.storage.sql.exec(
       `CREATE TABLE IF NOT EXISTS controlled_config(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_registry(id INTEGER PRIMARY KEY CHECK(id=1),sha256 TEXT NOT NULL,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_sequence(id INTEGER PRIMARY KEY CHECK(id=1),principal TEXT NOT NULL);CREATE TABLE IF NOT EXISTS actor_controls(control_key TEXT PRIMARY KEY,avatar_id TEXT NOT NULL UNIQUE,principal TEXT NOT NULL UNIQUE,export_digest TEXT NOT NULL UNIQUE,export_json TEXT NOT NULL,state TEXT NOT NULL,expires_at INTEGER NOT NULL,record TEXT NOT NULL,receipt TEXT);CREATE INDEX IF NOT EXISTS actor_controls_expiry ON actor_controls(state,expires_at);CREATE TABLE IF NOT EXISTS admission_operations(control_key TEXT PRIMARY KEY,export_digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_leases(control_key TEXT PRIMARY KEY,revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_recovery_receipts(old_incarnation TEXT PRIMARY KEY,control_json TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_denials(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS lot_control_state(id INTEGER PRIMARY KEY CHECK(id=1),revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS journal_live(batch_key TEXT PRIMARY KEY,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_layout(id INTEGER PRIMARY KEY CHECK(id=1));CREATE TABLE IF NOT EXISTS journal_archives(object_key TEXT PRIMARY KEY,sha256 TEXT NOT NULL,bytes INTEGER NOT NULL,checkpoint_key TEXT NOT NULL);CREATE TABLE IF NOT EXISTS archived_batches(batch_key TEXT PRIMARY KEY,object_key TEXT NOT NULL,byte_offset INTEGER NOT NULL,byte_length INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
     );
     this.hostReceipts = new HostReceiptStore(ctx.storage, env.CHECKPOINTS);
+    this.actionOutcomes = new ActionOutcomeStore(ctx.storage);
     // One-time, restart-safe migration. Receipt rows stay forever; only this
     // bounded live set is charged against the hot-journal profile.
     ctx.storage.transactionSync(() => {
@@ -65,6 +75,49 @@ export class LotCoordinator extends DurableObject<Env> {
   }
   lookupHostReceiptV1(incarnation: unknown, id: unknown) {
     return this.hostReceipts.lookup(incarnation, id);
+  }
+  /** Private authenticated-control lookup; historical reads do not grant mutation. */
+  async lookupPlayerActionV1(raw: unknown) {
+    const q = actionLookup(raw),
+      config = this.controlledConfiguration(),
+      state = this.state();
+    this.requireActionInstallation(
+      q.control,
+      config.authority_id,
+      state.cursor.lot_id,
+    );
+    return this.actionOutcomes.lookup(
+      q,
+      config.authority_id,
+      state.cursor.lot_id,
+    );
+  }
+  private requireActionInstallation(
+    control: ActionControl,
+    authority: string,
+    lot: string,
+  ) {
+    const row = this.ctx.storage.sql
+      .exec<{
+        principal: string;
+        export_json: string;
+      }>(
+        "SELECT principal,export_json FROM actor_controls WHERE avatar_id=?",
+        control.avatar_id,
+      )
+      .toArray()[0];
+    if (!row) throw Error("player action has no durable installation");
+    const e = exportV2(JSON.parse(row.export_json));
+    if (
+      row.principal !== control.principal ||
+      e.authority_id !== authority ||
+      e.lot_id !== lot ||
+      e.account_id !== control.account_id ||
+      e.avatar_id !== control.avatar_id ||
+      e.control_generation !== control.control_generation ||
+      e.session_ref !== control.session_ref
+    )
+      throw Error("player action authenticated control mismatch");
   }
   /** Fence receipt acknowledges durable recording only, never avatar detach or custody release. */
   recordControlFence(raw: unknown) {
@@ -515,10 +568,12 @@ export class LotCoordinator extends DurableObject<Env> {
       (await digest(encode(c.actors))) !== c.actor_registry_after_sha256
     )
       throw Error("controlled proposal digest mismatch");
+    await verifyActionEvidence(p.payload);
+    const actionHashes = await actionOutcomeHashes(p.payload, p.digest);
     const key = p.payload.binding.lot_incarnation + ":" + p.payload.batch_id,
       serialized = new TextDecoder().decode(bytes);
     return this.ctx.storage.transactionSync(() => {
-      this.controlledConfiguration();
+      const actionAuthority = this.controlledConfiguration().authority_id;
       const previous = this.ctx.storage.sql
         .exec<{
           digest: string;
@@ -527,6 +582,13 @@ export class LotCoordinator extends DurableObject<Env> {
         .toArray()[0];
       if (previous) {
         if (previous.digest !== p.digest) throw Error("batch identity reused");
+        if (
+          actionHashes &&
+          JSON.parse(previous.receipt).action_outcome_sha256 !==
+            actionHashes.committed
+        )
+          throw Error("player action durable decision mismatch");
+        this.actionOutcomes.assertReplay(p.payload, p.digest, "committed");
         return JSON.parse(previous.receipt);
       }
       const denied = this.ctx.storage.sql
@@ -540,6 +602,13 @@ export class LotCoordinator extends DurableObject<Env> {
         .toArray()[0];
       if (denied) {
         if (denied.digest !== p.digest) throw Error("batch identity reused");
+        if (
+          actionHashes &&
+          JSON.parse(denied.receipt).action_outcome_sha256 !==
+            actionHashes.rejected
+        )
+          throw Error("player action durable decision mismatch");
+        this.actionOutcomes.assertReplay(p.payload, p.digest, "rejected");
         return JSON.parse(denied.receipt);
       }
       this.assertActive();
@@ -550,9 +619,43 @@ export class LotCoordinator extends DurableObject<Env> {
         !equal(state.cursor, p.payload.predecessor)
       )
         throw Error("stale binding or predecessor");
+      this.actionOutcomes.assertFresh(
+        actionAuthority,
+        state.cursor.lot_id,
+        p.payload,
+      );
+      if (p.payload.action_v1) {
+        const action = p.payload.action_v1,
+          request = decodeActionRequest(action.request_hex),
+          registry = this.ctx.storage.sql
+            .exec<{
+              value: string;
+            }>("SELECT value FROM controlled_registry WHERE id=1")
+            .one(),
+          before = actorRegistry(JSON.parse(registry.value)),
+          actor = before.find((a) => a.principal === action.control.principal);
+        this.requireActionInstallation(
+          action.control,
+          actionAuthority,
+          state.cursor.lot_id,
+        );
+        if (
+          !actor ||
+          !equal(request.actor, actor.actor) ||
+          !equal(c.actors, before) ||
+          actor.account_id !== action.control.account_id ||
+          actor.avatar_id !== action.control.avatar_id ||
+          actor.control_generation !== action.control.control_generation ||
+          actor.session_ref !== action.control.session_ref
+        )
+          throw Error("player action registry or actor mismatch");
+      }
       if (this.expireControls(transactionNow)) {
         const receipt = {
           status: "rejected",
+          ...(actionHashes
+            ? { action_outcome_sha256: actionHashes.rejected }
+            : {}),
           reason: "lease_expired",
           batch_id: p.payload.batch_id,
           digest: p.digest,
@@ -563,6 +666,13 @@ export class LotCoordinator extends DurableObject<Env> {
           key,
           p.digest,
           canonical(receipt),
+        );
+        this.actionOutcomes.record(
+          actionAuthority,
+          state.cursor.lot_id,
+          p.payload,
+          p.digest,
+          "rejected",
         );
         return receipt; // Never throw: the expiry tombstone must survive rejection.
       }
@@ -575,6 +685,9 @@ export class LotCoordinator extends DurableObject<Env> {
       ) {
         const receipt = {
           status: "rejected",
+          ...(actionHashes
+            ? { action_outcome_sha256: actionHashes.rejected }
+            : {}),
           reason: "fence_drain_required",
           batch_id: p.payload.batch_id,
           digest: p.digest,
@@ -585,6 +698,13 @@ export class LotCoordinator extends DurableObject<Env> {
           key,
           p.digest,
           canonical(receipt),
+        );
+        this.actionOutcomes.record(
+          actionAuthority,
+          state.cursor.lot_id,
+          p.payload,
+          p.digest,
+          "rejected",
         );
         return receipt;
       }
@@ -678,6 +798,9 @@ export class LotCoordinator extends DurableObject<Env> {
         );
       const receipt = {
         status: "committed",
+        ...(actionHashes
+          ? { action_outcome_sha256: actionHashes.committed }
+          : {}),
         batch_id: p.payload.batch_id,
         digest: p.digest,
         cursor: p.payload.result,
@@ -761,6 +884,13 @@ export class LotCoordinator extends DurableObject<Env> {
           cursor: p.payload.result,
           checkpoint_sha256: p.payload.checkpoint_sha256,
         }),
+      );
+      this.actionOutcomes.record(
+        actionAuthority,
+        state.cursor.lot_id,
+        p.payload,
+        p.digest,
+        "committed",
       );
       return receipt;
     });

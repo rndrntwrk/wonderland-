@@ -12,6 +12,7 @@ import {
   type Binding,
   type Cursor,
 } from "./contracts";
+import { ActionOutcomeStore, verifyActionEvidence } from "./action-outcomes";
 import { actorRegistry, controlledProposal } from "./owned";
 import { permissionBinding } from "../account/portable";
 
@@ -221,9 +222,11 @@ function objectKey(e: HostReceiptEnvelope, sha: string): string {
 export class HostReceiptStore {
   private storage: DurableObjectStorage;
   private bucket: R2Bucket;
+  private actionOutcomes: ActionOutcomeStore;
   constructor(storage: DurableObjectStorage, bucket: R2Bucket) {
     this.storage = storage;
     this.bucket = bucket;
+    this.actionOutcomes = new ActionOutcomeStore(storage);
     storage.sql.exec(
       `CREATE TABLE IF NOT EXISTS host_receipt_archives(object_key TEXT PRIMARY KEY,sha256 TEXT NOT NULL,bytes INTEGER NOT NULL,checkpoint_key TEXT NOT NULL,binding_json TEXT NOT NULL,cursor_json TEXT NOT NULL,checkpoint_sha256 TEXT NOT NULL,through_batch_id TEXT NOT NULL);CREATE TABLE IF NOT EXISTS host_receipts(batch_key TEXT PRIMARY KEY,object_key TEXT NOT NULL,ordinal INTEGER NOT NULL,input_sha256 TEXT NOT NULL,digest TEXT NOT NULL,record_sha256 TEXT NOT NULL);`,
     );
@@ -278,7 +281,10 @@ export class HostReceiptStore {
     const row = this.storage.sql
       .exec<{
         manifest: string;
-      }>("SELECT manifest FROM checkpoints WHERE object_key=?", checkpointKey(e))
+      }>(
+        "SELECT manifest FROM checkpoints WHERE object_key=?",
+        checkpointKey(e),
+      )
       .toArray()[0];
     if (!row) throw Error("host receipt exact checkpoint missing");
     const m = JSON.parse(row.manifest);
@@ -334,7 +340,10 @@ export class HostReceiptStore {
       const rows = this.storage.sql
         .exec<{
           payload: string;
-        }>("SELECT payload FROM journal_chunks WHERE batch_key=? ORDER BY ordinal", key)
+        }>(
+          "SELECT payload FROM journal_chunks WHERE batch_key=? ORDER BY ordinal",
+          key,
+        )
         .toArray();
       bytes = new TextEncoder().encode(rows.map((r) => r.payload).join(""));
     } else {
@@ -391,6 +400,21 @@ export class HostReceiptStore {
       (r.reply.kind === "committed" && !equal(decision.cursor, r.reply.cursor))
     )
       throw Error("host receipt durable decision mismatch");
+    const action = this.actionOutcomes.forBatch(key);
+    if (Object.hasOwn(decision, "action_outcome_sha256") && !action)
+      throw Error("player action durable decision evidence missing");
+    if (action) await this.actionOutcomes.verifyDecision(action);
+    if (
+      action &&
+      (action.input_sha256 !== r.input_sha256 ||
+        action.outcome.status !== r.reply.kind ||
+        action.outcome.batch_id !== r.batch_id ||
+        action.outcome.digest !== r.digest ||
+        !equal(action.outcome.binding, e.binding) ||
+        !equal(action.outcome.cursor, r.reply.cursor) ||
+        action.outcome.receipt_hex !== r.reply.receipt_hex)
+    )
+      throw Error("host receipt differs from atomic player action outcome");
     if (r.reply.kind === "committed") {
       const p = await this.acceptedPayload(key, r.digest);
       if (
@@ -403,6 +427,18 @@ export class HostReceiptStore {
         !equal("control_v2" in p ? p.control_v2 : null, r.reply.control_v2)
       )
         throw Error("host receipt reply does not match accepted payload");
+      const controlled = p as ReturnType<typeof controlledProposal>["payload"];
+      if (controlled.action_v1) {
+        await verifyActionEvidence(controlled);
+        this.actionOutcomes.assertReplay(controlled, r.digest, "committed");
+        if (
+          controlled.action_v1.input_sha256 !== r.input_sha256 ||
+          controlled.action_v1.accepted_receipt_hex !== r.reply.receipt_hex
+        )
+          throw Error(
+            "host receipt differs from accepted player action evidence",
+          );
+      }
     }
     return row;
   }

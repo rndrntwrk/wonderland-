@@ -57,6 +57,7 @@ const lotOps = new Set([
   "renewControlLeaseV2",
   "inspectControlledV2",
   "commitControlledBatchV2",
+  "lookupPlayerActionV1",
   "commitBatch",
   "recordControlFence",
   "getAdmissionV2",

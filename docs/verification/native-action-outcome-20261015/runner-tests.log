@@ -1,0 +1,28 @@
+✔ read-only recovery derives authority from authenticated entry and returns exact durable receipt (2.461423ms)
+✔ missing decision leaves unknown without emitting rejection or replay (0.28402ms)
+✔ browser cannot supply another owner, future incarnation, malformed or oversized action (11.901511ms)
+✔ mismatched owner, action, old binding or future accepted state cannot be shown (3.458171ms)
+✔ durable rejection uses its exact receipt and never renews activity (0.344631ms)
+✔ authenticated socket route enforces security fences and authorization before lookup without renewal (0.593969ms)
+✔ expired or revoked authenticated socket cannot look up historical receipts (0.470252ms)
+✔ ordinary native denied action returns its rejection receipt without committing or disconnecting (2.620493ms)
+✔ invalid undecodable native action closes without fabricating a receipt (0.688411ms)
+✔ proposal receipt is published only after its durable decision returns (0.272753ms)
+✔ exact historical terminal action reply redelivers correlation without recommitting (0.253964ms)
+✔ database lot 41 and packed source location 16777472 remain distinct (1.345215ms)
+✔ database and packed location bounds are validated independently (6.276113ms)
+✔ checkpoint custody transfer acknowledges only after exact durable persistence and drains pages (7.090054ms)
+✔ failed persistence or altered acknowledgement never retires host correlations (2.925385ms)
+✔ stale checkpoint and changed receipt bytes cannot authorize custody transfer (1.231723ms)
+✔ retired same-input action retrieves exact rejected correlation without executing again (0.531604ms)
+✔ reused retired input, digest, and missing durable records all fail closed (0.870056ms)
+✔ ordinary host proposal remains unmodified and performs no durable lookup (0.226542ms)
+✔ same pending recovery grant can be staged after ingress loss without reusing stale bytes (14.876475ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.986146
