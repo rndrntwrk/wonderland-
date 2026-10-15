@@ -10,6 +10,7 @@ pub mod clock;
 pub mod effects;
 pub mod ids;
 pub mod interactions;
+pub mod lot_permissions;
 pub mod numeric;
 pub mod primitives;
 pub mod rng;
