@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "scope": "Actual workerd process groups killed with SIGKILL; synthetic storage envelopes; no native VM claim",
+  "checks": [
+    "SIGKILL after durable R2 archive write, before readback/SQL pointers: restart retains hot journal, exact receipt/outboxes, and verified retry completes compaction",
+    "SIGKILL after atomic SQL archive publication/chunk removal, before caller reply: restart reads exact archived payload/receipt/outboxes and retry cannot duplicate effects"
+  ],
+  "killed": [
+    {
+      "signal": "SIGKILL",
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ]
+    },
+    {
+      "signal": "SIGKILL",
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ]
+    }
+  ]
+}

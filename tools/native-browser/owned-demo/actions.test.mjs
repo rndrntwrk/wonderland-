@@ -37,3 +37,18 @@ test("proposal receipt is published only after its durable decision returns", as
   await pending;
   assert.deepEqual(emitted, ["durable-rejection-bytes"]);
 });
+
+test("exact historical terminal action reply redelivers correlation without recommitting", async () => {
+  for (const kind of ["committed", "rejected"]) {
+    const emitted = [],
+      reply = { kind, receipt_hex: "persisted-exact-action-receipt" };
+    assert.equal(
+      await settlePlayerAction(reply, {
+        commit: () => assert.fail(),
+        receipt: (hex) => emitted.push(hex),
+      }),
+      reply,
+    );
+    assert.deepEqual(emitted, [reply.receipt_hex]);
+  }
+});

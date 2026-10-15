@@ -41,6 +41,8 @@ const lotMethods = new Set([
   "inspectControlledV2",
   "getAdmissionV2",
   "publishControlledCheckpointV2",
+  "persistHostReceiptsV1",
+  "lookupHostReceiptV1",
   "beginControlledRecoveryV2",
   "controlledRecoveryBundleV2",
   "finishControlledRecoveryV2",

@@ -237,3 +237,221 @@ fn source_location_is_distinct_from_db_lot_id_and_bootstrap_needs_appearance() {
     wrong.lot_location = 41;
     assert!(host.player_bootstrap(control, wrong).is_err());
 }
+
+fn tick_request(host: &Host, batch: u64) -> Value {
+    json!({"kind":"prepare_player_tick","batch_id":DecimalId(batch),"binding":host.binding,"predecessor":crate::runtime::cursor(&host.committed).unwrap(),"expected_control_revision":"1"})
+}
+
+fn acknowledge_export(host: &mut Host, exported: &Value) -> ReceiptCheckpointV1 {
+    let p = &exported["payload"];
+    let ack: ReceiptCheckpointV1 = serde_json::from_value(json!({
+        "schema_version":1,"status":"persisted","binding":p["binding"],
+        "cursor":p["cursor"],"checkpoint_sha256":p["checkpoint_sha256"],
+        "through_batch_id":p["through_batch_id"],"receipt_set_sha256":exported["digest"]
+    }))
+    .unwrap();
+    let response = host
+        .handle(RequestV1::AcknowledgeReceipts {
+            acknowledgement: ack.clone(),
+        })
+        .unwrap();
+    assert_eq!(response["kind"], "receipts_retired");
+    ack
+}
+
+#[test]
+fn receipt_retirement_preserves_exact_committed_and_rejected_retry_binding() {
+    let mut host = host();
+    let first = tick_request(&host, 1);
+    let proposal = host
+        .handle(serde_json::from_value(first.clone()).unwrap())
+        .unwrap();
+    let committed = commit(&mut host, &proposal, 1);
+    let second = tick_request(&host, 3); // The retired watermark also fences unused IDs.
+    let proposal = host
+        .handle(serde_json::from_value(second.clone()).unwrap())
+        .unwrap();
+    let rejected = host
+        .handle(RequestV1::Resolve {
+            batch_id: DecimalId(3),
+            digest: proposal["digest"].as_str().unwrap().into(),
+            decision: DecisionV1::Rejected,
+        })
+        .unwrap();
+    let snapshot = checkpoint(&host.committed).unwrap();
+    let exported = host.handle(RequestV1::ExportReceipts).unwrap();
+    assert_eq!(exported["payload"]["records"][0]["reply"], committed);
+    assert_eq!(exported["payload"]["records"][1]["reply"], rejected);
+    assert_eq!(
+        exported["payload"]["records"][0]["input_sha256"],
+        json!(Digest::of(&serde_json::to_vec(&first).unwrap()))
+    );
+    let ack = acknowledge_export(&mut host, &exported);
+    let inspected = host.handle(RequestV1::Inspect).unwrap();
+    assert_eq!(inspected["retained_receipts"], 0);
+    assert_eq!(inspected["retained_receipt_bytes"], 0);
+    assert_eq!(inspected["retired_through_batch_id"], "3");
+    let retried = host
+        .handle(serde_json::from_value(first.clone()).unwrap())
+        .unwrap();
+    assert_eq!(retried["kind"], "retired");
+    assert_eq!(
+        retried["input_sha256"],
+        exported["payload"]["records"][0]["input_sha256"]
+    );
+    let mut changed = first;
+    changed["expected_control_revision"] = json!("99");
+    let changed = host
+        .handle(serde_json::from_value(changed).unwrap())
+        .unwrap();
+    assert_eq!(changed["kind"], "retired");
+    assert_ne!(changed["input_sha256"], retried["input_sha256"]);
+    for id in 1..=3 {
+        assert_eq!(
+            host.handle(RequestV1::Lookup {
+                batch_id: DecimalId(id)
+            })
+            .unwrap()["kind"],
+            "retired"
+        );
+    }
+    let resolved = host
+        .handle(RequestV1::Resolve {
+            batch_id: DecimalId(3),
+            digest: rejected["digest"].as_str().unwrap().into(),
+            decision: DecisionV1::Committed {
+                cursor: crate::runtime::cursor(&host.committed).unwrap(),
+            },
+        })
+        .unwrap();
+    assert_eq!(resolved["kind"], "retired");
+    assert_eq!(resolved["digest"], rejected["digest"]);
+    assert_eq!(checkpoint(&host.committed).unwrap(), snapshot);
+    assert!(
+        host.handle(RequestV1::AcknowledgeReceipts {
+            acknowledgement: ack
+        })
+        .is_ok()
+    );
+}
+
+#[test]
+fn receipt_retirement_rejects_stale_or_forged_ack_and_never_discards_pending() {
+    let mut host = host();
+    let request = tick_request(&host, 1);
+    let proposal = host
+        .handle(serde_json::from_value(request).unwrap())
+        .unwrap();
+    commit(&mut host, &proposal, 1);
+    let exported = host.handle(RequestV1::ExportReceipts).unwrap();
+    let p = &exported["payload"];
+    let ack: ReceiptCheckpointV1 = serde_json::from_value(json!({"schema_version":1,"status":"persisted","binding":p["binding"],"cursor":p["cursor"],"checkpoint_sha256":p["checkpoint_sha256"],"through_batch_id":p["through_batch_id"],"receipt_set_sha256":exported["digest"]})).unwrap();
+    for index in 0..5 {
+        let mut bad = ack.clone();
+        match index {
+            0 => bad.receipt_set_sha256 = "0".repeat(64),
+            1 => bad.checkpoint_sha256 = "0".repeat(64),
+            2 => bad.cursor.completed_tick.0 += 1,
+            3 => bad.binding.lot_incarnation.0 += 1,
+            _ => bad.through_batch_id.0 += 1,
+        }
+        assert!(
+            host.handle(RequestV1::AcknowledgeReceipts {
+                acknowledgement: bad
+            })
+            .is_err()
+        );
+        assert_eq!(
+            host.handle(RequestV1::Inspect).unwrap()["retained_receipts"],
+            1
+        );
+    }
+    let request = tick_request(&host, 2);
+    let pending = host
+        .handle(serde_json::from_value(request).unwrap())
+        .unwrap();
+    assert!(host.handle(RequestV1::ExportReceipts).is_err());
+    assert!(
+        host.handle(RequestV1::AcknowledgeReceipts {
+            acknowledgement: ack.clone()
+        })
+        .is_err()
+    );
+    assert_eq!(
+        host.handle(RequestV1::Resolve {
+            batch_id: DecimalId(2),
+            digest: pending["digest"].as_str().unwrap().into(),
+            decision: DecisionV1::Unknown
+        })
+        .unwrap(),
+        pending
+    );
+    assert_eq!(
+        host.handle(RequestV1::Lookup {
+            batch_id: DecimalId(2)
+        })
+        .unwrap(),
+        pending
+    );
+    commit(&mut host, &pending, 2);
+    assert!(
+        host.handle(RequestV1::AcknowledgeReceipts {
+            acknowledgement: ack
+        })
+        .is_err()
+    );
+    let fresh = host.handle(RequestV1::ExportReceipts).unwrap();
+    acknowledge_export(&mut host, &fresh);
+}
+
+#[test]
+fn receipt_export_pages_exact_prefix_without_losing_later_decisions() {
+    let mut host = host();
+    for batch in 1..=65 {
+        let request = tick_request(&host, batch);
+        let proposal = host
+            .handle(serde_json::from_value(request).unwrap())
+            .unwrap();
+        commit(&mut host, &proposal, batch);
+    }
+    let first = host.handle(RequestV1::ExportReceipts).unwrap();
+    assert_eq!(first["payload"]["records"].as_array().unwrap().len(), 64);
+    assert_eq!(first["payload"]["through_batch_id"], "64");
+    acknowledge_export(&mut host, &first);
+    assert_eq!(
+        host.handle(RequestV1::Lookup {
+            batch_id: DecimalId(65)
+        })
+        .unwrap()["kind"],
+        "committed"
+    );
+    let second = host.handle(RequestV1::ExportReceipts).unwrap();
+    assert_eq!(second["payload"]["records"].as_array().unwrap().len(), 1);
+    acknowledge_export(&mut host, &second);
+    assert_eq!(
+        host.handle(RequestV1::Inspect).unwrap()["retained_receipts"],
+        0
+    );
+}
+
+#[test]
+fn checkpoint_acknowledgements_keep_host_receipts_bounded_beyond_4096_batches() {
+    let mut host = host();
+    for batch in 1..=4160 {
+        let request = tick_request(&host, batch);
+        let proposal = host
+            .handle(serde_json::from_value(request).unwrap())
+            .unwrap();
+        assert_eq!(proposal["kind"], "proposal");
+        commit(&mut host, &proposal, batch);
+        if batch % 32 == 0 {
+            let exported = host.handle(RequestV1::ExportReceipts).unwrap();
+            assert_eq!(exported["payload"]["records"].as_array().unwrap().len(), 32);
+            acknowledge_export(&mut host, &exported);
+        }
+    }
+    let inspected = host.handle(RequestV1::Inspect).unwrap();
+    assert_eq!(inspected["retired_through_batch_id"], "4160");
+    assert_eq!(inspected["retained_receipts"], 0);
+    assert_eq!(inspected["retained_receipt_bytes"], 0);
+}

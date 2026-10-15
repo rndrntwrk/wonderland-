@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "scope": "Production Rust Host through existing authored fixture + actual workerd SQLite/R2 + production private receipt supervisor;64 controlled ticks, no original asset/gameplay claim",
+  "checks": [
+    "Rust canonical receipt export matches TypeScript hash and complete nullable replies; a durable ack lost before host retirement survives real workerd restart without dropping the host cache",
+    "64 actual controlled Rust Host ticks cross two production export/persist/ack boundaries; retired prepare/resolve/lookup return byte-equivalent historical replies through real workerd archives, changed identities refuse and no tick reexecutes"
+  ]
+}

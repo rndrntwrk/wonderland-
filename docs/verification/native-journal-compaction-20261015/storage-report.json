@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "scope": "Local actual workerd SQLite/R2 storage contracts with synthetic proposal/checkpoint envelopes; no native VM/playability claim, no deployment",
+  "checks": [
+    "4224 committed batches in each legacy and controlled V2 mode cross the old 4096 limit; repeated verified checkpoints bound hot count/bytes while every exact receipt and pending outbox payload remains available",
+    "Restart preserves historical receipt/payload lookup, unresolved outboxes and checksum-pinned checkpoint plus exact two-batch recovery tail with V2 registry/permission binding",
+    "More than 72 MiB of cumulative canonical journal bytes are retained across bounded archive segments while hot storage returns to zero",
+    "Actual workerd persists and restarts exact full host input-hash/reply archives only against verified accepted payloads and a published checkpoint; changed effect bytes are refused",
+    "Archive put/readback failures, preexisting corrupt content-addressed object and aborted SQLite pointer transaction retain full SQL payloads; exact retry compacts successfully",
+    "A successor and recovery fence arriving during archive R2 I/O remain intact; only the verified checkpoint prefix is tiered",
+    "Missing and corrupt archived payloads fail closed; exact retained receipt remains independently queryable",
+    "Control-fence revision changes during checkpoint R2 I/O refuse obsolete V2 publication and leave every hot payload untouched",
+    "Restart-safe legacy-layout migration counts existing hot rows once and never resurrects compacted rows"
+  ]
+}

@@ -14,6 +14,10 @@ import { settlePlayerAction } from "./owned-demo/actions.mjs";
 import { validateOwnedManifest } from "./owned-demo/manifest.mjs";
 import { stageRecovery } from "./owned-demo/recovery.mjs";
 import { loadOrCreateExport } from "./owned-demo/admission.mjs";
+import {
+  askWithDurableReceipts,
+  retireCheckpointReceipts,
+} from "./owned-demo/receipts.mjs";
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const require = createRequire(join(repo, "services/native-edge/package.json"));
 const { Miniflare } = require("miniflare"),
@@ -162,7 +166,7 @@ export async function createOwnedDemo({
       throw Error("Durable receipt mismatch.");
     }
     if (receipt.status === "rejected") {
-      const result = await host.ask({
+      const result = await askWithDurableReceipts(host, lot, {
         kind: "resolve",
         batch_id: proposal.payload.batch_id,
         digest: proposal.digest,
@@ -172,9 +176,11 @@ export async function createOwnedDemo({
         stop(Error("Host rejection mismatch."));
         throw Error("Host rejection mismatch.");
       }
+      if ((await currentHost()).retained_receipts >= 32)
+        await publishCheckpoint();
       return { ...result, reason: receipt.reason };
     }
-    const result = await host.ask({
+    const result = await askWithDurableReceipts(host, lot, {
       kind: "resolve",
       batch_id: proposal.payload.batch_id,
       digest: proposal.digest,
@@ -207,13 +213,14 @@ export async function createOwnedDemo({
     const runtime = await currentHost(),
       durable = await lot("inspectControlledV2");
     matchControlled(runtime, durable);
-    await lot("publishControlledCheckpointV2", [
+    const published = await lot("publishControlledCheckpointV2", [
       runtime.binding,
       runtime.cursor,
       sha(packet(runtime.checkpoint_hex)),
       runtime.checkpoint_hex,
       recoveryControl(durable),
     ]);
+    await retireCheckpointReceipts(host, lot, published);
     lastCheckpointTick = BigInt(runtime.cursor.completed_tick);
   }
   async function recoverHost() {
@@ -306,9 +313,16 @@ export async function createOwnedDemo({
     return current;
   }
   async function prepare(kind, extra = {}) {
-    const current = await currentHost(),
-      control = await lot("controlStateV2");
-    return host.ask({
+    const current = await currentHost();
+    // Large terminal lanes can fill memory well before 32 semantic ticks.
+    // Transfer their exact receipts before preparing another speculative batch.
+    if (
+      current.retained_receipts >= 32 ||
+      current.retained_receipt_bytes >= 8 * 1024 * 1024
+    )
+      await publishCheckpoint();
+    const control = await lot("controlStateV2");
+    return askWithDurableReceipts(host, lot, {
       kind,
       batch_id: String(++batch),
       binding: current.binding,

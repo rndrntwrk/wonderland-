@@ -139,14 +139,26 @@ runner metadata, and resume never recreates the demo accounts.
 - Disconnection/expiry/logout retains custody and fences player actions and
   ticks. Leave remains visibly pending until source save/detach has a qualified
   receipt; this implementation does not claim that lifecycle is complete.
-- The journal retains at most 4096 batches. At 30 autonomous ticks per second,
-  this is approximately **136 seconds**, less when actions/admissions add
-  batches, or the byte budget may stop it sooner. Periodic checkpoints support
-  bounded recovery; they do not compact the journal. This is not sustained-play
-  evidence, and resetting/restarting does not evade the durable limit.
+- Checkpoints now compact the hot journal into verified, content-addressed R2
+  archives while preserving exact durable batch decisions and outbox records.
+  After checkpoint publication, the runner separately persists full native
+  terminal receipts, including original request hashes and action correlations,
+  before acknowledging their bounded in-memory retirement. A retired ID can only
+  retrieve its exact durable record; missing/mismatched history fails closed.
+  Normal checkpoints occur every 32 ticks, with earlier transfer at 32 retained
+  receipts or 8 MiB. Failed checkpoint/receipt publication leaves local receipts
+  intact. Recovery adopts a new incarnation before any new batch is prepared.
+  The 4096-entry limits are hot-storage bounds, not a fixed 136-second session
+  cutoff. Bounded-component tests alone are not sustained original-content play.
+- Exact archived action correlations survive retirement. A host loss between
+  durable batch commit and host resolve/export can still leave a pre-retirement
+  action result Unknown: its accepted state/effects are durable, but its original
+  correlation is not reconstructable from a checkpoint. Recovery does not infer
+  success or resend that action. This pre-existing crash window is separate from
+  checkpoint/journal/receipt archival preservation.
 - Outbox effects are retained, not a claim that every original-game external
   effect consumer exists. Source-content completeness, lifecycle completion,
-  journal compaction and deployment remain separate requirements.
+  and deployment remain separate requirements.
 
 ## Verification
 
@@ -154,6 +166,7 @@ runner metadata, and resume never recreates the demo accounts.
 node --test apps/web-shell/scripts/native-owned-account.test.mjs \
   apps/web-shell/scripts/native-socket.test.mjs \
   tools/native-browser/owned-demo/actions.test.mjs \
+  tools/native-browser/owned-demo/receipts.test.mjs \
   tools/native-browser/owned-demo/manifest.test.mjs \
   tools/native-browser/owned-demo/recovery.test.mjs \
   tools/native-browser/owned-demo/contracts.test.mjs

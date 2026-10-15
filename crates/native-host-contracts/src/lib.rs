@@ -89,6 +89,32 @@ pub enum RequestV1 {
     Lookup {
         batch_id: DecimalId,
     },
+    /// Export a bounded, exact terminal receipt prefix to the private durable supervisor.
+    ExportReceipts,
+    /// Issued only after the supervisor verifies and durably retains the exported prefix.
+    AcknowledgeReceipts {
+        acknowledgement: ReceiptCheckpointV1,
+    },
+}
+
+/// Private checkpoint/receipt custody acknowledgement, never a player credential.
+/// The supervisor pipe remains the trust boundary for durable-storage assertions.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ReceiptCheckpointV1 {
+    pub schema_version: u32,
+    pub status: ReceiptCheckpointStatusV1,
+    pub binding: HostBindingV1,
+    pub cursor: CursorV1,
+    pub checkpoint_sha256: String,
+    pub through_batch_id: DecimalId,
+    pub receipt_set_sha256: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReceiptCheckpointStatusV1 {
+    Persisted,
 }
 #[derive(Debug, Deserialize)]
 #[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
