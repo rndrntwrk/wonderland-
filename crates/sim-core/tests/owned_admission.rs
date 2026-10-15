@@ -618,3 +618,48 @@ fn source_permission_epoch_boundaries_and_pending_membership_are_exact() {
         (AvatarPermissions::Visitor, 2)
     );
 }
+
+#[test]
+fn boxed_join_metadata_preserves_schema_four_bytes() {
+    #[derive(serde::Serialize)]
+    enum InlineState<'a> {
+        Uninitialized,
+        Initialized {
+            source: &'a SourceJoinMetadata,
+            revision: u64,
+            permission_revision: u64,
+            last_principal: u64,
+            actors: &'a BTreeMap<u64, OwnedControl>,
+        },
+    }
+    let mut runtime = runtime();
+    initialize(&mut runtime, LotPermissionState::default());
+    let state = &runtime.state().owned_admission;
+    let OwnedAdmissionState::Initialized {
+        source,
+        revision,
+        permission_revision,
+        last_principal,
+        actors,
+    } = state
+    else {
+        panic!("initialized state required")
+    };
+    let old = InlineState::Initialized {
+        source,
+        revision: *revision,
+        permission_revision: *permission_revision,
+        last_principal: *last_principal,
+        actors,
+    };
+    let bytes = bincode::serialize(&old).unwrap();
+    assert_eq!(bytes, bincode::serialize(state).unwrap());
+    assert_eq!(
+        bincode::deserialize::<OwnedAdmissionState>(&bytes).unwrap(),
+        *state
+    );
+    assert_eq!(
+        bincode::serialize(&InlineState::Uninitialized).unwrap(),
+        bincode::serialize(&OwnedAdmissionState::Uninitialized).unwrap()
+    );
+}

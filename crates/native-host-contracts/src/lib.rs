@@ -56,7 +56,7 @@ pub enum RequestV1 {
         predecessor: CursorV1,
         expected_control_revision: DecimalId,
         principal: DecimalId,
-        export: ReservedAvatarExportV2,
+        export: Box<ReservedAvatarExportV2>,
     },
     PreparePlayerAction {
         batch_id: DecimalId,

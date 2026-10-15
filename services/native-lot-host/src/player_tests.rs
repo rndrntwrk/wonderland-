@@ -79,7 +79,7 @@ fn prepare(host: &Host, id: u32, batch: u64) -> RequestV1 {
         predecessor: crate::runtime::cursor(&host.committed).unwrap(),
         expected_control_revision: DecimalId(batch),
         principal: DecimalId(u64::from(id)),
-        export: export(host, id),
+        export: Box::new(export(host, id)),
     }
 }
 fn commit(host: &mut Host, proposal: &Value, batch: u64) -> Value {

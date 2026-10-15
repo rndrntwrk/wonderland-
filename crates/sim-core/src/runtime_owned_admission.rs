@@ -16,7 +16,7 @@ pub(super) fn initialize(
         return Err(invalid("source admission already initialized"));
     }
     state.owned_admission = OwnedAdmissionState::Initialized {
-        source,
+        source: Box::new(source),
         revision: 1,
         permission_revision: 1,
         last_principal: 0,

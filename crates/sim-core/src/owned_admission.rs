@@ -43,7 +43,7 @@ pub enum OwnedAdmissionState {
     #[default]
     Uninitialized,
     Initialized {
-        source: SourceJoinMetadata,
+        source: Box<SourceJoinMetadata>,
         revision: u64,
         permission_revision: u64,
         /// Monotonic high-water mark; principals are never reused after deletion.
@@ -133,7 +133,7 @@ impl OwnedAdmissionState {
                 || state
                     .world
                     .object(entity.info.reference)
-                    .is_none_or(|o| o.owner.is_none())
+                    .map_or(true, |o| o.owner.is_none())
             {
                 return Err("source object metadata unavailable");
             }
@@ -203,14 +203,16 @@ impl OwnedAdmissionState {
                 || entity
                     .avatar
                     .as_ref()
-                    .is_none_or(|a| a.persistent_id != control.avatar_id)
+                    .map_or(true, |a| a.persistent_id != control.avatar_id)
             {
                 return Err("owned actor identity mismatch");
             }
             if state
                 .interaction_access
                 .get(&control.actor)
-                .is_none_or(|a| a.principal.0 != control.principal || a.allow_hidden)
+                .map_or(true, |a| {
+                    a.principal.0 != control.principal || a.allow_hidden
+                })
             {
                 return Err("owned actor authority mismatch");
             }
