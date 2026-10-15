@@ -66,3 +66,6 @@ pub(crate) mod native_build_browser;
 pub mod vm_inbox;
 #[cfg(target_arch = "wasm32")]
 pub mod world_facade;
+
+#[cfg(target_arch = "wasm32")]
+pub mod native_account;

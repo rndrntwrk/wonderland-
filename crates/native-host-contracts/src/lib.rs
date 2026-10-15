@@ -87,3 +87,6 @@ pub struct TakeoverMarkerV1 {
     pub new_cursor: CursorV1,
     pub checkpoint_sha256: String,
 }
+
+mod control;
+pub use control::ControlStateV2;

@@ -152,6 +152,101 @@ try {
   const proposal = await ask(request);
   assert.equal(proposal.kind, "proposal");
   assert.deepEqual((await call("inspect")).cursor, initial.cursor);
+  const controlledLot = "controlled-mode-negative-only";
+  const initialArgs = [initial.binding, initial.cursor, sha(initialBytes)];
+  const controlledInitial = await call(
+    "initializeControlledV2",
+    initialArgs,
+    controlledLot,
+  );
+  assert.deepEqual(
+    await call("initializeControlledV2", initialArgs, controlledLot),
+    controlledInitial,
+  );
+  assert.deepEqual(await call("controlStateV2", [], controlledLot), {
+    schema_version: 2,
+    mode: "controlled_v2",
+    revision: "0",
+  });
+  await assert.rejects(
+    call("initialize", initialArgs, controlledLot),
+    /mode mismatch/,
+  );
+  await assert.rejects(
+    call("initializeControlledV2", initialArgs),
+    /mode mismatch/,
+  );
+  const beforeControlled = await call("inspect", [], controlledLot);
+  for (const [op, args] of [
+    ["commitBatch", [proposal]],
+    ["beginRecovery", [initial.binding.lot_incarnation]],
+    ["recoveryBundle", [initial.binding.lot_incarnation]],
+    ["finishRecovery", [{}, []]],
+    ["publishCheckpoint", [...initialArgs, Array.from(initialBytes)]],
+  ])
+    await assert.rejects(
+      call(op, args, controlledLot),
+      /controlled lot requires V2/,
+    );
+  assert.deepEqual(await call("inspect", [], controlledLot), beforeControlled);
+  assert.deepEqual(await call("getBatch", ["1", "1"], controlledLot), {
+    status: "unknown",
+  });
+  const controlledFence = await call(
+    "recordControlFence",
+    [fence],
+    controlledLot,
+  );
+  await Promise.all([
+    call("recordControlFence", [fence], controlledLot),
+    call("recordControlFence", [{ ...fence, avatar_id: "2" }], controlledLot),
+  ]);
+  assert.equal((await call("controlStateV2", [], controlledLot)).revision, "2");
+  await assert.rejects(
+    call(
+      "recordControlFence",
+      [{ ...fence, request_digest: "f".repeat(64) }],
+      controlledLot,
+    ),
+    /identity reused/,
+  );
+  assert.equal((await call("controlStateV2", [], controlledLot)).revision, "2");
+  const checkpointModeRace = await call(
+    "raceControlledInitialization",
+    [...initialArgs, Array.from(initialBytes)],
+    "checkpoint-mode-race",
+  );
+  assert.deepEqual(checkpointModeRace, { published: false });
+  assert.deepEqual(
+    await call("listCheckpoints", [], "checkpoint-mode-race"),
+    [],
+  );
+  const racedModeLot = "mode-initialization-race";
+  const modeRace = await Promise.allSettled([
+    call("initialize", initialArgs, racedModeLot),
+    call("initializeControlledV2", initialArgs, racedModeLot),
+  ]);
+  assert.equal(modeRace.filter((r) => r.status === "fulfilled").length, 1);
+  assert.equal(modeRace.filter((r) => r.status === "rejected").length, 1);
+  await call("faultControlRevision", ["18446744073709551615"], controlledLot);
+  await assert.rejects(
+    call("recordControlFence", [{ ...fence, avatar_id: "3" }], controlledLot),
+    /invalid decimal identity/,
+  );
+  assert.equal(
+    (await call("controlStateV2", [], controlledLot)).revision,
+    "18446744073709551615",
+  );
+  await call("faultControlRevision", ["2"], controlledLot);
+  await call(
+    "recordControlFence",
+    [{ ...fence, avatar_id: "3" }],
+    controlledLot,
+  );
+  assert.equal((await call("controlStateV2", [], controlledLot)).revision, "3");
+  checks.push(
+    "Controlled V2 initialization cannot upgrade/downgrade a lot; V1 native proposals, checkpoint and recovery mutations are denied; concurrent tombstones advance exact revisions once and overflow rolls back atomically (no actor admission enabled)",
+  );
   for (const mode of ["count", "bytes"]) {
     const faultLot = `capacity-${mode}`;
     await call(
@@ -179,6 +274,23 @@ try {
   await mf.dispose();
   await start();
   assert.deepEqual(await call("recordControlFence", [fence]), fenceReceipt);
+
+  assert.deepEqual(
+    await call("recordControlFence", [fence], controlledLot),
+    controlledFence,
+  );
+  assert.equal((await call("controlStateV2", [], controlledLot)).revision, "3");
+  await assert.rejects(
+    call("initialize", initialArgs, controlledLot),
+    /mode mismatch/,
+  );
+  await assert.rejects(
+    call("commitBatch", [proposal], controlledLot),
+    /controlled lot requires V2/,
+  );
+  checks.push(
+    "Controlled mode and revision survive persisted SQLite/workerd restart; generic write remains denied",
+  );
 
   assert.deepEqual(await call("getBatch", ["1", "1"]), receipt);
   assert.deepEqual(await call("commitBatch", [proposal]), receipt);

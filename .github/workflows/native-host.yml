@@ -4,6 +4,7 @@ on:
     paths:
       - .github/workflows/native-host.yml
       - crates/**
+      - fixtures/native/control-state-v2.json
       - services/native-lot-host/**
       - services/native-edge/**
       - tools/hosted-game/**
@@ -32,6 +33,8 @@ jobs:
           cargo clippy -p wonderland-native-lot-host -p wonderland-native-host-contracts --all-targets --locked -- -D warnings
           cargo build -p wonderland-content-runtime-bridge --bin runtime-bridge --locked
           cargo build -p wonderland-native-lot-host --all-targets --locked
+          cargo test -p wonderland-native-host-contracts --locked
+          cargo build -p wonderland-native-host-contracts --example control-state-vectors --locked
       - name: Replay actual placement and synchronous controller callbacks
         run: |
           set -o pipefail
@@ -56,6 +59,7 @@ jobs:
           npm --prefix services/native-edge ci
           npm --prefix services/native-edge run check
           npm --prefix services/native-edge run build
+          npm --prefix services/native-edge run e2e:control-contract
           timeout 120s npm --prefix services/native-edge run e2e
           timeout 120s npm --prefix services/native-edge run e2e:accounts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

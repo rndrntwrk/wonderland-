@@ -5,8 +5,9 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "check": "tsc --noEmit",
+    "e2e:control-contract": "node tests/control-state-vectors.mjs",
     "e2e": "node tests/durability.mjs && node tests/crash-receipts.mjs",
-    "e2e:accounts": "node tests/accounts.mjs && node tests/account-crash.mjs"
+    "e2e:accounts": "node tests/accounts.mjs && node tests/account-crash.mjs && node tests/account-http.mjs && node --test tests/account-provider-interruption.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261012.1",

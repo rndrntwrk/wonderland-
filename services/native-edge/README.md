@@ -36,3 +36,28 @@ module beside the Worker; it is not downloaded or compiled from untrusted bytes.
 Run `npm run e2e:accounts` for actual local workerd/SQLite/Rust-WASM journeys.
 The public fetch handler remains 404. See `docs/security/NATIVE-ACCOUNT-BOUNDARY.md`
 for source policy, trust boundaries and the open UI/recovery/gameplay gates.
+
+## Staged controlled-mode guard (V2, no runtime admission yet)
+
+Private `initializeControlledV2` initializes a **new** lot with the existing
+content-bound cursor and an immutable controlled-mode marker. Neither initializer
+can upgrade/downgrade an existing lot. An empty marker table preserves legacy V1
+behavior; its controlled row is retained independently of lot cursor state.
+`controlStateV2` returns a strictly versioned decimal revision, never an actor
+grant. New exact-idempotent control tombstones increment this revision in their
+SQLite transaction; changed identities and counter exhaustion roll back.
+
+Controlled-mode lots reject V1 commit, checkpoint and recovery operations,
+including a checkpoint racing initialization across its asynchronous hash. The
+V2 mutation/recovery lane is deliberately unavailable: do not provision a live
+lot in this mode until source-native admission, cleanup-progress fencing, leases,
+registry-bound recovery and authenticated orchestration are implemented and
+qualified. No existing lot is migrated. This guard adds no public route, actor,
+control grant, claim release or playable-game acceptance.
+
+Build `cargo build -p wonderland-native-host-contracts --example control-state-vectors
+--locked` at the repository root, then run `npm run e2e:control-contract` here for
+12 strict Rust/TypeScript golden vectors. `npm run e2e` additionally tests actual
+SQLite controlled-mode initialization races, legacy mutation denial against a real
+native proposal, concurrent tombstones, revision overflow rollback and persisted
+workerd restart. Existing legacy durability/replacement/crash tests remain intact.

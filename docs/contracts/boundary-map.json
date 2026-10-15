@@ -118,16 +118,20 @@
         {
           "kind": "fixture-test-not-executed",
           "path": "crates/sim-core/tests/clock_reference.rs"
+        },
+        {
+          "kind": "fixture-test-not-executed",
+          "path": "crates/sim-core/tests/source_named_callback.rs"
         }
       ],
       "id": "native-accepted-tick",
-      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion. Appended ExecuteNamedEntryPoint (variant 25) executes a bounded synchronous trusted controller check using copied Temp/TempXL banks; it does not authorize native player admission. Host/interpreter faults currently roll back the accepted tick, an explicitly documented difference from ordinary FreeSO check-thread exception handling.",
+      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion. Appended ExecuteNamedEntryPoint (variant 25) executes a bounded synchronous trusted controller check using copied Temp/TempXL banks; it does not authorize native player admission. Host/interpreter faults currently roll back the accepted tick, an explicitly documented difference from ordinary FreeSO check-thread exception handling. Appended ExecuteSourceExpressionCallback (variant 26) separately qualifies selected-routine expression-only callbacks: global-register Bounds faults preserve earlier writes and return false with a headless diagnostic. Direct nested/non-expression instructions are refused before work; indirect reset hosts retain fail-closed behavior. Callback-local cloned banks are isolated, while explicit entity-temp writes retain source semantics. Other faults and any later fatal command still roll back the whole tick. This is not complete original exception parity, a rendered dialog, or actor admission. See docs/verification/native-prepare-admission-20261015/README.md for executed regression evidence and remaining original-assembly differential gaps.",
       "owner": "A",
       "realm": "native",
       "sources": [
         {
           "path": "crates/sim-core/src/runtime.rs",
-          "sha256": "82a83ef35e4d754283bc3c7ac80d90d70db07411ee1cb62ffb2b30388e848c6c"
+          "sha256": "9fe88db73c3967da1e0dad49bd076e30fd45df5a632732ec059ad23c32113b50"
         },
         {
           "path": "crates/sim-core/src/clock.rs",

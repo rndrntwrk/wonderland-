@@ -1,0 +1,36 @@
+{
+  "terminated_groups": [
+    {
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ],
+      "signal": "SIGKILL"
+    },
+    {
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ],
+      "signal": "SIGKILL"
+    },
+    {
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ],
+      "signal": "SIGKILL"
+    }
+  ],
+  "passed": true,
+  "scope": "Actual POSIX SIGKILL of Miniflare/workerd process group, persisted SQLite restart and real Rust host; local service evidence only",
+  "checks": [
+    "Killed before commit: unchanged cursor and unknown receipt",
+    "Killed after durable commit before HTTP reply: exact receipt/journal survives and retry deduplicates",
+    "Rust candidate remains unpublished until recovered exact durable receipt",
+    "Pending dialog effect survives pre-reply kill and retry does not duplicate the outbox"
+  ]
+}

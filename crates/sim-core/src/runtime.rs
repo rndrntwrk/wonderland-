@@ -162,6 +162,15 @@ pub enum AcceptedCommand {
         name: String,
         args: Vec<i16>,
     },
+    /// Opt-in source EvaluateCheck behavior for expression-only named routines.
+    /// Only global-register bounds exceptions are currently qualified.
+    /// Other faults still reject the whole tick. This is not avatar admission.
+    /// Appended so legacy accepted command tags and behavior remain unchanged.
+    ExecuteSourceExpressionCallback {
+        entity: EntityRef,
+        name: String,
+        args: Vec<i16>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -176,6 +185,14 @@ pub struct AcceptedTick {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum RuntimeEvent {
+    /// Source callback result and suppressed-exception notification. This is a
+    /// headless diagnostic, not an exact rendered source exception dialog.
+    SourceNamedEntryPoint {
+        entity: EntityRef,
+        name: String,
+        accepted: bool,
+        suppressed_fault: Option<VmFault>,
+    },
     Spawned(EntityRef),
     Deleted(EntityRef),
     ThreadFault {
@@ -553,16 +570,17 @@ fn execute_named_entrypoint(
     entity: EntityRef,
     name: &str,
     args: Vec<i16>,
-) -> Result<(), RuntimeError> {
+    source_exceptions: bool,
+) -> Result<(bool, Option<VmFault>), RuntimeError> {
     let owner = live_entity(state, entity)?.info.guid;
     let Some(key) = content.named_tree(owner, name) else {
-        return Ok(());
+        return Ok((false, None));
     };
     if key.id <= 255 {
-        return Ok(());
+        return Ok((false, None));
     }
     let Some(key) = content.routines().resolve(owner, key.id) else {
-        return Ok(());
+        return Ok((false, None));
     };
     let routine = content
         .routines()
@@ -570,7 +588,17 @@ fn execute_named_entrypoint(
         .ok_or_else(|| invalid("named routine missing"))?;
     // Source returns a false check for an empty routine; no stack frame exists.
     if routine.instructions().is_empty() {
-        return Ok(());
+        return Ok((false, None));
+    }
+
+    // Restrict the selected routine's instructions, not its transitive effects:
+    // an expression memory write can still trigger a reset check. Direct nested
+    // calls are refused here; indirect checks retain their existing fail-closed
+    // hosts and cannot inherit this callback's exception suppression profile.
+    if source_exceptions && routine.instructions().iter().any(|i| i.opcode != 2) {
+        return Err(invalid(
+            "source callback requires an expression-only routine",
+        ));
     }
 
     let (temps, temp_xl) = state
@@ -592,8 +620,18 @@ fn execute_named_entrypoint(
     };
     // Accepted commands precede scheduler.begin_tick, matching source's cloned
     // temporary banks for an immediate out-of-thread entrypoint.
-    RuntimeHost::new(state, content, work, entity, 0).evaluate_check(request)?;
-    Ok(())
+    let mut host = RuntimeHost::new(state, content, work, entity, 0);
+    host.source_callback_exceptions = source_exceptions;
+    let result = host.evaluate_check(request)?;
+    Ok((result.accepted, host.suppressed_callback_fault))
+}
+
+/// Qualified source global-register index exceptions only. Other C# exception
+/// families remain explicit gaps until separately source-backed and tested.
+/// In particular, never classify every Bounds or Arithmetic fault as a script
+/// exception: those also carry host capacity, revision and clock failures.
+fn source_callback_exception(fault: &VmFault) -> bool {
+    matches!(fault, VmFault::Bounds { area, .. } if area == "global")
 }
 
 fn refresh_usage_projections(state: &mut SimState) -> Result<(), RuntimeError> {
@@ -720,7 +758,20 @@ fn apply_command(
             if name.is_empty() || name.len() > 256 || args.len() > 16 {
                 return Err(invalid("named entrypoint bounds"));
             }
-            execute_named_entrypoint(state, content, work, *entity, name, args.clone())?;
+            execute_named_entrypoint(state, content, work, *entity, name, args.clone(), false)?;
+        }
+        AcceptedCommand::ExecuteSourceExpressionCallback { entity, name, args } => {
+            if name.is_empty() || name.len() > 256 || args.len() > 16 {
+                return Err(invalid("named entrypoint bounds"));
+            }
+            let (accepted, suppressed_fault) =
+                execute_named_entrypoint(state, content, work, *entity, name, args.clone(), true)?;
+            work.events.push(RuntimeEvent::SourceNamedEntryPoint {
+                entity: *entity,
+                name: name.clone(),
+                accepted,
+                suppressed_fault,
+            });
         }
         AcceptedCommand::BeginBuild { preview, authority } => {
             build_adapter::begin(state, content, work, preview, authority)?
@@ -2219,6 +2270,10 @@ struct RuntimeHost<'a> {
     active: Option<VmThread>,
     entity_threads: BTreeMap<ObjectId, VmThread>,
     separate_check: bool,
+    // Set only for the explicit accepted source callback, never propagated to
+    // RunInMyStack or other checks. Unsupported/invariant faults stay fatal.
+    source_callback_exceptions: bool,
+    suppressed_callback_fault: Option<VmFault>,
     dispatch_budget: u32,
     observed_instructions: u32,
     nested_start: u32,
@@ -2247,6 +2302,8 @@ impl<'a> RuntimeHost<'a> {
             active: None,
             entity_threads: BTreeMap::new(),
             separate_check: false,
+            source_callback_exceptions: false,
+            suppressed_callback_fault: None,
             dispatch_budget,
             observed_instructions: 0,
             nested_start,
@@ -2553,6 +2610,20 @@ impl VmHost for RuntimeHost<'_> {
         let exit = match report.stop {
             VmStop::Completed(exit) => exit,
             VmStop::Faulted(_) if named => PrimitiveExit::Error,
+            VmStop::Faulted(fault)
+                if self.source_callback_exceptions && source_callback_exception(&fault) =>
+            {
+                // VMThread.Tick (!THROW_SIMANTICS) clears the temporary check
+                // stack and sets DialogCooldown; EvaluateCheck returns false.
+                // Its earlier world/RNG writes survive. Suppression does not
+                // reset or replace the owned thread; callback-local banks stay
+                // isolated, but explicit entity-bank writes (scope 13) survive.
+                // Emit a headless diagnostic via
+                // the accepted callback result, not a fabricated UI dialog.
+                thread.frames.clear();
+                self.suppressed_callback_fault = Some(fault);
+                PrimitiveExit::ReturnFalse
+            }
             VmStop::Faulted(fault) => return Err(fault),
             _ => {
                 return Err(host_error(
