@@ -30,6 +30,33 @@ export class TestCoordinator extends LotCoordinator {
     super(ctx, { CHECKPOINTS: bucket });
     this.gate = gate;
   }
+  async raceControlledInitialization(
+    binding: unknown,
+    cursor: unknown,
+    hash: unknown,
+    bytes: number[],
+  ) {
+    const publishing = this.publishCheckpoint(
+      binding,
+      cursor,
+      hash,
+      Uint8Array.from(bytes),
+    );
+    this.initializeControlledV2(binding, cursor, hash);
+    try {
+      await publishing;
+      return { published: true };
+    } catch {
+      return { published: false };
+    }
+  }
+  faultControlRevision(revision: string) {
+    this.ctx.storage.sql.exec(
+      "UPDATE lot_control_state SET revision=? WHERE id=1",
+      revision,
+    );
+    return true;
+  }
   pauseCheckpoint() {
     this.gate.armed = true;
     return true;
@@ -105,7 +132,14 @@ export default {
       } = (await request.json()) as any;
       const stub = env.COORD.get(env.COORD.idFromName(lot));
       let result;
-      if (op === "recordControlFence")
+      if (op === "raceControlledInitialization")
+        result = await stub.raceControlledInitialization(...args);
+      else if (op === "initializeControlledV2")
+        result = await stub.initializeControlledV2(...args);
+      else if (op === "controlStateV2") result = await stub.controlStateV2();
+      else if (op === "faultControlRevision")
+        result = await stub.faultControlRevision(...args);
+      else if (op === "recordControlFence")
         result = await stub.recordControlFence(...args);
       else if (op === "nulJournal") result = await stub.nulJournal(...args);
       else if (op === "oversizeJournal")

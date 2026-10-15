@@ -1,0 +1,55 @@
+{
+  "source_repository": "https://github.com/riperiperi/FreeSO",
+  "source_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "files": [
+    {
+      "path": "TSOClient/tso.simantics/Engine/VMThread.cs",
+      "git_blob": "6e819895a0ba957a497e8a3b35b79b39028b8b8a",
+      "sha256": "294616ef1f4a67283657744f6e2970e6ee9fc42161135c709bb5029040a49692",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Entities/VMEntity.cs",
+      "git_blob": "a2f9395b18a6b89bdc41d1c8e05b70689a3f12c4",
+      "sha256": "047c32652f4e0d456598b67609e7633836a59aedf3e4f5a9be3d04181c04f37a",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetSimJoinCmd.cs",
+      "git_blob": "73752df3ddcbd82183e101e2e269281f9cfcbe91",
+      "sha256": "8638e0d1365cf89084a0a00d691b82a24783591d5caa3d28ef5710edc07ca036",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/VM.cs",
+      "git_blob": "806891f9e0f50b4d05439bc6c9ddfb8d79811caa",
+      "sha256": "a4bfc3203cb907ba12bef6aa21ba33a7024b915bc06689eead71b3bfa4fda866",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Engine/VMMemory.cs",
+      "git_blob": "bcbc3e33187ed2789158813d4c6b746c61c542d5",
+      "sha256": "1f4b8bc93b25af94639da74c0f0360360ea6e2722ae34e0982e2838b9d440ee9",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Primitives/VMExpression.cs",
+      "git_blob": "bffeb4d6260814ffccc083f4b323f4dccc1d0f9a",
+      "sha256": "5e038fe761fc56f20b964e89aef9c9df7f194e1cbc1c43e94da00014117a73ef",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs",
+      "git_blob": "b8d76a795754c36493249f5062021d66a8681a67",
+      "sha256": "cb349ba3a008b66682f457ec339795d669bf0a833240efb0e261e0c9591237db",
+      "matches_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOLotState.cs",
+      "git_blob": "b66b0e55d201d72fb6e9a56652570f13c43a27db",
+      "sha256": "d3fff5d6ee3b1f0905933444fcaefadfdc99169c98cf218bec0977d5eef6e617",
+      "matches_pin": true
+    }
+  ],
+  "scope": "Source provenance and static semantics only; original assembly callback differential execution is not claimed."
+}

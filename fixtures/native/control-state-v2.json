@@ -1,0 +1,110 @@
+[
+  {
+    "name": "initial",
+    "valid": true,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": "0"
+    }
+  },
+  {
+    "name": "full-u64",
+    "valid": true,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": "18446744073709551615"
+    }
+  },
+  {
+    "name": "version-one",
+    "valid": false,
+    "value": {
+      "schema_version": 1,
+      "mode": "controlled_v2",
+      "revision": "0"
+    }
+  },
+  {
+    "name": "wrong-mode",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "legacy",
+      "revision": "0"
+    }
+  },
+  {
+    "name": "number-revision",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": 1
+    }
+  },
+  {
+    "name": "leading-zero",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": "01"
+    }
+  },
+  {
+    "name": "negative",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": "-1"
+    }
+  },
+  {
+    "name": "overflow",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": "18446744073709551616"
+    }
+  },
+  {
+    "name": "unknown-field",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": "0",
+      "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  {
+    "name": "float-version",
+    "valid": false,
+    "value": {
+      "schema_version": 2.5,
+      "mode": "controlled_v2",
+      "revision": "0"
+    }
+  },
+  {
+    "name": "empty",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2",
+      "revision": ""
+    }
+  },
+  {
+    "name": "missing-field",
+    "valid": false,
+    "value": {
+      "schema_version": 2,
+      "mode": "controlled_v2"
+    }
+  }
+]

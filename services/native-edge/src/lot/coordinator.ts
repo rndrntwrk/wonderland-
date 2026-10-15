@@ -15,6 +15,7 @@ import {
 import { recoveryChain } from "./journal";
 import { successor, takeoverMarker, type RecoveryGrant } from "./recovery";
 import { controlFence } from "./control";
+import { controlStateV2 } from "./control-state";
 interface Env {
   CHECKPOINTS: R2Bucket;
 }
@@ -29,7 +30,7 @@ export class LotCoordinator extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     ctx.storage.sql.exec(
-      `CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
+      `CREATE TABLE IF NOT EXISTS lot_control_state(id INTEGER PRIMARY KEY CHECK(id=1),revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
     );
   }
   /** Fence receipt acknowledges durable recording only, never avatar detach or custody release. */
@@ -75,8 +76,36 @@ export class LotCoordinator extends DurableObject<Env> {
         fence.generation,
         canonical(receipt),
       );
+      const control = this.controlState();
+      if (control)
+        this.ctx.storage.sql.exec(
+          "UPDATE lot_control_state SET revision=? WHERE id=1",
+          successor(control.revision),
+        );
       return receipt;
     });
+  }
+  private controlState() {
+    return this.ctx.storage.sql
+      .exec<{
+        revision: string;
+      }>("SELECT revision FROM lot_control_state WHERE id=1")
+      .toArray()[0];
+  }
+  /** Private read-only staged guard state; this is never an actor grant. */
+  controlStateV2() {
+    this.state();
+    const state = this.controlState();
+    if (!state) throw Error("lot is not controlled_v2");
+    return controlStateV2({
+      schema_version: 2,
+      mode: "controlled_v2",
+      revision: state.revision,
+    });
+  }
+  private requireLegacyMutation() {
+    if (this.controlState())
+      throw Error("controlled lot requires V2; lane unavailable");
   }
   private state(): State {
     const row = this.ctx.storage.sql
@@ -97,6 +126,7 @@ export class LotCoordinator extends DurableObject<Env> {
       throw Error("recovery in progress; old owner fenced");
   }
   beginRecovery(expectedIncarnation: unknown): RecoveryGrant {
+    this.requireLegacyMutation();
     const incarnation = decimal(expectedIncarnation);
     return this.ctx.storage.transactionSync(() => {
       const prior = this.ctx.storage.sql
@@ -138,6 +168,7 @@ export class LotCoordinator extends DurableObject<Env> {
     });
   }
   async recoveryBundle(expectedIncarnation: unknown) {
+    this.requireLegacyMutation();
     const incarnation = decimal(expectedIncarnation);
     const pending = this.pendingRecovery();
     if (!pending) throw Error("no pending recovery");
@@ -249,6 +280,7 @@ export class LotCoordinator extends DurableObject<Env> {
     };
   }
   async finishRecovery(rawMarker: unknown, bytes: Uint8Array) {
+    this.requireLegacyMutation();
     const marker = takeoverMarker(rawMarker),
       grant = marker.grant;
     if (
@@ -341,6 +373,22 @@ export class LotCoordinator extends DurableObject<Env> {
     });
   }
   initialize(rawBinding: unknown, rawCursor: unknown, checkpointHash: unknown) {
+    return this.initializeMode(rawBinding, rawCursor, checkpointHash, false);
+  }
+  /** Opt-in, new private lot only. No V2 runtime mutation is implemented yet. */
+  initializeControlledV2(
+    rawBinding: unknown,
+    rawCursor: unknown,
+    checkpointHash: unknown,
+  ) {
+    return this.initializeMode(rawBinding, rawCursor, checkpointHash, true);
+  }
+  private initializeMode(
+    rawBinding: unknown,
+    rawCursor: unknown,
+    checkpointHash: unknown,
+    controlled: boolean,
+  ) {
     const next = {
       binding: binding(rawBinding),
       cursor: cursor(rawCursor),
@@ -353,6 +401,8 @@ export class LotCoordinator extends DurableObject<Env> {
         .exec<{ value: string }>("SELECT value FROM lot_state WHERE id=1")
         .toArray()[0];
       if (old) {
+        if (!!this.controlState() !== controlled)
+          throw Error("lot mode mismatch");
         if (!equal(JSON.parse(old.value), next))
           throw Error("already initialized differently");
         return next;
@@ -361,6 +411,10 @@ export class LotCoordinator extends DurableObject<Env> {
         "INSERT INTO lot_state(id,value) VALUES(1,?)",
         canonical(next),
       );
+      if (controlled)
+        this.ctx.storage.sql.exec(
+          "INSERT INTO lot_control_state(id,revision) VALUES(1,'0')",
+        );
       return next;
     });
   }
@@ -384,6 +438,7 @@ export class LotCoordinator extends DurableObject<Env> {
     };
   }
   async commitBatch(raw: unknown) {
+    this.requireLegacyMutation();
     const p = proposal(raw);
     const bytes = encode(p.payload);
     if (bytes.length > 16 * 1024 * 1024) throw Error("proposal too large");
@@ -392,6 +447,7 @@ export class LotCoordinator extends DurableObject<Env> {
     const key = p.payload.binding.lot_incarnation + ":" + p.payload.batch_id;
     const serialized = new TextDecoder().decode(bytes);
     return this.ctx.storage.transactionSync(() => {
+      this.requireLegacyMutation();
       const prior = this.ctx.storage.sql
         .exec<{
           digest: string;
@@ -522,6 +578,7 @@ export class LotCoordinator extends DurableObject<Env> {
     expected: unknown,
     bytes: Uint8Array,
   ) {
+    this.requireLegacyMutation();
     const b = binding(rawBinding),
       c = cursor(rawCursor),
       sha = hash(expected);
@@ -531,6 +588,8 @@ export class LotCoordinator extends DurableObject<Env> {
       (await digest(bytes)) !== sha
     )
       throw Error("checkpoint bytes/digest mismatch");
+    // Initialization can race the asynchronous digest on a previously empty DO.
+    this.requireLegacyMutation();
     this.assertActive();
     const state = this.state();
     if (
@@ -563,6 +622,7 @@ export class LotCoordinator extends DurableObject<Env> {
       byte_length: bytes.byteLength,
     };
     return this.ctx.storage.transactionSync(() => {
+      this.requireLegacyMutation();
       this.assertActive();
       const now = this.state();
       if (!equal(now.binding, b) || !equal(now.cursor, c))

@@ -1,0 +1,64 @@
+{
+  "source_code_commit": "80a659ce6a0639aef46728709288a4e06335898a",
+  "workspace_tests": {
+    "command": "cargo test --workspace --locked --offline -j 1",
+    "exit_code": 0,
+    "passed": 2036,
+    "failed": 0,
+    "ignored": 5,
+    "test_suites": 268,
+    "ignored_tests": [
+      "test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate",
+      "test original_indexed_corpus_has_exact_passthrough_and_bounded_edit_dispositions ... ignored, requires the original source asset checkout; run explicitly with --ignored",
+      "test source_derived_v1_input_supports_all_five_structural_edits ... ignored, requires source-derived version-1 input path in WONDERLAND_IFF_V1_SOURCE",
+      "test repository_semantic_corpus_probe ... ignored, requires the source checkout corpus; run explicitly for evidence",
+      "test supplied_original_pack_renders_original_avatar_through_the_snapshot_world ... ignored, requires an explicitly supplied original resource pack, decoded pixels, and synthetic FSOv fixture"
+    ]
+  },
+  "focused_tests": {
+    "passed": 10,
+    "failed": 0
+  },
+  "checks_passed": [
+    "cargo run -p sim-core --example named-entrypoint-replay --locked --offline -j 1",
+    "cargo build -p wonderland-native-lot-host --all-targets --locked --offline -j 1",
+    "npm --prefix services/native-edge run e2e",
+    "cargo fmt --all -- --check",
+    "git diff --check"
+  ],
+  "initial_workspace_attempt": "Parallel compilation terminated rustc for sim-core with SIGKILL; serial retry and final serial suite passed.",
+  "not_claimed": [
+    "Original C# assembly differential execution",
+    "Exact rendered source exception dialog",
+    "Full callback exception parity",
+    "PrepareAdmissionV2 or actor registry",
+    "Live admission, grants, public route, provisioning, deployment",
+    "Strict Clippy on final source"
+  ],
+  "logs": {
+    "workspace-final.log": {
+      "sha256": "031b4171b0a291faaf55596c4cb81cdfda1e68b8731060011f1dd84d619fb971",
+      "bytes": 232760
+    },
+    "green-final-review.log": {
+      "sha256": "dadbaaf51730a9cc3b6382c56d3dc66de862003fd07d23dda788d63308acdd96",
+      "bytes": 1214
+    },
+    "legacy-example-final.log": {
+      "sha256": "6e0ab3ae77fb264e566868c16afc945f4e36a730bb66ba9a87213cf8106d00cd",
+      "bytes": 473
+    },
+    "host-build.log": {
+      "sha256": "f0374c5c6d542921bb16f4920260bcca498c56420449f072eb645c8f75bcfcfe",
+      "bytes": 1586
+    },
+    "edge-e2e.log": {
+      "sha256": "057c5553f5661ee3af58e87cd6cd821c70c497fca15bb37f8936688c377bca1f",
+      "bytes": 2756
+    },
+    "format-final.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

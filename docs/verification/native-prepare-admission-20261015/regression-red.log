@@ -1,0 +1,22 @@
+    Finished `test` profile [unoptimized] target(s) in 0.22s
+     Running tests/source_named_callback.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/source_named_callback-85dfaabfc54ff93b)
+
+running 2 tests
+test source_exception_retains_mutations_and_continues_with_replay_and_restore ... FAILED
+test legacy_fault_unsupported_budget_and_stale_identity_still_reject_atomically ... ok
+
+failures:
+
+---- source_exception_retains_mutations_and_continues_with_replay_and_restore stdout ----
+
+thread 'source_exception_retains_mutations_and_continues_with_replay_and_restore' (12) panicked at crates/sim-core/tests/source_named_callback.rs:68:41:
+called `Result::unwrap()` on an `Err` value: Vm(Bounds { area: "global", index: 32767, len: 38 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    source_exception_retains_mutations_and_continues_with_replay_and_restore
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+
+error: test failed, to rerun pass `-p sim-core --test source_named_callback`

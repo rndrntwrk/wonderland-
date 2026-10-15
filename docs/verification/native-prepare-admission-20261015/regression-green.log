@@ -1,0 +1,17 @@
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-prepare-admission-20261015/crates/sim-core)
+    Finished `test` profile [unoptimized] target(s) in 15.96s
+     Running tests/source_named_callback.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/source_named_callback-85dfaabfc54ff93b)
+
+running 10 tests
+test indirect_pet_reset_fault_rejects_without_leaking_outer_or_inner_writes ... ok
+test source_callback_never_suppresses_host_revision_exhaustion ... ok
+test source_callback_enforces_command_bounds_before_work ... ok
+test explicit_entity_temp_write_survives_callback_local_fault ... ok
+test later_fatal_command_rolls_back_suppressed_callback_and_entire_tick ... ok
+test nested_callback_is_refused_before_outer_or_inner_writes ... ok
+test destination_bounds_and_rhs_fault_keep_prior_writes ... ok
+test source_false_and_inert_callbacks_have_explicit_results_and_stable_tags ... ok
+test source_exception_retains_mutations_and_continues_with_replay_and_restore ... ok
+test legacy_fault_unsupported_budget_and_stale_identity_still_reject_atomically ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s
