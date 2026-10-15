@@ -1,0 +1,35 @@
+{
+  "code_commit": "220cf8840b70d38962093d62d62cd03258635eca",
+  "workspace_command": "cargo test --workspace --locked --offline -j 1",
+  "workspace_exit_code": 0,
+  "workspace_totals": {
+    "passed": 2052,
+    "failed": 0,
+    "ignored": 5
+  },
+  "workspace_test_groups": 269,
+  "focused_tests": 16,
+  "baseline_negative_tests": 52,
+  "formatting": "cargo fmt --all -- --check passed",
+  "independent_review": "No bounded-reducer blockers; independently passed focused16, format, original-file provenance11",
+  "original_assembly_differential": "not executed",
+  "runtime_integration": "not implemented by this pure reducer",
+  "logs": {
+    "wonderland-lot-permissions-workspace-20261015.log": {
+      "sha256": "cd1fec6874ac1a21912f0540ba3be726cfda0b534aca08fd119c35e89e70ae8a",
+      "bytes": 237144
+    },
+    "wonderland-lot-permissions-focused-20261015.log": {
+      "sha256": "a6afddca705cd2c9315282cdca73d4c94fbe38c7cc183b46e62075a5a7d18e76",
+      "bytes": 1807
+    },
+    "wonderland-lot-permissions-format-20261015.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "wonderland-lot-permissions-baseline-tests-20261015.log": {
+      "sha256": "951a72b6ca9f337149efef9e7dd83fe775165bfce178011fc1592118bd317a42",
+      "bytes": 7855
+    }
+  }
+}

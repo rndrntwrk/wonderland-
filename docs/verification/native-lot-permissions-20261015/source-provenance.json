@@ -1,0 +1,71 @@
+{
+  "original_commit": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "files": [
+    {
+      "path": "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOLotState.cs",
+      "bytes": 7878,
+      "sha256": "d3fff5d6ee3b1f0905933444fcaefadfdc99169c98cf218bec0977d5eef6e617",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOAvatarState.cs",
+      "bytes": 3696,
+      "sha256": "1a55826199cd10a7d0ffa3569fc768ae5b02446c92bb972e176cb7f88f9bbd1e",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/TSOPlatform/VMTSOObjectState.cs",
+      "bytes": 3807,
+      "sha256": "40f744d413cc199013102f08d90575e8b1a4015cead08d58722443755b62c333",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/Commands/VMNetSimJoinCmd.cs",
+      "bytes": 7608,
+      "sha256": "8638e0d1365cf89084a0a00d691b82a24783591d5caa3d28ef5710edc07ca036",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/VMBuildableAreaInfo.cs",
+      "bytes": 6079,
+      "sha256": "cb349ba3a008b66682f457ec339795d669bf0a833240efb0e261e0c9591237db",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Model/VMObjectQueries.cs",
+      "bytes": 9880,
+      "sha256": "f587b43bd68ca58ee44d7c364f59ebe9a1be80d0cb44bef4e9273a143357bb86",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/Entities/VMGameObject.cs",
+      "bytes": 25336,
+      "sha256": "519d50f01affb9a3e1b6c9174ee0683f63436d41d9cfd764ae169d3ac5c4480f",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/Commands/VMChangePermissionsCmd.cs",
+      "bytes": 8579,
+      "sha256": "7d6f1b49593f6c534679ed59336b231fc6f917d4f74349a0091e4a5a1cabf7df",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/FSO.Server/Servers/Lot/Domain/LotContainer.cs",
+      "bytes": 67744,
+      "sha256": "aaf8dffc32fdfab1cd748883cfdf37cb8d0bb2914422c8bc35517ee75ef5f741",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/NetPlay/Model/VMNetAvatarPersistState.cs",
+      "bytes": 12452,
+      "sha256": "aa6630884995708c392424dce527a520125598eaeb715e783abca547dc08b3d3",
+      "matches_original_pin": true
+    },
+    {
+      "path": "TSOClient/tso.simantics/VM.cs",
+      "bytes": 39043,
+      "sha256": "a4bfc3203cb907ba12bef6aa21ba33a7024b915bc06689eead71b3bfa4fda866",
+      "matches_original_pin": true
+    }
+  ]
+}

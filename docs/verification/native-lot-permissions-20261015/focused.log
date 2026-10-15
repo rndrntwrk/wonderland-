@@ -1,0 +1,23 @@
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized] target(s) in 2m 51s
+     Running tests/lot_permissions_source.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/lot_permissions_source-a70b7519c11999fa)
+
+running 16 tests
+test community_matrix_promotes_donors_and_benefactors_and_can_demote_incoming_builder ... ok
+test counts_are_registered_groups_and_community_donation_uses_only_base_flag ... ok
+test all_fourteen_limits_use_size_plus_floor_upgrade_index_and_full_roommate_count ... ok
+test community_overbudget_updates_caches_but_never_changes_stale_disable_flags ... ok
+test job_lot_uses_ten_thousand_limit_but_still_runs_normal_object_flag_reconciliation ... ok
+test join_computes_owner_flag_change_after_budget_and_does_not_interrupt_for_budget_alone ... ok
+test entirely_non_game_registered_group_still_counts_and_receives_no_object_effects ... ok
+test budget_orders_by_base_object_and_preserves_source_stack_occupied_portal_distinctions ... ok
+test exactly_at_cap_disallows_placement_without_marking_lot_over_limit ... ok
+test residential_join_covers_every_role_and_preserves_existing_build_membership_quirks ... ok
+test mixed_groups_keep_non_game_members_base_counting_and_source_portal_guard ... ok
+test visitor_removal_sets_pending_on_donated_owned_parts_and_refreshes_unchanged_parts ... ok
+test zero_owner_membership_and_portable_join_identifier_remain_source_representable ... ok
+test new_resident_clears_pending_but_existing_resident_or_admin_leaves_it_untouched ... ok
+test ordered_maps_and_replay_produce_identical_pure_results ... ok
+test malformed_inputs_and_membership_growth_are_refused_atomically ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
