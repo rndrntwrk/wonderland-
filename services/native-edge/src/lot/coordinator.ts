@@ -26,6 +26,7 @@ import {
   type Cursor,
 } from "./contracts";
 import { recoveryChain } from "./journal";
+import { HostReceiptStore } from "./host-receipts";
 import { successor, takeoverMarker, type RecoveryGrant } from "./recovery";
 import { controlFence, type ControlFence } from "./control";
 import { controlStateV2 } from "./control-state";
@@ -41,12 +42,29 @@ interface State {
 }
 const CHUNK = 256 * 1024;
 const JOURNAL_LIMIT = 64 * 1024 * 1024;
+const ARCHIVE_LIMIT = 16 * 1024 * 1024;
+const ARCHIVE_BATCHES = 64;
 export class LotCoordinator extends DurableObject<Env> {
+  private hostReceipts: HostReceiptStore;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     ctx.storage.sql.exec(
-      `CREATE TABLE IF NOT EXISTS controlled_config(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_registry(id INTEGER PRIMARY KEY CHECK(id=1),sha256 TEXT NOT NULL,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_sequence(id INTEGER PRIMARY KEY CHECK(id=1),principal TEXT NOT NULL);CREATE TABLE IF NOT EXISTS actor_controls(control_key TEXT PRIMARY KEY,avatar_id TEXT NOT NULL UNIQUE,principal TEXT NOT NULL UNIQUE,export_digest TEXT NOT NULL UNIQUE,export_json TEXT NOT NULL,state TEXT NOT NULL,expires_at INTEGER NOT NULL,record TEXT NOT NULL,receipt TEXT);CREATE INDEX IF NOT EXISTS actor_controls_expiry ON actor_controls(state,expires_at);CREATE TABLE IF NOT EXISTS admission_operations(control_key TEXT PRIMARY KEY,export_digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_leases(control_key TEXT PRIMARY KEY,revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_recovery_receipts(old_incarnation TEXT PRIMARY KEY,control_json TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_denials(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS lot_control_state(id INTEGER PRIMARY KEY CHECK(id=1),revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
+      `CREATE TABLE IF NOT EXISTS controlled_config(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_registry(id INTEGER PRIMARY KEY CHECK(id=1),sha256 TEXT NOT NULL,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_sequence(id INTEGER PRIMARY KEY CHECK(id=1),principal TEXT NOT NULL);CREATE TABLE IF NOT EXISTS actor_controls(control_key TEXT PRIMARY KEY,avatar_id TEXT NOT NULL UNIQUE,principal TEXT NOT NULL UNIQUE,export_digest TEXT NOT NULL UNIQUE,export_json TEXT NOT NULL,state TEXT NOT NULL,expires_at INTEGER NOT NULL,record TEXT NOT NULL,receipt TEXT);CREATE INDEX IF NOT EXISTS actor_controls_expiry ON actor_controls(state,expires_at);CREATE TABLE IF NOT EXISTS admission_operations(control_key TEXT PRIMARY KEY,export_digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_leases(control_key TEXT PRIMARY KEY,revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_recovery_receipts(old_incarnation TEXT PRIMARY KEY,control_json TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_denials(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS lot_control_state(id INTEGER PRIMARY KEY CHECK(id=1),revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS journal_live(batch_key TEXT PRIMARY KEY,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_layout(id INTEGER PRIMARY KEY CHECK(id=1));CREATE TABLE IF NOT EXISTS journal_archives(object_key TEXT PRIMARY KEY,sha256 TEXT NOT NULL,bytes INTEGER NOT NULL,checkpoint_key TEXT NOT NULL);CREATE TABLE IF NOT EXISTS archived_batches(batch_key TEXT PRIMARY KEY,object_key TEXT NOT NULL,byte_offset INTEGER NOT NULL,byte_length INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
     );
+    this.hostReceipts = new HostReceiptStore(ctx.storage, env.CHECKPOINTS);
+    // One-time, restart-safe migration. Receipt rows stay forever; only this
+    // bounded live set is charged against the hot-journal profile.
+    ctx.storage.transactionSync(() => {
+      ctx.storage.sql.exec(
+        "INSERT OR IGNORE INTO journal_live(batch_key,bytes) SELECT batch_key,bytes FROM batches WHERE NOT EXISTS (SELECT 1 FROM journal_layout WHERE id=1);INSERT OR IGNORE INTO journal_layout(id) VALUES(1)",
+      );
+    });
+  }
+  persistHostReceiptsV1(raw: unknown, sha: unknown) {
+    return this.hostReceipts.persist(raw, sha);
+  }
+  lookupHostReceiptV1(incarnation: unknown, id: unknown) {
+    return this.hostReceipts.lookup(incarnation, id);
   }
   /** Fence receipt acknowledges durable recording only, never avatar detach or custody release. */
   recordControlFence(raw: unknown) {
@@ -540,17 +558,12 @@ export class LotCoordinator extends DurableObject<Env> {
           digest: p.digest,
           control_revision: this.controlState()!.revision,
         };
-        if (
-          this.ctx.storage.sql
-            .exec<{ n: number }>("SELECT COUNT(*) AS n FROM controlled_denials")
-            .one().n < 4096
-        )
-          this.ctx.storage.sql.exec(
-            "INSERT INTO controlled_denials(batch_key,digest,receipt) VALUES(?,?,?)",
-            key,
-            p.digest,
-            canonical(receipt),
-          );
+        this.ctx.storage.sql.exec(
+          "INSERT INTO controlled_denials(batch_key,digest,receipt) VALUES(?,?,?)",
+          key,
+          p.digest,
+          canonical(receipt),
+        );
         return receipt; // Never throw: the expiry tombstone must survive rejection.
       }
       if (
@@ -559,14 +572,22 @@ export class LotCoordinator extends DurableObject<Env> {
             "SELECT control_key FROM actor_controls WHERE state='fence_pending' LIMIT 1",
           )
           .toArray().length
-      )
-        return {
+      ) {
+        const receipt = {
           status: "rejected",
           reason: "fence_drain_required",
           batch_id: p.payload.batch_id,
           digest: p.digest,
           control_revision: this.controlState()!.revision,
         };
+        this.ctx.storage.sql.exec(
+          "INSERT INTO controlled_denials(batch_key,digest,receipt) VALUES(?,?,?)",
+          key,
+          p.digest,
+          canonical(receipt),
+        );
+        return receipt;
+      }
       const revision = this.controlState()!.revision,
         config = this.controlledConfiguration(),
         registry = this.ctx.storage.sql
@@ -648,7 +669,7 @@ export class LotCoordinator extends DurableObject<Env> {
           count: number;
           bytes: number;
         }>(
-          "SELECT COUNT(*) AS count,COALESCE(SUM(bytes),0) AS bytes FROM batches",
+          "SELECT COUNT(*) AS count,COALESCE(SUM(bytes),0) AS bytes FROM journal_live",
         )
         .one();
       if (totals.count >= 4096 || totals.bytes + bytes.length > JOURNAL_LIMIT)
@@ -668,6 +689,11 @@ export class LotCoordinator extends DurableObject<Env> {
         key,
         p.digest,
         canonical(receipt),
+        bytes.length,
+      );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO journal_live(batch_key,bytes) VALUES(?,?)",
+        key,
         bytes.length,
       );
       for (
@@ -924,12 +950,6 @@ export class LotCoordinator extends DurableObject<Env> {
       const state = this.state();
       if (state.binding.lot_incarnation !== incarnation)
         throw Error("stale recovery incarnation");
-      if (
-        this.ctx.storage.sql
-          .exec<{ count: number }>("SELECT COUNT(*) AS count FROM recoveries")
-          .one().count >= 4096
-      )
-        throw Error("recovery history capacity");
       const grant: RecoveryGrant = {
         schema_version: 1,
         old_binding: state.binding,
@@ -1001,8 +1021,17 @@ export class LotCoordinator extends DurableObject<Env> {
         batch_key: string;
         digest: string;
         receipt: string;
-      }>("SELECT batch_key,digest,receipt FROM batches ORDER BY rowid")
+      }>(
+        "SELECT batch_key,digest,receipt FROM batches WHERE batch_key>=? AND batch_key<? AND json_extract(receipt,'$.cursor.authority_epoch')=? AND (length(json_extract(receipt,'$.cursor.completed_tick'))>length(?) OR (length(json_extract(receipt,'$.cursor.completed_tick'))=length(?) AND json_extract(receipt,'$.cursor.completed_tick')>?)) ORDER BY rowid LIMIT 65",
+        incarnation + ":",
+        incarnation + ";",
+        grant.old_cursor.authority_epoch,
+        checkpoint.cursor.completed_tick,
+        checkpoint.cursor.completed_tick,
+        checkpoint.cursor.completed_tick,
+      )
       .toArray();
+    if (rows.length > 64) throw Error("recovery tail exceeds admitted profile");
     const candidates = [];
     let tailBytes = 0;
     for (const row of rows) {
@@ -1018,7 +1047,7 @@ export class LotCoordinator extends DurableObject<Env> {
       if (owner !== incarnation) continue;
       let p;
       try {
-        p = this.readBatch(owner, id);
+        p = await this.readBatch(owner, id);
       } catch {
         throw Error("recovery journal integrity mismatch");
       }
@@ -1119,7 +1148,10 @@ export class LotCoordinator extends DurableObject<Env> {
       }
       return row;
     };
-    if (readRecord().status === "committed") return marker;
+    if (readRecord().status === "committed") {
+      await this.compactRecoveredJournal(marker);
+      return marker;
+    }
     const current = this.state();
     if (
       !equal(current.binding, grant.old_binding) ||
@@ -1145,7 +1177,7 @@ export class LotCoordinator extends DurableObject<Env> {
         marker.checkpoint_sha256
     )
       throw Error("takeover checkpoint readback failed");
-    return this.ctx.storage.transactionSync(() => {
+    const finished = this.ctx.storage.transactionSync(() => {
       if (readRecord().status === "committed") return marker;
       if (controlled) {
         if (this.expireControls())
@@ -1201,6 +1233,35 @@ export class LotCoordinator extends DurableObject<Env> {
       );
       return marker;
     });
+    if (!("status" in finished)) await this.compactRecoveredJournal(marker);
+    return finished;
+  }
+  private async compactRecoveredJournal(
+    marker: ReturnType<typeof takeoverMarker>,
+  ) {
+    const c = marker.new_cursor;
+    const key = `lots/${c.lot_id}/${c.authority_epoch}/${c.completed_tick}/${marker.checkpoint_sha256}`;
+    const row = this.ctx.storage.sql
+      .exec<{
+        manifest: string;
+      }>("SELECT manifest FROM checkpoints WHERE object_key=?", key)
+      .toArray()[0];
+    if (!row) throw Error("recovery checkpoint manifest missing");
+    const manifest = JSON.parse(row.manifest);
+    if (
+      !equal(manifest.binding, marker.grant.new_binding) ||
+      !equal(manifest.cursor, c) ||
+      manifest.sha256 !== marker.checkpoint_sha256
+    )
+      throw Error("recovery checkpoint manifest changed");
+    // A committed takeover proves that this exact old cursor was restored.
+    // Readback again on retry before tiering its old-incarnation journal tail.
+    await this.readArchive(key, manifest.sha256, manifest.byte_length);
+    await this.compactJournal(
+      manifest,
+      marker.grant.old_binding,
+      marker.grant.old_cursor,
+    );
   }
   initialize(rawBinding: unknown, rawCursor: unknown, checkpointHash: unknown) {
     return this.initializeMode(rawBinding, rawCursor, checkpointHash, false);
@@ -1287,12 +1348,20 @@ export class LotCoordinator extends DurableObject<Env> {
         count: number;
         bytes: number;
       }>(
-        "SELECT COUNT(*) AS count,COALESCE(SUM(bytes),0) AS bytes FROM batches",
+        "SELECT COUNT(*) AS count,COALESCE(SUM(bytes),0) AS bytes FROM journal_live",
       )
       .one();
     return {
       ...state,
       journal: totals,
+      retained_receipts: this.ctx.storage.sql
+        .exec<{ count: number }>("SELECT COUNT(*) AS count FROM batches")
+        .one().count,
+      archived_batches: this.ctx.storage.sql
+        .exec<{
+          count: number;
+        }>("SELECT COUNT(*) AS count FROM archived_batches")
+        .one().count,
       recovery_pending: !!this.pendingRecovery(),
       pending_outbox: this.ctx.storage.sql
         .exec<{ count: number }>("SELECT COUNT(*) AS count FROM outbox")
@@ -1332,7 +1401,7 @@ export class LotCoordinator extends DurableObject<Env> {
           count: number;
           bytes: number;
         }>(
-          "SELECT COUNT(*) AS count,COALESCE(SUM(bytes),0) AS bytes FROM batches",
+          "SELECT COUNT(*) AS count,COALESCE(SUM(bytes),0) AS bytes FROM journal_live",
         )
         .one();
       if (totals.count >= 4096 || totals.bytes + bytes.length > JOURNAL_LIMIT)
@@ -1350,6 +1419,11 @@ export class LotCoordinator extends DurableObject<Env> {
         key,
         p.digest,
         canonical(receipt),
+        bytes.length,
+      );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO journal_live(batch_key,bytes) VALUES(?,?)",
+        key,
         bytes.length,
       );
       for (
@@ -1400,8 +1474,59 @@ export class LotCoordinator extends DurableObject<Env> {
       .toArray()[0];
     return denied ? JSON.parse(denied.receipt) : { status: "unknown" };
   }
-  readBatch(incarnation: unknown, id: unknown) {
+  async readBatch(incarnation: unknown, id: unknown) {
     const key = decimal(incarnation) + ":" + decimal(id);
+    const live = this.readLiveBatch(key);
+    if (live !== null) return live;
+    const archived = this.ctx.storage.sql
+      .exec<{
+        object_key: string;
+        sha256: string;
+        bytes: number;
+        byte_offset: number;
+        byte_length: number;
+        digest: string;
+        receipt: string;
+        payload_bytes: number;
+      }>(
+        "SELECT a.object_key,a.sha256,a.bytes,p.byte_offset,p.byte_length,b.digest,b.receipt,b.bytes AS payload_bytes FROM archived_batches p JOIN journal_archives a ON a.object_key=p.object_key JOIN batches b ON b.batch_key=p.batch_key WHERE p.batch_key=?",
+        key,
+      )
+      .toArray()[0];
+    if (!archived) {
+      if (
+        this.ctx.storage.sql
+          .exec("SELECT 1 FROM batches WHERE batch_key=?", key)
+          .toArray().length
+      )
+        throw Error("journal payload missing");
+      return null;
+    }
+    if (
+      !Number.isSafeInteger(archived.byte_offset) ||
+      archived.byte_offset < 0 ||
+      !Number.isSafeInteger(archived.byte_length) ||
+      archived.byte_length < 1 ||
+      archived.byte_length !== archived.payload_bytes ||
+      archived.byte_offset + archived.byte_length > archived.bytes
+    )
+      throw Error("journal archive bounds mismatch");
+    const bytes = await this.readArchive(
+      archived.object_key,
+      archived.sha256,
+      archived.bytes,
+    );
+    const payload = bytes.subarray(
+      archived.byte_offset,
+      archived.byte_offset + archived.byte_length,
+    );
+    if ((await digest(payload)) !== archived.digest)
+      throw Error("journal archived batch digest mismatch");
+    const result = JSON.parse(new TextDecoder().decode(payload));
+    this.validateArchivedBatch(key, archived.digest, archived.receipt, result);
+    return result;
+  }
+  private readLiveBatch(key: string) {
     const shape = this.ctx.storage.sql
       .exec<{
         count: number;
@@ -1439,6 +1564,174 @@ export class LotCoordinator extends DurableObject<Env> {
       )
       .toArray();
     return rows.length ? JSON.parse(rows.map((r) => r.payload).join("")) : null;
+  }
+  private validateArchivedBatch(
+    key: string,
+    sha: string,
+    receiptJson: string,
+    raw: any,
+  ) {
+    const p = (raw?.control_v2 ? controlledProposal : proposal)({
+      kind: "proposal",
+      status: "pending",
+      digest: sha,
+      payload: raw,
+    }).payload;
+    const receipt = JSON.parse(receiptJson);
+    if (
+      key !== p.binding.lot_incarnation + ":" + p.batch_id ||
+      receipt.status !== "committed" ||
+      receipt.digest !== sha ||
+      receipt.batch_id !== p.batch_id ||
+      !equal(receipt.cursor, p.result) ||
+      (raw.control_v2 &&
+        (receipt.control_revision !== raw.control_v2.revision_after ||
+          receipt.actor_registry_sha256 !==
+            raw.control_v2.actor_registry_after_sha256))
+    )
+      throw Error("journal archive receipt mismatch");
+    return p;
+  }
+  private async readArchive(key: string, sha: string, length: number) {
+    if (!Number.isSafeInteger(length) || length < 1 || length > ARCHIVE_LIMIT)
+      throw Error("journal archive size bound");
+    hash(sha);
+    const object = await this.env.CHECKPOINTS.get(key);
+    if (!object || object.size !== length)
+      throw Error("journal archive missing or wrong size");
+    const bytes = new Uint8Array(await object.arrayBuffer());
+    if ((await digest(bytes)) !== sha)
+      throw Error("journal archive digest mismatch");
+    return bytes;
+  }
+  /** Retention tier change only: no receipt, outbox or payload is discarded. */
+  private async compactJournal(manifest: any, b: Binding, c: Cursor) {
+    for (;;) {
+      const rows = this.ctx.storage.sql
+        .exec<{
+          batch_key: string;
+          digest: string;
+          receipt: string;
+          bytes: number;
+        }>(
+          "SELECT b.batch_key,b.digest,b.receipt,b.bytes FROM journal_live l JOIN batches b ON b.batch_key=l.batch_key WHERE b.batch_key>=? AND b.batch_key<? AND json_extract(b.receipt,'$.cursor.authority_epoch')=? AND (length(json_extract(b.receipt,'$.cursor.completed_tick'))<length(?) OR (length(json_extract(b.receipt,'$.cursor.completed_tick'))=length(?) AND json_extract(b.receipt,'$.cursor.completed_tick')<=?)) ORDER BY b.rowid LIMIT ?",
+          b.lot_incarnation + ":",
+          b.lot_incarnation + ";",
+          c.authority_epoch,
+          c.completed_tick,
+          c.completed_tick,
+          c.completed_tick,
+          ARCHIVE_BATCHES,
+        )
+        .toArray();
+      if (!rows.length) return;
+      // Capture live bytes synchronously before any external I/O. A competing
+      // compactor may later win, but it cannot change these immutable receipts.
+      const entries: {
+        batch_key: string;
+        digest: string;
+        receipt: string;
+        bytes: Uint8Array;
+        offset: number;
+      }[] = [];
+      let length = 0;
+      for (const row of rows) {
+        if (entries.length && length + row.bytes > ARCHIVE_LIMIT) break;
+        if (
+          !Number.isSafeInteger(row.bytes) ||
+          row.bytes < 1 ||
+          row.bytes > ARCHIVE_LIMIT
+        )
+          throw Error("journal archive batch size bound");
+        const raw = this.readLiveBatch(row.batch_key);
+        if (!raw) throw Error("journal compaction payload missing");
+        const p = this.validateArchivedBatch(
+          row.batch_key,
+          row.digest,
+          row.receipt,
+          raw,
+        );
+        if (!equal(p.binding, b) || p.result.lot_id !== c.lot_id)
+          throw Error("journal compaction checkpoint binding mismatch");
+        const bytes = encode(raw);
+        if (bytes.length !== row.bytes)
+          throw Error("journal compaction size mismatch");
+        entries.push({ ...row, bytes, offset: length });
+        length += bytes.length;
+      }
+      const bytes = new Uint8Array(length);
+      for (const entry of entries) {
+        if ((await digest(entry.bytes)) !== entry.digest)
+          throw Error("journal compaction digest mismatch");
+        bytes.set(entry.bytes, entry.offset);
+      }
+      const sha = await digest(bytes),
+        key = `lots/${c.lot_id}/journal/${sha}`;
+      const existing = await this.env.CHECKPOINTS.get(key);
+      if (existing) {
+        if (
+          existing.size !== bytes.length ||
+          (await digest(new Uint8Array(await existing.arrayBuffer()))) !== sha
+        )
+          throw Error("immutable journal archive corrupted");
+      } else await this.env.CHECKPOINTS.put(key, bytes);
+      await this.readArchive(key, sha, bytes.length);
+      this.ctx.storage.transactionSync(() => {
+        const pinned = this.ctx.storage.sql
+          .exec<{
+            manifest: string;
+          }>(
+            "SELECT manifest FROM checkpoints WHERE object_key=?",
+            manifest.object_key,
+          )
+          .toArray()[0];
+        if (!pinned || !equal(JSON.parse(pinned.manifest), manifest))
+          throw Error("journal compaction checkpoint changed");
+        // SQLite publishes references and removes the hot copy atomically,
+        // only after the complete immutable archive passed readback verification.
+        this.ctx.storage.sql.exec(
+          "INSERT OR IGNORE INTO journal_archives(object_key,sha256,bytes,checkpoint_key) VALUES(?,?,?,?)",
+          key,
+          sha,
+          bytes.length,
+          manifest.object_key,
+        );
+        for (const entry of entries) {
+          const current = this.ctx.storage.sql
+            .exec<{
+              digest: string;
+              receipt: string;
+              bytes: number;
+            }>(
+              "SELECT b.digest,b.receipt,b.bytes FROM journal_live l JOIN batches b ON b.batch_key=l.batch_key WHERE l.batch_key=?",
+              entry.batch_key,
+            )
+            .toArray()[0];
+          if (!current) continue; // Another verified compactor already won.
+          if (
+            current.digest !== entry.digest ||
+            current.receipt !== entry.receipt ||
+            current.bytes !== entry.bytes.length
+          )
+            throw Error("journal compaction batch changed");
+          this.ctx.storage.sql.exec(
+            "INSERT INTO archived_batches(batch_key,object_key,byte_offset,byte_length) VALUES(?,?,?,?)",
+            entry.batch_key,
+            key,
+            entry.offset,
+            entry.bytes.length,
+          );
+          this.ctx.storage.sql.exec(
+            "DELETE FROM journal_chunks WHERE batch_key=?",
+            entry.batch_key,
+          );
+          this.ctx.storage.sql.exec(
+            "DELETE FROM journal_live WHERE batch_key=?",
+            entry.batch_key,
+          );
+        }
+      });
+    }
   }
   async publishCheckpoint(
     rawBinding: unknown,
@@ -1506,7 +1799,7 @@ export class LotCoordinator extends DurableObject<Env> {
       sha256: sha,
       byte_length: bytes.byteLength,
     };
-    return this.ctx.storage.transactionSync(() => {
+    const published = this.ctx.storage.transactionSync(() => {
       this.requireMutationMode(controlled);
       this.assertActive();
       if (
@@ -1534,6 +1827,10 @@ export class LotCoordinator extends DurableObject<Env> {
           .one().manifest,
       );
     });
+    // Publication is already durable. Archive/readback failure leaves every
+    // unarchived SQL payload intact, and retry resumes from the remaining set.
+    await this.compactJournal(published, b, c);
+    return published;
   }
   listCheckpoints() {
     return this.ctx.storage.sql

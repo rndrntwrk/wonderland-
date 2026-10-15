@@ -119,6 +119,9 @@ export class TestCoordinator extends LotCoordinator {
         "INSERT INTO batches(batch_key,digest,receipt,bytes) VALUES('fault:capacity','fault','{}',67108864)",
       );
     else throw Error("unknown fault mode");
+    this.ctx.storage.sql.exec(
+      "INSERT OR IGNORE INTO journal_live(batch_key,bytes) SELECT batch_key,bytes FROM batches WHERE batch_key LIKE 'fault:%'",
+    );
     return this.inspect();
   }
 }

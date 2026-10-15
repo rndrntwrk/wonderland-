@@ -7,9 +7,12 @@ export async function settlePlayerAction(proposal, { commit, receipt }) {
     receipt(proposal.receipt_hex);
     return proposal;
   }
-  if (proposal.kind !== "proposal")
+  if (!["proposal", "committed", "rejected"].includes(proposal.kind))
     throw Error("Invalid native action response.");
-  const decided = await commit(proposal);
+  // A same-input retry can be an exact terminal reply retrieved from durable
+  // receipt custody. Re-deliver its correlation without committing it again.
+  const decided =
+    proposal.kind === "proposal" ? await commit(proposal) : proposal;
   if (
     !["committed", "rejected"].includes(decided.kind) ||
     typeof decided.receipt_hex !== "string"

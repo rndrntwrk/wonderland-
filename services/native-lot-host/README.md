@@ -10,7 +10,19 @@ Ordinary initial and `inspect` messages contain the committed checkpoint/cursor,
 
 Frames retain the existing WLR1 binary encoding. Durable build requests/results/faults and routing callbacks have a tick/ordinal-tagged binary supervisor-events lane. They remain speculative until commit. Effect dispatches use bincode hex so their 64-bit operation identities never lose precision in a JavaScript JSON parser. JSON lot/epoch/incarnation/tick/batch identities are canonical decimal strings.
 
-Bounds: 1 MiB input lines, 256 KiB command bytes, 16 ticks × 128 commands per proposal, 8 MiB checkpoints, 16 MiB encoded proposal payload, 4,096 receipt entries and 32 MiB total retained terminal receipt bytes. Capacity exhaustion fails closed; receipts are not silently evicted.
+Bounds: 1 MiB input lines, 256 KiB command bytes, 16 ticks × 128 commands per proposal, 8 MiB checkpoints, 16 MiB encoded proposal payload, 4,096 in-memory receipt entries and 32 MiB total retained terminal receipt bytes. Capacity exhaustion fails closed; receipts are not silently evicted.
+
+## Checkpoint-anchored receipt custody
+
+The private `export_receipts` command exports an exact, sorted prefix of at most 64 terminal entries and 16 MiB. Each entry retains the original request hash, proposal digest and entire terminal reply, including correlated action receipt bytes and rejected decisions. The envelope binds the host identity, current committed cursor and checkpoint digest. Export and new acknowledgement both refuse unresolved pending candidates and unactivated recovery.
+
+After publishing and read-back verifying that checkpoint, the coordinator's private `persistHostReceiptsV1` verifies terminal decisions against its retained ledger, stores the exact envelope in content-addressed R2 storage, verifies readback and atomically indexes every record. Only its digest-bound `persisted` acknowledgement may be passed to `acknowledge_receipts`. An exact repeat acknowledgement is idempotent. Changed binding, cursor, checkpoint, prefix watermark or receipt-set digest fails without deleting receipts. An oversized individual receipt that cannot fit one export fails closed and stays in memory.
+
+Acknowledgement retires only that exported prefix and advances a permanent in-process batch-ID watermark. Every prepare/resolve/lookup at or below it returns `retired`, never re-executes, even for an unused ID within the retired range. The supervisor must call private `lookupHostReceiptV1` with incarnation and batch ID, compare the original input hash for prepares or digest for resolves, then return the exact historical terminal reply. A missing record or mismatch is a hard failure. Terminal retrieval never republishes effects or runs the candidate again. The browser runner implements this custody transfer after its 32-tick checkpoints and earlier when retained receipts reach 8 MiB; it drains additional bounded pages before resuming.
+
+The host trusts its private pipe for durable assertions, as it already does for commit decisions. A state checkpoint is not a receipt database. The browser runner always recovers into a new incarnation, so restarted batch numbering cannot reuse an old binding. Other supervisors doing same-incarnation restarts must retain their durable batch allocation/retry ledger; no receipt watermark is inferred from a simulation checkpoint.
+
+This custody transfer preserves records actually archived before retirement. It does not reconstruct a missing action correlation if the host dies in the pre-existing window between durable batch commit and host resolve/export: accepted state and effects remain in the coordinator journal, but the original action request is not part of that proposal. The player's unresolved result remains `Unknown` through recovery and is never inferred successful or automatically replayed. Closing that separate window requires persisting original request/correlation metadata before commit.
 
 ## Actual process verification
 

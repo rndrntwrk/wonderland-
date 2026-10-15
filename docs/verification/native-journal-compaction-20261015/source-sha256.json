@@ -1,0 +1,12 @@
+{
+  "baseline": "5dcfab147f50d37e113b184f15edd207867e7dec",
+  "scope": "Source hashes of the paired tested contract; local cloud qualification only",
+  "sha256": {
+    "services/native-edge/src/lot/coordinator.ts": "e0ab72e5f51d38aefd5228c5ea235cce86d1640e0a6fa9c0b27a0bd50cdfee0a",
+    "services/native-edge/src/lot/host-receipts.ts": "eca30e6d4f95770c2a36980c52c57559b362264fd901671d330398566f9516d5",
+    "services/native-lot-host/src/runtime.rs": "802179b4b256ec55f919bb62ebfc58cc9df46afeb593864ea96903516b85cfce",
+    "crates/native-host-contracts/src/lib.rs": "eb6f476ba00b080578c7306f11dbae61b5e710c30c6d83077bafe87e0286b2dc",
+    "tools/native-browser/owned-demo/receipts.mjs": "c754cb5ce80898c785a09baaf143618c5a8e097f34693693074e8b303d95b6f4",
+    "tools/native-browser/owned-demo.mjs": "ad17824b4b763434628248d93ff515f7271b2f6cc99dfae8ea867824c87a7721"
+  }
+}

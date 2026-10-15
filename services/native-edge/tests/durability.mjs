@@ -473,7 +473,8 @@ try {
     "committed",
   );
   assert.equal(races.filter((r) => r.status === "fulfilled").length, 1);
-  assert.equal((await call("inspect")).journal.count, 4);
+  assert.equal((await call("inspect")).journal.count, 1);
+  assert.equal((await call("inspect")).retained_receipts, 4);
   checks.push(
     "Digest alteration and changed-ID reuse denied; competing successors atomically admit one",
   );

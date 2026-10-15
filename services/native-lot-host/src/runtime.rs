@@ -9,13 +9,16 @@ use wonderland_game_runtime::{
     live_wire::{WireLimits, encode_ticks},
 };
 use wonderland_native_host_contracts::{
-    CursorV1, DecimalId, DecisionV1, HostBindingV1, RequestV1, TakeoverMarkerV1,
+    CursorV1, DecimalId, DecisionV1, HostBindingV1, ReceiptCheckpointV1, RequestV1,
+    TakeoverMarkerV1,
 };
 
 const MAX_COMMAND_BYTES: usize = 256 * 1024;
 const MAX_SNAPSHOT_BYTES: usize = 8 * 1024 * 1024;
 const MAX_HISTORY: usize = 4096;
 const MAX_HISTORY_BYTES: usize = 32 * 1024 * 1024;
+const MAX_RECEIPT_EXPORT: usize = 64;
+const MAX_RECEIPT_EXPORT_BYTES: usize = 16 * 1024 * 1024;
 pub fn hex(bytes: &[u8]) -> String {
     use std::fmt::Write;
     let mut out = String::with_capacity(bytes.len() * 2);
@@ -82,6 +85,8 @@ pub struct Host {
     pending: Option<Pending>,
     history: BTreeMap<u64, Recorded>,
     history_bytes: usize,
+    retired_through: u64,
+    last_receipt_ack: Option<ReceiptCheckpointV1>,
 }
 impl Host {
     pub fn new(
@@ -103,12 +108,14 @@ impl Host {
             pending: None,
             history: BTreeMap::new(),
             history_bytes: 0,
+            retired_through: 0,
+            last_receipt_ack: None,
         })
     }
     pub fn handle(&mut self, request: RequestV1) -> Result<Value> {
         match request {
             RequestV1::Inspect => Ok(
-                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
+                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"retired_through_batch_id":DecimalId(self.retired_through),"retained_receipts":self.history.len(),"retained_receipt_bytes":self.history_bytes,"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
             ),
             RequestV1::PlayerBootstrap { control, binding } => {
                 self.player_bootstrap(control, binding)
@@ -203,6 +210,9 @@ impl Host {
                 self.handle(RequestV1::Inspect)
             }
             RequestV1::Lookup { batch_id } => {
+                if let Some(reply) = self.retired(batch_id) {
+                    return Ok(reply);
+                }
                 if let Some(p) = &self.pending
                     && p.id == batch_id.0
                 {
@@ -213,6 +223,10 @@ impl Host {
                     .get(&batch_id.0)
                     .map(|r| r.reply.clone())
                     .unwrap_or(json!({"kind":"not_found","batch_id":batch_id})))
+            }
+            RequestV1::ExportReceipts => self.export_receipts(),
+            RequestV1::AcknowledgeReceipts { acknowledgement } => {
+                self.acknowledge_receipts(acknowledgement)
             }
             RequestV1::Prepare {
                 batch_id,
@@ -261,6 +275,10 @@ impl Host {
             }
             return Ok(r.reply.clone());
         }
+        if let Some(mut reply) = self.retired(id) {
+            reply["input_sha256"] = json!(input_hash);
+            return Ok(reply);
+        }
         if let Some(p) = &self.pending {
             if p.id != id.0 {
                 return Err("pending batch must be resolved first".into());
@@ -271,7 +289,7 @@ impl Host {
             return Ok(p.proposal.clone());
         }
         if self.history.len() >= MAX_HISTORY {
-            return Err("receipt history full; durable successor required".into());
+            return Err("receipt history full; durable checkpoint acknowledgement required".into());
         }
         if predecessor != cursor(&self.committed)? {
             return Err("stale predecessor".into());
@@ -358,6 +376,10 @@ impl Host {
             }
             return Ok(Some(record.reply.clone()));
         }
+        if let Some(mut reply) = self.retired(id) {
+            reply["input_sha256"] = json!(digest);
+            return Ok(Some(reply));
+        }
         if let Some(pending) = &self.pending {
             if pending.id != id.0 || pending.input_hash != digest {
                 return Err("pending typed batch differs".into());
@@ -428,6 +450,10 @@ impl Host {
             }
             return Ok(r.reply.clone());
         }
+        if let Some(mut reply) = self.retired(id) {
+            reply["digest"] = json!(digest);
+            return Ok(reply);
+        }
         let p = self.pending.as_ref().ok_or("no pending batch")?;
         if p.id != id.0 || p.digest != digest {
             return Err("resolution identity/digest mismatch".into());
@@ -460,6 +486,72 @@ impl Host {
             },
         );
         Ok(reply)
+    }
+
+    fn retired(&self, id: DecimalId) -> Option<Value> {
+        (id.0 != 0 && id.0 <= self.retired_through).then(|| {
+            json!({"kind":"retired","binding":self.binding,"batch_id":id,"retired_through_batch_id":DecimalId(self.retired_through)})
+        })
+    }
+
+    fn export_receipts(&self) -> Result<Value> {
+        if !self.recovery_committed || self.pending.is_some() {
+            return Err("receipt export requires committed state without a pending batch".into());
+        }
+        let mut payload = json!({"schema_version":1,"binding":self.binding,"cursor":cursor(&self.committed)?,"checkpoint_sha256":Digest::of(&checkpoint(&self.committed)?),"through_batch_id":DecimalId(self.retired_through),"records":[]});
+        let mut records = Vec::new();
+        // Include every retained ID in the prefix, including rejected decisions.
+        // Pagination bounds a durable write without silently discarding correlations.
+        let mut bytes = serde_json::to_vec(&payload)?.len();
+        for (id, record) in self.history.iter().take(MAX_RECEIPT_EXPORT) {
+            let value = json!({"batch_id":DecimalId(*id),"input_sha256":record.input_hash,"digest":record.digest,"reply":record.reply});
+            let next_bytes = serde_json::to_vec(&value)?.len() + 32;
+            if bytes + next_bytes > MAX_RECEIPT_EXPORT_BYTES {
+                if records.is_empty() {
+                    return Err(
+                        "single receipt exceeds durable export profile; retained locally".into(),
+                    );
+                }
+                break;
+            }
+            bytes += next_bytes;
+            records.push(value);
+            payload["through_batch_id"] = json!(DecimalId(*id));
+        }
+        payload["records"] = json!(records);
+        let digest = Digest::of(&serde_json::to_vec(&payload)?);
+        Ok(json!({"kind":"receipt_export","payload":payload,"digest":digest}))
+    }
+
+    fn acknowledge_receipts(&mut self, ack: ReceiptCheckpointV1) -> Result<Value> {
+        let reply = || json!({"kind":"receipts_retired","acknowledgement":ack});
+        // Exact replay is harmless even after the runtime has advanced.
+        if self.last_receipt_ack.as_ref() == Some(&ack) {
+            return Ok(reply());
+        }
+        if ack.schema_version != 1
+            || ack.binding != self.binding
+            || ack.through_batch_id.0 <= self.retired_through
+        {
+            return Err("receipt acknowledgement identity or watermark mismatch".into());
+        }
+        let exported = self.export_receipts()?;
+        let p = &exported["payload"];
+        if serde_json::to_value(&ack.cursor)? != p["cursor"]
+            || ack.checkpoint_sha256 != p["checkpoint_sha256"]
+            || serde_json::to_value(ack.through_batch_id)? != p["through_batch_id"]
+            || ack.receipt_set_sha256 != exported["digest"]
+        {
+            return Err("receipt acknowledgement differs from exact checkpoint/export".into());
+        }
+        self.history.retain(|id, _| *id > ack.through_batch_id.0);
+        self.history_bytes = self.history.values().try_fold(0, |sum, record| {
+            Ok::<usize, serde_json::Error>(sum + serde_json::to_vec(&record.reply)?.len())
+        })?;
+        self.retired_through = ack.through_batch_id.0;
+        let result = reply();
+        self.last_receipt_ack = Some(ack);
+        Ok(result)
     }
 }
 
