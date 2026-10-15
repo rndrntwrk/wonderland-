@@ -282,6 +282,64 @@ try {
   checks.push(
     "cleartext public origin rejected before network; roster failure retains token for confirmed server logout",
   );
+  let heldRoster,
+    releaseRoster,
+    holdRoster = false,
+    heldToken,
+    heldResponse;
+  const responseReady = new Promise((resolve) => (heldResponse = resolve));
+  const responseGate = new Promise((resolve) => (releaseRoster = resolve));
+  const interrupted = createNativeAccountProvider(
+    "/native-account",
+    (value) => (heldRoster = value),
+    {
+      origin: "https://test",
+      fetch: async (url, opts) => {
+        const response = await browserFetch(url, opts);
+        if (holdRoster && url.endsWith("/roster")) {
+          // Hold a fully received service response, so releasing it models a
+          // transport that delivers stale data despite the cancellation signal.
+          const bytes = await response.arrayBuffer();
+          heldToken = opts.headers.Authorization;
+          heldResponse();
+          await responseGate;
+          return new Response(bytes, {
+            status: response.status,
+            headers: response.headers,
+          });
+        }
+        return response;
+      },
+    },
+  );
+  await interrupted.login("http_owner_a", "native-account-test-passphrase");
+  assert.equal(heldRoster.state, "account_ready");
+  const ownedRoster = heldRoster.avatars;
+  holdRoster = true;
+  const refreshing = interrupted.refresh();
+  assert.equal(heldRoster.state, "account_refreshing");
+  assert.deepEqual(heldRoster.avatars, ownedRoster);
+  await responseReady;
+  await interrupted.logout();
+  assert.equal(heldRoster.state, "signed_out");
+  assert.equal(
+    (
+      await request(
+        "/native-account/roster",
+        { after: "0" },
+        { authorization: heldToken },
+      )
+    ).status,
+    401,
+  );
+  releaseRoster();
+  await refreshing;
+  assert.equal(heldRoster.state, "signed_out");
+  assert.deepEqual(heldRoster.avatars, []);
+  interrupted.dispose();
+  checks.push(
+    "pending refresh preserves owned roster; sign-out revokes real SQLite session and late roster cannot restore it",
+  );
   const adapter = await build({
     entryPoints: ["src/http/accounts.ts"],
     bundle: true,

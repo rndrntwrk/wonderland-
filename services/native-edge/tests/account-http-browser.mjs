@@ -172,8 +172,47 @@ try {
       .getByRole("button", { name: "Refresh roster", exact: true })
       .click();
     await page.getByText(name, { exact: true }).waitFor();
+    await page.unroute("**/native-account/roster");
+    let releaseRefresh, refreshStarted;
+    const refreshGate = new Promise((resolve) => (releaseRefresh = resolve));
+    const refreshReady = new Promise((resolve) => (refreshStarted = resolve));
+    await page.route("**/native-account/roster", async (route) => {
+      refreshStarted();
+      await refreshGate;
+      await route.abort().catch(() => {});
+    });
+    await page
+      .getByRole("button", { name: "Refresh roster", exact: true })
+      .click();
+    await refreshReady;
+    assert.equal(
+      await page
+        .getByRole("heading", { name: "Your Sims", exact: true })
+        .count(),
+      1,
+    );
+    assert.equal(await page.getByText(name, { exact: true }).count(), 1);
+    assert.equal(
+      await page
+        .getByRole("button", { name: "Refresh roster", exact: true })
+        .isDisabled(),
+      true,
+    );
+    assert.equal(
+      await page
+        .getByRole("button", { name: "Sign out", exact: true })
+        .isEnabled(),
+      true,
+    );
     await page.getByRole("button", { name: "Sign out", exact: true }).click();
-    await page.getByRole("button", { name: "Sign in", exact: true }).waitFor();
+    releaseRefresh();
+    await page.getByText("Signed out.", { exact: true }).waitFor();
+    assert.equal(
+      await page
+        .getByRole("button", { name: "Sign in", exact: true })
+        .isEnabled(),
+      true,
+    );
     assert.equal(await page.getByText(name, { exact: true }).count(), 0);
     assert.equal(
       await page.getByLabel("Password", { exact: true }).inputValue(),
@@ -192,6 +231,7 @@ try {
       "compiled Rust/WASM native account mode loads packaged module",
       "two isolated accounts display own persisted avatars only",
       "transient roster failure recovers without repeated login",
+      "logout during pending refresh clears presentation; refresh remains disabled while Sign out stays available",
       "logout clears account presentation and password",
       "no Play or fabricated admission, no legacy gateway/socket request",
       "no page errors",

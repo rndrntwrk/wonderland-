@@ -20,7 +20,8 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   let token = null,
     generation = 0,
     active = null,
-    disposed = false;
+    disposed = false,
+    avatars = [];
   const emit = (value) => {
     if (!disposed) publish(value);
   };
@@ -74,19 +75,29 @@ export function createNativeAccountProvider(base, publish, options = {}) {
         throw Error("Invalid account response.");
       }
     } finally {
-      void reader.cancel();
+      void reader.cancel().catch(() => {});
       reader.releaseLock();
     }
   }
-  function begin() {
+  function begin(action) {
     if (disposed || active) return null;
     const n = ++generation;
     const controller = new AbortController();
-    active = controller;
+    active = { controller, action };
     emit({
-      state: "loading",
-      avatars: [],
-      message: "Connecting to your native account…",
+      state:
+        action === "logout"
+          ? "signing_out"
+          : token
+            ? "account_refreshing"
+            : "loading",
+      avatars: token ? avatars : [],
+      message:
+        action === "logout"
+          ? "Signing out…"
+          : token
+            ? "Refreshing your Sims…"
+            : "Connecting to your native account…",
     });
     return {
       n,
@@ -129,20 +140,23 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       token,
       job.controller.signal,
     );
-    const avatars = validateRoster(v);
-    if (current(job))
+    const nextAvatars = validateRoster(v);
+    if (current(job)) {
+      avatars = nextAvatars;
       emit({
         state: "account_ready",
         avatars,
         message:
           "Account connected. Native world admission is not yet available.",
       });
+    }
   }
   async function login(username, password) {
     if (token) return;
-    const job = begin();
+    const job = begin("login");
     if (!job) return;
     token = null;
+    avatars = [];
     try {
       const v = await request(
         "login",
@@ -164,7 +178,10 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       await roster(job);
     } catch (error) {
       if (current(job)) {
-        if (error.unauthorized) token = null;
+        if (error.unauthorized) {
+          token = null;
+          avatars = [];
+        }
         emit({
           state: token ? "account_error" : "signed_out",
           avatars: [],
@@ -182,7 +199,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     }
   }
   async function refresh() {
-    const job = begin();
+    const job = begin("refresh");
     if (!job) return;
     if (!token) {
       finish(job);
@@ -197,7 +214,10 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       await roster(job);
     } catch (error) {
       if (current(job)) {
-        if (error.unauthorized) token = null;
+        if (error.unauthorized) {
+          token = null;
+          avatars = [];
+        }
         emit({
           state: token ? "account_error" : "signed_out",
           avatars: [],
@@ -209,13 +229,14 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     }
   }
   async function logout() {
-    if (disposed) return;
-    active?.abort();
+    if (disposed || active?.action === "logout") return;
+    active?.controller.abort();
     generation++;
     active = null;
     const secret = token;
     token = null;
-    const job = begin();
+    avatars = [];
+    const job = begin("logout");
     if (!job) return;
     try {
       if (secret)
@@ -237,9 +258,10 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   function dispose() {
     disposed = true;
     generation++;
-    active?.abort();
+    active?.controller.abort();
     active = null;
     token = null;
+    avatars = [];
   }
   emit({
     state: "signed_out",

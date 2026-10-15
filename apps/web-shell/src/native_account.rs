@@ -92,14 +92,14 @@ pub fn NativeAccountGame() -> impl IntoView {
     view! {
     <main class="game-shell connected-shell"><section class="connected-login avatars-screen" aria-labelledby="native-account-title">
     <div class="connected-login-heading"><p>"Welcome to"</p><h1 id="native-account-title">"Wonderland"</h1><p>"Native account connection"</p></div>
-    <Show when=move ||state.with(|s|s.state=="account_ready"||s.state=="account_error") fallback=move ||view!{
+    <Show when=move ||state.with(|s|s.state=="account_ready"||s.state=="account_error"||s.state=="account_refreshing") fallback=move ||view!{
     <form class="connected-login-card chrome" on:submit=move |e|{e.prevent_default();let secret=password.get_untracked();password.set(String::new());invoke("login",&username.get_untracked(),&secret);}>
     <h2>"Come on in"</h2><label for="native-username">"Account name"</label><input id="native-username" autocomplete="username" required=true prop:value=move ||username.get() on:input=move |e|username.set(event_target_value(&e))/>
     <label for="native-password">"Password"</label><input id="native-password" type="password" autocomplete="current-password" required=true prop:value=move ||password.get() on:input=move |e|password.set(event_target_value(&e))/>
-    <button class="chrome primary" type="submit" disabled=move ||state.with(|s|s.state=="loading"||s.state.is_empty())>"Sign in"</button>
+    <button class="chrome primary" type="submit" disabled=move ||state.with(|s|s.state=="loading"||s.state=="signing_out"||s.state.is_empty())>"Sign in"</button>
     </form>}>
     <div class="connected-login-card chrome"><h2>"Your Sims"</h2><For each=move ||state.with(|s|s.avatars.clone()) key=|v|v.avatar_id.clone() children=move |v|view!{<p>{v.name}</p>}/><Show when=move ||state.with(|s|s.state=="account_ready" && s.avatars.is_empty())><p>"No Sims are saved to this account yet."</p></Show>
-    <button class="chrome" on:click=move |_|invoke("refresh","","")>"Refresh roster"</button><button class="chrome" on:click=move |_|invoke("logout","","")>"Sign out"</button>
+    <button class="chrome" disabled=move ||state.with(|s|s.state=="account_refreshing") on:click=move |_|invoke("refresh","","")>"Refresh roster"</button><button class="chrome" on:click=move |_|invoke("logout","","")>"Sign out"</button>
     <p>"World entry and character creation are not available in this staged connection."</p></div></Show>
     <p role="status" aria-live="polite">{move ||state.with(|s|s.message.clone())}</p>
     </section></main>}
