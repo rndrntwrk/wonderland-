@@ -55,7 +55,7 @@ try {
         origin: demo.origin,
         accounts,
         notice:
-          "Loopback-only bounded test session. Presence preserves custody only within the original account idle deadline. Source detach and journal compaction are not yet qualified.",
+          "Loopback-only bounded test session. Presence preserves custody only within the original account idle deadline. Original-content gameplay and source detach are not yet qualified.",
       },
       null,
       2,

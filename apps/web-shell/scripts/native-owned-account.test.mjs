@@ -42,3 +42,26 @@ test('recovery cannot change the control generation or roll incarnation backward
   try{await s.provider.login('owner','secret');await s.provider.enter('7','11');await s.provider.socketGrant();await assert.rejects(s.provider.socketGrant());assert.deepEqual(s.latest.grant.binding,binding);}finally{s.provider.dispose();}
  }
 });
+
+test('private recovery scope survives only the same authenticated entry',async()=>{
+ const s=setup(action=>{const value=grant();if(action==='reconnect')value.binding.lot_incarnation='5';return Response.json(value);});
+ try {
+  await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  const original=s.latest.grant.recovery_scope;assert.match(original,/^[1-9]\d*$/);
+  await s.provider.socketGrant();await assert.rejects(s.provider.socketGrant(),/recovered/);
+  assert.equal(s.latest.grant.recovery_scope,original);
+  await s.provider.logout();assert.equal(s.latest.grant,undefined);
+  await s.provider.login('other owner','different');await s.provider.enter('7','11');
+  assert.notEqual(s.latest.grant.recovery_scope,original);
+ } finally{s.provider.dispose();}
+});
+test('late recovered grant cannot restore a signed-out recovery scope',async()=>{
+ let resolve;const gate=new Promise(r=>resolve=r);
+ const s=setup(action=>action==='reconnect'?gate:Response.json(grant()));
+ try{
+  await s.provider.login('owner','secret');await s.provider.enter('7','11');await s.provider.socketGrant();
+  const reconnect=s.provider.socketGrant();const denied=assert.rejects(reconnect);
+  await s.provider.logout();const value=grant();value.binding.lot_incarnation='5';resolve(Response.json(value));
+  await denied;assert.equal(s.latest.state,'signed_out');assert.equal(s.latest.grant,undefined);
+ }finally{resolve?.(Response.json(grant()));s.provider.dispose();}
+});

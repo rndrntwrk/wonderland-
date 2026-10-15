@@ -1,0 +1,6 @@
+adf7fb33e2c383b9bf9cd2c5d1aceb76c9f1daf1f533c34b61ab471767cba152  apps/web-shell/public/native-account.mjs
+81016b4f4948f6cd31dfa402d464ced4c64db762d0533bc51289406f10c2f27f  apps/web-shell/public/native-socket.mjs
+44984df0ad09aa0b5bcf4e51fd1f26b3e8a8a3b81beb166bd3bc38ec0bfd1340  apps/web-shell/src/native_account.rs
+c86424ab67e40df9546c8b224dbc39fe92b0d0eebca80fb2233a6f6199f4db26  apps/web-shell/src/native_lot.rs
+c70e284b2c4b4d53b49b020836000bafb015ec9079f576aa2206034ff0a52f48  crates/game-runtime/src/live_wire/player.rs
+3792c3da584aa8bcfba1e127ca30a986cea59d1573009a4989900a7b14eaa026  crates/game-runtime/tests/native_owned_recovery.rs

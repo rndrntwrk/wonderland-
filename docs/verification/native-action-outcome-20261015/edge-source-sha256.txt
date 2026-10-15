@@ -1,0 +1,9 @@
+475c9e6d74045c17c9d8ac66038c5308152b57a79e12d01a5e8106386bf66d37  services/native-edge/src/lot/action-outcomes.ts
+fec947f13030e0918e9f24a24e6452e39b07381e5f23e2a354eb4e2eb718c1a6  services/native-edge/src/lot/coordinator.ts
+2d8ed2719633fef033920702f94d8ec546328bc0626326814257f7959279dc11  services/native-edge/src/lot/owned.ts
+d7b23828db784892341ba5a0df4f0b4797e61fce8a3d3e67b855e9d78f4dc190  services/native-edge/src/lot/host-receipts.ts
+88dfafdf344557cf96f5abbc6ee7cb790da7411071e216fbbc316f281d646680  services/native-edge/tests/action-outcomes.test.mjs
+787bbc02fedb2d8f76b70e0f17defda76a683792e1136fcd0679f4336a11d1f8  services/native-edge/tests/host-receipts.test.mjs
+95e1ffa257ec31b4dad4f5795bfbd5ed0e13c272c359912cc7c890df2ec62da1  services/native-edge/tests/owned-control-driver.ts
+26e7e0e3d5c874732a32c484e076b056cf4e9994d8decd324f2b6f7afd827bab  services/native-edge/package.json
+5c65e278b32a463feed6c01f5426b2f551e7e3969a9663919ed3875793bf5c2f  services/native-edge/README.md

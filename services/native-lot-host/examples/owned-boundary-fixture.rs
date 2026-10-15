@@ -1,6 +1,8 @@
 //! AUTHORED TEST HARNESS ONLY. Not a sealed/original-content production loader,
 //! not a playable demo, and never selected by the browser runner. It exercises
 //! the unchanged production Host with real account exports over a private pipe.
+#[path = "support/owned_action_content.rs"]
+mod action_content;
 #[path = "../src/bounded.rs"]
 mod bounded;
 #[path = "../src/events.rs"]
@@ -19,30 +21,40 @@ use wonderland_game_runtime::{
     AcceptedCommand, GameRuntime, LotModel, RuntimeConfig, RuntimeRole, VmMode,
     live_wire::{Packet, decode_packet},
     sim_core::{
-        avatars::{motives::TsoMotiveTuning, state::TEMPLATE_PERSON},
-        lot_permissions::LotPermissionState,
+        avatars::state::TEMPLATE_PERSON, lot_permissions::LotPermissionState,
         owned_admission::SourceJoinMetadata,
-        state::{ContentSet, ObjectDefinition, TuningSet},
-        vm::RoutineStore,
     },
 };
 use wonderland_native_host_contracts::{
     DecimalId, HostBindingV1, RecoveryGrantV1, RequestV1, TakeoverMarkerV1,
 };
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+fn request(host: &mut runtime::Host, line: &str) -> Result<Value> {
+    let value: Value = serde_json::from_str(line)?;
+    if value["kind"] == "fixture_player_action" {
+        #[derive(serde::Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct ActionQuery {
+            kind: String,
+            principal: DecimalId,
+            command_sequence: DecimalId,
+            action: String,
+        }
+        let q: ActionQuery = serde_json::from_value(value)?;
+        if q.kind != "fixture_player_action" || !matches!(q.action.as_str(), "invoke" | "cancel") {
+            return Err("unsupported test action query".into());
+        }
+        return action_content::player_action(
+            host,
+            q.principal.0,
+            q.command_sequence.0,
+            q.action == "cancel",
+        );
+    }
+    host.handle(serde_json::from_value(value)?)
+}
 fn run() -> Result<()> {
-    let content = ContentSet::new(
-        RoutineStore::new(),
-        vec![ObjectDefinition::new(TEMPLATE_PERSON, 0)],
-        vec![],
-        TuningSet {
-            tso_motives: Some(TsoMotiveTuning {
-                flat_sim: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                category_weights: [[1000; 7]; 11],
-            }),
-            ..Default::default()
-        },
-    )?;
+    let content = action_content::content();
     let mut config = RuntimeConfig::new(VmMode::Tso, 41, 7, 123);
     let mut game = GameRuntime::new(
         content,
@@ -172,9 +184,7 @@ fn run() -> Result<()> {
         if read > 1024 * 1024 {
             return Err("test request bound".into());
         }
-        let response = serde_json::from_str::<RequestV1>(&line)
-            .map_err(|e| -> Box<dyn std::error::Error> { Box::new(e) })
-            .and_then(|r| host.handle(r))
+        let response = request(&mut host, &line)
             .unwrap_or_else(|e| json!({"kind":"denied","reason":e.to_string()}));
         serde_json::to_writer(&mut output, &response)?;
         writeln!(output)?;

@@ -14,7 +14,9 @@ use wasm_bindgen_futures::{JsFuture, spawn_local};
 use wonderland_avatar_content::ImportedContent;
 use wonderland_game_runtime::live_wire::{
     encode_checkpoint_request,
-    player::{ActionStatus, NativePlayer, PlayerBinding, activity::ActionActivity},
+    player::{
+        ActionStatus, NativePlayer, PlayerBinding, PlayerRecoveryCapsule, activity::ActionActivity,
+    },
 };
 use wonderland_game_runtime::sim_core::interactions::InteractionKey;
 use wonderland_game_runtime::{EntityRef, RuntimeProjection};
@@ -28,7 +30,10 @@ export async function openNativePlayerSocket(url,ticket,frame,state,origin,resum
   if(signal.aborted) return null;
   const host=module.connectNativeSocket(url,ticket,frame,state,{allowedOrigin:origin,resume,presence});
   const abort=()=>host.dispose();signal.addEventListener('abort',abort,{once:true});
-  return {ready:()=>host.ready(),settled:()=>host.settled(),send:b=>host.send(b),control:b=>host.control(b),dispose:()=>{signal.removeEventListener('abort',abort);host.dispose();}};
+  return {actionResult:(incarnation,b)=>host.actionResult(incarnation,b),ready:()=>host.ready(),settled:()=>host.settled(),send:b=>host.send(b),control:b=>host.control(b),dispose:()=>{signal.removeEventListener('abort',abort);host.dispose();}};
+}
+export function nativeActionResult(host,incarnation,bytes) {
+  return !!host && host.actionResult(incarnation,bytes);
 }
 export function nativeHostCall(host,method,bytes) {
   if(!host || typeof host[method]!=='function') return false;
@@ -47,6 +52,12 @@ extern "C" {
         presence: bool,
         signal: &web_sys::AbortSignal,
     ) -> js_sys::Promise;
+    #[wasm_bindgen(catch,js_name=nativeActionResult)]
+    fn query_action_result(
+        host: &JsValue,
+        incarnation: &str,
+        bytes: &js_sys::Uint8Array,
+    ) -> Result<bool, JsValue>;
     #[wasm_bindgen(catch,js_name=nativeHostCall)]
     fn call_host(host: &JsValue, method: &str, bytes: &JsValue) -> Result<JsValue, JsValue>;
 }
@@ -63,6 +74,9 @@ struct Resources {
     generation: u64,
     scope: Option<(u64, PlayerBinding)>,
     player: Option<NativePlayer>,
+    recovery_scope: Option<String>,
+    recovery: Option<PlayerRecoveryCapsule>,
+    result_queried: bool,
     host: Option<JsValue>,
     abort: Option<web_sys::AbortController>,
     frame: Option<Closure<dyn FnMut(js_sys::Uint8Array) -> JsValue>>,
@@ -97,6 +111,9 @@ impl Resources {
             player.close();
         }
         self.player = None;
+        self.recovery = None;
+        self.recovery_scope = None;
+        self.result_queried = false;
         self.scope = None;
         self.poses.clear();
         self.pose_issue = None;
@@ -150,6 +167,12 @@ impl LotAccess {
         match self {
             Self::Legacy(ui) => scope(ui),
             Self::Owned(ui) => ui.scope(),
+        }
+    }
+    fn recovery_scope(self) -> Option<String> {
+        match self {
+            Self::Owned(ui) => ui.recovery_scope(),
+            Self::Legacy(_) => None,
         }
     }
     fn track(self) {
@@ -236,12 +259,25 @@ impl Controller {
                 return (u64::MAX, false);
             };
             r.generation = next;
+            let recovery_scope = self.access.recovery_scope();
             if r.scope != new_scope {
+                if recovery_scope.is_some() && r.recovery_scope == recovery_scope {
+                    if let Some(capsule) = r.player.as_ref().and_then(|p| p.recovery_capsule().ok())
+                    {
+                        r.recovery = Some(capsule);
+                    }
+                } else {
+                    r.recovery = None;
+                }
                 r.player = None;
                 r.last_request = 0;
                 self.world.set(None);
                 self.projection.set(None);
-                self.status.set(ActionStatus::Idle);
+                self.status.set(if r.recovery.is_some() {
+                    ActionStatus::Unknown
+                } else {
+                    ActionStatus::Idle
+                });
                 self.activity.set(Vec::new());
             }
             if let Some(player) = r.player.as_mut() {
@@ -251,6 +287,8 @@ impl Controller {
                 }
             }
             let resume = r.player.is_some();
+            r.recovery_scope = recovery_scope;
+            r.result_queried = false;
             r.scope = new_scope;
             r.last_request = 0;
             (r.generation, resume)
@@ -297,6 +335,10 @@ impl Controller {
                             let (update, avatar_frames) = if pose_bank.is_some() {
                                 player.receive_presented(&payload)?
                             } else { (player.receive_update(&payload)?, None) };
+                            if matches!(update, PlayerUpdate::Checkpoint(_))
+                                && let Some(capsule) = r.recovery.take() {
+                                    player.restore_recovery(capsule)?;
+                            }
                             receipt = matches!(update, PlayerUpdate::Receipt(_));
                             if !receipt {
                                 if matches!(update, PlayerUpdate::Checkpoint(_)) { r.poses.clear(); }
@@ -376,6 +418,7 @@ impl Controller {
                                 self.notice.try_set(String::new());
                                 self.host("ready", None);
                             }
+                            self.query_unknown();
                             self.wake.try_update(|n| *n = n.saturating_add(1));
                         } else {
                             self.live.try_set(false);
@@ -445,6 +488,38 @@ impl Controller {
                 Err(_) => {}
             }
         });
+    }
+    fn query_unknown(self) {
+        if !matches!(self.access, LotAccess::Owned(_)) {
+            return;
+        }
+        let request = self
+            .resources
+            .try_update_value(|r| {
+                if r.result_queried {
+                    return None;
+                }
+                let query = r.player.as_ref()?.pending_action_result().ok()??;
+                let request = (
+                    r.host.clone()?,
+                    query.lot_incarnation,
+                    query.request.to_vec(),
+                );
+                r.result_queried = true;
+                Some(request)
+            })
+            .flatten();
+        if let Some((host, incarnation, request)) = request {
+            let sent = query_action_result(
+                &host,
+                &incarnation.to_string(),
+                &js_sys::Uint8Array::from(request.as_slice()),
+            )
+            .unwrap_or(false);
+            if !sent {
+                self.notice.try_set("This action's decision is still unknown. Reconnect to check again; it will not be resubmitted.".into());
+            }
+        }
     }
     fn select(self, target: EntityRef) {
         if !self.live.get_untracked() {

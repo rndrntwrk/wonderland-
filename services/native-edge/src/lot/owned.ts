@@ -1,4 +1,5 @@
 import { canonical, decimal, fields, hash, proposal } from "./contracts";
+import { actionEvidence } from "./action-outcomes";
 import { operation } from "../account/contracts";
 import {
   permissionBinding,
@@ -188,8 +189,9 @@ export function controlledProposal(raw: unknown) {
       "effects_hex",
       "events_hex",
       "control_v2",
+      ...(Object.hasOwn(v.payload as object, "action_v1") ? ["action_v1"] : []),
     ]);
-  const { control_v2, ...base } = p;
+  const { control_v2, action_v1, ...base } = p;
   const parsed = proposal({ ...v, payload: base });
   const control = fields(control_v2, [
     "schema_version",
@@ -207,6 +209,14 @@ export function controlledProposal(raw: unknown) {
     ...parsed,
     payload: {
       ...parsed.payload,
+      ...(Object.hasOwn(p, "action_v1")
+        ? {
+            action_v1: actionEvidence(
+              action_v1,
+              parsed.payload.result.completed_tick,
+            ),
+          }
+        : {}),
       control_v2: {
         schema_version: 2 as const,
         revision_before: decimal(control.revision_before),

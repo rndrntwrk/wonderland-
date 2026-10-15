@@ -20,6 +20,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   const fetcher = options.fetch ?? globalThis.fetch;
   const nativeLots = options.nativeLots === true;
   let destinations = [], admissionAvailable = false, owned = null, pendingEntry = null, firstTicket = null, detachPending = false, socketRequest = null;
+  let recoverySerial = 0;
   const operationId = options.operationId ?? (() => globalThis.crypto.randomUUID().replaceAll("-", ""));
   const decimal = v => typeof v === "string" && /^[1-9]\d{0,19}$/.test(v) && BigInt(v) <= 18446744073709551615n;
   let token = null,
@@ -273,8 +274,9 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       const value = await request("enter", {avatar_id:avatarId,lot_id:lotId,operation:selection.operation}, token, job.controller.signal);
       if (!current(job)) return;
       const grant = validateGrant(value, selection);
-      owned = {...selection,binding:grant.binding}; firstTicket = grant.ticket; pendingEntry = null;
-      emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name},message:"Property admission committed."});
+      if (!Number.isSafeInteger(++recoverySerial)) throw Error("Account recovery scope exhausted.");
+      owned = {...selection,binding:grant.binding,recovery_scope:String(recoverySerial)}; firstTicket = grant.ticket; pendingEntry = null;
+      emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name,recovery_scope:owned.recovery_scope},message:"Property admission committed."});
     } catch(error) {
       if (current(job)) {
         if(error.unauthorized){token=null;avatars=[];pendingEntry=null;}
@@ -298,7 +300,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
         // Publish a new scope so WASM discards its old replica and bootstraps
         // afresh; never feed a new authority into an old player binding.
         owned={...selection,binding:grant.binding};firstTicket=grant.ticket;socketRequest=null;
-        emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name},message:"The property recovered. Reconnecting your Sim…"});
+        emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name,recovery_scope:owned.recovery_scope},message:"The property recovered. Reconnecting your Sim…"});
         throw Error("The property recovered; a fresh native bootstrap is required.");
       }
       return grant;

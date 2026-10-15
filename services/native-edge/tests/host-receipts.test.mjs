@@ -15,6 +15,7 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
+const { ActionOutcomeStore } = await import("../src/lot/action-outcomes.ts");
 const { HostReceiptStore } = await import("../src/lot/host-receipts.ts");
 const { canonical, encode } = await import("../src/lot/contracts.ts");
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -89,7 +90,82 @@ class Bucket {
     await this.afterPut?.(key);
   }
 }
-function fixture({ archived = false, controlled = false } = {}) {
+// Exact current Rust fixed-int Cancel + ActionReceipt packet layouts.
+function actionFor(payload) {
+  const u64 = (n) => {
+      const b = Buffer.alloc(8);
+      b.writeBigUInt64LE(BigInt(n));
+      return b;
+    },
+    u32 = (n) => {
+      const b = Buffer.alloc(4);
+      b.writeUInt32LE(n);
+      return b;
+    },
+    packet = (magic, body) =>
+      Buffer.concat([
+        Buffer.from(magic + "\r\n\x1a\n"),
+        u64(body.length),
+        body,
+      ]),
+    request = packet(
+      "WLC1",
+      Buffer.concat([
+        u32(1),
+        u64(1),
+        u64(0),
+        u32(2),
+        u32(3),
+        u64(0),
+        u64(0),
+        u64(payload.batch_id),
+        u64(7),
+      ]),
+    ),
+    receipt = (tick) =>
+      packet(
+        "WLA1",
+        Buffer.concat([
+          u64(request.length),
+          request,
+          Buffer.from([tick === null ? 0 : 1]),
+          ...(tick === null ? [] : [u64(tick)]),
+        ]),
+      ).toString("hex"),
+    nativeControl = {
+      principal: "1",
+      avatar_id: "11",
+      control_generation: "2",
+      session_ref: h(33),
+    },
+    request_hex = request.toString("hex");
+  return {
+    schema_version: 1,
+    control: { ...nativeControl, account_id: "9" },
+    input_sha256: sha(
+      encode({
+        kind: "prepare_player_action",
+        batch_id: payload.batch_id,
+        binding: payload.binding,
+        predecessor: payload.predecessor,
+        expected_control_revision: payload.control_v2.revision_before,
+        control: nativeControl,
+        action_hex: request_hex,
+      }),
+    ),
+    request_hex,
+    request_sha256: sha(request),
+    command_sequence: payload.batch_id,
+    accepted_receipt_hex: receipt(payload.result.completed_tick),
+    rejected_receipt_hex: receipt(null),
+  };
+}
+function fixture({
+  archived = false,
+  controlled = false,
+  actions = false,
+} = {}) {
+  if (actions) controlled = true;
   const s = storage(),
     bucket = new Bucket();
   s.sql
@@ -99,7 +175,8 @@ function fixture({ archived = false, controlled = false } = {}) {
     CREATE TABLE journal_chunks(batch_key TEXT,ordinal INTEGER,payload TEXT,PRIMARY KEY(batch_key,ordinal));
     CREATE TABLE journal_archives(object_key TEXT PRIMARY KEY,sha256 TEXT,bytes INTEGER,checkpoint_key TEXT);
     CREATE TABLE archived_batches(batch_key TEXT PRIMARY KEY,object_key TEXT,byte_offset INTEGER,byte_length INTEGER);`);
-  const store = new HostReceiptStore(s, bucket);
+  const store = new HostReceiptStore(s, bucket),
+    actionStore = new ActionOutcomeStore(s);
   const checkpoint = new TextEncoder().encode("immutable checkpoint"),
     checkpointHash = sha(checkpoint);
   const checkpointKey = `lots/7/1/2/${checkpointHash}`;
@@ -143,6 +220,7 @@ function fixture({ archived = false, controlled = false } = {}) {
       checkpoint_sha256: checkpointHash,
       ...(control ? { control_v2: control } : {}),
     };
+    if (actions) payload.action_v1 = actionFor(payload);
     const bytes = encode(payload),
       digest = sha(bytes),
       receipt = {
@@ -169,9 +247,21 @@ function fixture({ archived = false, controlled = false } = {}) {
         canonical(payload),
       );
     payloads.push(bytes);
+    if (actions) {
+      actionStore.record(h(66), "7", payload, digest, "committed");
+      const stored = actionStore.forBatch(`1:${i}`);
+      receipt.action_outcome_sha256 = sha(
+        encode({ input_sha256: stored.input_sha256, outcome: stored.outcome }),
+      );
+      s.sql.exec(
+        "UPDATE batches SET receipt=? WHERE batch_key=?",
+        canonical(receipt),
+        `1:${i}`,
+      );
+    }
     records.push({
       batch_id: String(i),
-      input_sha256: h(100 + i),
+      input_sha256: actions ? payload.action_v1.input_sha256 : h(100 + i),
       digest,
       reply: {
         kind: "committed",
@@ -182,7 +272,9 @@ function fixture({ archived = false, controlled = false } = {}) {
         effects_hex: payload.effects_hex,
         events_hex: payload.events_hex,
         control_v2: control,
-        receipt_hex: "abcd012345",
+        receipt_hex: actions
+          ? payload.action_v1.accepted_receipt_hex
+          : "abcd012345",
       },
     });
   }
@@ -219,6 +311,23 @@ function fixture({ archived = false, controlled = false } = {}) {
     digest: h(999),
     control_revision: "1",
   };
+  const rejectedPayload = actions
+    ? {
+        ...JSON.parse(new TextDecoder().decode(payloads[1])),
+        batch_id: "3",
+        predecessor: cursor(2),
+        result: cursor(3),
+      }
+    : null;
+  if (actions) {
+    rejectedPayload.action_v1 = actionFor(rejectedPayload);
+    denied.digest = sha(encode(rejectedPayload));
+    actionStore.record(h(66), "7", rejectedPayload, denied.digest, "rejected");
+    const stored = actionStore.forBatch("1:3");
+    denied.action_outcome_sha256 = sha(
+      encode({ input_sha256: stored.input_sha256, outcome: stored.outcome }),
+    );
+  }
   s.sql.exec(
     "INSERT INTO controlled_denials VALUES(?,?,?)",
     "1:3",
@@ -227,14 +336,16 @@ function fixture({ archived = false, controlled = false } = {}) {
   );
   records.push({
     batch_id: "3",
-    input_sha256: h(103),
+    input_sha256: actions ? rejectedPayload.action_v1.input_sha256 : h(103),
     digest: denied.digest,
     reply: {
       kind: "rejected",
       batch_id: "3",
       digest: denied.digest,
       cursor: cursor(2),
-      receipt_hex: "ff012345",
+      receipt_hex: actions
+        ? rejectedPayload.action_v1.rejected_receipt_hex
+        : "ff012345",
     },
   });
   const envelope = {
@@ -245,7 +356,17 @@ function fixture({ archived = false, controlled = false } = {}) {
     through_batch_id: "3",
     records,
   };
-  return { s, bucket, store, envelope, checkpointKey, manifest, payloads };
+  return {
+    s,
+    bucket,
+    store,
+    envelope,
+    checkpointKey,
+    manifest,
+    payloads,
+    actionStore,
+    rejectedPayload,
+  };
 }
 const persist = (f, e = f.envelope) => f.store.persist(e, sha(encode(e)));
 const count = (f) =>
@@ -856,3 +977,58 @@ test("overlapping pages keep the first exact batch-to-object binding forever", a
     record: f.envelope.records[2],
   });
 });
+
+for (const archived of [false, true])
+  test(`archives exact atomic committed/rejected action evidence, archived=${archived}`, async () => {
+    const f = fixture({ actions: true, archived });
+    await persist(f);
+    for (const record of f.envelope.records)
+      assert.deepEqual(await f.store.lookup("1", record.batch_id), {
+        status: "recorded",
+        record,
+      });
+    const p = JSON.parse(new TextDecoder().decode(f.payloads[0]));
+    const query = {
+      schema_version: 1,
+      lot_incarnation: "1",
+      control: p.action_v1.control,
+      request_hex: p.action_v1.request_hex,
+    };
+    const before = await f.actionStore.lookup(query, h(66), "7");
+    f.s.sql.exec("DELETE FROM journal_chunks");
+    f.bucket.objects.clear();
+    const reopened = new ActionOutcomeStore(f.s);
+    assert.deepEqual(await reopened.lookup(query, h(66), "7"), before);
+    assert.equal(before.receipt_hex, p.action_v1.accepted_receipt_hex);
+  });
+
+for (const ordinal of [0, 2])
+  for (const field of ["input_sha256", "receipt_hex"])
+    test(`first archive export refuses altered ${field} for ${ordinal === 0 ? "committed" : "rejected"} action`, async () => {
+      const f = fixture({ actions: true });
+      if (field === "input_sha256")
+        f.envelope.records[ordinal].input_sha256 = h(333);
+      else f.envelope.records[ordinal].reply.receipt_hex = "abcd";
+      await assert.rejects(persist(f), /atomic player action outcome/);
+      assert.equal(count(f), 0);
+      assert.equal(f.bucket.puts, 0);
+    });
+
+test("archive cannot fabricate a new action terminal receipt after atomic evidence is missing", async () => {
+  const f = fixture({ actions: true });
+  f.s.sql.exec("DELETE FROM player_action_outcomes WHERE batch_key=?", "1:1");
+  await assert.rejects(persist(f), /durable decision/);
+  assert.equal(count(f), 0);
+  assert.equal(f.bucket.puts, 0);
+});
+
+for (const field of ["input_sha256", "receipt_hex"])
+  test(`missing rejected outcome cannot export fabricated ${field} under a retained decision anchor`, async () => {
+    const f = fixture({ actions: true });
+    f.s.sql.exec("DELETE FROM player_action_outcomes WHERE batch_key=?", "1:3");
+    if (field === "input_sha256") f.envelope.records[2].input_sha256 = h(888);
+    else f.envelope.records[2].reply.receipt_hex = "abcd";
+    await assert.rejects(persist(f), /durable decision evidence missing/);
+    assert.equal(count(f), 0);
+    assert.equal(f.bucket.puts, 0);
+  });

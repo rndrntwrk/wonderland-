@@ -109,3 +109,30 @@ test('owned presence heartbeat starts only after validated readiness and stops o
   assert.deepEqual(s.frames,[]);s.client.dispose();assert.equal(timers.size,0);
   presence.fn();assert.equal(s.socket.sent.length,2);
 });
+
+test('owned recovery queries exact action bytes through text lookup only after a checkpoint', () => {
+  const s = setup({presence:true}); const bytes = new Uint8Array(32).fill(255);
+  assert.equal(s.client.actionResult('4', bytes), false);
+  s.socket.open(); assert.equal(s.client.actionResult('4', bytes), false);
+  s.client.ready(); const deadlines = [...s.timers.keys()];
+  assert.equal(s.client.actionResult('4', bytes), true);
+  assert.deepEqual(JSON.parse(s.socket.sent.at(-1)), {
+    type:'native_action_result',lot_incarnation:'4',action_hex:'ff'.repeat(32),
+  });
+  assert.equal(s.socket.sent.some(v=>v instanceof Uint8Array), false);
+  assert.deepEqual([...s.timers.keys()], deadlines, 'lookup cannot add or refresh a receipt deadline');
+  assert.equal(s.client.settled(), false);
+  s.client.dispose(); assert.equal(s.client.actionResult('4', bytes), false);
+});
+test('action-result lookup rejects legacy transport, malformed identity and unbounded requests', () => {
+  const legacy = setup(); legacy.socket.open(); legacy.client.ready();
+  assert.equal(legacy.client.actionResult('4',new Uint8Array(32)),false);legacy.client.dispose();
+  const s=setup({presence:true});s.socket.open();s.client.ready();
+  for(const incarnation of ['0','04','-1','18446744073709551616',4,null])
+    assert.equal(s.client.actionResult(incarnation,new Uint8Array(32)),false);
+  for(const bytes of [new Uint8Array(0),new Uint8Array(15),new Uint8Array(16385),[1,2]])
+    assert.equal(s.client.actionResult('4',bytes),false);
+  s.socket.bufferedAmount=131072;
+  assert.equal(s.client.actionResult('4',new Uint8Array(32)),false);
+  assert.equal(s.socket.sent.length,1);s.client.dispose();
+});

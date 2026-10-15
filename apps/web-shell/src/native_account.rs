@@ -50,6 +50,7 @@ struct Destination {
 }
 #[derive(Clone, PartialEq, Eq, Deserialize)]
 struct OwnedGrant {
+    recovery_scope: String,
     binding: OwnedBinding,
     lot_id: String,
     lot_name: String,
@@ -108,6 +109,19 @@ impl NativeOwnedUi {
                 } else {
                     None
                 }
+            })
+            .flatten()
+    }
+    /// Private local continuity for one authenticated account entry. Server
+    /// authorization still comes from the fresh grant and committed OwnedControl.
+    pub fn recovery_scope(self) -> Option<String> {
+        self.state
+            .try_with_untracked(|s| {
+                (s.state == "lot_ready")
+                    .then_some(s.grant.as_ref())
+                    .flatten()
+                    .filter(|g| !g.recovery_scope.is_empty() && g.recovery_scope.len() <= 32)
+                    .map(|g| g.recovery_scope.clone())
             })
             .flatten()
     }

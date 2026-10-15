@@ -428,6 +428,32 @@ impl Host {
         self.prepare(id, binding, predecessor, hex(&command_bytes))?;
         let mut p = self.pending.take().ok_or("prepared candidate missing")?;
         p.proposal["payload"]["control_v2"] = json!({"schema_version":2,"revision_before":revision,"revision_after":DecimalId(after),"actor_registry_before_sha256":crate::player::registry_hash(&self.committed)?,"actor_registry_after_sha256":crate::player::registry_hash(&p.runtime)?,"actors":crate::player::actors(&p.runtime),"permission_before":crate::player::permission(&self.committed)?,"permission_after":crate::player::permission(&p.runtime)?});
+        let input_hash = Digest::of(&serde_json::to_vec(&input)?);
+        if let Some(bytes) = &action {
+            // Both receipt variants are fixed before commit. The coordinator
+            // stores the selected one atomically with its durable decision,
+            // even if this host disappears before resolve/export can run.
+            let request: wonderland_native_host_contracts::OwnedControlV2 =
+                serde_json::from_value(input["control"].clone())?;
+            let owned = self.owned_control(&request)?;
+            let decoded = wonderland_game_runtime::live_wire::player::decode_action(bytes)?;
+            p.proposal["payload"]["action_v1"] = json!({
+                "schema_version":1,
+                "control":{
+                    "principal":DecimalId(owned.principal),
+                    "account_id":DecimalId(owned.account_id),
+                    "avatar_id":DecimalId(u64::from(owned.avatar_id.0)),
+                    "control_generation":DecimalId(owned.control_generation),
+                    "session_ref":hex(&owned.session_ref)
+                },
+                "input_sha256":input_hash,
+                "request_hex":hex(bytes),
+                "request_sha256":Digest::of(bytes),
+                "command_sequence":DecimalId(decoded.sequence()),
+                "accepted_receipt_hex":action_receipt(bytes.clone(),Some(p.result.completed_tick.0))?,
+                "rejected_receipt_hex":action_receipt(bytes.clone(),None)?
+            });
+        }
         let encoded = serde_json::to_vec(&p.proposal["payload"])?;
         let receipt_credit = action.as_ref().map_or(0, |bytes| 2 * (bytes.len() + 64));
         if encoded.len() > 16 * 1024 * 1024
@@ -437,7 +463,7 @@ impl Host {
         }
         p.digest = Digest::of(&encoded).as_str().to_owned();
         p.proposal["digest"] = json!(p.digest);
-        p.input_hash = Digest::of(&serde_json::to_vec(&input)?);
+        p.input_hash = input_hash;
         p.action = action;
         let result = p.proposal.clone();
         self.pending = Some(p);

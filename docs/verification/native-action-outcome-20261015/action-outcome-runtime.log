@@ -1,0 +1,7 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> e2e:action-outcome-runtime
+> node tests/action-outcome-runtime.mjs
+
+PASS actual Rust Host + persisted workerd: admitted Invoke/Cancel evidence, SIGKILL before resolve/export after committed and rejected decisions, exact original WLA1 retained across restart/takeover, unchanged VM/outbox on retries, authenticated recovered delivery and revoked-session denial. Authored fixture only; original gameplay NOT qualified.
+Evidence directory: /tmp/wonderland-action-outcome-runtime-ZKs98b

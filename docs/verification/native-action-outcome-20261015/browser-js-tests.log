@@ -1,0 +1,39 @@
+✔ owned entry submits only selection and exposes no bearer or actor grant before committed response (10.576177ms)
+✔ cross-avatar admission is refused and unknown enter reuses the same operation (2.08481ms)
+✔ sign-out during admission rejects late success and never returns a socket ticket (2.811077ms)
+✔ unconfirmed leave remains explicitly pending and cannot admit another actor (1.847631ms)
+✔ authenticated recovery refreshes only a monotonic incarnation and retains a one-use fresh bootstrap ticket (1.41011ms)
+✔ recovery cannot change the control generation or roll incarnation backward (5.12344ms)
+✔ private recovery scope survives only the same authenticated entry (1.812308ms)
+✔ late recovered grant cannot restore a signed-out recovery scope (1.378622ms)
+✔ ordinary ticks cannot keep a lost action receipt pending forever (2.917397ms)
+✔ a second unresolved send cannot replace or extend the first deadline (0.90698ms)
+✔ repeated readiness notifications do not extend the action deadline (0.422018ms)
+✔ only an explicitly validated decision settles the action deadline (0.296217ms)
+✔ settling an action leaves the connection liveness deadline in force (0.313955ms)
+✔ an already queued deadline callback cannot close the next action (0.351942ms)
+✔ disposing cancels both deadlines and fences late timer callbacks (1.389329ms)
+✔ failed, oversized and backpressured writes create no pending deadline (0.266853ms)
+✔ protocol control writes neither start nor clear an action deadline (0.408957ms)
+✔ a browser send exception terminates without retaining either timer (0.584694ms)
+✔ ticket is sent in the first frame, never in URL or subprotocol (2.909936ms)
+✔ every binary message is delivered synchronously in socket order (0.635149ms)
+✔ byte-identical frames are not deduplicated by the browser host (0.299302ms)
+✔ text and over-budget frames close once before reaching the native decoder (0.380785ms)
+✔ disposed callbacks cannot revive or affect a replacement connection (0.367075ms)
+✔ connect/handshake timeout closes resources even without a server reply (0.347876ms)
+✔ backpressure rejects writes without silently queuing unbounded intents (0.417721ms)
+✔ writes before readiness, after close, and oversized writes reject (0.562901ms)
+✔ wrong origins, URL tokens, credentials, plaintext public sockets and invalid bounds reject (1.529551ms)
+✔ a decoder exception terminates current connection without exposing its text (0.640788ms)
+✔ owned presence heartbeat starts only after validated readiness and stops on dispose (0.402708ms)
+✔ owned recovery queries exact action bytes through text lookup only after a checkpoint (0.525544ms)
+✔ action-result lookup rejects legacy transport, malformed identity and unbounded requests (0.382688ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 139.682158

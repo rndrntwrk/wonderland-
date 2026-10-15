@@ -1,0 +1,22 @@
+    Checking wonderland-render-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/render-core)
+    Checking wonderland-legacy-formats v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/legacy-formats)
+    Checking sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/sim-core)
+    Checking wonderland-content-ir v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/content-ir)
+    Checking wonderland-render-iso v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/render-iso)
+    Checking wonderland-render-3d v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/render-3d)
+    Checking wonderland-world-view v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/world-view)
+    Checking wonderland-content-runtime-bridge v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/content-runtime-bridge)
+    Checking wonderland-avatar-view v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/avatar-view)
+    Checking wonderland-audio-runtime v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/audio-runtime)
+    Checking wonderland-contracts v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/contracts)
+    Checking wonderland-vm-protocol v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/vm-protocol)
+    Checking wonderland-player-authoring v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/player-authoring)
+    Checking wonderland-client-app v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/client-app)
+    Checking wonderland-audio-content v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/audio-content)
+    Checking wonderland-avatar-content v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/avatar-content)
+    Checking wonderland-game-runtime v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/game-runtime)
+    Checking wonderland-game-services v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/game-services)
+    Checking wonderland-web-shell v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/apps/web-shell)
+    Finished `dev` profile [unoptimized] target(s) in 44.15s
+warning: the following packages contain code that will be rejected by a future version of Rust: proc-macro-error2 v2.0.1
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

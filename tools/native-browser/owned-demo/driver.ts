@@ -43,6 +43,7 @@ const lotMethods = new Set([
   "publishControlledCheckpointV2",
   "persistHostReceiptsV1",
   "lookupHostReceiptV1",
+  "lookupPlayerActionV1",
   "beginControlledRecoveryV2",
   "controlledRecoveryBundleV2",
   "finishControlledRecoveryV2",

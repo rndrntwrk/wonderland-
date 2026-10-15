@@ -1,0 +1,4 @@
+    Checking wonderland-web-shell v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/apps/web-shell)
+    Finished `dev` profile [unoptimized] target(s) in 22.35s
+warning: the following packages contain code that will be rejected by a future version of Rust: proc-macro-error2 v2.0.1
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

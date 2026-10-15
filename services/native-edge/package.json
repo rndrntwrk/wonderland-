@@ -7,6 +7,8 @@
     "check": "tsc --noEmit",
     "e2e:compaction": "node tests/journal-compaction.mjs && node tests/journal-compaction-crash.mjs",
     "e2e:host-receipt-integration": "node tests/host-receipt-integration.mjs",
+    "e2e:action-outcome-runtime": "node tests/action-outcome-runtime.mjs",
+    "e2e:action-outcomes": "node --test tests/action-outcomes.test.mjs",
     "e2e:host-receipts": "node --test tests/host-receipts.test.mjs",
     "e2e:control-contract": "node tests/control-state-vectors.mjs",
     "e2e": "node tests/durability.mjs && node tests/crash-receipts.mjs",

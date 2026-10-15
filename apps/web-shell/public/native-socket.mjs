@@ -133,6 +133,20 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
       } catch { finish('failed'); return false; }
       return true;
     },
+    // Separate read-only decision lookup. Never write retained WLC1 bytes as an
+    // action or arm/refresh an action deadline. Absent evidence stays Unknown.
+    actionResult(lotIncarnation, bytes) {
+      if (options.presence !== true || dead || !authenticated || !live || ws.readyState !== 1 ||
+          typeof lotIncarnation !== 'string' || !/^[1-9]\d{0,19}$/.test(lotIncarnation) ||
+          BigInt(lotIncarnation) > 18446744073709551615n ||
+          !(bytes instanceof Uint8Array) || !(bytes.buffer instanceof ArrayBuffer) ||
+          bytes.byteLength < 16 || bytes.byteLength > 16384 ||
+          !Number.isSafeInteger(ws.bufferedAmount) || ws.bufferedAmount < 0) return false;
+      const action_hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+      const query = JSON.stringify({type:'native_action_result',lot_incarnation:lotIncarnation,action_hex});
+      if (ws.bufferedAmount + query.length > MAX_BUFFERED) return false;
+      try { ws.send(query); return true; } catch { finish('failed'); return false; }
+    },
     // Validation/correlation belongs exclusively to the Rust owner. Returning
     // false is harmless for a recovered unknown decision with no new local send.
     settled() {
