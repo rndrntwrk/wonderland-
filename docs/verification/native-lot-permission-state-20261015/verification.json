@@ -1,0 +1,45 @@
+{
+  "source_commit": "6be39c13bc75d6afdd3bfe65f4fe2d6468d361e6",
+  "workspace_command": "cargo test --workspace --locked --offline -j 1",
+  "workspace_exit": 0,
+  "totals": {
+    "passed": 2068,
+    "failed": 0,
+    "ignored": 5
+  },
+  "affected_package_tests": 679,
+  "independent_targeted_tests": 33,
+  "formatting": "passed",
+  "baseline_negative_tests": 52,
+  "first_workspace_attempt": "rustc sim-core SIGKILL; one serial retry after overlapping check exited passed",
+  "local_clippy": "unavailable",
+  "independent_review": "no remaining bounded metadata/migration blockers",
+  "not_claimed": [
+    "source join or actor/principal registry",
+    "durable controlled admission and ticks",
+    "browser entry or live grants",
+    "new original C# method differential"
+  ],
+  "logs": {
+    "wonderland-permission-state-workspace.log": {
+      "bytes": 1548,
+      "sha256": "69eec087f8e577b4e6764bdaeb963bec68774bd5e0f0ccdad3c6280f56e79925"
+    },
+    "wonderland-permission-state-workspace-retry.log": {
+      "bytes": 238961,
+      "sha256": "943c837fc82e69af278af5d8797e8dcdf08d5547a623faa0deaafaa04e778ba4"
+    },
+    "lot-permission-state-packages-final.log": {
+      "bytes": 70767,
+      "sha256": "2ee61509f2383df32507236abafe2132a47838b023934332383dcbe1978c224f"
+    },
+    "lot-permission-state-acceptance.log": {
+      "bytes": 7258,
+      "sha256": "638d2514c1410a70a52f054e0a0f420e1f81f25af0d8489fe2f5b7fbe04bd232"
+    },
+    "wonderland-permission-state-format.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

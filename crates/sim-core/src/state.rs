@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
-pub const SIMULATION_SCHEMA: u16 = 2;
+pub const SIMULATION_SCHEMA: u16 = 4;
 const CONTENT_SCHEMA: u16 = 1;
 pub const MAX_CONTENT_BYTES: u64 = 32 * 1024 * 1024;
 
@@ -713,6 +713,10 @@ pub struct SimState {
     pub interaction_queues: BTreeMap<ObjectId, crate::interactions::ActionQueue>,
     pub interaction_access:
         BTreeMap<EntityRef, crate::runtime::interaction_adapter::InteractionAccess>,
+    /// Appended in schema 3. Uninitialized is unknown authority, never a default lot.
+    pub lot_permissions: crate::lot_permissions::ReplicatedLotPermissions,
+    /// Schema 4: old snapshots cannot manufacture an admitted actor.
+    pub owned_admission: crate::owned_admission::OwnedAdmissionState,
 }
 
 pub(crate) fn canonical_bytes<T: Serialize>(value: &T, limit: u64) -> Result<Vec<u8>, String> {

@@ -208,6 +208,8 @@ fn fixture() -> (ContentSet, SimState, EntityRef) {
         last_tick_digest: None,
         interaction_queues: BTreeMap::new(),
         interaction_access: BTreeMap::new(),
+        lot_permissions: sim_core::lot_permissions::ReplicatedLotPermissions::Uninitialized,
+        owned_admission: sim_core::owned_admission::OwnedAdmissionState::Uninitialized,
     };
     let entity = add_entity(&mut state, &content, false);
     (content, state, entity)

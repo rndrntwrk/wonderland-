@@ -7,7 +7,8 @@
     "check": "tsc --noEmit",
     "e2e:control-contract": "node tests/control-state-vectors.mjs",
     "e2e": "node tests/durability.mjs && node tests/crash-receipts.mjs",
-    "e2e:accounts": "node tests/accounts.mjs && node tests/account-crash.mjs && node tests/account-http.mjs && node --test tests/account-provider-interruption.mjs"
+    "e2e:accounts": "node tests/accounts.mjs && node tests/account-crash.mjs && node tests/account-http.mjs && node --test tests/account-provider-interruption.mjs",
+    "e2e:owned": "node tests/owned-export.mjs && node tests/owned-control.mjs && node tests/owned-runtime.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261012.1",

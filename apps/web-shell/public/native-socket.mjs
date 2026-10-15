@@ -45,7 +45,7 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
   const ws = new Socket(destination);
   ws.binaryType = 'arraybuffer';
   let dead = false, live = false, authenticated = false;
-  let timer = null, timerOwner = null, receiptTimer = null, receiptOwner = null;
+  let timer = null, timerOwner = null, receiptTimer = null, receiptOwner = null, presenceTimer = null, presenceOwner = null;
   function clearTimer() {
     timerOwner = null;
     if (timer !== null) { cancel(timer); timer = null; }
@@ -54,10 +54,24 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
     receiptOwner = null;
     if (receiptTimer !== null) { cancel(receiptTimer); receiptTimer = null; }
   }
+  function clearPresence() {
+    presenceOwner = null;
+    if(presenceTimer !== null){cancel(presenceTimer);presenceTimer=null;}
+  }
+  function armPresence() {
+    if(options.presence !== true || presenceOwner !== null || dead || !live)return;
+    const owner={};presenceOwner=owner;
+    presenceTimer=schedule(()=>{
+      if(presenceOwner!==owner||dead||!live)return;
+      clearPresence();
+      if(!authenticated||ws.readyState!==1||!Number.isSafeInteger(ws.bufferedAmount)||ws.bufferedAmount<0||ws.bufferedAmount>MAX_BUFFERED-64){finish('failed');return;}
+      try{ws.send(JSON.stringify({type:'native_presence'}));armPresence();}catch{finish('failed');}
+    },20000);
+  }
   const notify = value => { try { onState(value); } catch { /* Do not leak exception payloads. */ } };
   function finish(state) {
     if (dead) return;
-    dead = true; live = false; ticket = ''; clearTimer(); clearReceipt();
+    dead = true; live = false; ticket = ''; clearTimer(); clearReceipt(); clearPresence();
     ws.onopen = null; ws.onmessage = null; ws.onclose = null; ws.onerror = null;
     try { ws.close(); } catch { /* Terminal even if the browser cannot send close. */ }
     if (state) notify(state);
@@ -104,7 +118,7 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
   return Object.freeze({
     ready() {
       if (dead || !authenticated || ws.readyState !== 1) return false;
-      live = true; arm(); notify('live'); return true;
+      live = true; arm(); armPresence(); notify('live'); return true;
     },
     // Only generated protocol-control packets should use this before readiness.
     control(bytes) { return write(bytes, false); },

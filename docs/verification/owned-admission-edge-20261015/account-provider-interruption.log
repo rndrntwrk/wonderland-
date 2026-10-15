@@ -1,0 +1,12 @@
+✔ refresh keeps the authenticated roster visible and sign-out invalidates a late response (6.993083ms)
+✔ repeated sign-out does not abort the only server revocation or falsely confirm it (1.045471ms)
+✔ expired account roster is not reused while a different account refreshes (1.452466ms)
+✔ aborted response body does not create an unhandled cancellation rejection (6.441619ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 99.73258

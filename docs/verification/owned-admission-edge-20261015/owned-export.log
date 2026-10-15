@@ -1,0 +1,1 @@
+PASS actual workerd SQLite: source-owned portable export, exact decimals/hash, two accounts/session isolation, restart, source revision mutation, missing migration, expiry retains custody and durable fence

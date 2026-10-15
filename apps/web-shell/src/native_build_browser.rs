@@ -96,7 +96,7 @@ impl Resources {
 }
 #[derive(Clone, Copy)]
 pub(crate) struct BuildUi {
-    ui: ConnectedUi,
+    ui: Option<ConnectedUi>,
     resources: StoredValue<Resources, LocalStorage>,
     pub open: RwSignal<bool>,
     pub revision: RwSignal<u64>,
@@ -111,7 +111,7 @@ pub(crate) struct BuildUi {
 }
 impl BuildUi {
     pub fn new(
-        ui: ConnectedUi,
+        ui: Option<ConnectedUi>,
         world: RwSignal<Option<Arc<WorldDocument>>>,
         projection: RwSignal<Option<Arc<RuntimeProjection>>>,
         live: RwSignal<bool>,
@@ -201,12 +201,19 @@ impl BuildUi {
                 .resources
                 .try_with_value(|r| {
                     r.generation == generation
-                        && r.scope
-                            .is_some_and(|(e, b)| self.ui.native_construction_is_current(e, b))
+                        && r.scope.is_some_and(|(e, b)| {
+                            self.ui
+                                .is_some_and(|ui| ui.native_construction_is_current(e, b))
+                        })
                 })
                 .unwrap_or(false)
     }
     pub fn load(self, recover: bool) {
+        let Some(ui) = self.ui else {
+            self.notice
+                .set("Construction is not enabled for this native provider.".into());
+            return;
+        };
         if !self.live.get_untracked() {
             self.notice
                 .set("Reconnect to the property before loading construction.".into());
@@ -233,7 +240,7 @@ impl BuildUi {
         self.notice.set("Loading this property's catalogue…".into());
         self.touch();
         spawn_local(async move {
-            let access = self.ui.native_construction_access(epoch, binding).await;
+            let access = ui.native_construction_access(epoch, binding).await;
             if !self.current(generation) {
                 return;
             }

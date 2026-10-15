@@ -10,6 +10,7 @@ use crate::{
     clock::SimClock,
     effects::*,
     ids::*,
+    lot_permissions::{LotPermissionState, ReplicatedLotPermissions},
     rng::SimRng,
     scheduler::Scheduler,
     state::*,
@@ -27,6 +28,8 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 mod build_adapter;
 #[path = "runtime_interactions.rs"]
 pub mod interaction_adapter;
+#[path = "runtime_owned_admission.rs"]
+mod owned_adapter;
 
 const MAX_TICK_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_CREATION_DEPTH: u16 = 32;
@@ -171,6 +174,18 @@ pub enum AcceptedCommand {
         name: String,
         args: Vec<i16>,
     },
+    /// One-shot trusted TSO metadata initialization, never public UI input.
+    /// Preserves supplied source caches without inventing empty query facts or
+    /// applying avatar permissions/reconciliation. Appended at command tag 27.
+    InitializeLotPermissions {
+        lot: LotPermissionState,
+    },
+    /// Trusted source-import initialization, appended tag 28.
+    InitializeOwnedAdmission {
+        source: crate::owned_admission::SourceJoinMetadata,
+    },
+    /// Source ordered join, never accepted from a player packet. Tag 29.
+    AdmitOwnedAvatar(crate::owned_admission::OwnedAvatarAdmission),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -233,6 +248,10 @@ pub enum RuntimeEvent {
     BuildRuntimeFault {
         operation: u64,
         error: String,
+    },
+    OwnedAvatarJoined {
+        actor: EntityRef,
+        name: String,
     },
 }
 
@@ -339,6 +358,8 @@ impl SimRuntime {
             last_tick_digest: None,
             interaction_queues: BTreeMap::new(),
             interaction_access: BTreeMap::new(),
+            lot_permissions: ReplicatedLotPermissions::Uninitialized,
+            owned_admission: crate::owned_admission::OwnedAdmissionState::Uninitialized,
         };
         Self::from_state(state, content, role)
     }
@@ -754,6 +775,26 @@ fn apply_command(
     tick: u64,
 ) -> Result<(), RuntimeError> {
     match command {
+        AcceptedCommand::InitializeOwnedAdmission { source } => {
+            owned_adapter::initialize(state, source.clone(), content)?
+        }
+        AcceptedCommand::AdmitOwnedAvatar(admission) => {
+            owned_adapter::admit(state, content, work, admission.clone())?
+        }
+
+        AcceptedCommand::InitializeLotPermissions { lot } => {
+            if state.mode != VmMode::Tso {
+                return Err(invalid("lot permissions require TSO mode"));
+            }
+            if !matches!(
+                state.lot_permissions,
+                ReplicatedLotPermissions::Uninitialized
+            ) {
+                return Err(invalid("lot permissions already initialized"));
+            }
+            lot.validate().map_err(invalid)?;
+            state.lot_permissions = ReplicatedLotPermissions::Initialized(lot.clone());
+        }
         AcceptedCommand::ExecuteNamedEntryPoint { entity, name, args } => {
             if name.is_empty() || name.len() > 256 || args.len() > 16 {
                 return Err(invalid("named entrypoint bounds"));
@@ -1337,6 +1378,9 @@ fn run_thread(
         ));
     }
     if let VmStop::Faulted(fault) = &thread.stop {
+        if work.strict_source || state.owned_admission.actors().is_some() {
+            return Err(fault.clone().into());
+        }
         live_entity_mut(state, entity)?.lifecycle = LifecyclePhase::Faulted;
         work.events.push(RuntimeEvent::ThreadFault {
             entity,
@@ -1797,6 +1841,28 @@ fn remove_entity(
     state.threads.remove(&entity.object_id);
     state.interaction_queues.remove(&entity.object_id);
     state.interaction_access.remove(&entity);
+    if let crate::owned_admission::OwnedAdmissionState::Initialized {
+        source,
+        actors,
+        revision,
+        ..
+    } = &mut state.owned_admission
+    {
+        source.object_flags.remove(&entity);
+        for group in source.registered_groups.values_mut() {
+            group.retain(|part| *part != entity);
+        }
+        source
+            .registered_groups
+            .retain(|_, group| !group.is_empty());
+        let before = actors.len();
+        actors.retain(|_, control| control.actor != entity);
+        if actors.len() != before {
+            *revision = revision
+                .checked_add(1)
+                .ok_or_else(|| invalid("owned registry revision exhausted"))?;
+        }
+    }
     state.entities.remove(&entity.object_id);
     state.ids.release(entity).map_err(invalid)?;
     state.relationships.delete_entity(entity);
@@ -2382,6 +2448,7 @@ impl VmHost for RuntimeHost<'_> {
     fn requires_supported_behavior(&self, owner: EntityRef) -> bool {
         self.separate_check
             || self.work.strict_source
+            || self.state.owned_admission.actors().is_some()
             || self
                 .state
                 .interaction_queues

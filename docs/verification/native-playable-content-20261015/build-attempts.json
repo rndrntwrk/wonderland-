@@ -1,0 +1,76 @@
+{
+  "attempts": [
+    {
+      "evidence_directory": "/tmp/wonderland-native-playable-object-20261015/evidence",
+      "files": [
+        {
+          "bytes": 40919,
+          "path": "/tmp/wonderland-native-playable-object-20261015/evidence/build-native.stdout",
+          "sha256": "c2ef67d063da0e391bc4abdb9782ee09c3cd89b0ce5a82e4f1dc311e31d2bc41"
+        },
+        {
+          "bytes": 1410,
+          "path": "/tmp/wonderland-native-playable-object-20261015/evidence/build-native.stderr",
+          "sha256": "1064fa343e62d382d1b4c43d71c57a07f261d5468a42b0ad3779f0086f1af6fa"
+        },
+        {
+          "bytes": 1382,
+          "path": "/tmp/wonderland-native-playable-object-20261015/evidence/verification.json",
+          "sha256": "87bdd5139267044b2955e82200c90a2a9239aa3a422eeeca7d1295a6947c74ba"
+        }
+      ],
+      "terminal_diagnostic": "   Compiling wonderland-legacy-formats v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-playable-vertical-20261015/crates/legacy-formats)\n   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-playable-vertical-20261015/crates/sim-core)\nerror: could not compile `sim-core` (lib)\n\nCaused by:\n  process didn't exit successfully: `rustc --crate-name sim_core --edition=2021 crates/sim-core/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata,link -C embed-bitcode=no --forbid=unsafe_code --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=3d59fdc241b6cfc4 -C extra-filename=-5d08917a68f6c1d6 --out-dir /workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps -C strip=debuginfo -L dependency=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps --extern bincode=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/libbincode-644c285662c1935d.rmeta --extern serde=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/libserde-6f07db82a56cdc25.rmeta --extern sha2=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/libsha2-a605772301426e22.rmeta` (signal: 9, SIGKILL: kill)\nwarning: build failed, waiting for other jobs to finish...\n",
+      "terminal_outcome": "cargo exit 101; rustc sim-core terminated by signal 9 (SIGKILL)",
+      "verification_passed": false
+    },
+    {
+      "evidence_directory": "/tmp/wonderland-native-playable-object-20261015-v2/evidence",
+      "files": [
+        {
+          "bytes": 40918,
+          "path": "/tmp/wonderland-native-playable-object-20261015-v2/evidence/build-native.stdout",
+          "sha256": "dd7b3b919cb89247525705be3e4a494f4ab29e80ea8fdbbd301bc140e18d6d7f"
+        },
+        {
+          "bytes": 1211,
+          "path": "/tmp/wonderland-native-playable-object-20261015-v2/evidence/build-native.stderr",
+          "sha256": "38866af313a08c8217f2a9c1f0312249dcb7f93c05ac0a296e092f50ee79a46d"
+        },
+        {
+          "bytes": 1382,
+          "path": "/tmp/wonderland-native-playable-object-20261015-v2/evidence/verification.json",
+          "sha256": "87bdd5139267044b2955e82200c90a2a9239aa3a422eeeca7d1295a6947c74ba"
+        }
+      ],
+      "terminal_diagnostic": "   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-playable-vertical-20261015/crates/sim-core)\nerror: could not compile `sim-core` (lib)\n\nCaused by:\n  process didn't exit successfully: `rustc --crate-name sim_core --edition=2021 crates/sim-core/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata,link -C embed-bitcode=no --forbid=unsafe_code --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=3d59fdc241b6cfc4 -C extra-filename=-5d08917a68f6c1d6 --out-dir /workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps -C strip=debuginfo -L dependency=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps --extern bincode=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/libbincode-644c285662c1935d.rmeta --extern serde=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/libserde-6f07db82a56cdc25.rmeta --extern sha2=/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/libsha2-a605772301426e22.rmeta` (signal: 9, SIGKILL: kill)\n",
+      "terminal_outcome": "cargo exit 101; serial rustc sim-core terminated by signal 9 (SIGKILL)",
+      "verification_passed": false
+    },
+    {
+      "evidence_directory": "/tmp/wonderland-native-playable-object-20261015-v3/evidence",
+      "files": [
+        {
+          "bytes": 44289,
+          "path": "/tmp/wonderland-native-playable-object-20261015-v3/evidence/build-native.stdout",
+          "sha256": "705326a526bf9f8bd786b43a6eb7d7ae78db75810f49607374eab8b6737a3cfa"
+        },
+        {
+          "bytes": 450,
+          "path": "/tmp/wonderland-native-playable-object-20261015-v3/evidence/build-native.stderr",
+          "sha256": "5887eb65d31d09988c1e02a4ef43238ecdc87c11bd48242a18371e186faabf41"
+        },
+        {
+          "bytes": 1364,
+          "path": "/tmp/wonderland-native-playable-object-20261015-v3/evidence/verification.json",
+          "sha256": "1a441cb1f918fd6dd12f9f443c7cc959fd2ac6720c845c2daf6b1b84910cd35d"
+        }
+      ],
+      "terminal_diagnostic": "error: couldn't find file `crates/sim-core/src/runtime_owned_admission.rs`\n  --> crates/sim-core/src/runtime.rs:30:1\n   |\n30 | mod owned_adapter;\n   | ^^^^^^^^^^^^^^^^^^\n   |\n   = help: you might have meant to open `crates/sim-core/src/owned_admission.rs`\n\n",
+      "terminal_outcome": "cargo exit 101; crates/sim-core/src/runtime_owned_admission.rs absent during concurrent runtime edits",
+      "verification_passed": false
+    }
+  ],
+  "compiled_qualification_completed": false,
+  "cooked_release_produced": false,
+  "schema": 1
+}

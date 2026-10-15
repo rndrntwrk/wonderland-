@@ -31,6 +31,10 @@ pub struct Config {
     pub utc_start_dotnet_ticks: DecimalId,
     pub effect_namespace: DecimalId,
     #[serde(default)]
+    pub appearance_file: Option<String>,
+    #[serde(default)]
+    pub appearance_sha256: Option<String>,
+    #[serde(default)]
     pub recovery: Option<Recovery>,
 }
 #[derive(Deserialize)]
@@ -270,4 +274,21 @@ pub fn load(path: &Path) -> Result<LoadedHost> {
         }
     }
     Ok((runtime, runtime_config, identity, report, takeover_marker))
+}
+
+/// Optional immutable source appearance. No empty or authored fallback is made.
+pub fn appearance(
+    path: &Path,
+) -> Result<Option<wonderland_game_runtime::world_view::WorldDocument>> {
+    let config: Config = serde_json::from_slice(&read(path, 65536)?)?;
+    match (config.appearance_file, config.appearance_sha256) {
+        (None, None) => Ok(None),
+        (Some(file), Some(digest)) => {
+            let document: wonderland_game_runtime::world_view::WorldDocument =
+                serde_json::from_slice(&pinned(&file, &digest, 32 * 1024 * 1024)?)?;
+            document.validate()?;
+            Ok(Some(document))
+        }
+        _ => Err("appearance file/digest must be supplied together".into()),
+    }
 }

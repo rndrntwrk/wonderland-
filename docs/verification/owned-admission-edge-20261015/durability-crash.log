@@ -1,0 +1,63 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> e2e
+> node tests/durability.mjs && node tests/crash-receipts.mjs
+
+{
+  "passed": true,
+  "checks": [
+    "Controlled V2 initialization cannot upgrade/downgrade a lot; V1 native proposals, checkpoint and recovery mutations are denied; concurrent tombstones advance exact revisions once and overflow rolls back atomically (no actor admission enabled)",
+    "Fault-injected count and byte capacity boundaries reject a genuine proposal without changing state",
+    "Controlled mode and revision survive persisted SQLite/workerd restart; generic write remains denied",
+    "Actual native host proposal survives workerd restart and caller retry with exact durable receipt and journal",
+    "Nonempty durable build and dialog effect outbox references survive actual workerd restart",
+    "A genuine successor committed during paused R2 I/O prevents obsolete checkpoint publication",
+    "Digest alteration and changed-ID reuse denied; competing successors atomically admit one",
+    "R2 checkpoint readback and SQLite manifest survive restart; stale/bad checkpoints refused",
+    "Replacement Rust process restores exact R2 checkpoint plus actual accepted multi-chunk journal tail; wrong terminal hash prevents ready output",
+    "Exact-current checkpoint recovery needs no fabricated tail and supports the next fenced incarnation",
+    "Durable recovery grant survives restart, assembles exact multi-batch bundle, fences live old host, preserves pending logical effects, gates activation and accepts actual replacement successor",
+    "Control fence tombstones are exact-idempotent, reject altered identity, survive workerd restart and two actual host replacements; receipt does not release custody or admit an actor"
+  ]
+}
+{
+  "terminated_groups": [
+    {
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ],
+      "signal": "SIGKILL"
+    },
+    {
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ],
+      "signal": "SIGKILL"
+    },
+    {
+      "members": [
+        "MainThread",
+        "esbuild",
+        "workerd"
+      ],
+      "signal": "SIGKILL"
+    }
+  ],
+  "passed": true,
+  "scope": "Actual POSIX SIGKILL of Miniflare/workerd process group, persisted SQLite restart and real Rust host; local service evidence only",
+  "checks": [
+    "Killed before commit: unchanged cursor and unknown receipt",
+    "Killed after durable commit before HTTP reply: exact receipt/journal survives and retry deduplicates",
+    "Rust candidate remains unpublished until recovered exact durable receipt",
+    "Pending dialog effect survives pre-reply kill and retry does not duplicate the outbox"
+  ]
+}
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

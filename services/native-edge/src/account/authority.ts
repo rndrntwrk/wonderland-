@@ -1,4 +1,12 @@
 import { controlTarget, type ControlClaim } from "./control";
+import {
+  initialAvatarSource,
+  permissionBinding,
+  PORTABLE_LIMIT,
+  type AvatarSource,
+  type ControlLeaseV2,
+  type ReservedAvatarExportV2,
+} from "./portable";
 import { DurableObject } from "cloudflare:workers";
 import {
   canonical,
@@ -8,7 +16,14 @@ import {
   equal,
   hash,
 } from "../lot/contracts";
-import { avatar, catalog, operation, token, username } from "./contracts";
+import {
+  avatar,
+  avatar as avatarSpec,
+  catalog,
+  operation,
+  token,
+  username,
+} from "./contracts";
 import {
   createVerifier,
   matches,
@@ -37,6 +52,11 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
     super(ctx, env);
     ctx.storage.sql.exec(`
       CREATE TABLE IF NOT EXISTS account_meta(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS account_source_state(account_id TEXT PRIMARY KEY,registered_at_ms INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS avatar_source_state(avatar_id TEXT PRIMARY KEY,source_json TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS avatar_control_leases(avatar_id TEXT PRIMARY KEY,revision TEXT NOT NULL,expires_at INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS avatar_lease_operations(account_id TEXT NOT NULL,operation TEXT NOT NULL,request_json TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(account_id,operation));
+      CREATE TABLE IF NOT EXISTS avatar_control_exports(avatar_id TEXT PRIMARY KEY,operation TEXT NOT NULL,source_json TEXT NOT NULL,export_json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS accounts(id TEXT PRIMARY KEY,username TEXT UNIQUE NOT NULL,verifier TEXT NOT NULL,revision TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,account_id TEXT NOT NULL,revision TEXT NOT NULL,expires INTEGER NOT NULL,idle INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS attempts(key TEXT PRIMARY KEY,start INTEGER NOT NULL,count INTEGER NOT NULL);
@@ -154,6 +174,11 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         name,
         canonical(verifier),
       );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO account_source_state(account_id,registered_at_ms) VALUES(?,?)",
+        id,
+        Math.floor(this.now() / 1000) * 1000,
+      );
       return { account_id: id, username: name };
     });
   }
@@ -224,7 +249,7 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
   private async tokenHash(raw: unknown) {
     return digest(new TextEncoder().encode(token(raw)));
   }
-  private authorize(tokenHash: string): Account {
+  private authorize(tokenHash: string, touchIdle = true): Account {
     const session = this.ctx.storage.sql
         .exec<Session>("SELECT * FROM sessions WHERE token_hash=?", tokenHash)
         .toArray()[0],
@@ -235,11 +260,12 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       .exec<Account>("SELECT * FROM accounts WHERE id=?", session.account_id)
       .one();
     if (account.revision !== session.revision) throw Error("unauthorized");
-    this.ctx.storage.sql.exec(
-      "UPDATE sessions SET idle=? WHERE token_hash=?",
-      Math.min(now + IDLE, session.expires),
-      tokenHash,
-    );
+    if (touchIdle)
+      this.ctx.storage.sql.exec(
+        "UPDATE sessions SET idle=? WHERE token_hash=?",
+        Math.min(now + IDLE, session.expires),
+        tokenHash,
+      );
     return account;
   }
   async logout(raw: unknown, all = false) {
@@ -351,7 +377,11 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         account_id: account.id,
         ...target,
         generation: this.next("control_generation"),
-        expires_at: Math.min(this.now() + 60000, session.expires, session.idle),
+        expires_at: Math.min(
+          Math.floor(this.now() / 1000) * 1000 + 60000,
+          session.expires,
+          session.idle,
+        ),
         state: "reserved",
       };
       this.ctx.storage.sql.exec(
@@ -363,6 +393,11 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         op,
         sha,
         canonical(claim),
+      );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO avatar_control_leases(avatar_id,revision,expires_at) VALUES(?,'1',?)",
+        target.avatar_id,
+        claim.expires_at,
       );
       return claim;
     });
@@ -378,6 +413,552 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       );
     }
     return claim;
+  }
+  /** Private realm configuration, never supplied by a browser export caller. */
+  initializeAdmissionAuthorityV2(rawAuthority: unknown) {
+    const authority_id = hash(rawAuthority);
+    return this.ctx.storage.transactionSync(() => {
+      const prior = this.ctx.storage.sql
+        .exec<{
+          value: string;
+        }>("SELECT value FROM account_meta WHERE key='admission_authority_v2'")
+        .toArray()[0];
+      if (prior && prior.value !== authority_id)
+        throw Error("admission authority already pinned");
+      this.ctx.storage.sql.exec(
+        "INSERT OR IGNORE INTO account_meta(key,value) VALUES('admission_authority_v2',?)",
+        authority_id,
+      );
+      return { authority_id };
+    });
+  }
+  private reservedSourceV2(
+    sessionRef: string,
+    op: string,
+    avatarId: string,
+    permission: ReturnType<typeof permissionBinding>,
+    observedAt: number,
+  ) {
+    const account = this.authorize(sessionRef, false);
+    const authority = this.ctx.storage.sql
+      .exec<{
+        value: string;
+      }>("SELECT value FROM account_meta WHERE key='admission_authority_v2'")
+      .toArray()[0];
+    if (!authority) throw Error("admission authority unavailable");
+    const row = this.ctx.storage.sql
+      .exec<{
+        account_id: string;
+        session_hash: string;
+        session_revision: string;
+        operation: string;
+        digest: string;
+        claim: string;
+      }>("SELECT * FROM avatar_control_claims WHERE avatar_id=?", avatarId)
+      .toArray()[0];
+    if (
+      !row ||
+      row.account_id !== account.id ||
+      row.session_hash !== sessionRef ||
+      row.session_revision !== account.revision ||
+      row.operation !== op
+    )
+      throw Error("reserved avatar session mismatch");
+    const claim = this.observeControl(avatarId, row.claim);
+    // Return denial so expiry's fence obligation commits instead of rolling back.
+    if (claim.state !== "reserved") return null;
+    const owned = this.ctx.storage.sql
+      .exec<{
+        spec: string;
+      }>(
+        "SELECT spec FROM avatars WHERE id=? AND account_id=?",
+        avatarId,
+        account.id,
+      )
+      .toArray()[0];
+    const accountSource = this.ctx.storage.sql
+      .exec<{
+        registered_at_ms: number;
+      }>(
+        "SELECT registered_at_ms FROM account_source_state WHERE account_id=?",
+        account.id,
+      )
+      .toArray()[0];
+    const source = this.ctx.storage.sql
+      .exec<{
+        source_json: string;
+      }>(
+        "SELECT source_json FROM avatar_source_state WHERE avatar_id=?",
+        avatarId,
+      )
+      .toArray()[0];
+    if (!owned || !accountSource || !source)
+      throw Error("avatar source migration required");
+    const initialized = this.ctx.storage.sql
+      .exec<{
+        version: number;
+      }>(
+        "SELECT version FROM avatar_ownership_initializations WHERE avatar_id=?",
+        avatarId,
+      )
+      .toArray()[0];
+    if (initialized?.version !== 1)
+      throw Error("avatar ownership migration required");
+    const balance = this.ctx.storage.sql
+      .exec<{
+        balance: string;
+      }>("SELECT balance FROM avatar_balances WHERE avatar_id=?", avatarId)
+      .toArray()[0];
+    if (!balance || BigInt(decimal(balance.balance)) > 4294967295n)
+      throw Error("avatar budget unavailable");
+    const outfits = this.ctx.storage.sql
+      .exec<{
+        id: string;
+        asset_key: string;
+        suit_type: number;
+        source: string;
+        purchase_price: string;
+        sale_price: string;
+      }>(
+        "SELECT id,asset_key,suit_type,source,purchase_price,sale_price FROM avatar_outfits WHERE avatar_id=? ORDER BY length(id),id LIMIT 257",
+        avatarId,
+      )
+      .toArray();
+    if (outfits.length > 256) throw Error("portable owned assets capacity");
+    return {
+      authority_id: authority.value,
+      account_id: account.id,
+      account_revision: account.revision,
+      session_ref: sessionRef,
+      admission_operation: op,
+      reservation_digest: row.digest,
+      claim,
+      spec: JSON.parse(owned.spec) as ReturnType<typeof avatarSpec>,
+      source: JSON.parse(source.source_json) as AvatarSource,
+      registered_at_ms: accountSource.registered_at_ms,
+      balance: balance.balance,
+      outfits,
+      permission_binding: permission,
+      observed_at_ms: observedAt,
+    };
+  }
+  private sourceIdentityV2(
+    source: NonNullable<ReturnType<AccountAuthority["reservedSourceV2"]>>,
+  ) {
+    return { ...source, claim: { ...source.claim, expires_at: 0 } };
+  }
+  /** Private source export; this never grants an admitted actor. */
+  async exportReservedAvatarV2(
+    rawToken: unknown,
+    rawOperation: unknown,
+    rawAvatar: unknown,
+    rawPermission: unknown,
+  ) {
+    const sessionRef = await this.tokenHash(rawToken),
+      op = operation(rawOperation),
+      avatarId = decimal(rawAvatar),
+      permission = permissionBinding(rawPermission);
+    const cached = this.ctx.storage.sql
+      .exec<{
+        operation: string;
+        source_json: string;
+        export_json: string;
+      }>(
+        "SELECT operation,source_json,export_json FROM avatar_control_exports WHERE avatar_id=?",
+        avatarId,
+      )
+      .toArray()[0];
+    if (cached) {
+      if (cached.operation !== op) throw Error("avatar export identity reused");
+      const exported = JSON.parse(cached.export_json) as ReservedAvatarExportV2;
+      if (!equal(exported.permission_binding, permission))
+        throw Error("avatar export permission binding changed");
+      const current = this.ctx.storage.transactionSync(() =>
+        this.reservedSourceV2(
+          sessionRef,
+          op,
+          avatarId,
+          permission,
+          exported.permission_source.observed_at_ms,
+        ),
+      );
+      if (!current) throw Error("avatar control fenced");
+      if (canonical(this.sourceIdentityV2(current)) !== cached.source_json)
+        throw Error("avatar source revision changed");
+      return exported;
+    }
+    const observed = Math.floor(this.now() / 1000) * 1000;
+    const source = this.ctx.storage.transactionSync(() =>
+      this.reservedSourceV2(sessionRef, op, avatarId, permission, observed),
+    );
+    if (!source) throw Error("avatar control fenced");
+    const { spec, claim, outfits } = source,
+      persisted = source.source;
+    if (
+      persisted.schema_version !== 1 ||
+      !Number.isInteger(persisted.moderation_level) ||
+      persisted.moderation_level < 0 ||
+      persisted.moderation_level > 255
+    )
+      throw Error("unsupported source avatar profile");
+    for (const [asset, suit] of [
+      [persisted.default_suits.daywear, 0],
+      [persisted.default_suits.swimwear, 2],
+      [persisted.default_suits.sleepwear, 5],
+    ] as const)
+      if (
+        !outfits.some(
+          (outfit) => outfit.asset_key === asset && outfit.suit_type === suit,
+        )
+      )
+        throw Error("portable outfit is not owned");
+    const age = Math.floor(
+      (Math.floor(observed / 1000) -
+        Math.floor(persisted.created_at_ms / 1000)) /
+        86400,
+    );
+    if (age < 0 || observed < Math.floor(source.registered_at_ms / 1000) * 1000)
+      throw Error("source clock moved backwards");
+    const person_data = [...persisted.person_data];
+    person_data[10] = ((20 + Math.floor(age / 7)) << 16) >> 16; // StateFromDB unchecked i16 narrowing.
+    const portable = {
+      name: spec.name,
+      persistent_id: avatarId,
+      default_suits: persisted.default_suits,
+      // Runtime must derive final role/flags from bound source facts and lot metadata.
+      budget_mirror: source.balance,
+      body:
+        persisted.body_current === "0" ? spec.body_key : persisted.body_current,
+      head: spec.head_key,
+      skin_tone: ["light", "medium", "dark"].indexOf(spec.skin),
+      is_worker: false,
+      custom_guid: 0,
+      motive_data: persisted.motive_data,
+      person_data,
+      relationships: persisted.relationships,
+      job_info: persisted.job_info,
+      ignored_avatars: persisted.ignored_avatars,
+    };
+    const portable_json = canonical(portable);
+    if (new TextEncoder().encode(portable_json).byteLength > PORTABLE_LIMIT)
+      throw Error("portable avatar byte capacity");
+    const permission_source = {
+      registered_at_ms: source.registered_at_ms,
+      created_at_ms: persisted.created_at_ms,
+      observed_at_ms: observed,
+      roommate_lots: persisted.roommate_lots,
+      moderation_level: persisted.moderation_level,
+      mayor_nhood: persisted.mayor_nhood,
+    };
+    const source_revisions = {
+      owned_assets: 1 as const,
+      wardrobe: await digest(encode(outfits)),
+      ledger: await digest(encode({ balance: source.balance })),
+      progression: await digest(encode(persisted)),
+      permissions: await digest(
+        encode({ permission_source, permission_binding: permission }),
+      ),
+    };
+    const payload = {
+      schema_version: 2 as const,
+      authority_id: source.authority_id,
+      account_id: source.account_id,
+      avatar_id: avatarId,
+      lot_id: claim.lot_id,
+      control_generation: claim.generation,
+      admission_operation: op,
+      reservation_digest: source.reservation_digest,
+      session_ref: sessionRef,
+      account_revision: source.account_revision,
+      content_release: claim.content_release,
+      protocol_release: claim.protocol_release,
+      expires_at: claim.expires_at,
+      permission_binding: permission,
+      permission_source,
+      source_revisions,
+      portable_json,
+      portable_sha256: await digest(new TextEncoder().encode(portable_json)),
+    };
+    const exported: ReservedAvatarExportV2 = {
+      ...payload,
+      export_digest: await digest(encode(payload)),
+    };
+    const installed = this.ctx.storage.transactionSync(() => {
+      const current = this.reservedSourceV2(
+        sessionRef,
+        op,
+        avatarId,
+        permission,
+        observed,
+      );
+      if (!current) return false;
+      if (!equal(current, source))
+        throw Error("avatar source revision changed during export");
+      const prior = this.ctx.storage.sql
+        .exec<{
+          export_json: string;
+        }>(
+          "SELECT export_json FROM avatar_control_exports WHERE avatar_id=?",
+          avatarId,
+        )
+        .toArray()[0];
+      if (prior && !equal(JSON.parse(prior.export_json), exported))
+        throw Error("avatar export raced");
+      this.ctx.storage.sql.exec(
+        "INSERT OR IGNORE INTO avatar_control_exports(avatar_id,operation,source_json,export_json) VALUES(?,?,?,?)",
+        avatarId,
+        op,
+        canonical(this.sourceIdentityV2(source)),
+        canonical(exported),
+      );
+      return true;
+    });
+    if (!installed) throw Error("avatar control fenced");
+    return exported;
+  }
+  /** Authenticated recovery read: never replaces the frozen permission binding. */
+  async getReservedAvatarExportV2(
+    rawToken: unknown,
+    rawOperation: unknown,
+    rawAvatar: unknown,
+  ) {
+    const sessionRef = await this.tokenHash(rawToken),
+      op = operation(rawOperation),
+      avatarId = decimal(rawAvatar);
+    const saved = this.ctx.storage.sql
+      .exec<{
+        export_json: string;
+      }>(
+        "SELECT export_json FROM avatar_control_exports WHERE avatar_id=? AND operation=?",
+        avatarId,
+        op,
+      )
+      .toArray()[0];
+    if (!saved) throw Error("owned admission export unavailable");
+    const exported = JSON.parse(saved.export_json) as ReservedAvatarExportV2;
+    if (exported.session_ref !== sessionRef)
+      throw Error("reserved avatar session mismatch");
+    this.revalidateReservedAvatarV2(exported);
+    return exported;
+  }
+  /** Cross-object authorization handshake; coordinator must still serialize fences. */
+  revalidateReservedAvatarV2(raw: unknown) {
+    if (!raw || typeof raw !== "object") throw Error("invalid avatar export");
+    const exported = raw as ReservedAvatarExportV2;
+    const avatarId = decimal(exported.avatar_id);
+    const result = this.ctx.storage.transactionSync(() => {
+      const saved = this.ctx.storage.sql
+        .exec<{
+          source_json: string;
+          export_json: string;
+        }>(
+          "SELECT source_json,export_json FROM avatar_control_exports WHERE avatar_id=?",
+          avatarId,
+        )
+        .toArray()[0];
+      if (!saved || !equal(JSON.parse(saved.export_json), raw))
+        throw Error("unknown or changed avatar export");
+      const current = this.reservedSourceV2(
+        exported.session_ref,
+        exported.admission_operation,
+        avatarId,
+        exported.permission_binding,
+        exported.permission_source.observed_at_ms,
+      );
+      if (!current) return null;
+      if (canonical(this.sourceIdentityV2(current)) !== saved.source_json)
+        throw Error("avatar source revision changed");
+      const lease = this.ctx.storage.sql
+        .exec<{
+          revision: string;
+          expires_at: number;
+        }>(
+          "SELECT revision,expires_at FROM avatar_control_leases WHERE avatar_id=?",
+          avatarId,
+        )
+        .toArray()[0];
+      if (!lease) throw Error("control lease migration required");
+      return {
+        status: "validated" as const,
+        export: exported,
+        validated_at: this.now(),
+        lease,
+      };
+    });
+    if (!result) throw Error("avatar control fenced");
+    return result;
+  }
+  /** Authenticated browser activity/presence only, never an autonomous server tick. */
+  async renewAvatarControlV2(
+    rawToken: unknown,
+    rawExport: unknown,
+    rawOperation: unknown,
+    mode: "activity" | "presence" = "activity",
+  ): Promise<ControlLeaseV2> {
+    if (mode !== "activity" && mode !== "presence")
+      throw Error("invalid lease renewal mode");
+    const sessionRef = await this.tokenHash(rawToken),
+      op = operation(rawOperation),
+      e = rawExport as ReservedAvatarExportV2;
+    const avatarId = decimal(e?.avatar_id);
+    const result = this.ctx.storage.transactionSync(() => {
+      const account = this.authorize(sessionRef, mode === "activity");
+      const saved = this.ctx.storage.sql
+        .exec<{
+          source_json: string;
+          export_json: string;
+        }>(
+          "SELECT source_json,export_json FROM avatar_control_exports WHERE avatar_id=?",
+          avatarId,
+        )
+        .toArray()[0];
+      if (
+        !saved ||
+        !equal(JSON.parse(saved.export_json), rawExport) ||
+        e.session_ref !== sessionRef ||
+        e.account_id !== account.id
+      )
+        throw Error("unknown avatar lease owner");
+      const current = this.reservedSourceV2(
+        sessionRef,
+        e.admission_operation,
+        avatarId,
+        e.permission_binding,
+        e.permission_source.observed_at_ms,
+      );
+      if (!current) return null;
+      if (canonical(this.sourceIdentityV2(current)) !== saved.source_json)
+        throw Error("avatar source revision changed");
+      const request = canonical({
+        export_digest: e.export_digest,
+        session_ref: sessionRef,
+        mode,
+      });
+      const previous = this.ctx.storage.sql
+        .exec<{
+          request_json: string;
+          result: string;
+        }>(
+          "SELECT request_json,result FROM avatar_lease_operations WHERE account_id=? AND operation=?",
+          account.id,
+          op,
+        )
+        .toArray()[0];
+      if (previous) {
+        if (previous.request_json !== request)
+          throw Error("lease operation identity reused");
+        return JSON.parse(previous.result);
+      }
+      if (
+        this.ctx.storage.sql
+          .exec<{
+            n: number;
+          }>(
+            "SELECT COUNT(*) AS n FROM avatar_lease_operations WHERE account_id=?",
+            account.id,
+          )
+          .one().n >= 4096
+      )
+        throw Error("lease operation retention capacity");
+      const lease = this.ctx.storage.sql
+        .exec<{
+          revision: string;
+          expires_at: number;
+        }>(
+          "SELECT revision,expires_at FROM avatar_control_leases WHERE avatar_id=?",
+          avatarId,
+        )
+        .toArray()[0];
+      if (!lease) throw Error("control lease migration required");
+      const next = BigInt(lease.revision) + 1n;
+      if (next > 18446744073709551615n) throw Error("lease revision capacity");
+      const session = this.ctx.storage.sql
+        .exec<Session>("SELECT * FROM sessions WHERE token_hash=?", sessionRef)
+        .one();
+      const expires_at = Math.min(
+        this.now() + 60000,
+        session.expires,
+        session.idle,
+      );
+      const receipt: ControlLeaseV2 = {
+        schema_version: 2,
+        status: "renewed",
+        authority_id: e.authority_id,
+        account_id: account.id,
+        avatar_id: avatarId,
+        control_generation: e.control_generation,
+        admission_operation: e.admission_operation,
+        export_digest: e.export_digest,
+        session_ref: sessionRef,
+        lease_revision: next.toString(),
+        expires_at,
+        renewal_operation: op,
+      };
+      this.ctx.storage.sql.exec(
+        "UPDATE avatar_control_leases SET revision=?,expires_at=? WHERE avatar_id=?",
+        next.toString(),
+        expires_at,
+        avatarId,
+      );
+      this.ctx.storage.sql.exec(
+        "UPDATE avatar_control_claims SET claim=? WHERE avatar_id=?",
+        canonical({ ...current.claim, expires_at }),
+        avatarId,
+      );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO avatar_lease_operations(account_id,operation,request_json,result) VALUES(?,?,?,?)",
+        account.id,
+        op,
+        request,
+        canonical(receipt),
+      );
+      return receipt;
+    });
+    if (!result) throw Error("avatar control fenced");
+    return result;
+  }
+  /** Binding-only validation does not refresh account idle activity. */
+  revalidateControlLeaseV2(raw: unknown): {
+    status: "validated";
+    lease: ControlLeaseV2;
+    validated_at: number;
+  } {
+    if (!raw || typeof raw !== "object") throw Error("invalid control lease");
+    const value = raw as {
+      account_id: string;
+      avatar_id: string;
+      renewal_operation: string;
+    };
+    const saved = this.ctx.storage.sql
+      .exec<{
+        result: string;
+      }>(
+        "SELECT result FROM avatar_lease_operations WHERE account_id=? AND operation=?",
+        decimal(value.account_id),
+        operation(value.renewal_operation),
+      )
+      .toArray()[0];
+    if (!saved || !equal(JSON.parse(saved.result), raw))
+      throw Error("unknown or changed control lease");
+    const e = this.ctx.storage.sql
+      .exec<{
+        export_json: string;
+      }>(
+        "SELECT export_json FROM avatar_control_exports WHERE avatar_id=?",
+        decimal(value.avatar_id),
+      )
+      .toArray()[0];
+    if (!e) throw Error("unknown control lease avatar");
+    const validated = this.revalidateReservedAvatarV2(
+        JSON.parse(e.export_json),
+      ),
+      receipt = JSON.parse(saved.result) as ControlLeaseV2;
+    if (
+      validated.lease.revision !== receipt.lease_revision ||
+      validated.lease.expires_at !== receipt.expires_at
+    )
+      throw Error("stale control lease revision");
+    return { status: "validated", lease: receipt, validated_at: this.now() };
   }
   /** No timeout, read, logout or rotation releases custody for a second actor. */
   async avatarControl(rawToken: unknown, rawAvatar: unknown) {
@@ -530,6 +1111,13 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
         account.id,
         nameKey,
         canonical(spec),
+      );
+      this.ctx.storage.sql.exec(
+        "INSERT INTO avatar_source_state(avatar_id,source_json) VALUES(?,?)",
+        id,
+        canonical(
+          initialAvatarSource(Math.floor(this.now() / 1000) * 1000, spec),
+        ),
       );
       // Original ordinary CAS creation grants selected daywear and source defaults.
       // Catalog eligibility is not ownership; each grant has its own instance ID.

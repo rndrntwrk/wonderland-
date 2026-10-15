@@ -12,6 +12,7 @@ use crate::avatars::{
 };
 use crate::effects::{EffectKind, EffectPayload};
 use crate::ids::{EntityRef, ObjectId};
+use crate::lot_permissions::ReplicatedLotPermissions;
 use crate::state::{
     ContentDescriptor, ContentSet, ContinuationKind, EntityState, HeadlineKind, LifecyclePhase,
     SimState, SIMULATION_SCHEMA,
@@ -199,7 +200,7 @@ impl Header {
             return Err(SnapshotError::UnsupportedFormat(format));
         }
         let schema = u16::from_le_bytes([bytes[10], bytes[11]]);
-        if schema != SIMULATION_SCHEMA && schema != 1 {
+        if schema != SIMULATION_SCHEMA && schema != 1 && schema != 2 && schema != 3 {
             return Err(SnapshotError::UnsupportedSchema(schema));
         }
         let u64_at = |offset: usize| {
@@ -293,16 +294,35 @@ pub fn decode(
         .map_err(SnapshotError::InvalidContent)?;
     check_descriptor(header.content, descriptor)?;
     let payload = &bytes[SNAPSHOT_HEADER_LEN..end];
-    // Schema 2 appends two empty maps to the exact schema-1 tuple. Decode
-    // the original bounded representation without permitting trailing input.
+    if payload.len() < 2 || u16::from_le_bytes([payload[0], payload[1]]) != header.schema {
+        return Err(SnapshotError::HeaderPayloadMismatch("schema"));
+    }
+    // Schema 2 appended interaction maps to the unchanged schema-1 tuple.
+    // Schema 3 appends explicit uninitialized permission metadata. No old
+    // snapshot contains authority from which a visitor-only lot can be inferred.
+    // Schema 4 appends uninitialized owned admission; legacy actor grants do not
+    // prove account custody or source-import query/archetype facts.
+    let uninitialized = canonical(
+        &ReplicatedLotPermissions::Uninitialized,
+        MAX_SNAPSHOT_PAYLOAD_BYTES,
+    )?;
+    let migration_bytes = match header.schema {
+        1 => 16 + uninitialized.len() as u64 + 4,
+        2 => uninitialized.len() as u64 + 4,
+        3 => 4,
+        _ => 0,
+    };
     let migrated;
-    let decode_payload = if header.schema == 1 {
-        if payload.len() < 2 || u16::from_le_bytes([payload[0], payload[1]]) != 1 {
-            return Err(SnapshotError::HeaderPayloadMismatch("schema"));
-        }
+    let decode_payload = if header.schema != SIMULATION_SCHEMA {
         let mut value = payload.to_vec();
         value[..2].copy_from_slice(&SIMULATION_SCHEMA.to_le_bytes());
-        value.extend_from_slice(&[0; 16]);
+        if header.schema == 1 {
+            value.extend_from_slice(&[0; 16]);
+        }
+        if header.schema < 3 {
+            value.extend_from_slice(&uninitialized);
+        }
+        value.extend_from_slice(&[0; 4]);
         migrated = value;
         migrated.as_slice()
     } else {
@@ -311,7 +331,7 @@ pub fn decode(
     let decode_limit = expectation
         .limits
         .max_payload_bytes
-        .checked_add(16)
+        .checked_add(migration_bytes)
         .ok_or(SnapshotError::InvalidLimits("migration byte limit"))?;
     let mut state: SimState = options(decode_limit)
         .deserialize_seed(guard::ValueSeed::<SimState>::new(), decode_payload)
@@ -319,13 +339,7 @@ pub fn decode(
     if canonical(&state, decode_limit)? != decode_payload {
         return Err(SnapshotError::NonCanonicalPayload);
     }
-    if state.schema
-        != if header.schema == 1 {
-            SIMULATION_SCHEMA
-        } else {
-            header.schema
-        }
-    {
+    if state.schema != SIMULATION_SCHEMA {
         return Err(SnapshotError::HeaderPayloadMismatch("schema"));
     }
     if state.lot_id != header.lot_id {
@@ -351,7 +365,26 @@ pub fn decode(
     }
     validate_counts(&state, expectation.limits)?;
     validate_state(&state, content)?;
+    if header.schema != SIMULATION_SCHEMA {
+        // The input cap may allow a legacy frame whose added fields/queues
+        // would exceed today's hash/encode cap. Refuse before atomic install.
+        validate_migrated_size(&state, MAX_SNAPSHOT_PAYLOAD_BYTES)?;
+    }
     Ok(state)
+}
+
+fn validate_migrated_size(state: &SimState, limit: u64) -> Result<(), SnapshotError> {
+    // Count with the same bounded canonical codec without allocating another
+    // snapshot. Include any schema-1 queues reconstructed above.
+    options(limit)
+        .serialized_size(state)
+        .map(|_| ())
+        .map_err(|e| {
+            invalid(
+                "migration",
+                format!("migrated state is not checkpointable: {e}"),
+            )
+        })
 }
 
 /// Internal bounded decode for a trusted, owned in-tick check projection. Unlike
@@ -411,6 +444,20 @@ pub fn validate_state(state: &SimState, content: &ContentSet) -> Result<(), Snap
     if state.schema != SIMULATION_SCHEMA {
         return Err(SnapshotError::UnsupportedSchema(state.schema));
     }
+    if let ReplicatedLotPermissions::Initialized(lot) = &state.lot_permissions {
+        if state.mode != VmMode::Tso {
+            return Err(invalid(
+                "lot_permissions",
+                "initialized metadata requires TSO mode",
+            ));
+        }
+        lot.validate()
+            .map_err(|e| invalid("lot_permissions", format!("{e:?}")))?;
+    }
+    state
+        .owned_admission
+        .validate(state)
+        .map_err(|e| invalid("owned_admission", e))?;
     if state.lot_id == 0 || state.authority_epoch == 0 {
         return Err(invalid("identity", "lot ID and epoch must be nonzero"));
     }
@@ -1486,5 +1533,60 @@ mod guard {
         fn is_human_readable(&self) -> bool {
             self.inner.is_human_readable()
         }
+    }
+}
+
+#[cfg(test)]
+mod migration_size_tests {
+    use super::*;
+    use crate::runtime::{AcceptedCommand, RuntimeConfig, RuntimeRole, SimRuntime, SpawnSpec};
+    use crate::state::{ObjectDefinition, TuningSet};
+    use crate::vm::RoutineStore;
+    use crate::world::{Facing, LotModel, LotPosition};
+
+    #[test]
+    fn migrated_state_must_fit_the_current_cap_including_marker_and_restored_queues() {
+        let content = ContentSet::new(
+            RoutineStore::new(),
+            vec![ObjectDefinition::new(100, 1)],
+            vec![],
+            TuningSet::default(),
+        )
+        .unwrap();
+        let mut runtime = SimRuntime::new(
+            content,
+            LotModel::new(8, 8, 1).unwrap(),
+            RuntimeConfig::new(VmMode::Tso, 41, 7, 123),
+            RuntimeRole::Authority,
+        )
+        .unwrap();
+        let exact = options(MAX_SNAPSHOT_PAYLOAD_BYTES)
+            .serialized_size(runtime.state())
+            .unwrap();
+        validate_migrated_size(runtime.state(), exact).unwrap();
+        // The old schema-2 payload fits this smaller cap, but adding its explicit
+        // Uninitialized marker must not create an unpersistable restored state.
+        assert!(validate_migrated_size(runtime.state(), exact - 4).is_err());
+        let tick = runtime
+            .next_tick(vec![AcceptedCommand::Spawn(SpawnSpec {
+                guid: 100,
+                position: LotPosition::new(8, 8, 1),
+                facing: Facing::NORTH,
+                persistent_id: crate::ids::PersistentId(91),
+                avatar: false,
+            })])
+            .unwrap();
+        runtime.step(&tick).unwrap();
+        let mut before_queue_reconstruction = runtime.state().clone();
+        before_queue_reconstruction.interaction_queues.clear();
+        let before = options(MAX_SNAPSHOT_PAYLOAD_BYTES)
+            .serialized_size(&before_queue_reconstruction)
+            .unwrap();
+        validate_migrated_size(&before_queue_reconstruction, before).unwrap();
+        assert!(validate_migrated_size(runtime.state(), before).is_err());
+        let exact = options(MAX_SNAPSHOT_PAYLOAD_BYTES)
+            .serialized_size(runtime.state())
+            .unwrap();
+        validate_migrated_size(runtime.state(), exact).unwrap();
     }
 }

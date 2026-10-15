@@ -4,14 +4,15 @@
 //! `VMTSOLotState`, `VMNetSimJoinCmd` (66–120), `VMBuildableAreaInfo`
 //! (104–168), `VMObjectQueries` (23–41), and `VMTSOObjectState`.
 //!
-//! These are disconnected, validated source projections, not another runtime
-//! ownership store, a snapshot schema, authentication, or an admission grant.
+//! The lot metadata can be explicitly initialized in replicated state. The
+//! object/query projections and reducers remain detached: they are not another
+//! runtime ownership store, authentication, or an admission grant.
 //! An adapter must obtain authoritative lot/persistent-group data and preserve
 //! source distinctions between avatar-stack use, per-part occupation and portals.
 //! Existing runtime ownership/grouping fields alone do not supply that query.
 //! Returned scheduler/light operations are obligations: this module never runs
 //! them. Database refresh, permission-change commands, later inventory deletion,
-//! and integration with replicated state remain separate prerequisites.
+//! and runtime application of reconciliation remain separate prerequisites.
 
 use crate::avatars::state::AvatarPermissions;
 use crate::ids::{ObjectId, PersistentId};
@@ -28,6 +29,16 @@ pub const MAX_PERMISSION_ENTRIES: usize = i16::MAX as usize;
 pub const OBJECT_LIMIT_PER_PERSON: [i32; 14] = [
     75, 92, 109, 126, 143, 160, 177, 194, 211, 228, 245, 262, 279, 300,
 ];
+
+/// Explicit native initialization boundary. Missing legacy authority remains
+/// uninitialized; even initialized metadata does not certify admission readiness.
+/// Query facts, object ownership and avatar permissions are deliberately absent.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ReplicatedLotPermissions {
+    #[default]
+    Uninitialized,
+    Initialized(LotPermissionState),
+}
 
 /// Owner and membership identifiers are source-width values, including zero.
 /// Build membership need not be a subset: join deliberately leaves an existing
@@ -88,7 +99,7 @@ impl LotPermissionState {
             .ok_or(LotPermissionError::ObjectLimitOverflow)
     }
 
-    fn validate(&self) -> Result<(), LotPermissionError> {
+    pub(crate) fn validate(&self) -> Result<(), LotPermissionError> {
         if self.roommates.len() > MAX_PERMISSION_ENTRIES
             || self.build_roommates.len() > MAX_PERMISSION_ENTRIES
         {

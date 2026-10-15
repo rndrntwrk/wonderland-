@@ -1,0 +1,9 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> e2e:owned
+> node tests/owned-export.mjs && node tests/owned-control.mjs && node tests/owned-runtime.mjs
+
+PASS actual workerd SQLite: source-owned portable export, exact decimals/hash, two accounts/session isolation, restart, source revision mutation, missing migration, expiry retains custody and durable fence
+PASS actual workerd SQLite: direct account revalidation, bounded durable installation, distinct monotonic principals, retry/restart, no fabricated admission, V1 guard, authenticated monotonic renewal past original expiry, no late revival, expiry denial/tombstones persist atomically without journal/outbox/cursor mutation
+PASS real AccountAuthority + workerd SQLite/R2 + production Rust Host: two owned source exports, distinct allocated principals/actors, atomic admission receipts/journal, stale autonomous candidate rejected after renewal, SIGKILL plus workerd restart, replay from initial checkpoint with three real accepted batches, takeover, exact historical receipt, post-recovery tick, fence-after-prepare rejection; authored content only, original gameplay NOT qualified.
+Evidence directory: /tmp/wonderland-owned-runtime-l5hF7X

@@ -42,6 +42,36 @@ pub struct HostBindingV1 {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum RequestV1 {
     Inspect,
+    PlayerBootstrap {
+        control: OwnedControlV2,
+        binding: PlayerBindingV1,
+    },
+    PlayerCheckpoint {
+        control: OwnedControlV2,
+        request_hex: String,
+    },
+    PrepareOwnedAdmission {
+        batch_id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        expected_control_revision: DecimalId,
+        principal: DecimalId,
+        export: Box<ReservedAvatarExportV2>,
+    },
+    PreparePlayerAction {
+        batch_id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        expected_control_revision: DecimalId,
+        control: OwnedControlV2,
+        action_hex: String,
+    },
+    PreparePlayerTick {
+        batch_id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        expected_control_revision: DecimalId,
+    },
     ActivateRecovery {
         marker: TakeoverMarkerV1,
     },
@@ -90,3 +120,6 @@ pub struct TakeoverMarkerV1 {
 
 mod control;
 pub use control::ControlStateV2;
+
+mod player;
+pub use player::*;
