@@ -1,0 +1,1552 @@
+{
+  "available_matching_patches_unapplied": [
+    {
+      "path": "TSOClient/FSO.Content.TSO/Content/Patch/global.piff",
+      "source_sha256": "c5ee12a94a8306bae93dc6bad7446d34f14be5ca51bd5e21aa5c7b71119be606",
+      "targets": "global.iff"
+    },
+    {
+      "path": "TSOClient/FSO.Content.TSO/Content/Patch/global.str.piff",
+      "source_sha256": "34192cb642bab821bafb11f927be3101e6f19385c220c20fc3ae848369cb2bb6",
+      "targets": "global.iff"
+    },
+    {
+      "path": "TSOClient/FSO.Content.TSO/Content/Patch/personglobals.str.piff",
+      "source_sha256": "7dc860c140686fda69f8b638f7470957c3e819e8fe81de8b5c8c3288fc7a6cc1",
+      "targets": "personglobals.iff"
+    },
+    {
+      "path": "TSOClient/FSO.Content.TSO/Content/Patch/personglobals_wakeup.piff",
+      "source_sha256": "8652394b426a2239f9186358407cfda0aa999a6fdaacae25effa143f14575f87",
+      "targets": "personglobals.iff"
+    },
+    {
+      "path": "TSOClient/FSO.Content.TSO/Content/Patch/templateperson_burn.piff",
+      "source_sha256": "cff54ee7e517b5716d6ab7f9024dad18b609aafe4187ffe226192057d052565c",
+      "targets": "templateperson.iff"
+    }
+  ],
+  "candidate_count": 4,
+  "candidates": [
+    {
+      "behavior_summaries": [
+        {
+          "args": 0,
+          "chunk_id": 4096,
+          "direct_calls": [
+            280,
+            4101,
+            4196
+          ],
+          "instruction_count": 5,
+          "kind": 0,
+          "label": "Functional - Main",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 280
+            },
+            {
+              "count": 1,
+              "opcode": 4101
+            },
+            {
+              "count": 1,
+              "opcode": 4196
+            }
+          ],
+          "resource_ordinal": 55,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4097,
+          "direct_calls": [
+            271
+          ],
+          "instruction_count": 1,
+          "kind": 0,
+          "label": "Functional - init",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 271
+            }
+          ],
+          "resource_ordinal": 56,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4300,
+          "direct_calls": [],
+          "instruction_count": 4,
+          "kind": 0,
+          "label": "Debug - toggle has zero extent",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 4,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 57,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4197,
+          "direct_calls": [
+            4101,
+            4196
+          ],
+          "instruction_count": 6,
+          "kind": 0,
+          "label": "Functional - User Placement",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 2,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 49
+            },
+            {
+              "count": 1,
+              "opcode": 4101
+            },
+            {
+              "count": 1,
+              "opcode": 4196
+            }
+          ],
+          "resource_ordinal": 58,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4101,
+          "direct_calls": [
+            4100
+          ],
+          "instruction_count": 16,
+          "kind": 0,
+          "label": "helper - dynamic update",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 14,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 7
+            },
+            {
+              "count": 1,
+              "opcode": 4100
+            }
+          ],
+          "resource_ordinal": 59,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4100,
+          "direct_calls": [],
+          "instruction_count": 36,
+          "kind": 0,
+          "label": "helper - set adjancency flags",
+          "locals": 7,
+          "opcode_counts": [
+            {
+              "count": 31,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 11
+            },
+            {
+              "count": 1,
+              "opcode": 12
+            },
+            {
+              "count": 2,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 32
+            }
+          ],
+          "resource_ordinal": 60,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4196,
+          "direct_calls": [
+            4194
+          ],
+          "instruction_count": 41,
+          "kind": 0,
+          "label": "OLD - dynamic update",
+          "locals": 1,
+          "opcode_counts": [
+            {
+              "count": 36,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 7
+            },
+            {
+              "count": 1,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 32
+            },
+            {
+              "count": 1,
+              "opcode": 49
+            },
+            {
+              "count": 1,
+              "opcode": 4194
+            }
+          ],
+          "resource_ordinal": 61,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4194,
+          "direct_calls": [],
+          "instruction_count": 58,
+          "kind": 0,
+          "label": "OLD - set adj",
+          "locals": 7,
+          "opcode_counts": [
+            {
+              "count": 53,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 11
+            },
+            {
+              "count": 1,
+              "opcode": 12
+            },
+            {
+              "count": 2,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 32
+            }
+          ],
+          "resource_ordinal": 62,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 4,
+          "chunk_id": 4104,
+          "direct_calls": [],
+          "instruction_count": 2,
+          "kind": 0,
+          "label": "Interaction - Set Theme 2",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 49
+            }
+          ],
+          "resource_ordinal": 63,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 4,
+          "chunk_id": 4103,
+          "direct_calls": [
+            4099
+          ],
+          "instruction_count": 2,
+          "kind": 0,
+          "label": "Interaction - Set Theme 1 TEST",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 4099
+            }
+          ],
+          "resource_ordinal": 64,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 4,
+          "chunk_id": 4105,
+          "direct_calls": [
+            4099
+          ],
+          "instruction_count": 2,
+          "kind": 0,
+          "label": "Interaction - Set Theme 2 TEST",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 4099
+            }
+          ],
+          "resource_ordinal": 65,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4099,
+          "direct_calls": [],
+          "instruction_count": 1,
+          "kind": 0,
+          "label": "can I be re-themed?",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 66,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 4,
+          "chunk_id": 4102,
+          "direct_calls": [],
+          "instruction_count": 2,
+          "kind": 0,
+          "label": "Interaction - Set Theme 1",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 49
+            }
+          ],
+          "resource_ordinal": 67,
+          "tree_version": 0,
+          "version": 32771
+        }
+      ],
+      "global_bhav_required": [
+        271,
+        280
+      ],
+      "interaction_tables": [
+        {
+          "chunk_id": 128,
+          "compression_code": 0,
+          "entries": [
+            {
+              "action_function": 4102,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 0,
+              "test_function": 4103
+            },
+            {
+              "action_function": 4104,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 1,
+              "test_function": 4105
+            }
+          ],
+          "resource_ordinal": 81,
+          "version": 10
+        }
+      ],
+      "missing_private_bhav": [],
+      "named_semiglobals": [],
+      "object_definitions": [
+        {
+          "bhav_refs": [
+            {
+              "field": "BHAV_MainID",
+              "id": 4096
+            },
+            {
+              "field": "BHAV_Init",
+              "id": 4097
+            },
+            {
+              "field": "BHAV_UserPlace",
+              "id": 4197
+            }
+          ],
+          "chunk_id": 16807,
+          "chunk_sha256": "274ed6e24ec4f17c5b78d6f33c8800d97db0985aa9f1cb3049e48996473fe94a",
+          "effective_content_id": null,
+          "family": "unknown",
+          "family_evidence": null,
+          "guid": 1668868582,
+          "guid_hex": "6378e9e6",
+          "label": "fso-2-in-1_Racing_Banner",
+          "raw_fields": {
+            "base_graphic_id": 100,
+            "bit_field_1": 0,
+            "body_string_id": 0,
+            "catalog_strings_id": 2000,
+            "chair_entry_flags": 0,
+            "dynamic_sprite_base_id": 0,
+            "function_flags": 0,
+            "function_subsort": 0,
+            "global": 0,
+            "master_id": 0,
+            "num_attributes": 0,
+            "num_dynamic_sprites": 0,
+            "num_graphics": 6,
+            "num_type_attributes": 0,
+            "object_type": 4,
+            "rating_bladder": 0,
+            "rating_comfort": 0,
+            "rating_energy": 0,
+            "rating_fun": 0,
+            "rating_hunger": 0,
+            "rating_hygiene": 0,
+            "rating_room": 0,
+            "rating_skill_flags": 0,
+            "room_flags": 0,
+            "slot_id": 0,
+            "sub_index": 0,
+            "tree_table_id": 128,
+            "uses_fn_table": 0
+          },
+          "resource_ordinal": 0,
+          "version": 142
+        }
+      ],
+      "original_chunk_counts": {
+        "BHAV": 13,
+        "BMP_": 1,
+        "CTSS": 1,
+        "DGRP": 6,
+        "FSOM": 6,
+        "FSOR": 1,
+        "MTEX": 1,
+        "OBJD": 1,
+        "PALT": 48,
+        "SPR2": 4,
+        "STR#": 2,
+        "TREE": 13,
+        "TTAB": 1,
+        "TTAs": 1
+      },
+      "path": "TSOClient/FSO.Content.TSO/Content/Objects/fso_decor_2-in-1_Racing_Banner.iff",
+      "semiglobal_bhav_required": [],
+      "source_bytes": 162870,
+      "source_git_blob": "d16039a2b12cb92cfd3a186de56b808e0703c6aa",
+      "source_matches_pin": true,
+      "source_sha256": "260a9db1ed017eacf2604beaf92dbf0cafae6c651b1f0296605eab2429503ab7",
+      "whole_object_runtime_qualified": false,
+      "zero_instruction_local_routines": []
+    },
+    {
+      "behavior_summaries": [
+        {
+          "args": 0,
+          "chunk_id": 4096,
+          "direct_calls": [
+            271
+          ],
+          "instruction_count": 3,
+          "kind": 0,
+          "label": "init",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 2,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 271
+            }
+          ],
+          "resource_ordinal": 4,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4097,
+          "direct_calls": [],
+          "instruction_count": 0,
+          "kind": 0,
+          "label": "main",
+          "locals": 0,
+          "opcode_counts": [],
+          "resource_ordinal": 5,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4098,
+          "direct_calls": [],
+          "instruction_count": 2,
+          "kind": 0,
+          "label": "Interaction - Set Group ID",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 36
+            }
+          ],
+          "resource_ordinal": 6,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4099,
+          "direct_calls": [],
+          "instruction_count": 5,
+          "kind": 0,
+          "label": "Interaction - Set Digit Number",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 3,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 36
+            }
+          ],
+          "resource_ordinal": 7,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4100,
+          "direct_calls": [],
+          "instruction_count": 0,
+          "kind": 0,
+          "label": "Interaction - What's This",
+          "locals": 0,
+          "opcode_counts": [],
+          "resource_ordinal": 8,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4101,
+          "direct_calls": [],
+          "instruction_count": 0,
+          "kind": 0,
+          "label": "Interaction - Controller Set Milestone",
+          "locals": 0,
+          "opcode_counts": [],
+          "resource_ordinal": 9,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4102,
+          "direct_calls": [
+            4103,
+            4108,
+            4109
+          ],
+          "instruction_count": 5,
+          "kind": 0,
+          "label": "Interaction - Controller Force Value",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 36
+            },
+            {
+              "count": 1,
+              "opcode": 4103
+            },
+            {
+              "count": 1,
+              "opcode": 4108
+            },
+            {
+              "count": 1,
+              "opcode": 4109
+            }
+          ],
+          "resource_ordinal": 10,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4103,
+          "direct_calls": [
+            4103,
+            4105,
+            4107
+          ],
+          "instruction_count": 24,
+          "kind": 0,
+          "label": "CT - Set Number",
+          "locals": 2,
+          "opcode_counts": [
+            {
+              "count": 18,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 7
+            },
+            {
+              "count": 1,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 4103
+            },
+            {
+              "count": 1,
+              "opcode": 4105
+            },
+            {
+              "count": 2,
+              "opcode": 4107
+            }
+          ],
+          "resource_ordinal": 11,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 1,
+          "chunk_id": 4106,
+          "direct_calls": [],
+          "instruction_count": 5,
+          "kind": 0,
+          "label": "Unsigned to TempXL 0",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 5,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 12,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 2,
+          "chunk_id": 4107,
+          "direct_calls": [
+            4106
+          ],
+          "instruction_count": 8,
+          "kind": 0,
+          "label": "Compose 32bit to TempXL",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 6,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 4106
+            }
+          ],
+          "resource_ordinal": 13,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4108,
+          "direct_calls": [
+            4106
+          ],
+          "instruction_count": 7,
+          "kind": 0,
+          "label": "Decompose 32bit to Temp 0, 1",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 6,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 4106
+            }
+          ],
+          "resource_ordinal": 14,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4105,
+          "direct_calls": [],
+          "instruction_count": 4,
+          "kind": 0,
+          "label": "Helper - Digit as 10s in TempXL 0",
+          "locals": 1,
+          "opcode_counts": [
+            {
+              "count": 4,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 15,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4109,
+          "direct_calls": [],
+          "instruction_count": 8,
+          "kind": 0,
+          "label": "Helper - Find Controller",
+          "locals": 1,
+          "opcode_counts": [
+            {
+              "count": 7,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 31
+            }
+          ],
+          "resource_ordinal": 16,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4104,
+          "direct_calls": [],
+          "instruction_count": 1,
+          "kind": 0,
+          "label": "CT - Is Controller",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 17,
+          "tree_version": 0,
+          "version": 32771
+        }
+      ],
+      "global_bhav_required": [
+        271
+      ],
+      "interaction_tables": [
+        {
+          "chunk_id": 128,
+          "compression_code": 0,
+          "entries": [
+            {
+              "action_function": 4098,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 1,
+              "test_function": 0
+            },
+            {
+              "action_function": 4099,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 2,
+              "test_function": 0
+            },
+            {
+              "action_function": 4102,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 3,
+              "test_function": 4109
+            },
+            {
+              "action_function": 4101,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 4,
+              "test_function": 4109
+            }
+          ],
+          "resource_ordinal": 170,
+          "version": 10
+        }
+      ],
+      "missing_private_bhav": [],
+      "named_semiglobals": [],
+      "object_definitions": [
+        {
+          "bhav_refs": [
+            {
+              "field": "BHAV_MainID",
+              "id": 4097
+            },
+            {
+              "field": "BHAV_Init",
+              "id": 4096
+            }
+          ],
+          "chunk_id": 16807,
+          "chunk_sha256": "fbcd345a09e864cb122720276dc59783ba3b95ecd5559d569441256210126009",
+          "effective_content_id": null,
+          "family": "unknown",
+          "family_evidence": null,
+          "guid": 1207980506,
+          "guid_hex": "480051da",
+          "label": "Event Tally Digit",
+          "raw_fields": {
+            "base_graphic_id": 100,
+            "bit_field_1": 0,
+            "body_string_id": 0,
+            "catalog_strings_id": 0,
+            "chair_entry_flags": 0,
+            "dynamic_sprite_base_id": 0,
+            "function_flags": 0,
+            "function_subsort": 0,
+            "global": 0,
+            "master_id": 0,
+            "num_attributes": 0,
+            "num_dynamic_sprites": 0,
+            "num_graphics": 10,
+            "num_type_attributes": 0,
+            "object_type": 4,
+            "rating_bladder": 0,
+            "rating_comfort": 0,
+            "rating_energy": 0,
+            "rating_fun": 0,
+            "rating_hunger": 0,
+            "rating_hygiene": 0,
+            "rating_room": 0,
+            "rating_skill_flags": 0,
+            "room_flags": 0,
+            "slot_id": 0,
+            "sub_index": 0,
+            "tree_table_id": 128,
+            "uses_fn_table": 0
+          },
+          "resource_ordinal": 0,
+          "version": 142
+        }
+      ],
+      "original_chunk_counts": {
+        "BHAV": 14,
+        "BMP_": 1,
+        "DGRP": 10,
+        "FSOM": 10,
+        "FSOR": 1,
+        "MTEX": 3,
+        "OBJD": 1,
+        "PALT": 120,
+        "SPR2": 10,
+        "STR#": 3,
+        "TREE": 12,
+        "TTAB": 1,
+        "TTAs": 1
+      },
+      "path": "TSOClient/FSO.Content.TSO/Content/Objects/fso_event_tally.iff",
+      "semiglobal_bhav_required": [],
+      "source_bytes": 1554612,
+      "source_git_blob": "7703db6f0d49ec7aca424057619b92ec658fbde5",
+      "source_matches_pin": true,
+      "source_sha256": "bf8466b91f6f7203e7dc0c43fd8c5810dbab902d2fc5b0421e972b11623eef6f",
+      "whole_object_runtime_qualified": false,
+      "zero_instruction_local_routines": [
+        4097,
+        4100,
+        4101
+      ]
+    },
+    {
+      "behavior_summaries": [
+        {
+          "args": 0,
+          "chunk_id": 4097,
+          "direct_calls": [
+            271
+          ],
+          "instruction_count": 9,
+          "kind": 0,
+          "label": "Functional - Init",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 8,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 271
+            }
+          ],
+          "resource_ordinal": 4,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4096,
+          "direct_calls": [
+            280,
+            4103
+          ],
+          "instruction_count": 4,
+          "kind": 0,
+          "label": "Functional - Main",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 280
+            },
+            {
+              "count": 1,
+              "opcode": 4103
+            }
+          ],
+          "resource_ordinal": 5,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 1,
+          "chunk_id": 4098,
+          "direct_calls": [],
+          "instruction_count": 6,
+          "kind": 0,
+          "label": "Interaction - Go Here",
+          "locals": 2,
+          "opcode_counts": [
+            {
+              "count": 4,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 13
+            },
+            {
+              "count": 1,
+              "opcode": 42
+            }
+          ],
+          "resource_ordinal": 6,
+          "tree_version": 1,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4099,
+          "direct_calls": [],
+          "instruction_count": 1,
+          "kind": 0,
+          "label": "Interaction - Go Here pushed",
+          "locals": 2,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 27
+            }
+          ],
+          "resource_ordinal": 7,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4100,
+          "direct_calls": [],
+          "instruction_count": 1,
+          "kind": 0,
+          "label": "Interaction - Go Here TEST",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 8,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4102,
+          "direct_calls": [],
+          "instruction_count": 25,
+          "kind": 0,
+          "label": "Helper - set my adjacency flags ",
+          "locals": 5,
+          "opcode_counts": [
+            {
+              "count": 20,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 11
+            },
+            {
+              "count": 1,
+              "opcode": 12
+            },
+            {
+              "count": 2,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 32
+            }
+          ],
+          "resource_ordinal": 9,
+          "tree_version": 4,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4101,
+          "direct_calls": [
+            4102,
+            4103
+          ],
+          "instruction_count": 5,
+          "kind": 0,
+          "label": "Functional - User Placement",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 31
+            },
+            {
+              "count": 1,
+              "opcode": 49
+            },
+            {
+              "count": 1,
+              "opcode": 4102
+            },
+            {
+              "count": 1,
+              "opcode": 4103
+            }
+          ],
+          "resource_ordinal": 10,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4103,
+          "direct_calls": [
+            4102
+          ],
+          "instruction_count": 19,
+          "kind": 0,
+          "label": "Helper - dynamic update (just me)",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 16,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 7
+            },
+            {
+              "count": 1,
+              "opcode": 4102
+            }
+          ],
+          "resource_ordinal": 11,
+          "tree_version": 2,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4106,
+          "direct_calls": [],
+          "instruction_count": 4,
+          "kind": 0,
+          "label": "Interaction - Dynamic Update Toggle",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 3,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 49
+            }
+          ],
+          "resource_ordinal": 12,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4107,
+          "direct_calls": [],
+          "instruction_count": 3,
+          "kind": 0,
+          "label": "Interaction - Dynamic Update Toggle TEST",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 50
+            }
+          ],
+          "resource_ordinal": 13,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4104,
+          "direct_calls": [],
+          "instruction_count": 7,
+          "kind": 0,
+          "label": "Interaction - Update Me Manually",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 6,
+              "opcode": 2
+            },
+            {
+              "count": 1,
+              "opcode": 7
+            }
+          ],
+          "resource_ordinal": 14,
+          "tree_version": 0,
+          "version": 32771
+        },
+        {
+          "args": 0,
+          "chunk_id": 4105,
+          "direct_calls": [],
+          "instruction_count": 3,
+          "kind": 0,
+          "label": "Interaction - Update Me ManuallyTEST",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            },
+            {
+              "count": 2,
+              "opcode": 50
+            }
+          ],
+          "resource_ordinal": 15,
+          "tree_version": 0,
+          "version": 32771
+        }
+      ],
+      "global_bhav_required": [
+        265,
+        271,
+        280
+      ],
+      "interaction_tables": [
+        {
+          "chunk_id": 129,
+          "compression_code": 0,
+          "entries": [
+            {
+              "action_function": 4098,
+              "autonomy_threshold": 0,
+              "flags": 4,
+              "flags2": 30,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 0,
+              "test_function": 4100
+            },
+            {
+              "action_function": 4099,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 30,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 1,
+              "test_function": 265
+            },
+            {
+              "action_function": 4104,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 2,
+              "test_function": 4105
+            },
+            {
+              "action_function": 4106,
+              "autonomy_threshold": 0,
+              "flags": 0,
+              "flags2": 6,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 3,
+              "test_function": 4107
+            }
+          ],
+          "resource_ordinal": 28,
+          "version": 10
+        }
+      ],
+      "missing_private_bhav": [],
+      "named_semiglobals": [],
+      "object_definitions": [
+        {
+          "bhav_refs": [
+            {
+              "field": "BHAV_MainID",
+              "id": 4096
+            },
+            {
+              "field": "BHAV_Init",
+              "id": 4097
+            },
+            {
+              "field": "BHAV_UserPlace",
+              "id": 4101
+            }
+          ],
+          "chunk_id": 16807,
+          "chunk_sha256": "5af17fccfd9eebfb8722db697ce3f4cb7956076411274f1014090f90fcf5a91c",
+          "effective_content_id": null,
+          "family": "unknown",
+          "family_evidence": null,
+          "guid": 2045728475,
+          "guid_hex": "79ef56db",
+          "label": "Cookies n' Candy Border",
+          "raw_fields": {
+            "base_graphic_id": 100,
+            "bit_field_1": 0,
+            "body_string_id": 0,
+            "catalog_strings_id": 2000,
+            "chair_entry_flags": 0,
+            "dynamic_sprite_base_id": 0,
+            "function_flags": 0,
+            "function_subsort": 0,
+            "global": 0,
+            "master_id": 0,
+            "num_attributes": 0,
+            "num_dynamic_sprites": 0,
+            "num_graphics": 2,
+            "num_type_attributes": 0,
+            "object_type": 4,
+            "rating_bladder": 0,
+            "rating_comfort": 0,
+            "rating_energy": 0,
+            "rating_fun": 0,
+            "rating_hunger": 0,
+            "rating_hygiene": 0,
+            "rating_room": 0,
+            "rating_skill_flags": 0,
+            "room_flags": 0,
+            "slot_id": 0,
+            "sub_index": 0,
+            "tree_table_id": 129,
+            "uses_fn_table": 0
+          },
+          "resource_ordinal": 0,
+          "version": 142
+        }
+      ],
+      "original_chunk_counts": {
+        "BHAV": 12,
+        "BMP_": 1,
+        "CTSS": 1,
+        "DGRP": 2,
+        "FSOM": 2,
+        "FSOR": 1,
+        "MTEX": 1,
+        "OBJD": 1,
+        "PALT": 24,
+        "SPR2": 2,
+        "STR#": 3,
+        "TREE": 12,
+        "TTAB": 1,
+        "TTAs": 1
+      },
+      "path": "TSOClient/FSO.Content.TSO/Content/Objects/fso-summer-candy-border.iff",
+      "semiglobal_bhav_required": [],
+      "source_bytes": 199790,
+      "source_git_blob": "95956ce72adae4335e58c09da9e4ae6df990dff6",
+      "source_matches_pin": true,
+      "source_sha256": "f15697f5a39a517d615285d37b78d6292a6660018758391003a16ca0ca6d563f",
+      "whole_object_runtime_qualified": false,
+      "zero_instruction_local_routines": []
+    },
+    {
+      "behavior_summaries": [
+        {
+          "args": 0,
+          "chunk_id": 4096,
+          "direct_calls": [],
+          "instruction_count": 1,
+          "kind": 0,
+          "label": "CT - Get Room Impact",
+          "locals": 0,
+          "opcode_counts": [
+            {
+              "count": 1,
+              "opcode": 2
+            }
+          ],
+          "resource_ordinal": 2,
+          "tree_version": 0,
+          "version": 32771
+        }
+      ],
+      "global_bhav_required": [
+        265
+      ],
+      "interaction_tables": [
+        {
+          "chunk_id": 128,
+          "compression_code": null,
+          "entries": [
+            {
+              "action_function": 8203,
+              "autonomy_threshold": 0,
+              "flags": 1,
+              "flags2": 30,
+              "joining_index": 0,
+              "motive_count": 16,
+              "string_index": 0,
+              "test_function": 265
+            }
+          ],
+          "resource_ordinal": 24,
+          "version": 8
+        }
+      ],
+      "missing_private_bhav": [],
+      "named_semiglobals": [
+        "ArtGlobals"
+      ],
+      "object_definitions": [
+        {
+          "bhav_refs": [
+            {
+              "field": "BHAV_MainID",
+              "id": 8199
+            },
+            {
+              "field": "BHAV_Init",
+              "id": 8201
+            }
+          ],
+          "chunk_id": 16807,
+          "chunk_sha256": "3858e5cc7bf6fdac20de9d77ed45a73aed8e2cea8f42aa97d0421f4ba2467689",
+          "effective_content_id": null,
+          "family": "unknown",
+          "family_evidence": null,
+          "guid": 82792877,
+          "guid_hex": "04ef51ad",
+          "label": "painting-s1_jackpotPoster",
+          "raw_fields": {
+            "base_graphic_id": 100,
+            "bit_field_1": 0,
+            "body_string_id": 0,
+            "catalog_strings_id": 2000,
+            "chair_entry_flags": 0,
+            "dynamic_sprite_base_id": 0,
+            "function_flags": 0,
+            "function_subsort": 0,
+            "global": 0,
+            "master_id": 0,
+            "num_attributes": 0,
+            "num_dynamic_sprites": 0,
+            "num_graphics": 1,
+            "num_type_attributes": 0,
+            "object_type": 4,
+            "rating_bladder": 0,
+            "rating_comfort": 0,
+            "rating_energy": 0,
+            "rating_fun": 0,
+            "rating_hunger": 0,
+            "rating_hygiene": 0,
+            "rating_room": 0,
+            "rating_skill_flags": 0,
+            "room_flags": 0,
+            "slot_id": 0,
+            "sub_index": 0,
+            "tree_table_id": 128,
+            "uses_fn_table": 0
+          },
+          "resource_ordinal": 0,
+          "version": 142
+        }
+      ],
+      "original_chunk_counts": {
+        "BHAV": 1,
+        "BMP_": 1,
+        "CTSS": 1,
+        "DGRP": 1,
+        "FSOM": 1,
+        "FSOR": 1,
+        "GLOB": 1,
+        "MTEX": 2,
+        "OBJD": 1,
+        "PALT": 12,
+        "SPR2": 1,
+        "STR#": 1,
+        "TTAB": 1,
+        "TTAs": 1
+      },
+      "path": "TSOClient/FSO.Content.TSO/Content/Objects/painting_s1_jackpotPoster.iff",
+      "semiglobal_bhav_required": [
+        8199,
+        8201,
+        8203
+      ],
+      "source_bytes": 169313,
+      "source_git_blob": "141a2c71a9483f82450705c3ae4dbdbbbbd9d966",
+      "source_matches_pin": true,
+      "source_sha256": "311cfac5c10c02ede7442649a9cc6850a2b87cba72640b85de4953b13827ba95",
+      "whole_object_runtime_qualified": false,
+      "zero_instruction_local_routines": []
+    }
+  ],
+  "census_sha256": "f5448fac68278e237b36b5a30705395b58b30152df4042cfca67d0eb8ab2878f",
+  "original_files_modified": 0,
+  "playable_release_qualified": false,
+  "preferred_candidate": "fso_decor_2-in-1_Racing_Banner.iff",
+  "preferred_guid": "6378e9e6",
+  "retained_census_global_providers": {
+    "271": [],
+    "280": []
+  },
+  "runtime_executed": false,
+  "schema": 1,
+  "scope": "selected-original-file-hash-verification-and-retained-decoder-metadata",
+  "selected_source_hash_checks_passed": true,
+  "smallest_immediate_base_input": "objectdata/globals/global.iff",
+  "source_baseline": "4c6b3e8f5835b228723caea3c9f683c62f244f73",
+  "transitive_closure_known": false
+}

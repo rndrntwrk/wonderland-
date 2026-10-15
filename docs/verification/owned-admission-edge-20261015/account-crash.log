@@ -1,0 +1,1 @@
+{"status":"passed","scenario":"actual workerd SIGKILL before creation and after durable commit before HTTP reply; exact retry with one complete grant set","terminatedGroups":[{"members":["MainThread","esbuild","workerd"],"signal":"SIGKILL"},{"members":["MainThread","esbuild","workerd"],"signal":"SIGKILL"}]}

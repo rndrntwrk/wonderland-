@@ -1,4 +1,5 @@
-// Native account transport only. It never manufactures a lot-ready session.
+// Native account transport. Owned lot readiness requires a committed server grant.
+// Legacy Aries sessions and browser-supplied actor/principal authority are never synthesized.
 export function createNativeAccountProvider(base, publish, options = {}) {
   const origin = options.origin ?? globalThis.location.origin;
   const endpoint = new URL(base, origin);
@@ -17,13 +18,17 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   )
     throw Error("Invalid native account endpoint");
   const fetcher = options.fetch ?? globalThis.fetch;
+  const nativeLots = options.nativeLots === true;
+  let destinations = [], admissionAvailable = false, owned = null, pendingEntry = null, firstTicket = null, detachPending = false, socketRequest = null;
+  const operationId = options.operationId ?? (() => globalThis.crypto.randomUUID().replaceAll("-", ""));
+  const decimal = v => typeof v === "string" && /^[1-9]\d{0,19}$/.test(v) && BigInt(v) <= 18446744073709551615n;
   let token = null,
     generation = 0,
     active = null,
     disposed = false,
     avatars = [];
   const emit = (value) => {
-    if (!disposed) publish(value);
+    if (!disposed) publish({ destinations: token ? destinations : [], admission_available: !!token && admissionAvailable, ...value });
   };
   async function request(action, data, secret, signal) {
     const r = await fetcher(endpoint.href + "/" + action, {
@@ -114,7 +119,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     if (
       value.version !== 1 ||
       value.state !== "account_ready" ||
-      value.admission_available !== false ||
+      (value.admission_available !== false && !(nativeLots && value.admission_available === true)) ||
       !/^\d+$/.test(value.account_id) ||
       !Array.isArray(value.avatars) ||
       value.avatars.length > 3 ||
@@ -142,12 +147,15 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     );
     const nextAvatars = validateRoster(v);
     if (current(job)) {
+      const nextDestinations = v.admission_available === true ? validateDestinations(v.destinations) : [];
       avatars = nextAvatars;
+      destinations = nextDestinations;
+      admissionAvailable = nativeLots && v.admission_available === true;
       emit({
         state: "account_ready",
         avatars,
         message:
-          "Account connected. Native world admission is not yet available.",
+          admissionAvailable ? "Choose your Sim and a property." : "Account connected. Native world admission is not yet available.",
       });
     }
   }
@@ -169,7 +177,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       if (
         v.version !== 1 ||
         v.state !== "account_ready" ||
-        v.admission_available !== false ||
+        (v.admission_available !== false && !(nativeLots && v.admission_available === true)) ||
         typeof v.token !== "string" ||
         !/^[0-9a-f]{64}$/.test(v.token)
       )
@@ -199,6 +207,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     }
   }
   async function refresh() {
+    if (owned || pendingEntry || detachPending) return;
     const job = begin("refresh");
     if (!job) return;
     if (!token) {
@@ -228,21 +237,104 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       finish(job);
     }
   }
+  function validateDestinations(value) {
+    if (!Array.isArray(value) || value.length > 128) throw Error("Invalid property directory.");
+    const seen = new Set();
+    return value.map(v => {
+      if (!decimal(v.lot_id) || seen.has(v.lot_id) || !Number.isInteger(v.lot_location) || v.lot_location < 1 || v.lot_location > 4294967295 || typeof v.name !== "string" || !v.name.length || v.name.length > 96 || /[\u0000-\u001f]/.test(v.name)) throw Error("Invalid property record.");
+      seen.add(v.lot_id);
+      return { lot_id: v.lot_id, lot_location: v.lot_location, name: v.name };
+    });
+  }
+  function validateGrant(value, selection, expected) {
+    const b = value?.binding;
+    if (value?.version !== 1 || value.state !== "lot_ready" || !b || !decimal(b.source_epoch) || !decimal(b.lot_incarnation) || b.avatar_id !== Number(selection.avatar_id) || b.lot_location !== selection.lot_location || typeof value.ticket !== "string" || !/^[a-f0-9]{48,128}$/.test(value.ticket)) throw Error("The property did not return a valid owned admission.");
+    const binding = { source_epoch: b.source_epoch, lot_incarnation: b.lot_incarnation, avatar_id: b.avatar_id, lot_location: b.lot_location };
+    if (expected && (binding.source_epoch !== expected.source_epoch || binding.lot_incarnation !== expected.lot_incarnation || binding.avatar_id !== expected.avatar_id || binding.lot_location !== expected.lot_location)) throw Error("The property control changed. Return to your account before entering again.");
+    return { binding, ticket: value.ticket };
+  }
+  async function enter(avatarId, lotId) {
+    if (!nativeLots || !token || !admissionAvailable || owned || detachPending || active || disposed) return;
+    const avatar = avatars.find(v => v.avatar_id === avatarId);
+    const lot = destinations.find(v => v.lot_id === lotId);
+    if (!avatar || !lot) return;
+    if (pendingEntry && (pendingEntry.avatar_id !== avatarId || pendingEntry.lot_id !== lotId)) {
+      emit({state:"account_error",avatars,message:"The previous entry is still unconfirmed. Retry that same Sim and property or sign out."}); return;
+    }
+    if (!pendingEntry) {
+      const operation = operationId();
+      if (typeof operation !== "string" || !/^[a-zA-Z0-9_-]{16,96}$/.test(operation)) throw Error("Invalid entry operation.");
+      pendingEntry = {avatar_id:avatarId,lot_id:lotId,lot_location:lot.lot_location,lot_name:lot.name,operation};
+    }
+    const selection = pendingEntry;
+    const job = begin("enter"); if (!job) return;
+    emit({state:"lot_entering",avatars,message:"Entering your property…"});
+    try {
+      const value = await request("enter", {avatar_id:avatarId,lot_id:lotId,operation:selection.operation}, token, job.controller.signal);
+      if (!current(job)) return;
+      const grant = validateGrant(value, selection);
+      owned = {...selection,binding:grant.binding}; firstTicket = grant.ticket; pendingEntry = null;
+      emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name},message:"Property admission committed."});
+    } catch(error) {
+      if (current(job)) {
+        if(error.unauthorized){token=null;avatars=[];pendingEntry=null;}
+        emit({state:token?"account_error":"signed_out",avatars,message:error.unauthorized?error.message:"Property entry was not confirmed. Retry this same selection; a second actor will not be requested."});
+      }
+    } finally {finish(job);}
+  }
+  async function socketGrant() {
+    if (!token || !owned || detachPending || disposed || active || socketRequest) throw Error("No active owned property admission.");
+    if (firstTicket) {const ticket=firstTicket;firstTicket=null;return {binding:owned.binding,ticket};}
+    const n=generation, selection=owned, controller=new AbortController();
+    socketRequest=controller;
+    const timeout=setTimeout(()=>controller.abort(),15000);
+    try {
+      const result=await request("reconnect",{avatar_id:selection.avatar_id,lot_id:selection.lot_id,operation:selection.operation},token,controller.signal);
+      if(disposed || generation!==n || owned!==selection || detachPending) throw Error("This account connection changed.");
+      const grant=validateGrant(result,selection);
+      if(grant.binding.source_epoch!==selection.binding.source_epoch || BigInt(grant.binding.lot_incarnation)<BigInt(selection.binding.lot_incarnation))throw Error("The property control changed.");
+      if(grant.binding.lot_incarnation!==selection.binding.lot_incarnation){
+        // A verified same-account grant may advance only the host incarnation.
+        // Publish a new scope so WASM discards its old replica and bootstraps
+        // afresh; never feed a new authority into an old player binding.
+        owned={...selection,binding:grant.binding};firstTicket=grant.ticket;socketRequest=null;
+        emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name},message:"The property recovered. Reconnecting your Sim…"});
+        throw Error("The property recovered; a fresh native bootstrap is required.");
+      }
+      return grant;
+    } finally {clearTimeout(timeout);if(socketRequest===controller)socketRequest=null;}
+  }
+  async function leave() {
+    if(!token || !owned || disposed || active) return;
+    const selection=owned, job=begin("leave");if(!job)return;
+    detachPending=true;firstTicket=null;
+    emit({state:"lot_leaving",avatars,message:"Leaving the property. Waiting for the server to save and detach your Sim…"});
+    try {
+      const result=await request("leave",{avatar_id:selection.avatar_id,lot_id:selection.lot_id,operation:selection.operation},token,job.controller.signal);
+      if(!current(job))return;
+      if(result?.version!==1 || result.state!=="detached" || result.avatar_id!==selection.avatar_id) throw Error("Detach unconfirmed");
+      owned=null;pendingEntry=null;detachPending=false;
+      emit({state:"account_ready",avatars,message:"Your Sim has left the property."});
+    }catch(error){if(current(job))emit({state:"detach_pending",avatars,message:"Leaving is not confirmed. Your Sim remains reserved until the server finishes saving and detaching. Retry leaving or sign out."});}
+    finally{finish(job);}
+  }
   async function logout() {
     if (disposed || active?.action === "logout") return;
     active?.controller.abort();
     generation++;
     active = null;
-    const secret = token;
+    const secret = token, hadOwned = !!(owned || pendingEntry || detachPending);
+    socketRequest?.abort();socketRequest=null;
     token = null;
     avatars = [];
+    destinations = []; admissionAvailable = false; owned = null; pendingEntry = null; firstTicket = null; detachPending = false;
     const job = begin("logout");
     if (!job) return;
     try {
       if (secret)
         await request("logout", { all: false }, secret, job.controller.signal);
       if (current(job))
-        emit({ state: "signed_out", avatars: [], message: "Signed out." });
+        emit({ state: "signed_out", avatars: [], message: hadOwned ? "Signed out. Your Sim stays reserved until the property confirms saving and detach." : "Signed out." });
     } catch {
       if (current(job))
         emit({
@@ -259,14 +351,16 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     disposed = true;
     generation++;
     active?.controller.abort();
+    socketRequest?.abort();socketRequest=null;
     active = null;
     token = null;
     avatars = [];
+    destinations = []; admissionAvailable = false; owned = null; pendingEntry = null; firstTicket = null; detachPending = false;
   }
   emit({
     state: "signed_out",
     avatars: [],
     message: "Sign in to your native Wonderland account.",
   });
-  return { login, refresh, logout, dispose };
+  return { login, refresh, logout, dispose, enter, socketGrant, leave };
 }

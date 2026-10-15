@@ -1,6 +1,36 @@
 import { AccountAuthority } from "../src/account/authority";
 import { password_hash } from "../generated/account_crypto.js";
 export class TestAccounts extends AccountAuthority {
+  changeSource(id: string, key: string, value: unknown) {
+    const row = this.ctx.storage.sql
+      .exec<{
+        source_json: string;
+      }>("SELECT source_json FROM avatar_source_state WHERE avatar_id=?", id)
+      .one();
+    const source = JSON.parse(row.source_json);
+    source[key] = value;
+    this.ctx.storage.sql.exec(
+      "UPDATE avatar_source_state SET source_json=? WHERE avatar_id=?",
+      JSON.stringify(source),
+      id,
+    );
+    return true;
+  }
+  testOutfitPrice(id: string, value: string) {
+    this.ctx.storage.sql.exec(
+      "UPDATE avatar_outfits SET sale_price=? WHERE avatar_id=?",
+      value,
+      id,
+    );
+    return true;
+  }
+  removeSource(id: string) {
+    this.ctx.storage.sql.exec(
+      "DELETE FROM avatar_source_state WHERE avatar_id=?",
+      id,
+    );
+    return true;
+  }
   sparseCatalog(release: string, mode: string) {
     return this.initializeCatalog({
       release,
@@ -129,6 +159,15 @@ export class TestAccounts extends AccountAuthority {
 }
 const allowed = new Set([
   "initializeCatalog",
+  "initializeAdmissionAuthorityV2",
+  "exportReservedAvatarV2",
+  "getReservedAvatarExportV2",
+  "revalidateReservedAvatarV2",
+  "renewAvatarControlV2",
+  "revalidateControlLeaseV2",
+  "removeSource",
+  "changeSource",
+  "testOutfitPrice",
   "register",
   "login",
   "rotate",

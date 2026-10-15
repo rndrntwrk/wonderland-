@@ -235,6 +235,21 @@ impl NativePlayer {
     pub fn actor(&self) -> EntityRef {
         self.actor
     }
+    /// Server-derived identity from the decoded admission; never a browser grant.
+    pub fn principal(&self) -> PrincipalKey {
+        self.principal
+    }
+    /// Hash only the validated accepted replica, never a pending action.
+    pub fn state_hash(&self) -> Result<[u8; 32]> {
+        self.validate_actor()?;
+        self.wire
+            .replica()
+            .runtime()
+            .ok_or("Native session is closed")?
+            .sim()
+            .state_hash()
+            .map_err(|_| "Native state hash unavailable")
+    }
     fn validate_actor(&self) -> Result<()> {
         if self.wire.replica().status() != crate::live_session::SessionStatus::Live {
             return Err("Native world is not live");

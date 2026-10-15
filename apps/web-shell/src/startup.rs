@@ -32,7 +32,7 @@ pub fn parse_configuration(input: &str) -> Result<RuntimeConfiguration, String> 
     }
     match (config.mode, config.gateway_url.as_deref()) {
         (ClientMode::Preview, None) => {}
-        (ClientMode::NativeAccount, Some("/native-account")) if !config.native_lots => {}
+        (ClientMode::NativeAccount, Some("/native-account")) => {}
         (ClientMode::Connected, Some(gateway)) if valid_gateway(gateway) => {}
         _ => {
             return Err(
@@ -41,8 +41,8 @@ pub fn parse_configuration(input: &str) -> Result<RuntimeConfiguration, String> 
             );
         }
     }
-    if config.native_lots && config.mode != ClientMode::Connected {
-        return Err("Native lots require connected mode.".into());
+    if config.native_lots && config.mode == ClientMode::Preview {
+        return Err("Native lots require an explicit account connection.".into());
     }
     Ok(config)
 }
@@ -186,11 +186,17 @@ mod tests {
         for input in [
             r#"{"version":1,"mode":"native_account","gateway_url":"https://other.example/native-account"}"#,
             r#"{"version":1,"mode":"native_account","gateway_url":"/gateway"}"#,
-            r#"{"version":1,"mode":"native_account","gateway_url":"/native-account","native_lots":true}"#,
             r#"{"version":1,"mode":"native_account","gateway_url":null}"#,
         ] {
             assert!(parse_configuration(input).is_err());
         }
+    }
+
+    #[test]
+    fn native_owned_lots_are_explicit_and_remain_separate_from_legacy_connected_mode() {
+        let config = parse_configuration(r#"{"version":1,"mode":"native_account","gateway_url":"/native-account","native_lots":true}"#).unwrap();
+        assert_eq!(config.mode, ClientMode::NativeAccount);
+        assert!(config.native_lots);
     }
 
     #[test]

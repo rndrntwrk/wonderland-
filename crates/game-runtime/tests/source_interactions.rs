@@ -660,9 +660,17 @@ fn previous_schema_one_snapshot_migrates_without_changing_original_state() {
     let runtime =
         SimRuntime::from_state(state, runtime.content().clone(), RuntimeRole::Replica).unwrap();
     let current = runtime.snapshot().unwrap();
-    // Schema 2 appended two empty maps to the unchanged schema-1 state tuple.
-    // This is the actual original fixed-width bincode representation.
-    let end = current.len() - 32 - 16;
+    // Schema 2 appended two empty maps; schemas 3 and 4 append explicit
+    // Uninitialized enum discriminants. Remove only those known empty suffixes.
+    assert_eq!(
+        runtime.state().lot_permissions,
+        sim_core::lot_permissions::ReplicatedLotPermissions::Uninitialized
+    );
+    assert_eq!(
+        &current[current.len() - 32 - 24..current.len() - 32],
+        &[0; 24]
+    );
+    let end = current.len() - 32 - 24;
     let mut legacy = current[..end].to_vec();
     legacy[10..12].copy_from_slice(&1u16.to_le_bytes());
     legacy[108..110].copy_from_slice(&1u16.to_le_bytes());
@@ -776,4 +784,72 @@ fn tso_avatar_without_original_motive_tuning_is_rejected_atomically() {
         .is_err()
     );
     assert_eq!(game.snapshot().unwrap(), before);
+}
+
+#[test]
+fn previous_schema_two_preserves_suspended_interactions_authority_and_replay_receipt() {
+    use sha2::{Digest, Sha256};
+    use sim_core::vm::VmInstruction;
+    let action = vec![
+        VmInstruction {
+            opcode: 2,
+            true_pointer: 1,
+            false_pointer: 1,
+            operand: [0, 0, 100, 0, 0, 5, 9, 7],
+        },
+        VmInstruction {
+            opcode: 17,
+            true_pointer: 254,
+            false_pointer: 255,
+            operand: [0, 0, 0, 0, 0, 0, 0, 0],
+        },
+    ];
+    let (mut authority, actor) = runtime(content_with_idle_main(Some(action)));
+    grant(&mut authority, actor);
+    let request = intent(&authority, actor, 1);
+    let last_tick = authority
+        .next_tick(vec![AcceptedCommand::QueueInteraction(request)])
+        .unwrap();
+    authority.step(&last_tick).unwrap();
+    assert_eq!(
+        authority.state().interaction_queues[&actor.object_id].active_len(),
+        1
+    );
+    assert!(!authority.state().interaction_access.is_empty());
+    let current = authority.snapshot().unwrap();
+    // Schemas 3 and 4 append two Uninitialized discriminants to schema 2.
+    let end = current.len() - 32 - 8;
+    assert_eq!(&current[end..end + 8], &[0; 8]);
+    let mut legacy = current[..end].to_vec();
+    legacy[10..12].copy_from_slice(&2_u16.to_le_bytes());
+    legacy[108..110].copy_from_slice(&2_u16.to_le_bytes());
+    legacy[100..108].copy_from_slice(&((end - 108) as u64).to_le_bytes());
+    let checksum = Sha256::digest(&legacy);
+    legacy.extend_from_slice(&checksum);
+    let mut recovered = SimRuntime::from_state(
+        authority.state().clone(),
+        authority.content().clone(),
+        RuntimeRole::Replica,
+    )
+    .unwrap();
+    recovered.restore(&legacy).unwrap();
+    assert_eq!(recovered.state(), authority.state());
+    assert!(recovered.step(&last_tick).unwrap().duplicate);
+    assert_eq!(recovered.state(), authority.state());
+    for _ in 0..110 {
+        let next = authority.next_tick(vec![]).unwrap();
+        let original = authority.step(&next).unwrap();
+        let restored = recovered.step(&next).unwrap();
+        assert_eq!(original.state_hash, restored.state_hash);
+        assert_eq!(original.events, restored.events);
+    }
+    assert!(
+        recovered.state().interaction_queues[&actor.object_id]
+            .entries()
+            .is_empty()
+    );
+    assert_eq!(
+        recovered.state().interaction_access,
+        authority.state().interaction_access
+    );
 }

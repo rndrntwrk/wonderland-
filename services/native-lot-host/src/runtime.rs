@@ -24,7 +24,7 @@ pub fn hex(bytes: &[u8]) -> String {
     }
     out
 }
-fn unhex(input: &str) -> Result<Vec<u8>> {
+pub(crate) fn unhex(input: &str) -> Result<Vec<u8>> {
     if input.len() > MAX_COMMAND_BYTES * 2
         || !input.len().is_multiple_of(2)
         || !input
@@ -41,7 +41,7 @@ fn unhex(input: &str) -> Result<Vec<u8>> {
         .map(|p| Ok(u8::from_str_radix(std::str::from_utf8(p)?, 16)?))
         .collect()
 }
-fn cursor(runtime: &GameRuntime) -> Result<CursorV1> {
+pub(crate) fn cursor(runtime: &GameRuntime) -> Result<CursorV1> {
     let s = runtime.sim().state();
     Ok(CursorV1 {
         lot_id: DecimalId(s.lot_id),
@@ -50,7 +50,7 @@ fn cursor(runtime: &GameRuntime) -> Result<CursorV1> {
         state_hash: hex(&runtime.sim().state_hash()?),
     })
 }
-fn checkpoint(runtime: &GameRuntime) -> Result<Vec<u8>> {
+pub(crate) fn checkpoint(runtime: &GameRuntime) -> Result<Vec<u8>> {
     let bytes = runtime.snapshot()?;
     if bytes.len() > MAX_SNAPSHOT_BYTES {
         return Err("host checkpoint exceeds 8 MiB profile".into());
@@ -64,6 +64,7 @@ struct Pending {
     result: CursorV1,
     runtime: GameRuntime,
     proposal: Value,
+    action: Option<Vec<u8>>,
 }
 struct Recorded {
     input_hash: Digest,
@@ -71,12 +72,13 @@ struct Recorded {
     reply: Value,
 }
 pub struct Host {
-    committed: GameRuntime,
-    config: RuntimeConfig,
-    binding: HostBindingV1,
+    pub(crate) committed: GameRuntime,
+    pub(crate) config: RuntimeConfig,
+    pub(crate) binding: HostBindingV1,
     report: Value,
     takeover_marker: Option<TakeoverMarkerV1>,
-    recovery_committed: bool,
+    pub(crate) recovery_committed: bool,
+    pub(crate) appearance: Option<wonderland_game_runtime::world_view::WorldDocument>,
     pending: Option<Pending>,
     history: BTreeMap<u64, Recorded>,
     history_bytes: usize,
@@ -92,6 +94,7 @@ impl Host {
         checkpoint(&runtime)?;
         Ok(Self {
             committed: runtime,
+            appearance: None,
             config,
             binding,
             report,
@@ -105,8 +108,93 @@ impl Host {
     pub fn handle(&mut self, request: RequestV1) -> Result<Value> {
         match request {
             RequestV1::Inspect => Ok(
-                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id))}),
+                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
             ),
+            RequestV1::PlayerBootstrap { control, binding } => {
+                self.player_bootstrap(control, binding)
+            }
+            RequestV1::PlayerCheckpoint {
+                control,
+                request_hex,
+            } => self.player_checkpoint(control, request_hex),
+            RequestV1::PrepareOwnedAdmission {
+                batch_id,
+                binding,
+                predecessor,
+                expected_control_revision,
+                principal,
+                export,
+            } => {
+                let input = json!({"kind":"prepare_owned_admission","batch_id":batch_id,"binding":binding,"predecessor":predecessor,"expected_control_revision":expected_control_revision,"principal":principal,"export":export});
+                if let Some(reply) = self.typed_prior(batch_id, &binding, &predecessor, &input)? {
+                    return Ok(reply);
+                }
+                let command = self.admission_command(principal, &export)?;
+                self.prepare_typed(
+                    batch_id,
+                    binding,
+                    predecessor,
+                    expected_control_revision,
+                    input,
+                    vec![command],
+                    true,
+                    None,
+                )
+            }
+            RequestV1::PreparePlayerTick {
+                batch_id,
+                binding,
+                predecessor,
+                expected_control_revision,
+            } => {
+                let input = json!({"kind":"prepare_player_tick","batch_id":batch_id,"binding":binding,"predecessor":predecessor,"expected_control_revision":expected_control_revision});
+                if let Some(reply) = self.typed_prior(batch_id, &binding, &predecessor, &input)? {
+                    return Ok(reply);
+                }
+                self.prepare_typed(
+                    batch_id,
+                    binding,
+                    predecessor,
+                    expected_control_revision,
+                    input,
+                    vec![],
+                    false,
+                    None,
+                )
+            }
+            RequestV1::PreparePlayerAction {
+                batch_id,
+                binding,
+                predecessor,
+                expected_control_revision,
+                control,
+                action_hex,
+            } => {
+                let input = json!({"kind":"prepare_player_action","batch_id":batch_id,"binding":binding,"predecessor":predecessor,"expected_control_revision":expected_control_revision,"control":control,"action_hex":action_hex});
+                if let Some(reply) = self.typed_prior(batch_id, &binding, &predecessor, &input)? {
+                    return Ok(reply);
+                }
+                let bytes = unhex(&action_hex)?;
+                wonderland_game_runtime::live_wire::player::decode_action(&bytes)?;
+                let result = self.action_command(&control, &bytes).and_then(|command| {
+                    self.prepare_typed(
+                        batch_id,
+                        binding,
+                        predecessor,
+                        expected_control_revision,
+                        input,
+                        vec![command],
+                        false,
+                        Some(bytes.clone()),
+                    )
+                });
+                match result {
+                    Ok(reply) => Ok(reply),
+                    Err(error) => Ok(
+                        json!({"kind":"denied","reason":error.to_string(),"receipt_hex":action_receipt(bytes,None)?}),
+                    ),
+                }
+            }
             RequestV1::ActivateRecovery { marker } => {
                 if self.takeover_marker.as_ref() != Some(&marker) {
                     return Err("recovery activation marker mismatch".into());
@@ -134,6 +222,16 @@ impl Host {
             } => {
                 if !self.recovery_committed {
                     return Err("replacement awaits durable recovery activation".into());
+                }
+                if self
+                    .committed
+                    .sim()
+                    .state()
+                    .owned_admission
+                    .actors()
+                    .is_some()
+                {
+                    return Err("controlled lot refuses raw supervisor commands".into());
                 }
                 self.prepare(batch_id, binding, predecessor, commands_hex)
             }
@@ -239,8 +337,89 @@ impl Host {
             result,
             runtime: candidate,
             proposal: proposal.clone(),
+            action: None,
         });
         Ok(proposal)
+    }
+    fn typed_prior(
+        &self,
+        id: DecimalId,
+        binding: &HostBindingV1,
+        predecessor: &CursorV1,
+        input: &Value,
+    ) -> Result<Option<Value>> {
+        if !self.recovery_committed || binding != &self.binding || id.0 == 0 {
+            return Err("typed prepare identity/recovery mismatch".into());
+        }
+        let digest = Digest::of(&serde_json::to_vec(input)?);
+        if let Some(record) = self.history.get(&id.0) {
+            if record.input_hash != digest {
+                return Err("batch ID reused with different typed input".into());
+            }
+            return Ok(Some(record.reply.clone()));
+        }
+        if let Some(pending) = &self.pending {
+            if pending.id != id.0 || pending.input_hash != digest {
+                return Err("pending typed batch differs".into());
+            }
+            return Ok(Some(pending.proposal.clone()));
+        }
+        if predecessor != &cursor(&self.committed)? {
+            return Err("stale typed predecessor".into());
+        }
+        if self
+            .committed
+            .sim()
+            .state()
+            .owned_admission
+            .actors()
+            .is_none()
+        {
+            return Err("source admission uninitialized".into());
+        }
+        Ok(None)
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn prepare_typed(
+        &mut self,
+        id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        revision: DecimalId,
+        input: Value,
+        commands: Vec<AcceptedCommand>,
+        admission: bool,
+        action: Option<Vec<u8>>,
+    ) -> Result<Value> {
+        let after = if admission {
+            revision
+                .0
+                .checked_add(1)
+                .ok_or("control revision exhausted")?
+        } else {
+            revision.0
+        };
+        let command_bytes = bincode::DefaultOptions::new()
+            .with_fixint_encoding()
+            .with_limit(MAX_COMMAND_BYTES as u64)
+            .serialize(&vec![commands])?;
+        self.prepare(id, binding, predecessor, hex(&command_bytes))?;
+        let mut p = self.pending.take().ok_or("prepared candidate missing")?;
+        p.proposal["payload"]["control_v2"] = json!({"schema_version":2,"revision_before":revision,"revision_after":DecimalId(after),"actor_registry_before_sha256":crate::player::registry_hash(&self.committed)?,"actor_registry_after_sha256":crate::player::registry_hash(&p.runtime)?,"actors":crate::player::actors(&p.runtime),"permission_before":crate::player::permission(&self.committed)?,"permission_after":crate::player::permission(&p.runtime)?});
+        let encoded = serde_json::to_vec(&p.proposal["payload"])?;
+        let receipt_credit = action.as_ref().map_or(0, |bytes| 2 * (bytes.len() + 64));
+        if encoded.len() > 16 * 1024 * 1024
+            || self.history_bytes + encoded.len() + receipt_credit + 1024 > MAX_HISTORY_BYTES
+        {
+            return Err("controlled proposal exceeds host profile".into());
+        }
+        p.digest = Digest::of(&encoded).as_str().to_owned();
+        p.proposal["digest"] = json!(p.digest);
+        p.input_hash = Digest::of(&serde_json::to_vec(&input)?);
+        p.action = action;
+        let result = p.proposal.clone();
+        self.pending = Some(p);
+        Ok(result)
     }
     fn resolve(&mut self, id: DecimalId, digest: String, decision: DecisionV1) -> Result<Value> {
         if let Some(r) = self.history.get(&id.0) {
@@ -264,10 +443,10 @@ impl Host {
         let reply = match decision {
             DecisionV1::Committed { .. } => {
                 self.committed = p.runtime;
-                json!({"kind":"committed","batch_id":id,"digest":digest,"cursor":p.result,"ticks_hex":p.proposal["payload"]["ticks_hex"],"effects_hex":p.proposal["payload"]["effects_hex"],"events_hex":p.proposal["payload"]["events_hex"]})
+                json!({"kind":"committed","batch_id":id,"digest":digest,"cursor":p.result,"ticks_hex":p.proposal["payload"]["ticks_hex"],"effects_hex":p.proposal["payload"]["effects_hex"],"events_hex":p.proposal["payload"]["events_hex"],"control_v2":p.proposal["payload"]["control_v2"],"receipt_hex":p.action.map(|bytes|action_receipt(bytes,Some(p.result.completed_tick.0))).transpose()?})
             }
             DecisionV1::Rejected => {
-                json!({"kind":"rejected","batch_id":id,"digest":digest,"cursor":cursor(&self.committed)?})
+                json!({"kind":"rejected","batch_id":id,"digest":digest,"cursor":cursor(&self.committed)?,"receipt_hex":p.action.map(|bytes|action_receipt(bytes,None)).transpose()?})
             }
             DecisionV1::Unknown => unreachable!(),
         };
@@ -282,4 +461,15 @@ impl Host {
         );
         Ok(reply)
     }
+}
+
+fn action_receipt(bytes: Vec<u8>, tick: Option<u64>) -> Result<String> {
+    Ok(hex(
+        &wonderland_game_runtime::live_wire::player::encode_receipt(
+            &wonderland_game_runtime::live_wire::player::ActionReceipt {
+                request: bytes,
+                accepted_tick: tick,
+            },
+        )?,
+    ))
 }

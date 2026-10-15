@@ -2,6 +2,7 @@
 #[allow(dead_code)]
 #[path = "../src/events.rs"]
 mod events;
+#[allow(dead_code)]
 #[path = "../src/loader.rs"]
 mod loader;
 use bincode::Options;

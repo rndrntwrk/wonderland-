@@ -23,10 +23,10 @@ use wonderland_render_core::{AssetKey, RenderLimits, RgbaImage};
 use wonderland_world_view::{ViewportControls, WallMode, WorldDocument, WorldPick};
 
 #[wasm_bindgen(inline_js = r#"
-export async function openNativePlayerSocket(url,ticket,frame,state,origin,resume,signal) {
+export async function openNativePlayerSocket(url,ticket,frame,state,origin,resume,presence,signal) {
   const module=await import('/native-socket.mjs');
   if(signal.aborted) return null;
-  const host=module.connectNativeSocket(url,ticket,frame,state,{allowedOrigin:origin,resume});
+  const host=module.connectNativeSocket(url,ticket,frame,state,{allowedOrigin:origin,resume,presence});
   const abort=()=>host.dispose();signal.addEventListener('abort',abort,{once:true});
   return {ready:()=>host.ready(),settled:()=>host.settled(),send:b=>host.send(b),control:b=>host.control(b),dispose:()=>{signal.removeEventListener('abort',abort);host.dispose();}};
 }
@@ -44,6 +44,7 @@ extern "C" {
         state: &js_sys::Function,
         origin: &str,
         resume: bool,
+        presence: bool,
         signal: &web_sys::AbortSignal,
     ) -> js_sys::Promise;
     #[wasm_bindgen(catch,js_name=nativeHostCall)]
@@ -103,7 +104,7 @@ impl Resources {
 }
 #[derive(Clone, Copy)]
 struct Controller {
-    ui: ConnectedUi,
+    access: LotAccess,
     content: ContentUi,
     resources: StoredValue<Resources, LocalStorage>,
     world: RwSignal<Option<Arc<WorldDocument>>>,
@@ -139,11 +140,52 @@ fn scope(ui: ConnectedUi) -> Option<(u64, PlayerBinding)> {
         })
         .flatten()
 }
+#[derive(Clone, Copy)]
+enum LotAccess {
+    Legacy(ConnectedUi),
+    Owned(crate::native_account::NativeOwnedUi),
+}
+impl LotAccess {
+    fn scope(self) -> Option<(u64, PlayerBinding)> {
+        match self {
+            Self::Legacy(ui) => scope(ui),
+            Self::Owned(ui) => ui.scope(),
+        }
+    }
+    fn track(self) {
+        match self {
+            Self::Legacy(ui) => ui.state.track(),
+            Self::Owned(ui) => ui.track(),
+        }
+    }
+    fn leave(self) {
+        match self {
+            Self::Legacy(ui) => ui.send(GatewayOperation::LeaveLot, "Leave property", None),
+            Self::Owned(ui) => ui.leave(),
+        }
+    }
+    fn legacy(self) -> Option<ConnectedUi> {
+        match self {
+            Self::Legacy(ui) => Some(ui),
+            Self::Owned(_) => None,
+        }
+    }
+    async fn admit(
+        self,
+        epoch: u64,
+        binding: PlayerBinding,
+    ) -> Result<(String, String, String), String> {
+        match self {
+            Self::Legacy(ui) => ui.admit_native_lot(epoch, binding).await,
+            Self::Owned(ui) => ui.admit(epoch, binding).await,
+        }
+    }
+}
 impl Controller {
     fn current(self, generation: u64) -> bool {
         self.resources
             .try_with_value(|r| {
-                r.generation == generation && r.scope.is_some() && r.scope == scope(self.ui)
+                r.generation == generation && r.scope.is_some() && r.scope == self.access.scope()
             })
             .unwrap_or(false)
     }
@@ -223,7 +265,7 @@ impl Controller {
         self.notice
             .set("Connecting to this property’s native runtime…".into());
         spawn_local(async move {
-            let result = self.ui.admit_native_lot(browser_epoch, binding).await;
+            let result = self.access.admit(browser_epoch, binding).await;
             if !self.current(generation) {
                 return;
             }
@@ -380,6 +422,7 @@ impl Controller {
                 on_state.as_ref().unchecked_ref(),
                 &origin,
                 resume,
+                matches!(self.access, LotAccess::Owned(_)),
                 &abort.signal(),
             );
             self.resources.update_value(|r| {
@@ -625,11 +668,15 @@ fn project_avatars(
     }
 }
 #[component]
-pub fn NativeLot() -> impl IntoView {
-    let ui = expect_context::<ConnectedUi>();
+pub(crate) fn NativeLot(
+    #[prop(optional)] owned: Option<crate::native_account::NativeOwnedUi>,
+) -> impl IntoView {
+    let access = owned
+        .map(LotAccess::Owned)
+        .unwrap_or_else(|| LotAccess::Legacy(expect_context::<ConnectedUi>()));
     let content = expect_context::<ContentUi>();
     let ctl = Controller {
-        ui,
+        access,
         content,
         resources: StoredValue::new_local(Resources::default()),
         world: RwSignal::new(None),
@@ -650,8 +697,8 @@ pub fn NativeLot() -> impl IntoView {
     let presentation_revision = RwSignal::new(0u64);
     let needs_open = ctl.needs_open;
     Effect::new(move |_| {
-        ui.state.track();
-        let current = scope(ui);
+        access.track();
+        let current = access.scope();
         if ctl.resources.with_value(|r| r.scope != current) {
             ctl.begin(current);
         }
@@ -795,12 +842,17 @@ pub fn NativeLot() -> impl IntoView {
     on_cleanup(move || {
         ctl.resources.try_update_value(Resources::close);
     });
-    let build = crate::native_build_browser::BuildUi::new(ui, ctl.world, ctl.projection, ctl.live);
+    let build = crate::native_build_browser::BuildUi::new(
+        access.legacy(),
+        ctl.world,
+        ctl.projection,
+        ctl.live,
+    );
     Effect::new(move |_| {
-        ui.state.track();
+        access.track();
         ctl.live.track();
         ctl.projection.track();
-        build.sync(scope(ui));
+        build.sync(access.scope());
     });
     let build_outline = Signal::derive(move || build.outline());
     let on_pick = Callback::new(move |pick| {
@@ -812,9 +864,12 @@ pub fn NativeLot() -> impl IntoView {
     });
     view! {
         <section class="source-world-screen connected-world native-lot" aria-label="Native connected property" data-building=move ||build.open.get().to_string() data-native-live=move ||ctl.live.get().to_string()
+            data-owned-avatar-id=move ||{ctl.wake.track();ctl.resources.with_value(|r|r.player.as_ref().and_then(|p|p.projection().ok().and_then(|projection|projection.entities.into_iter().find(|e|e.reference==p.actor()).map(|e|e.persistent_id.to_string())))).unwrap_or_default()}
+            data-owned-principal=move ||{ctl.wake.track();ctl.resources.with_value(|r|r.player.as_ref().filter(|p|p.projection().is_ok()).map(|p|p.principal().0.to_string())).unwrap_or_default()}
+            data-native-state-hash=move ||{ctl.wake.track();ctl.resources.with_value(|r|r.player.as_ref().and_then(|p|p.state_hash().ok()).map(|hash|hash.iter().map(|b|format!("{b:02x}")).collect::<String>())).unwrap_or_default()}
             data-native-avatar-models=move ||ctl.world.with(|w|w.as_ref().map(|w|w.objects.iter().filter(|o|o.model.is_some_and(|i|w.models[i].context==wonderland_world_view::ModelContext::Vitaboy)).count()).unwrap_or(0)).to_string()>
             <Show when=move ||ctl.world.with(|w|w.is_some())><NativeScene world=ctl.world controls on_pick presentation_revision draft=build_outline/></Show>
-            <header class="source-world-header chrome"><button class="chrome round small" aria-label="Return to city" on:click=move |_|ui.send(GatewayOperation::LeaveLot,"Leave property",None)><Icon name="chevron-left"/></button><div><span class="eyebrow">"CONNECTED PROPERTY"</span><h1>"Property"</h1><p id="native-tick">{move ||ctl.projection.with(|p|p.as_ref().map(|p|format!("{} · Tick {}",if ctl.live.get(){"Live native simulation"}else{"Last accepted state"},p.tick)).unwrap_or_else(||"Waiting for native admission".into()))}</p></div><button class="chrome" on:click=move |_|ctl.begin(scope(ui))><Icon name="refresh"/>"Reconnect"</button></header>
+            <header class="source-world-header chrome"><button class="chrome round small" aria-label=move ||if owned.is_some(){"Leave property"}else{"Return to city"} on:click=move |_|access.leave()><Icon name="chevron-left"/></button><div><span class="eyebrow">"CONNECTED PROPERTY"</span><h1>"Property"</h1><p id="native-tick">{move ||ctl.projection.with(|p|p.as_ref().map(|p|format!("{} · Tick {}",if ctl.live.get(){"Live native simulation"}else{"Last accepted state"},p.tick)).unwrap_or_else(||"Waiting for native admission".into()))}</p></div><button class="chrome" on:click=move |_|ctl.begin(access.scope())><Icon name="refresh"/>"Reconnect"</button></header>
             <Show when=move ||!ctl.notice.get().is_empty()><p class="source-world-notice chrome" role="status">{move ||ctl.notice.get()}</p></Show>
             <div class="connected-world-queue" aria-label="Your action queue"><For each=move ||ctl.projection.with(|p|p.as_ref().map(|p|p.queues.iter().filter(|q|Some(q.actor)==ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor()))).flat_map(|q|q.entries.clone()).collect::<Vec<_>>()).unwrap_or_default()) key=|item|item.id children=move |item|{
                 let id=item.id;view!{<NativeQueueAction ctl id/>}
@@ -823,7 +878,7 @@ pub fn NativeLot() -> impl IntoView {
                 <div class="source-control-group source-camera-controls" role="group" aria-label="Camera"><crate::world_flight::FreeCameraToggle world=ctl.world controls/><button class="chrome round small" aria-label="Rotate left" on:click=move |_|controls.update(|v|v.yaw_radians-=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise" class="icon-mirror"/></button><button class="chrome round small" aria-label="Rotate right" on:click=move |_|controls.update(|v|v.yaw_radians+=std::f32::consts::FRAC_PI_4)><Icon name="rotate-clockwise"/></button><button class="chrome round small" aria-label="Zoom out" disabled=move ||controls.get().free_camera.is_some() on:click=move |_|controls.update(|v|v.zoom=(v.zoom/1.2).max(0.25))><Icon name="minus"/></button><button class="chrome round small" aria-label="Zoom in" disabled=move ||controls.get().free_camera.is_some() on:click=move |_|controls.update(|v|v.zoom=(v.zoom*1.2).min(8.))><Icon name="plus"/></button></div>
                 <div class="source-control-group source-floor-controls" role="group" aria-label="Visible floor"><button class="chrome round small" aria-label="Floor down" disabled=move ||controls.get().visible_level<=1 on:click=move |_|controls.update(|v|v.visible_level=v.visible_level.saturating_sub(1).max(1))><Icon name="chevron-down"/></button><span>{move ||controls.get().visible_level}</span><button class="chrome round small" aria-label="Floor up" disabled=move ||ctl.world.with(|w|w.as_ref().is_none_or(|w|controls.get().visible_level>=w.lot.levels)) on:click=move |_|{let n=ctl.world.with_untracked(|w|w.as_ref().map(|w|w.lot.levels).unwrap_or(1));controls.update(|v|v.visible_level=v.visible_level.saturating_add(1).min(n));}><Icon name="chevron-up"/></button></div>
                 <div class="source-control-group source-visibility-controls" role="group" aria-label="Wall visibility">{[(WallMode::Down,"Walls down"),(WallMode::Cutaway,"Cutaway"),(WallMode::Up,"Walls up")].into_iter().map(move |(mode,label)|view!{<button class="chrome" aria-pressed=move ||(controls.get().walls==mode).to_string() on:click=move |_|controls.update(|v|v.walls=mode)>{label}</button>}).collect_view()}<button class="chrome" aria-pressed=move ||controls.get().show_roofs.to_string() on:click=move |_|controls.update(|v|v.show_roofs = !v.show_roofs)>"Roof"</button></div>
-                <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" disabled=move ||!ctl.live.get() on:click=move |_|{build.hide();if let Some(actor)=ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor())){ctl.select(actor);}}>"Your Sim"</button><button class="chrome" on:click=move |_|{build.hide();if !needs_open.get_untracked(){ctl.choices.set(Vec::new());}needs_open.update(|v|*v = !*v);}>"Needs"</button><button class="chrome" disabled=move ||!ctl.live.get() aria-expanded=move ||build.open.get().to_string() on:click=move |_|{ctl.needs_open.set(false);ctl.choices.set(Vec::new());build.show();}>"Buy / Build"</button></div>
+                <div class="source-control-group source-activity-controls" role="group" aria-label="Property actions"><button class="chrome" disabled=move ||!ctl.live.get() on:click=move |_|{build.hide();if let Some(actor)=ctl.resources.with_value(|r|r.player.as_ref().map(|p|p.actor())){ctl.select(actor);}}>"Your Sim"</button><button class="chrome" on:click=move |_|{build.hide();if !needs_open.get_untracked(){ctl.choices.set(Vec::new());}needs_open.update(|v|*v = !*v);}>"Needs"</button><button class="chrome" disabled=move ||!ctl.live.get() || owned.is_some() title=move ||if owned.is_some(){"Construction is not enabled for this native provider."}else{"Buy and build"} aria-expanded=move ||build.open.get().to_string() on:click=move |_|{ctl.needs_open.set(false);ctl.choices.set(Vec::new());build.show();}>"Buy / Build"</button></div>
             </nav>
             <Show when=move ||!ctl.choices.get().is_empty()><aside class="connected-world-authoring chrome" aria-label="Source actions"><header><h2>"Actions"</h2><button class="chrome round small" aria-label="Close source actions" on:click=move |_|ctl.choices.set(Vec::new())><Icon name="x"/></button></header>{move ||ctl.choices.get().into_iter().map(move |choice|{let label=choice.label.clone();view!{<button class="chrome native-source-action" disabled=move ||!ctl.live.get()||matches!(ctl.status.get(),ActionStatus::Pending|ActionStatus::Unknown) on:click=move |_|ctl.submit(Some(choice.clone()),None)>{label}</button>}}).collect_view()}<p role="status">{move ||match ctl.status.get(){ActionStatus::Idle=>"Choose a source action.",ActionStatus::Pending=>"Sent · awaiting server acceptance",ActionStatus::Accepted=>"Accepted by the server",ActionStatus::Rejected=>"The server rejected this action",ActionStatus::Unknown=>"Previous action result unknown · not retried"}}</p><Show when=move ||!ctl.activity.get().is_empty()><p class="native-action-feedback" role="status" aria-live="polite">{move ||ctl.activity.with(|items|items.last().map(ActionActivity::message))}</p><details class="native-action-history"><summary>"Recent activity"</summary><ol><For each=move ||{ctl.activity.get().into_iter().rev().collect::<Vec<_>>()} key=|item|(item.tick,item.event_sequence) children=move |item|{view!{<li data-action-id=item.action.to_string()>{item.message()}</li>}}/></ol></details></Show><Show when=move ||ctl.live.get()&&ctl.status.get()==ActionStatus::Unknown><button class="chrome" on:click=move |_|{ctl.resources.update_value(|r|{if let Some(p)=r.player.as_mut() && p.dismiss_unknown().is_ok(){ctl.status.set(p.status());}});}>"Dismiss unknown result without retrying"</button></Show></aside></Show>
             <Show when=move ||needs_open.get()><aside class="connected-world-needs chrome" aria-label="Live native needs"><header><h2>"Your Sim"</h2><button class="chrome round small" aria-label="Close needs" on:click=move |_|needs_open.set(false)><Icon name="x"/></button></header><p class="native-avatar-status" role="status">{move ||ctl.world.with(|w|w.as_ref().map(|w| {
@@ -831,7 +886,7 @@ pub fn NativeLot() -> impl IntoView {
                 if ready>0 {format!("{ready} avatar appearance(s) sampled from original resources at the accepted frame.")}
                 else {w.diagnostics.iter().find(|d|d.code.starts_with("native_avatar_")).map(|d|d.message.clone())
                     .unwrap_or_else(||"Original avatar resources are not loaded. Load Game content from Choose your Sim.".into())}
-            })).unwrap_or_default()}</p><p class="native-audio-status" role="status">{move ||ctl.sound_notice.get()}</p><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==scope(ui).map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
+            })).unwrap_or_default()}</p><p class="native-audio-status" role="status">{move ||ctl.sound_notice.get()}</p><div class="connected-source-needs">{move ||ctl.projection.with(|p|p.as_ref().and_then(|p|p.entities.iter().find(|e|e.persistent_id==access.scope().map(|s|s.1.avatar_id).unwrap_or(0)).and_then(|e|e.needs.clone()))).map(|n|{
                 [("Energy",Some(n.energy)),("Comfort",Some(n.comfort)),("Hunger",Some(n.hunger)),("Hygiene",Some(n.hygiene)),("Bladder",Some(n.bladder)),("Social",Some(n.social)),("Fun",Some(n.fun)),("Room",n.room)].into_iter().map(|(name,value)|view!{<label><span>{name}</span>{value.map(|value|view!{<progress max="100" value=value>{value}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any())}</label>}).collect_view()
             })}</div></aside></Show>
             <crate::native_build_browser::BuildPanel ctl=build controls/>

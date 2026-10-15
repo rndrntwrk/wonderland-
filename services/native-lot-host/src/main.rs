@@ -2,6 +2,7 @@
 mod bounded;
 mod events;
 mod loader;
+mod player;
 mod runtime;
 use serde_json::json;
 use std::io::{self, BufRead, Write};
@@ -15,6 +16,7 @@ fn run() -> Result<()> {
     let (state, config, binding, report, takeover_marker) =
         loader::load(std::path::Path::new(&args[1]))?;
     let mut host = runtime::Host::new(state, config, binding, report, takeover_marker)?;
+    host.appearance = loader::appearance(std::path::Path::new(&args[1]))?;
     let mut out = io::BufWriter::new(io::stdout().lock());
     serde_json::to_writer(&mut out, &host.handle(RequestV1::Inspect)?)?;
     writeln!(out)?;

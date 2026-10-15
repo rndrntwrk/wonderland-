@@ -153,6 +153,8 @@ fn fixture() -> (SimState, ContentSet, [EntityRef; 3]) {
         last_tick_digest: None,
         interaction_queues: BTreeMap::new(),
         interaction_access: BTreeMap::new(),
+        lot_permissions: sim_core::lot_permissions::ReplicatedLotPermissions::Uninitialized,
+        owned_admission: sim_core::owned_admission::OwnedAdmissionState::Uninitialized,
     };
     (state, content, references)
 }

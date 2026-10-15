@@ -1,0 +1,1 @@
+PASS actual workerd SQLite: direct account revalidation, bounded durable installation, distinct monotonic principals, retry/restart, no fabricated admission, V1 guard, authenticated monotonic renewal past original expiry, no late revival, expiry denial/tombstones persist atomically without journal/outbox/cursor mutation

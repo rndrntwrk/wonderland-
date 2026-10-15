@@ -100,3 +100,12 @@ test('a decoder exception terminates current connection without exposing its tex
   assert.equal(states.at(-1), 'failed'); assert.ok(!JSON.stringify(states).includes('secret'));
   client.dispose();
 });
+test('owned presence heartbeat starts only after validated readiness and stops on dispose', () => {
+  const timers = new Map();let next=0;
+  const s=setup({presence:true,setTimeout:(fn,ms)=>{const id=++next;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id)});
+  s.socket.open();assert.equal([...timers.values()].some(t=>t.ms===20000),false);
+  s.client.ready();const presence=[...timers.values()].find(t=>t.ms===20000);assert.ok(presence);
+  presence.fn();assert.deepEqual(JSON.parse(s.socket.sent.at(-1)),{type:'native_presence'});
+  assert.deepEqual(s.frames,[]);s.client.dispose();assert.equal(timers.size,0);
+  presence.fn();assert.equal(s.socket.sent.length,2);
+});

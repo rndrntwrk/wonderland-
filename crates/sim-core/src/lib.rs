@@ -12,6 +12,7 @@ pub mod ids;
 pub mod interactions;
 pub mod lot_permissions;
 pub mod numeric;
+pub mod owned_admission;
 pub mod primitives;
 pub mod rng;
 pub mod runtime;

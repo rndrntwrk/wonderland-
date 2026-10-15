@@ -1,0 +1,46 @@
+{
+  "original_gameplay_qualified": false,
+  "actors": [
+    {
+      "principal": "1",
+      "account_id": "1",
+      "avatar_id": "901",
+      "actor": {
+        "object_id": 1,
+        "generation": 1
+      },
+      "control_generation": "1",
+      "session_ref": "de9af005bb4a02d3d2dc663e82829499df95016d8c86e187ed23ec652efc276e",
+      "admission_operation": "runtime_avatar_admit_0",
+      "reservation_digest": "2a8789f43efac825d8df0396318b05d457e4a0b30daa1aad1fa74f260acf60e3",
+      "export_digest": "dc457c394782ba3b1c56e8717c0f31edd01e75cc7666c9e8261e1bccc32078e6"
+    },
+    {
+      "principal": "2",
+      "account_id": "2",
+      "avatar_id": "902",
+      "actor": {
+        "object_id": 2,
+        "generation": 1
+      },
+      "control_generation": "2",
+      "session_ref": "9c8e163de77c15e198a474cf9686382170d2e8922b9ffed8c392810fa06b9b89",
+      "admission_operation": "runtime_avatar_admit_1",
+      "reservation_digest": "077529784e0d54b0ec13d94c8e2db22aef92f3624bfe9d51b36c2bdf4317a813",
+      "export_digest": "236e5974f762713c154cd43a9eedcb3e3c83d81f987eaeaf110ed03a18a2840d"
+    }
+  ],
+  "old_cursor": {
+    "authority_epoch": "7",
+    "completed_tick": "4",
+    "lot_id": "41",
+    "state_hash": "53f3f1d18a564e240650a39488a0ee2ba942ae04db28417afe403c2cbf8941ef"
+  },
+  "new_binding": {
+    "binding_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "lot_incarnation": "2",
+    "protocol": 1,
+    "source_pin": "4c6b3e8f5835b228723caea3c9f683c62f244f73"
+  },
+  "journal_tail_batches": 3
+}
