@@ -200,7 +200,13 @@ impl Header {
             return Err(SnapshotError::UnsupportedFormat(format));
         }
         let schema = u16::from_le_bytes([bytes[10], bytes[11]]);
-        if schema != SIMULATION_SCHEMA && schema != 1 && schema != 2 && schema != 3 {
+        if schema != SIMULATION_SCHEMA
+            && schema != 1
+            && schema != 2
+            && schema != 3
+            && schema != 4
+            && schema != 5
+        {
             return Err(SnapshotError::UnsupportedSchema(schema));
         }
         let u64_at = |offset: usize| {
@@ -307,9 +313,11 @@ pub fn decode(
         MAX_SNAPSHOT_PAYLOAD_BYTES,
     )?;
     let migration_bytes = match header.schema {
-        1 => 16 + uninitialized.len() as u64 + 4,
-        2 => uninitialized.len() as u64 + 4,
-        3 => 4,
+        1 => 16 + uninitialized.len() as u64 + 4 + 16 + 17,
+        2 => uninitialized.len() as u64 + 4 + 16 + 17,
+        3 => 4 + 16 + 17,
+        4 => 16 + 17,
+        5 => 17,
         _ => 0,
     };
     let migrated;
@@ -322,7 +330,17 @@ pub fn decode(
         if header.schema < 3 {
             value.extend_from_slice(&uninitialized);
         }
-        value.extend_from_slice(&[0; 4]);
+        if header.schema < 4 {
+            value.extend_from_slice(&[0; 4]);
+        }
+        // Schema5 appends empty route/continuous-pose maps. Never infer timing
+        // or turn progress for an already-running legacy route.
+        if header.schema < 5 {
+            value.extend_from_slice(&[0; 16]);
+        }
+        // No historical snapshot proves EOD sessions clear. Preserve unknown
+        // knowledge while appending empty departure records and disconnect IDs.
+        value.extend_from_slice(&[0; 17]);
         migrated = value;
         migrated.as_slice()
     } else {
@@ -458,6 +476,10 @@ pub fn validate_state(state: &SimState, content: &ContentSet) -> Result<(), Snap
         .owned_admission
         .validate(state)
         .map_err(|e| invalid("owned_admission", e))?;
+    state
+        .owned_departures
+        .validate(state)
+        .map_err(|e| invalid("owned_departures", e))?;
     if state.lot_id == 0 || state.authority_epoch == 0 {
         return Err(invalid("identity", "lot ID and epoch must be nonzero"));
     }
@@ -602,6 +624,8 @@ pub fn validate_state(state: &SimState, content: &ContentSet) -> Result<(), Snap
         }
     }
     validate_continuations(state)?;
+    crate::runtime_route_animation::validate(state, content)
+        .map_err(|e| invalid("source routing", e))?;
     Ok(())
 }
 
@@ -1094,7 +1118,7 @@ fn validate_continuations(state: &SimState) -> Result<(), SnapshotError> {
                         return Err(invalid(
                             "effects",
                             "effect is not attached to an external VM request",
-                        ))
+                        ));
                     }
                 };
                 let expected_payload = canonical(

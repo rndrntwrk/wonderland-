@@ -1,4 +1,5 @@
 use crate::normalized::{quat, vec3};
+use crate::source_math;
 use crate::*;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
@@ -13,6 +14,9 @@ pub struct Pose {
     pub locals: Vec<LocalPose>,
     pub palette: Vec<Mat4>,
     pub rig_key: AssetKey,
+    // Exact bits written by the source animation path. Public caller edits cannot
+    // opt into nonunit admission merely by reusing a sampled Pose.
+    source_rotations: Vec<Option<QuaternionBits>>,
 }
 #[derive(Clone, Debug)]
 pub struct Rig {
@@ -126,6 +130,7 @@ impl Rig {
                 .collect(),
             palette: vec![],
             rig_key: rig.key,
+            source_rotations: vec![None; rig.source.bones.len()],
         };
         pose.rebuild(&rig)?;
         Ok(rig)
@@ -152,27 +157,41 @@ impl Rig {
                 .collect(),
             palette: vec![Mat4::IDENTITY; self.source.bones.len()],
             rig_key: self.key,
+            source_rotations: vec![None; self.source.bones.len()],
         };
         p.rebuild(self).expect("validated rig bind pose");
         p
     }
 }
 impl Pose {
+    pub(crate) fn set_source_rotation(&mut self, bone: usize, rotation: Quat) -> Result<()> {
+        if !source_math::finite_rotation(rotation) {
+            return Err(AvatarError::Invalid("source rotation overflow"));
+        }
+        self.locals[bone].rotation = rotation;
+        self.source_rotations[bone] = Some(bits4(rotation));
+        Ok(())
+    }
     pub fn rebuild(&mut self, rig: &Rig) -> Result<()> {
-        if self.rig_key != rig.key || self.locals.len() != rig.source.bones.len() {
+        if self.rig_key != rig.key
+            || self.locals.len() != rig.source.bones.len()
+            || self.source_rotations.len() != self.locals.len()
+        {
             return Err(AvatarError::Invalid("pose/rig mismatch"));
         }
-        if self
-            .locals
-            .iter()
-            .any(|l| !l.translation.is_finite() || !unit(l.rotation))
-        {
+        if self.locals.iter().enumerate().any(|(i, l)| {
+            !l.translation.is_finite()
+                || (!unit(l.rotation)
+                    && !(self.source_rotations[i] == Some(bits4(l.rotation))
+                        && source_math::finite_rotation(l.rotation)))
+        }) {
             return Err(AvatarError::Invalid("nonfinite/nonunit pose"));
         }
         let mut palette = vec![Mat4::IDENTITY; self.locals.len()];
         for &i in &rig.traversal {
             let l = self.locals[i];
-            let local = Mat4::from_translation(l.translation) * Mat4::from_quat(l.rotation);
+            let local =
+                Mat4::from_translation(l.translation) * source_math::rotation_matrix(l.rotation);
             palette[i] = match rig.source.bones[i].parent {
                 Some(p) => palette[p] * local,
                 None => local,

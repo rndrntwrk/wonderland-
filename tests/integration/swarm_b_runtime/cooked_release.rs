@@ -276,6 +276,7 @@ fn objf_remains_a_verified_semantic_member_and_reaches_runtime_entrypoints() {
             label: [0; 64],
             data: encode_objf(
                 &Objf {
+                    magic: *b"fJBO",
                     padding: 42,
                     version: 7,
                     functions,

@@ -9,8 +9,8 @@ use wonderland_game_runtime::{
     live_wire::{WireLimits, encode_ticks},
 };
 use wonderland_native_host_contracts::{
-    CursorV1, DecimalId, DecisionV1, HostBindingV1, ReceiptCheckpointV1, RequestV1,
-    TakeoverMarkerV1,
+    CursorV1, DecimalId, DecisionV1, DepartureRequestV1, HostBindingV1, ReceiptCheckpointV1,
+    RequestV1, TakeoverMarkerV1,
 };
 
 const MAX_COMMAND_BYTES: usize = 256 * 1024;
@@ -68,6 +68,7 @@ struct Pending {
     runtime: GameRuntime,
     proposal: Value,
     action: Option<Vec<u8>>,
+    supervisor_events: Vec<crate::events::EventEnvelope>,
 }
 struct Recorded {
     input_hash: Digest,
@@ -115,7 +116,7 @@ impl Host {
     pub fn handle(&mut self, request: RequestV1) -> Result<Value> {
         match request {
             RequestV1::Inspect => Ok(
-                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"retired_through_batch_id":DecimalId(self.retired_through),"retained_receipts":self.history.len(),"retained_receipt_bytes":self.history_bytes,"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
+                json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"retired_through_batch_id":DecimalId(self.retired_through),"retained_receipts":self.history.len(),"retained_receipt_bytes":self.history_bytes,"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_placements":crate::player::actor_placements(&self.committed)?,"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
             ),
             RequestV1::PlayerBootstrap { control, binding } => {
                 self.player_bootstrap(control, binding)
@@ -144,7 +145,31 @@ impl Host {
                     expected_control_revision,
                     input,
                     vec![command],
-                    true,
+                    None,
+                    None,
+                )
+            }
+            RequestV1::PrepareOwnedDrain {
+                batch_id,
+                binding,
+                predecessor,
+                expected_control_revision,
+                departure,
+                fence,
+            } => {
+                let input = json!({"kind":"prepare_owned_drain","batch_id":batch_id,"binding":binding,"predecessor":predecessor,"expected_control_revision":expected_control_revision,"departure":departure,"fence":fence});
+                if let Some(reply) = self.typed_prior(batch_id, &binding, &predecessor, &input)? {
+                    return Ok(reply);
+                }
+                let command = crate::departure::owned_drain_command(self, &departure, &fence)?;
+                self.prepare_typed(
+                    batch_id,
+                    binding,
+                    predecessor,
+                    expected_control_revision,
+                    input,
+                    vec![command],
+                    Some(departure),
                     None,
                 )
             }
@@ -165,7 +190,7 @@ impl Host {
                     expected_control_revision,
                     input,
                     vec![],
-                    false,
+                    None,
                     None,
                 )
             }
@@ -191,7 +216,7 @@ impl Host {
                         expected_control_revision,
                         input,
                         vec![command],
-                        false,
+                        None,
                         Some(bytes.clone()),
                     )
                 });
@@ -356,6 +381,7 @@ impl Host {
             runtime: candidate,
             proposal: proposal.clone(),
             action: None,
+            supervisor_events,
         });
         Ok(proposal)
     }
@@ -410,23 +436,62 @@ impl Host {
         revision: DecimalId,
         input: Value,
         commands: Vec<AcceptedCommand>,
-        admission: bool,
+        departure: Option<DepartureRequestV1>,
         action: Option<Vec<u8>>,
     ) -> Result<Value> {
-        let after = if admission {
-            revision
-                .0
-                .checked_add(1)
-                .ok_or("control revision exhausted")?
-        } else {
-            revision.0
-        };
+        if departure.is_none()
+            && self
+                .committed
+                .sim()
+                .state()
+                .owned_departures
+                .records
+                .values()
+                .any(|record| record.detached_tick.is_none())
+        {
+            return Err("owned departure requires trusted drain".into());
+        }
         let command_bytes = bincode::DefaultOptions::new()
             .with_fixint_encoding()
             .with_limit(MAX_COMMAND_BYTES as u64)
             .serialize(&vec![commands])?;
         self.prepare(id, binding, predecessor, hex(&command_bytes))?;
         let mut p = self.pending.take().ok_or("prepared candidate missing")?;
+        let evidence = departure
+            .as_ref()
+            .map(|request| {
+                crate::departure::departure_evidence(
+                    &self.committed,
+                    &p.runtime,
+                    request,
+                    &p.supervisor_events,
+                )
+            })
+            .transpose()?;
+        let after = crate::departure::control_revision_after(
+            &self.committed,
+            &p.runtime,
+            revision.0,
+            evidence.as_ref(),
+        )?;
+        if let Some(evidence) = &evidence {
+            p.proposal["payload"]["departure_v1"] = serde_json::to_value(evidence)?;
+        } else {
+            crate::departure::validate_eod_consequences(
+                &self.committed,
+                &p.runtime,
+                &p.supervisor_events,
+            )?;
+            if p.supervisor_events.iter().any(|event| {
+                matches!(
+                    event.event,
+                    crate::events::SupervisorEvent::OwnedDepartureCaptured { .. }
+                        | crate::events::SupervisorEvent::OwnedDepartureDetached { .. }
+                )
+            }) {
+                return Err("owned departure observations require trusted drain".into());
+            }
+        }
         p.proposal["payload"]["control_v2"] = json!({"schema_version":2,"revision_before":revision,"revision_after":DecimalId(after),"actor_registry_before_sha256":crate::player::registry_hash(&self.committed)?,"actor_registry_after_sha256":crate::player::registry_hash(&p.runtime)?,"actors":crate::player::actors(&p.runtime),"permission_before":crate::player::permission(&self.committed)?,"permission_after":crate::player::permission(&p.runtime)?});
         let input_hash = Digest::of(&serde_json::to_vec(&input)?);
         if let Some(bytes) = &action {
@@ -495,7 +560,11 @@ impl Host {
         let reply = match decision {
             DecisionV1::Committed { .. } => {
                 self.committed = p.runtime;
-                json!({"kind":"committed","batch_id":id,"digest":digest,"cursor":p.result,"ticks_hex":p.proposal["payload"]["ticks_hex"],"effects_hex":p.proposal["payload"]["effects_hex"],"events_hex":p.proposal["payload"]["events_hex"],"control_v2":p.proposal["payload"]["control_v2"],"receipt_hex":p.action.map(|bytes|action_receipt(bytes,Some(p.result.completed_tick.0))).transpose()?})
+                let mut reply = json!({"kind":"committed","batch_id":id,"digest":digest,"cursor":p.result,"ticks_hex":p.proposal["payload"]["ticks_hex"],"effects_hex":p.proposal["payload"]["effects_hex"],"events_hex":p.proposal["payload"]["events_hex"],"control_v2":p.proposal["payload"]["control_v2"],"receipt_hex":p.action.map(|bytes|action_receipt(bytes,Some(p.result.completed_tick.0))).transpose()?});
+                if let Some(departure) = p.proposal["payload"].get("departure_v1") {
+                    reply["departure_v1"] = departure.clone();
+                }
+                reply
             }
             DecisionV1::Rejected => {
                 json!({"kind":"rejected","batch_id":id,"digest":digest,"cursor":cursor(&self.committed)?,"receipt_hex":p.action.map(|bytes|action_receipt(bytes,None)).transpose()?})

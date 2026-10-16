@@ -1,5 +1,6 @@
 //! Pure post-tick sampling. This module has no marker execution or gameplay completion API.
 use crate::normalized::{quat, vec3};
+use crate::source_math::{finite_rotation, slerp};
 use crate::*;
 use std::sync::Arc;
 use wonderland_render_core::{AssetKey, EntityRef};
@@ -64,9 +65,9 @@ impl Clip {
             return Err(AvatarError::Limit("animation"));
         }
         if source.translations.iter().any(|v| !vec3(*v).is_finite())
-            || source.rotations.iter().any(|q| !unit(quat(*q)))
+            || source.rotations.iter().any(|q| !finite_rotation(quat(*q)))
         {
-            return Err(AvatarError::Invalid("nonfinite/nonunit channel"));
+            return Err(AvatarError::Invalid("nonfinite/overflowing channel"));
         }
         for m in &source.motions {
             if !m.duration_ms.get().is_finite()
@@ -169,15 +170,16 @@ impl Clip {
                 let offset = motion.first_rotation_index as usize;
                 let a = quat(self.source.rotations[offset + i]);
                 let value = if fraction >= 0.0 {
-                    a.slerp(quat(self.source.rotations[offset + j]), fraction)
+                    slerp(a, quat(self.source.rotations[offset + j]), fraction)?
                 } else {
                     a
                 };
-                local.rotation = if weight == 1.0 {
+                let rotation = if weight == 1.0 {
                     value
                 } else {
-                    local.rotation.slerp(value, weight)
+                    slerp(local.rotation, value, weight)?
                 };
+                pose.set_source_rotation(bone, rotation)?;
             }
         }
         Ok(())

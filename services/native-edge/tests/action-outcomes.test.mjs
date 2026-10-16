@@ -939,3 +939,82 @@ for (const status of ["committed", "rejected"])
       /durable decision mismatch/,
     );
   });
+
+test("append-only SourceGoto WLC1 preserves exact authenticated actor and sequence", () => {
+  const position = Buffer.alloc(9);
+  position.writeInt16LE(24, 0);
+  position.writeInt16LE(40, 2);
+  position.writeInt8(1, 4);
+  position.writeUInt16LE(7, 5);
+  position.writeInt16LE(-2, 7);
+  const bytes = packet(
+    "WLC1",
+    Buffer.concat([
+      u32(2),
+      u64(1),
+      u32(2),
+      u32(3),
+      u64(4),
+      u64(5),
+      u64(6),
+      u64(7),
+      position,
+    ]),
+  );
+  assert.equal(bytes.length, 77);
+  // Same literal is encoded/decoded by the Rust native_player differential test.
+  assert.equal(
+    bytes.toString("hex"),
+    "574c43310d0a1a0a3d000000000000000200000001000000000000000200000003000000040000000000000005000000000000000600000000000000070000000000000018002800010700feff",
+  );
+  const parsed = decodeActionRequest(bytes.toString("hex"));
+  assert.equal(parsed.principal, "1");
+  assert.equal(parsed.command_sequence, "7");
+  assert.deepEqual(parsed.actor, { object_id: 2, generation: 3 });
+  assert.equal(
+    Buffer.from(parsed.bytes).toString("hex"),
+    bytes.toString("hex"),
+  );
+  for (const corrupted of [
+    Buffer.concat([bytes, Buffer.from([0])]),
+    bytes.subarray(0, -1),
+  ]) {
+    assert.throws(() => decodeActionRequest(corrupted.toString("hex")));
+  }
+  const unsupported = Buffer.from(bytes);
+  unsupported.writeUInt32LE(3, 16);
+  assert.throws(() => decodeActionRequest(unsupported.toString("hex")));
+});
+
+for (const status of ["committed", "rejected"]) {
+  test(`SourceGoto ${status} decision retains exact bytes across durable lookup without replay`, async () => {
+    const f = fixture();
+    const hex =
+      "574c43310d0a1a0a3d000000000000000200000001000000000000000200000003000000040000000000000005000000000000000600000000000000070000000000000018002800010700feff";
+    const p = proposed({ hex, sequence: "7" });
+    if (status === "rejected")
+      f.lot.recordControlFence({
+        version: 1,
+        authority: h(6),
+        avatar_id: control.avatar_id,
+        generation: control.control_generation,
+        lot_id: "7",
+        request_digest: actor.reservation_digest,
+      });
+    const decision = await f.lot.commitControlledBatchV2(p);
+    assert.equal(decision.status, status);
+    const before = counts(f);
+    const restored = f.reopen();
+    const outcome = await restored.lookupPlayerActionV1(query(p));
+    assert.equal(outcome.status, status);
+    assert.equal(outcome.request_hex, hex);
+    assert.equal(
+      outcome.receipt_hex,
+      p.payload.action_v1[
+        status === "committed" ? "accepted_receipt_hex" : "rejected_receipt_hex"
+      ],
+    );
+    assert.deepEqual(await restored.commitControlledBatchV2(p), decision);
+    assert.deepEqual(counts(f), before);
+  });
+}

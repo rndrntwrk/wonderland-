@@ -488,7 +488,17 @@ fn read_object_data(
             }
             None => Ok(-1),
         },
-        11 => Ok(value.info.reference.object_id.0),
+        11 => Ok(
+            if state
+                .world
+                .object(value.info.reference)
+                .is_some_and(|o| o.rules.ghost)
+            {
+                1
+            } else {
+                value.info.reference.object_id.0
+            },
+        ),
         25 => {
             if active_thread(state, value.info.reference, active)?.is_none() {
                 return Ok(data[at]);
@@ -534,7 +544,7 @@ fn game_component(state: &SimState, index: i16) -> Result<i16, VmFault> {
                 area: "game clock".into(),
                 index: i32::from(index),
                 len: 7,
-            })
+            });
         }
     })
 }
@@ -863,6 +873,9 @@ fn write_entity(
         }
         _ => return Err(invalid("unhandled mutable entity field")),
     }
+    // A direct source position/direction write invalidates retained route pose.
+    let moved = old.info.position != candidate.info.position
+        || old.info.direction != candidate.info.direction;
     let world_changed = if projection {
         let world = project(state, &mut candidate, active, false)?;
         prepare_revision(old, &mut candidate)?;
@@ -876,6 +889,10 @@ fn write_entity(
     };
     // All fallible work finished before either authoritative entity commit.
     state.entities.insert(reference.object_id, candidate);
+    if moved {
+        crate::runtime_route_animation::invalidate_pose(state, reference)
+            .map_err(|error| invalid(format!("source route pose invalidation: {error:?}")))?;
+    }
     if world_changed || visual_change {
         result
             .signals
@@ -982,7 +999,9 @@ fn project(
         candidate.info.position = parent.info.position;
         container = parent.container;
     }
-    if refresh_room || old_position != candidate.info.position {
+    if world.rules.ghost {
+        candidate.object_data[29] = -1;
+    } else if refresh_room || old_position != candidate.info.position {
         candidate.object_data[29] = state
             .world
             .lot

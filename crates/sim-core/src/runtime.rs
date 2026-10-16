@@ -26,8 +26,12 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 #[path = "runtime_build.rs"]
 mod build_adapter;
+#[path = "runtime_goto.rs"]
+pub mod goto_adapter;
 #[path = "runtime_interactions.rs"]
 pub mod interaction_adapter;
+#[path = "runtime_leave.rs"]
+pub mod leave_adapter;
 #[path = "runtime_owned_admission.rs"]
 mod owned_adapter;
 
@@ -186,6 +190,10 @@ pub enum AcceptedCommand {
     },
     /// Source ordered join, never accepted from a player packet. Tag 29.
     AdmitOwnedAvatar(crate::owned_admission::OwnedAvatarAdmission),
+    /// Authenticated terrain selection. Append-only source command tag 30.
+    SourceGoto(goto_adapter::SourceGotoIntent),
+    /// Trusted generation-fenced source leave; never a player command. Tag 31.
+    RequestOwnedLeave(Box<leave_adapter::OwnedLeaveRequest>),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -252,6 +260,26 @@ pub enum RuntimeEvent {
     OwnedAvatarJoined {
         actor: EntityRef,
         name: String,
+    },
+    RouteAnimationUnavailable {
+        continuation_id: u64,
+        entity: EntityRef,
+        reason: String,
+    },
+    OwnedDepartureCaptured {
+        actor: EntityRef,
+        control_generation: u64,
+        tick: u64,
+    },
+    OwnedDepartureDetached {
+        actor: EntityRef,
+        control_generation: u64,
+        tick: u64,
+        reason: leave_adapter::DepartureRemovalReason,
+    },
+    OwnedEodDisconnectRequested {
+        actor: EntityRef,
+        control_generation: u64,
     },
 }
 
@@ -332,6 +360,13 @@ impl SimRuntime {
         }
         let clock = SimClock::new(config.mode == VmMode::Ts1, config.utc_start_dotnet_ticks);
         clock.validate().map_err(invalid)?;
+        // VM.Init supplies these defaults for a new simulator in both modes.
+        // In particular, global 25 enables the source avatar idle interaction.
+        // from_state/restore preserve their imported globals without rewriting.
+        let mut globals = vec![0; 38];
+        globals[20] = 255;
+        globals[25] = 4;
+        globals[17] = 4;
         let state = SimState {
             schema: SIMULATION_SCHEMA,
             mode: config.mode,
@@ -345,7 +380,7 @@ impl SimRuntime {
             ids: IdAllocator::new(),
             entities: BTreeMap::new(),
             threads: BTreeMap::new(),
-            globals: vec![0; 38],
+            globals,
             relationships: RelationshipBook::default(),
             ts1_family_budget: None,
             ts1_inventory: Ts1InventoryBook::default(),
@@ -360,6 +395,8 @@ impl SimRuntime {
             interaction_access: BTreeMap::new(),
             lot_permissions: ReplicatedLotPermissions::Uninitialized,
             owned_admission: crate::owned_admission::OwnedAdmissionState::Uninitialized,
+            source_routing: crate::route_motion::SourceRoutingState::default(),
+            owned_departures: leave_adapter::OwnedDepartureState::fresh(),
         };
         Self::from_state(state, content, role)
     }
@@ -501,7 +538,7 @@ impl SimRuntime {
             if !next.ids.is_live(entity) {
                 continue;
             }
-            dispatch_entity(&mut next, &self.content, &mut work, entity)?;
+            leave_adapter::dispatch_fenced_actor(&mut next, &self.content, &mut work, entity)?;
         }
         // Source VMScheduler.RunTick mixes count before processing pending deletion.
         next.rng.mix_entity_count(next.entities.len());
@@ -775,6 +812,12 @@ fn apply_command(
     tick: u64,
 ) -> Result<(), RuntimeError> {
     match command {
+        AcceptedCommand::RequestOwnedLeave(request) => {
+            leave_adapter::request_owned_leave(state, content, work, *request.clone(), tick)?
+        }
+        AcceptedCommand::SourceGoto(intent) => {
+            goto_adapter::execute(state, content, work, *intent)?
+        }
         AcceptedCommand::InitializeOwnedAdmission { source } => {
             owned_adapter::initialize(state, source.clone(), content)?
         }
@@ -1066,6 +1109,7 @@ fn spawn_entity(
         main_stack,
         depth,
         None,
+        false,
     )
 }
 
@@ -1080,6 +1124,7 @@ fn spawn_entity_impl(
     main_stack: ObjectId,
     depth: u16,
     committed: Option<EntityRef>,
+    source_scaffold: bool,
 ) -> Result<EntityRef, RuntimeError> {
     if depth > MAX_CREATION_DEPTH {
         return Err(RuntimeError::CreationDepth);
@@ -1202,7 +1247,11 @@ fn spawn_entity_impl(
             lockout_started: 0,
             avatar,
             lifecycle: LifecyclePhase::Initializing,
-            pending_entrypoints: VecDeque::from([0, 8, 1]),
+            pending_entrypoints: if source_scaffold {
+                VecDeque::new()
+            } else {
+                VecDeque::from([0, 8, 1])
+            },
             main_parameter,
             main_stack_object: main_stack,
             queued_users: BTreeSet::new(),
@@ -1228,7 +1277,9 @@ fn spawn_entity_impl(
     work.events.push(RuntimeEvent::Spawned(entity));
     // Source init and dynamic-multitile entrypoints run immediately; main is
     // pushed for the next scheduled tick. A yielding init preserves its stage.
-    run_initialization(state, content, work, entity, depth)?;
+    if !source_scaffold {
+        run_initialization(state, content, work, entity, depth)?;
+    }
     Ok(entity)
 }
 
@@ -1421,6 +1472,18 @@ fn dispatch_entity(
     work: &mut TickWork,
     entity: EntityRef,
 ) -> Result<(), RuntimeError> {
+    if leave_adapter::refresh_blocker(state, content, entity)? {
+        state
+            .scheduler
+            .schedule_in(entity, 1, true)
+            .map_err(invalid)?;
+        return Ok(());
+    }
+    // VMAvatar.Tick resets visual velocities before its thread/route dispatch.
+    if let Some(motion) = state.source_routing.avatars.get_mut(&entity) {
+        motion.velocity = [0.; 3];
+        motion.turn_velocity = 0.;
+    }
     let route_id = state.continuations.iter().find_map(|(id, c)| {
         if c.entity == entity && matches!(c.kind, ContinuationKind::Route(_)) {
             Some(*id)
@@ -1429,7 +1492,7 @@ fn dispatch_entity(
         }
     });
     if let Some(id) = route_id {
-        advance_route(state, work, id)?;
+        advance_route(state, content, work, id)?;
     }
     let has_route = state
         .continuations
@@ -1512,13 +1575,26 @@ fn dispatch_entity(
 
 fn tick_avatar(
     state: &mut SimState,
-    _content: &ContentSet,
+    content: &ContentSet,
     work: &mut TickWork,
     entity: EntityRef,
 ) -> Result<(), RuntimeError> {
     let item = live_entity(state, entity)?;
-    let Some(avatar) = item.avatar.as_ref() else {
+    let Some(_) = item.avatar.as_ref() else {
         return Ok(());
+    };
+    if leave_adapter::refresh_blocker(state, content, entity)? {
+        return Ok(());
+    }
+    let item = live_entity(state, entity)?;
+    let avatar = item.avatar.as_ref().expect("checked avatar");
+    let leave = if state.mode == VmMode::Tso {
+        leave_adapter::leave_context(state, content, entity)?
+    } else {
+        crate::avatars::lifecycle::LeaveContext {
+            action_available: false,
+            action_already_queued: false,
+        }
     };
     let head_target = state
         .ids
@@ -1539,18 +1615,31 @@ fn tick_avatar(
             .map_or(true, |e| {
                 e.info.position.x == i16::MIN && e.info.position.y == i16::MIN
             }),
-        leave_action_available: false,
-        leave_action_already_queued: false,
+        leave_action_available: leave.action_available,
+        leave_action_already_queued: leave.action_already_queued,
     };
     let avatar = avatar_mut(state, entity)?;
     avatar
         .resolve_head_seek_target(head_target)
         .map_err(invalid)?;
     let output = avatar.tick(&context).map_err(invalid)?;
+    leave_adapter::apply_queue_requests(state, content, work, entity, &output.lifecycle_requests)?;
     for request in &output.lifecycle_requests {
         match request {
             crate::avatars::lifecycle::LifecycleRequest::Delete { .. } => {
+                if let Some(record) = state.owned_departures.records.get_mut(&entity) {
+                    record
+                        .removal_reason
+                        .get_or_insert(leave_adapter::DepartureRemovalReason::ForcedCleanup);
+                }
                 state.scheduler.delete_at_end(entity)
+            }
+            crate::avatars::lifecycle::LifecycleRequest::ForceEodDisconnect => {
+                leave_adapter::request_eod_disconnect(state, work, entity);
+            }
+            crate::avatars::lifecycle::LifecycleRequest::ForceWaitTimeout { .. } => {
+                // No native BlockingState exists for generic external waits.
+                // refresh_blocker above refuses those exact unsupported states.
             }
             crate::avatars::lifecycle::LifecycleRequest::SetHidden(value) => {
                 live_entity_mut(state, entity)?.object_data[34] = *value
@@ -1561,6 +1650,7 @@ fn tick_avatar(
             _ => {}
         }
     }
+    leave_adapter::capture_first_tick(state, work, entity)?;
     if !output.animation_cues.is_empty()
         || !output.lifecycle_requests.is_empty()
         || output.message_cleared
@@ -1598,6 +1688,13 @@ pub(crate) fn begin_route(
         .map(|(owner, _)| owner);
     request.config.call_failure_tree = failure_tree;
     let route = RouteContinuation::new(request, &state.world).map_err(invalid)?;
+    state.source_routing.routes.insert(
+        id,
+        crate::route_motion::RouteMotionRecord::Pending {
+            actor: entity,
+            auto_run: false,
+        },
+    );
     state.continuations.insert(
         id,
         RuntimeContinuation {
@@ -1609,7 +1706,40 @@ pub(crate) fn begin_route(
     );
     Ok(id)
 }
-fn advance_route(state: &mut SimState, work: &mut TickWork, id: u64) -> Result<(), RuntimeError> {
+fn advance_route(
+    state: &mut SimState,
+    content: &ContentSet,
+    work: &mut TickWork,
+    id: u64,
+) -> Result<(), RuntimeError> {
+    // Build previews retain object revisions and collision classifications.
+    // Defer the entire source frame before any style/animation/obstacle change,
+    // including repeated integer positions and completion/cancel cleanup.
+    if let Some(record) = state.source_routing.routes.get(&id) {
+        if !matches!(
+            record,
+            crate::route_motion::RouteMotionRecord::Unavailable { .. }
+        ) {
+            let actor = record.actor();
+            if state.world.object(actor).is_some_and(|object| {
+                state
+                    .world
+                    .builds
+                    .is_locked(actor, Some(object), Some(object))
+            }) {
+                if let Some(crate::route_motion::RouteMotionRecord::Active(motion)) =
+                    state.source_routing.routes.get_mut(&id)
+                {
+                    motion.begin_tick();
+                    state
+                        .source_routing
+                        .avatars
+                        .insert(actor, motion.visual.clone());
+                }
+                return Ok(());
+            }
+        }
+    }
     let mut continuation = state
         .continuations
         .remove(&id)
@@ -1617,23 +1747,59 @@ fn advance_route(state: &mut SimState, work: &mut TickWork, id: u64) -> Result<(
     let ContinuationKind::Route(route) = &mut continuation.kind else {
         return Err(invalid("not a route"));
     };
+    use crate::route_motion::RouteMotionRecord;
+    let actor = live_entity(state, continuation.entity)?;
+    if actor.object_data[8] as u16 & (1 << 7) != 0
+        && actor
+            .avatar
+            .as_ref()
+            .is_some_and(|a| a.person_data.values[71] == 0)
+    {
+        route.cancel();
+    }
+    if let std::collections::btree_map::Entry::Vacant(entry) = state.source_routing.routes.entry(id)
+    {
+        let reason = "legacy in-flight route has no saved source timing".to_owned();
+        entry.insert(RouteMotionRecord::Unavailable {
+            actor: continuation.entity,
+            reason: reason.clone(),
+        });
+        work.events.push(RuntimeEvent::RouteAnimationUnavailable {
+            continuation_id: id,
+            entity: continuation.entity,
+            reason,
+        });
+    }
+    let mut motion_record =
+        crate::runtime_route_animation::prepare(state, content, id, route, &mut work.events)?;
+    let before_motion = motion_record.clone();
     let before = route.clone();
     let old_callback = route.pending_callback().cloned();
-    let step = route.step(
-        &state.world,
-        &mut state.rng,
-        state
-            .limits
-            .route_search_budget
-            .min(world::routing::MAX_DISPATCH_BUDGET),
-    );
+    let budget = state
+        .limits
+        .route_search_budget
+        .min(world::routing::MAX_DISPATCH_BUDGET);
+    let before_animation_revision = match &motion_record {
+        RouteMotionRecord::Active(m) => m.animation_revision,
+        _ => 0,
+    };
+    let step = if let RouteMotionRecord::Active(motion) = &mut motion_record {
+        let ended = crate::runtime_route_animation::turn_ended(state, motion)?;
+        route.step_source(&state.world, &mut state.rng, budget, motion, ended)
+    } else {
+        route.step(&state.world, &mut state.rng, budget)
+    };
     let mut completion = None;
+    let animation_step = step.clone();
+    let mut build_locked = false;
     match step {
         RouteStep::Progress { to, facing, .. } => {
             match move_entity(state, continuation.entity, to, facing) {
                 Ok(()) => {}
                 Err(RuntimeError::InvalidCommand(message)) if message.contains("BuildLocked") => {
                     *route = before;
+                    motion_record = before_motion;
+                    build_locked = true;
                 }
                 Err(error) => return Err(error),
             }
@@ -1661,16 +1827,51 @@ fn advance_route(state: &mut SimState, work: &mut TickWork, id: u64) -> Result<(
                 .goals
                 .get(usize::from(goal_index))
                 .and_then(|g| g.facing)
-                .unwrap_or(Facing(
-                    live_entity(state, continuation.entity)?.info.direction,
-                ));
-            move_entity(state, continuation.entity, position, facing)?;
-            completion = Some((true, world::RouteFailCode::Success, None));
+                .unwrap_or(match &motion_record {
+                    RouteMotionRecord::Active(motion) => motion.visual.facing,
+                    _ => Facing(live_entity(state, continuation.entity)?.info.direction),
+                });
+            match move_entity(state, continuation.entity, position, facing) {
+                Ok(()) => completion = Some((true, world::RouteFailCode::Success, None)),
+                Err(RuntimeError::InvalidCommand(message)) if message.contains("BuildLocked") => {
+                    *route = before;
+                    motion_record = before_motion;
+                    build_locked = true;
+                }
+                Err(error) => return Err(error),
+            }
         }
         RouteStep::Failed { code, blocker } => completion = Some((false, code, blocker)),
         _ => {}
     }
+    if !build_locked && matches!(motion_record, RouteMotionRecord::Active(_)) {
+        state.source_routing.routes.insert(id, motion_record);
+        motion_record =
+            crate::runtime_route_animation::prepare(state, content, id, route, &mut work.events)?;
+    }
+    if build_locked {
+        if let RouteMotionRecord::Active(motion) = &mut motion_record {
+            motion.begin_tick();
+            state
+                .source_routing
+                .avatars
+                .insert(motion.actor, motion.visual.clone());
+        }
+    } else {
+        if let RouteMotionRecord::Active(motion) = &mut motion_record {
+            crate::runtime_route_animation::apply(
+                state,
+                content,
+                motion,
+                before_animation_revision,
+                &animation_step,
+            )?;
+        }
+    }
     if let Some((success, code, blocker)) = completion {
+        if let RouteMotionRecord::Active(motion) = &motion_record {
+            crate::runtime_route_animation::finish(state, motion)?;
+        }
         if !success {
             if let Some(avatar) = live_entity_mut(state, continuation.entity)?.avatar.as_mut() {
                 avatar.write_person_data(62, code.code()).map_err(invalid)?;
@@ -1692,6 +1893,7 @@ fn advance_route(state: &mut SimState, work: &mut TickWork, id: u64) -> Result<(
             blocker,
         });
     } else {
+        state.source_routing.routes.insert(id, motion_record);
         state.continuations.insert(id, continuation);
     }
     Ok(())
@@ -1808,6 +2010,25 @@ fn cancel_continuations(state: &mut SimState, entity: EntityRef) -> Result<(), R
             state.authority_epoch,
         )
         .map_err(invalid)?;
+    let motions: Vec<_> = state
+        .source_routing
+        .routes
+        .values()
+        .filter_map(|r| match r {
+            crate::route_motion::RouteMotionRecord::Active(m) if m.actor == entity => {
+                Some((**m).clone())
+            }
+            _ => None,
+        })
+        .collect();
+    for motion in motions {
+        crate::runtime_route_animation::finish(state, &motion)?;
+    }
+    state
+        .source_routing
+        .routes
+        .retain(|_, r| r.actor() != entity);
+    state.source_routing.avatars.remove(&entity);
     state.continuations.retain(|_, c| c.entity != entity);
     Ok(())
 }
@@ -1819,6 +2040,7 @@ fn remove_entity(
     if !state.ids.is_live(entity) {
         return Ok(());
     }
+    leave_adapter::prepare_removal(state, work, entity)?;
     cancel_continuations(state, entity)?;
     let contained: Vec<_> = state
         .entities
@@ -1890,13 +2112,19 @@ fn remove_entity(
     for reference in group_changes {
         crate::runtime_memory::sync_projection(state, reference)?;
     }
-    for continuation in state.continuations.values_mut() {
+    for (id, continuation) in &mut state.continuations {
         if let ContinuationKind::Route(route) = &mut continuation.kind {
             if route.target() == Some(entity) {
                 route.cancel();
+                if let Some(crate::route_motion::RouteMotionRecord::Active(motion)) =
+                    state.source_routing.routes.get_mut(id)
+                {
+                    motion.line = None;
+                }
             }
         }
     }
+    leave_adapter::finish_removal(state, work, entity);
     work.events.push(RuntimeEvent::Deleted(entity));
     Ok(())
 }
@@ -1966,7 +2194,9 @@ pub(crate) fn move_entity(
     }
     state.world = world;
     for e in candidates {
-        state.entities.insert(e.info.reference.object_id, e);
+        let reference = e.info.reference;
+        state.entities.insert(reference.object_id, e);
+        crate::runtime_route_animation::invalidate_pose(state, reference)?;
     }
     Ok(())
 }
@@ -2695,7 +2925,7 @@ impl VmHost for RuntimeHost<'_> {
             _ => {
                 return Err(host_error(
                     "synchronous check yielded or exhausted its budget",
-                ))
+                ));
             }
         };
         if named && !separate {
@@ -3151,13 +3381,74 @@ impl VmHost for RuntimeHost<'_> {
         self.work.reset_requests.contains(&owner)
     }
     fn resolve_entity(&self, id: ObjectId) -> Option<EntityRef> {
-        self.state.ids.resolve(id).ok()
+        let entity = self.state.ids.resolve(id).ok()?;
+        let ghost = self
+            .state
+            .world
+            .object(entity)
+            .is_some_and(|o| o.rules.ghost);
+        (!ghost
+            || self
+                .state
+                .entities
+                .get(&id)
+                .is_some_and(|e| e.lifecycle == LifecyclePhase::Initializing))
+        .then_some(entity)
+    }
+    fn direct_entity_is_live(&self, entity: EntityRef) -> bool {
+        self.state.ids.is_live(entity)
+    }
+    fn script_object_id(&self, entity: EntityRef) -> Result<ObjectId, VmFault> {
+        Ok(
+            if self
+                .state
+                .world
+                .object(entity)
+                .is_some_and(|o| o.rules.ghost)
+            {
+                ObjectId(1)
+            } else {
+                entity.object_id
+            },
+        )
     }
     fn entity_info(&self, entity: EntityRef) -> Result<EntityInfo, VmFault> {
         Ok(live_entity(self.state, entity)?.info.clone())
     }
     fn entity_ids(&self) -> Result<Vec<ObjectId>, VmFault> {
-        Ok(self.state.entities.keys().copied().collect())
+        Ok(self
+            .state
+            .entities
+            .values()
+            .filter(|e| {
+                !self
+                    .state
+                    .world
+                    .object(e.info.reference)
+                    .is_some_and(|o| o.rules.ghost)
+                    || e.lifecycle == LifecyclePhase::Initializing
+            })
+            .map(|e| e.info.reference.object_id)
+            .collect())
+    }
+    fn objects_at_tile(&self, position: VmPosition) -> Result<Vec<EntityRef>, VmFault> {
+        Ok(self
+            .state
+            .entities
+            .values()
+            .filter(|e| {
+                let at = e.info.position;
+                !self
+                    .state
+                    .world
+                    .object(e.info.reference)
+                    .is_some_and(|o| o.rules.ghost)
+                    && at.level == position.level
+                    && at.x >> 4 == position.x >> 4
+                    && at.y >> 4 == position.y >> 4
+            })
+            .map(|e| e.info.reference)
+            .collect())
     }
     fn read_memory(&self, address: &MemoryAddress) -> Result<i16, VmFault> {
         crate::runtime_memory::read_memory_with_threads(
@@ -3411,6 +3702,18 @@ impl VmHost for RuntimeHost<'_> {
             }
             HostRequest::Route(request) => self.route_request(request),
             HostRequest::External(request) => {
+                if request.kind == ExternalKind::GenericTso
+                    && request.opcode == 1
+                    && request.operand[0] == 25
+                {
+                    return self.source_leave_mode25(request);
+                }
+                if request.kind == ExternalKind::InvokePlugin {
+                    // Object invokers can attach avatar participants. Without an
+                    // actual association adapter, conservatively invalidate the
+                    // whole lot's fresh no-session proof before dispatch.
+                    self.state.owned_departures.eod_known_clear = false;
+                }
                 if matches!(
                     request.kind,
                     ExternalKind::Sound | ExternalKind::SpecialEffect
@@ -3472,5 +3775,41 @@ impl RuntimeHost<'_> {
         let response = result?;
         self.commit_world_state(staged);
         Ok(response)
+    }
+}
+
+impl RuntimeHost<'_> {
+    fn source_leave_mode25(&mut self, request: ExternalRequest) -> Result<HostResponse, VmFault> {
+        if self.separate_check || request.is_check {
+            return Err(host_error("source leave cannot run in a detached check"));
+        }
+        let actor = request.context.caller;
+        let owned = self
+            .state
+            .owned_admission
+            .actors()
+            .is_some_and(|actors| actors.values().any(|control| control.actor == actor));
+        if owned && !self.state.owned_departures.records.contains_key(&actor) {
+            return Err(host_error("owned source leave requires a generation fence"));
+        }
+        if leave_adapter::refresh_blocker(self.state, self.content, actor).map_err(host_error)? {
+            return Ok(HostResponse::NextTick);
+        }
+        let mut threads = self.entity_threads.clone();
+        if let Some(active) = &self.active {
+            threads.insert(active.owner.object_id, active.clone());
+        }
+        if !leave_adapter::unwind_other_avatars(self.state, self.work, actor, &threads)
+            .map_err(host_error)?
+        {
+            return Ok(HostResponse::NextTick);
+        }
+        leave_adapter::user_leave(self.state, self.content, self.work, actor)
+            .map_err(host_error)?;
+        if let Some(record) = self.state.owned_departures.records.get_mut(&actor) {
+            record.removal_reason = Some(leave_adapter::DepartureRemovalReason::SourceLeave);
+        }
+        self.state.scheduler.delete_at_end(actor);
+        Ok(HostResponse::Complete(PrimitiveExit::GotoTrue))
     }
 }

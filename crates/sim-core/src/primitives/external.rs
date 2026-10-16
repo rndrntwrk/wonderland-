@@ -172,6 +172,35 @@ pub fn external<H: VmHost + ?Sized>(
     opcode: u16,
     bytes: [u8; 8],
 ) -> Result<PrimitiveOutcome, VmFault> {
+    if opcode == 1 && thread.mode == VmMode::Tso {
+        // VMGenericTSOCall reads a single mode byte. These are synchronous
+        // object-state queries, including when a source pie-menu check runs;
+        // they must never create an external-effect continuation.
+        let result = match bytes[0] {
+            // The source tests the retained direct object reference, not a
+            // fresh lookup of its numeric ID or its alive/dead state.
+            40 => Some(thread.top()?.context.stack_object_ref.is_some()),
+            48 => Some(match thread.top()?.context.stack_object_ref {
+                None => true,
+                Some(entity) => host.entity_info(entity)?.dead,
+            }),
+            51 => {
+                let entity = stack_entity(thread, host)?;
+                Some(
+                    host.entity_info(entity)?.persistent_id == 0
+                        && read_variable(thread, host, Variable::new(Scope::StackObject, 75))? == 0,
+                )
+            }
+            _ => None,
+        };
+        if let Some(result) = result {
+            return Ok(PrimitiveOutcome::Exit(if result {
+                PrimitiveExit::GotoTrue
+            } else {
+                PrimitiveExit::GotoFalse
+            }));
+        }
+    }
     let mut amount = None;
     if opcode == 25 && thread.mode == VmMode::Ts1 {
         return Err(VmFault::UnsupportedPrimitive {

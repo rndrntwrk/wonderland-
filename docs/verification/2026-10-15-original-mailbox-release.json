@@ -1,0 +1,37 @@
+{
+  "schema": "wonderland.verified-original-mailbox-release.v1",
+  "binding_sha256": "cf3ac8024b207857eccf38b7311f19a6a9683e330d83d613c426cc0578600f99",
+  "manifest_sha256": "d6d6f0acb7019c0e807b18439aeeec715b6cf7c7d8c1d7e0eb7f3ef70ce95a68",
+  "runtime_content_sha256": "8d8ce40540ad19c92b634186cf70f5d9f0b38b572506bc67eaddaa7cbb999efe",
+  "source_cook_spec_sha256": "36c7e654ecbcdc243c3e321f8def4964809e155bbda80179b18fc71f6beca2f2",
+  "mailbox_guid": 496355760,
+  "mailbox_effective_identity": "a56931ee991c925b0fed9e68f328ff8775d4c0f6fc5d631222f386f093623f9d",
+  "mailbox_effective_iff_sha256": "f00948388f143c22c08facd2bdf73896d44e41a1de6f223155acea6d40382de9",
+  "semiglobal_importer_owner": 2,
+  "source_inputs": {
+    "mailboxvacation.iff": "f00948388f143c22c08facd2bdf73896d44e41a1de6f223155acea6d40382de9",
+    "mailboxvacation.otf": "38c78d74067c7035dba0b820f2b470e6972592edebaca2857cb75385e6e06f6d",
+    "mailsemiglobal.iff": "f1b83b1b07daba9921f709748b7dcf97615a8380f0e0ee60c88f2ea7d47f1de3"
+  },
+  "source_archive_entries": [
+    {
+      "archive": "objectdata/objects/objiff.far",
+      "archive_sha256": "42ab60b451ac2dfec44c755033086c3f4d8311e69224519b4d7565ed73a0fe50",
+      "entry": "mailboxvacation.iff",
+      "offset": 6481037,
+      "bytes": 9116
+    },
+    {
+      "archive": "objectdata/objects/objotf.far",
+      "archive_sha256": "061d2f0085e5f9d0470acd4fde930152af4722364b3795089fcde77e9f0e7e71",
+      "entry": "mailboxvacation.otf",
+      "offset": 182499,
+      "bytes": 698
+    }
+  ],
+  "source_bytes_modified": false,
+  "source_import": "shipping resolve_iff_source/import_spec/sealed PreparedRelease loader",
+  "scope": "private authored join-anchor intake; behavior source linkage only",
+  "visual_status": "original mailbox SPF absent",
+  "two_authenticated_admissions_verified": false
+}

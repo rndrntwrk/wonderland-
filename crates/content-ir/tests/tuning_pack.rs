@@ -106,3 +106,32 @@ fn tuning_pack_rejects_truncation_duplicate_keys_flags_and_preallocation_attacks
     assert!(tuning_pack::encode(&fixture(), &bounded).is_err());
     assert!(tuning_pack::decode(&original, &bounded).is_err());
 }
+
+#[test]
+fn scoped_otf_origins_require_v2_without_changing_legacy_v1() {
+    use wonderland_content_ir::tuning::{TunedValue, TuningOrigin};
+    let limits = Limits::default();
+    let mut value = fixture();
+    let old = tuning_pack::encode(&value, &limits).unwrap();
+    assert_eq!(&old[8..12], &1u32.to_le_bytes());
+    value.global_cache.insert(
+        256 << 16,
+        TunedValue {
+            value: 123,
+            origin: TuningOrigin::Otf,
+        },
+    );
+    value.semiglobal_cache.insert(
+        8192 << 16,
+        TunedValue {
+            value: 456,
+            origin: TuningOrigin::OtfRewrite,
+        },
+    );
+    let bytes = tuning_pack::encode(&value, &limits).unwrap();
+    assert_eq!(&bytes[8..12], &2u32.to_le_bytes());
+    assert_eq!(tuning_pack::decode(&bytes, &limits).unwrap(), value);
+    let mut wrong_version = bytes;
+    wrong_version[8..12].copy_from_slice(&1u32.to_le_bytes());
+    assert!(tuning_pack::decode(&wrong_version, &limits).is_err());
+}

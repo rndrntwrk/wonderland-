@@ -4,6 +4,139 @@ use sim_core::vm::*;
 use support::*;
 
 #[test]
+fn tso_test_stack_object_uses_the_direct_reference_without_an_external_effect() {
+    for (present, dead, removed) in [
+        (false, false, false),
+        (true, false, false),
+        (true, true, false),
+        (true, false, true),
+    ] {
+        for is_check in [false, true] {
+            let (store, mut thread, mut host) = setup(vec![VmInstruction::new(
+                1,
+                254,
+                255,
+                [40, 255, 0, 0, 0, 0, 0, 0],
+            )]);
+            thread.is_check = is_check;
+            if !present {
+                // A nonzero saved numeric ID does not establish a direct ref.
+                thread.top_mut().unwrap().context.stack_object_ref = None;
+            }
+            if removed {
+                // Source can retain the direct object after registry removal.
+                host.entities.remove(&reference(1).object_id);
+            } else {
+                host.entities.get_mut(&reference(1).object_id).unwrap().dead = dead;
+            }
+            let exit = if present {
+                PrimitiveExit::ReturnTrue
+            } else {
+                PrimitiveExit::ReturnFalse
+            };
+            assert_eq!(
+                thread.run(&store, &mut host, 1).stop,
+                VmStop::Completed(exit)
+            );
+            assert!(host.requests.is_empty());
+        }
+    }
+    let (store, mut thread, mut host) = setup(vec![VmInstruction::new(
+        1,
+        254,
+        255,
+        [40, 0, 0, 0, 0, 0, 0, 0],
+    )]);
+    thread.mode = VmMode::Ts1;
+    thread.run(&store, &mut host, 1);
+    assert!(matches!(
+        host.requests.as_slice(),
+        [HostRequest::External(ExternalRequest {
+            kind: ExternalKind::GenericTs1,
+            ..
+        })]
+    ));
+}
+
+#[test]
+fn tso_pending_deletion_is_a_synchronous_null_or_dead_query() {
+    for (present, dead, expected) in [
+        (false, false, true),
+        (true, true, true),
+        (true, false, false),
+    ] {
+        let (store, mut thread, mut host) = setup(vec![VmInstruction::new(
+            1,
+            254,
+            255,
+            [48, 255, 0, 0, 0, 0, 0, 0],
+        )]);
+        thread.is_check = true;
+        if present {
+            host.entities.get_mut(&reference(1).object_id).unwrap().dead = dead;
+        } else {
+            thread.top_mut().unwrap().context.stack_object_ref = None;
+        }
+        let exit = if expected {
+            PrimitiveExit::ReturnTrue
+        } else {
+            PrimitiveExit::ReturnFalse
+        };
+        assert_eq!(
+            thread.run(&store, &mut host, 1).stop,
+            VmStop::Completed(exit)
+        );
+        assert!(host.requests.is_empty());
+    }
+}
+
+#[test]
+fn tso_temporary_id_checks_persistent_id_and_reserved75_without_external_effects() {
+    for (pid, reserved, expected) in [(0, 0, true), (0, 1, false), (77, 0, false)] {
+        let (store, mut thread, mut host) = setup(vec![VmInstruction::new(
+            1,
+            254,
+            255,
+            [51, 255, 0, 0, 0, 0, 0, 0],
+        )]);
+        thread.is_check = true;
+        host.entities
+            .get_mut(&reference(1).object_id)
+            .unwrap()
+            .persistent_id = pid;
+        host.memory.insert(
+            (reference(1).object_id, EntityField::ObjectData, 75),
+            reserved,
+        );
+        let exit = if expected {
+            PrimitiveExit::ReturnTrue
+        } else {
+            PrimitiveExit::ReturnFalse
+        };
+        assert_eq!(
+            thread.run(&store, &mut host, 1).stop,
+            VmStop::Completed(exit)
+        );
+        assert!(host.requests.is_empty());
+    }
+    let (store, mut thread, mut host) = setup(vec![VmInstruction::new(
+        1,
+        254,
+        255,
+        [51, 0, 0, 0, 0, 0, 0, 0],
+    )]);
+    thread.mode = VmMode::Ts1;
+    thread.run(&store, &mut host, 1);
+    assert!(matches!(
+        host.requests.as_slice(),
+        [HostRequest::External(ExternalRequest {
+            kind: ExternalKind::GenericTs1,
+            ..
+        })]
+    ));
+}
+
+#[test]
 fn animation_operand_retargets_parameter_ids_and_writes_event_to_selected_local() {
     let operand = [1, 0, 3, 0, 0, 4 | 32 | 64 | 2, 5, 0];
     let (store, mut thread, mut host) = setup(vec![VmInstruction::new(44, 254, 255, operand)]);

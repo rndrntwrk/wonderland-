@@ -1,5 +1,6 @@
 //! Private supervisor pipe only. No HTTP listener or browser-authentication bypass.
 mod bounded;
+mod departure;
 mod events;
 mod loader;
 mod player;

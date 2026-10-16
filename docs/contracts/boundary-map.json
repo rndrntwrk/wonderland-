@@ -15,7 +15,7 @@
         }
       ],
       "id": "content-identity",
-      "notes": "Manifest/pack/binding versions and source/cooked/runtime descriptors are separately meaningful. Exact hashes and declared resource codecs/patch/tuning/dependency inputs must accompany native sessions. Verified bytes do not prove license rights, original whole-object closure, original engine equivalence, or production readiness. GameRuntime extends content identity with its integrated interaction metadata; do not equate the sealed B report with the final native descriptor. Newly integrated resource codec variants retain separately versioned identities; their presence is not runtime cohort acceptance.",
+      "notes": "Manifest/pack/binding versions and source/cooked/runtime descriptors are separately meaningful. Exact hashes and declared resource codecs/patch/tuning/dependency inputs must accompany native sessions. Verified bytes do not prove license rights, original whole-object closure, original engine equivalence, or production readiness. GameRuntime extends content identity with its integrated interaction metadata; do not equate the sealed B report with the final native descriptor. Newly integrated resource codec variants retain separately versioned identities; their presence is not runtime cohort acceptance. Current inspected loader separates a bounded 64 MiB metadata budget from the unchanged 32 MiB conversion/content limits with retained metadata charged to the aggregate allocation allowance, and validates shared global tuning donors against exact bound provenance. Source-derived metadata and original semantic resource support are not a rendered account-world acceptance claim.",
       "owner": "B",
       "realm": "content",
       "sources": [
@@ -29,7 +29,7 @@
         },
         {
           "path": "crates/content-runtime-bridge/src/cooked.rs",
-          "sha256": "d0f129047cd80b4eff10683596ed7f6f438cc69f692b5293cb92399598b49013"
+          "sha256": "212a77fd9c599261fdea826a518063f8d2768cea389449049c2f9b9eccc0d8a6"
         }
       ],
       "status": "observed-not-frozen"
@@ -129,13 +129,13 @@
         }
       ],
       "id": "native-accepted-tick",
-      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion. Appended ExecuteNamedEntryPoint (variant 25) executes a bounded synchronous trusted controller check using copied Temp/TempXL banks; it does not authorize native player admission. Host/interpreter faults currently roll back the accepted tick, an explicitly documented difference from ordinary FreeSO check-thread exception handling. Appended ExecuteSourceExpressionCallback (variant 26) separately qualifies selected-routine expression-only callbacks: global-register Bounds faults preserve earlier writes and return false with a headless diagnostic. Direct nested/non-expression instructions are refused before work; indirect reset hosts retain fail-closed behavior. Callback-local cloned banks are isolated, while explicit entity-temp writes retain source semantics. Other faults and any later fatal command still roll back the whole tick. This is not complete original exception parity, a rendered dialog, or actor admission. See docs/verification/native-prepare-admission-20261015/README.md for executed regression evidence and remaining original-assembly differential gaps. Appended InitializeLotPermissions (variant 27) is a one-shot trusted TSO metadata initializer; it preserves supplied source caches and does not authenticate roles, admit an actor or run source reconciliation. New and legacy-migrated state is explicitly uninitialized. Later repeated initialization rejects atomically; exact accepted-tick duplicate suppression is unchanged. See docs/verification/native-lot-permission-state-20261015/CONTRACT.md. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified.",
+      "notes": "AcceptedTick carries u64 lot/epoch/tick, ContentDescriptor, rng_before and ordered AcceptedCommands. Authority and Replica run the same accepted transition; only authority exposes durable dispatches. Construction of an AcceptedTick or the Authority enum is not authentication. Preserve 30-Hz semantic ticks independently of render/network batching. TickOutcome acceptance/events are distinct from durable completion. Appended ExecuteNamedEntryPoint (variant 25) executes a bounded synchronous trusted controller check using copied Temp/TempXL banks; it does not authorize native player admission. Host/interpreter faults currently roll back the accepted tick, an explicitly documented difference from ordinary FreeSO check-thread exception handling. Appended ExecuteSourceExpressionCallback (variant 26) separately qualifies selected-routine expression-only callbacks: global-register Bounds faults preserve earlier writes and return false with a headless diagnostic. Direct nested/non-expression instructions are refused before work; indirect reset hosts retain fail-closed behavior. Callback-local cloned banks are isolated, while explicit entity-temp writes retain source semantics. Other faults and any later fatal command still roll back the whole tick. This is not complete original exception parity, a rendered dialog, or actor admission. See docs/verification/native-prepare-admission-20261015/README.md for executed regression evidence and remaining original-assembly differential gaps. Appended InitializeLotPermissions (variant 27) is a one-shot trusted TSO metadata initializer; it preserves supplied source caches and does not authenticate roles, admit an actor or run source reconciliation. New and legacy-migrated state is explicitly uninitialized. Later repeated initialization rejects atomically; exact accepted-tick duplicate suppression is unchanged. See docs/verification/native-lot-permission-state-20261015/CONTRACT.md. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified. Current inspected integration appends SourceGoto (tag 30) and generation-fenced RequestOwnedLeave (tag 31), source new-VM global defaults, route timing, and source leave capture. Portable state capture precedes detach observation; durable account save/release is a separate coordinator decision. Unsupported source/EOD cases fail closed. Retained native departure evidence is scoped in docs/verification/native-owned-departure-20261015/TESTS.md and ORIGINAL-ROUNDTRIP.md; rendered original two-account acceptance remains pending.",
       "owner": "A",
       "realm": "native",
       "sources": [
         {
           "path": "crates/sim-core/src/runtime.rs",
-          "sha256": "af8dd8635c75ed6c643a8c0f05a1082f166ea6f7f9417ad227720513c0610c5c"
+          "sha256": "49fb24541dcbd1d3014bba5040728671f8ab7671f3c5ce79b076c65d4e544aa9"
         },
         {
           "path": "crates/sim-core/src/clock.rs",
@@ -163,17 +163,17 @@
         }
       ],
       "id": "native-checkpoint",
-      "notes": "WLDSNAP with format version 1 and separately versioned simulation state is state AFTER completed tick N; accepted tail begins N+1. Fixed-width little-endian canonical payload, content/lot/epoch and semantic validation are distinct from transport authentication. The checksum is corruption detection, not an ownership grant or a database ledger. Historical avatar bone channels and private EOD provider state must not be guessed from this public snapshot. Simulation schema 3 appends explicit uninitialized/initialized TSO lot metadata while preserving envelope format 1. Schema 1/2 migrate to uninitialized metadata, never inferred visitor authority; prior owned state and last-tick digest survive. The fully reconstructed state is bounded by the current global serialization cap before installation. Initialized metadata is not admission readiness, and object ownership/query projection is not duplicated. See docs/verification/native-lot-permission-state-20261015/CONTRACT.md. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified.",
+      "notes": "WLDSNAP with format version 1 and separately versioned simulation state is state AFTER completed tick N; accepted tail begins N+1. Fixed-width little-endian canonical payload, content/lot/epoch and semantic validation are distinct from transport authentication. The checksum is corruption detection, not an ownership grant or a database ledger. Historical avatar bone channels and private EOD provider state must not be guessed from this public snapshot. Simulation schema 3 appends explicit uninitialized/initialized TSO lot metadata while preserving envelope format 1. Schema 1/2 migrate to uninitialized metadata, never inferred visitor authority; prior owned state and last-tick digest survive. The fully reconstructed state is bounded by the current global serialization cap before installation. Initialized metadata is not admission readiness, and object ownership/query projection is not duplicated. See docs/verification/native-lot-permission-state-20261015/CONTRACT.md. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified. Current inspected simulation schema is 6: schema 5 appends source route/continuous-pose maps and schema 6 appends source departure state. Schemas 1-5 migrate without inferring historical route timing or clear EOD knowledge; reconstructed state remains bounded and semantically validated. This map records observed source, not a new snapshot compatibility execution or original-engine equivalence result.",
       "owner": "A",
       "realm": "native",
       "sources": [
         {
           "path": "crates/sim-core/src/snapshot.rs",
-          "sha256": "6e9a92dfec12ac13df7079cdddbac0621100da3c2d29c298056041b3db5ba5f7"
+          "sha256": "f48fdd629eb60e16f3a463e20de317caae10e623c5897a72cc45e5242bf2ae5c"
         },
         {
           "path": "crates/sim-core/src/state.rs",
-          "sha256": "71273eec2853085f014d9c5fbe90d5b71e43d0291a380668289eafc949452e93"
+          "sha256": "fdd35263108e0368c8f2c21edbdddda0574bf97eca4b540eaf8e1565b5d142b2"
         }
       ],
       "status": "observed-not-frozen"
@@ -237,17 +237,17 @@
         }
       ],
       "id": "native-player-admission",
-      "notes": "Current WLB1 bootstrap, WLC1 invocation/cancellation and WLA1 correlated acknowledgement are distinct from WLR1 replay. Admitted source_epoch/lot_incarnation are u64 and avatar_id/lot_location u32. The server supplies the authenticated principal/actor and revalidates the exact source action and current queue under its authority lock. A matching receipt is not VM completion or durable transaction truth; unresolved writes stay Unknown and are not replayed. Declared bootstrap content and the local test authority do not supply production account, claims or persistence services. WLB1 appearance uses a frozen positional appearance_v1 serializer; unsupported lighting is rejected instead of silently changing the bootstrap schema. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified. Same-control action recovery retains an in-memory pending-request capsule across verified authority takeover; only exact durable decision receipts can resolve it after a matching accepted checkpoint. No missing historical evidence is inferred or replayed. See docs/verification/native-action-outcome-20261015/CONTRACT.md.",
+      "notes": "Current WLB1 bootstrap, WLC1 invocation/cancellation and WLA1 correlated acknowledgement are distinct from WLR1 replay. Admitted source_epoch/lot_incarnation are u64 and avatar_id/lot_location u32. The server supplies the authenticated principal/actor and revalidates the exact source action and current queue under its authority lock. A matching receipt is not VM completion or durable transaction truth; unresolved writes stay Unknown and are not replayed. Declared bootstrap content and the local test authority do not supply production account, claims or persistence services. WLB1 appearance uses a frozen positional appearance_v1 serializer; unsupported lighting is rejected instead of silently changing the bootstrap schema. Account-owned integration adds explicit source metadata and schema 4 owned-control registry, source-ordered admission and identity-bound browser transport; old snapshots migrate to uninitialized ownership. Bounded host/workerd evidence is recorded in docs/verification/owned-admission-edge-20261015/README.md. Original-content rendered gameplay, detach and sustained play remain unqualified. Same-control action recovery retains an in-memory pending-request capsule across verified authority takeover; only exact durable decision receipts can resolve it after a matching accepted checkpoint. No missing historical evidence is inferred or replayed. See docs/verification/native-action-outcome-20261015/CONTRACT.md. Current inspected player wire appends source GoTo while preserving Invoke/Cancel ordinals, validates source offers and exact selected identity with server-owned current queue/actor checks and deferred source CheckAction, and retains the same pending/Unknown receipt path. Owned placement readiness is checked independently of custody; leave/save/re-entry native evidence does not establish rendered browser continuity. Strict bridge transport checks remain separate from provider-only tests.",
       "owner": "F",
       "realm": "native",
       "sources": [
         {
           "path": "crates/game-runtime/src/live_wire/player.rs",
-          "sha256": "c70e284b2c4b4d53b49b020836000bafb015ec9079f576aa2206034ff0a52f48"
+          "sha256": "02da73f6e521f6cc1f7af836ff808fdc8fd22c2ad68d122e1617210b0ddad05f"
         },
         {
           "path": "crates/game-runtime/src/live_wire/player/admission.rs",
-          "sha256": "e8aa449f2d38910f9b4323b969ccfbc8a5e828cfa4e2c7f852b6375709528244"
+          "sha256": "b36818b73f0306bc526649556e1652bc7103404c00798d573a5c2c52221db40a"
         },
         {
           "path": "crates/game-runtime/src/live_wire/player/appearance_v1.rs",
@@ -302,7 +302,7 @@
         }
       ],
       "id": "native-visual-projection",
-      "notes": "Read-only world/appearance and per-accepted-tick avatar frames consume native state with explicit source resources and identities. Camera/GPU tickets and retained bone history confer no simulation authority. Missing models/resources stay diagnosed; fresh checkpoint or exhausted presentation history resets missing channels instead of inventing them. Terrain interpolation uses accepted terrain and hidden == 0 visibility; terrain/audio source from #35/#38 is integrated.",
+      "notes": "Read-only world/appearance and per-accepted-tick avatar frames consume native state with explicit source resources and identities. Camera/GPU tickets and retained bone history confer no simulation authority. Missing models/resources stay diagnosed; fresh checkpoint or exhausted presentation history resets missing channels instead of inventing them. Terrain interpolation uses accepted terrain and hidden == 0 visibility; terrain/audio source from #35/#38 is integrated. Current inspected projection uses authoritative fractional source-route position/yaw and reports unavailable route animation rather than substituting appearance. Original animation and native route evidence do not qualify final rendered browser pixels.",
       "owner": "C",
       "realm": "native-presentation",
       "sources": [
@@ -312,7 +312,7 @@
         },
         {
           "path": "crates/game-runtime/src/world_projection.rs",
-          "sha256": "f4033975584bee6726f4116c443bb47122c3d1cfca84ab138c73daf7cc77b7e3"
+          "sha256": "3633119f8433a2e9307b4ba8f516a508db6b494079da85435b7559abd0341001"
         }
       ],
       "status": "observed-not-frozen"

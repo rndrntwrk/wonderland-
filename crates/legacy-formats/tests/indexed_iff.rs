@@ -517,3 +517,23 @@ fn many_small_resources_cannot_bypass_the_rebuild_workspace_budget() {
     );
     document.encode(&Limits::default()).unwrap();
 }
+
+#[test]
+fn preserving_layout_reproduces_indexed_sources_and_rejects_stale_top_level_pointer() {
+    for version in [0, 1] {
+        let bytes = source(version);
+        let mut file = iff::decode(&bytes, &Limits::default()).unwrap();
+        assert_eq!(
+            iff::encode_preserving_layout(&file, &Limits::default()).unwrap(),
+            bytes
+        );
+        file.chunks[0].data.push(1);
+        assert!(iff::encode_preserving_layout(&file, &Limits::default()).is_err());
+        let rebuilt = iff::encode_rebuilding_index(&bytes, &file, &Limits::default()).unwrap();
+        let reopened = iff::decode(&rebuilt, &Limits::default()).unwrap();
+        assert_eq!(
+            iff::encode_preserving_layout(&reopened, &Limits::default()).unwrap(),
+            rebuilt
+        );
+    }
+}

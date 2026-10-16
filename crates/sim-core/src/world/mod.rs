@@ -241,7 +241,7 @@ impl WorldQuery for WorldState {
         self.object(entity)
     }
     fn objects(&self) -> Vec<&WorldObject> {
-        self.objects.values().collect()
+        self.objects.values().filter(|o| !o.rules.ghost).collect()
     }
     fn slots(&self) -> &SlotState {
         &self.slots

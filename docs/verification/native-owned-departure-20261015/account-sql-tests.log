@@ -1,0 +1,18 @@
+PASS exact StateToDb casts, big-endian motives and reload normalization
+PASS strict whitelist, unknown fields, capacities, sorted u32 targets and SleepState
+PASS selective merge preserves other jobs, relationship tails and every excluded source slot
+PASS production SQLite tables: expiry/logout/rotation save keeps custody and touches only whitelist
+PASS required trusted lookup rejects missing/prepared/rejected/wrong-origin proof without writes
+PASS frozen baseline, real source presence, and currently owned default suits required
+PASS async trusted lookup cannot race a source or generation replacement
+PASS SQLite save failure is atomic across merge, fence, receipt and tombstone
+PASS save alone and detach alone cannot release; exact independent proof gates release
+PASS release transaction failure retains claim, export, lease and immutable save
+PASS exact old save/release retry after re-admission cannot mutate newer generation
+PASS detach after retained-save takeover allows newer host incarnation/epoch
+PASS async detach race never erases a replacement active claim
+PASS immutable operation conflict rolls back second-generation save
+PASS concurrent ledger and wardrobe price changes survive source save
+PASS snapshot recheck catches a change after proof lookup and before final transaction
+PASS relationship merge capacity blocks rather than truncates existing source
+PASS 17 owned leave SQL-backed account tests; native/coordinator source journey remains separately required

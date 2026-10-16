@@ -364,10 +364,10 @@ fn drawing_groups_cover_all_source_version_layouts() {
 
 #[test]
 fn slot_all_versions_roundtrip_and_reject_unrepresentable_edits() {
-    for version in 4u32..=10 {
+    for version in [0u32, 4, 5, 6, 7, 8, 9, 10, 100, u32::MAX] {
         let mut b = vec![0x12, 0x34, 0x56, 0x78];
         b.extend(version.to_le_bytes());
-        b.extend(b"TOLS");
+        b.extend(if version == 100 { &[0; 4] } else { b"TOLS" });
         b.extend(1u32.to_le_bytes());
         b.extend(3u16.to_le_bytes());
         for n in [0x80000000u32, 0, 0, 1, 0, 0, 0xffffffff, 0xffffffff] {

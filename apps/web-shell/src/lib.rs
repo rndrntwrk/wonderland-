@@ -31,6 +31,7 @@ mod native_audio_browser;
 pub mod native_avatar;
 #[cfg(target_arch = "wasm32")]
 pub mod native_lot;
+pub mod native_terrain;
 pub mod snapshot_avatar;
 pub mod snapshot_world;
 pub mod source_city;

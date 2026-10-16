@@ -36,6 +36,15 @@ impl ImportBudget {
         }
     }
 
+    /// Cooked JSON/manifest admission is a separate retained workspace from
+    /// the final serialized ContentSet. Its owner enforces the hard ceiling.
+    pub(crate) fn for_metadata(limits: &Limits, max_bytes: usize) -> Self {
+        Self {
+            limit: limits.max_total_decoded_bytes.min(max_bytes),
+            used: 0,
+        }
+    }
+
     pub(crate) fn reserve(&mut self, bytes: usize) -> Result<(), String> {
         let next = self
             .used

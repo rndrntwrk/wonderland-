@@ -167,6 +167,7 @@ fn objf_checks_and_actions_both_contribute_roots() {
         1,
         encode_objf(
             &Objf {
+                magic: *b"fJBO",
                 padding: 0,
                 version: 1,
                 functions: vec![ObjfFunction {

@@ -1,0 +1,4 @@
+ec2b32ea1f465ff70c1cfaa217d7c31888e6489df7ed75874f4f5c7acdeb492a  docs/verification/native-owned-departure-20261015/coordinator-canonical-operation-test.log
+daa903ae773a2f23515d8bb13596006ced344ddcace83057b5ae1a7681157d4c  docs/verification/native-owned-departure-20261015/coordinator-regression-tests.log
+0ac41a7ee16d37371d498c42e610628691652be6f37528d71c9e3ed57357e366  docs/verification/native-owned-departure-20261015/coordinator-sql-tests.log
+63d3bf064e39c5b2a49d69cf503d94a554194b6ddbbb5bfcfd6d1b105feedd18  docs/verification/native-owned-departure-20261015/coordinator-static-checks.log

@@ -80,12 +80,14 @@ fn reject_commands(runtime: &mut SimRuntime, commands: Vec<AcceptedCommand>) {
 fn new_runtimes_start_current_schema_with_uninitialized_permissions() {
     for mode in [VmMode::Tso, VmMode::Ts1] {
         let runtime = runtime(mode, RuntimeRole::Authority);
-        assert_eq!(runtime.state().schema, 4);
+        assert_eq!(runtime.state().schema, sim_core::state::SIMULATION_SCHEMA);
         assert_eq!(
             runtime.state().lot_permissions,
             ReplicatedLotPermissions::Uninitialized
         );
-        assert!(canonical(runtime.state()).ends_with(&canonical(&0_u32)));
+        assert!(canonical(runtime.state()).ends_with(&canonical(&(
+            0_u32, 0_u32, 0_u64, 0_u64, 0_u64, true, 0_u64
+        ))));
     }
 }
 
@@ -100,7 +102,16 @@ fn trusted_initialization_preserves_explicit_metadata_without_reconciliation() {
         runtime.state().lot_permissions,
         ReplicatedLotPermissions::Initialized(lot())
     );
-    assert!(canonical(runtime.state()).ends_with(&canonical(&(1_u32, lot(), 0_u32))));
+    assert!(canonical(runtime.state()).ends_with(&canonical(&(
+        1_u32,
+        lot(),
+        0_u32,
+        0_u64,
+        0_u64,
+        0_u64,
+        true,
+        0_u64
+    ))));
     assert!(runtime.state().entities.is_empty());
     assert!(runtime.state().interaction_access.is_empty());
 }
@@ -374,6 +385,12 @@ fn schemas_one_and_two_migrate_without_inventing_metadata_or_losing_replay_recei
                 )
                 .unwrap();
             }
+            // Legacy snapshots carry no proof that EOD sessions are clear.
+            let mut state = original.state().clone();
+            state.owned_departures.eod_known_clear = false;
+            original =
+                SimRuntime::from_state(state, original.content().clone(), RuntimeRole::Authority)
+                    .unwrap();
             let legacy = legacy_frame(&original, schema);
             let mut recovered = runtime(mode, RuntimeRole::Replica);
             recovered.restore(&legacy).unwrap();
@@ -415,7 +432,11 @@ fn migration_respects_original_payload_limit_and_adds_only_its_known_suffix() {
         };
         assert_eq!(
             snapshot::decode(&bytes, original.content(), expectation).unwrap(),
-            *original.state()
+            {
+                let mut expected = original.state().clone();
+                expected.owned_departures.eod_known_clear = false;
+                expected
+            }
         );
         expectation.limits.max_payload_bytes -= 1;
         assert!(matches!(
@@ -455,7 +476,7 @@ fn old_schemas_reject_extra_fields_truncation_and_header_payload_schema_mismatch
             assert_eq!(runtime.snapshot().unwrap(), before);
         }
     }
-    for schema in [0, 5, u16::MAX] {
+    for schema in [0, sim_core::state::SIMULATION_SCHEMA + 1, u16::MAX] {
         let bytes = frame(&before, schema, &canonical(runtime.state()));
         assert_eq!(
             snapshot::decode(&bytes, runtime.content(), SnapshotExpectation::new(41, 7)),
@@ -470,7 +491,8 @@ fn initialized_payload_rejects_unknown_tags_huge_hints_and_noncanonical_membersh
     let before = runtime.snapshot().unwrap();
     let mut prefix = canonical(runtime.state());
     assert_eq!(&prefix[prefix.len() - 4..], &[0; 4]);
-    prefix.truncate(prefix.len() - 8);
+    prefix.truncate(prefix.len() - 8 - 16 - 17);
+    prefix[..2].copy_from_slice(&4u16.to_le_bytes());
     let valid = canonical(&ReplicatedLotPermissions::Initialized(lot()));
     // enum(u32), owner(u32), category(u8), size(i32), roommate count(u64).
     let room_count = 13;
@@ -511,7 +533,7 @@ fn initialized_payload_rejects_unknown_tags_huge_hints_and_noncanonical_membersh
 
 #[test]
 fn existing_accepted_command_tags_are_preserved_and_initializer_is_appended() {
-    for expected in 0_u32..=27 {
+    for expected in 0_u32..=31 {
         // Zero-valued payload fields are decodable fixtures, not admissible commands.
         // This checks every discriminant without relying on unrelated constructors.
         let mut bytes = expected.to_le_bytes().to_vec();
@@ -553,6 +575,8 @@ fn existing_accepted_command_tags_are_preserved_and_initializer_is_appended() {
             AcceptedCommand::InitializeLotPermissions { .. } => 27,
             AcceptedCommand::InitializeOwnedAdmission { .. } => 28,
             AcceptedCommand::AdmitOwnedAvatar(_) => 29,
+            AcceptedCommand::SourceGoto(_) => 30,
+            AcceptedCommand::RequestOwnedLeave(_) => 31,
         };
         assert_eq!(actual, expected);
         let encoded = canonical(&command);

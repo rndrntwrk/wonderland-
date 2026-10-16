@@ -41,6 +41,7 @@ use wonderland_legacy_formats::{
 pub const SOURCE_BASELINE: &str = "4c6b3e8f5835b228723caea3c9f683c62f244f73";
 pub const BINDING_VERSION: u32 = 1;
 pub const MAX_REPORT_BYTES: usize = 1024 * 1024;
+pub const MAX_METADATA_BYTES: usize = 64 * 1024 * 1024;
 
 /// Count JSON output before allocating its exact buffer. Reports never truncate.
 pub fn json_report<T: Serialize>(value: &T) -> Result<Vec<u8>, String> {
@@ -50,6 +51,9 @@ pub fn json_report<T: Serialize>(value: &T) -> Result<Vec<u8>, String> {
 #[derive(Clone, Debug)]
 pub struct CookedLoadLimits {
     pub max_binding_bytes: usize,
+    /// Conservative retained JSON/manifest workspace; never raises the
+    /// independent 32-MiB runtime conversion or serialized ContentSet limit.
+    pub max_metadata_bytes: usize,
     pub max_total_pack_bytes: u64,
     pub manifest: ManifestLimits,
     pub pack: PackLimits,
@@ -59,11 +63,35 @@ impl Default for CookedLoadLimits {
     fn default() -> Self {
         Self {
             max_binding_bytes: 1024 * 1024,
+            max_metadata_bytes: MAX_METADATA_BYTES,
             max_total_pack_bytes: 128 * 1024 * 1024,
             manifest: ManifestLimits::default(),
             pack: PackLimits::default(),
             legacy: Limits::default(),
         }
+    }
+}
+impl CookedLoadLimits {
+    fn metadata_budget(&self) -> Result<ImportBudget, String> {
+        if self.max_metadata_bytes == 0 || self.max_metadata_bytes > MAX_METADATA_BYTES {
+            return Err("cooked metadata limit outside hard bounds".into());
+        }
+        Ok(ImportBudget::for_metadata(
+            &self.legacy,
+            self.max_metadata_bytes,
+        ))
+    }
+    fn conversion_budget(&self, admitted: usize) -> Result<ImportBudget, String> {
+        self.metadata_budget()?;
+        if admitted > self.max_metadata_bytes {
+            return Err("cooked metadata admission exceeds current limit".into());
+        }
+        let mut remaining = self.legacy;
+        remaining.max_total_decoded_bytes = remaining
+            .max_total_decoded_bytes
+            .checked_sub(admitted)
+            .ok_or("cooked metadata admission exceeds legacy aggregate limit")?;
+        Ok(ImportBudget::new(&remaining))
     }
 }
 
@@ -216,7 +244,7 @@ impl PreparedDraft {
         manifest: &[u8],
         limits: &CookedLoadLimits,
     ) -> Result<Self, String> {
-        let mut budget = ImportBudget::new(&limits.legacy);
+        let mut budget = limits.metadata_budget()?;
         let draft: CookedRuntimeDraftV1 =
             cooked_json::decode(bytes, limits.max_binding_bytes, &mut budget)?;
         if draft.schema_version != BINDING_VERSION {
@@ -252,7 +280,7 @@ impl PreparedRelease {
         if bytes.len() > limits.max_binding_bytes || Digest::of(bytes) != *expected_sha256 {
             return Err("cooked binding size or trusted digest mismatch".into());
         }
-        let mut budget = ImportBudget::new(&limits.legacy);
+        let mut budget = limits.metadata_budget()?;
         let binding: CookedRuntimeBindingV1 =
             cooked_json::decode(bytes, limits.max_binding_bytes, &mut budget)?;
         if binding.schema_version != BINDING_VERSION {
@@ -383,8 +411,9 @@ impl PreparedCommon {
         supplied: &[PackBytes<'_>],
         limits: &CookedLoadLimits,
     ) -> Result<ConvertedContent, String> {
-        let mut budget = ImportBudget::new(&limits.legacy);
-        budget.reserve(self.admission_bytes)?;
+        // Metadata remains retained while conversion runs. Subtract it from
+        // the caller's aggregate cap, but not from the independent content cap.
+        let mut budget = limits.conversion_budget(self.admission_bytes)?;
         if self.recipe.objects.len() > limits.legacy.max_entries
             || self.recipe.scopes.len() > limits.legacy.max_entries
         {
@@ -464,9 +493,31 @@ impl PreparedCommon {
             let view = |id: &str| -> Result<ScopeView<'_>, String> {
                 let index = by_scope[id];
                 if scopes[index].provenance.tuning_hash.as_ref() != tuning_identity {
-                    return Err(
-                        "scope and object tuning belong to different provenance cohorts".into(),
-                    );
+                    // The whole tuning identity also includes private and semi
+                    // caches. A global scope can be shared across those cohorts
+                    // only through a bound donor with the exact global inputs.
+                    let cohort = scopes[index]
+                        .provenance
+                        .tuning_hash
+                        .as_ref()
+                        .ok_or("scope lacks tuning provenance")?;
+                    let donors = self.recipe.objects.iter().filter_map(|candidate| {
+                        Some((
+                            candidate.global_scope.as_deref()?,
+                            self.manifest.resources[&candidate.tuning_resource]
+                                .provenance
+                                .tuning_hash
+                                .as_ref()?,
+                            &tunings[candidate.tuning_resource.as_str()],
+                        ))
+                    });
+                    if self.recipe.scopes[index].namespace != ScopeNamespaceV1::Global
+                        || !matching_global_cohort(tuning, id, cohort, donors)
+                    {
+                        return Err(
+                            "scope and object tuning belong to different provenance cohorts".into(),
+                        );
+                    }
                 }
                 Ok(ScopeView {
                     name: &self.recipe.scopes[index].source_name,
@@ -825,6 +876,30 @@ fn decode_scope(
     })
 }
 
+/// Sharing preserves every provenance identity; it does not assign a donor's
+/// whole tuning to the consumer. Compare values and origins, including global
+/// replacement keys absent from the cache, without constructing another map.
+fn matching_global_cohort<'a>(
+    requested: &ResolvedTuning,
+    scope: &str,
+    cohort: &Digest,
+    donors: impl Iterator<Item = (&'a str, &'a Digest, &'a ResolvedTuning)>,
+) -> bool {
+    donors.into_iter().any(|(donor_scope, identity, donor)| {
+        donor_scope == scope
+            && identity == cohort
+            && donor.global_cache == requested.global_cache
+            && donor
+                .replacements
+                .iter()
+                .filter(|((table, _), _)| *table < 4096)
+                .eq(requested
+                    .replacements
+                    .iter()
+                    .filter(|((table, _), _)| *table < 4096))
+    })
+}
+
 fn digest_words(words: [u8; 32]) -> Digest {
     const HEX: &[u8; 16] = b"0123456789abcdef";
     let mut text = String::with_capacity(64);
@@ -833,4 +908,121 @@ fn digest_words(words: [u8; 32]) -> Digest {
         text.push(HEX[usize::from(byte & 15)] as char);
     }
     Digest::try_from(text).expect("32-byte digest encoded as lowercase hex")
+}
+
+#[cfg(test)]
+mod metadata_budget_tests {
+    use super::*;
+    use sim_core::state::MAX_CONTENT_BYTES;
+
+    #[test]
+    fn metadata_has_a_separate_hard_cap_without_raising_conversion_cap() {
+        let mut limits = CookedLoadLimits::default();
+        let mut metadata = limits.metadata_budget().unwrap();
+        metadata.reserve(MAX_METADATA_BYTES).unwrap();
+        assert!(metadata.reserve(1).is_err());
+        let mut conversion = limits.conversion_budget(MAX_METADATA_BYTES).unwrap();
+        conversion.reserve(MAX_CONTENT_BYTES as usize).unwrap();
+        assert!(conversion.reserve(1).is_err());
+        for invalid in [0, MAX_METADATA_BYTES + 1, usize::MAX] {
+            limits.max_metadata_bytes = invalid;
+            assert!(limits.metadata_budget().is_err());
+            assert!(limits.conversion_budget(0).is_err());
+        }
+    }
+
+    #[test]
+    fn lowered_limits_and_aggregate_remainder_are_enforced() {
+        let mut limits = CookedLoadLimits {
+            max_metadata_bytes: 100,
+            ..CookedLoadLimits::default()
+        };
+        assert!(limits.conversion_budget(101).is_err());
+        limits.legacy.max_total_decoded_bytes = 90;
+        assert!(limits.conversion_budget(91).is_err());
+        let mut conversion = limits.conversion_budget(80).unwrap();
+        conversion.reserve(10).unwrap();
+        assert!(conversion.reserve(1).is_err());
+        let mut metadata = limits.metadata_budget().unwrap();
+        metadata.reserve(90).unwrap();
+        assert!(metadata.reserve(1).is_err());
+    }
+    #[test]
+    fn shared_global_requires_bound_donor_and_exact_values_origins_and_replacements() {
+        use wonderland_content_ir::tuning::{TunedValue, TuningOrigin};
+        let hash = Digest::of(b"donor whole tuning");
+        let other = Digest::of(b"other whole tuning");
+        let mut donor = ResolvedTuning::default();
+        donor.global_cache.insert(
+            256 << 16,
+            TunedValue {
+                value: 7,
+                origin: TuningOrigin::Otf,
+            },
+        );
+        let mut requested = donor.clone();
+        requested.private_cache.insert(
+            4096 << 16,
+            TunedValue {
+                value: 9,
+                origin: TuningOrigin::Bcon,
+            },
+        );
+        requested.replacements.insert(
+            (4096, 0),
+            TunedValue {
+                value: 11,
+                origin: TuningOrigin::Upgrade,
+            },
+        );
+        assert!(matching_global_cohort(
+            &requested,
+            "global",
+            &hash,
+            [("global", &hash, &donor)].into_iter()
+        ));
+        assert!(!matching_global_cohort(
+            &requested,
+            "global",
+            &hash,
+            std::iter::empty()
+        ));
+        assert!(!matching_global_cohort(
+            &requested,
+            "global",
+            &hash,
+            [("other", &hash, &donor)].into_iter()
+        ));
+        assert!(!matching_global_cohort(
+            &requested,
+            "global",
+            &hash,
+            [("global", &other, &donor)].into_iter()
+        ));
+        for change in 0..3 {
+            let mut changed = requested.clone();
+            match change {
+                0 => changed.global_cache.get_mut(&(256 << 16)).unwrap().value += 1,
+                1 => {
+                    changed.global_cache.get_mut(&(256 << 16)).unwrap().origin = TuningOrigin::Bcon
+                }
+                2 => {
+                    changed.replacements.insert(
+                        (257, 0),
+                        TunedValue {
+                            value: 7,
+                            origin: TuningOrigin::Upgrade,
+                        },
+                    );
+                }
+                _ => unreachable!(),
+            }
+            assert!(!matching_global_cohort(
+                &changed,
+                "global",
+                &hash,
+                [("global", &hash, &donor)].into_iter()
+            ));
+        }
+    }
 }

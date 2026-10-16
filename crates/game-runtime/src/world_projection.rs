@@ -186,10 +186,29 @@ impl GameRuntime {
                 }
             }
             let offset = if info.is_avatar { 0. } else { 0.5 };
+            let source_motion = state.source_routing.avatars.get(&info.reference);
+            for (route_id, record) in &state.source_routing.routes {
+                if let crate::sim_core::route_motion::RouteMotionRecord::Unavailable {
+                    actor,
+                    reason,
+                } = record
+                    && *actor == info.reference
+                {
+                    document.diagnostics.push(WorldDiagnostic {
+                        code: "runtime_route_animation_unavailable".into(),
+                        resource: format!("route:{route_id}"),
+                        message: reason.clone(),
+                    });
+                }
+            }
             let position_tiles = if in_world {
                 Vec3::new(
-                    placed.position.x as f32 / 16. - offset,
-                    placed.position.y as f32 / 16. - offset,
+                    source_motion.map_or(placed.position.x as f32 / 16. - offset, |m| {
+                        m.visual_position[0]
+                    }),
+                    source_motion.map_or(placed.position.y as f32 / 16. - offset, |m| {
+                        m.visual_position[1]
+                    }),
                     ground_height(lot, placed.position, document.lot.terrain.base_alt)?
                         + f32::from(placed.position.level - 1) * STORY_UNITS,
                 )
@@ -213,7 +232,10 @@ impl GameRuntime {
                 entity: Some(reference),
                 visual_revision: entity.revision,
                 position_tiles,
-                yaw_radians: f32::from(info.direction) * std::f32::consts::FRAC_PI_4,
+                yaw_radians: source_motion.map_or(
+                    f32::from(info.direction) * std::f32::consts::FRAC_PI_4,
+                    |m| m.radians,
+                ),
                 dynamic_flags,
                 room,
                 level: if in_world { placed.position.level } else { 0 },

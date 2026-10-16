@@ -8,8 +8,13 @@ use wonderland_game_runtime::{
 #[path = "../examples/support/owned_action_content.rs"]
 mod action_content;
 
+#[path = "../../../crates/game-runtime/tests/support/source_terrain.rs"]
+mod source_terrain;
+
 fn host() -> Host {
-    let content = action_content::content();
+    host_with_content(action_content::content())
+}
+fn host_with_content(content: wonderland_game_runtime::sim_core::state::ContentSet) -> Host {
     let config = RuntimeConfig::new(VmMode::Tso, 41, 7, 123);
     let mut runtime = GameRuntime::new(
         content,
@@ -537,7 +542,41 @@ fn cancel_evidence_has_exact_terminal_variants_and_rejection_does_not_consume_vm
     let next = host.handle(serde_json::from_value(input).unwrap()).unwrap();
     assert_eq!(next["kind"], "proposal", "{next}");
     assert_eq!(next["payload"]["action_v1"]["command_sequence"], "2");
+    assert!(next["payload"].get("departure_v1").is_none());
+    let events: Vec<crate::events::EventEnvelope> = {
+        use bincode::Options;
+        bincode::DefaultOptions::new()
+            .with_fixint_encoding()
+            .deserialize(&unhex(next["payload"]["events_hex"].as_str().unwrap()).unwrap())
+            .unwrap()
+    };
+    let actor = host
+        .committed
+        .sim()
+        .state()
+        .owned_admission
+        .actors()
+        .unwrap()[&17]
+        .actor;
+    assert!(events.iter().any(|event| matches!(event.event,
+        crate::events::SupervisorEvent::OwnedEodDisconnectRequested { actor: found, control_generation: 1 } if found == actor)));
     let committed = commit(&mut host, &next, 4);
+    assert!(
+        host.committed
+            .sim()
+            .state()
+            .owned_departures
+            .eod_disconnect_requests
+            .contains(&(actor, 1))
+    );
+    assert!(
+        host.committed
+            .sim()
+            .state()
+            .owned_departures
+            .records
+            .is_empty()
+    );
     assert_eq!(
         committed["receipt_hex"],
         next["payload"]["action_v1"]["accepted_receipt_hex"]
@@ -555,4 +594,599 @@ fn ticks_and_admissions_keep_legacy_payload_without_action_evidence() {
         .handle(serde_json::from_value(request).unwrap())
         .unwrap();
     assert!(tick["payload"].get("action_v1").is_none());
+}
+
+#[test]
+fn source_terrain_action_is_owned_commit_only_and_echoes_exact_request() {
+    use wonderland_game_runtime::{
+        TilePos,
+        live_wire::player::{PlayerAction, encode_action},
+        sim_core::runtime::goto_adapter::SourceGotoIntent,
+    };
+    let mut host = host_with_content(source_terrain::content());
+    let admission = host.handle(prepare(&host, 17, 1)).unwrap();
+    commit(&mut host, &admission, 1);
+    let owned = host
+        .committed
+        .sim()
+        .state()
+        .owned_admission
+        .actors()
+        .unwrap()[&17]
+        .clone();
+    let position = TilePos::new(4, 4, 1).center();
+    let batch = host
+        .committed
+        .sim()
+        .terrain_offers(PrincipalKey(17), owned.actor, position)
+        .unwrap();
+    let bytes = encode_action(&PlayerAction::Goto(SourceGotoIntent {
+        principal: PrincipalKey(17),
+        actor: batch.actor,
+        world_revision: batch.world_revision,
+        queue_revision: batch.queue_revision,
+        command_sequence: 1,
+        x: 72,
+        y: 72,
+        level: 1,
+        interaction: 7,
+        param0: 0,
+    }))
+    .unwrap();
+    let action = json!({"control":{
+        "principal":"17", "avatar_id":"17", "control_generation":"1", "session_ref":hex(&owned.session_ref)
+    }, "action_hex":hex(&bytes)});
+    // Real latency is revalidated under the host lock; evidence keeps submitted bytes.
+    host.committed.advance(vec![]).unwrap();
+    let before = checkpoint(&host.committed).unwrap();
+    let original = player_action_input(&host, 2, &action);
+    let proposal = host
+        .handle(serde_json::from_value(original).unwrap())
+        .unwrap();
+    assert_eq!(proposal["kind"], "proposal", "{proposal}");
+    assert_eq!(
+        proposal["payload"]["action_v1"]["request_hex"],
+        action["action_hex"]
+    );
+    assert_eq!(proposal["payload"]["action_v1"]["command_sequence"], "1");
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    commit(&mut host, &proposal, 2);
+    assert_eq!(
+        host.committed.sim().state().interaction_queues[&owned.actor.object_id]
+            .last_command_sequence(),
+        Some(1)
+    );
+    assert!(
+        host.committed
+            .sim()
+            .state()
+            .entities
+            .values()
+            .any(|e| e.info.guid
+                == wonderland_game_runtime::sim_core::runtime::goto_adapter::SOURCE_GOTO_GUID)
+    );
+    let control = serde_json::from_value(action["control"].clone()).unwrap();
+    assert!(host.action_command(&control, &bytes).is_err());
+    let mut wrong = control;
+    wrong.principal = DecimalId(18);
+    assert!(host.action_command(&wrong, &bytes).is_err());
+}
+
+// Authored TTAB/routine boundary harness. It exercises actual accepted mode25
+// execution and is deliberately not qualification of original source content.
+fn departure_content(detach: bool) -> wonderland_game_runtime::sim_core::state::ContentSet {
+    use wonderland_game_runtime::sim_core::{
+        interactions::{
+            ActionFlags, InteractionDefinition, InteractionKey, InteractionScope, PermissionFlags,
+            RoutineBinding,
+        },
+        state::ContentSet,
+        vm::{RoutineKey, RoutineScope, VmInstruction, VmRoutine},
+    };
+    let base = action_content::content();
+    let mut routines = base.routines().clone();
+    routines.bind_semiglobal(TEMPLATE_PERSON, 900).unwrap();
+    let instruction = if detach {
+        VmInstruction::new(1, 254, 255, [25, 0, 0, 0, 0, 0, 0, 0])
+    } else {
+        VmInstruction::new(0, 0, 255, [0; 8])
+    };
+    routines
+        .insert(
+            RoutineKey {
+                scope: RoutineScope::SemiGlobal(900),
+                id: 8373,
+            },
+            VmRoutine::new(8373, 0, 4, vec![instruction]).unwrap(),
+        )
+        .unwrap();
+    let mut table = base.interaction_table(TEMPLATE_PERSON).unwrap().clone();
+    table.definitions.push(InteractionDefinition {
+        key: InteractionKey {
+            tta_index: 173,
+            scope: InteractionScope::Local,
+        },
+        action: RoutineBinding {
+            routine_id: 8373,
+            code_owner_guid: TEMPLATE_PERSON,
+        },
+        check: None,
+        flags: ActionFlags(ActionFlags::ALLOW_VISITORS | ActionFlags::ALLOW_CONSECUTIVE),
+        permissions: PermissionFlags::default(),
+        label: Some("Authored owned departure boundary".into()),
+    });
+    // This authored two-peer boundary fixture has no mailbox. Permit both
+    // avatars at the source join fallback tile so the peer can actually act.
+    let mut person = base.object(TEMPLATE_PERSON).unwrap().clone();
+    person.object_data[8] |= 1 << 4; // source AllowPersonIntersection
+    ContentSet::new(routines, vec![person], vec![], base.tuning().clone())
+        .unwrap()
+        .with_interaction_tables(vec![(TEMPLATE_PERSON, table)])
+        .unwrap()
+}
+fn departure_host(content: wonderland_game_runtime::sim_core::state::ContentSet) -> Host {
+    let mut host = host_with_content(content);
+    host.binding.source_pin = SOURCE_LOT_SAVE_PIN.into();
+    for (id, batch) in [(17, 1), (18, 2)] {
+        let proposal = host.handle(prepare(&host, id, batch)).unwrap();
+        commit(&mut host, &proposal, batch);
+    }
+    host
+}
+fn drain_request(host: &Host, principal: u64, batch: u64) -> Value {
+    let control = &host
+        .committed
+        .sim()
+        .state()
+        .owned_admission
+        .actors()
+        .unwrap()[&principal];
+    let identity = DepartureIdentityV1 {
+        authority_id: "b".repeat(64),
+        account_id: DecimalId(control.account_id),
+        avatar_id: DecimalId(u64::from(control.avatar_id.0)),
+        lot_id: DecimalId(41),
+        control_generation: DecimalId(control.control_generation),
+        session_ref: hex(&control.session_ref),
+        admission_operation: control.admission_operation.clone(),
+        reservation_digest: hex(&control.reservation_digest),
+        export_digest: hex(&control.export_digest),
+        principal: DecimalId(control.principal),
+        actor: DepartureEntityRefV1 {
+            object_id: u16::try_from(control.actor.object_id.0).unwrap(),
+            generation: control.actor.generation,
+        },
+    };
+    let operation = departure_operation_v1(&identity).unwrap();
+    json!({"kind":"prepare_owned_drain","batch_id":DecimalId(batch),"binding":host.binding,
+        "predecessor":crate::runtime::cursor(&host.committed).unwrap(),"expected_control_revision":"42",
+        "departure":{"schema_version":1,"identity":identity,"departure_operation":operation},
+        "fence":{"version":1,"authority":identity.authority_id,"avatar_id":identity.avatar_id,
+            "generation":identity.control_generation,"lot_id":identity.lot_id,"request_digest":identity.reservation_digest}})
+}
+#[test]
+fn owned_drain_rejects_mismatched_fence_and_installed_identity_without_preparing() {
+    let mut host = departure_host(action_content::content());
+    let request = drain_request(&host, 17, 3);
+    let before = checkpoint(&host.committed).unwrap();
+    for (section, field, value) in [
+        ("fence", "generation", json!("2")),
+        ("fence", "request_digest", json!("a".repeat(64))),
+        ("identity", "account_id", json!("999")),
+        ("identity", "session_ref", json!("a".repeat(64))),
+        ("identity", "export_digest", json!("a".repeat(64))),
+    ] {
+        let mut invalid = request.clone();
+        if section == "identity" {
+            invalid["departure"]["identity"][field] = value;
+        } else {
+            invalid[section][field] = value;
+        }
+        assert!(
+            host.handle(serde_json::from_value(invalid).unwrap())
+                .is_err()
+        );
+        assert_eq!(checkpoint(&host.committed).unwrap(), before);
+        assert!(host.handle(RequestV1::Inspect).unwrap()["pending_batch"].is_null());
+    }
+    let mut injected = request;
+    injected["commands_hex"] = json!("00");
+    assert!(serde_json::from_value::<RequestV1>(injected).is_err());
+}
+#[test]
+fn blocked_owned_drain_is_real_fenced_progress_without_fabricated_save_or_detach() {
+    let mut host = departure_host(action_content::content());
+    let before = checkpoint(&host.committed).unwrap();
+    let request = drain_request(&host, 17, 3);
+    let proposal = host
+        .handle(serde_json::from_value(request.clone()).unwrap())
+        .unwrap();
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    assert_eq!(
+        host.handle(serde_json::from_value(request.clone()).unwrap())
+            .unwrap(),
+        proposal
+    );
+    let evidence: DepartureEvidenceV1 =
+        serde_json::from_value(proposal["payload"]["departure_v1"].clone()).unwrap();
+    assert_eq!(
+        evidence.lifecycle.status,
+        DepartureLifecycleStatusV1::Blocked
+    );
+    assert_eq!(
+        evidence.lifecycle.blocker.as_deref(),
+        Some("missing_source_action")
+    );
+    assert!(evidence.save.is_none());
+    assert!(evidence.detach.is_none());
+    assert_eq!(proposal["payload"]["control_v2"]["revision_after"], "42");
+    let reply = commit(&mut host, &proposal, 3);
+    assert_eq!(reply["departure_v1"], proposal["payload"]["departure_v1"]);
+    assert_eq!(
+        host.handle(serde_json::from_value(request).unwrap())
+            .unwrap(),
+        reply
+    );
+    assert!(
+        host.handle(serde_json::from_value(tick_request(&host, 4)).unwrap())
+            .is_err()
+    );
+    let later = host
+        .handle(serde_json::from_value(drain_request(&host, 17, 4)).unwrap())
+        .unwrap();
+    assert_eq!(
+        later["payload"]["departure_v1"]["lifecycle"]["status"],
+        "blocked"
+    );
+    assert!(later["payload"]["departure_v1"]["save"].is_null());
+    assert_eq!(actors(&host.committed).as_array().unwrap().len(), 2);
+}
+#[test]
+fn owned_drain_captures_once_and_later_leaving_tick_does_not_reemit_save() {
+    let mut host = departure_host(departure_content(false));
+    let first = host
+        .handle(serde_json::from_value(drain_request(&host, 17, 3)).unwrap())
+        .unwrap();
+    assert!(first["payload"]["departure_v1"]["save"].is_object());
+    assert!(first["payload"]["departure_v1"]["detach"].is_null());
+    commit(&mut host, &first, 3);
+    let second = host
+        .handle(serde_json::from_value(drain_request(&host, 17, 4)).unwrap())
+        .unwrap();
+    assert!(second["payload"]["departure_v1"]["save"].is_null());
+    assert_eq!(
+        second["payload"]["departure_v1"]["lifecycle"]["status"],
+        "leaving"
+    );
+    assert_eq!(second["payload"]["control_v2"]["revision_after"], "42");
+}
+#[test]
+fn source_owned_drain_proves_save_before_removal_and_retains_exact_receipt() {
+    use crate::events::{EventEnvelope, SupervisorEvent};
+    use bincode::Options;
+    let mut host = departure_host(departure_content(true));
+    let other = host
+        .committed
+        .sim()
+        .state()
+        .owned_admission
+        .actors()
+        .unwrap()[&18]
+        .clone();
+    let before = checkpoint(&host.committed).unwrap();
+    let request = drain_request(&host, 17, 3);
+    let proposal = host
+        .handle(serde_json::from_value(request.clone()).unwrap())
+        .unwrap();
+    let evidence: DepartureEvidenceV1 =
+        serde_json::from_value(proposal["payload"]["departure_v1"].clone()).unwrap();
+    assert_eq!(
+        evidence.lifecycle.status,
+        DepartureLifecycleStatusV1::Detached
+    );
+    let save = evidence.save.as_ref().unwrap();
+    let detach = evidence.detach.as_ref().unwrap();
+    assert_eq!(detach.removal_reason, DepartureRemovalReasonV1::SourceLeave);
+    assert!(save.event_ordinal < detach.event_ordinal);
+    assert_eq!(
+        crate::departure::source_avatar_lot_save_sha256(&save.save_record).unwrap(),
+        save.save_sha256
+    );
+    assert_eq!(proposal["payload"]["control_v2"]["revision_before"], "42");
+    assert_eq!(proposal["payload"]["control_v2"]["revision_after"], "43");
+    let retained: Vec<EventEnvelope> = bincode::DefaultOptions::new()
+        .with_fixint_encoding()
+        .deserialize(&unhex(proposal["payload"]["events_hex"].as_str().unwrap()).unwrap())
+        .unwrap();
+    assert!(
+        retained
+            .iter()
+            .any(|event| event.ordinal == u32::from(save.event_ordinal)
+                && matches!(event.event, SupervisorEvent::OwnedDepartureCaptured { .. }))
+    );
+    assert!(
+        retained
+            .iter()
+            .any(|event| event.ordinal == u32::from(detach.event_ordinal)
+                && matches!(event.event, SupervisorEvent::OwnedDepartureDetached { .. }))
+    );
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    let committed = commit(&mut host, &proposal, 3);
+    assert_eq!(
+        committed["departure_v1"],
+        proposal["payload"]["departure_v1"]
+    );
+    assert_eq!(
+        host.committed
+            .sim()
+            .state()
+            .owned_admission
+            .actors()
+            .unwrap()[&18],
+        other
+    );
+    assert_eq!(
+        host.handle(serde_json::from_value(request).unwrap())
+            .unwrap(),
+        committed
+    );
+    assert_eq!(
+        host.handle(RequestV1::Lookup {
+            batch_id: DecimalId(3)
+        })
+        .unwrap(),
+        committed
+    );
+    let exported = host.handle(RequestV1::ExportReceipts).unwrap();
+    assert_eq!(exported["payload"]["records"][2]["reply"], committed);
+    let ack = acknowledge_export(&mut host, &exported);
+    assert_eq!(ack.through_batch_id, DecimalId(3));
+    assert_eq!(
+        host.handle(RequestV1::Lookup {
+            batch_id: DecimalId(3)
+        })
+        .unwrap()["kind"],
+        "retired"
+    );
+}
+#[test]
+fn rejected_owned_drain_does_not_publish_a_capture_or_actor_removal() {
+    let mut host = departure_host(departure_content(true));
+    let before = checkpoint(&host.committed).unwrap();
+    let request = drain_request(&host, 17, 3);
+    let proposal = host
+        .handle(serde_json::from_value(request.clone()).unwrap())
+        .unwrap();
+    let reply = host
+        .handle(RequestV1::Resolve {
+            batch_id: DecimalId(3),
+            digest: proposal["digest"].as_str().unwrap().into(),
+            decision: DecisionV1::Rejected,
+        })
+        .unwrap();
+    assert_eq!(reply["kind"], "rejected");
+    assert!(reply.get("departure_v1").is_none());
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    assert_eq!(
+        host.handle(serde_json::from_value(request).unwrap())
+            .unwrap(),
+        reply
+    );
+    let retry = host
+        .handle(serde_json::from_value(drain_request(&host, 17, 4)).unwrap())
+        .unwrap();
+    assert_eq!(
+        retry["payload"]["departure_v1"],
+        proposal["payload"]["departure_v1"]
+    );
+}
+
+#[test]
+fn ordinary_registry_validation_cannot_reuse_drain_only_removal_authority() {
+    let mut host = departure_host(departure_content(true));
+    let mut before = GameRuntime::new(
+        host.committed.sim().content().clone(),
+        host.committed.sim().state().world.lot.clone(),
+        host.config.clone(),
+        RuntimeRole::Authority,
+    )
+    .unwrap();
+    before
+        .restore(&checkpoint(&host.committed).unwrap())
+        .unwrap();
+    let proposal = host
+        .handle(serde_json::from_value(drain_request(&host, 17, 3)).unwrap())
+        .unwrap();
+    let evidence: DepartureEvidenceV1 =
+        serde_json::from_value(proposal["payload"]["departure_v1"].clone()).unwrap();
+    commit(&mut host, &proposal, 3);
+    assert!(crate::departure::control_revision_after(&before, &host.committed, 42, None).is_err());
+    assert_eq!(
+        crate::departure::control_revision_after(&before, &host.committed, 42, Some(&evidence))
+            .unwrap(),
+        43
+    );
+    let mut mismatched = evidence;
+    mismatched.identity.principal = DecimalId(18);
+    assert!(
+        crate::departure::control_revision_after(&before, &host.committed, 42, Some(&mismatched))
+            .is_err()
+    );
+}
+
+#[test]
+fn source_owned_drain_retains_peer_cancel_eod_request_without_peer_departure() {
+    use crate::events::{EventEnvelope, SupervisorEvent};
+    use bincode::Options;
+    use wonderland_game_runtime::{
+        InteractionIntent, QueryOptions,
+        live_wire::player::{PlayerAction, encode_action},
+    };
+    let mut host = departure_host(departure_content(true));
+    let target = host
+        .committed
+        .sim()
+        .state()
+        .owned_admission
+        .actors()
+        .unwrap()[&17]
+        .clone();
+    let peer = host
+        .committed
+        .sim()
+        .state()
+        .owned_admission
+        .actors()
+        .unwrap()[&18]
+        .clone();
+    let offers = host
+        .committed
+        .offers(
+            PrincipalKey(18),
+            peer.actor,
+            target.actor,
+            QueryOptions::default(),
+        )
+        .unwrap();
+    let offer = offers
+        .offers
+        .iter()
+        .find(|offer| offer.interaction.tta_index == 7)
+        .expect("authored in-world peer has a waiting-action offer");
+    let intent = PlayerAction::Invoke(InteractionIntent {
+        principal: PrincipalKey(18),
+        seen: offers.seen,
+        queue_revision: host.committed.sim().state().interaction_queues[&peer.actor.object_id]
+            .revision(),
+        command_sequence: 1,
+        interaction: offer.interaction,
+        param0: offer.param0,
+    });
+    let action = json!({"control":{"principal":"18","avatar_id":"18","control_generation":"1",
+        "session_ref":hex(&peer.session_ref)},"action_hex":hex(&encode_action(&intent).unwrap())});
+    let invoke = host
+        .handle(serde_json::from_value(player_action_input(&host, 3, &action)).unwrap())
+        .unwrap();
+    assert_eq!(invoke["kind"], "proposal", "{invoke}");
+    commit(&mut host, &invoke, 3);
+    let mut before = GameRuntime::new(
+        host.committed.sim().content().clone(),
+        host.committed.sim().state().world.lot.clone(),
+        host.config.clone(),
+        RuntimeRole::Authority,
+    )
+    .unwrap();
+    before
+        .restore(&checkpoint(&host.committed).unwrap())
+        .unwrap();
+    let input = drain_request(&host, 17, 4);
+    let request: DepartureRequestV1 = serde_json::from_value(input["departure"].clone()).unwrap();
+    let proposal = host.handle(serde_json::from_value(input).unwrap()).unwrap();
+    assert_eq!(proposal["kind"], "proposal", "{proposal}");
+    let bytes = unhex(proposal["payload"]["events_hex"].as_str().unwrap()).unwrap();
+    let mut events: Vec<EventEnvelope> = bincode::DefaultOptions::new()
+        .with_fixint_encoding()
+        .deserialize(&bytes)
+        .unwrap();
+    assert!(events.iter().any(|event| matches!(event.event,
+        SupervisorEvent::OwnedEodDisconnectRequested { actor, control_generation: 1 } if actor == peer.actor)));
+    commit(&mut host, &proposal, 4);
+    assert_eq!(
+        host.committed
+            .sim()
+            .state()
+            .owned_admission
+            .actors()
+            .unwrap()[&18],
+        peer
+    );
+    assert!(
+        !host
+            .committed
+            .sim()
+            .state()
+            .owned_departures
+            .records
+            .contains_key(&peer.actor)
+    );
+    assert!(
+        host.committed
+            .sim()
+            .state()
+            .owned_departures
+            .eod_disconnect_requests
+            .contains(&(peer.actor, 1))
+    );
+    crate::departure::departure_evidence(&before, &host.committed, &request, &events).unwrap();
+    let peer_event = events
+        .iter_mut()
+        .find(|event| {
+            matches!(event.event,
+        SupervisorEvent::OwnedEodDisconnectRequested { actor, .. } if actor == peer.actor)
+        })
+        .unwrap();
+    if let SupervisorEvent::OwnedEodDisconnectRequested {
+        control_generation, ..
+    } = &mut peer_event.event
+    {
+        *control_generation += 1;
+    }
+    assert!(
+        crate::departure::departure_evidence(&before, &host.committed, &request, &events).is_err()
+    );
+    let mut events: Vec<EventEnvelope> = bincode::DefaultOptions::new()
+        .with_fixint_encoding()
+        .deserialize(&bytes)
+        .unwrap();
+    events.push(EventEnvelope {
+        tick: host.committed.sim().state().completed_tick,
+        ordinal: 65535,
+        event: SupervisorEvent::OwnedDepartureCaptured {
+            actor: peer.actor,
+            control_generation: 1,
+            tick: host.committed.sim().state().completed_tick,
+        },
+    });
+    assert!(
+        crate::departure::departure_evidence(&before, &host.committed, &request, &events).is_err()
+    );
+}
+
+#[test]
+fn inspect_placement_is_exact_committed_actor_state_not_a_custody_grant() {
+    // Existing authored content has no mailbox or intersection allowance: its
+    // second source-compatible admission remains OOW at the occupied fallback.
+    let mut host = host();
+    for (id, batch) in [(17, 1), (18, 2)] {
+        let proposal = host.handle(prepare(&host, id, batch)).unwrap();
+        commit(&mut host, &proposal, batch);
+    }
+    let before = checkpoint(&host.committed).unwrap();
+    let inspected = host.handle(RequestV1::Inspect).unwrap();
+    let actors = inspected["actors"].as_array().unwrap();
+    let placements = inspected["actor_placements"].as_array().unwrap();
+    assert_eq!(placements.len(), 2);
+    for (actor, placement) in actors.iter().zip(placements) {
+        for field in ["principal", "avatar_id", "control_generation", "actor"] {
+            assert_eq!(actor[field], placement[field]);
+        }
+    }
+    assert_eq!(placements[0]["in_world"], true);
+    assert_eq!(placements[0]["position"], json!({"x":56,"y":56,"level":1}));
+    assert_eq!(placements[1]["in_world"], false);
+    assert_eq!(
+        placements[1]["position"],
+        json!({"x":-32768,"y":-32768,"level":1})
+    );
+    assert_eq!(checkpoint(&host.committed).unwrap(), before);
+    assert_eq!(
+        host.committed
+            .sim()
+            .state()
+            .owned_admission
+            .actors()
+            .unwrap()
+            .len(),
+        2
+    );
 }

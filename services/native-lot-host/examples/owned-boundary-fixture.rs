@@ -5,6 +5,8 @@
 mod action_content;
 #[path = "../src/bounded.rs"]
 mod bounded;
+#[path = "../src/departure.rs"]
+mod departure;
 #[path = "../src/events.rs"]
 mod events;
 #[path = "../src/player.rs"]

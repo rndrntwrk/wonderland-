@@ -642,6 +642,15 @@ pub trait VmHost {
     fn current_tick(&self) -> u32;
     fn next_random(&mut self, bound: u64) -> u64;
     fn resolve_entity(&self, id: ObjectId) -> Option<EntityRef>;
+    /// Direct VMEntity references survive independently of numeric registry IDs
+    /// (notably the source UI ghost). Most hosts have no such overlay.
+    fn direct_entity_is_live(&self, entity: EntityRef) -> bool {
+        self.resolve_entity(entity.object_id) == Some(entity)
+    }
+    fn script_object_id(&self, entity: EntityRef) -> Result<ObjectId, VmFault> {
+        Ok(entity.object_id)
+    }
+
     fn entity_info(&self, _entity: EntityRef) -> Result<EntityInfo, VmFault> {
         Err(VmFault::HostUnsupported("entity_info".into()))
     }

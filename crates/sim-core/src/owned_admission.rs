@@ -207,12 +207,20 @@ impl OwnedAdmissionState {
             {
                 return Err("owned actor identity mismatch");
             }
-            if state
-                .interaction_access
+            let departing = state
+                .owned_departures
+                .records
                 .get(&control.actor)
-                .map_or(true, |a| {
-                    a.principal.0 != control.principal || a.allow_hidden
-                })
+                .is_some_and(|departure| {
+                    departure.request.control == *control && departure.detached_tick.is_none()
+                });
+            if !departing
+                && state
+                    .interaction_access
+                    .get(&control.actor)
+                    .map_or(true, |a| {
+                        a.principal.0 != control.principal || a.allow_hidden
+                    })
             {
                 return Err("owned actor authority mismatch");
             }

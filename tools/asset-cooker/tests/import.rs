@@ -255,10 +255,14 @@ fn actual_scopes_otf_rewrite_upgrade_dynamic_values_are_cooked_and_hashed() {
     spec.sources[0].semiglobal = Some(ScopeSpec {
         path: "semi.iff".into(),
         source_name: "Semi.iff".into(),
+        otf: None,
+        otf_rewrite: None,
     });
     spec.sources[0].global = Some(ScopeSpec {
         path: "global.iff".into(),
         source_name: "Global.iff".into(),
+        otf: None,
+        otf_rewrite: None,
     });
     spec.sources[0].tuning.otf = Some("archive.otf".into());
     spec.sources[0].tuning.otf_rewrite = Some("rewrite.otf".into());
@@ -658,4 +662,45 @@ fn incomplete_cooked_pack_map_never_publishes_a_manifest() {
             .contains("exactly cover")
     );
     assert!(!output.exists());
+}
+
+#[test]
+fn source_resolution_and_cook_share_scoped_otf_inputs_and_path_guards() {
+    use wonderland_asset_cooker::{interchange::resolve_iff_source, registry::ScopeSpec};
+    let limits = CookLimits::default();
+    let dir = std::env::temp_dir().join(format!("cooker-scoped-otf-{}", std::process::id()));
+    std::fs::create_dir(&dir).unwrap();
+    std::fs::copy(
+        fixture_root().join("authored.iff"),
+        dir.join("authored.iff"),
+    )
+    .unwrap();
+    let xml = br#"<O><T i="256" n="x"><K i="0" l="" v="130"/></T></O>"#;
+    std::fs::write(dir.join("global.otf"), xml).unwrap();
+    let mut spec = fixture_spec();
+    spec.sources[0].global = Some(ScopeSpec {
+        path: "authored.iff".into(),
+        source_name: "Global.iff".into(),
+        otf: Some("global.otf".into()),
+        otf_rewrite: None,
+    });
+    let resolved = resolve_iff_source(&spec, "fixture", &dir, &limits).unwrap();
+    assert_eq!(resolved.content.tuning.value_or_zero(128 << 7), 130);
+    assert_eq!(
+        resolved.input_hashes["global.otf"],
+        wonderland_content_ir::manifest::Digest::of(xml)
+    );
+    let cooked = import_spec(&spec, &dir, &limits).unwrap();
+    let tuning = cooked
+        .resources
+        .iter()
+        .find(|r| r.id == "fixture/resolved-tuning")
+        .unwrap();
+    let decoded =
+        wonderland_content_ir::tuning_pack::decode(&tuning.payload, &limits.legacy).unwrap();
+    assert_eq!(decoded, resolved.content.tuning);
+    assert_eq!(cooked.report.input_hashes, resolved.input_hashes);
+    spec.sources[0].global.as_mut().unwrap().otf = Some("../outside.otf".into());
+    assert!(resolve_iff_source(&spec, "fixture", &dir, &limits).is_err());
+    std::fs::remove_dir_all(dir).unwrap();
 }

@@ -74,6 +74,7 @@ fn accept(server: &mut GameRuntime, player: &mut NativePlayer, request: &[u8]) -
     let command = match decode_action(request).unwrap() {
         PlayerAction::Invoke(intent) => AcceptedCommand::QueueInteraction(intent),
         PlayerAction::Cancel(intent) => AcceptedCommand::CancelInteraction(intent),
+        PlayerAction::Goto(intent) => AcceptedCommand::SourceGoto(intent),
     };
     let accepted = server.sim().next_tick(vec![command]).unwrap();
     let result = server.apply_accepted(&accepted).unwrap();
@@ -227,7 +228,7 @@ fn uncorrelated_receipt_cannot_clear_pending_or_advance_its_sequence() {
     let mut other = decode_action(&prepare(&mut b)).unwrap();
     match &mut other {
         PlayerAction::Invoke(intent) => intent.command_sequence = 9,
-        PlayerAction::Cancel(_) => unreachable!(),
+        PlayerAction::Cancel(_) | PlayerAction::Goto(_) => unreachable!(),
     };
     let bad = encode_receipt(&ActionReceipt {
         request: wonderland_game_runtime::live_wire::player::encode_action(&other).unwrap(),
@@ -599,4 +600,166 @@ fn native_bootstrap_cannot_silently_serialize_unversioned_lighting() {
         encode_bootstrap(&value).is_err(),
         "new lighting needs a separately versioned transport contract, not shifted WLB1 fields"
     );
+}
+
+#[test]
+fn terrain_goto_wire_layout_is_append_only_and_matches_edge_offsets() {
+    use wonderland_game_runtime::live_wire::player::encode_action;
+    // Independent edge-compatible vector. WLC1 payload tag 2 is appended after
+    // the original invocation/cancellation ABI; all values use fixed little endian.
+    let mut vector = b"WLC1\r\n\x1a\n".to_vec();
+    vector.extend_from_slice(&61u64.to_le_bytes());
+    vector.extend_from_slice(&2u32.to_le_bytes());
+    vector.extend_from_slice(&1u64.to_le_bytes()); // principal: 20
+    vector.extend_from_slice(&2u32.to_le_bytes()); // actor slot: 28
+    vector.extend_from_slice(&3u32.to_le_bytes()); // generation: 32
+    vector.extend_from_slice(&4u64.to_le_bytes()); // revision: 36
+    vector.extend_from_slice(&5u64.to_le_bytes()); // world: 44
+    vector.extend_from_slice(&6u64.to_le_bytes()); // queue: 52
+    vector.extend_from_slice(&7u64.to_le_bytes()); // sequence: 60
+    vector.extend_from_slice(&24i16.to_le_bytes()); // x: 68
+    vector.extend_from_slice(&40i16.to_le_bytes()); // y: 70
+    vector.push(1); // level: 72
+    vector.extend_from_slice(&7u16.to_le_bytes()); // interaction: 73
+    vector.extend_from_slice(&(-2i16).to_le_bytes()); // Param0: 75
+    assert_eq!(vector.len(), 77);
+    let action = decode_action(&vector).expect("appended terrain source action tag");
+    assert_eq!(action.sequence(), 7);
+    let PlayerAction::Goto(intent) = &action else {
+        panic!("Expected terrain tag 2")
+    };
+    assert_eq!(intent.principal.0, 1);
+    assert_eq!(
+        (
+            intent.actor.key.slot,
+            intent.actor.key.generation,
+            intent.actor.revision
+        ),
+        (2, 3, 4)
+    );
+    assert_eq!((intent.world_revision, intent.queue_revision), (5, 6));
+    assert_eq!(
+        (
+            intent.x,
+            intent.y,
+            intent.level,
+            intent.interaction,
+            intent.param0
+        ),
+        (24, 40, 1, 7, -2)
+    );
+    assert_eq!(encode_action(&action).unwrap(), vector);
+    for length in 0..vector.len() {
+        assert!(decode_action(&vector[..length]).is_err());
+    }
+    let mut zero_sequence = vector.clone();
+    zero_sequence[60..68].fill(0);
+    assert!(decode_action(&zero_sequence).is_err());
+    let mut trailing = vector.clone();
+    trailing.push(0);
+    assert!(decode_action(&trailing).is_err());
+    let mut unknown_tag = vector;
+    unknown_tag[16..20].copy_from_slice(&3u32.to_le_bytes());
+    assert!(decode_action(&unknown_tag).is_err());
+}
+
+#[path = "support/source_terrain.rs"]
+mod source_terrain;
+fn terrain_setup() -> (GameRuntime, Bootstrap) {
+    let (server, actor) = source_terrain::runtime();
+    let (_, mut bootstrap) = setup();
+    bootstrap.content = server.sim().content().clone();
+    bootstrap.actor = actor;
+    bootstrap.mode = wonderland_game_runtime::VmMode::Tso;
+    (server, bootstrap)
+}
+fn prepare_terrain(player: &mut NativePlayer) -> Vec<u8> {
+    player
+        .prepare_goto(
+            wonderland_game_runtime::TilePos::new(4, 4, 1).center(),
+            7,
+            0,
+        )
+        .unwrap()
+}
+#[test]
+fn terrain_menu_and_prepare_are_read_only_and_preserve_exact_source_selection() {
+    let (server, value) = terrain_setup();
+    let mut player = player(&server, &value);
+    let position = wonderland_game_runtime::TilePos::new(4, 4, 1).center();
+    let before = player.state_hash().unwrap();
+    let batch = player.terrain_offers(position).unwrap();
+    assert_eq!(batch.offers[0].label, "Authored GoTo boundary action");
+    assert_eq!(batch.position, position);
+    assert!(player.prepare_goto(position, 8, 0).is_err());
+    assert!(player.prepare_goto(position, 7, 99).is_err());
+    assert_eq!(player.status(), ActionStatus::Idle);
+    let request = prepare_terrain(&mut player);
+    let PlayerAction::Goto(intent) = decode_action(&request).unwrap() else {
+        panic!()
+    };
+    assert_eq!(
+        (
+            intent.x,
+            intent.y,
+            intent.level,
+            intent.interaction,
+            intent.param0
+        ),
+        (72, 72, 1, 7, 0)
+    );
+    assert_eq!(intent.actor, batch.actor);
+    assert_eq!(intent.world_revision, batch.world_revision);
+    assert_eq!(intent.queue_revision, batch.queue_revision);
+    assert_eq!(intent.command_sequence, 1);
+    assert_eq!(player.state_hash().unwrap(), before);
+    assert!(player.prepare_goto(position, 7, 0).is_err());
+}
+#[test]
+fn terrain_action_requires_accepted_state_and_exact_receipt_without_client_motion() {
+    let (mut server, value) = terrain_setup();
+    let mut player = player(&server, &value);
+    let position = player.projection().unwrap().entities[0].position;
+    let request = prepare_terrain(&mut player);
+    let future = server.sim().state().completed_tick + 1;
+    let receipt = encode_receipt(&ActionReceipt {
+        request: request.clone(),
+        accepted_tick: Some(future),
+    })
+    .unwrap();
+    assert!(player.receive(&receipt).is_err());
+    assert_eq!(accept(&mut server, &mut player, &request), future);
+    assert_eq!(player.status(), ActionStatus::Pending);
+    player.receive(&receipt).unwrap();
+    assert_eq!(player.status(), ActionStatus::Accepted);
+    assert_eq!(player.projection().unwrap(), server.projection());
+    assert_eq!(player.projection().unwrap().entities[0].position, position);
+}
+#[test]
+fn disconnected_terrain_action_is_unknown_never_replayed_and_can_only_be_rechosen() {
+    let (server, value) = terrain_setup();
+    let mut player = player(&server, &value);
+    let request = prepare_terrain(&mut player);
+    player.disconnect();
+    assert!(
+        player
+            .terrain_offers(wonderland_game_runtime::TilePos::new(4, 4, 1).center())
+            .is_err()
+    );
+    player.reconnect().unwrap();
+    install(&mut player, &server);
+    assert_eq!(player.status(), ActionStatus::Unknown);
+    assert!(
+        player
+            .prepare_goto(
+                wonderland_game_runtime::TilePos::new(4, 4, 1).center(),
+                7,
+                0
+            )
+            .is_err()
+    );
+    player.dismiss_unknown().unwrap();
+    let next = prepare_terrain(&mut player);
+    assert_ne!(next, request);
+    assert_eq!(decode_action(&next).unwrap().sequence(), 2);
 }

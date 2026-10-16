@@ -1,0 +1,19 @@
+   Compiling wonderland-native-lot-host v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/services/native-lot-host)
+    Finished `test` profile [unoptimized] target(s) in 1.98s
+     Running unittests src/main.rs (target/debug/deps/wonderland_native_lot_host-fa36f33bc4af8490)
+
+running 12 tests
+test player::tests::forged_export_and_stale_policy_do_not_allocate_a_principal ... ok
+test player::tests::source_location_is_distinct_from_db_lot_id_and_bootstrap_needs_appearance ... ok
+test player::tests::receipt_retirement_preserves_exact_committed_and_rejected_retry_binding ... ok
+test player::tests::action_evidence_is_digest_bound_before_commit_and_preserves_original_observation ... ok
+test player::tests::rejection_and_unknown_resolution_never_publish_candidate_actors ... ok
+test player::tests::source_terrain_action_is_owned_commit_only_and_echoes_exact_request ... ok
+test player::tests::receipt_retirement_rejects_stale_or_forged_ack_and_never_discards_pending ... ok
+test player::tests::typed_admission_is_commit_only_idempotent_and_checkpoint_restorable ... ok
+test player::tests::ticks_and_admissions_keep_legacy_payload_without_action_evidence ... ok
+test player::tests::cancel_evidence_has_exact_terminal_variants_and_rejection_does_not_consume_vm_sequence ... ok
+test player::tests::receipt_export_pages_exact_prefix_without_losing_later_decisions ... ok
+test player::tests::checkpoint_acknowledgements_keep_host_receipts_bounded_beyond_4096_batches ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 37.89s

@@ -119,6 +119,9 @@ fn command(
 #[test]
 fn two_owned_avatars_replay_restore_and_reconnect_without_portable_reset() {
     let mut authority = runtime();
+    assert_eq!(authority.state().globals[17], 4);
+    assert_eq!(authority.state().globals[20], 255);
+    assert_eq!(authority.state().globals[25], 4);
     initialize(&mut authority, LotPermissionState::default());
     let mut replica = SimRuntime::from_state(
         authority.state().clone(),
@@ -393,7 +396,7 @@ fn schema_three_migrates_to_uninitialized_control_and_preserves_last_receipt() {
         .unwrap();
     runtime.step(&tick).unwrap();
     let current = runtime.snapshot().unwrap();
-    let end = current.len() - 32 - 4;
+    let end = current.len() - 32 - 4 - 16 - 17;
     assert_eq!(&current[end..end + 4], &[0; 4]);
     let mut legacy = current[..end].to_vec();
     legacy[10..12].copy_from_slice(&3u16.to_le_bytes());
@@ -402,7 +405,7 @@ fn schema_three_migrates_to_uninitialized_control_and_preserves_last_receipt() {
     let checksum = Sha256::digest(&legacy);
     legacy.extend_from_slice(&checksum);
     runtime.restore(&legacy).unwrap();
-    assert_eq!(runtime.state().schema, 4);
+    assert_eq!(runtime.state().schema, sim_core::state::SIMULATION_SCHEMA);
     assert_eq!(
         runtime.state().owned_admission,
         OwnedAdmissionState::Uninitialized

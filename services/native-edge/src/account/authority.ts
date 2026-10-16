@@ -1,4 +1,9 @@
 import { controlTarget, type ControlClaim } from "./control";
+import { AccountLotSaveStore } from "./lot-save";
+import {
+  configuredDepartureReceiptReader,
+  type DepartureReceiptEnv,
+} from "./departure-proof";
 import {
   initialAvatarSource,
   permissionBinding,
@@ -14,6 +19,7 @@ import {
   digest,
   encode,
   equal,
+  fields,
   hash,
 } from "../lot/contracts";
 import {
@@ -47,8 +53,9 @@ type Session = {
   idle: number;
 };
 /** Private realm account boundary. Binding access is trusted; there is no public auth route. */
-export class AccountAuthority extends DurableObject<Record<string, never>> {
-  constructor(ctx: DurableObjectState, env: Record<string, never>) {
+export class AccountAuthority extends DurableObject<DepartureReceiptEnv> {
+  private readonly lotSaves: AccountLotSaveStore;
+  constructor(ctx: DurableObjectState, env: DepartureReceiptEnv) {
     super(ctx, env);
     ctx.storage.sql.exec(`
       CREATE TABLE IF NOT EXISTS account_meta(key TEXT PRIMARY KEY,value TEXT NOT NULL);
@@ -76,6 +83,33 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       CREATE INDEX IF NOT EXISTS controls_avatar_numeric ON avatar_control_claims(CAST(avatar_id AS INTEGER));
       CREATE TABLE IF NOT EXISTS avatar_operations(account_id TEXT NOT NULL,operation TEXT NOT NULL,digest TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(account_id,operation));
     `);
+    this.lotSaves = new AccountLotSaveStore(
+      ctx.storage,
+      configuredDepartureReceiptReader(env),
+    );
+  }
+  /** Trusted binding only. Source bytes are fetched from committed lot evidence;
+   * no browser HTTP route accepts these methods or writable avatar state.
+   */
+  applyCommittedAvatarLotSaveV1(reference: unknown) {
+    return this.lotSaves.applyCommittedAvatarLotSaveV1(reference);
+  }
+  releaseSavedAvatarControlV1(reference: unknown) {
+    return this.lotSaves.releaseSavedAvatarControlV1(reference);
+  }
+  lookupSavedAvatarControlV1(raw: unknown) {
+    const v = fields(raw, ["identity", "departure_operation"]);
+    return this.lotSaves.lookupSavedAvatarControlV1(
+      v.identity,
+      v.departure_operation,
+    );
+  }
+  lookupReleasedAvatarControlV1(raw: unknown) {
+    const v = fields(raw, ["identity", "departure_operation"]);
+    return this.lotSaves.lookupReleasedAvatarControlV1(
+      v.identity,
+      v.departure_operation,
+    );
   }
   protected now() {
     return Date.now();
@@ -369,6 +403,9 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
           throw Error("avatar control already reserved");
         return this.observeControl(target.avatar_id, old.claim);
       }
+      // Existing exact reservation retries still observe their fenced claim.
+      // Tombstones prevent a retired operation from allocating a new claim.
+      this.lotSaves.assertReservationOperationUnused(account.id, op);
       const session = this.ctx.storage.sql
         .exec<Session>("SELECT * FROM sessions WHERE token_hash=?", key)
         .one();
@@ -978,6 +1015,56 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       return row ? this.observeControl(avatarId, row.claim) : null;
     });
   }
+  /** An authenticated owned leave fences input immediately, but never releases
+   * custody. The private runner forwards this existing fence obligation to the
+   * exact installed lot control; source save/detach proof is still required.
+   */
+  async requestAvatarControlFenceV1(rawToken: unknown, rawExpected: unknown) {
+    const expected = fields(rawExpected, [
+      "avatar_id",
+      "generation",
+      "admission_operation",
+      "reservation_digest",
+    ]);
+    const key = await this.tokenHash(rawToken),
+      avatarId = decimal(expected.avatar_id),
+      generation = decimal(expected.generation),
+      admissionOperation = operation(expected.admission_operation),
+      reservationDigest = hash(expected.reservation_digest);
+    return this.ctx.storage.transactionSync(() => {
+      const account = this.authorize(key, false);
+      const row = this.ctx.storage.sql
+        .exec<{
+          session_hash: string;
+          operation: string;
+          digest: string;
+          claim: string;
+        }>(
+          "SELECT session_hash,operation,digest,claim FROM avatar_control_claims WHERE avatar_id=? AND account_id=?",
+          avatarId,
+          account.id,
+        )
+        .toArray()[0];
+      if (!row || row.session_hash !== key)
+        throw Error("owned departure session mismatch");
+      const claim = JSON.parse(row.claim) as ControlClaim;
+      if (
+        claim.generation !== generation ||
+        row.operation !== admissionOperation ||
+        row.digest !== reservationDigest
+      )
+        throw Error("owned departure admission mismatch");
+      claim.state = "fence_pending";
+      this.ctx.storage.sql.exec(
+        "UPDATE avatar_control_claims SET claim=? WHERE avatar_id=? AND account_id=? AND session_hash=?",
+        canonical(claim),
+        avatarId,
+        account.id,
+        key,
+      );
+      return { claim, operation: row.operation, request_digest: row.digest };
+    });
+  }
   /** Trusted binding sweeper: expiry fencing must not depend on a live user token. */
   pendingControlFences(after: unknown = "0") {
     const cursor = decimal(after);
@@ -1186,11 +1273,12 @@ export class AccountAuthority extends DurableObject<Record<string, never>> {
       };
     });
   }
-  async ownedAvatar(raw: unknown, id: unknown) {
+  async ownedAvatar(raw: unknown, id: unknown, touchIdle = true) {
+    if (typeof touchIdle !== "boolean") throw Error("invalid activity mode");
     const key = await this.tokenHash(raw),
       avatarId = decimal(id);
     return this.ctx.storage.transactionSync(() => {
-      const account = this.authorize(key);
+      const account = this.authorize(key, touchIdle);
       const row = this.ctx.storage.sql
         .exec<{
           spec: string;

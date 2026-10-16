@@ -4,13 +4,14 @@ use super::{CheckpointRequest, CompareWriter, NativeWire, Received, WireLimits, 
 use crate::live_session::{CancelSelection, InteractionSelection, LiveReplica, StreamIdentity};
 use crate::sim_core::{
     effects::EffectLimits,
-    interactions::InteractionKey,
+    interactions::{InteractionKey, InteractionScope},
+    runtime::goto_adapter::{SourceGotoIntent, TerrainOffers},
     state::{ContentSet, SimulationLimits},
 };
 use crate::world_view::WorldDocument;
 use crate::{
-    ActionId, CancelIntent, EntityRef, GameRuntime, InteractionIntent, LotModel, OfferBatch,
-    PrincipalKey, QueryOptions, RuntimeConfig, RuntimeProjection, RuntimeRole, VmMode,
+    ActionId, CancelIntent, EntityRef, GameRuntime, InteractionIntent, LotModel, LotPosition,
+    OfferBatch, PrincipalKey, QueryOptions, RuntimeConfig, RuntimeProjection, RuntimeRole, VmMode,
 };
 use bincode::Options;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
@@ -51,12 +52,14 @@ pub struct Bootstrap {
 pub enum PlayerAction {
     Invoke(InteractionIntent),
     Cancel(CancelIntent),
+    Goto(SourceGotoIntent),
 }
 impl PlayerAction {
     pub fn sequence(&self) -> u64 {
         match self {
             Self::Invoke(v) => v.command_sequence,
             Self::Cancel(v) => v.command_sequence,
+            Self::Goto(v) => v.command_sequence,
         }
     }
 }
@@ -434,6 +437,18 @@ impl NativePlayer {
             )
             .map_err(|_| "Source actions are unavailable")
     }
+    /// Query the source GoTo object's menu on detached state. No movement is
+    /// predicted and no temporary source object is added to the live replica.
+    pub fn terrain_offers(&self, position: LotPosition) -> Result<TerrainOffers> {
+        self.validate_actor()?;
+        self.wire
+            .replica()
+            .runtime()
+            .ok_or("Native session is closed")?
+            .sim()
+            .terrain_offers(self.principal, self.actor, position)
+            .map_err(|_| "Source terrain actions are unavailable")
+    }
     /// Compatibility state-only entry point. Presentation consumers must use
     /// `receive_update` so accepted events are not lost between transport and UI.
     pub fn receive(&mut self, bytes: &[u8]) -> Result<()> {
@@ -552,6 +567,47 @@ impl NativePlayer {
             )
             .map_err(|_| "This source action is no longer available")?;
         let bytes = encode_action(&PlayerAction::Invoke(intent))?;
+        self.pending_after = self
+            .wire
+            .replica()
+            .cursor()
+            .ok_or("Native cursor is unavailable")?
+            .completed_tick;
+        self.sequence = sequence;
+        self.pending_incarnation = self.binding.lot_incarnation;
+        self.pending = Some(bytes.clone());
+        self.status = ActionStatus::Pending;
+        Ok(bytes)
+    }
+    pub fn prepare_goto(
+        &mut self,
+        position: LotPosition,
+        interaction: u16,
+        param0: i16,
+    ) -> Result<Vec<u8>> {
+        self.validate_actor()?;
+        let sequence = self.next_sequence()?;
+        let batch = self.terrain_offers(position)?;
+        if !batch.offers.iter().any(|offer| {
+            offer.interaction.scope == InteractionScope::Local
+                && offer.interaction.tta_index == u32::from(interaction)
+                && offer.param0 == param0
+        }) {
+            return Err("This source terrain action is no longer available");
+        }
+        let intent = SourceGotoIntent {
+            principal: self.principal,
+            actor: batch.actor,
+            world_revision: batch.world_revision,
+            queue_revision: batch.queue_revision,
+            command_sequence: sequence,
+            x: i16::try_from(position.x).map_err(|_| "Invalid source terrain position")?,
+            y: i16::try_from(position.y).map_err(|_| "Invalid source terrain position")?,
+            level: i8::try_from(position.level).map_err(|_| "Invalid source terrain level")?,
+            interaction,
+            param0,
+        };
+        let bytes = encode_action(&PlayerAction::Goto(intent))?;
         self.pending_after = self
             .wire
             .replica()

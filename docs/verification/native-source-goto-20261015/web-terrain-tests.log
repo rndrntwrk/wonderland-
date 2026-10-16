@@ -1,0 +1,18 @@
+   Compiling wonderland-legacy-formats v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/legacy-formats)
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/sim-core)
+   Compiling wonderland-content-ir v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/content-ir)
+   Compiling wonderland-content-runtime-bridge v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/content-runtime-bridge)
+   Compiling wonderland-audio-content v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/audio-content)
+   Compiling wonderland-avatar-content v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/avatar-content)
+   Compiling wonderland-game-runtime v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/game-runtime)
+   Compiling wonderland-web-shell v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/apps/web-shell)
+    Finished `test` profile [unoptimized] target(s) in 31.06s
+     Running tests/native_terrain.rs (target/debug/deps/native_terrain-89f100ffaf50f422)
+
+running 4 tests
+test terrain_pick_rejects_unsupported_surfaces_levels_bounds_and_objects ... ok
+test pool_and_water_picks_leave_source_menu_checks_in_charge ... ok
+test terrain_pick_uses_source_subtile_center_without_moving_any_entity ... ok
+test terrain_pick_requires_current_native_identity_and_architecture ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

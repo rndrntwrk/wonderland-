@@ -13,7 +13,7 @@ use std::{
 };
 use wonderland_content_ir::{
     manifest::*,
-    objects::{resolve_content, sha256_hex, ResolveRequest},
+    objects::{resolve_content, sha256_hex, ResolveRequest, ResolvedContent},
     patches::PatchFile,
 };
 use wonderland_legacy_formats::{
@@ -128,6 +128,12 @@ fn provenance(
         redistribution: source.provenance.redistribution,
     }
 }
+type ResolvedIffInputs = (
+    ResolvedContent,
+    BTreeMap<&'static str, Digest>,
+    BTreeMap<usize, Digest>,
+);
+
 struct ProvenanceInputs<'a> {
     source_hash: &'a Digest,
     tuning_hash: &'a Digest,
@@ -179,15 +185,12 @@ impl Importer<'_> {
         self.output.report.resources.push(mapping);
         Ok(())
     }
-    fn iff(
+    fn resolve(
         &mut self,
         source: &SourceSpec,
-        prefix: &str,
         bytes: &[u8],
         name: String,
-        key: Option<legacy::ResourceKey>,
-        source_hash: &Digest,
-    ) -> ManifestResult<()> {
+    ) -> ManifestResult<ResolvedIffInputs> {
         let file = iff::decode(bytes, &self.limits.legacy).map_err(err)?;
         let mut request = ResolveRequest::new(name, file);
         request.rights = serde_json::to_string(&source.provenance).map_err(err)?;
@@ -208,9 +211,31 @@ impl Importer<'_> {
                     name: scope.source_name.clone(),
                     iff: iff::decode(&bytes, &self.limits.legacy).map_err(err)?,
                 };
+                let otf = scope
+                    .otf
+                    .as_ref()
+                    .map(|path| {
+                        self.read(path).and_then(|bytes| {
+                            semantic::decode_otf(&bytes, &self.limits.legacy).map_err(err)
+                        })
+                    })
+                    .transpose()?;
+                let rewrite = scope
+                    .otf_rewrite
+                    .as_ref()
+                    .map(|path| {
+                        self.read(path).and_then(|bytes| {
+                            semantic::decode_otf(&bytes, &self.limits.legacy).map_err(err)
+                        })
+                    })
+                    .transpose()?;
                 if namespace == "semiglobal" {
+                    request.tuning.semiglobal_otf = otf;
+                    request.tuning.semiglobal_otf_rewrite = rewrite;
                     request.semiglobal = Some(content);
                 } else {
+                    request.tuning.global_otf = otf;
+                    request.tuning.global_otf_rewrite = rewrite;
                     request.global = Some(content);
                 }
             }
@@ -270,6 +295,18 @@ impl Importer<'_> {
             });
         }
         let resolved = resolve_content(&request, &self.limits.legacy).map_err(err)?;
+        Ok((resolved, scope_hashes, patch_hashes))
+    }
+    fn iff(
+        &mut self,
+        source: &SourceSpec,
+        prefix: &str,
+        bytes: &[u8],
+        name: String,
+        key: Option<legacy::ResourceKey>,
+        source_hash: &Digest,
+    ) -> ManifestResult<()> {
+        let (resolved, scope_hashes, patch_hashes) = self.resolve(source, bytes, name)?;
         let tuning_hash = Digest::try_from(sha256_hex(&resolved.tuning.identity))?;
         let applied: Vec<Digest> = resolved
             .applied_patches
@@ -660,13 +697,47 @@ impl Importer<'_> {
         )
     }
 }
-pub fn import_spec(
+/// Exact source-resolved input for the runtime bridge. This uses the cooker's
+/// bounded path readers, ordered patch candidates, locale and tuning inputs.
+/// No gameplay metadata, dependency completeness or runtime success is inferred.
+pub struct SourceResolution {
+    pub content: ResolvedContent,
+    pub input_hashes: BTreeMap<String, Digest>,
+}
+
+pub fn resolve_iff_source(
     spec: &CookSpec,
+    source_id: &str,
     root: &Path,
     limits: &CookLimits,
-) -> ManifestResult<ImportedContent> {
+) -> ManifestResult<SourceResolution> {
     spec.validate(limits)?;
-    let mut importer = Importer {
+    let source = spec
+        .sources
+        .iter()
+        .find(|source| source.id == source_id)
+        .ok_or_else(|| err("unknown source ID"))?;
+    if source.format != SourceFormat::Iff {
+        return Err(err("source resolution requires an explicit IFF source"));
+    }
+    let mut importer = new_importer(spec, root, limits);
+    let bytes = importer.read(&source.path)?;
+    let name = source.source_name.clone().unwrap_or_else(|| {
+        Path::new(&source.path)
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .into_owned()
+    });
+    let (content, _, _) = importer.resolve(source, &bytes, name)?;
+    Ok(SourceResolution {
+        content,
+        input_hashes: importer.output.report.input_hashes,
+    })
+}
+
+fn new_importer<'a>(spec: &'a CookSpec, root: &'a Path, limits: &'a CookLimits) -> Importer<'a> {
+    Importer {
         spec,
         root,
         limits,
@@ -683,12 +754,21 @@ pub fn import_spec(
                 limitations: vec![
                     "Dynamic BHAV references are not automatically discovered; simulation dependency completeness is the caller's explicit accepted contract.".into(),
                     "Opaque entries and PIFF descriptors are preserved but never tick-ready; import performs no nested archive expansion, gameplay execution, automatic mesh conversion or rendering.".into(),
-                    "Indexed IFF resource-map edits are unsupported by the content resolver and fail explicitly.".into(),
+                    "Indexed IFF edits retain source maps and rebuild validated version 0/1 indices; unsupported or inconsistent maps fail on mutation.".into(),
                     "FSOM import supplies no external replacement texture provider: same-IFF MTEX is the explicit custom-texture fallback, and separate PNG sources do not register renderer replacement precedence.".into(),
                 ],
             },
         },
-    };
+    }
+}
+
+pub fn import_spec(
+    spec: &CookSpec,
+    root: &Path,
+    limits: &CookLimits,
+) -> ManifestResult<ImportedContent> {
+    spec.validate(limits)?;
+    let mut importer = new_importer(spec, root, limits);
     for source in &spec.sources {
         let bytes = importer.read(&source.path)?;
         let hash = Digest::of(&bytes);

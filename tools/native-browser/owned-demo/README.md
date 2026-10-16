@@ -190,3 +190,29 @@ It requires original-object UI hooks, two real accounts with distinct decoded
 actors, both actors rendered, a shared visible original-object change, and that
 same change after host loss/recovery. It must fail rather than substituting a
 fixture actor or ignoring unavailable original content.
+
+### Placement and private authored setup
+
+Committed admission is distinct from playable in-world placement. Enter and
+reconnect return `admitted_awaiting_placement` without a ticket when the exact
+committed actor is out of world. Custody and the same-control action recovery
+capsule remain retained. The mounted player is suspended until placement is ready;
+late grants/frames cannot reopen transport during the pause. Actual leave or
+identity invalidation still closes that control.
+
+An optional trusted Node factory `authorGenesis` hook supports a private authored
+object fixture tied to the first genuinely created account/avatar. It is not an
+HTTP API or a purchase/roommate/object-creation implementation. It requires a fresh
+empty store and is forbidden on resume. Only frozen manifest pins and a verified
+credential-free account creation receipt reach the callback. Its four-field result
+pins a new host config and ownership receipt; all other manifest fields are
+unchanged. The reopened source host must have zero owned actors/placements, an
+unchanged empty registry and unchanged lot permissions before coordinator setup.
+Final manifest/receipt pins are persisted, and ordinary handlers stay unavailable
+until initialization completes. Actual source exporter and object gameplay must
+be qualified separately before using this optional fixture.
+
+Miniflare uses `cf: false`: this private runner does not need or fetch remote
+Request.cf metadata. Account/lot RPC stays in-process, and browser HTTP/WebSocket
+transport binds loopback. Supervisor inspection methods are never routed to the
+browser.

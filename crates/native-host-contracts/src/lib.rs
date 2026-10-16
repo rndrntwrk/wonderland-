@@ -66,6 +66,15 @@ pub enum RequestV1 {
         control: OwnedControlV2,
         action_hex: String,
     },
+    /// Trusted coordinator drain only; never accepts player commands or saves.
+    PrepareOwnedDrain {
+        batch_id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        expected_control_revision: DecimalId,
+        departure: DepartureRequestV1,
+        fence: ControlFenceV1,
+    },
     PreparePlayerTick {
         batch_id: DecimalId,
         binding: HostBindingV1,
@@ -149,3 +158,6 @@ pub use control::ControlStateV2;
 
 mod player;
 pub use player::*;
+
+mod departure;
+pub use departure::*;

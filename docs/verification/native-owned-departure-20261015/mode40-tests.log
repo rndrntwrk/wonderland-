@@ -1,0 +1,23 @@
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/crates/sim-core)
+    Finished `test` profile [unoptimized] target(s) in 19.06s
+     Running tests/primitives_external.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/primitives_external-9ddf768829ae126b)
+
+running 16 tests
+test check_tree_cannot_request_non_test_transfer ... ok
+test animation_operand_retargets_parameter_ids_and_writes_event_to_selected_local ... ok
+test continuation_restore_binds_request_family_operand_and_literal_amount_to_source_instruction ... ok
+test animation_event_branch_preserves_frame_for_resume_and_wait_preserves_ip ... ok
+test look_towards_check_guards_body_modes_after_required_entity_dereferences ... ok
+test response_register_writes_are_atomic_when_a_later_index_is_invalid ... ok
+test motive_change_decodes_scopes_and_clear_all_skips_invalid_operands ... ok
+test restored_request_context_and_frame_reference_validation_rejects_forgery ... ok
+test resumed_embedded_writes_have_a_combined_limit_and_restore_rejects_forged_register_indices ... ok
+test synchronous_write_batch_rejects_invalid_later_index_without_partial_register_mutation ... ok
+test routing_check_trees_return_false_and_source_reach_mouth_is_explicit_fault ... ok
+test synchronous_provider_writes_update_registers_and_stack_cache_before_the_next_instruction ... ok
+test tso_pending_deletion_is_a_synchronous_null_or_dead_query ... ok
+test tso_temporary_id_checks_persistent_id_and_reserved75_without_external_effects ... ok
+test transfer_uses_resolved_big_amount_and_checkpoint_completion_writes_xl ... ok
+test tso_test_stack_object_uses_the_direct_reference_without_an_external_effect ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

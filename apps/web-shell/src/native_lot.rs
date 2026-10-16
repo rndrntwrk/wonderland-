@@ -18,8 +18,8 @@ use wonderland_game_runtime::live_wire::{
         ActionStatus, NativePlayer, PlayerBinding, PlayerRecoveryCapsule, activity::ActionActivity,
     },
 };
-use wonderland_game_runtime::sim_core::interactions::InteractionKey;
-use wonderland_game_runtime::{EntityRef, RuntimeProjection};
+use wonderland_game_runtime::sim_core::interactions::{InteractionKey, InteractionScope};
+use wonderland_game_runtime::{EntityRef, LotPosition, RuntimeProjection};
 use wonderland_game_services::{GatewayOperation, SessionState};
 use wonderland_render_core::{AssetKey, RenderLimits, RgbaImage};
 use wonderland_world_view::{ViewportControls, WallMode, WorldDocument, WorldPick};
@@ -62,9 +62,14 @@ extern "C" {
     fn call_host(host: &JsValue, method: &str, bytes: &JsValue) -> Result<JsValue, JsValue>;
 }
 
+#[derive(Clone, Copy)]
+enum ChoiceTarget {
+    Entity(EntityRef),
+    Terrain(LotPosition),
+}
 #[derive(Clone)]
 struct Choice {
-    target: EntityRef,
+    target: ChoiceTarget,
     key: InteractionKey,
     param0: i16,
     label: String,
@@ -129,6 +134,7 @@ struct Controller {
     choices: RwSignal<Vec<Choice>>,
     needs_open: RwSignal<bool>,
     live: RwSignal<bool>,
+    placement_suspended: RwSignal<bool>,
     status: RwSignal<ActionStatus>,
     activity: RwSignal<Vec<ActionActivity>>,
     notice: RwSignal<String>,
@@ -163,6 +169,9 @@ enum LotAccess {
     Owned(crate::native_account::NativeOwnedUi),
 }
 impl LotAccess {
+    fn awaiting_placement(self) -> bool {
+        matches!(self, Self::Owned(ui) if ui.awaiting_placement())
+    }
     fn scope(self) -> Option<(u64, PlayerBinding)> {
         match self {
             Self::Legacy(ui) => scope(ui),
@@ -206,6 +215,9 @@ impl LotAccess {
 }
 impl Controller {
     fn current(self, generation: u64) -> bool {
+        if self.access.awaiting_placement() {
+            return false;
+        }
         self.resources
             .try_with_value(|r| {
                 r.generation == generation && r.scope.is_some() && r.scope == self.access.scope()
@@ -442,6 +454,12 @@ impl Controller {
                 if value == "receipt-timeout" {
                     self.fail("The server did not confirm this action in time. Its result is unknown. Reconnect to continue; it will not be retried.");
                 }
+                if value == "placement-unavailable" {
+                    self.fail("Your admitted Sim is awaiting source placement.");
+                    if let LotAccess::Owned(ui) = self.access {
+                        ui.placement_unavailable();
+                    }
+                }
                 if value == "failed" || value == "disconnected" {
                     self.fail("Connection interrupted. The displayed property is the last accepted state. Reconnect to continue.");
                 }
@@ -541,7 +559,7 @@ impl Controller {
                         .offers
                         .into_iter()
                         .map(|offer| Choice {
-                            target,
+                            target: ChoiceTarget::Entity(target),
                             key: offer.interaction,
                             param0: offer.param0,
                             label: offer.label,
@@ -552,16 +570,55 @@ impl Controller {
             Err(message) => self.notice.set(message.into()),
         }
     }
+    fn select_terrain(self, position: LotPosition) {
+        let result = self.resources.with_value(|r| {
+            r.player
+                .as_ref()
+                .ok_or("Native player is unavailable")
+                .and_then(|p| p.terrain_offers(position))
+        });
+        match result {
+            Ok(batch) => {
+                let choices: Vec<_> = batch
+                    .offers
+                    .into_iter()
+                    .filter(|offer| {
+                        offer.interaction.scope == InteractionScope::Local
+                            && u16::try_from(offer.interaction.tta_index).is_ok()
+                    })
+                    .map(|offer| Choice {
+                        target: ChoiceTarget::Terrain(position),
+                        key: offer.interaction,
+                        param0: offer.param0,
+                        label: offer.label,
+                    })
+                    .collect();
+                if !choices.is_empty() {
+                    self.needs_open.set(false);
+                }
+                self.choices.set(choices);
+            }
+            Err(message) => self.notice.set(message.into()),
+        }
+    }
     fn pick(self, pick: WorldPick) {
         if !self.live.get_untracked() {
             return;
         }
+        self.choices.set(Vec::new());
         let target = self.world.with_untracked(|w| {
-            w.as_ref()
-                .and_then(|world| crate::native_avatar::native_pick_entity(world, &pick))
+            let world = w.as_ref()?;
+            crate::native_avatar::native_pick_entity(world, &pick)
+                .map(ChoiceTarget::Entity)
+                .or_else(|| {
+                    crate::native_terrain::native_pick_terrain(world, &pick)
+                        .map(ChoiceTarget::Terrain)
+                })
         });
-        if let Some(target) = target {
-            self.select(target);
+        match target {
+            Some(ChoiceTarget::Entity(target)) => self.select(target),
+            Some(ChoiceTarget::Terrain(position)) => self.select_terrain(position),
+            None => {}
         }
     }
     fn submit(self, choice: Option<Choice>, cancel: Option<u64>) {
@@ -571,7 +628,17 @@ impl Controller {
         let result = self.resources.try_update_value(|r| {
             let player = r.player.as_mut().ok_or("Native player is unavailable")?;
             let bytes = if let Some(choice) = choice {
-                player.prepare(choice.target, choice.key, choice.param0)?
+                match choice.target {
+                    ChoiceTarget::Entity(target) => {
+                        player.prepare(target, choice.key, choice.param0)?
+                    }
+                    ChoiceTarget::Terrain(position) => player.prepare_goto(
+                        position,
+                        u16::try_from(choice.key.tta_index)
+                            .map_err(|_| "Invalid source terrain action")?,
+                        choice.param0,
+                    )?,
+                }
             } else {
                 player.prepare_cancel(cancel.ok_or("No selected action")?)?
             };
@@ -759,6 +826,7 @@ pub(crate) fn NativeLot(
         choices: RwSignal::new(Vec::new()),
         needs_open: RwSignal::new(false),
         live: RwSignal::new(false),
+        placement_suspended: RwSignal::new(false),
         status: RwSignal::new(ActionStatus::Idle),
         activity: RwSignal::new(Vec::new()),
         notice: RwSignal::new(String::new()),
@@ -774,7 +842,17 @@ pub(crate) fn NativeLot(
     Effect::new(move |_| {
         access.track();
         let current = access.scope();
-        if ctl.resources.with_value(|r| r.scope != current) {
+        if access.awaiting_placement() {
+            // Keep the exact owned NativePlayer and its pending-action capsule.
+            // Placement is not an identity invalidation or an action result.
+            ctl.fail("Your admitted Sim is awaiting source placement.");
+            ctl.resources.update_value(Resources::stop_socket);
+            ctl.placement_suspended.set(true);
+            return;
+        }
+        let resume_placement = ctl.placement_suspended.get_untracked();
+        ctl.placement_suspended.set(false);
+        if resume_placement || ctl.resources.with_value(|r| r.scope != current) {
             ctl.begin(current);
         }
     });

@@ -1,0 +1,8 @@
+84639653ade1bd062e57f1cc39754b726711bdef9d6a4933af06a163db5b7f8b  services/native-edge/src/lot/departures.ts
+353e863f4e6d40547926bb3e5ed38e69dc488a2a090b8e34a070f1621b377702  services/native-edge/src/lot/owned.ts
+8346458e255be63dceea3e9b9345f1969c3dc76b97e37052e33f50b3f9158048  services/native-edge/src/lot/coordinator.ts
+844827c6df3fcbf403a34325346006ee68f1fa8f859e51573a8dff311122d763  services/native-edge/src/lot/host-receipts.ts
+5c71d6453b364ed9af935bab7af3a62ba1b626a4eab7fdcc63df29c79657284a  services/native-edge/tests/owned-departure-coordinator.test.mjs
+68d95aee20d2954322b8379f982831d98eafdcf0e2e00235f34131b7314740b1  services/native-edge/src/account/lot-save.ts
+a4e49696f04e2c795b3613304177825bdd64a535ef330a060b3dcad68a2d9ee2  services/native-edge/src/lot/contracts.ts
+2e6290ed393c9cf1315271c27272507109d7b24d03c3d09d63e650b72d0aad10  services/native-edge/src/lot/recovery.ts

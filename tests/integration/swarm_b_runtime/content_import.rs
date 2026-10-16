@@ -241,6 +241,58 @@ fn with_interaction() -> IffFile {
 }
 
 #[test]
+fn disabled_zero_action_row_is_omitted_without_renumbering_source_indices() {
+    let mut file = with_interaction();
+    let chunk = file
+        .chunks
+        .iter_mut()
+        .find(|c| c.key.kind == *b"TTAB")
+        .unwrap();
+    let mut table = decode_ttab(&chunk.data, &Limits::default()).unwrap();
+    let mut disabled = table.interactions[0].clone();
+    disabled.action_function = 0;
+    disabled.test_function = 65535; // GetAction returns before resolving the check.
+    disabled.string_index = 77;
+    table.interactions.insert(0, disabled);
+    chunk.data = encode_ttab(&table, &Limits::default()).unwrap();
+    let result = import(&resolve(file)).unwrap();
+    let actions = result.objects[0].interactions.as_ref().unwrap();
+    assert_eq!(actions.len(), 1);
+    assert_eq!(actions[0].tta_index, 0);
+}
+
+#[test]
+fn an_existing_global_bhav_zero_is_not_silently_suppressed() {
+    let mut file = with_interaction();
+    let mut routine = file.chunks[0].clone();
+    routine.key.id = 0;
+    let chunk = file
+        .chunks
+        .iter_mut()
+        .find(|c| c.key.kind == *b"TTAB")
+        .unwrap();
+    let mut table = decode_ttab(&chunk.data, &Limits::default()).unwrap();
+    table.interactions[0].action_function = 0;
+    chunk.data = encode_ttab(&table, &Limits::default()).unwrap();
+    let header = file.header;
+    let mut request = ResolveRequest::new("zero-action.iff", file);
+    request.global = Some(wonderland_content_ir::objects::SourceContent {
+        name: "global.iff".into(),
+        iff: IffFile {
+            header,
+            chunks: vec![routine],
+        },
+    });
+    let result = import(&resolve_content(&request, &Limits::default()).unwrap()).unwrap();
+    assert_eq!(
+        result.objects[0].interactions.as_ref().unwrap()[0]
+            .action
+            .id,
+        0
+    );
+}
+
+#[test]
 fn ttab_outputs_use_effective_bytes_instead_of_mutable_cached_semantics() {
     let mut resolved = resolve(with_interaction());
     let normal = import(&resolved).unwrap();

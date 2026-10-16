@@ -1,0 +1,6 @@
+    Checking wonderland-native-host-contracts v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/crates/native-host-contracts)
+    Checking wonderland-asset-cooker v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/tools/asset-cooker)
+    Checking wonderland-native-lot-host v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/services/native-lot-host)
+    Checking wonderland-game-runtime v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/crates/game-runtime)
+    Checking sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/crates/sim-core)
+    Finished `dev` profile [unoptimized] target(s) in 22.63s

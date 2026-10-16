@@ -1,0 +1,14 @@
+✔ save proof routes only through configured coordinator for canonical lot ID (10.912875ms)
+✔ missing configured coordinator cannot authorize departure (3.207772ms)
+✔ caller URL or namespace injection is refused before lookup (0.884338ms)
+✔ authoritative lookup must return exact requested identity and anchored bytes (3.021044ms)
+✔ coordinator lookup failures do not fall back to caller proof (1.182468ms)
+✔ detach lookup binds full committed receipt rather than a caller assertion (3.815331ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 185.31514

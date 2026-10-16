@@ -86,13 +86,35 @@ by the integrating content owner. `ImportOptions` selects a locale, explicit TTA
 dialect, animation metadata, and non-BCON runtime tuning. The result contains the
 validated immutable A `ContentSet` and per-object interaction/provenance reports.
 
+`source_metadata::tso_object_metadata` is an optional bounded adapter for real
+single-tile TSO definitions. It derives VMAvatar/VMGameObject footprints from the
+pinned constructors and OBJD fields, preserves zero startup placement state for
+the real Init routine, and normalizes private type-3 SLOT records only when their
+float offsets are exactly integral. Multipart geometry, fractional offsets, and
+out-of-range runtime metadata fail closed; callers can still use the existing
+explicit `RuntimeMetadata` API. This adapter supplies no appearance assets.
+
+`source_metadata::tso_motive_tuning` reads approved `tuning.dat` bytes through the
+bounded legacy persist/QFS reader, requires every source motive/category key,
+and reproduces the pinned float32 multiplication and truncation. Nonfinite,
+overflowing or missing inputs fail closed. Its output includes the exact source
+SHA-256. The private qualification exporter uses that hash as the cooked
+manifest's tuning release identity; the sealed binding separately hashes all
+normalized tuning values and the resulting runtime descriptor.
+
+A TTAB row whose action is zero and whose global BHAV 0 is absent is retained
+in source/cooked bytes but omitted from actionable reports, matching
+`VMEntity.GetAction` returning null. Surviving TTA indices are not renumbered.
+An existing BHAV 0 is never silently suppressed; missing nonzero routines still
+fail import.
+
 | Input | Runtime mapping and validation |
 |---|---|
 | BHAV | Instruction opcodes, branch bytes, all eight operand bytes, locals, arguments, routine kind, format version and tree version enter A's real `VmRoutine`. A validates its own instruction/branch bounds. IDs below 4096 are global, 4096–8191 private, and 8192+ semiglobal. No fallback to a different namespace occurs on a miss. |
 | OBJD | Source GUID, attribute count, animation and body string IDs, fixed raw definition words, generated function entries and level offset are converted. Attribute storage also accommodates the selected private STR# 256 labels, as in the source constructor. The source's ChairFacing bit initializes ObjectData word 8. |
 | Runtime definition memory | `Version1` and `Version2` occupy indices 0 and 1; source `RawData` follows at index 2. Fixed source raw lengths are 78 words for 136, 93 for 138, 94 for 139, 95 for 140/141, and 103 for 142. Extra words preserved by round-trip tooling remain in the resolved IFF but are excluded from runtime reads. Version 136 therefore cannot acquire a repair entry from an appended word. |
 | Multipart OBJD | A subobject requires its explicit master GUID. The master must be in the same effective resource with matching MasterID and SubIndex −1. Only −1 is the master sentinel; other packed signed offsets, including `0xFF00`, remain subobjects. Its runtime definition receives the same version-prefix mapping. A missing child interaction table inherits the master's selected table; an existing child table is preserved. |
-| OBJf | When `UsesFnTable` is set, the matching chunk is required. The bounded reader validates `fJBO`, exact length and at most 256 entries; each entry stores condition before action. Otherwise the 33 source-generated entry positions are used. Nonzero missing functions fail import. The original GUID-specific entry-17 override is retained. |
+| OBJf | When `UsesFnTable` is set, the matching chunk is required. The bounded reader retains the observed `fJBO` or zero tag (the source reader does not interpret it), validates exact length and at most 256 entries; each entry stores condition before action. Otherwise the 33 source-generated entry positions are used. Nonzero missing functions fail import. The original GUID-specific entry-17 override is retained. |
 | STR# and BHAV names | Selected locale strings enter A's immutable string tables. Named-tree lookup preserves source case sensitivity, truncates names at NUL, applies ASCII replacement, and lets private names precede semiglobal names. |
 | BCON/tuning | Resolved private, semiglobal and global cache values and explicit replacements become signed i16 values in the corresponding runtime owner/table/index namespace. Supplied non-BCON tuning remains explicit. Conflicting shared values fail import. |
 | TTAB/TTAs | A local table takes precedence over its semiglobal counterpart. The explicit dialect decodes the authoritative bytes; a changed private semantic cache is rejected. Each report retains TTA index, resolved action/check routine, code owner, flags, permissions, and optional localized label. Missing tables remain distinct from present empty tables. Duplicate TTA indices and unresolved functions fail import. |
@@ -117,6 +139,22 @@ the B provenance for source/patch attribution. No JSON deserializer for arbitrar
 `ContentSet` values is introduced here.
 
 ### Admission bounds
+
+Cooked JSON and manifest metadata have a separate explicit 64 MiB hard admission
+ceiling (`CookedLoadLimits.max_metadata_bytes`, also bounded by the legacy
+aggregate limit). Their conservative node/string/parser workspace does not
+consume the independent 32 MiB conversion cap. Seal/load recheck retained
+metadata against current caller limits, subtract it from the legacy aggregate
+with checked arithmetic, and bound conversion by the remaining aggregate and
+32 MiB. Raw JSON byte/depth limits, resource counts, pack bounds and final
+serialized `ContentSet` limits are unchanged. Lower-after-prepare, aggregate,
+hard-cap and 935-resource regressions cover this separation.
+
+A shared global scope may have multiple consumers with different whole-object
+tuning identities. It must have a bound donor referencing that exact scope ID
+and matching its original tuning provenance. Consumers must have identical
+complete global caches (values and origins) and global-affecting replacements.
+Private and semiglobal provenance remains strict; no identity is rewritten.
 
 The converter rejects more than 4096 attributes before constructing an object.
 It also keeps a cumulative conservative admission budget capped at the smaller

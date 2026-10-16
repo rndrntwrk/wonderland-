@@ -242,6 +242,7 @@ fn install_entities(
                     ObjectId::NULL,
                     0,
                     Some(object.entity),
+                    false,
                 );
                 work.strict_source = old_strict;
                 created?;

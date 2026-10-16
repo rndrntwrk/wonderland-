@@ -26,6 +26,8 @@ use wonderland_game_runtime::{
     },
     world_view::WorldDocument,
 };
+#[path = "support/source_terrain.rs"]
+mod source_terrain;
 fn setup() -> (GameRuntime, Bootstrap) {
     let mut routines = RoutineStore::new();
     routines
@@ -37,9 +39,11 @@ fn setup() -> (GameRuntime, Bootstrap) {
             VmRoutine::new(4096, 0, 4, vec![VmInstruction::new(15, 254, 255, [0; 8])]).unwrap(),
         )
         .unwrap();
+    let mut objects = vec![ObjectDefinition::new(TEMPLATE_PERSON, 0)];
+    let terrain = source_terrain::extend(&mut routines, &mut objects);
     let content = ContentSet::new(
         routines,
-        vec![ObjectDefinition::new(TEMPLATE_PERSON, 0)],
+        objects,
         vec![],
         TuningSet {
             tso_motives: Some(TsoMotiveTuning {
@@ -50,26 +54,29 @@ fn setup() -> (GameRuntime, Bootstrap) {
         },
     )
     .unwrap()
-    .with_interaction_tables(vec![(
-        TEMPLATE_PERSON,
-        InteractionTable {
-            local_table_present: true,
-            definitions: vec![InteractionDefinition {
-                key: InteractionKey {
-                    tta_index: 7,
-                    scope: InteractionScope::Local,
-                },
-                action: RoutineBinding {
-                    routine_id: 4096,
-                    code_owner_guid: TEMPLATE_PERSON,
-                },
-                check: None,
-                flags: ActionFlags(ActionFlags::ALLOW_VISITORS),
-                permissions: PermissionFlags::default(),
-                label: Some("Authored protocol action".into()),
-            }],
-        },
-    )])
+    .with_interaction_tables(vec![
+        terrain,
+        (
+            TEMPLATE_PERSON,
+            InteractionTable {
+                local_table_present: true,
+                definitions: vec![InteractionDefinition {
+                    key: InteractionKey {
+                        tta_index: 7,
+                        scope: InteractionScope::Local,
+                    },
+                    action: RoutineBinding {
+                        routine_id: 4096,
+                        code_owner_guid: TEMPLATE_PERSON,
+                    },
+                    check: None,
+                    flags: ActionFlags(ActionFlags::ALLOW_VISITORS),
+                    permissions: PermissionFlags::default(),
+                    label: Some("Authored protocol action".into()),
+                }],
+            },
+        ),
+    ])
     .unwrap();
     let mut game = GameRuntime::new(
         content,
@@ -464,5 +471,131 @@ fn capsule_rejects_different_source_location_and_principal_even_with_a_live_acto
         }
         let mut fresh = player(&game, &next);
         assert!(fresh.restore_recovery(capsule).is_err());
+    }
+}
+
+#[test]
+fn terrain_reply_loss_keeps_exact_bytes_and_sequence_across_replacement_authority() {
+    for accepted in [false, true] {
+        let (mut game, b) = setup();
+        let mut old = player(&game, &b);
+        let position = wonderland_game_runtime::TilePos::new(4, 4, 1).center();
+        let request = old.prepare_goto(position, 7, 0).unwrap();
+        let accepted_tick = if accepted {
+            let PlayerAction::Goto(intent) = decode_action(&request).unwrap() else {
+                panic!()
+            };
+            Some(
+                game.advance(vec![AcceptedCommand::SourceGoto(intent)])
+                    .unwrap()
+                    .tick,
+            )
+        } else {
+            None
+        };
+        old.disconnect();
+        let capsule = old.recovery_capsule().unwrap();
+        let next = newer(&mut game, &b);
+        let mut fresh = player(&game, &next);
+        let hash = fresh.state_hash().unwrap();
+        fresh.restore_recovery(capsule).unwrap();
+        assert_eq!(fresh.state_hash().unwrap(), hash);
+        assert_eq!(fresh.status(), ActionStatus::Unknown);
+        let query = fresh.pending_action_result().unwrap().unwrap();
+        assert_eq!(query.lot_incarnation, b.binding.lot_incarnation);
+        assert_eq!(query.request, request);
+        assert!(fresh.prepare_goto(position, 7, 0).is_err());
+        fresh
+            .receive(
+                &encode_receipt(&ActionReceipt {
+                    request,
+                    accepted_tick,
+                })
+                .unwrap(),
+            )
+            .unwrap();
+        assert_eq!(
+            fresh.status(),
+            if accepted {
+                ActionStatus::Accepted
+            } else {
+                ActionStatus::Rejected
+            }
+        );
+        assert!(fresh.pending_action_result().unwrap().is_none());
+        assert_eq!(
+            decode_action(&fresh.prepare_goto(position, 7, 0).unwrap())
+                .unwrap()
+                .sequence(),
+            2
+        );
+    }
+}
+
+#[test]
+fn placement_suspension_retains_unknown_action_for_same_and_new_host_incarnation() {
+    for change_incarnation in [false, true] {
+        let (mut game, bootstrap) = setup();
+        let mut suspended = player(&game, &bootstrap);
+        let request = prepare(&mut suspended);
+        let PlayerAction::Invoke(intent) = decode_action(&request).unwrap() else {
+            panic!()
+        };
+        let tick = game
+            .advance(vec![AcceptedCommand::QueueInteraction(intent)])
+            .unwrap()
+            .tick;
+        // A placement-only UI pause disconnects transport but must retain this
+        // exact owned NativePlayer. It is neither an outcome nor identity loss.
+        suspended.disconnect();
+        suspended.disconnect();
+        assert_eq!(suspended.status(), ActionStatus::Unknown);
+        let mut recovered = if change_incarnation {
+            let capsule = suspended.recovery_capsule().unwrap();
+            let next = newer(&mut game, &bootstrap);
+            let mut fresh = player(&game, &next);
+            let before = fresh.state_hash().unwrap();
+            fresh.restore_recovery(capsule).unwrap();
+            assert_eq!(fresh.state_hash().unwrap(), before);
+            fresh
+        } else {
+            // The mounted controller keeps the same player for an unchanged
+            // binding. Capsules intentionally require a newer incarnation.
+            suspended.reconnect().unwrap();
+            install(&mut suspended, &game);
+            suspended
+        };
+        assert_eq!(
+            recovered.state_hash().unwrap(),
+            game.sim().state_hash().unwrap()
+        );
+        assert_eq!(recovered.status(), ActionStatus::Unknown);
+        let query = recovered.pending_action_result().unwrap().unwrap();
+        assert_eq!(query.request, request);
+        assert_eq!(query.lot_incarnation, bootstrap.binding.lot_incarnation);
+        let offers = recovered.offers(recovered.actor()).unwrap();
+        assert!(
+            recovered
+                .prepare(
+                    recovered.actor(),
+                    offers.offers[0].interaction,
+                    offers.offers[0].param0
+                )
+                .is_err()
+        );
+        recovered
+            .receive(
+                &encode_receipt(&ActionReceipt {
+                    request,
+                    accepted_tick: Some(tick),
+                })
+                .unwrap(),
+            )
+            .unwrap();
+        assert_eq!(recovered.status(), ActionStatus::Accepted);
+        assert_eq!(
+            decode_action(&prepare(&mut recovered)).unwrap().sequence(),
+            2
+        );
     }
 }

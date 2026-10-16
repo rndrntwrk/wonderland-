@@ -250,9 +250,10 @@ impl PreparedMesh {
 
 impl PreparedMesh {
     /// Conservative rotation-independent envelope for bind pose and all supplied
-    /// channels, including arbitrary unit rotations and unclamped skin weights.
-    /// Channel mixing must be convex (nonnegative layer weights); use exact bounds
-    /// for externally authored/extrapolated poses outside this admitted envelope.
+    /// channels, including source nonunit rotations and unclamped skin weights.
+    /// Supplied clips must cover the retained baseline as well as the current
+    /// timeline. Channel mixing must be convex (nonnegative layer weights); use
+    /// exact bounds for externally authored/extrapolated poses outside this envelope.
     pub fn conservative_animation_bounds(
         &self,
         rig: &Rig,
@@ -271,12 +272,28 @@ impl PreparedMesh {
             .iter()
             .map(|b| vec3(b.translation).length())
             .collect();
-        // Validated quaternion norm tolerance is .001. 1.005 is a conservative
-        // per-joint stretch bound, also leaving room for binary32 accumulation.
+        // N bounds squared quaternion norms, including public near-unit edits.
+        // For shortest-path source Slerp with convex t, d >= 0 and
+        // a*a + b*b + 2*a*b*d = 1, with a*a + b*b <= 1. Thus
+        // |a*q + b*r|^2 <= max(1, |q|^2, |r|^2); the linear branch is convex too.
+        // A raw quaternion matrix is (1-N)I + N*R, so its operator norm is
+        // at most max(1, 2*N-1). Do not assume original channels are unit.
+        let mut norms = vec![1.001f32; translations.len()];
         for clip in clips {
             let source = clip.source();
             for m in &source.motions {
                 if let Some(bone) = rig.bone_index(&m.bone_name) {
+                    if m.rotation_flag == 1 {
+                        for i in crate::mesh::range(
+                            m.first_rotation_index,
+                            m.frame_count as i32,
+                            source.rotations.len(),
+                        )? {
+                            norms[bone] = norms[bone].max(crate::source_math::norm_squared(
+                                crate::normalized::quat(source.rotations[i]),
+                            ));
+                        }
+                    }
                     if m.translation_flag == 1 {
                         for i in crate::mesh::range(
                             m.first_translation_index,
@@ -290,17 +307,26 @@ impl PreparedMesh {
                 }
             }
         }
+        // Leave 0.3% relative slack per joint for binary32 interpolation and
+        // palette accumulation, rather than shrinking original rotations.
+        let joint_stretch: Vec<_> = norms
+            .iter()
+            .map(|n| (2.0 * n - 1.0).max(1.0) * 1.003)
+            .collect();
+        if joint_stretch.iter().any(|s| !s.is_finite()) {
+            return Err(AvatarError::Invalid("envelope rotation overflow"));
+        }
         let mut reach = vec![0.0; translations.len()];
         let mut stretch = vec![1.0; translations.len()];
         for &i in rig.traversal() {
             match rig.source().bones[i].parent {
                 None => {
                     reach[i] = translations[i];
-                    stretch[i] = 1.005;
+                    stretch[i] = joint_stretch[i];
                 }
                 Some(parent) => {
                     reach[i] = reach[parent] + stretch[parent] * translations[i];
-                    stretch[i] = stretch[parent] * 1.005;
+                    stretch[i] = stretch[parent] * joint_stretch[i];
                 }
             }
         }

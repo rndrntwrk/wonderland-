@@ -1,0 +1,83 @@
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/crates/sim-core)
+    Finished `test` profile [unoptimized] target(s) in 2.19s
+     Running tests/lot_permission_state.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/lot_permission_state-fe7994e4296911bd)
+
+running 14 tests
+test existing_accepted_command_tags_are_preserved_and_initializer_is_appended ... ok
+test nonzero_legacy_payloads_keep_complete_bytes_and_semantic_values ... ok
+test new_runtimes_start_current_schema_with_uninitialized_permissions ... ok
+test initialization_on_existing_lot_changes_only_metadata_and_accepted_digest ... ok
+test later_equal_or_changed_initialization_and_double_initialization_are_atomic_errors ... ok
+test migration_respects_original_payload_limit_and_adds_only_its_known_suffix ... ok
+test initialized_payload_rejects_unknown_tags_huge_hints_and_noncanonical_membership_sets ... ok
+test trusted_initialization_preserves_explicit_metadata_without_reconciliation ... ok
+test old_schemas_reject_extra_fields_truncation_and_header_payload_schema_mismatch ... ok
+test initialized_metadata_is_replicated_restored_and_exact_replay_is_suppressed ... ok
+test initialized_snapshot_validation_rejects_invalid_metadata_and_ts1 ... ok
+test initializer_refuses_invalid_metadata_and_ts1_without_partial_mutation ... ok
+test schemas_one_and_two_migrate_without_inventing_metadata_or_losing_replay_receipts ... ok
+test valid_source_sentinels_caches_and_membership_bounds_are_preserved ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+
+     Running tests/owned_admission.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/owned_admission-44807376762e2d46)
+
+running 11 tests
+test appended_commands_do_not_change_tag_twenty_seven ... ok
+test all_source_roles_and_independent_flag_bits_are_retained ... ok
+test boxed_join_metadata_preserves_schema_four_bytes ... ok
+test source_permission_epoch_boundaries_and_pending_membership_are_exact ... ok
+test schema_three_migrates_to_uninitialized_control_and_preserves_last_receipt ... ok
+test malformed_registration_and_unknown_object_authority_are_atomic ... ok
+test admission_requires_explicit_source_state_and_fresh_permission_binding ... ok
+test stale_or_duplicate_control_and_double_admission_rollback_everything ... ok
+test community_owner_donor_admin_and_metadata_revision_are_source_ordered ... ok
+test source_avatar_init_occupation_is_seen_by_join_overbudget_reconciliation ... ok
+test two_owned_avatars_replay_restore_and_reconnect_without_portable_reset ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/runtime_owned_leave.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/runtime_owned_leave-ffd1e097018a789f)
+
+running 14 tests
+test retained_departure_rejects_forged_fence_capture_and_fault_classification ... ok
+test another_invoker_plugin_invalidates_fresh_lot_no_session_proof ... ok
+test generic_delete_cannot_impersonate_source_departure ... ok
+test existing_external_wait_is_retained_and_blocks_source_timeout_without_fake_reply ... ok
+test missing_source_action_fences_without_inventing_capture_or_cleanup ... ok
+test deferred_check_rejection_is_not_detach_and_forced_cleanup_is_distinct ... ok
+test ordinary_unsupported_execution_remains_whole_tick_fatal ... ok
+test schema_five_migration_keeps_source_state_but_has_no_eod_proof ... ok
+test unknown_or_plugin_session_history_blocks_owned_detach ... ok
+test unsupported_deferred_check_is_failure_not_false_or_forced_success ... ok
+test source_leave_queue_uses_priority50_skip_permissions_and_no_duplicate ... ok
+test stale_generation_is_failure_atomic_and_command_tag_is_append_only ... ok
+test same_tick_source_leave_captures_before_detach_and_replays ... ok
+test typed_unsupported_dispatch_rolls_back_peer_rng_events_and_capture ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/runtime_route_animation.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/runtime_route_animation-3a4a44e404a2a043)
+
+running 19 tests
+test changed_style_downgrades_without_synthetic_frames_or_snapshot_failure ... ok
+test external_direction_write_rebases_embedded_and_published_pose_atomically ... ok
+test cancellation_clears_route_layers_and_keeps_other_actor_untouched ... ok
+test missing_clips_preserve_movement_only_and_name_the_missing_resource ... ok
+test original_line_integer_units_truncation_and_speed_factors ... ok
+test forged_source_timing_and_pose_ownership_are_rejected_without_panics ... ok
+test deferred_target_deletion_preserves_valid_snapshot_until_route_failure ... ok
+test build_lock_defers_same_position_walk_start_without_changing_preview ... ok
+test completed_route_retained_pose_rejects_teleport_and_yaw_tampering ... ok
+test source_double_pi_half_notch_and_first_turn_tweak_are_preserved ... ok
+test turn_threshold_direction_tweak_and_source_acceleration ... ok
+test schema_four_migrates_empty_maps_without_inventing_inflight_timing ... ok
+test build_lock_defers_final_frame_and_cleanup_until_preview_commits ... ok
+test crossing_pool_context_downgrades_on_the_accepted_boundary_tick ... ok
+test source_walk_reuses_preexisting_layers_by_first_two_names_and_keeps_carry ... ok
+test pool_route_uses_swim_half_index_and_source_double_duration ... ok
+test negative_axes_finish_the_actual_line_not_the_first_truncated_goal_coordinate ... ok
+test run_is_source_timed_and_faster_without_changing_layer_speed ... ok
+test authoritative_walk_turns_snapshot_replay_and_final_standing ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s

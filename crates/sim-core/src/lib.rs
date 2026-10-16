@@ -15,6 +15,7 @@ pub mod numeric;
 pub mod owned_admission;
 pub mod primitives;
 pub mod rng;
+pub mod route_motion;
 pub mod runtime;
 pub mod runtime_memory;
 pub mod scheduler;
@@ -25,6 +26,7 @@ pub mod world;
 
 pub const TICKS_PER_SECOND: u32 = 30;
 
+pub(crate) mod runtime_route_animation;
 mod runtime_routes;
 
 pub mod runtime_avatars;

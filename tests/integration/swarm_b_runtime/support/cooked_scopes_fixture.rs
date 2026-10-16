@@ -234,10 +234,14 @@ pub fn cook() -> Fixture {
             },
             patches: vec![],
             semiglobal: Some(ScopeSpec {
+                otf: None,
+                otf_rewrite: None,
                 path: "shared.iff".into(),
                 source_name: "Shared.iff".into(),
             }),
             global: Some(ScopeSpec {
+                otf: None,
+                otf_rewrite: None,
                 path: "global.iff".into(),
                 source_name: "Global.iff".into(),
             }),
