@@ -307,7 +307,9 @@ export function createNativeAccountProvider(base, publish, options = {}) {
         emit({state:"lot_ready",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name,recovery_scope:owned.recovery_scope},message:"The property recovered. Reconnecting your Sim…"});
         throw Error("The property recovered; a fresh native bootstrap is required.");
       }
-      return grant;
+      // Keep the public socket DTO identical to the first-ticket path.
+      // Placement bookkeeping is internal, not part of Rust's strict Ticket.
+      return {binding:grant.binding,ticket:grant.ticket};
     } finally {clearTimeout(timeout);if(socketRequest===controller)socketRequest=null;}
   }
   function placementUnavailable() {

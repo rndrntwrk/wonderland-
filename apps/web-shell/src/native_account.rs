@@ -13,6 +13,8 @@ export async function openNativeAccount(base, update, nativeLots) {
 export function nativeAccountCall(host, action, first, second) {
  if(!host)return; if(action==='login')void host.login(first,second);
  else if(action==='enter')void host.enter(first,second);
+ else if(action==='retryPlacement')void host.retryPlacement();
+ else if(action==='placementUnavailable')host.placementUnavailable();
  else if(action==='leave')void host.leave();
  else if(action==='refresh')void host.refresh();else if(action==='logout')void host.logout();else if(action==='dispose')host.dispose();
 }

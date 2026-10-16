@@ -163,3 +163,89 @@ test('stale placement retry cannot cancel a newer retry after account or placeme
   }finally{for(const complete of completions)complete(Response.json(grant()));s.provider.dispose();}
  }
 });
+
+// Execute the actual wasm-bindgen inline bridge, not a copied test adapter.
+const nativeAccountRust = await (await import('node:fs/promises')).readFile(new URL('../src/native_account.rs', import.meta.url), 'utf8');
+const bridgeSource = nativeAccountRust.match(/inline_js = r#"([\s\S]*?)"#/)[1];
+const bridge = await import('data:text/javascript;base64,' + Buffer.from(bridgeSource).toString('base64'));
+
+test('actual WASM account bridge dispatches placement retry and loss to the provider',()=>{
+ const calls=[];
+ const host={retryPlacement(){calls.push('retry');},placementUnavailable(){calls.push('lost');}};
+ bridge.nativeAccountCall(host,'retryPlacement','','');
+ bridge.nativeAccountCall(host,'placementUnavailable','','');
+ assert.deepEqual(calls,['retry','lost']);
+ bridge.nativeAccountCall(null,'retryPlacement','','');
+});
+
+test('actual WASM grant bridge returns only strict Rust Ticket fields on first and same-host reconnect',async()=>{
+ const s=setup();
+ try{
+  await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  for(let attempt=0;attempt<2;attempt++){
+   const ticket=JSON.parse(await bridge.nativeOwnedSocketGrant(s.provider));
+   assert.deepEqual(Object.keys(ticket).sort(),['binding','ticket']);
+   assert.deepEqual(ticket.binding,binding);
+   assert.equal(ticket.ticket,'b'.repeat(48));
+  }
+  assert.equal(s.calls.filter(c=>c.action==='reconnect').length,1);
+  assert.match(nativeAccountRust,/#\[serde\(deny_unknown_fields\)\]\s*struct Ticket\s*\{/);
+ }finally{s.provider.dispose();}
+});
+
+test('actual WASM grant bridge preserves closed-account and invalidated-grant rejection',async()=>{
+ await assert.rejects(bridge.nativeOwnedSocketGrant(null),/Account closed/);
+ const s=setup();
+ try{
+  await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  await s.provider.logout();
+  await assert.rejects(bridge.nativeOwnedSocketGrant(s.provider),/No active owned property admission/);
+ }finally{s.provider.dispose();}
+});
+
+test('actual WASM grant bridge rejects waiting placement without exposing a ticket',async()=>{
+ const s=setup(action=>Response.json(action==='enter'?grant():{version:1,state:'admitted_awaiting_placement',binding:{...binding},blocker:'source_placement_unavailable'}));
+ try{
+  await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  await bridge.nativeOwnedSocketGrant(s.provider);
+  await assert.rejects(bridge.nativeOwnedSocketGrant(s.provider),/awaiting source placement/);
+  assert.equal(s.latest.state,'admitted_awaiting_placement');
+  assert.equal('ticket' in s.latest.grant,false);
+  await assert.rejects(bridge.nativeOwnedSocketGrant(s.provider),/awaiting source placement/);
+  assert.equal(s.calls.filter(c=>c.action==='enter').length,1);
+ }finally{s.provider.dispose();}
+});
+
+test('actual WASM grant bridge reboots a newer host before returning one fresh bootstrap ticket',async()=>{
+ const s=setup(action=>{const value=grant();if(action==='reconnect')value.binding.lot_incarnation='5';return Response.json(value);});
+ try{
+  await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  await bridge.nativeOwnedSocketGrant(s.provider);
+  await assert.rejects(bridge.nativeOwnedSocketGrant(s.provider),/fresh native bootstrap/);
+  assert.equal(s.latest.state,'lot_ready');
+  assert.equal(s.latest.grant.binding.lot_incarnation,'5');
+  const fresh=JSON.parse(await bridge.nativeOwnedSocketGrant(s.provider));
+  assert.deepEqual(Object.keys(fresh).sort(),['binding','ticket']);
+  assert.equal(fresh.binding.lot_incarnation,'5');
+  assert.equal(s.calls.filter(c=>c.action==='reconnect').length,1);
+  const subsequent=JSON.parse(await bridge.nativeOwnedSocketGrant(s.provider));
+  assert.deepEqual(Object.keys(subsequent).sort(),['binding','ticket']);
+  assert.equal(s.calls.filter(c=>c.action==='reconnect').length,2);
+ }finally{s.provider.dispose();}
+});
+
+test('actual WASM grant bridge rejects late reconnects after account or placement invalidation',async()=>{
+ for(const change of ['account','placement']){
+  let complete;const gate=new Promise(resolve=>complete=resolve);
+  const s=setup(action=>action==='reconnect'?gate:Response.json(grant()));
+  try{
+   await s.provider.login('owner','secret');await s.provider.enter('7','11');
+   await bridge.nativeOwnedSocketGrant(s.provider);
+   const denied=assert.rejects(bridge.nativeOwnedSocketGrant(s.provider),/account connection changed/);
+   if(change==='account')await s.provider.logout();else bridge.nativeAccountCall(s.provider,'placementUnavailable','','');
+   complete(Response.json(grant()));await denied;
+   assert.equal(s.latest.state,change==='account'?'signed_out':'admitted_awaiting_placement');
+   assert.equal(s.latest.grant?.ticket,undefined);
+  }finally{complete?.(Response.json(grant()));s.provider.dispose();}
+ }
+});
