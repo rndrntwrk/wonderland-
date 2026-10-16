@@ -7,6 +7,8 @@ use wonderland_legacy_formats::{reader::Reader, Error, ErrorKind, Limits, Result
 
 pub const MAGIC: &[u8; 8] = b"WLTUNE\0\0";
 pub const VERSION: u32 = 1;
+/// Adds OTF/rewrite origins to semiglobal and global caches.
+pub const SCOPED_OTF_VERSION: u32 = 2;
 pub const HEADER_BYTES: usize = 64;
 
 fn invalid(context: &str) -> Error {
@@ -82,13 +84,22 @@ fn origin(tag: u8) -> Result<TuningOrigin> {
         _ => Err(invalid("unknown effective tuning origin")),
     }
 }
-fn validate_origin(value: TunedValue, section: usize, has_semiglobal: bool) -> Result<()> {
+fn validate_origin(
+    value: TunedValue,
+    section: usize,
+    has_semiglobal: bool,
+    scoped_otf: bool,
+) -> Result<()> {
     let allowed = match section {
         0 => matches!(
             value.origin,
             TuningOrigin::Bcon | TuningOrigin::Otf | TuningOrigin::OtfRewrite
         ),
-        1 | 2 => value.origin == TuningOrigin::Bcon,
+        1 | 2 => {
+            value.origin == TuningOrigin::Bcon
+                || (scoped_otf
+                    && matches!(value.origin, TuningOrigin::Otf | TuningOrigin::OtfRewrite))
+        }
         _ => {
             matches!(
                 value.origin,
@@ -117,20 +128,32 @@ pub fn encode(value: &ResolvedTuning, limits: &Limits) -> Result<Vec<u8>> {
         value.replacements.len(),
     ];
     let length = budget(counts, limits)?;
+    let scoped_otf = caches[1..].iter().any(|cache| {
+        cache
+            .values()
+            .any(|v| matches!(v.origin, TuningOrigin::Otf | TuningOrigin::OtfRewrite))
+    });
     if !value.has_semiglobal && !value.semiglobal_cache.is_empty() {
         return Err(invalid("semiglobal cache exists without its scope"));
     }
     for (section, cache) in caches.iter().enumerate() {
         for entry in cache.values() {
-            validate_origin(*entry, section, value.has_semiglobal)?;
+            validate_origin(*entry, section, value.has_semiglobal, scoped_otf)?;
         }
     }
     for entry in value.replacements.values() {
-        validate_origin(*entry, 3, value.has_semiglobal)?;
+        validate_origin(*entry, 3, value.has_semiglobal, scoped_otf)?;
     }
     let mut out = Vec::with_capacity(length);
     out.extend_from_slice(MAGIC);
-    out.extend_from_slice(&VERSION.to_le_bytes());
+    out.extend_from_slice(
+        &(if scoped_otf {
+            SCOPED_OTF_VERSION
+        } else {
+            VERSION
+        })
+        .to_le_bytes(),
+    );
     out.extend_from_slice(&[u8::from(value.has_semiglobal), 0, 0, 0]);
     out.extend_from_slice(&value.identity);
     for count in counts {
@@ -152,7 +175,12 @@ pub fn encode(value: &ResolvedTuning, limits: &Limits) -> Result<Vec<u8>> {
     Ok(out)
 }
 
-fn read_value(reader: &mut Reader<'_>, section: usize, has_semiglobal: bool) -> Result<TunedValue> {
+fn read_value(
+    reader: &mut Reader<'_>,
+    section: usize,
+    has_semiglobal: bool,
+    scoped_otf: bool,
+) -> Result<TunedValue> {
     let value = TunedValue {
         value: reader.i16_le()?,
         origin: origin(reader.u8()?)?,
@@ -160,7 +188,7 @@ fn read_value(reader: &mut Reader<'_>, section: usize, has_semiglobal: bool) -> 
     if reader.u8()? != 0 {
         return Err(invalid("nonzero reserved tuning entry byte"));
     }
-    validate_origin(value, section, has_semiglobal)?;
+    validate_origin(value, section, has_semiglobal, scoped_otf)?;
     Ok(value)
 }
 
@@ -176,7 +204,8 @@ pub fn decode(bytes: &[u8], limits: &Limits) -> Result<ResolvedTuning> {
             "effective tuning magic",
         ));
     }
-    if reader.u32_le()? != VERSION {
+    let version = reader.u32_le()?;
+    if !matches!(version, VERSION | SCOPED_OTF_VERSION) {
         return Err(Error::new(
             ErrorKind::UnsupportedVersion,
             8,
@@ -216,7 +245,12 @@ pub fn decode(bytes: &[u8], limits: &Limits) -> Result<ResolvedTuning> {
                 return Err(invalid("duplicate or unordered tuning key"));
             }
             previous = Some(key);
-            let value = read_value(&mut reader, section, has_semiglobal)?;
+            let value = read_value(
+                &mut reader,
+                section,
+                has_semiglobal,
+                version == SCOPED_OTF_VERSION,
+            )?;
             caches[section].insert(key, value);
         }
     }
@@ -228,7 +262,12 @@ pub fn decode(bytes: &[u8], limits: &Limits) -> Result<ResolvedTuning> {
             return Err(invalid("duplicate or unordered replacement key"));
         }
         previous = Some(key);
-        let value = read_value(&mut reader, 3, has_semiglobal)?;
+        let value = read_value(
+            &mut reader,
+            3,
+            has_semiglobal,
+            version == SCOPED_OTF_VERSION,
+        )?;
         replacements.insert(key, value);
     }
     let [private_cache, semiglobal_cache, global_cache] = caches;

@@ -1089,6 +1089,13 @@ fn decode_interaction_table(
         if !indices.insert(interaction.string_index) {
             return Err("duplicate TTAIndex in interaction table".into());
         }
+        // VMEntity.GetAction returns null when a row has no action BHAV.
+        // Preserve the source TTAB and all surviving TTAIndex values. A zero
+        // row with no global BHAV 0 is disabled, not a manufactured routine.
+        // Existing BHAV 0 and missing nonzero dependencies are not suppressed.
+        if interaction.action_function == 0 && store.resolve(object.guid(), 0).is_none() {
+            continue;
+        }
         let action = required_routine(store, object.guid(), interaction.action_function)?;
         let check = (interaction.test_function != 0)
             .then(|| required_routine(store, object.guid(), interaction.test_function))

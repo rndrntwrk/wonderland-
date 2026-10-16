@@ -1,0 +1,9 @@
+    Checking wonderland-content-runtime-bridge v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/content-runtime-bridge)
+    Checking wonderland-game-runtime v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/game-runtime)
+    Checking wonderland-web-shell v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/apps/web-shell)
+    Checking wonderland-native-lot-host v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/services/native-lot-host)
+    Checking wonderland-asset-cooker v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/tools/asset-cooker)
+    Checking wonderland-content-ir v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/content-ir)
+    Checking wonderland-legacy-formats v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/legacy-formats)
+    Checking sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/sim-core)
+    Finished `dev` profile [unoptimized] target(s) in 33.51s

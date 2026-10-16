@@ -136,3 +136,9 @@ test('action-result lookup rejects legacy transport, malformed identity and unbo
   assert.equal(s.client.actionResult('4',new Uint8Array(32)),false);
   assert.equal(s.socket.sent.length,1);s.client.dispose();
 });
+
+test('exact authenticated placement close is a distinct fail-closed state',()=>{
+ const s=setup();s.socket.open();s.client.ready();s.socket.onclose({code:4009,reason:'source_placement_unavailable'});
+ assert.equal(s.states.at(-1),'placement-unavailable');assert.equal(s.client.send(new Uint8Array([1])),false);assert.equal(s.timers.size,0);
+ const other=setup();other.socket.open();other.socket.onclose({code:4009,reason:'other'});assert.equal(other.states.at(-1),'disconnected');
+});

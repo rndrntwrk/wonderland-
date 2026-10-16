@@ -158,3 +158,16 @@ fn objf_checks_entry_resource_input_and_allocation_limits() {
         TABLE
     );
 }
+
+#[test]
+fn original_zero_tag_is_preserved_without_rewriting_function_bytes() {
+    let mut source = TABLE.to_vec();
+    source[8..12].fill(0);
+    let decoded = decode_objf(&source, &Limits::default()).unwrap();
+    assert_eq!(decoded.magic, [0; 4]);
+    assert_eq!(decoded.functions[0].action, 0x1002);
+    assert_eq!(encode_objf(&decoded, &Limits::default()).unwrap(), source);
+    let mut invalid = decoded;
+    invalid.magic = *b"xxxx";
+    assert!(encode_objf(&invalid, &Limits::default()).is_err());
+}

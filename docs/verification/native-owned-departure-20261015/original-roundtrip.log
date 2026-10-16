@@ -1,0 +1,2 @@
+PASS actual original mailbox two-account placement [{"avatar_id":"1","actor":{"generation":1,"object_id":2},"position":{"level":1,"x":24,"y":24},"in_world":true},{"avatar_id":"2","actor":{"generation":1,"object_id":3},"position":{"level":1,"x":24,"y":56},"in_world":true}]
+PASS actual original source leave/save/detach/release, restart after save, and genuine new-generation re-entry with all24 saved input columns restored; peer identity preserved

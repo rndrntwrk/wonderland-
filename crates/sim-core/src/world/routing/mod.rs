@@ -8,6 +8,7 @@ use super::{
     tiles::{integer_sqrt, Cardinal, Diagonal, Facing, LotPosition},
     WorldQuery,
 };
+use crate::route_motion::{MotionPhase, SourceRouteMotion};
 use crate::{ids::EntityRef, rng::SimRng};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
@@ -663,6 +664,38 @@ impl RouteContinuation {
             self.failure_step()
         }
     }
+    /// Scripted/nested portal/chair motion needs its parent-frame turn policy.
+    /// Do not silently apply the ordinary same-level source clock to it.
+    pub fn source_motion_supported(&self) -> bool {
+        self.nested.is_empty()
+            && self.request.seated_on.is_none()
+            && self
+                .request
+                .goals
+                .iter()
+                .all(|g| g.chair.is_none() && g.position.level == self.position.level)
+            && self.path.iter().all(|p| matches!(p, PathLeg::Walk { .. }))
+            && self.pending.is_none()
+    }
+    pub fn source_line_matches(&self, motion: &SourceRouteMotion) -> bool {
+        motion.line.as_ref().map_or(true, |line| {
+            self.path
+                .front()
+                .is_some_and(|p| matches!(p, PathLeg::Walk { to } if *to == line.to))
+                || (line.frames == line.total_frames && self.position == line.to)
+        })
+    }
+    pub fn step_source<Q: WorldQuery + ?Sized>(
+        &mut self,
+        query: &Q,
+        rng: &mut SimRng,
+        budget: u32,
+        motion: &mut SourceRouteMotion,
+        turn_ended: bool,
+    ) -> RouteStep {
+        motion.begin_tick();
+        self.step_inner(query, rng, budget, Some(motion), turn_ended)
+    }
     /// One call is one source route-frame dispatch and consumes exactly NextRandom(1).
     /// When a nested route runs, only that active child's dispatch consumes the draw.
     pub fn step<Q: WorldQuery + ?Sized>(
@@ -670,6 +703,16 @@ impl RouteContinuation {
         query: &Q,
         rng: &mut SimRng,
         budget: u32,
+    ) -> RouteStep {
+        self.step_inner(query, rng, budget, None, false)
+    }
+    fn step_inner<Q: WorldQuery + ?Sized>(
+        &mut self,
+        query: &Q,
+        rng: &mut SimRng,
+        budget: u32,
+        mut motion: Option<&mut SourceRouteMotion>,
+        turn_ended: bool,
     ) -> RouteStep {
         if let Some(child) = self.nested.last_mut() {
             let result = child.step(query, rng, budget);
@@ -831,7 +874,35 @@ impl RouteContinuation {
                 );
             }
         }
-        if self.position == goal.position && goal.chair.is_none() {
+        if let Some(motion) = motion.as_deref_mut() {
+            if matches!(motion.phase, MotionPhase::BeginTurn | MotionPhase::EndTurn)
+                && !motion.turn_tick(turn_ended)
+            {
+                self.facing = motion.visual.facing;
+                return RouteStep::Progress {
+                    from: self.position,
+                    to: self.position,
+                    facing: self.facing,
+                };
+            }
+        }
+        // Signed truncation can reach the destination's integer coordinate
+        // before a west/north source line reaches its final frame.
+        if self.position == goal.position
+            && goal.chair.is_none()
+            && motion.as_ref().map_or(true, |m| m.line.is_none())
+        {
+            if let Some(motion) = motion.as_deref_mut() {
+                if !motion.begin_end(goal.facing) {
+                    self.facing = motion.visual.facing;
+                    return RouteStep::Progress {
+                        from: self.position,
+                        to: self.position,
+                        facing: self.facing,
+                    };
+                }
+                self.facing = motion.visual.facing;
+            }
             self.phase = RoutePhase::Done;
             if let Some(f) = goal.facing {
                 self.facing = f;
@@ -920,6 +991,74 @@ impl RouteContinuation {
                 )
             }
             PathLeg::Walk { to } => {
+                if let Some(motion) = motion {
+                    if motion.line.is_none()
+                        && !motion.begin_line(self.position, to, self.path.len() == 1)
+                    {
+                        self.facing = motion.visual.facing;
+                        return RouteStep::Progress {
+                            from: self.position,
+                            to: self.position,
+                            facing: self.facing,
+                        };
+                    }
+                    let before_visual = motion.visual.clone();
+                    let before_radians = motion.radians;
+                    let before_target = motion.target_radians;
+                    let (next, done) = motion.advance_line();
+                    // Every intermediate accepted position is collision checked,
+                    // even when integer truncation repeats a previous coordinate.
+                    let blocker = movement_blocker(
+                        actor,
+                        self.position,
+                        next,
+                        query,
+                        &BTreeSet::new(),
+                        false,
+                        goal.chair,
+                    );
+                    let geometry_clear = segment_geometry_clear(actor, self.position, next, query);
+                    if blocker.is_some() || !geometry_clear {
+                        // Source increments MoveFrames/weights before SetPosition;
+                        // visual/steering writes happen only after it succeeds.
+                        motion.visual = before_visual;
+                        motion.radians = before_radians;
+                        motion.target_radians = before_target;
+                        motion.velocity = motion.blend_velocity;
+                        if let Some(blocker) = blocker {
+                            return self.handle_blocker(blocker, query);
+                        }
+                        self.retries_left = self.retries_left.saturating_sub(1);
+                        if self.retries_left == 0 {
+                            return self.soft_fail(RouteFailCode::NoPath, None);
+                        }
+                        return self.replan(ReplanReason::Blocked);
+                    }
+                    let from = self.position;
+                    self.position = next;
+                    self.facing = motion.visual.facing;
+                    self.timeout_left = self.request.config.wait_timeout;
+                    self.blocker = None;
+                    if done {
+                        self.path.pop_front();
+                        motion.line = None;
+                        // Source calls EndWalk in the SAME dispatch as the last
+                        // line frame, before this tick's avatar animation tick.
+                        if self.path.is_empty() && self.position == goal.position {
+                            let arrived = motion.begin_end(goal.facing);
+                            self.facing = motion.visual.facing;
+                            if arrived {
+                                self.phase = RoutePhase::Done;
+                                return self.arrived();
+                            }
+                        }
+                    }
+                    return RouteStep::Progress {
+                        from,
+                        to: next,
+                        facing: self.facing,
+                    };
+                }
                 if let Some(blocker) = movement_blocker(
                     actor,
                     self.position,

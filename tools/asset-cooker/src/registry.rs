@@ -61,6 +61,10 @@ pub struct PatchSpec {
 pub struct ScopeSpec {
     pub path: String,
     pub source_name: String,
+    #[serde(default)]
+    pub otf: Option<String>,
+    #[serde(default)]
+    pub otf_rewrite: Option<String>,
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -189,6 +193,9 @@ impl CookSpec {
             }
             for scope in s.semiglobal.iter().chain(s.global.iter()) {
                 crate::fs_io::validate_relative(&scope.path)?;
+                for path in scope.otf.iter().chain(scope.otf_rewrite.iter()) {
+                    crate::fs_io::validate_relative(path)?;
+                }
                 if scope.source_name.is_empty()
                     || scope.source_name.len() > limits.manifest.max_string_bytes
                     || scope.source_name.chars().any(char::is_control)

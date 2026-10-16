@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 //! Source layout: TSOClient/tso.files/Formats/IFF/Chunks/OBJf.cs.
 //! The source reader accepts version/padding words and trailing bytes. Preserve
-//! them for editing; only the supported fJBO-tagged layout is admitted here.
+//! them for editing. The original TemplatePerson uses a zero tag; the pinned
+//! reader consumes this field without interpreting it. Both observed tags round-trip.
 
 use super::{resource_input, Budget};
 use crate::{reader::Reader, Error, ErrorKind, Limits, Result};
@@ -17,8 +18,14 @@ pub struct ObjfFunction {
 pub struct Objf {
     pub padding: u32,
     pub version: u32,
+    #[serde(default = "default_magic")]
+    pub magic: [u8; 4],
     pub functions: Vec<ObjfFunction>,
     pub trailing: Vec<u8>,
+}
+
+fn default_magic() -> [u8; 4] {
+    *b"fJBO"
 }
 
 pub fn decode_objf(bytes: &[u8], limits: &Limits) -> Result<Objf> {
@@ -26,7 +33,8 @@ pub fn decode_objf(bytes: &[u8], limits: &Limits) -> Result<Objf> {
     let mut reader = Reader::new(bytes);
     let padding = reader.u32_le()?;
     let version = reader.u32_le()?;
-    if reader.read_bytes(4)? != b"fJBO" {
+    let magic: [u8; 4] = reader.read_bytes(4)?.try_into().expect("four bytes");
+    if magic != *b"fJBO" && magic != [0; 4] {
         return Err(Error::new(ErrorKind::InvalidData, 8, "OBJf magic"));
     }
     let count = usize::try_from(reader.u32_le()?)
@@ -53,12 +61,16 @@ pub fn decode_objf(bytes: &[u8], limits: &Limits) -> Result<Objf> {
     Ok(Objf {
         padding,
         version,
+        magic,
         functions,
         trailing,
     })
 }
 
 pub fn encode_objf(table: &Objf, limits: &Limits) -> Result<Vec<u8>> {
+    if table.magic != *b"fJBO" && table.magic != [0; 4] {
+        return Err(Error::new(ErrorKind::InvalidData, 8, "OBJf magic"));
+    }
     limits.check_count(
         table.functions.len(),
         limits.max_entries,
@@ -87,7 +99,7 @@ pub fn encode_objf(table: &Objf, limits: &Limits) -> Result<Vec<u8>> {
         .map_err(|_| Error::new(ErrorKind::LimitExceeded, 0, "OBJf output allocation"))?;
     bytes.extend_from_slice(&table.padding.to_le_bytes());
     bytes.extend_from_slice(&table.version.to_le_bytes());
-    bytes.extend_from_slice(b"fJBO");
+    bytes.extend_from_slice(&table.magic);
     bytes.extend_from_slice(&count.to_le_bytes());
     for function in &table.functions {
         bytes.extend_from_slice(&function.condition.to_le_bytes());

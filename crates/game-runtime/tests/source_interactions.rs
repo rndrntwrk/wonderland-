@@ -660,17 +660,17 @@ fn previous_schema_one_snapshot_migrates_without_changing_original_state() {
     let runtime =
         SimRuntime::from_state(state, runtime.content().clone(), RuntimeRole::Replica).unwrap();
     let current = runtime.snapshot().unwrap();
-    // Schema 2 appended two empty maps; schemas 3 and 4 append explicit
-    // Uninitialized enum discriminants. Remove only those known empty suffixes.
+    // Schema2 appended two empty maps; schemas3/4 append Uninitialized
+    // discriminants; schema5 appends two empty route-motion maps.
     assert_eq!(
         runtime.state().lot_permissions,
         sim_core::lot_permissions::ReplicatedLotPermissions::Uninitialized
     );
     assert_eq!(
-        &current[current.len() - 32 - 24..current.len() - 32],
-        &[0; 24]
+        &current[current.len() - 32 - 40 - 17..current.len() - 32 - 17],
+        &[0; 40]
     );
-    let end = current.len() - 32 - 24;
+    let end = current.len() - 32 - 40 - 17;
     let mut legacy = current[..end].to_vec();
     legacy[10..12].copy_from_slice(&1u16.to_le_bytes());
     legacy[108..110].copy_from_slice(&1u16.to_le_bytes());
@@ -816,10 +816,19 @@ fn previous_schema_two_preserves_suspended_interactions_authority_and_replay_rec
         1
     );
     assert!(!authority.state().interaction_access.is_empty());
+    // This old snapshot cannot retain the new fresh-genesis EOD proof.
+    let mut legacy_baseline = authority.state().clone();
+    legacy_baseline.owned_departures.eod_known_clear = false;
+    authority = SimRuntime::from_state(
+        legacy_baseline,
+        authority.content().clone(),
+        RuntimeRole::Authority,
+    )
+    .unwrap();
     let current = authority.snapshot().unwrap();
-    // Schemas 3 and 4 append two Uninitialized discriminants to schema 2.
-    let end = current.len() - 32 - 8;
-    assert_eq!(&current[end..end + 8], &[0; 8]);
+    // Schemas3/4 append discriminants; schema5 appends two empty maps.
+    let end = current.len() - 32 - 24 - 17;
+    assert_eq!(&current[end..end + 24], &[0; 24]);
     let mut legacy = current[..end].to_vec();
     legacy[10..12].copy_from_slice(&2_u16.to_le_bytes());
     legacy[108..110].copy_from_slice(&2_u16.to_le_bytes());

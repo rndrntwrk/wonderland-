@@ -81,4 +81,28 @@ fn live_geometry_and_generations_reach_normalized_world_without_guessed_assets()
             .any(|d| d.code == "runtime_model_unavailable")
     );
     assert_eq!(game.snapshot().unwrap(), before);
+
+    // The projection consumes authoritative fractional source motion and yaw,
+    // without inventing an appearance or running an independent UI clock.
+    let mut state = game.sim().state().clone();
+    let actor = state.entities[&ObjectId(2)].info.reference;
+    state.source_routing.avatars.insert(
+        actor,
+        sim_core::route_motion::SourceAvatarMotion {
+            position: LotPosition::new(72, 72, 2),
+            facing: Facing::NORTH,
+            radians: 0.2,
+            visual_position: [72.5 / 16., 72.25 / 16., 2.95],
+            velocity: [0.01, 0., 0.],
+            turn_velocity: 0.02,
+        },
+    );
+    let snapshot = sim_core::snapshot::encode(&state, game.sim().content()).unwrap();
+    game.restore(&snapshot).unwrap();
+    let projected = game.world_document(&appearance).unwrap();
+    assert_eq!(projected.objects[1].position_tiles.x, 72.5 / 16.);
+    assert_eq!(projected.objects[1].position_tiles.y, 72.25 / 16.);
+    assert_eq!(projected.objects[1].yaw_radians, 0.2);
+    assert!(projected.objects[1].model.is_none());
+    assert_eq!(game.snapshot().unwrap(), snapshot);
 }

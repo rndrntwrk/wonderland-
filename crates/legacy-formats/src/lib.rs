@@ -19,6 +19,7 @@ pub mod reconstruction;
 pub mod semantic;
 pub mod sprites;
 pub mod textures;
+pub mod tuning_dat;
 pub mod vitaboy;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]

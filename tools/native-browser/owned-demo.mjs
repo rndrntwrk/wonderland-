@@ -3,13 +3,32 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
-import { readFile, writeFile, mkdtemp, mkdir, stat } from "node:fs/promises";
+import {
+  readFile,
+  writeFile,
+  mkdtemp,
+  mkdir,
+  stat,
+  readdir,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join, dirname, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes, createHash } from "node:crypto";
+import {
+  authoredOwnerReceipt,
+  authoredGenesis,
+} from "./owned-demo/authored-genesis.mjs";
+import { ownedPlacement, ownedReadiness } from "./owned-demo/placement.mjs";
 import { openOwnedHost } from "./owned-demo/process.mjs";
 import { drainControlFences } from "./owned-demo/fences.mjs";
+import {
+  departureRequest,
+  departureForOwnedEntry,
+  activeDepartures,
+  deliverDepartureReceipts,
+  drainOneDeparture,
+} from "./owned-demo/departures.mjs";
 import { settlePlayerAction } from "./owned-demo/actions.mjs";
 import { reconcileAuthenticatedPlayerAction } from "./owned-demo/action-results.mjs";
 import { validateOwnedManifest } from "./owned-demo/manifest.mjs";
@@ -51,8 +70,15 @@ export async function createOwnedDemo({
   storageRoot,
   port = 0,
   resume = false,
+  authorGenesis,
 }) {
   validateOwnedManifest(manifest);
+  manifest = JSON.parse(JSON.stringify(manifest));
+  assert.ok(authorGenesis === undefined || typeof authorGenesis === "function");
+  assert.ok(
+    !resume || authorGenesis === undefined,
+    "Authored setup is fresh-only.",
+  );
   assert.ok(
     !resume || storageRoot,
     "Ingress recovery requires the original durable storage root.",
@@ -61,8 +87,17 @@ export async function createOwnedDemo({
     ? resolve(storageRoot)
     : await mkdtemp(join(tmpdir(), "wonderland-owned-"));
   await mkdir(root, { recursive: true });
-  const web = resolve(dist),
-    hostConfig = resolve(manifest.host_config);
+  if (authorGenesis)
+    assert.deepEqual(
+      await readdir(root),
+      [],
+      "Authored setup requires a fresh empty store.",
+    );
+  const web = resolve(dist);
+  let hostConfig = resolve(manifest.host_config),
+    firstOwnerReceipt = null,
+    authoredSetupReceipt = null,
+    ready = false;
   if (resume) {
     const prior = JSON.parse(await readFile(join(root, "runner.json"), "utf8"));
     assert.equal(prior.version, 1);
@@ -91,6 +126,10 @@ export async function createOwnedDemo({
     serial = Promise.resolve(),
     queued = 0,
     ticking = false,
+    departureWork = false,
+    departureDeliveryError = null,
+    requestFailure = null,
+    lastIdleFenceSweep = 0,
     accounts = null;
   const serially = (fn, { allowPaused = false } = {}) => {
     if (closing) return Promise.reject(Error("Demo closed."));
@@ -142,12 +181,15 @@ export async function createOwnedDemo({
     halted = String(error.message ?? error);
     for (const socket of sockets) socket.close(1012);
   };
-  async function commit(proposal) {
+  async function commit(proposal, method = "commitControlledBatchV2") {
+    assert.ok(
+      ["commitControlledBatchV2", "commitOwnedDrainV1"].includes(method),
+    );
     if (proposal.kind !== "proposal")
       throw Error(proposal.reason ?? "Native transition was refused.");
     let receipt;
     try {
-      receipt = await lot("commitControlledBatchV2", [proposal]);
+      receipt = await lot(method, [proposal]);
     } catch (error) {
       // A missing reply is not proof of rejection. Query the exact durable ID.
       receipt = await lot("getBatch", [
@@ -461,13 +503,7 @@ export async function createOwnedDemo({
     const previous = admitted.get(key(token, data.avatar_id));
     if (previous) {
       assert.equal(previous.operation, data.operation);
-      await revalidate(previous);
-      return {
-        version: 1,
-        state: "lot_ready",
-        binding: previous.binding,
-        ticket: ticket(previous),
-      };
+      return ownedReadiness(await revalidate(previous), previous, ticket);
     }
     let candidate = pendingAdmissions.get(key(token, data.avatar_id));
     if (candidate) assert.equal(candidate.operation, data.operation);
@@ -556,12 +592,7 @@ export async function createOwnedDemo({
     await revalidate(entry);
     admitted.set(key(token, data.avatar_id), entry);
     pendingAdmissions.delete(key(token, data.avatar_id));
-    return {
-      version: 1,
-      state: "lot_ready",
-      binding: entry.binding,
-      ticket: ticket(entry),
-    };
+    return ownedReadiness(await currentHost(), entry, ticket);
   }
   async function readBody(request) {
     if (
@@ -591,8 +622,89 @@ export async function createOwnedDemo({
       throw Error("Account authentication required.");
     return header.slice(7);
   }
+  function forgetReleased(identity) {
+    for (const [k, entry] of admitted) {
+      if (
+        entry.export.avatar_id === identity.avatar_id &&
+        entry.export.control_generation === identity.control_generation &&
+        entry.operation === identity.admission_operation
+      ) {
+        for (const socket of sockets)
+          if (socket.entry === entry) socket.close(1000);
+        for (const [id, grant] of tickets)
+          if (grant.entry === entry) tickets.delete(id);
+        admitted.delete(k);
+      }
+    }
+  }
+  async function deliverDepartures() {
+    try {
+      await deliverDepartureReceipts({
+        lot,
+        account,
+        onReleased: forgetReleased,
+      });
+      departureDeliveryError = null;
+      return true;
+    } catch (error) {
+      // An account/storage transport error cannot prove release. Retain durable
+      // work and retry; never fabricate an acknowledgment or ordinary tick past
+      // a still-fenced control.
+      departureDeliveryError = String(error.message ?? error);
+      departureWork = true;
+      return false;
+    }
+  }
+  async function leaveOwned(token, data) {
+    const owner = await account("ownedAvatar", [token, data.avatar_id, false]);
+    let existing = await lot("findOwnedDepartureV1", [
+      {
+        account_id: owner.account_id,
+        avatar_id: data.avatar_id,
+        session_ref: sha(token),
+        admission_operation: data.operation,
+      },
+    ]);
+    if (!existing) {
+      const entry =
+        admitted.get(key(token, data.avatar_id)) ??
+        (await restoreEntry(token, data));
+      assert.equal(entry.operation, data.operation);
+      const current = await revalidate(entry);
+      const request = departureForOwnedEntry(
+        current,
+        entry,
+        manifest.authority_id,
+        manifest.lot.lot_id,
+      );
+      const fenced = await account("requestAvatarControlFenceV1", [
+        token,
+        {
+          avatar_id: entry.export.avatar_id,
+          generation: entry.export.control_generation,
+          admission_operation: entry.operation,
+          reservation_digest: entry.export.reservation_digest,
+        },
+      ]);
+      assert.equal(fenced.claim.state, "fence_pending");
+      existing = await lot("beginOwnedDepartureV1", [request]);
+      for (const socket of sockets)
+        if (socket.entry === entry) socket.close(1000);
+      for (const [id, grant] of tickets)
+        if (grant.entry === entry) tickets.delete(id);
+    }
+    if (existing.status !== "released") departureWork = true;
+    return {
+      version: 1,
+      state: existing.status === "released" ? "detached" : "detach_pending",
+      avatar_id: data.avatar_id,
+      status: existing.status,
+      blocker: existing.observation?.blocker ?? null,
+    };
+  }
   async function handler(request, response) {
     try {
+      if (!ready) throw Error("Owned property initialization is incomplete.");
       const url = new URL(request.url, origin);
       if (
         url.origin !== origin ||
@@ -617,7 +729,11 @@ export async function createOwnedDemo({
             "lot_id",
             "operation",
           ]);
+          assert.equal(data.lot_id, manifest.lot.lot_id);
+          assert.ok(dec(data.avatar_id) && BigInt(data.avatar_id) <= 16777215n);
+          assert.match(data.operation, /^[a-zA-Z0-9_-]{16,96}$/);
           await sweepFences();
+          if (url.pathname.endsWith("/leave")) return leaveOwned(token, data);
           const entry =
             admitted.get(key(token, data.avatar_id)) ??
             (await restoreEntry(token, data));
@@ -626,18 +742,11 @@ export async function createOwnedDemo({
               entry.operation === data.operation &&
               data.lot_id === manifest.lot.lot_id,
           );
-          await revalidate(entry);
-          if (url.pathname.endsWith("/leave"))
-            throw Error(
-              "Source detach is not yet qualified. Custody remains held.",
-            );
-          await renewActivity(entry, token);
-          return {
-            version: 1,
-            state: "lot_ready",
-            binding: entry.binding,
-            ticket: ticket(entry),
-          };
+          const current = await revalidate(entry);
+          const readiness = ownedReadiness(current, entry, ticket);
+          if (readiness.state === "lot_ready")
+            await renewActivity(entry, token);
+          return readiness;
         });
         response.writeHead(200, {
           "content-type": "application/json",
@@ -759,7 +868,19 @@ export async function createOwnedDemo({
         "cache-control": "no-store",
       });
       response.end(bytes);
-    } catch {
+    } catch (error) {
+      // Supervisor-only bounded diagnostics. Never retain request data, tokens,
+      // assertion values or arbitrary exception text in this projection.
+      const message = String(error?.message ?? "");
+      requestFailure = {
+        name: error?.name === "AssertionError" ? "AssertionError" : "Error",
+        message: /^[A-Za-z ._-]{1,160}$/.test(message) ? message : "redacted",
+        frames: String(error?.stack ?? "")
+          .split("\n")
+          .slice(1)
+          .filter((line) => /^\s+at [A-Za-z0-9_. /():-]+$/.test(line))
+          .slice(0, 6),
+      };
       if (!response.headersSent)
         response.writeHead(503, {
           "content-type": "application/json",
@@ -776,7 +897,78 @@ export async function createOwnedDemo({
       lot,
       authority: manifest.authority_id,
       lotId: manifest.lot.lot_id,
+      onFence: async ({ claim }) => {
+        const current = await currentHost();
+        const actor = current.actors.find(
+          (a) =>
+            a.avatar_id === claim.avatar_id &&
+            a.control_generation === claim.generation,
+        );
+        // Never-admitted reservations require a separate absence proof; do not
+        // fabricate a native departure for them.
+        if (!actor) return;
+        await lot("beginOwnedDepartureV1", [
+          departureRequest({
+            authority_id: manifest.authority_id,
+            lot_id: manifest.lot.lot_id,
+            ...actor,
+          }),
+        ]);
+        departureWork = true;
+      },
     });
+  async function setupAccounts() {
+    if (accounts) return accounts;
+    if (resume)
+      throw Error(
+        "Ingress recovery never recreates accounts. Use the original test account credentials.",
+      );
+    accounts = [];
+    for (const [index, spec] of manifest.avatar_specs.entries()) {
+      const username = `owned_demo_${index + 1}`,
+        password = randomBytes(24).toString("hex");
+      const registered = await account("register", [
+        username,
+        password,
+        sha("loopback-demo"),
+      ]);
+      const login = await account("login", [
+        username,
+        password,
+        sha("loopback-demo"),
+      ]);
+      const operation = `owned_demo_create_${index + 1}`;
+      const avatar = await account("createAvatar", [
+        login.token,
+        operation,
+        spec,
+      ]);
+      if (index === 0 && authorGenesis) {
+        const owned = await account("ownedAvatar", [
+          login.token,
+          avatar.avatar_id,
+          false,
+        ]);
+        firstOwnerReceipt = authoredOwnerReceipt(
+          manifest,
+          registered,
+          login,
+          avatar,
+          owned,
+          operation,
+        );
+      }
+      await account("logout", [login.token]);
+      accounts.push({
+        username,
+        password,
+        name: spec.name,
+        avatar_id: avatar.avatar_id,
+        lot_name: manifest.lot.name,
+      });
+    }
+    return accounts;
+  }
   async function close() {
     closing = true;
     if (timer) clearInterval(timer);
@@ -798,7 +990,7 @@ export async function createOwnedDemo({
     assert.equal(pinnedConfig.binding_sha256, manifest.content_release);
     assert.equal(pinnedConfig.lot_id, manifest.lot.lot_id);
     host = await openOwnedHost(hostExecutable, hostConfig);
-    const initial = host.initial;
+    let initial = host.initial;
     if (
       initial.kind !== "committed_state" ||
       initial.recovery_pending ||
@@ -840,6 +1032,9 @@ export async function createOwnedDemo({
       ],
     });
     mf = new Miniflare({
+      // This private loopback host needs no remote Request.cf metadata refresh.
+      // Miniflare otherwise fetches workers.cloudflare.com/cf.json by default.
+      cf: false,
       modulesRoot: root,
       modules: [
         {
@@ -875,6 +1070,44 @@ export async function createOwnedDemo({
     await mf.ready;
     await account("initializeAdmissionAuthorityV2", [manifest.authority_id]);
     await account("initializeCatalog", [manifest.catalog]);
+    if (authorGenesis) {
+      await setupAccounts();
+      assert.ok(firstOwnerReceipt);
+      const authored = await authoredGenesis(
+        authorGenesis,
+        manifest,
+        firstOwnerReceipt,
+      );
+      // This operator hook cannot create a ready browser actor or change the
+      // account catalog, release, authority, lot identity or selected avatars.
+      const basePermission = initial.permission_binding;
+      const baseRegistry = initial.actor_registry_sha256;
+      await host.close();
+      manifest = authored.manifest;
+      authoredSetupReceipt = authored.receipt;
+      hostConfig = resolve(manifest.host_config);
+      host = await openOwnedHost(hostExecutable, hostConfig);
+      initial = host.initial;
+      assert.equal(initial.kind, "committed_state");
+      assert.equal(initial.recovery_pending, false);
+      assert.equal(initial.admission_ready, true);
+      assert.deepEqual(initial.permission_binding, basePermission);
+      assert.equal(initial.actor_registry_sha256, baseRegistry);
+      assert.deepEqual(initial.actors, []);
+      assert.deepEqual(initial.actor_placements, []);
+      assert.equal(initial.cursor.lot_id, manifest.lot.lot_id);
+      assert.equal(initial.source_lot_location, manifest.lot.lot_location);
+      await writeFile(
+        join(root, "authored-manifest.json"),
+        JSON.stringify(manifest),
+        { flag: "wx" },
+      );
+      await writeFile(
+        join(root, "authored-setup-receipt.json"),
+        JSON.stringify(authoredSetupReceipt),
+        { flag: "wx" },
+      );
+    }
     if (resume) await recoverHost();
     else {
       await lot("initializeControlledV2", [
@@ -943,7 +1176,11 @@ export async function createOwnedDemo({
             tickets.delete(auth.ticket);
             assert.ok(value && value.expires >= Date.now());
             await sweepFences();
-            await revalidate(value.entry);
+            const current = await revalidate(value.entry);
+            if (!ownedPlacement(current, value.entry).in_world) {
+              socket.close(4009, "source_placement_unavailable");
+              return;
+            }
             socket.entry = value.entry;
             if (auth.resume !== true) {
               const boot = await host.ask({
@@ -971,12 +1208,20 @@ export async function createOwnedDemo({
             assert.ok(bytes.length <= 128);
             assert.deepEqual(query, { type: "native_presence" });
             await sweepFences();
-            await revalidate(socket.entry);
+            const current = await revalidate(socket.entry);
+            if (!ownedPlacement(current, socket.entry).in_world) {
+              socket.close(4009, "source_placement_unavailable");
+              return;
+            }
             await renewActivity(socket.entry, socket.entry.token, "presence");
             return;
           }
           await sweepFences();
-          await revalidate(socket.entry);
+          const current = await revalidate(socket.entry);
+          if (!ownedPlacement(current, socket.entry).in_world) {
+            socket.close(4009, "source_placement_unavailable");
+            return;
+          }
           const magic = bytes.subarray(0, 4).toString();
           if (magic === "WLR1") {
             const checkpoint = await host.ask({
@@ -1011,12 +1256,30 @@ export async function createOwnedDemo({
         sockets.delete(socket);
       });
     });
+    await sweepFences();
+    departureWork =
+      (await activeDepartures(lot)).length > 0 ||
+      (await lot("pendingOwnedDeparturesV1")).length > 0;
     timer = setInterval(() => {
-      if (ticking || closing || halted || ![...sockets].some((s) => s.live))
-        return;
+      if (ticking || closing || halted) return;
+      const live = [...sockets].some((s) => s.live);
+      // Disconnection may precede lease expiry. Continue non-renewing security
+      // sweeps while idle so later expiry becomes durable departure work.
+      if (!departureWork && !live) {
+        if (Date.now() - lastIdleFenceSweep < 5000) return;
+        lastIdleFenceSweep = Date.now();
+      }
       ticking = true;
       serially(async () => {
         await sweepFences();
+        if (!(await deliverDepartures())) return;
+        if (await drainOneDeparture({ lot, prepare, commit })) {
+          departureWork = true;
+          await deliverDepartures();
+          return;
+        }
+        departureWork = (await lot("pendingOwnedDeparturesV1")).length > 0;
+        if (departureWork || ![...sockets].some((s) => s.live)) return;
         const result = await commit(await prepare("prepare_player_tick"));
         if (result.kind !== "committed")
           throw Error("Authoritative tick was fenced.");
@@ -1024,41 +1287,13 @@ export async function createOwnedDemo({
         .catch(stop)
         .finally(() => (ticking = false));
     }, 1000 / 30);
+    ready = true;
     return {
       origin,
       storageRoot: root,
-      async setupAccounts() {
-        if (accounts) return accounts;
-        if (resume)
-          throw Error(
-            "Ingress recovery never recreates accounts. Use the original test account credentials.",
-          );
-        accounts = [];
-        for (const [index, spec] of manifest.avatar_specs.entries()) {
-          const username = `owned_demo_${index + 1}`,
-            password = randomBytes(24).toString("hex");
-          await account("register", [username, password, sha("loopback-demo")]);
-          const login = await account("login", [
-            username,
-            password,
-            sha("loopback-demo"),
-          ]);
-          const avatar = await account("createAvatar", [
-            login.token,
-            `owned_demo_create_${index + 1}`,
-            spec,
-          ]);
-          await account("logout", [login.token]);
-          accounts.push({
-            username,
-            password,
-            name: spec.name,
-            avatar_id: avatar.avatar_id,
-            lot_name: manifest.lot.name,
-          });
-        }
-        return accounts;
-      },
+      manifest: JSON.parse(JSON.stringify(manifest)),
+      authored_setup_receipt: authoredSetupReceipt,
+      setupAccounts,
       async inspectDurable() {
         return serially(async () => {
           const coordinator = await lot("inspectControlledV2"),
@@ -1070,12 +1305,40 @@ export async function createOwnedDemo({
           );
           return {
             actors: runtime.actors,
+            actor_placements: runtime.actor_placements,
             cursor: coordinator.cursor,
             actor_registry_sha256: runtime.actor_registry_sha256,
             journal: coordinator.journal,
             pending_outbox: coordinator.pending_outbox,
+            departure_delivery_error: departureDeliveryError,
+            request_failure: requestFailure,
             halted,
           };
+        });
+      },
+      // Supervisor-only evidence inspection. This object is never exposed by
+      // the HTTP or WebSocket router; browser callers cannot choose proof RPCs.
+      async inspectDeparture(selector) {
+        return serially(async () => {
+          const departure = await lot("findOwnedDepartureV1", [selector]);
+          if (!departure) return null;
+          const request = {
+            identity: departure.identity,
+            departure_operation: departure.departure_operation,
+          };
+          const saved = await account("lookupSavedAvatarControlV1", [request]);
+          const released = await account("lookupReleasedAvatarControlV1", [
+            request,
+          ]);
+          return { departure, saved, released };
+        });
+      },
+      async inspectNativeCheckpoint() {
+        // Private supervisor evidence only; never routed to browser clients.
+        return serially(async () => {
+          const current = await currentHost();
+          assert.ok(typeof current.checkpoint_hex === "string");
+          return current.checkpoint_hex;
         });
       },
       async restartHost() {

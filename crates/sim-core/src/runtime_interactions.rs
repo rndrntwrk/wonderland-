@@ -76,32 +76,61 @@ impl SimRuntime {
         target: EntityRef,
         options: ix::QueryOptions,
     ) -> ix::Result<ix::OfferBatch> {
-        let limits = ix::InteractionLimits::default();
-        let world = RuntimeWorld {
-            state: &self.state,
-            content: &self.content,
-        };
-        let actor = world
-            .entity_version(entity_key(actor))
-            .ok_or(ix::Error::StaleEntity(entity_key(actor)))?;
-        let target = world
-            .entity_version(entity_key(target))
-            .ok_or(ix::Error::StaleEntity(entity_key(target)))?;
-        ix::query_offers(
-            &world,
-            &RuntimeChecks::new(&self.content, limits),
-            ix::OfferQuery {
-                principal,
-                seen: ix::ViewStamp {
-                    world_revision: world.revision(),
-                    actor,
-                    target,
-                },
-                options,
-            },
-            &limits,
+        offers_in_state(
+            &self.state,
+            &self.content,
+            principal,
+            actor,
+            target,
+            options,
         )
     }
+}
+
+pub(super) fn offers_in_state(
+    state: &SimState,
+    content: &ContentSet,
+    principal: ix::PrincipalKey,
+    actor: EntityRef,
+    target: EntityRef,
+    options: ix::QueryOptions,
+) -> ix::Result<ix::OfferBatch> {
+    offers_in_state_counted(state, content, principal, actor, target, options)
+        .map(|(batch, _)| batch)
+}
+
+pub(super) fn offers_in_state_counted(
+    state: &SimState,
+    content: &ContentSet,
+    principal: ix::PrincipalKey,
+    actor: EntityRef,
+    target: EntityRef,
+    options: ix::QueryOptions,
+) -> ix::Result<(ix::OfferBatch, u32)> {
+    let limits = ix::InteractionLimits::default();
+    let world = RuntimeWorld { state, content };
+    let actor = world
+        .entity_version(entity_key(actor))
+        .ok_or(ix::Error::StaleEntity(entity_key(actor)))?;
+    let target = world
+        .entity_version(entity_key(target))
+        .ok_or(ix::Error::StaleEntity(entity_key(target)))?;
+    let checks = RuntimeChecks::new(content, limits);
+    let batch = ix::query_offers(
+        &world,
+        &checks,
+        ix::OfferQuery {
+            principal,
+            seen: ix::ViewStamp {
+                world_revision: world.revision(),
+                actor,
+                target,
+            },
+            options,
+        },
+        &limits,
+    )?;
+    Ok((batch, checks.spent.get()))
 }
 
 fn run_detached_check(
@@ -484,6 +513,53 @@ pub(super) fn enqueue_intent(
     install_events(state, work, transition.events)?;
     Ok(())
 }
+/// VMNetGotoCmd calls PushUserInteraction on its newly created local callee.
+/// The UI selects from source ghost offers. Authority admission binds the actor,
+/// observation and queue stamps; the normal in-tick source check is deferred
+/// until this real-object action executes, as in the original network command.
+pub(super) fn enqueue_source_goto(
+    state: &mut SimState,
+    content: &ContentSet,
+    work: &mut TickWork,
+    intent: ix::InteractionIntent,
+) -> Result<(), RuntimeError> {
+    let actor = entity_ref(intent.seen.actor.key).map_err(invalid)?;
+    let target = entity_ref(intent.seen.target.key).map_err(invalid)?;
+    let definition = content
+        .interaction_table(live_entity(state, target)?.info.guid)
+        .and_then(|table| {
+            table
+                .definitions
+                .iter()
+                .find(|d| d.key == intent.interaction)
+        })
+        .ok_or_else(|| invalid("source GoTo local action missing"))?
+        .clone();
+    let validated = ix::ValidatedIntent {
+        mode: dialect(state.mode),
+        action: ix::ActionInvocation::user(
+            intent.seen.actor.key,
+            intent.seen.target.key,
+            definition,
+            intent.param0,
+        ),
+        intent,
+    };
+    let mut queue = state
+        .interaction_queues
+        .remove(&actor.object_id)
+        .ok_or_else(|| invalid("actor queue missing"))?;
+    let transition = queue
+        .enqueue_validated(
+            &RuntimeWorld { state, content },
+            &ReadQueue(state),
+            validated,
+        )
+        .map_err(invalid)?;
+    state.interaction_queues.insert(actor.object_id, queue);
+    install_events(state, work, transition.events)
+}
+
 pub(super) fn cancel_intent(
     state: &mut SimState,
     content: &ContentSet,
@@ -501,6 +577,45 @@ pub(super) fn cancel_intent(
     state.interaction_queues.insert(actor.object_id, queue);
     state.scheduler.interrupt(actor).map_err(invalid)?;
     install_events(state, work, transition.events)
+}
+
+/// Source-only queue path used by UserLeaveLot. No player sequence or permission
+/// is manufactured; the normal deferred check still runs on this invocation.
+pub(super) fn enqueue_internal_action(
+    state: &mut SimState,
+    work: &mut TickWork,
+    actor: EntityRef,
+    action: ix::ActionInvocation,
+) -> Result<(), RuntimeError> {
+    let mut queue = state
+        .interaction_queues
+        .remove(&actor.object_id)
+        .ok_or_else(|| invalid("source actor queue missing"))?;
+    let transition = queue.enqueue_internal(action, &ReadQueue(state));
+    state.interaction_queues.insert(actor.object_id, queue);
+    install_events(state, work, transition.map_err(invalid)?.events)?;
+    state.scheduler.interrupt(actor).map_err(invalid)?;
+    Ok(())
+}
+
+/// A prior cancellation may already have removed a snapshotted child action.
+pub(super) fn cancel_internal_action(
+    state: &mut SimState,
+    work: &mut TickWork,
+    actor: EntityRef,
+    action: ix::ActionId,
+) -> Result<(), RuntimeError> {
+    let queue = state
+        .interaction_queues
+        .get_mut(&actor.object_id)
+        .ok_or_else(|| invalid("source actor queue missing"))?;
+    if !queue.entries().iter().any(|entry| entry.id == action) {
+        return Ok(());
+    }
+    let transition = queue.cancel_internal(action).map_err(invalid)?;
+    install_events(state, work, transition.events)?;
+    state.scheduler.interrupt(actor).map_err(invalid)?;
+    Ok(())
 }
 struct ReadQueue<'a>(&'a SimState);
 impl QueueRuntime for ReadQueue<'_> {
@@ -529,7 +644,18 @@ fn install_events(
 ) -> Result<(), RuntimeError> {
     for event in events {
         let actor = entity_ref(event.actor).map_err(invalid)?;
+        if state.owned_departures.records.contains_key(&actor) {
+            if let ix::QueueEventKind::RuntimeFailed { error, .. } = &event.kind {
+                // A rejected source check is ordinary false; a provider failure
+                // is not. Its broad error type mixes limits and invariants, so
+                // never convert it to a timeout-driven successful departure.
+                return Err(invalid(error));
+            }
+        }
         match event.kind {
+            ix::QueueEventKind::EodDisconnectRequested => {
+                leave_adapter::request_eod_disconnect(state, work, actor);
+            }
             ix::QueueEventKind::ActorCancellationChanged { value } => {
                 let item = live_entity_mut(state, actor)?;
                 item.object_data[8] =

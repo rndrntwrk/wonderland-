@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
-pub const SIMULATION_SCHEMA: u16 = 4;
+pub const SIMULATION_SCHEMA: u16 = 6;
 const CONTENT_SCHEMA: u16 = 1;
 pub const MAX_CONTENT_BYTES: u64 = 32 * 1024 * 1024;
 
@@ -457,7 +457,7 @@ impl ContentSet {
                     crate::interactions::InteractionScope::Local
                         if !table.local_table_present || global_seen =>
                     {
-                        return Err("invalid interaction source order/local presence".into())
+                        return Err("invalid interaction source order/local presence".into());
                     }
                     crate::interactions::InteractionScope::Global => global_seen = true,
                     _ => {}
@@ -520,7 +520,7 @@ impl ContentSet {
                     reference.validate().map_err(|e| format!("{e:?}"))?
                 }
                 crate::vm::ResolvedSuit::Accessory(name) if name.len() > 16384 => {
-                    return Err("accessory name bounds".into())
+                    return Err("accessory name bounds".into());
                 }
                 _ => {}
             }
@@ -717,6 +717,10 @@ pub struct SimState {
     pub lot_permissions: crate::lot_permissions::ReplicatedLotPermissions,
     /// Schema 4: old snapshots cannot manufacture an admitted actor.
     pub owned_admission: crate::owned_admission::OwnedAdmissionState,
+    /// Schema 5 appends source route timing; old routes remain movement-only.
+    pub source_routing: crate::route_motion::SourceRoutingState,
+    /// Schema 6 appends source leave captures. Legacy EOD knowledge is unknown.
+    pub owned_departures: crate::runtime::leave_adapter::OwnedDepartureState,
 }
 
 pub(crate) fn canonical_bytes<T: Serialize>(value: &T, limit: u64) -> Result<Vec<u8>, String> {

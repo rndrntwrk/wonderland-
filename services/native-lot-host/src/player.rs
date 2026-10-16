@@ -33,6 +33,46 @@ pub(crate) fn actors(runtime: &wonderland_game_runtime::GameRuntime) -> Value {
     })).collect();
     json!(rows)
 }
+/// Read-only placement facts from the exact committed actor/control generation.
+/// Custody and placement are separate: a source-compatible join may remain OOW.
+pub(crate) fn actor_placements(runtime: &wonderland_game_runtime::GameRuntime) -> Result<Value> {
+    let state = runtime.sim().state();
+    let mut rows = Vec::new();
+    for control in state
+        .owned_admission
+        .actors()
+        .into_iter()
+        .flat_map(|actors| actors.values())
+    {
+        let entity = state
+            .entities
+            .get(&control.actor.object_id)
+            .ok_or("owned placement actor missing")?;
+        if !state.ids.is_live(control.actor)
+            || entity.info.reference != control.actor
+            || entity.info.persistent_id != control.avatar_id.0
+            || !entity.info.is_avatar
+            || entity.info.dead
+        {
+            return Err("owned placement identity mismatch".into());
+        }
+        let position = entity.info.position;
+        let in_world =
+            state
+                .world
+                .lot
+                .contains_position(wonderland_game_runtime::LotPosition::new(
+                    i32::from(position.x),
+                    i32::from(position.y),
+                    u8::try_from(position.level)?,
+                ));
+        rows.push(json!({"principal":DecimalId(control.principal),"avatar_id":DecimalId(u64::from(control.avatar_id.0)),
+            "control_generation":DecimalId(control.control_generation),
+            "actor":{"object_id":control.actor.object_id.0,"generation":control.actor.generation},
+            "position":{"x":position.x,"y":position.y,"level":position.level},"in_world":in_world}));
+    }
+    Ok(json!(rows))
+}
 pub(crate) fn registry_hash(runtime: &wonderland_game_runtime::GameRuntime) -> Result<String> {
     Ok(Digest::of(&serde_json::to_vec(&actors(runtime))?)
         .as_str()
@@ -356,6 +396,7 @@ impl Host {
             )? {
                 player::PlayerAction::Invoke(v) => AcceptedCommand::QueueInteraction(v),
                 player::PlayerAction::Cancel(v) => AcceptedCommand::CancelInteraction(v),
+                player::PlayerAction::Goto(v) => AcceptedCommand::SourceGoto(v),
             },
         )
     }

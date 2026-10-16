@@ -58,6 +58,12 @@ pub fn revalidate_action(
             intent.seen.world_revision,
             intent.queue_revision,
         ),
+        PlayerAction::Goto(intent) => (
+            intent.principal,
+            intent.actor,
+            intent.world_revision,
+            intent.queue_revision,
+        ),
         PlayerAction::Cancel(intent) => (
             intent.principal,
             intent.actor,
@@ -108,6 +114,20 @@ pub fn revalidate_action(
                 return Err("The selected source action is no longer available");
             }
             intent.seen = batch.seen;
+        }
+        PlayerAction::Goto(intent) => {
+            // The source server accepts the selected local action/Param0 and
+            // defers CheckAction until queue execution. Do not repeat the UI's
+            // ghost menu or solid-tile check at command receipt.
+            intent
+                .position()
+                .map_err(|_| "Invalid source terrain level")?;
+            server
+                .sim()
+                .validate_source_goto_selection(intent.interaction)
+                .map_err(|_| "The selected source terrain action is unavailable")?;
+            intent.world_revision = state.completed_tick;
+            intent.actor.revision = entity.revision;
         }
         PlayerAction::Cancel(intent) => {
             if !queue.entries().iter().enumerate().any(|(index, entry)| {

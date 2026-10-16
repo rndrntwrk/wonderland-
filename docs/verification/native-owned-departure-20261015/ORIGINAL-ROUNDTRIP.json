@@ -1,0 +1,51 @@
+{
+  "schema": "wonderland.original-owned-roundtrip-evidence.v1",
+  "status": "original_source_leave_saved_detached_released_and_reentered",
+  "runtime_schema": 6,
+  "content_release": "cf3ac8024b207857eccf38b7311f19a6a9683e330d83d613c426cc0578600f99",
+  "source_anchor_host_config_sha256": "b94d2d2378bf6bef2f6c58d070c35e64c9d3af182014a1c3daa805ea2788427c",
+  "manifest_sha256": "e69f5d6fc7d0190a63f87cd8a7d5012517082e5a317df115a7350f08e1999dfd",
+  "original_positions": [
+    [
+      24,
+      24,
+      1
+    ],
+    [
+      24,
+      56,
+      1
+    ]
+  ],
+  "captured_tick": "7",
+  "detached_tick": "33",
+  "removal_reason": "source_leave",
+  "save_sha256": "1520927197dc3922ebce6f9e327bf7889d216d31ec0979aac97ff636a06c3ad8",
+  "detach_sha256": "dafa195ec8ed5e87b0b5241e6877166742f8d6bec88cd79b4c8329ca1f8bf5fb",
+  "restart_stage": "after_first_save_before_release",
+  "reentry": {
+    "control_generation": "3",
+    "principal": "3",
+    "actor": {
+      "generation": 2,
+      "object_id": 2
+    },
+    "position": {
+      "level": 1,
+      "x": 24,
+      "y": 24
+    },
+    "saved_columns_matching_accepted_input": 24,
+    "non_motive_columns_matching_native_state": 23,
+    "native_motives_equal_saved": true
+  },
+  "peer_control_unchanged": true,
+  "remaining_ordinary_event_outbox_rows": 2,
+  "remaining_departure_outbox_rows": 0,
+  "private_report_sha256": "899792202169f5f5bcc57293f0f5f4af0f95792467412318c8b7892fe833f6a1",
+  "private_harness_sha256": "0b037dad6af0d2efa35d6d34d68ead69ba5b78f0bea858b3a11416996ecc8d45",
+  "private_inspector_source_sha256": "f8b4f0b9b02259963ce9f9c1e73ebe0dcdb59ffc9733c9a058a06445f5bf8089",
+  "private_inspector_binary_sha256": "eb33c1024aaeb6ae9b1b0caddbe276f385bf27f1c1a52378f72987bc74cf3d3b",
+  "rendered_browser_journey_qualified": false,
+  "optional_authored_object_hook_executed": false
+}

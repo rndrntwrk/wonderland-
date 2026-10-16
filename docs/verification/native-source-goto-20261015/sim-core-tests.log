@@ -1,0 +1,744 @@
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/sim-core)
+    Finished `test` profile [unoptimized] target(s) in 53.57s
+     Running unittests src/lib.rs (target/debug/deps/sim_core-5d45956b32ed1806)
+
+running 4 tests
+test world::build::restore_regressions::restored_terminal_receipt_must_match_outcome_status_cost_identity_and_creation_map ... ok
+test world::routing::restore_regressions::restored_search_sequence_cannot_overflow_on_next_insert ... ok
+test world::routing::restore_regressions::nested_route_ids_are_unique_across_every_ancestor_and_restore ... ok
+test snapshot::migration_size_tests::migrated_state_must_fit_the_current_cap_including_marker_and_restored_queues ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/avatar_autonomy.rs (target/debug/deps/avatar_autonomy-b596d082ceef16f3)
+
+running 8 tests
+test avatar_autonomy_ad_override_missing_keys_zero_and_delta_narrows ... ok
+test avatar_autonomy_host_rng_adapter_keeps_exact_draw_count_and_bound ... ok
+test avatar_autonomy_joining_checks_use_distinct_pre_and_post_narrow_ids ... ok
+test avatar_autonomy_advertisement_order_matches_source_motive_array ... ok
+test avatar_autonomy_queue_autofirst_and_no_candidate_do_not_draw_rng ... ok
+test avatar_autonomy_source_curve_duplicate_x_and_distance_attenuation ... ok
+test avatar_autonomy_repairs_carrying_occupancy_and_stray_filters_are_explicit ... ok
+test avatar_autonomy_source_ties_first_variant_duplication_and_no_ui_rng ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/avatar_events.rs (target/debug/deps/avatar_events-4ff00a458f18b152)
+
+running 7 tests
+test avatar_animation_absent_resource_and_mid_event_snapshot ... ok
+test avatar_animation_reverse_hurry_loop_and_carry_follow_headless_source ... ok
+test avatar_animation_invalid_continuation_is_rejected ... ok
+test avatar_animation_preserves_unsorted_resource_order_and_synthesizes_completion ... ok
+test avatar_animation_blend_events_target_first_state_and_byte_counter_wraps ... ok
+test avatar_animation_synthetic_event_overflow_is_atomic ... ok
+test avatar_animation_aggregate_event_overflow_is_atomic ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/avatar_motives.rs (target/debug/deps/avatar_motives-fe44e50fbb5663a8)
+
+running 5 tests
+test avatar_ts1_decay_skips_changed_motive_and_keeps_source_mood_quirk ... ok
+test avatar_tso_decay_source_narrowing_and_minute_gate ... ok
+test avatar_motives_have_source_indices_defaults_and_overfill_clamp ... ok
+test avatar_motive_rate_scaling_is_integer_and_explicit_about_missing_tuning ... ok
+test avatar_motive_restore_gate_fraction_and_cap_survive_snapshot ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/avatar_social.rs (target/debug/deps/avatar_social-71b22b7dde936d8b)
+
+running 9 tests
+test avatar_lifecycle_snapshot_rejects_inconsistent_phase_and_resumes_deadline ... ok
+test avatar_relationships_wrap_before_clamp_and_count_only_avatar_long_term_friends ... ok
+test avatar_social_barrier_counter_exhaustion_is_atomic ... ok
+test avatar_leave_source_deadline_no_leave_action_and_session_fence ... ok
+test avatar_social_departure_releases_reservations_and_cancels_each_action_once ... ok
+test avatar_social_rejects_two_grants_for_same_physical_slot_atomically ... ok
+test avatar_social_barrier_snapshot_reconnect_and_contended_participant ... ok
+test avatar_relationship_capacity_and_dirty_capacity_fail_atomically ... ok
+test avatar_terminal_social_capacity_does_not_create_partial_claims ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/avatar_source_reference.rs (target/debug/deps/avatar_source_reference-f7a6ff74ad019e91)
+
+running 2 tests
+test avatar_extracted_mono_reference ... ignored, Requires mcs and mono; execute explicitly as the source oracle gate
+test avatar_rust_matches_extracted_mono_vectors ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/avatar_state.rs (target/debug/deps/avatar_state-a06129619a36204a)
+
+running 12 tests
+test avatar_animation_reset_ends_head_seek_even_when_resource_is_absent ... ok
+test avatar_change_suit_keeps_original_operand_and_exact_accessory_names ... ok
+test avatar_head_seek_timeout_and_generation_target_survive_snapshot ... ok
+test avatar_legacy_suits_preserve_child_age_zero_distinction ... ok
+test avatar_motive_primitive_clear_ignores_bad_index_and_rate_scales_before_narrowing ... ok
+test avatar_neighbor_inheritance_preserves_cat_service_type_and_schedule ... ok
+test avatar_outfit_resolution_storage_and_persistence ... ok
+test avatar_persistent_worker_job_status_is_applied_after_job_map_load ... ok
+test avatar_skill_lock_budget_and_legacy_negative_level_are_preserved ... ok
+test avatar_source_defaults_person_widths_and_skill_policy ... ok
+test avatar_custom_pet_load_keeps_gender_and_restores_raw_motive_overfill ... ok
+test avatar_message_timeout_runs_while_paused_and_tick_counter_wraps ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/clock_reference.rs (target/debug/deps/clock_reference-a048423fab84548d)
+
+running 7 tests
+test corrupt_or_overflowing_clocks_fail_atomically ... ok
+test seconds_are_derived_from_tick_fraction_without_real_time ... ok
+test calendar_uses_legacy_thirty_day_months ... ok
+test standard_time_rejects_dotnet_datetime_domain_overflow ... ok
+test standard_time_matches_mono_millisecond_rounding ... ok
+test fire_recovery_stops_at_the_source_cap ... ok
+test tso_and_ts1_have_distinct_source_game_clock_rates ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/effect_boundary.rs (target/debug/deps/effect_boundary-79284cc93ca6f514)
+
+running 19 tests
+test cancellation_closes_only_the_matching_generation ... ok
+test configured_limits_are_bounded_before_the_book_is_created ... ok
+test invalid_cancellation_context_does_not_partially_cancel_a_group ... ok
+test conflicting_duplicate_values_or_committed_epochs_fail_atomically ... ok
+test opaque_responses_are_bounded_and_typed_without_register_mutations ... ok
+test historical_commit_is_accepted_once_through_current_epoch_delivery ... ok
+test invalid_identity_is_rejected_for_issue_response_and_cancellation ... ok
+test response_kind_and_tick_are_checked_before_resume ... ok
+test persisted_counter_exhaustion_never_wraps_or_reuses_zero ... ok
+test responses_cannot_resume_deleted_recycled_or_different_targets ... ok
+test request_bounds_and_pending_capacity_fail_without_burning_nonces ... ok
+test snapshot_preserves_terminal_dedup_and_cancelled_outcomes ... ok
+test snapshot_validation_rejects_counter_regression_and_future_context ... ok
+test stale_deliveries_and_impossible_commit_epochs_do_not_consume_request ... ok
+test snapshot_validation_rejects_inflated_limits_and_oversized_live_payload ... ok
+test unknown_foreign_and_unissued_operation_ids_never_resume ... ok
+test terminal_eviction_is_completion_ordered_and_never_reuses_ids ... ok
+test snapshot_validation_rejects_mismatched_request_ids_and_terminal_order ... ok
+test stable_ids_do_not_encode_epochs_and_survive_snapshot_replay ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/interactions/module_integration_shape.rs (target/debug/deps/interactions_module_integration_shape-4d8a7337baa2db21)
+
+running 1 test
+test actual_interactions_source_can_be_nested_under_a_simulation_module ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/interactions/query_and_intents.rs (target/debug/deps/interactions_query_and_intents-b294b120176c9209)
+
+running 25 tests
+test absent_local_ttab_hides_full_menu_but_preserves_single_global_validation ... ok
+test autonomous_check_arg_is_one_while_variant_does_not_enter_check_args ... ok
+test budgets_and_output_bounds_fail_even_when_provider_ignores_the_error ... ok
+test cancellation_validates_owner_permission_revision_and_monotonic_operation_identity ... ok
+test explicit_tick_query_persists_register_rng_and_provider_effects ... ok
+test duplicate_ttab_keys_and_zero_test_binding_are_explicit_errors ... ok
+test false_yield_abort_and_error_queries_leave_live_state_unchanged ... ok
+test hidden_checks_reset_per_interaction_and_snapshot_only ... ok
+test in_tick_temp_arrays_keep_rejected_check_writes_for_later_entry ... ok
+test local_and_global_tta_indices_stay_distinct_and_in_source_order ... ok
+test offers_and_prepared_permits_do_not_bypass_later_authorization_changes ... ok
+test missing_ttas_and_check_defaults_follow_get_pie_menu ... ok
+test queue_snapshot_dialect_mismatch_is_explicit ... ok
+test permits_become_stale_after_queue_or_world_changes_without_consuming_commands ... ok
+test repeated_gameplay_entries_are_legal_but_replayed_command_sequences_are_not ... ok
+test ui_temp_arrays_reset_without_resetting_rng_or_other_detached_state ... ok
+test user_limit_counts_all_entries_and_does_not_remove_cleanup_on_rejection ... ok
+test snapshot_and_offer_resource_growth_is_bounded ... ok
+test source_rng_zero_bound_does_not_advance_state_and_wrapping_is_deterministic ... ok
+test validated_intent_uses_server_definition_and_four_source_action_args ... ok
+test validation_checks_variant_ignores_occupied_only_in_detached_state_and_rechecks_at_start ... ok
+test ui_temp_arrays_reset_per_check_after_rejection_and_match_targeted_validation ... ok
+test variants_keep_source_order_names_and_param0_without_duplicating_default_ads ... ok
+test ui_query_isolates_rng_temps_ads_and_all_owned_provider_bytes ... ok
+test stale_entity_generation_entity_revision_and_world_revision_are_rejected ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/interactions/queue_semantics.rs (target/debug/deps/interactions_queue_semantics-8167832b764d7854)
+
+running 22 tests
+test cancellation_retains_running_and_must_run_entries_but_removes_waiting_normal_actions ... ok
+test cancelling_active_parent_idle_keeps_active_descendant_frames_and_parent_exit ... ok
+test check_thread_bypasses_check_action_and_does_not_hide_run_immediately_entries ... ok
+test directly_cancelled_parent_exit_is_retained_and_still_executes ... ok
+test immediate_start_failure_never_extends_active_prefix_and_keeps_cleanup ... ok
+test failed_check_prunes_only_rejected_pending_action_and_can_start_following_action ... ok
+test impossible_parent_idle_cancel_faults_before_deleting_an_active_parent_idle_descendant ... ok
+test direct_control_can_skip_hidden_idle_and_emits_disconnect_before_cancel_at_index_zero ... ok
+test parent_idle_cancellation_removes_following_idles_but_runs_cancelled_parent_exit_cleanup ... ok
+test priority_refresh_allows_autonomous_interruption_and_prunes_only_pending_dead_targets ... ok
+test interpreter_push_mapping_sets_only_source_continuation_and_permission_flags ... ok
+test push_head_overrides_priorities_without_moving_the_active_prefix ... ok
+test queue_limit_rejections_unknown_cancellation_and_empty_finish_are_atomic ... ok
+test rejected_frame_start_keeps_action_and_source_priority_without_fictitious_frame ... ok
+test route_failure_or_abort_finishes_only_active_leaf_preserving_parent_exit_cleanup ... ok
+test same_priority_queue_is_fifo_and_identical_interactions_are_not_deduplicated ... ok
+test run_immediately_is_hidden_until_injection_and_does_not_overwrite_parent_priority ... ok
+test source_numeric_priorities_modes_and_overloaded_flags_are_stable ... ok
+test runtime_error_preserves_candidate_and_reports_ordered_failure_after_prior_rejection ... ok
+test tail_and_tso_leapfrog_step_before_lower_priority_parent_exit_but_ts1_bit_does_not ... ok
+test transition_events_are_totally_ordered_revision_stamped_and_not_retained_in_queue ... ok
+test ts1_queue_skips_original_tail_once_and_preserves_must_run_without_spinning ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running ../../tests/interactions/source_contract.rs (target/debug/deps/interactions_source_contract-0af7274ef9ab264a)
+
+running 7 tests
+test ts1_age_visitor_and_debug_rules_ignore_tso_permission_flags ... ok
+test skip_permissions_checks_only_when_tso_run_check_always_is_set ... ok
+test pet_permissions_preserve_tso_admin_exception_and_ts1_human_pet_flag_quirk ... ok
+test nonempty_defaults_exclude_visitors_but_allow_roommates ... ok
+test tso_debug_skips_check_for_admin_but_csr_flag_restricts_nonowner_nonadmin ... ok
+test tso_global_repair_exception_and_repair_flag_match_executable_source ... ok
+test tso_owner_positive_override_does_not_bypass_carrying_or_repair ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lot_permission_state.rs (target/debug/deps/lot_permission_state-fe7994e4296911bd)
+
+running 14 tests
+test existing_accepted_command_tags_are_preserved_and_initializer_is_appended ... ok
+test nonzero_legacy_payloads_keep_complete_bytes_and_semantic_values ... ok
+test new_runtimes_start_current_schema_with_uninitialized_permissions ... ok
+test migration_respects_original_payload_limit_and_adds_only_its_known_suffix ... ok
+test initialization_on_existing_lot_changes_only_metadata_and_accepted_digest ... ok
+test trusted_initialization_preserves_explicit_metadata_without_reconciliation ... ok
+test later_equal_or_changed_initialization_and_double_initialization_are_atomic_errors ... ok
+test old_schemas_reject_extra_fields_truncation_and_header_payload_schema_mismatch ... ok
+test initialized_payload_rejects_unknown_tags_huge_hints_and_noncanonical_membership_sets ... ok
+test initialized_metadata_is_replicated_restored_and_exact_replay_is_suppressed ... ok
+test initializer_refuses_invalid_metadata_and_ts1_without_partial_mutation ... ok
+test schemas_one_and_two_migrate_without_inventing_metadata_or_losing_replay_receipts ... ok
+test initialized_snapshot_validation_rejects_invalid_metadata_and_ts1 ... ok
+test valid_source_sentinels_caches_and_membership_bounds_are_preserved ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+     Running tests/lot_permissions_source.rs (target/debug/deps/lot_permissions_source-a70b7519c11999fa)
+
+running 16 tests
+test community_matrix_promotes_donors_and_benefactors_and_can_demote_incoming_builder ... ok
+test counts_are_registered_groups_and_community_donation_uses_only_base_flag ... ok
+test entirely_non_game_registered_group_still_counts_and_receives_no_object_effects ... ok
+test all_fourteen_limits_use_size_plus_floor_upgrade_index_and_full_roommate_count ... ok
+test job_lot_uses_ten_thousand_limit_but_still_runs_normal_object_flag_reconciliation ... ok
+test new_resident_clears_pending_but_existing_resident_or_admin_leaves_it_untouched ... ok
+test community_overbudget_updates_caches_but_never_changes_stale_disable_flags ... ok
+test join_computes_owner_flag_change_after_budget_and_does_not_interrupt_for_budget_alone ... ok
+test visitor_removal_sets_pending_on_donated_owned_parts_and_refreshes_unchanged_parts ... ok
+test zero_owner_membership_and_portable_join_identifier_remain_source_representable ... ok
+test residential_join_covers_every_role_and_preserves_existing_build_membership_quirks ... ok
+test budget_orders_by_base_object_and_preserves_source_stack_occupied_portal_distinctions ... ok
+test exactly_at_cap_disallows_placement_without_marking_lot_over_limit ... ok
+test mixed_groups_keep_non_game_members_base_counting_and_source_portal_guard ... ok
+test ordered_maps_and_replay_produce_identical_pure_results ... ok
+test malformed_inputs_and_membership_growth_are_refused_atomically ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/numeric_reference.rs (target/debug/deps/numeric_reference-6487f7ba65b04b47)
+
+running 14 tests
+test allocator_rejects_zero_negative_unknown_and_zero_generation_refs ... ok
+test allocator_deserialization_rejects_inconsistent_state ... ok
+test allocator_uses_smallest_free_id_and_rejects_stale_and_double_release ... ok
+test division_and_remainder_match_extracted_mono_faults ... ok
+test float_narrowing_and_sqrt_match_pinned_mono_policy ... ok
+test generation_overflow_retires_slot_without_revalidating_old_reference ... ok
+test integer_promotion_wrapping_and_narrowing_match_source ... ok
+test normalized_modulo_preserves_source_order_and_overflow ... ok
+test numeric_identity_and_rng_state_round_trip_preserves_next_behavior ... ok
+test rng_matches_extracted_csharp_state_and_output_vectors ... ok
+test shifts_and_one_based_flags_keep_csharp_masks_and_sign_test ... ok
+test rng_tick_entity_mix_wraps_and_can_unstick_zero_seed ... ok
+test ties_to_even_preserves_negative_zero_and_special_values ... ok
+test exhausted_allocator_never_allocates_zero_and_recovers_released_slot ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/owned_admission.rs (target/debug/deps/owned_admission-44807376762e2d46)
+
+running 11 tests
+test appended_commands_do_not_change_tag_twenty_seven ... ok
+test boxed_join_metadata_preserves_schema_four_bytes ... ok
+test all_source_roles_and_independent_flag_bits_are_retained ... ok
+test source_permission_epoch_boundaries_and_pending_membership_are_exact ... ok
+test schema_three_migrates_to_uninitialized_control_and_preserves_last_receipt ... ok
+test stale_or_duplicate_control_and_double_admission_rollback_everything ... ok
+test malformed_registration_and_unknown_object_authority_are_atomic ... ok
+test admission_requires_explicit_source_state_and_fresh_permission_binding ... ok
+test community_owner_donor_admin_and_metadata_revision_are_source_ordered ... ok
+test two_owned_avatars_replay_restore_and_reconnect_without_portable_reset ... ok
+test source_avatar_init_occupation_is_seen_by_join_overbudget_reconciliation ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/primitives_autonomy.rs (target/debug/deps/primitives_autonomy-0b3064a47895fc30)
+
+running 4 tests
+test checked_offers_use_shared_source_scorer_then_enqueue_autonomous_args_before_stack_write ... ok
+test gosub_found_action_retargets_active_callee_and_only_attempts_push_from_main_tree ... ok
+test missing_selected_action_returns_false_after_check_register_changes_but_keeps_stack ... ok
+test queued_higher_priority_shortcut_uses_queue_order_before_offers_and_without_rng ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_basic.rs (target/debug/deps/primitives_basic-11edb4714d855a1c)
+
+running 7 tests
+test expression_floor_compatibility_compares_caller_against_callee_offset ... ok
+test expression_all_comparators_and_ts1_boolean_aliases ... ok
+test expression_mutation_order_keeps_i32_lhs_and_reads_rhs_after_narrowing ... ok
+test expression_division_modulo_overflow_flags_and_setter_status_match_source ... ok
+test list_push_pop_order_empty_false_and_mutation_despite_readonly_destination ... ok
+test random_range_is_unsigned_short_and_rng_runs_for_zero_and_one ... ok
+test fresh_mode_registries_exhaustively_match_source_inventory ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_behavior.rs (target/debug/deps/primitives_behavior-b66da31c425da508)
+
+running 11 tests
+test functional_missing_condition_falls_through_but_failed_check_and_missing_action_branch_false ... ok
+test find_best_surface_fallback_depends_on_declared_condition_and_rereads_position_after_check ... ok
+test find_best_uses_source_thresholds_distance_and_stable_first_entity_ties ... ok
+test functional_tree_pushes_exact_declared_args_and_changes_callee_owner_and_icon ... ok
+test named_subroutine_preserves_callee_and_first_four_temps_without_substituting_extra_minus_ones ... ok
+test idle_decrements_before_push_notification_and_interrupt_without_random_cycles ... ok
+test idle_allow_push_is_exact_one_and_action_tree_restriction_does_not_change_wake_cadence ... ok
+test push_interaction_honors_priority_flags_and_checks_missing_action_before_icon_index ... ok
+test named_synchronous_call_selects_execution_owner_and_copies_provider_registers ... ok
+test tso_repair_requires_broken_game_object_without_ts1_score_threshold ... ok
+test test_interacting_uses_active_action_target_and_not_the_current_callee ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_entities.rs (target/debug/deps/primitives_entities-1284f175212ed730)
+
+running 12 tests
+test adjacency_search_is_north_east_south_west_and_chooses_lowest_id_on_tile ... ok
+test deletion_is_host_scheduled_preserves_stack_cache_and_self_delete_yields ... ok
+test create_rejects_authority_flags_before_mutation_and_passes_source_main_ids ... ok
+test distance_levels_direction_and_fixed_coordinates_use_source_units ... ok
+test drop_and_create_host_directions_are_canonical_notches_for_cardinal_and_diagonal_facing ... ok
+test failed_creation_placement_deletes_the_entire_group ... ok
+test iteration_sorts_host_ids_is_resumable_and_uses_explicit_target_variable ... ok
+test object_type_matches_master_guid_and_missing_id_returns_error ... ok
+test drop_onto_refuses_occupied_destination_and_drop_search_order_matches_source ... ok
+test same_position_and_no_duplicate_checks_use_tiles_instead_of_exact_subtile_coordinates ... ok
+test multipart_and_same_position_iteration_wrap_to_smallest_member ... ok
+test zero_argument_frames_fail_parameter_operands_with_bounds_instead_of_panicking ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_external.rs (target/debug/deps/primitives_external-9ddf768829ae126b)
+
+running 15 tests
+test check_tree_cannot_request_non_test_transfer ... ok
+test continuation_restore_binds_request_family_operand_and_literal_amount_to_source_instruction ... ok
+test animation_event_branch_preserves_frame_for_resume_and_wait_preserves_ip ... ok
+test motive_change_decodes_scopes_and_clear_all_skips_invalid_operands ... ok
+test animation_operand_retargets_parameter_ids_and_writes_event_to_selected_local ... ok
+test response_register_writes_are_atomic_when_a_later_index_is_invalid ... ok
+test look_towards_check_guards_body_modes_after_required_entity_dereferences ... ok
+test restored_request_context_and_frame_reference_validation_rejects_forgery ... ok
+test resumed_embedded_writes_have_a_combined_limit_and_restore_rejects_forged_register_indices ... ok
+test routing_check_trees_return_false_and_source_reach_mouth_is_explicit_fault ... ok
+test synchronous_write_batch_rejects_invalid_later_index_without_partial_register_mutation ... ok
+test synchronous_provider_writes_update_registers_and_stack_cache_before_the_next_instruction ... ok
+test tso_temporary_id_checks_persistent_id_and_reserved75_without_external_effects ... ok
+test tso_pending_deletion_is_a_synchronous_null_or_dead_query ... ok
+test transfer_uses_resolved_big_amount_and_checkpoint_completion_writes_xl ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_fire.rs (target/debug/deps/primitives_fire-7729c8a4478cca89)
+
+running 6 tests
+test burn_busy_flag_is_ignored_and_ghosts_fireproof_and_other_floors_are_not_marked ... ok
+test fire_enabled_chance_pool_and_percent_updates_follow_source_order ... ok
+test first_fire_creation_observes_existing_tile_list_but_not_detached_empty_fallback ... ok
+test malformed_burnable_tile_reports_bounds_after_source_burning_flag_mutation ... ok
+test front_position_uses_canonical_cardinals_and_missing_fire_definition_still_returns_true ... ok
+test multipart_fire_spread_visits_tiles_once_and_centers_source_fire_objects ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_legacy.rs (target/debug/deps/primitives_legacy-fb8e4c629943881e)
+
+running 9 tests
+test ignored_inventory_mode_still_resolves_zero_guid_and_owner_before_switch ... ok
+test find_token_branches_on_signed_count_before_aliased_index_register_write ... ok
+test inventory_add_wraps_unsigned_count_and_remove_by_guid_checks_quantity_and_wildcard_type ... ok
+test legacy_follow_tokens_preserve_source_lookup_append_guid_mismatch ... ok
+test set_to_next_exact_type_counts_all_matches_and_uses_original_start_despite_aliases ... ok
+test remove_at_index_does_not_check_quantity_and_updates_index_only_when_requested ... ok
+test ts1_budget_none_just_test_and_big_wrapping_amount_match_source ... ok
+test ts1_budget_rejects_negative_old_budget_but_allows_negative_new_budget_in_check_trees ... ok
+test inventory_caps_and_checked_source_sum_are_independent_and_checkpointable ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/primitives_presentation.rs (target/debug/deps/primitives_presentation-a4a6578a602d7c64)
+
+running 8 tests
+test action_strings_collect_raw_stack_parameter_and_survive_checkpoint_validation ... ok
+test headline_operand_preserves_signed_index_wrap_and_algorithmic_local_selection ... ok
+test missing_string_table_succeeds_with_null_target_but_resolved_message_requires_avatar ... ok
+test refresh_only_updates_game_object_graphics_but_light_and_room_need_a_target ... ok
+test suit_default_update_skips_temp_selector_and_accessory_names_remain_exact ... ok
+test suit_temp_lookup_uses_resolved_byte_but_body_and_decoration_use_original_selector ... ok
+test show_string_skips_game_objects_and_resolves_one_based_string_and_history_flag ... ok
+test suit_missing_resource_is_source_success_but_caller_cast_and_string_bounds_fail_explicitly ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives_relationships.rs (target/debug/deps/primitives_relationships-9d3efef727aa6c57)
+
+running 6 tests
+test increment_scales_in_f32_then_narrows_then_wraps_before_clamping ... ok
+test null_targets_succeed_but_ts1_neighbor_mode_uses_raw_neighbor_ids ... ok
+test persistent_matrix_creation_clamps_and_marks_before_column_failure ... ok
+test old_and_new_operands_have_distinct_offsets_and_target_registers ... ok
+test reads_create_local_reverse_bookkeeping_and_ignore_failed_variable_setters ... ok
+test relationship_book_caps_are_atomic_and_historical_supersets_remain_valid ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/runtime_avatar_integration.rs (target/debug/deps/runtime_avatar_integration-a697a62c9963ee02)
+
+running 15 tests
+test female_job_uniform_empty_mesh_does_not_repeat_the_male_fallback ... ok
+test normal_missing_resource_yields_without_clearing_mode_three_carry ... ok
+test child_animation_table_addition_preserves_source_u16_wrap ... ok
+test animation_scopes_resolve_source_owner_and_exact_child_tables ... ok
+test source_resource_aliases_cannot_select_conflicting_animation_metadata ... ok
+test missing_default_carry_rejects_reset_without_partial_avatar_mutation ... ok
+test configured_animation_table_falls_back_only_when_whole_table_absent ... ok
+test generated_outfit_and_missing_job_provider_fail_before_body_commit ... ok
+test current_outfit_memory_signal_applies_body_during_the_accepted_tick ... ok
+test reset_uses_posture_walk_name_and_source_named_default_carry ... ok
+test reset_missing_resource_and_mode_three_have_distinct_early_side_effects ... ok
+test ts1_outfits_read_live_gender_age_job_and_correct_hand_group_source ... ok
+test walk_initialization_preserves_empty_overrides_and_is_atomic_at_bounds ... ok
+test source_animation_provider_folds_ascii_case_without_trimming_str_names ... ok
+test actual_bhav_animation_event_branches_continue_after_runtime_snapshot ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/runtime_memory_reference.rs (target/debug/deps/runtime_memory_reference-994b807cea313110)
+
+running 16 tests
+test active_queue_users_frame_callees_and_stack_objects_have_distinct_source_roles ... ok
+test definition_values_and_explicit_function_lengths_preserve_empty_trailing_slots ... ok
+test computed_object_data_keeps_source_shadow_write_semantics ... ok
+test dynamic_sprite_indices_alias_the_second_u64_using_csharp_shift_masks ... ok
+test avatar_setters_preserve_successful_noops_and_emit_only_requests ... ok
+test a_rejected_world_projection_cannot_leave_new_vm_memory ... ok
+test attributes_grow_with_zero_fill_and_bounded_writes_fail_atomically ... ok
+test flag_direction_and_placement_writes_update_the_projection_atomically ... ok
+test globals_and_tuning_distinguish_stored_slots_callee_overrides_and_code_owner ... ok
+test room_memory_uses_base_room_area_zero_based_floors_and_selected_pool_state ... ok
+test group_price_updates_are_shared_and_exhaustion_does_not_partially_commit ... ok
+test skill_lock_read_uses_actual_thread_presence_including_the_active_view ... ok
+test lockout_counts_use_simulation_tick_and_the_removed_active_thread ... ok
+test stale_references_register_bounds_and_external_scopes_do_not_succeed_silently ... ok
+test motive_overfill_uses_content_limits_and_checks_before_narrowing_indices ... ok
+test pending_build_lock_rejects_projection_writes_without_partial_memory_changes ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/runtime_query_alias.rs (target/debug/deps/runtime_query_alias-b48512612db4dfab)
+
+running 4 tests
+test outside_tick_scope13_reads_and_writes_real_projection_without_aliasing_query ... ok
+test outside_tick_scope13_entity_bank_writes_survive_timer_yield_host_recreation ... ok
+test nested_outside_tick_check_clones_real_banks_without_overwriting_query_banks ... ok
+test named_query_destination_distinguishes_current_check_from_same_owner_real_thread ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/runtime_review_regressions.rs (target/debug/deps/runtime_review_regressions-ea8cc445b5ff9a62)
+
+running 13 tests
+test finite_sleep_in_a_synchronous_condition_finishes_without_advancing_lot_time ... ok
+test find_best_excludes_occupied_objects_without_requiring_an_engine_query_write ... ok
+test named_child_sleep_consumes_the_selected_threads_existing_interrupt ... ok
+test named_child_notify_remains_visible_to_the_parent_sleep ... ok
+test condition_engine_queries_preserve_the_real_executing_avatar_frames ... ok
+test burn_treats_source_water_rooms_as_pool_rooms ... ok
+test created_child_init_reset_stops_the_removed_parent_thread ... ok
+test find_best_does_not_treat_a_successful_safe_delete_query_as_in_use ... ok
+test thread_overlay_preserves_multiple_removed_owners_and_rejects_stale_views ... ok
+test deleting_a_multitile_base_preserves_one_live_group_and_its_projections ... ok
+test restored_creation_main_inputs_are_consumed_once_before_main_restarts ... ok
+test sequential_conditions_in_one_primitive_share_the_latest_temp_banks ... ok
+test source_attribute_growth_survives_tick_validation_and_snapshot_restore ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/runtime_routes_source.rs (target/debug/deps/runtime_routes_source-f19c5374b0473a6e)
+
+running 22 tests
+test find_location_random_consumes_x_then_y_and_stops_after_first_success ... ok
+test out_of_world_find_location_does_not_dereference_an_unused_null_local_reference ... ok
+test both_intersection_bhavs_receive_bound_arguments_and_query_writes_stay_isolated ... ok
+test look_towards_head_and_body_checks_preserve_source_branching ... ok
+test reach_completion_precedes_a_queued_grab_event ... ok
+test late_failure_sets_route_result_before_callback_and_preserves_temp_zero ... ok
+test find_location_preserves_deferred_tile_order_local_reference_and_vector_direction ... ok
+test recursively_reentered_placement_preserves_depth_and_fails_without_partial_edits ... ok
+test reach_slot_uses_parameter_index_height_and_drop_event ... ok
+test smoke_find_location_uses_callee_caller_midpoint_and_half_tile_offset ... ok
+test scoring_and_snap_revalidation_share_the_query_budget_even_on_failure ... ok
+test second_intersection_fault_is_propagated_without_partial_move ... ok
+test snap_target_slot_works_even_when_no_candidate_survives_bounds ... ok
+test snap_decodes_the_full_mode_word_and_occupied_containers_are_not_replaced ... ok
+test contained_route_runs_stand_callback_and_detaches_before_walking ... ok
+test snap_resolves_parameter_literal_and_global_slots_and_can_enter_from_out_of_world ... ok
+test reach_grabs_on_xevt_and_snapshot_replay_preserves_the_event_cursor ... ok
+test unavailable_slot_uses_resumable_failure_script_and_source_route_result ... ok
+test snap_to_direction_uses_one_point_and_source_mask_heading_without_scoring_draws ... ok
+test look_towards_group_average_wraps_each_source_short_addition ... ok
+test relative_on_top_is_one_exact_goal_and_route_snapshot_replays ... ok
+test runtime_multilevel_portal_callback_snapshot_finishes_on_both_replicas ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/runtime_semantics.rs (target/debug/deps/runtime_semantics-38c429fce9fbf9ca)
+
+running 8 tests
+test aggregate_instruction_exhaustion_rolls_back_the_entire_tick ... ok
+test notify_current_owner_interrupts_the_following_sleep_without_rng_draw ... ok
+test reset_runs_object_reset_entry_and_preserves_thread_registers ... ok
+test human_avatar_reset_skips_object_reset_entry_and_clears_its_headline ... ok
+test runaway_entity_is_quarantined_without_retrying_each_tick ... ok
+test world_usage_tracks_avatar_callee_frames_and_clears_when_they_finish ... ok
+test in_tick_function_condition_preserves_shared_temps_and_mutations ... ok
+test ts1_family_and_inventory_projection_round_trip_and_budget_source_quirk ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/runtime_source_goto.rs (target/debug/deps/runtime_source_goto-52ec2e0b7e37d61f)
+
+running 12 tests
+test ghost_callbacks_use_empty_registries_id_one_and_reset_rng_before_menu_alias_checks ... ok
+test occupied_and_unsupported_floor_tiles_do_not_offer_actions ... ok
+test detached_ghost_query_is_repeatable_without_allocating_or_running_main_or_placement ... ok
+test authoritative_source_action_receives_exact_signed_param0_and_zero_tail ... ok
+test missing_content_and_faulting_source_init_fail_closed_without_any_allocation ... ok
+test nonzero_current_object_refuses_only_detached_terrain_queries_without_mutation ... ok
+test new_vm_uses_source_global_defaults_but_import_and_restore_keep_saved_values ... ok
+test authority_preserves_raw_param0_and_uses_real_placement_then_deferred_check ... ok
+test goto_creates_source_object_checked_and_queues_without_teleporting_actor ... ok
+test rejected_identity_stamps_variants_and_placement_are_failure_atomic ... ok
+test source_metadata_initializes_only_new_zero_pid_object_and_roundtrips_snapshot ... ok
+test queue_twenty_limit_cancel_and_replay_keep_source_sequence_contract ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/runtime_tick.rs (target/debug/deps/runtime_tick-68998675b72569d0)
+
+running 7 tests
+test command_failure_and_tick_gap_leave_no_partial_state ... ok
+test stale_epoch_content_and_rng_are_rejected_atomically ... ok
+test behavior_query_cannot_change_tick_rng_or_entity_state ... ok
+test exact_duplicate_is_noop_but_conflicting_tick_is_rejected ... ok
+test deletion_mixes_rng_before_removal_and_reuse_increments_generation ... ok
+test authority_and_replica_replay_the_same_sorted_simulation ... ok
+test post_tick_snapshot_resumes_at_next_tick ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/scheduler_reference.rs (target/debug/deps/scheduler_reference-2eb7fb6f0a000327)
+
+running 13 tests
+test clock_overflow_is_an_explicit_error ... ok
+test current_tick_insertion_cannot_rerun_an_already_passed_id ... ok
+test deletion_is_deferred_sorted_and_cancels_future_wakes ... ok
+test ending_a_tick_with_unexecuted_objects_fails_atomically ... ok
+test every_frame_clamps_long_sleep_but_object_sleep_remains_long ... ok
+test generations_have_distinct_cancellation_identity ... ok
+test interrupt_higher_id_runs_same_tick_lower_id_waits ... ok
+test invalid_time_and_identity_are_rejected_without_mutation ... ok
+test repeated_interrupt_in_current_tick_does_not_run_twice ... ok
+test schedule_replaces_old_calendar_entry ... ok
+test sorted_execution_deduplicates_and_keeps_future_sleep ... ok
+test unscheduled_interrupt_does_not_create_new_thread ... ok
+test snapshot_calendar_round_trip_retains_order_and_sleep ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/snapshot_contract.rs (target/debug/deps/snapshot_contract-692853fe327e59a1)
+
+running 26 tests
+test checksum_covers_header_payload_and_digest_corruption ... ok
+test lengths_truncation_trailing_data_and_limits_are_rejected ... ok
+test header_and_canonical_payload_must_describe_the_same_state ... ok
+test duplicate_map_entries_are_rejected_after_valid_checksum ... ok
+test malicious_map_size_hint_is_rejected_before_entry_allocation ... ok
+test fixed_header_and_post_tick_roundtrip_are_canonical ... ok
+test embedded_animation_metadata_must_match_expected_content ... ok
+test containment_is_reciprocal_acyclic_and_preserves_world_projection ... ok
+test cached_stale_frame_references_survive_without_rebinding ... ok
+test malicious_nested_routes_are_rejected_before_unbounded_recursion ... ok
+test relationship_bookkeeping_supersets_restore_with_exact_avatar_projection ... ok
+test relationships_reject_stale_generations_invalid_identity_and_oversized_rows ... ok
+test snapshots_only_capture_completed_scheduler_and_clock_boundaries ... ok
+test source_out_of_world_sentinel_is_valid_snapshot_state ... ok
+test multitile_groups_restore_once_per_base_and_reject_divergent_membership ... ok
+test source_lazy_attribute_growth_survives_snapshot_validation ... ok
+test version_identity_and_content_expectations_are_explicit ... ok
+test standalone_routes_restore_with_live_idle_owner_and_future_schedule ... ok
+test tso_snapshots_reject_ts1_neighborhood_projections ... ok
+test ts1_budget_and_historical_inventory_preserve_source_values ... ok
+test source_headline_duration_bounds_preserve_historical_icon_and_wrapping_counter ... ok
+test entity_allocator_world_thread_and_avatar_graphs_are_checked ... ok
+test semantic_bounds_apply_even_when_header_limits_are_large ... ok
+test restored_ready_responses_validate_register_destinations ... ok
+test waiting_effects_and_runtime_continuations_form_a_bijection ... ok
+test ts1_inventory_enforces_per_neighbor_and_total_item_caps ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+     Running tests/source_named_callback.rs (target/debug/deps/source_named_callback-85dfaabfc54ff93b)
+
+running 10 tests
+test explicit_entity_temp_write_survives_callback_local_fault ... ok
+test source_callback_never_suppresses_host_revision_exhaustion ... ok
+test nested_callback_is_refused_before_outer_or_inner_writes ... ok
+test source_callback_enforces_command_bounds_before_work ... ok
+test later_fatal_command_rolls_back_suppressed_callback_and_entire_tick ... ok
+test indirect_pet_reset_fault_rejects_without_leaking_outer_or_inner_writes ... ok
+test source_false_and_inert_callbacks_have_explicit_results_and_stable_tags ... ok
+test destination_bounds_and_rhs_fault_keep_prior_writes ... ok
+test source_exception_retains_mutations_and_continues_with_replay_and_restore ... ok
+test legacy_fault_unsupported_budget_and_stale_identity_still_reject_atomically ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s
+
+     Running tests/vm_behavior.rs (target/debug/deps/vm_behavior-d0847beaf24396e4)
+
+running 18 tests
+test all_zero_trailing_call_arguments_disable_temp_substitution ... ok
+test bounded_bhav_decoder_versions_and_branch_limits ... ok
+test branch_253_falls_back_but_255_opcode_is_missing_success ... ok
+test calls_keep_code_owner_separate_and_resolve_all_three_resource_spaces ... ok
+test checkpoint_of_resolved_but_unconsumed_continuation_is_valid_after_zero_budget ... ok
+test interrupted_sleep_decrements_then_resumes_without_rng_cycle ... ok
+test host_temp_write_hook_updates_live_self_registers_before_next_instruction_and_after_return ... ok
+test error_return_unwinds_all_normal_callers_and_retry_discards_boolean ... ok
+test invalid_host_temp_write_batches_are_bounded_and_atomic_across_short_and_xl_banks ... ok
+test missing_routine_unwinds_error_while_empty_routine_hits_budget_without_advancing ... ok
+test next_tick_branch_advances_first_but_terminal_return_does_not_add_a_yield ... ok
+test pending_host_request_roundtrip_rejects_duplicate_and_stale_responses ... ok
+test host_interrupt_hook_notifies_sleep_and_preserves_notification_after_terminal_instruction ... ok
+test nested_thread_control_is_applied_before_parent_returns_or_schedules_next_tick ... ok
+test registered_unsupported_primitive_is_distinct_from_unregistered_legacy_success ... ok
+test reset_hook_interrupts_after_one_instruction_and_clears_pending_continuation ... ok
+test sleep_keeps_instruction_and_serializes_elapsed_countdown ... ok
+test recursive_calls_and_temp_argument_substitution_have_explicit_bounds ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/vm_host.rs (target/debug/deps/vm_host-c2071781762173f7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vm_memory.rs (target/debug/deps/vm_memory-9850e126c3d793db)
+
+running 5 tests
+test cached_stack_generation_does_not_rebind_until_stack_id_is_assigned ... ok
+test list_reads_and_tuning_table_scope_and_pid_halves_match_source ... ok
+test scopes_keep_caller_callee_stack_owner_and_indirections_distinct ... ok
+test separate_check_stack_temps_use_entity_bank_while_normal_temps_keep_the_clone ... ok
+test short_xl_width_and_invalid_indirection_are_checked ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/world_build.rs (target/debug/deps/world_build-dd01937b8fb034e2)
+
+running 12 tests
+test build_preview_records_both_intersection_decisions_and_commits_without_rerunning_scripts ... ok
+test competing_previews_cannot_both_purchase_into_one_occupied_tile ... ok
+test pending_geometry_locks_block_conflicts_but_keep_unrelated_avatar_movement ... ok
+test insufficient_funds_permissions_and_disconnect_are_checked_before_effect_creation ... ok
+test receipt_mismatches_and_conflicting_duplicate_payloads_are_rejected_without_mutation ... ok
+test architecture_and_object_revisions_invalidate_stale_previews ... ok
+test rejected_durable_transaction_releases_locks_and_never_places_or_debits ... ok
+test ownership_and_live_object_revisions_gate_moves_and_deletion ... ok
+test replacing_a_portal_authorizes_and_locks_the_previous_entity_and_endpoints ... ok
+test durable_commit_after_out_of_band_architecture_change_requires_explicit_reconciliation ... ok
+test purchase_is_pure_until_durable_confirmation_and_duplicates_commit_geometry_once ... ok
+test versioned_architecture_undo_is_another_durable_transaction ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/world_model.rs (target/debug/deps/world_model-02a1ead6c8774060)
+
+running 7 tests
+test maximal_untrusted_dimensions_are_rejected_before_native_or_wasm_size_arithmetic ... ok
+test wall_fences_partition_rooms_and_transmit_outside_status ... ok
+test bounds_are_enforced_with_fine_build_masks_and_out_of_world_sentinel ... ok
+test pool_and_water_partition_terrain_and_portals_connect_levels ... ok
+test diagonal_room_words_match_source_half_tests_and_survive_roundtrip ... ok
+test terrain_and_unrelated_floor_changes_have_precise_dirty_sets ... ok
+test upstairs_support_uses_enclosed_room_and_source_five_by_five_spread ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/world_placement.rs (target/debug/deps/world_placement-5cb7c2677095fb0c)
+
+running 11 tests
+test source_failure_codes_are_stable_and_unknown_values_remain_unknown ... ok
+test both_intersection_scripts_run_in_object_id_order_even_if_first_allows ... ok
+test source_allow_intersection_signed_height_and_avatar_flag_precedence_are_preserved ... ok
+test placement_continuation_roundtrip_and_revision_guard_preserve_script_cursor ... ok
+test diagonal_wall_attachment_uses_source_cardinal_only_fallback ... ok
+test source_slot_search_sectors_overlap_and_quantize_positions_before_angles ... ok
+test slot_scoring_consumes_rng_before_validation_and_equal_scores_preserve_enumeration ... ok
+test surface_weight_is_strict_height_mapping_and_slot_capacity_are_observable ... ok
+test reservation_tokens_are_capacity_generation_and_expiry_aware ... ok
+test wall_diagonal_and_exclusive_attachment_errors_have_source_codes ... ok
+test placement_checks_floor_water_slope_support_and_build_limits ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/world_routing.rs (target/debug/deps/world_routing-e93feacccf29dc7d)
+
+running 13 tests
+test moving_an_active_actor_out_of_world_finishes_without_an_invalid_replan ... ok
+test route_timeout_and_out_of_world_actor_do_not_hang_or_teleport ... ok
+test source_route_failure_codes_and_dispatch_rng_cycle_are_preserved ... ok
+test chair_capacity_sit_failure_alternative_and_stand_failure_are_explicit ... ok
+test later_failure_yields_its_failure_tree_before_terminal_result_and_survives_restore ... ok
+test diagonal_barriers_prevent_corner_cutting_but_route_around_their_end ... ok
+test stationary_avatar_blocking_corridor_is_shooed_and_route_retries_after_wait ... ok
+test moved_target_replans_relative_goal_and_reused_target_generation_is_rejected ... ok
+test suspended_search_and_walk_roundtrip_replay_matches_every_subsequent_dispatch ... ok
+test route_admission_rejects_missing_seat_and_callback_admission_is_atomic ... ok
+test nested_route_keeps_parent_portal_callback_and_only_dispatches_active_rng ... ok
+test failed_first_portal_uses_alternate_stairs_and_mid_portal_snapshot_resumes_identically ... ok
+test pending_portal_callback_rejects_changed_geometry_revision_or_direction ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+
+   Doc-tests sim_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

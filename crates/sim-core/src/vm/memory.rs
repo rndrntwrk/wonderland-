@@ -97,9 +97,7 @@ pub fn stack_entity<H: VmHost + ?Sized>(thread: &VmThread, host: &H) -> Result<E
     let entity = context
         .stack_object_ref
         .ok_or(VmFault::MissingEntity(context.stack_object))?;
-    if entity.object_id != context.stack_object
-        || host.resolve_entity(entity.object_id) != Some(entity)
-    {
+    if entity.object_id != context.stack_object || !host.direct_entity_is_live(entity) {
         return Err(VmFault::StaleEntity(entity));
     }
     Ok(entity)
@@ -113,6 +111,9 @@ fn entity_address(entity: EntityRef, field: EntityField, index: i16) -> MemoryAd
 }
 fn lead_entity<H: VmHost + ?Sized>(host: &H, entity: EntityRef) -> Result<EntityRef, VmFault> {
     let id = host.entity_info(entity)?.base_object;
+    if id == entity.object_id && host.direct_entity_is_live(entity) {
+        return Ok(entity);
+    }
     host.resolve_entity(id).ok_or(VmFault::MissingEntity(id))
 }
 fn neighborhood(thread: &VmThread, scope: u16, data: i16) -> Result<MemoryAddress, VmFault> {
@@ -164,7 +165,14 @@ pub fn read_variable<H: VmHost + ?Sized>(
         7 => return Ok(data),
         8 => return temp(thread, data),
         9 => return Ok(frame.args[index("parameter", data as i32, frame.args.len())?]),
-        10 => return Ok(frame.context.stack_object.0),
+        10 => {
+            return frame
+                .context
+                .stack_object_ref
+                .map_or(Ok(frame.context.stack_object.0), |entity| {
+                    host.script_object_id(entity).map(|id| id.0)
+                })
+        }
         11 => return temp(thread, temp(thread, data)?),
         12 | 28 | 29 => {
             let kind = match scope {

@@ -100,7 +100,10 @@ impl NativeOwnedUi {
     pub fn scope(self) -> Option<(u64, PlayerBinding)> {
         self.state
             .try_with_untracked(|s| {
-                if s.state == "lot_ready" {
+                if matches!(
+                    s.state.as_str(),
+                    "lot_ready" | "admitted_awaiting_placement"
+                ) {
                     s.grant
                         .as_ref()?
                         .binding
@@ -117,16 +120,26 @@ impl NativeOwnedUi {
     pub fn recovery_scope(self) -> Option<String> {
         self.state
             .try_with_untracked(|s| {
-                (s.state == "lot_ready")
-                    .then_some(s.grant.as_ref())
-                    .flatten()
-                    .filter(|g| !g.recovery_scope.is_empty() && g.recovery_scope.len() <= 32)
-                    .map(|g| g.recovery_scope.clone())
+                matches!(
+                    s.state.as_str(),
+                    "lot_ready" | "admitted_awaiting_placement"
+                )
+                .then_some(s.grant.as_ref())
+                .flatten()
+                .filter(|g| !g.recovery_scope.is_empty() && g.recovery_scope.len() <= 32)
+                .map(|g| g.recovery_scope.clone())
             })
             .flatten()
     }
     pub fn leave(self) {
         self.invoke("leave", "", "");
+    }
+    pub fn awaiting_placement(self) -> bool {
+        self.state
+            .with_untracked(|s| s.state == "admitted_awaiting_placement")
+    }
+    pub fn placement_unavailable(self) {
+        self.invoke("placementUnavailable", "", "");
     }
     fn invoke(self, action: &str, first: &str, second: &str) {
         self.provider.with_value(|p| {
@@ -273,13 +286,14 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
                     | "lot_entering"
                     | "lot_leaving"
                     | "detach_pending"
+                    | "admitted_awaiting_placement"
                     | "lot_ready"
             )
         })
     };
     view! {
     <main class="game-shell connected-shell">
-    <Show when=move||state.with(|s|s.state=="lot_ready" && s.grant.is_some()) fallback=move||view!{
+    <Show when=move||state.with(|s|matches!(s.state.as_str(),"lot_ready"|"admitted_awaiting_placement") && s.grant.is_some()) fallback=move||view!{
     <section class="connected-login avatars-screen" aria-labelledby="native-account-title">
     <div class="connected-login-heading"><p>"Welcome to"</p><h1 id="native-account-title">"Wonderland"</h1><p>"Native account connection"</p></div>
     <Show when=authenticated fallback=move||view!{
@@ -296,13 +310,15 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     <Show when=move||native_lots && selected.get().is_some()><section aria-label="Available properties"><h3>"Choose a property"</h3><For each=move||state.with(|s|s.destinations.clone()) key=|v|v.lot_id.clone() children=move|v|view!{<button class="chrome" disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click=move|_|if let Some(id)=selected.get_untracked(){owned.invoke("enter",&id,&v.lot_id);}>{format!("Enter {}",v.name)}</button>}/></section></Show>
     <button class="chrome" disabled=move||state.with(|s|s.state!="account_ready"&&s.state!="account_error") on:click=move|_|owned.invoke("refresh","","")>"Refresh roster"</button>
     <button class="chrome" on:click=move|_|owned.invoke("logout","","")>"Sign out"</button>
+    <Show when=move||state.with(|s|s.state=="admitted_awaiting_placement")><button class="chrome" on:click=move|_|owned.invoke("retryPlacement","","")>"Check placement"</button><button class="chrome" on:click=move|_|owned.leave()>"Leave property"</button></Show>
     <Show when=move||state.with(|s|s.state=="detach_pending")><button class="chrome" on:click=move|_|owned.leave()>"Retry leaving"</button></Show>
     <Show when=move||!native_lots><p>"World entry and character creation are not available in this staged connection."</p></Show>
     <Show when=move||native_lots><details><summary>"Game content"</summary><ContentLoader/></details></Show>
     </div></Show>
     <p role="status" aria-live="polite">{move||state.with(|s|s.message.clone())}</p>
     </section>}>
-    <crate::native_lot::NativeLot owned=owned/>
+    <div hidden=move||state.with(|s|s.state=="admitted_awaiting_placement")><crate::native_lot::NativeLot owned=owned/></div>
+    <Show when=move||state.with(|s|s.state=="admitted_awaiting_placement")><section class="connected-login-card chrome" aria-label="Awaiting source placement"><h2>"Your Sim is awaiting placement"</h2><p role="status">{move||state.with(|s|s.message.clone())}</p><button class="chrome" on:click=move|_|owned.invoke("retryPlacement","","")>"Check placement"</button><button class="chrome" on:click=move|_|owned.leave()>"Leave property"</button></section></Show>
     <div class="top-tools"><button class="chrome" on:click=move|_|owned.invoke("logout","","")>"Sign out"</button></div>
     </Show>
     </main>}

@@ -593,3 +593,102 @@ fn compact_semantic_resources_share_one_retention_budget() {
         })
     ));
 }
+
+#[test]
+fn scoped_otf_rewrites_stay_in_their_caches_and_bind_all_inputs() {
+    let limits = Limits::default();
+    let private = file(vec![bcon(4096, &[10, 11])]);
+    let semi = file(vec![bcon(8192, &[20, 21])]);
+    let global = file(vec![bcon(256, &[30, 31])]);
+    let otf = |table, first, second| {
+        decode_otf(
+            format!(
+                "<O><T i=\"{table}\" n=\"x\"><K i=\"0\" l=\"\" v=\"{first}\"/>{second}</T></O>"
+            )
+            .as_bytes(),
+            &limits,
+        )
+        .unwrap()
+    };
+    let mut inputs = TuningInputs {
+        semiglobal_otf: Some(otf(8192, 120, "<K i=\"1\" l=\"\" v=\"121\"/>")),
+        semiglobal_otf_rewrite: Some(otf(8192, 220, "")),
+        global_otf: Some(otf(256, 130, "<K i=\"1\" l=\"\" v=\"131\"/>")),
+        global_otf_rewrite: Some(otf(256, 65535, "")),
+        ..Default::default()
+    };
+    let resolve = |inputs: &TuningInputs| {
+        resolve_tuning(&private, Some(&semi), Some(&global), inputs, &limits).unwrap()
+    };
+    let actual = resolve(&inputs);
+    assert_eq!(actual.value_or_zero(0), 10);
+    assert_eq!(actual.value_or_zero(64 << 7), 220);
+    assert_eq!(actual.value_or_zero((64 << 7) | 1), 21);
+    assert_eq!(actual.value_or_zero(128 << 7), -1);
+    assert_eq!(actual.value_or_zero((128 << 7) | 1), 31);
+    assert_eq!(
+        actual.lookup_encoded(128 << 7).origin,
+        TuningOrigin::OtfRewrite
+    );
+    inputs.global_otf = Some(otf(256, 150, ""));
+    let changed_unselected = resolve(&inputs);
+    assert_eq!(actual.global_cache, changed_unselected.global_cache);
+    assert_ne!(actual.identity, changed_unselected.identity);
+    inputs.global_otf_rewrite = None;
+    assert_eq!(resolve(&inputs).value_or_zero(128 << 7), 150);
+    assert!(resolve_tuning(&private, None, Some(&global), &inputs, &limits).is_err());
+    assert!(resolve_tuning(&private, Some(&semi), None, &inputs, &limits).is_err());
+}
+
+#[test]
+fn indexed_patches_rebuild_the_original_map_after_each_accepted_change() {
+    use wonderland_legacy_formats::iff;
+    let limits = Limits::default();
+    let mut source = file(vec![chunk(*b"TEST", 1, b"abc")]);
+    let mut map = Vec::new();
+    for word in [0u32, 1, u32::from_le_bytes(*b"pmsr"), 0, 1] {
+        map.extend_from_slice(&word.to_le_bytes());
+    }
+    map.extend_from_slice(b"TSET");
+    map.extend_from_slice(&1u32.to_le_bytes());
+    map.extend_from_slice(&64u32.to_le_bytes());
+    map.extend_from_slice(&1u16.to_le_bytes());
+    map.extend_from_slice(&0u16.to_le_bytes());
+    map.extend_from_slice(&0x1234u16.to_le_bytes());
+    map.extend_from_slice(&[1, 1]); // Pascal label: one opaque byte.
+    source.header[60..64].copy_from_slice(&143u32.to_be_bytes());
+    source.chunks.push(chunk(*b"rsmp", 0, &map));
+    let original = iff::encode_preserving_layout(&source, &limits).unwrap();
+    let candidates = [
+        patch(
+            "first",
+            "indexed.iff",
+            false,
+            vec![replace(1, 1, 3, b"longer")],
+            vec![],
+        ),
+        patch(
+            "second",
+            "indexed.iff",
+            false,
+            vec![replace(1, 1, 6, b"final")],
+            vec![],
+        ),
+    ];
+    let result = apply_patches("indexed.iff", &source, &candidates, &limits).unwrap();
+    assert_eq!(find(&result.file, *b"TEST", 1).data, b"final");
+    assert_eq!(
+        u32::from_be_bytes(result.file.header[60..64].try_into().unwrap()),
+        145
+    );
+    assert_eq!(result.applied.len(), 2);
+    assert_eq!(
+        iff::encode_preserving_layout(&source, &limits).unwrap(),
+        original
+    );
+    let encoded = iff::encode_preserving_layout(&result.file, &limits).unwrap();
+    assert_eq!(iff::decode(&encoded, &limits).unwrap(), result.file);
+    let mut inconsistent = source.clone();
+    inconsistent.chunks[1].data[28..32].copy_from_slice(&65u32.to_le_bytes());
+    assert!(apply_patches("indexed.iff", &inconsistent, &candidates, &limits).is_err());
+}

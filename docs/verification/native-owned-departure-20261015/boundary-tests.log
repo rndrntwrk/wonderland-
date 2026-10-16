@@ -1,0 +1,38 @@
+    Finished `test` profile [unoptimized] target(s) in 0.05s
+     Running tests/native_owned_recovery.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/native_owned_recovery-a5ae929cf0c337e9)
+
+running 9 tests
+test mismatched_or_future_receipt_cannot_settle_recovered_unknown ... ok
+test lookup_without_evidence_stays_unknown_and_repeated_takeovers_keep_original_incarnation ... ok
+test accepted_reply_loss_survives_new_incarnation_without_importing_or_resending_old_state ... ok
+test interrupted_bootstrap_keeps_original_capsule_until_a_later_checkpoint ... ok
+test rejected_receipt_and_dismissal_preserve_sequence_highwater_across_replacement ... ok
+test capsule_rejects_different_source_location_and_principal_even_with_a_live_actor ... ok
+test placement_suspension_retains_unknown_action_for_same_and_new_host_incarnation ... ok
+test terrain_reply_loss_keeps_exact_bytes_and_sequence_across_replacement_authority ... ok
+test capsule_requires_new_checkpoint_and_same_full_committed_control ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running tests/source_interactions.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/source_interactions-3aa44098ed358530)
+
+running 17 tests
+test accepted_cancellation_removes_pending_original_action_before_execution ... ok
+test missing_opcode_cannot_finish_an_accepted_action_successfully ... ok
+test accepted_queue_executes_original_routine_and_reports_actual_completion ... ok
+test in_tick_original_checks_spend_real_instruction_budget ... ok
+test available_original_variants_survive_authorized_offer_query ... ok
+test active_cancel_notifies_real_idle_primitive_and_waits_for_frame_return ... ok
+test original_check_returns_detached_mutations_without_changing_live_state ... ok
+test original_check_preserves_every_dynamic_variant_and_parameter ... ok
+test restored_queue_rejects_impossible_active_prefix ... ok
+test previous_schema_one_snapshot_migrates_without_changing_original_state ... ok
+test detached_original_check_rejects_stale_callee_generation ... ok
+test original_motive_helper_changes_needs_through_accepted_game_runtime ... ok
+test queue_revalidation_rejects_stale_generation_without_replacing_live_slot ... ok
+test tso_avatar_without_original_motive_tuning_is_rejected_atomically ... ok
+test real_idle_host_pushes_original_action_without_replacing_main_frame ... ok
+test previous_schema_two_preserves_suspended_interactions_authority_and_replay_receipt ... ok
+test original_actions_keep_completing_after_diagnostic_history_is_full ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s

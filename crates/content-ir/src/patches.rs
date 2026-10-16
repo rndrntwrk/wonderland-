@@ -34,7 +34,7 @@ pub struct PatchApplication {
 }
 
 pub fn iff_sha256(file: &IffFile, limits: &Limits) -> Result<[u8; 32]> {
-    Ok(Sha256::digest(iff::encode(file, limits)?).into())
+    Ok(Sha256::digest(iff::encode_preserving_layout(file, limits)?).into())
 }
 
 pub fn apply_patches(
@@ -55,8 +55,9 @@ pub fn apply_patches(
         0,
         "PIFF candidate count",
     )?;
-    // This also explicitly rejects opaque indexed envelopes before editing.
-    iff::encode(source, limits)?;
+    // Reconstruct the exact decoded source layout before any mutation. Each
+    // accepted indexed edit is rebuilt against its previous source document.
+    let mut baseline = iff::encode_preserving_layout(source, limits)?;
     let mut decoded: Vec<(usize, Piff, PatchProvenance)> = Vec::new();
     let mut imported = source.chunks.iter().try_fold(0usize, |total, chunk| {
         total
@@ -123,7 +124,8 @@ pub fn apply_patches(
             limits,
         )?;
         // Validate the complete staged result before accepting this patch.
-        iff::encode(&result.file, limits)?;
+        baseline = iff::encode_rebuilding_index(&baseline, &result.file, limits)?;
+        result.file = iff::decode(&baseline, limits)?;
         result.applied.push(provenance);
     }
     Ok(result)

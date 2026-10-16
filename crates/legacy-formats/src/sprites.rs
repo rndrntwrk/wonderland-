@@ -866,15 +866,15 @@ impl SlotItem {
     }
 }
 
+// SLOT.cs uses version thresholds, including the original destination version100.
 fn slot_span(version: u32) -> Result<usize> {
     match version {
-        4 | 5 => Ok(34),
+        0..=5 => Ok(34),
         6 => Ok(54),
         7 => Ok(58),
         8 => Ok(62),
         9 => Ok(66),
-        10 => Ok(70),
-        _ => Err(unsupported(4, "unsupported SLOT version")),
+        10.. => Ok(70),
     }
 }
 
@@ -885,7 +885,7 @@ pub fn decode_slot(bytes: &[u8], limits: &Limits) -> Result<SlotResource> {
     let version = r.u32_le()?;
     let span = slot_span(version)?;
     let magic: [u8; 4] = r.read_bytes(4)?.try_into().expect("four bytes");
-    if &magic != b"TOLS" {
+    if &magic != b"TOLS" && magic != [0; 4] {
         return Err(Error::new(ErrorKind::InvalidMagic, 8, "SLOT magic"));
     }
     let n = r.u32_le()? as usize;
@@ -981,7 +981,7 @@ pub fn decode_slot(bytes: &[u8], limits: &Limits) -> Result<SlotResource> {
 /// unsupported edits are rejected instead of silently upgrading the resource.
 pub fn encode_slot(resource: &SlotResource, limits: &Limits) -> Result<Vec<u8>> {
     let span = slot_span(resource.version)?;
-    if &resource.magic != b"TOLS" {
+    if &resource.magic != b"TOLS" && resource.magic != [0; 4] {
         return Err(Error::new(ErrorKind::InvalidMagic, 8, "SLOT magic"));
     }
     limits.check_count(resource.slots.len(), limits.max_entries, 12, "SLOT items")?;

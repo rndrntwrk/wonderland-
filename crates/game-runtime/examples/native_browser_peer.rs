@@ -479,6 +479,7 @@ fn process(
                             PlayerAction::Invoke(intent) => {
                                 AcceptedCommand::QueueInteraction(intent)
                             }
+                            PlayerAction::Goto(intent) => AcceptedCommand::SourceGoto(intent),
                             PlayerAction::Cancel(intent) => {
                                 AcceptedCommand::CancelInteraction(intent)
                             }

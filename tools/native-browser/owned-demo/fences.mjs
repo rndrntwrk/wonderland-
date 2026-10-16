@@ -1,6 +1,12 @@
 // Shared by the loopback orchestration and its actual-workerd regression.
 // The account sweeper wraps the immutable claim; that wrapper is not a fence.
-export async function drainControlFences({ account, lot, authority, lotId }) {
+export async function drainControlFences({
+  account,
+  lot,
+  authority,
+  lotId,
+  onFence,
+}) {
   if (!/^[0-9a-f]{64}$/.test(authority))
     throw Error("Invalid admission authority.");
   let after = "0";
@@ -27,6 +33,7 @@ export async function drainControlFences({ account, lot, authority, lotId }) {
           request_digest: item.request_digest,
         },
       ]);
+      await onFence?.(item);
     }
     if (value.next === null) return;
     if (

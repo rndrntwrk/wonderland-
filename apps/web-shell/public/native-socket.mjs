@@ -113,7 +113,7 @@ export function connectNativeSocket(url, ticket, onFrame, onState, options = {})
     } catch { finish('failed'); }
   };
   ws.onerror = () => finish('failed');
-  ws.onclose = () => finish('disconnected');
+  ws.onclose = event => finish(event?.code === 4009 && event.reason === 'source_placement_unavailable' ? 'placement-unavailable' : 'disconnected');
   arm(); notify('opening');
   return Object.freeze({
     ready() {

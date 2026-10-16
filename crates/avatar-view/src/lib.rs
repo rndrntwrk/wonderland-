@@ -45,6 +45,7 @@ pub(crate) fn unit(q: wonderland_render_core::math::Quat) -> bool {
     n.is_finite() && (n - 1.0).abs() <= 0.001
 }
 pub mod animation;
+mod source_math;
 pub use animation::*;
 pub mod contact;
 pub mod look;

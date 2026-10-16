@@ -224,6 +224,38 @@ pub fn encode(file: &IffFile, limits: &Limits) -> Result<Vec<u8>> {
     Ok(write_envelope(file, size, None))
 }
 
+/// Serialize the described envelope without changing its layout or opaque map.
+/// This reproduces bytes from `decode` exactly, including indexed sources. It
+/// validates the top-level map pointer, but does not repair internal map entries
+/// or establish provenance. Use `encode_rebuilding_index` for indexed edits.
+pub fn encode_preserving_layout(file: &IffFile, limits: &Limits) -> Result<Vec<u8>> {
+    let size = encoded_size(file, limits)?;
+    let pointer = map_offset(&file.header);
+    let mut offset = 64usize;
+    let mut found = pointer == 0;
+    for chunk in &file.chunks {
+        if offset == pointer {
+            if chunk.key.kind != *b"rsmp" {
+                return Err(Error::new(
+                    ErrorKind::InvalidData,
+                    60,
+                    "resource map does not point to an rsmp chunk",
+                ));
+            }
+            found = true;
+        }
+        offset += 76 + chunk.data.len(); // encoded_size checked all arithmetic.
+    }
+    if !found {
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            60,
+            "resource map is not at a chunk boundary",
+        ));
+    }
+    Ok(write_envelope(file, size, None))
+}
+
 /// Encodes an edited file against its exact source envelope. Untouched files,
 /// including unsupported maps, retain their original bytes. Changed indexed
 /// files require a complete, consistent version 0 or 1 resource map; its

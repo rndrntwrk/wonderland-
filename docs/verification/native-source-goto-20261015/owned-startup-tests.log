@@ -1,0 +1,17 @@
+    Finished `test` profile [unoptimized] target(s) in 0.04s
+     Running tests/owned_admission.rs (target/debug/deps/owned_admission-44807376762e2d46)
+
+running 11 tests
+test appended_commands_do_not_change_tag_twenty_seven ... ok
+test source_permission_epoch_boundaries_and_pending_membership_are_exact ... ok
+test boxed_join_metadata_preserves_schema_four_bytes ... ok
+test all_source_roles_and_independent_flag_bits_are_retained ... ok
+test schema_three_migrates_to_uninitialized_control_and_preserves_last_receipt ... ok
+test malformed_registration_and_unknown_object_authority_are_atomic ... ok
+test stale_or_duplicate_control_and_double_admission_rollback_everything ... ok
+test admission_requires_explicit_source_state_and_fresh_permission_binding ... ok
+test community_owner_donor_admin_and_metadata_revision_are_source_ordered ... ok
+test two_owned_avatars_replay_restore_and_reconnect_without_portable_reset ... ok
+test source_avatar_init_occupation_is_seen_by_join_overbudget_reconciliation ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s

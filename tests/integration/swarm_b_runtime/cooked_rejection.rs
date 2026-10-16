@@ -279,3 +279,92 @@ fn strict_nested_schema_and_input_allocation_limits_apply_before_conversion() {
         matches!(PreparedDraft::from_json(deep.as_bytes(), &f.manifest, &limits), Err(error) if error.contains("depth"))
     );
 }
+
+#[test]
+fn prepared_metadata_is_revalidated_when_caller_lowers_limits() {
+    use wonderland_content_runtime_bridge::cooked::PreparedRelease;
+    let f = fixture::cook();
+    let limits = CookedLoadLimits::default();
+    let draft = PreparedDraft::from_json(&f.draft, &f.manifest, &limits).unwrap();
+    let binding = draft
+        .seal(&refs(&f), &limits)
+        .unwrap()
+        .canonical_bytes(&limits)
+        .unwrap();
+    let release =
+        PreparedRelease::from_binding(&binding, &Digest::of(&binding), &f.manifest, &limits)
+            .unwrap();
+    let mut lower = limits.clone();
+    lower.max_metadata_bytes = 1;
+    assert!(draft
+        .seal(&refs(&f), &lower)
+        .unwrap_err()
+        .contains("metadata admission"));
+    assert!(release
+        .load(&refs(&f), &lower)
+        .unwrap_err()
+        .contains("metadata admission"));
+    lower = limits.clone();
+    lower.legacy.max_total_decoded_bytes = 1;
+    assert!(draft
+        .seal(&refs(&f), &lower)
+        .unwrap_err()
+        .contains("aggregate limit"));
+    assert!(release
+        .load(&refs(&f), &lower)
+        .unwrap_err()
+        .contains("aggregate limit"));
+}
+
+#[test]
+fn full_sized_authored_scope_keeps_all_resources_with_bounded_metadata() {
+    use wonderland_content_runtime_bridge::cooked::PreparedRelease;
+    let f = fixture::cook_custom(|file| {
+        let routine = file
+            .chunks
+            .iter()
+            .find(|chunk| chunk.key.kind == *b"BHAV" && chunk.key.id == 4097)
+            .unwrap()
+            .clone();
+        // Together with the four original members and resolved tuning this is
+        // 935 runtime resources. The unrelated source and its tuning remain in the manifest too.
+        for id in 5000..5930 {
+            let mut additional = routine.clone();
+            additional.key.id = id;
+            file.chunks.push(additional);
+        }
+    });
+    let limits = CookedLoadLimits::default();
+    let manifest = AssetManifest::from_json(&f.manifest, &limits.manifest).unwrap();
+    assert_eq!(manifest.resources.len(), 937);
+    let mut old = limits.clone();
+    old.max_metadata_bytes = 32 * 1024 * 1024;
+    assert!(PreparedDraft::from_json(&f.draft, &f.manifest, &old).is_err());
+    let draft = PreparedDraft::from_json(&f.draft, &f.manifest, &limits).unwrap();
+    let binding = draft
+        .seal(&refs(&f), &limits)
+        .unwrap()
+        .canonical_bytes(&limits)
+        .unwrap();
+    let prepared =
+        PreparedRelease::from_binding(&binding, &Digest::of(&binding), &f.manifest, &limits)
+            .unwrap();
+    let loaded = prepared.load(&refs(&f), &limits).unwrap();
+    for id in 5000..5930 {
+        assert!(loaded
+            .content
+            .routines()
+            .get(
+                wonderland_content_runtime_bridge::sim_core::vm::RoutineKey {
+                    scope: wonderland_content_runtime_bridge::sim_core::vm::RoutineScope::Private(
+                        123
+                    ),
+                    id
+                }
+            )
+            .is_some());
+    }
+    let mut small = limits.clone();
+    small.manifest.max_resources = 936;
+    assert!(PreparedDraft::from_json(&f.draft, &f.manifest, &small).is_err());
+}

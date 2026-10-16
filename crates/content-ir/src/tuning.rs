@@ -46,6 +46,15 @@ pub struct TuningInputs {
     pub otf: Option<Otf>,
     /// A selected rewrite replaces the archive OTF, rather than merging it.
     pub otf_rewrite: Option<Otf>,
+    /// WorldGlobalProvider gives each scope its own selected OTF cache.
+    #[serde(default)]
+    pub semiglobal_otf: Option<Otf>,
+    #[serde(default)]
+    pub semiglobal_otf_rewrite: Option<Otf>,
+    #[serde(default)]
+    pub global_otf: Option<Otf>,
+    #[serde(default)]
+    pub global_otf_rewrite: Option<Otf>,
     pub upgrades: Vec<TuningOverride>,
     /// Table IDs are relative and receive the source's 4096 offset.
     pub dynamic_private: Vec<DynamicOverride>,
@@ -252,28 +261,55 @@ pub fn resolve_tuning(
         has_semiglobal: semiglobal.is_some(),
         ..ResolvedTuning::default()
     };
-    if let Some(otf) = inputs.otf_rewrite.as_ref().or(inputs.otf.as_ref()) {
-        encode_otf(otf, limits)?;
-        for table in &otf.tables {
-            for key in &table.keys {
-                input_entries = input_entries
-                    .checked_add(1)
-                    .ok_or_else(|| Error::new(ErrorKind::Overflow, 0, "OTF tuning count"))?;
-                check_entry_budget(input_entries, limits)?;
-                // Preserve the original uint shifts/OR, including unusual
-                // signed or over-16-bit XML IDs, and unchecked int-to-short cast.
-                let packed = ((table.id as u32) << 16) | key.id as u32;
-                result.private_cache.insert(
-                    packed,
-                    TunedValue {
-                        value: key.value as i16,
-                        origin: if inputs.otf_rewrite.is_some() {
-                            TuningOrigin::OtfRewrite
-                        } else {
-                            TuningOrigin::Otf
+    for (present, cache, otf, rewrite) in [
+        (
+            true,
+            &mut result.private_cache,
+            &inputs.otf,
+            &inputs.otf_rewrite,
+        ),
+        (
+            semiglobal.is_some(),
+            &mut result.semiglobal_cache,
+            &inputs.semiglobal_otf,
+            &inputs.semiglobal_otf_rewrite,
+        ),
+        (
+            global.is_some(),
+            &mut result.global_cache,
+            &inputs.global_otf,
+            &inputs.global_otf_rewrite,
+        ),
+    ] {
+        if !present && (otf.is_some() || rewrite.is_some()) {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                0,
+                "scope OTF requires its IFF scope",
+            ));
+        }
+        if let Some(otf) = rewrite.as_ref().or(otf.as_ref()) {
+            encode_otf(otf, limits)?;
+            for table in &otf.tables {
+                for key in &table.keys {
+                    input_entries = input_entries
+                        .checked_add(1)
+                        .ok_or_else(|| Error::new(ErrorKind::Overflow, 0, "OTF tuning count"))?;
+                    check_entry_budget(input_entries, limits)?;
+                    // Source uint shifts/OR and unchecked int-to-short cast.
+                    let packed = ((table.id as u32) << 16) | key.id as u32;
+                    cache.insert(
+                        packed,
+                        TunedValue {
+                            value: key.value as i16,
+                            origin: if rewrite.is_some() {
+                                TuningOrigin::OtfRewrite
+                            } else {
+                                TuningOrigin::Otf
+                            },
                         },
-                    },
-                );
+                    );
+                }
             }
         }
     }
@@ -317,6 +353,25 @@ fn tuning_identity(
             let encoded = encode_otf(otf, limits)?;
             hash.update((encoded.len() as u64).to_le_bytes());
             hash.update(encoded);
+        }
+    }
+    // Keep identities for pre-existing inputs stable. Scoped OTF data adds a
+    // tagged extension and binds even an unselected original under a rewrite.
+    let scoped = [
+        &inputs.semiglobal_otf,
+        &inputs.semiglobal_otf_rewrite,
+        &inputs.global_otf,
+        &inputs.global_otf_rewrite,
+    ];
+    if scoped.iter().any(|otf| otf.is_some()) {
+        hash.update(b"wonderland.scoped-otf.v1\0");
+        for otf in scoped {
+            hash.update([u8::from(otf.is_some())]);
+            if let Some(otf) = otf {
+                let encoded = encode_otf(otf, limits)?;
+                hash.update((encoded.len() as u64).to_le_bytes());
+                hash.update(encoded);
+            }
         }
     }
     hash.update((inputs.upgrades.len() as u64).to_le_bytes());

@@ -30,6 +30,11 @@ const accountMethods = new Set([
   "pendingControlFences",
   "renewAvatarControlV2",
   "getReservedAvatarExportV2",
+  "requestAvatarControlFenceV1",
+  "applyCommittedAvatarLotSaveV1",
+  "releaseSavedAvatarControlV1",
+  "lookupSavedAvatarControlV1",
+  "lookupReleasedAvatarControlV1",
 ]);
 const lotMethods = new Set([
   "initializeControlledV2",
@@ -48,6 +53,15 @@ const lotMethods = new Set([
   "controlledRecoveryBundleV2",
   "finishControlledRecoveryV2",
   "renewControlLeaseV2",
+  "beginOwnedDepartureV1",
+  "lookupOwnedDepartureV1",
+  "activeOwnedDeparturesV1",
+  "findOwnedDepartureV1",
+  "pendingOwnedDeparturesV1",
+  "commitOwnedDrainV1",
+  "lookupCommittedAvatarSaveV1",
+  "lookupCommittedAvatarDetachV1",
+  "retireReleasedAvatarControlV1",
 ]);
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {

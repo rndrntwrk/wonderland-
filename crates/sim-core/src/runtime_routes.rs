@@ -422,6 +422,7 @@ fn route_slot(
         goals
     };
     let id = begin_route(state, caller, Some(target), goals, true, failure_tree).map_err(fault)?;
+    crate::runtime_route_animation::set_auto_run(state, id, request.context.callee);
     if failed {
         let continuation = state
             .continuations

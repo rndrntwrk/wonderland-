@@ -1,0 +1,19 @@
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/sim-core)
+    Finished `test` profile [unoptimized] target(s) in 16.74s
+     Running tests/runtime_source_goto.rs (target/debug/deps/runtime_source_goto-52ec2e0b7e37d61f)
+
+running 12 tests
+test ghost_callbacks_use_empty_registries_id_one_and_reset_rng_before_menu_alias_checks ... ok
+test detached_ghost_query_is_repeatable_without_allocating_or_running_main_or_placement ... ok
+test authoritative_source_action_receives_exact_signed_param0_and_zero_tail ... ok
+test authority_preserves_raw_param0_and_uses_real_placement_then_deferred_check ... ok
+test occupied_and_unsupported_floor_tiles_do_not_offer_actions ... ok
+test nonzero_current_object_refuses_only_detached_terrain_queries_without_mutation ... ok
+test goto_creates_source_object_checked_and_queues_without_teleporting_actor ... ok
+test new_vm_uses_source_global_defaults_but_import_and_restore_keep_saved_values ... ok
+test rejected_identity_stamps_variants_and_placement_are_failure_atomic ... ok
+test missing_content_and_faulting_source_init_fail_closed_without_any_allocation ... ok
+test source_metadata_initializes_only_new_zero_pid_object_and_roundtrips_snapshot ... ok
+test queue_twenty_limit_cancel_and_replay_keep_source_sequence_contract ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s

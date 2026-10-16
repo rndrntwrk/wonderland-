@@ -15,6 +15,11 @@ import {
 import { ActionOutcomeStore, verifyActionEvidence } from "./action-outcomes";
 import { actorRegistry, controlledProposal } from "./owned";
 import { permissionBinding } from "../account/portable";
+import {
+  departureEvidenceV1,
+  verifyDepartureEvidence,
+  type DepartureEvidenceV1,
+} from "./departures";
 
 const LIMIT = 16 * 1024 * 1024;
 const CHECKPOINT_LIMIT = 8 * 1024 * 1024;
@@ -33,6 +38,7 @@ export type HostTerminalReply =
       effects_hex: string;
       events_hex: string;
       control_v2: Control | null;
+      departure_v1?: DepartureEvidenceV1;
     })
   | (TerminalBase & { kind: "rejected" });
 export interface HostReceiptRecord {
@@ -136,7 +142,13 @@ function terminal(raw: unknown): HostTerminalReply {
     "cursor",
     "receipt_hex",
     ...(kind === "committed"
-      ? ["ticks_hex", "effects_hex", "events_hex", "control_v2"]
+      ? [
+          "ticks_hex",
+          "effects_hex",
+          "events_hex",
+          "control_v2",
+          ...(Object.hasOwn(raw, "departure_v1") ? ["departure_v1"] : []),
+        ]
       : []),
   ]);
   const base: TerminalBase = {
@@ -154,6 +166,9 @@ function terminal(raw: unknown): HostTerminalReply {
         effects_hex: hex(v.effects_hex, 4 * 1024 * 1024),
         events_hex: hex(v.events_hex, 4 * 1024 * 1024),
         control_v2: control(v.control_v2),
+        ...(Object.hasOwn(v, "departure_v1")
+          ? { departure_v1: departureEvidenceV1(v.departure_v1) }
+          : {}),
       };
 }
 function envelope(raw: unknown): HostReceiptEnvelope {
@@ -428,6 +443,18 @@ export class HostReceiptStore {
       )
         throw Error("host receipt reply does not match accepted payload");
       const controlled = p as ReturnType<typeof controlledProposal>["payload"];
+      if (!equal(controlled.departure_v1 ?? null, r.reply.departure_v1 ?? null))
+        throw Error(
+          "host receipt departure evidence does not match accepted payload",
+        );
+      if (controlled.departure_v1) {
+        await verifyDepartureEvidence(controlled);
+        if (
+          decision.departure_evidence_sha256 !==
+          (await digest(encode(controlled.departure_v1)))
+        )
+          throw Error("host receipt departure committed evidence mismatch");
+      }
       if (controlled.action_v1) {
         await verifyActionEvidence(controlled);
         this.actionOutcomes.assertReplay(controlled, r.digest, "committed");

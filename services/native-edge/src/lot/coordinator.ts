@@ -35,6 +35,14 @@ import {
   type ActionControl,
 } from "./action-outcomes";
 import { HostReceiptStore } from "./host-receipts";
+import {
+  DepartureStore,
+  departureRequestV1,
+  departureControlKey,
+  departureFence,
+  verifyDepartureEvidence,
+} from "./departures";
+import { detachProofReferenceV1 } from "../account/lot-save";
 import { successor, takeoverMarker, type RecoveryGrant } from "./recovery";
 import { controlFence, type ControlFence } from "./control";
 import { controlStateV2 } from "./control-state";
@@ -42,6 +50,7 @@ interface Env {
   CHECKPOINTS: R2Bucket;
   ACCOUNTS?: DurableObjectNamespace<AccountAuthority>;
   ACCOUNT_REALM?: string;
+  NATIVE_ACCOUNT_REALM?: string;
 }
 interface State {
   binding: Binding;
@@ -55,6 +64,7 @@ const ARCHIVE_BATCHES = 64;
 export class LotCoordinator extends DurableObject<Env> {
   private hostReceipts: HostReceiptStore;
   private actionOutcomes: ActionOutcomeStore;
+  private departures: DepartureStore;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     ctx.storage.sql.exec(
@@ -62,6 +72,7 @@ export class LotCoordinator extends DurableObject<Env> {
     );
     this.hostReceipts = new HostReceiptStore(ctx.storage, env.CHECKPOINTS);
     this.actionOutcomes = new ActionOutcomeStore(ctx.storage);
+    this.departures = new DepartureStore(ctx.storage);
     // One-time, restart-safe migration. Receipt rows stay forever; only this
     // bounded live set is charged against the hot-journal profile.
     ctx.storage.transactionSync(() => {
@@ -557,10 +568,27 @@ export class LotCoordinator extends DurableObject<Env> {
       };
     });
   }
-  /** Every controlled transition, including autonomous ticks, uses this lane. */
+  /** Ordinary actions/admissions/ticks retain the fence and actor-removal guard. */
   async commitControlledBatchV2(raw: unknown) {
-    const p = controlledProposal(raw),
-      bytes = encode(p.payload),
+    const p = controlledProposal(raw);
+    if (p.payload.departure_v1)
+      throw Error("departure evidence requires trusted drain lane");
+    return this.commitControlledTransition(p, false);
+  }
+  /** Private native-host only. Never exposed by browser RPC dispatch. */
+  async commitOwnedDrainV1(raw: unknown) {
+    const p = controlledProposal(raw);
+    if (!p.payload.departure_v1 || p.payload.action_v1)
+      throw Error(
+        "trusted drain requires departure evidence without player action",
+      );
+    return this.commitControlledTransition(p, true);
+  }
+  private async commitControlledTransition(
+    p: ReturnType<typeof controlledProposal>,
+    drain: boolean,
+  ) {
+    const bytes = encode(p.payload),
       c = p.payload.control_v2;
     if (bytes.length > 16 * 1024 * 1024) throw Error("proposal too large");
     if (
@@ -569,9 +597,45 @@ export class LotCoordinator extends DurableObject<Env> {
     )
       throw Error("controlled proposal digest mismatch");
     await verifyActionEvidence(p.payload);
+    await verifyDepartureEvidence(p.payload);
+    const departureEvidenceHash = p.payload.departure_v1
+      ? await digest(encode(p.payload.departure_v1))
+      : null;
     const actionHashes = await actionOutcomeHashes(p.payload, p.digest);
     const key = p.payload.binding.lot_incarnation + ":" + p.payload.batch_id,
       serialized = new TextDecoder().decode(bytes);
+    // Exact terminal retries must survive actor-controls retirement. A proposal
+    // without a terminal decision still needs the current installation below.
+    const decided =
+      this.ctx.storage.sql
+        .exec(
+          "SELECT batch_key FROM batches WHERE batch_key=? UNION ALL SELECT batch_key FROM controlled_denials WHERE batch_key=?",
+          key,
+          key,
+        )
+        .toArray().length > 0;
+    const lineageAdvance = !decided
+      ? await this.departures.prepareAdvance(
+          this.state(),
+          {
+            binding: p.payload.binding,
+            cursor: p.payload.result,
+            checkpoint_sha256: p.payload.checkpoint_sha256,
+          },
+          "batch",
+          key,
+        )
+      : null;
+    const departure =
+      drain && lineageAdvance
+        ? await this.departures.prepare(
+            p,
+            this.controlledConfiguration(),
+            lineageAdvance,
+          )
+        : null;
+    const saveReceiptHash = await this.departures.receiptHashes(departure);
+    const lineageHeads = this.departures.lineageHeads(lineageAdvance);
     return this.ctx.storage.transactionSync(() => {
       const actionAuthority = this.controlledConfiguration().authority_id;
       const previous = this.ctx.storage.sql
@@ -588,6 +652,11 @@ export class LotCoordinator extends DurableObject<Env> {
             actionHashes.committed
         )
           throw Error("player action durable decision mismatch");
+        if (
+          (JSON.parse(previous.receipt).departure_evidence_sha256 ?? null) !==
+          departureEvidenceHash
+        )
+          throw Error("departure durable decision mismatch");
         this.actionOutcomes.assertReplay(p.payload, p.digest, "committed");
         return JSON.parse(previous.receipt);
       }
@@ -677,6 +746,7 @@ export class LotCoordinator extends DurableObject<Env> {
         return receipt; // Never throw: the expiry tombstone must survive rejection.
       }
       if (
+        !drain &&
         this.ctx.storage.sql
           .exec(
             "SELECT control_key FROM actor_controls WHERE state='fence_pending' LIMIT 1",
@@ -725,13 +795,19 @@ export class LotCoordinator extends DurableObject<Env> {
       const before = actorRegistry(JSON.parse(registry.value)),
         known = new Map(before.map((actor) => [actor.principal, actor]));
       for (const actor of before)
-        if (!c.actors.some((next) => equal(actor, next)))
+        if (!drain && !c.actors.some((next) => equal(actor, next)))
           throw Error(
             "ordinary controlled transition removed or changed an actor",
           );
       const additions = c.actors.filter((actor) => !known.has(actor.principal));
-      if (additions.length > 1) throw Error("admission transition bound");
+      if (additions.length > (drain ? 0 : 1))
+        throw Error("admission transition bound");
+      if (drain) {
+        if (!departure) throw Error("departure preparation missing");
+        this.departures.validate(p, before, config, departure);
+      }
       if (
+        !drain &&
         c.revision_after !== (additions.length ? successor(revision) : revision)
       )
         throw Error("controlled revision transition mismatch");
@@ -766,13 +842,20 @@ export class LotCoordinator extends DurableObject<Env> {
           e.admission_operation !== actor.admission_operation ||
           e.reservation_digest !== actor.reservation_digest ||
           e.export_digest !== actor.export_digest ||
-          row.expires_at <= transactionNow ||
-          this.coveringFence(e.authority_id, e.avatar_id, e.control_generation)
+          (!drain &&
+            (row.expires_at <= transactionNow ||
+              this.coveringFence(
+                e.authority_id,
+                e.avatar_id,
+                e.control_generation,
+              )))
         )
           throw Error("actor reservation, session, lease or fence mismatch");
         if (
           known.has(actor.principal)
-            ? row.state !== "active"
+            ? drain
+              ? !["active", "fence_pending"].includes(row.state)
+              : row.state !== "active"
             : row.state !== "installed"
         )
           throw Error("invalid actor installation state");
@@ -798,6 +881,23 @@ export class LotCoordinator extends DurableObject<Env> {
         );
       const receipt = {
         status: "committed",
+        ...(Object.keys(lineageHeads).length
+          ? { departure_lineage_tips: lineageHeads }
+          : {}),
+        ...(departure
+          ? {
+              departure_evidence_sha256: departure.evidence_sha256,
+              ...(departure.lineage_sha256
+                ? { departure_lineage_sha256: departure.lineage_sha256 }
+                : {}),
+              ...(saveReceiptHash
+                ? { departure_save_receipt_sha256: saveReceiptHash }
+                : {}),
+              ...(departure.detach_sha256
+                ? { departure_detach_receipt_sha256: departure.detach_sha256 }
+                : {}),
+            }
+          : {}),
         ...(actionHashes
           ? { action_outcome_sha256: actionHashes.committed }
           : {}),
@@ -885,6 +985,10 @@ export class LotCoordinator extends DurableObject<Env> {
           checkpoint_sha256: p.payload.checkpoint_sha256,
         }),
       );
+      if (!lineageAdvance) throw Error("departure lineage advance missing");
+      this.departures.recordAdvance(lineageAdvance);
+      this.departures.recordAnchor(p, departure);
+      if (departure) this.departures.record(p, departure, saveReceiptHash);
       this.actionOutcomes.record(
         actionAuthority,
         state.cursor.lot_id,
@@ -895,6 +999,105 @@ export class LotCoordinator extends DurableObject<Env> {
       return receipt;
     });
   }
+  /** Private service request; this acknowledges fencing, not successful leave. */
+  beginOwnedDepartureV1(raw: unknown) {
+    const request = departureRequestV1(raw);
+    return this.ctx.storage.transactionSync(() => {
+      const prior = this.ctx.storage.sql
+        .exec(
+          "SELECT control_key FROM owned_departures WHERE control_key=?",
+          departureControlKey(request.identity),
+        )
+        .toArray()[0];
+      if (prior) return this.departures.lookup(request);
+      this.assertActive();
+      const config = this.controlledConfiguration(),
+        state = this.state();
+      const installed = this.departures.requireInstallation(
+        request.identity,
+        config,
+        state.cursor.lot_id,
+      );
+      if (!["active", "fence_pending"].includes(installed.row.state))
+        throw Error("departure actor was never admitted");
+      const registry = this.ctx.storage.sql
+        .exec<{
+          value: string;
+        }>("SELECT value FROM controlled_registry WHERE id=1")
+        .one();
+      const {
+        authority_id: _authority,
+        lot_id: _lot,
+        ...entry
+      } = request.identity;
+      if (
+        !actorRegistry(JSON.parse(registry.value)).some((actor) =>
+          equal(actor, entry),
+        )
+      )
+        throw Error("departure actor is not in committed registry");
+      this.applyControlFence(departureFence(request.identity));
+      return this.departures.begin(request);
+    });
+  }
+  lookupOwnedDepartureV1(raw: unknown) {
+    return this.departures.lookup(raw);
+  }
+  findOwnedDepartureV1(raw: unknown) {
+    return this.departures.find(raw);
+  }
+  activeOwnedDeparturesV1(after: unknown = "") {
+    return this.departures.active(after);
+  }
+  pendingOwnedDeparturesV1() {
+    return this.departures.pending();
+  }
+  lookupCommittedAvatarSaveV1(raw: unknown) {
+    return this.departures.lookupSave(raw);
+  }
+  lookupCommittedAvatarDetachV1(raw: unknown) {
+    return this.departures.lookupDetach(raw);
+  }
+
+  /** Retire only after querying the configured account authority. A raw caller
+   * release receipt is not accepted as proof and cannot free a newer control. */
+  async retireReleasedAvatarControlV1(raw: unknown) {
+    const reference = detachProofReferenceV1(raw);
+    const detach = await this.departures.lookupDetach(reference);
+    const realm = this.env.ACCOUNT_REALM ?? this.env.NATIVE_ACCOUNT_REALM;
+    if (!this.env.ACCOUNTS || !realm)
+      throw Error("private account authority binding unavailable");
+    const account = this.env.ACCOUNTS.get(this.env.ACCOUNTS.idFromName(realm));
+    const release = await account.lookupReleasedAvatarControlV1({
+      identity: reference.identity,
+      departure_operation: reference.departure_operation,
+    });
+    const r = fields(release, [
+      "schema_version",
+      "status",
+      "identity",
+      "departure_operation",
+      "save_sha256",
+      "account_save_receipt_sha256",
+      "detach_sha256",
+      "committed_detach",
+    ]);
+    if (
+      r.schema_version !== 1 ||
+      r.status !== "released_saved_control" ||
+      !equal(r.identity, reference.identity) ||
+      r.departure_operation !== reference.departure_operation ||
+      r.detach_sha256 !== reference.detach_sha256 ||
+      r.save_sha256 !== detach.source_save.save_sha256 ||
+      !equal(r.committed_detach, detach)
+    )
+      throw Error("account departure release acknowledgment mismatch");
+    hash(r.account_save_receipt_sha256);
+    return this.ctx.storage.transactionSync(() =>
+      this.departures.retire(reference, release),
+    );
+  }
+
   getAdmissionV2(raw: unknown) {
     const e = exportV2(raw),
       key = controlKey(e);
@@ -1273,7 +1476,11 @@ export class LotCoordinator extends DurableObject<Env> {
             grant.old_binding.lot_incarnation,
           )
           .toArray()[0];
-        if (!saved || !equal(JSON.parse(saved.control_json), expectedControl))
+        if (!saved) throw Error("changed controlled recovery completion");
+        const { departure_lineage_tips: _tips, ...savedControl } = JSON.parse(
+          saved.control_json,
+        );
+        if (!equal(savedControl, expectedControl))
           throw Error("changed controlled recovery completion");
       }
       return row;
@@ -1307,6 +1514,19 @@ export class LotCoordinator extends DurableObject<Env> {
         marker.checkpoint_sha256
     )
       throw Error("takeover checkpoint readback failed");
+    const lineageAdvance = controlled
+      ? await this.departures.prepareAdvance(
+          current,
+          {
+            binding: grant.new_binding,
+            cursor: marker.new_cursor,
+            checkpoint_sha256: marker.checkpoint_sha256,
+          },
+          "recovery",
+          grant.old_binding.lot_incarnation,
+        )
+      : null;
+    const lineageHeads = this.departures.lineageHeads(lineageAdvance);
     const finished = this.ctx.storage.transactionSync(() => {
       if (readRecord().status === "committed") return marker;
       if (controlled) {
@@ -1354,8 +1574,14 @@ export class LotCoordinator extends DurableObject<Env> {
         this.ctx.storage.sql.exec(
           "INSERT INTO controlled_recovery_receipts(old_incarnation,control_json) VALUES(?,?)",
           grant.old_binding.lot_incarnation,
-          canonical(expectedControl),
+          canonical({
+            ...expectedControl,
+            ...(Object.keys(lineageHeads).length
+              ? { departure_lineage_tips: lineageHeads }
+              : {}),
+          }),
         );
+      if (lineageAdvance) this.departures.recordAdvance(lineageAdvance);
       this.ctx.storage.sql.exec(
         "UPDATE recoveries SET status='committed',marker_json=? WHERE old_incarnation=?",
         canonical(marker),

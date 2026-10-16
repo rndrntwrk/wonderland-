@@ -360,3 +360,137 @@ fn cancellation_revalidates_the_exact_visible_queue_item_after_latency() {
     assert!(server.projection().queues[0].entries.is_empty());
     assert!(revalidate_action(&server, support::PRINCIPAL, actor, &bytes).is_err());
 }
+
+#[path = "support/source_terrain.rs"]
+mod source_terrain;
+fn prepared_terrain() -> (
+    GameRuntime,
+    wonderland_game_runtime::EntityRef,
+    wonderland_game_runtime::sim_core::runtime::goto_adapter::SourceGotoIntent,
+) {
+    use wonderland_game_runtime::{TilePos, sim_core::runtime::goto_adapter::SourceGotoIntent};
+    let (server, actor) = source_terrain::runtime();
+    let batch = server
+        .sim()
+        .terrain_offers(support::PRINCIPAL, actor, TilePos::new(4, 4, 1).center())
+        .unwrap();
+    let intent = SourceGotoIntent {
+        principal: support::PRINCIPAL,
+        actor: batch.actor,
+        world_revision: batch.world_revision,
+        queue_revision: batch.queue_revision,
+        command_sequence: 1,
+        x: 72,
+        y: 72,
+        level: 1,
+        interaction: 7,
+        param0: 0,
+    };
+    (server, actor, intent)
+}
+#[test]
+fn terrain_admission_preserves_source_selection_after_latency_and_refreshes_only_stamps() {
+    let (mut server, actor, intent) = prepared_terrain();
+    let bytes = encode_action(&PlayerAction::Goto(intent)).unwrap();
+    for _ in 0..3 {
+        server.advance(vec![]).unwrap();
+    }
+    let before = server.snapshot().unwrap();
+    let PlayerAction::Goto(updated) =
+        revalidate_action(&server, support::PRINCIPAL, actor, &bytes).unwrap()
+    else {
+        panic!()
+    };
+    assert_eq!(server.snapshot().unwrap(), before);
+    assert_eq!(
+        updated,
+        wonderland_game_runtime::sim_core::runtime::goto_adapter::SourceGotoIntent {
+            world_revision: server.sim().state().completed_tick,
+            actor: wonderland_game_runtime::interactions::EntityVersion {
+                key: intent.actor.key,
+                revision: server.sim().state().entities[&actor.object_id].revision,
+            },
+            ..intent
+        }
+    );
+    server
+        .advance(vec![AcceptedCommand::SourceGoto(updated)])
+        .unwrap();
+    assert!(revalidate_action(&server, support::PRINCIPAL, actor, &bytes).is_err());
+}
+#[test]
+fn terrain_admission_rejects_forged_identity_future_stamps_queue_and_missing_content_action() {
+    let (server, actor, good) = prepared_terrain();
+    let before = server.snapshot().unwrap();
+    for variant in 0..8 {
+        let mut bad = good;
+        match variant {
+            0 => bad.principal = PrincipalKey(99),
+            1 => bad.actor.key.generation += 1,
+            2 => bad.actor.revision = u64::MAX,
+            3 => bad.world_revision = u64::MAX,
+            4 => bad.queue_revision += 1,
+            5 => bad.interaction += 1,
+            6 => bad.level = -1,
+            _ => bad.command_sequence = 0,
+        }
+        assert!(
+            revalidate_action(
+                &server,
+                support::PRINCIPAL,
+                actor,
+                &encode_action(&PlayerAction::Goto(bad)).unwrap()
+            )
+            .is_err(),
+            "variant {variant}"
+        );
+        assert_eq!(server.snapshot().unwrap(), before);
+    }
+    let bytes = encode_action(&PlayerAction::Goto(good)).unwrap();
+    assert!(revalidate_action(&server, PrincipalKey(99), actor, &bytes).is_err());
+}
+#[test]
+fn terrain_admission_does_not_refresh_expired_or_revoked_authority() {
+    let (mut server, actor, intent) = prepared_terrain();
+    let bytes = encode_action(&PlayerAction::Goto(intent)).unwrap();
+    for _ in 0..=wonderland_game_runtime::live_wire::player::admission::MAX_SELECTION_AGE_TICKS {
+        server.advance(vec![]).unwrap();
+    }
+    assert!(revalidate_action(&server, support::PRINCIPAL, actor, &bytes).is_err());
+    let (mut server, actor, intent) = prepared_terrain();
+    server
+        .advance(vec![AcceptedCommand::SetInteractionAuthority {
+            actor,
+            access: None,
+        }])
+        .unwrap();
+    assert!(
+        revalidate_action(
+            &server,
+            support::PRINCIPAL,
+            actor,
+            &encode_action(&PlayerAction::Goto(intent)).unwrap()
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn terrain_admission_preserves_raw_param0_and_off_center_signed_coordinates_until_execution() {
+    let (server, actor, good) = prepared_terrain();
+    let before = server.snapshot().unwrap();
+    for (x, y, param0) in [(25, 41, 99), (-1, 56, -123), (i16::MAX, i16::MIN, i16::MAX)] {
+        let intent = wonderland_game_runtime::sim_core::runtime::goto_adapter::SourceGotoIntent {
+            x,
+            y,
+            param0,
+            ..good
+        };
+        let bytes = encode_action(&PlayerAction::Goto(intent)).unwrap();
+        assert_eq!(
+            revalidate_action(&server, support::PRINCIPAL, actor, &bytes).unwrap(),
+            PlayerAction::Goto(intent)
+        );
+        assert_eq!(server.snapshot().unwrap(), before);
+    }
+}

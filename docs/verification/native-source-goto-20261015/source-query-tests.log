@@ -1,0 +1,39 @@
+   Compiling sim-core v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-action-outcome-20261015/crates/sim-core)
+    Finished `test` profile [unoptimized] target(s) in 18.39s
+     Running tests/primitives_external.rs (target/debug/deps/primitives_external-9ddf768829ae126b)
+
+running 15 tests
+test animation_operand_retargets_parameter_ids_and_writes_event_to_selected_local ... ok
+test check_tree_cannot_request_non_test_transfer ... ok
+test continuation_restore_binds_request_family_operand_and_literal_amount_to_source_instruction ... ok
+test animation_event_branch_preserves_frame_for_resume_and_wait_preserves_ip ... ok
+test look_towards_check_guards_body_modes_after_required_entity_dereferences ... ok
+test response_register_writes_are_atomic_when_a_later_index_is_invalid ... ok
+test motive_change_decodes_scopes_and_clear_all_skips_invalid_operands ... ok
+test resumed_embedded_writes_have_a_combined_limit_and_restore_rejects_forged_register_indices ... ok
+test restored_request_context_and_frame_reference_validation_rejects_forgery ... ok
+test routing_check_trees_return_false_and_source_reach_mouth_is_explicit_fault ... ok
+test tso_pending_deletion_is_a_synchronous_null_or_dead_query ... ok
+test transfer_uses_resolved_big_amount_and_checkpoint_completion_writes_xl ... ok
+test synchronous_provider_writes_update_registers_and_stack_cache_before_the_next_instruction ... ok
+test tso_temporary_id_checks_persistent_id_and_reserved75_without_external_effects ... ok
+test synchronous_write_batch_rejects_invalid_later_index_without_partial_register_mutation ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/runtime_source_goto.rs (target/debug/deps/runtime_source_goto-52ec2e0b7e37d61f)
+
+running 11 tests
+test occupied_and_unsupported_floor_tiles_do_not_offer_actions ... ok
+test ghost_callbacks_use_empty_registries_id_one_and_reset_rng_before_menu_alias_checks ... ok
+test authoritative_source_action_receives_exact_signed_param0_and_zero_tail ... ok
+test nonzero_current_object_refuses_only_detached_terrain_queries_without_mutation ... ok
+test missing_content_and_faulting_source_init_fail_closed_without_any_allocation ... ok
+test detached_ghost_query_is_repeatable_without_allocating_or_running_main_or_placement ... ok
+test rejected_identity_stamps_variants_and_placement_are_failure_atomic ... ok
+test authority_preserves_raw_param0_and_uses_real_placement_then_deferred_check ... ok
+test goto_creates_source_object_checked_and_queues_without_teleporting_actor ... ok
+test source_metadata_initializes_only_new_zero_pid_object_and_roundtrips_snapshot ... ok
+test queue_twenty_limit_cancel_and_replay_keep_source_sequence_contract ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s

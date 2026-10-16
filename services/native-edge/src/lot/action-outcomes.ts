@@ -69,18 +69,20 @@ export function decodeActionRequest(raw: unknown) {
   if (
     (variant === 0 && bytes.length !== 94) ||
     (variant === 1 && bytes.length !== 76) ||
-    variant > 1
+    (variant === 2 && bytes.length !== 77) ||
+    variant > 2
   )
     throw Error("invalid player action variant or length");
-  // Both intents begin with principal, world revision, actor key and revision.
+  // Invoke/Cancel retain their original layout. SourceGoto appends variant 2
+  // with actor immediately after principal; no target or global flag is exposed.
   if (variant === 0 && view.getUint32(88, true) > 1)
     throw Error("invalid player action interaction scope");
   const principal = nonzero(view.getBigUint64(20, true).toString()),
     command_sequence = nonzero(
       view.getBigUint64(variant === 0 ? 76 : 60, true).toString(),
     ),
-    object_id = view.getUint32(36, true),
-    generation = view.getUint32(40, true);
+    object_id = view.getUint32(variant === 2 ? 28 : 36, true),
+    generation = view.getUint32(variant === 2 ? 32 : 40, true);
   if (object_id < 1 || object_id > 32767 || generation === 0)
     throw Error("invalid player action actor");
   return {

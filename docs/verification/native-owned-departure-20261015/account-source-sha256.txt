@@ -1,0 +1,5 @@
+940a9f1dfdb5c5c06f77705f72cf616e9e7df6bf241e06c7ed38104d46d948aa  services/native-edge/src/account/authority.ts
+68d95aee20d2954322b8379f982831d98eafdcf0e2e00235f34131b7314740b1  services/native-edge/src/account/lot-save.ts
+a2fcb35fe0959c06a83087b4f042e3036e8135e2ecf93298dfa58d36a14f896e  services/native-edge/src/account/departure-proof.ts
+8a33f4946a28c10931ee41f4693f927532b4f7219f46527c076f579dea36e844  services/native-edge/tests/owned-leave-save.mjs
+313bc3609e7053e5bcd56bf266f9946571beb51e4571a3a40cdff77823baae51  services/native-edge/tests/departure-proof.test.mjs

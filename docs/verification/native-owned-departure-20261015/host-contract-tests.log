@@ -1,0 +1,57 @@
+   Compiling wonderland-native-lot-host v0.1.0 (/workspace/scratch/efdbaac59410/wonderland-owned-departure-20261015/services/native-lot-host)
+    Finished `test` profile [unoptimized] target(s) in 6.76s
+     Running unittests src/lib.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/wonderland_native_host_contracts-1e3b260509e6887d)
+
+running 10 tests
+test control::tests::max_revision_round_trips_without_narrowing ... ok
+test control::tests::controlled_state_golden_vectors_are_strict_and_exact ... ok
+test departure::tests::canonical_decimal_identity_and_server_derived_request_round_trip ... ok
+test departure::tests::source_columns_are_bounded_and_sleep_state_must_be_normalized ... ok
+test departure::tests::dto_objects_and_enum_strings_have_no_alternate_serde_wire_forms ... ok
+test departure::tests::private_owned_drain_request_and_fence_are_exact_and_command_free ... ok
+test departure::tests::source_job_and_relationship_values_are_strict_and_sorted ... ok
+test departure::tests::source_save_requires_exact_fields_and_nullable_job_presence ... ok
+test departure::tests::evidence_rejects_mismatched_identity_tick_projection_and_digest_shape ... ok
+test departure::tests::lifecycle_nullable_fields_and_detach_presence_are_exact ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (/workspace/scratch/efdbaac59410/wonderland-browser-entry-20261014/target/debug/deps/wonderland_native_lot_host-dba9f6a246f4c8c5)
+
+running 28 tests
+test departure::tests::identity_operation_tick_and_sleep_mismatches_fail_closed ... ok
+test departure::tests::dirty_capture_values_must_match_the_actual_portable_state ... ok
+test departure::tests::no_asset_ids_are_guessed_for_missing_name_or_legacy_outfits ... ok
+test departure::tests::only_the_current_signed_key_is_selected_and_missing_or_zero_job_is_null ... ok
+test departure::tests::non_whitelisted_portable_mutations_never_change_the_save ... ok
+test events::tests::owned_events_keep_real_ordinals_and_eod_generation_without_an_acknowledgement ... ok
+test departure::tests::source_save_whitelist_and_unchecked_casts_match_authored_golden ... ok
+test player::tests::forged_export_and_stale_policy_do_not_allocate_a_principal ... ok
+test departure::tests::relationship_capacity_is_rejected_without_truncation ... ok
+test player::tests::inspect_placement_is_exact_committed_actor_state_not_a_custody_grant ... ok
+test player::tests::ordinary_registry_validation_cannot_reuse_drain_only_removal_authority ... ok
+test player::tests::action_evidence_is_digest_bound_before_commit_and_preserves_original_observation ... ok
+test player::tests::cancel_evidence_has_exact_terminal_variants_and_rejection_does_not_consume_vm_sequence ... ok
+test player::tests::receipt_retirement_preserves_exact_committed_and_rejected_retry_binding ... ok
+test player::tests::owned_drain_rejects_mismatched_fence_and_installed_identity_without_preparing ... ok
+test player::tests::blocked_owned_drain_is_real_fenced_progress_without_fabricated_save_or_detach ... ok
+test player::tests::source_location_is_distinct_from_db_lot_id_and_bootstrap_needs_appearance ... ok
+test player::tests::owned_drain_captures_once_and_later_leaving_tick_does_not_reemit_save ... ok
+test player::tests::rejection_and_unknown_resolution_never_publish_candidate_actors ... ok
+test player::tests::ticks_and_admissions_keep_legacy_payload_without_action_evidence ... ok
+test player::tests::source_owned_drain_proves_save_before_removal_and_retains_exact_receipt ... ok
+test player::tests::rejected_owned_drain_does_not_publish_a_capture_or_actor_removal ... ok
+test player::tests::source_terrain_action_is_owned_commit_only_and_echoes_exact_request ... ok
+test player::tests::receipt_retirement_rejects_stale_or_forged_ack_and_never_discards_pending ... ok
+test player::tests::typed_admission_is_commit_only_idempotent_and_checkpoint_restorable ... ok
+test player::tests::source_owned_drain_retains_peer_cancel_eod_request_without_peer_departure ... ok
+test player::tests::receipt_export_pages_exact_prefix_without_losing_later_decisions ... ok
+test player::tests::checkpoint_acknowledgements_keep_host_receipts_bounded_beyond_4096_batches ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.02s
+
+   Doc-tests wonderland_native_host_contracts
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

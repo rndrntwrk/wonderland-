@@ -50,6 +50,7 @@ pub mod cooked_replay;
 pub mod inspection;
 pub mod interactions;
 pub mod isolated;
+pub mod source_metadata;
 
 #[cfg(feature = "creator-debug")]
 pub mod creator_debug;

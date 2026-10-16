@@ -155,6 +155,8 @@ fn fixture() -> (SimState, ContentSet, [EntityRef; 3]) {
         interaction_access: BTreeMap::new(),
         lot_permissions: sim_core::lot_permissions::ReplicatedLotPermissions::Uninitialized,
         owned_admission: sim_core::owned_admission::OwnedAdmissionState::Uninitialized,
+        source_routing: sim_core::route_motion::SourceRoutingState::default(),
+        owned_departures: sim_core::runtime::leave_adapter::OwnedDepartureState::default(),
     };
     (state, content, references)
 }
