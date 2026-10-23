@@ -1,5 +1,6 @@
 // Native account transport. Owned lot readiness requires a committed server grant.
 // Legacy Aries sessions and browser-supplied actor/principal authority are never synthesized.
+import {loadNativeContent} from './native-content.mjs';
 export function createNativeAccountProvider(base, publish, options = {}) {
   const origin = options.origin ?? globalThis.location.origin;
   const endpoint = new URL(base, origin);
@@ -19,6 +20,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     throw Error("Invalid native account endpoint");
   const fetcher = options.fetch ?? globalThis.fetch;
   const nativeLots = options.nativeLots === true;
+  const contentRequests = new Set();
   let destinations = [], admissionAvailable = false, owned = null, pendingEntry = null, firstTicket = null, detachPending = false, socketRequest = null;
   let recoverySerial = 0, placementPending = false, placementSerial = 0;
   const operationId = options.operationId ?? (() => globalThis.crypto.randomUUID().replaceAll("-", ""));
@@ -88,6 +90,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   function begin(action) {
     if (disposed || active) return null;
     const n = ++generation;
+    for (const controller of contentRequests) controller.abort();
     const controller = new AbortController();
     active = { controller, action };
     emit({
@@ -315,6 +318,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   function placementUnavailable() {
     if (!owned || !token || detachPending || disposed) return;
     placementSerial++;placementPending=true;firstTicket=null;
+    for (const controller of contentRequests) controller.abort();
     socketRequest?.abort();socketRequest=null;
     emit({state:"admitted_awaiting_placement",avatars,grant:{binding:owned.binding,lot_id:owned.lot_id,lot_name:owned.lot_name,recovery_scope:owned.recovery_scope},message:"Your Sim is admitted and remains reserved, but the original lot could not place them in the world. Retry placement after the entry area is fixed, or request leave. No new Sim will be created."});
   }
@@ -393,6 +397,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   function dispose() {
     disposed = true;
     generation++;
+    for (const controller of contentRequests) controller.abort();
     active?.controller.abort();
     socketRequest?.abort();socketRequest=null;
     active = null;
@@ -400,10 +405,26 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     avatars = [];
     destinations = []; admissionAvailable = false; owned = null; pendingEntry = null; firstTicket = null; detachPending = false; placementPending = false;
   }
+  async function contentFiles() {
+    if (!token || !owned || detachPending || placementPending || disposed)
+      throw Error("No active owned content admission.");
+    const selection=owned,n=generation,secret=token,controller=new AbortController();
+    contentRequests.add(controller);
+    const timer=setTimeout(()=>controller.abort(),60000);
+    const current=()=>!disposed&&generation===n&&owned===selection&&token===secret&&!detachPending&&!placementPending;
+    try {
+      return await loadNativeContent({signal:controller.signal,current,
+        read:(path,signal)=>fetcher(new URL(path,origin).href,{
+          method:'POST',credentials:'omit',cache:'no-store',redirect:'error',signal,
+          headers:{'Content-Type':'application/json',Authorization:'Bearer '+secret},
+          body:JSON.stringify({avatar_id:selection.avatar_id,lot_id:selection.lot_id,operation:selection.operation}),
+        })});
+    } finally {clearTimeout(timer);contentRequests.delete(controller);}
+  }
   emit({
     state: "signed_out",
     avatars: [],
     message: "Sign in to your native Wonderland account.",
   });
-  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable };
+  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles };
 }

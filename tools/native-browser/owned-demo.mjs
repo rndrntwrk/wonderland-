@@ -1,4 +1,5 @@
-// Same-cloud, loopback-only integration runner. Requires a pinned source lot and
+// Same-cloud native supervisor. Defaults to loopback; hosted mode is explicit.
+// Requires a pinned source lot and
 // content release. No fixed actors, generic Spawn or scripted success fallback.
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
@@ -35,6 +36,7 @@ import { settlePlayerAction } from "./owned-demo/actions.mjs";
 import { reconcileAuthenticatedPlayerAction } from "./owned-demo/action-results.mjs";
 import { validateOwnedManifest } from "./owned-demo/manifest.mjs";
 import { stageRecovery } from "./owned-demo/recovery.mjs";
+import { supervisorProfile } from "./owned-demo/supervisor-profile.mjs";
 import { loadOrCreateExport } from "./owned-demo/admission.mjs";
 import {
   askWithDurableReceipts,
@@ -42,9 +44,7 @@ import {
 } from "./owned-demo/receipts.mjs";
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const require = createRequire(join(repo, "services/native-edge/package.json"));
-const { Miniflare } = require("miniflare"),
-  { build } = require("esbuild"),
-  { WebSocketServer } = require("ws");
+const { WebSocketServer } = require("ws");
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const digest = (value) =>
   typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
@@ -73,16 +73,24 @@ export async function createOwnedDemo({
   port = 0,
   resume = false,
   authorGenesis,
+  hosted,
+  contentProvider,
 }) {
+  const profile = supervisorProfile(hosted);
   validateOwnedManifest(manifest);
   manifest = JSON.parse(JSON.stringify(manifest));
+  if (contentProvider) {
+    assert.equal(contentProvider.release, manifest.content_release);
+    assert.equal(typeof contentProvider.manifest, "function");
+    assert.equal(typeof contentProvider.read, "function");
+  }
   assert.ok(authorGenesis === undefined || typeof authorGenesis === "function");
   assert.ok(
     !resume || authorGenesis === undefined,
     "Authored setup is fresh-only.",
   );
   assert.ok(
-    !resume || storageRoot,
+    !resume || profile.hosted || storageRoot,
     "Ingress recovery requires the original durable storage root.",
   );
   const root = storageRoot
@@ -100,7 +108,7 @@ export async function createOwnedDemo({
     firstOwnerReceipt = null,
     authoredSetupReceipt = null,
     ready = false;
-  if (resume) {
+  if (resume && !profile.hosted) {
     const prior = JSON.parse(await readFile(join(root, "runner.json"), "utf8"));
     assert.equal(prior.version, 1);
     assert.equal(prior.manifest_sha256, sha(JSON.stringify(manifest)));
@@ -762,6 +770,36 @@ export async function createOwnedDemo({
         request.url.includes("%")
       )
         throw Error("Invalid request path.");
+      if (url.pathname.startsWith("/native-content/")) {
+        if (!contentProvider) {
+          response.writeHead(404); response.end(); return;
+        }
+        const token = authorizeRequest(request), data = await readBody(request);
+        const resource = url.pathname === "/native-content/manifest" ? null
+          : /^\/native-content\/file\/([0-9a-f]{64})$/.exec(url.pathname)?.[1];
+        assert.ok(resource !== undefined, "Unsupported content resource.");
+        // Recheck the live account reservation and committed source placement on
+        // every request. A manifest or hash is never a substitute for admission.
+        await serially(async () => {
+          assert.deepEqual(Object.keys(data).sort(), ["avatar_id", "lot_id", "operation"]);
+          assert.equal(data.lot_id, manifest.lot.lot_id);
+          const entry = admitted.get(key(token, data.avatar_id)) ?? await restoreEntry(token, data);
+          assert.equal(entry.operation, data.operation);
+          await sweepFences();
+          const current = await revalidate(entry);
+          assert.ok(ownedPlacement(current, entry).in_world);
+          await renewActivity(entry, token);
+        });
+        const body = resource === null ? JSON.stringify(contentProvider.manifest())
+          : await contentProvider.read(resource);
+        response.writeHead(200, {
+          "content-type": resource === null ? "application/json" : "application/octet-stream",
+          "cache-control": "private, no-store",
+          "cross-origin-resource-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+        });
+        response.end(body); return;
+      }
       if (
         [
           "/native-account/enter",
@@ -817,9 +855,7 @@ export async function createOwnedDemo({
         assert.equal(request.method, "POST");
         assert.equal(request.headers.origin, origin);
         const data = await readBody(request),
-          headers = { ...request.headers, "cf-connecting-ip": "127.0.0.1" };
-        delete headers.host;
-        delete headers["content-length"];
+          headers = profile.accountHeaders(request.headers);
         const result = await serially(
           async () => {
             const reply = await mf.dispatchFetch(url.href, {
@@ -1059,65 +1095,71 @@ export async function createOwnedDemo({
     server.headersTimeout = 10000;
     await new Promise((resolve, reject) => {
       server.once("error", reject);
-      server.listen(port, "127.0.0.1", resolve);
+      server.listen(port, profile.listenHost, resolve);
     });
-    origin = `http://127.0.0.1:${server.address().port}`;
-    const bundle = await build({
-      entryPoints: [join(repo, "tools/native-browser/owned-demo/driver.ts")],
-      bundle: true,
-      format: "esm",
-      platform: "neutral",
-      external: ["cloudflare:workers"],
-      write: false,
-      plugins: [
-        {
-          name: "wasm",
-          setup(b) {
-            b.onResolve({ filter: /account_crypto_bg\.wasm$/ }, () => ({
-              path: "./account_crypto_bg.wasm",
-              external: true,
-            }));
+    origin = profile.hosted ? profile.publicOrigin
+      : `http://127.0.0.1:${server.address().port}`;
+    if (profile.hosted) {
+      mf = profile.transport;
+    } else {
+      const { Miniflare } = require("miniflare"), { build } = require("esbuild");
+      const bundle = await build({
+        entryPoints: [join(repo, "tools/native-browser/owned-demo/driver.ts")],
+        bundle: true,
+        format: "esm",
+        platform: "neutral",
+        external: ["cloudflare:workers"],
+        write: false,
+        plugins: [
+          {
+            name: "wasm",
+            setup(b) {
+              b.onResolve({ filter: /account_crypto_bg\.wasm$/ }, () => ({
+                path: "./account_crypto_bg.wasm",
+                external: true,
+              }));
+            },
           },
+        ],
+      });
+      mf = new Miniflare({
+        // This private loopback host needs no remote Request.cf metadata refresh.
+        // Miniflare otherwise fetches workers.cloudflare.com/cf.json by default.
+        cf: false,
+        modulesRoot: root,
+        modules: [
+          {
+            type: "ESModule",
+            path: join(root, "worker.mjs"),
+            contents: bundle.outputFiles[0].text,
+          },
+          {
+            type: "CompiledWasm",
+            path: join(root, "account_crypto_bg.wasm"),
+            contents: await readFile(
+              join(repo, "services/native-edge/generated/account_crypto_bg.wasm"),
+            ),
+          },
+        ],
+        compatibilityDate: "2026-07-01",
+        durableObjects: {
+          ACCOUNTS: { className: "AccountAuthority", useSQLite: true },
+          COORD: { className: "LotCoordinator", useSQLite: true },
         },
-      ],
-    });
-    mf = new Miniflare({
-      // This private loopback host needs no remote Request.cf metadata refresh.
-      // Miniflare otherwise fetches workers.cloudflare.com/cf.json by default.
-      cf: false,
-      modulesRoot: root,
-      modules: [
-        {
-          type: "ESModule",
-          path: join(root, "worker.mjs"),
-          contents: bundle.outputFiles[0].text,
+        durableObjectsPersist: join(root, "sqlite"),
+        r2Buckets: ["CHECKPOINTS"],
+        r2Persist: join(root, "r2"),
+        bindings: {
+          PRIVATE_CAPABILITY: privateCapability,
+          ACCOUNT_REALM: "owned-demo",
+          LOT_NAME: manifest.lot.lot_id,
+          NATIVE_ACCOUNT_HTTP: "staged-v1",
+          NATIVE_ACCOUNT_ORIGIN: origin,
+          NATIVE_ACCOUNT_REALM: "owned-demo",
         },
-        {
-          type: "CompiledWasm",
-          path: join(root, "account_crypto_bg.wasm"),
-          contents: await readFile(
-            join(repo, "services/native-edge/generated/account_crypto_bg.wasm"),
-          ),
-        },
-      ],
-      compatibilityDate: "2026-07-01",
-      durableObjects: {
-        ACCOUNTS: { className: "AccountAuthority", useSQLite: true },
-        COORD: { className: "LotCoordinator", useSQLite: true },
-      },
-      durableObjectsPersist: join(root, "sqlite"),
-      r2Buckets: ["CHECKPOINTS"],
-      r2Persist: join(root, "r2"),
-      bindings: {
-        PRIVATE_CAPABILITY: privateCapability,
-        ACCOUNT_REALM: "owned-demo",
-        LOT_NAME: manifest.lot.lot_id,
-        NATIVE_ACCOUNT_HTTP: "staged-v1",
-        NATIVE_ACCOUNT_ORIGIN: origin,
-        NATIVE_ACCOUNT_REALM: "owned-demo",
-      },
-    });
-    await mf.ready;
+      });
+      await mf.ready;
+    }
     await account("initializeAdmissionAuthorityV2", [manifest.authority_id]);
     await account("initializeCatalog", [manifest.catalog]);
     if (authorGenesis) {
@@ -1173,7 +1215,7 @@ export async function createOwnedDemo({
         },
       ]);
       await publishCheckpoint();
-      await writeFile(
+      if (!profile.hosted) await writeFile(
         join(root, "runner.json"),
         JSON.stringify({
           version: 1,
@@ -1406,6 +1448,8 @@ export async function createOwnedDemo({
     ready = true;
     return {
       origin,
+      // Supervisor control only; never included in browser configuration.
+      localAddress: server.address(),
       storageRoot: root,
       manifest: JSON.parse(JSON.stringify(manifest)),
       authored_setup_receipt: authoredSetupReceipt,

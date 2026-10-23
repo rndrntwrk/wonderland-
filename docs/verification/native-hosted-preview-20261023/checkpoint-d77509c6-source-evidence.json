@@ -1,0 +1,213 @@
+{
+  "schema": "wonderland.public-hosted-source-evidence.v1",
+  "sourceCommit": "d77509c66021aa310978b3f7a1942ee46d2062e1",
+  "sourceTree": "c234cf25ecc24c21fac347c0592c226c19f37bc3",
+  "publicationParent": "e25a6acc573b56497f8246adac52f9c25a98ee4b",
+  "sourceFiles": [
+    {
+      "path": "apps/web-shell/index.html",
+      "bytes": 1809,
+      "sha256": "cd0f8d53f39784def880d526938848ce25a8eb838377fb9eb7c7abe959e57440"
+    },
+    {
+      "path": "apps/web-shell/public/native-account.mjs",
+      "bytes": 20186,
+      "sha256": "d69608151df6293498849d4735948f5f25d02d280b479c8680fdea019fce6cd8"
+    },
+    {
+      "path": "apps/web-shell/public/native-content.mjs",
+      "bytes": 3443,
+      "sha256": "7b92e8e69e9442cb806bcfc461f4f13c4fd348fab7ae2ade0c7959feeae8079a"
+    },
+    {
+      "path": "apps/web-shell/scripts/native-content.test.mjs",
+      "bytes": 5098,
+      "sha256": "eb5bbcbed406a03624e1935da82893e1b4d43b5e2597fb53e2f577f9cca99da8"
+    },
+    {
+      "path": "apps/web-shell/src/avatar_content.rs",
+      "bytes": 30684,
+      "sha256": "08f90fe51b6e611b2cf579f551a61779c1d34bf0b8042f75e14f5fe27a0f9858"
+    },
+    {
+      "path": "apps/web-shell/src/native_account.rs",
+      "bytes": 15957,
+      "sha256": "e4a922cd4e6ad9c768421dd06214cf29eb24f2e00a0e6933840f820f539a50db"
+    },
+    {
+      "path": "services/native-edge/src/hosted/supervisor-outbound.ts",
+      "bytes": 3444,
+      "sha256": "f8a8c87e687657f8ce10f58f08fb3e222c5c53bb06ea5d598e6074e8199c33b8"
+    },
+    {
+      "path": "services/native-edge/src/hosted/supervisor-rpc.ts",
+      "bytes": 3711,
+      "sha256": "0b2e17641c6c2987e840600bf95a1714018da461057f0e3940b8f7e15a0ce8ea"
+    },
+    {
+      "path": "services/native-edge/tests/supervisor-outbound.test.mjs",
+      "bytes": 5045,
+      "sha256": "095b06100678fe71186d5a1c40263a12e35658830da5bd9c39cc4f759303bf85"
+    },
+    {
+      "path": "services/native-edge/tests/supervisor-rpc.test.mjs",
+      "bytes": 3048,
+      "sha256": "3a5350a415cac2d37866c74accdcfd3527b886217ad829468f778f68e45239bf"
+    },
+    {
+      "path": "tools/native-browser/owned-demo.mjs",
+      "bytes": 57346,
+      "sha256": "ad60ac9aa8440a620e02d41b160f29fc164f81a9cfb551a28efa30c71c838857"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/driver.ts",
+      "bytes": 1916,
+      "sha256": "fa3f989e83913193250001162623df5bdab34d24b0b1ac641df42d02e6b9acbf"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/edge-transport.mjs",
+      "bytes": 1813,
+      "sha256": "692412740e290846191535d120c6d03d3778e8d783e0e27b67beb3bebc06f5d9"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/private-content.mjs",
+      "bytes": 2884,
+      "sha256": "e8580634ef1879515486c14d2fabba78cffcadb2b699faa4562a5e2bbabc2bc9"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/private-content.test.mjs",
+      "bytes": 3045,
+      "sha256": "168c8f0c76bfb07df76580ea0c4cca9fc334a246ba2d998599267d7c038eee39"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/supervisor-profile.mjs",
+      "bytes": 1511,
+      "sha256": "fa6b248bfada09fe7900b2505d1f3121363e50a7ae48269716f0823d49d10dea"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/supervisor-profile.test.mjs",
+      "bytes": 2040,
+      "sha256": "2dd73594feeb71115a92f17606602edf581c9451ef92a13e40a58886dbba7c88"
+    }
+  ],
+  "privateRetainedEvidence": [
+    {
+      "name": "result.json",
+      "sha256": "5f609977332a84a4cf60156f99d58d3a4d6218c48d2071fa6e1493ace2abad04",
+      "publiclyAccessible": false
+    },
+    {
+      "name": "result.json",
+      "sha256": "1adb8bcc3f202af7cdb9722dac19b711162d5f224b1d1e61ae32e3e8fe02c8a5",
+      "publiclyAccessible": false
+    },
+    {
+      "name": "animation-witness-04.json",
+      "sha256": "30768e7ce2c28ffbdf913a7163eefc01c85aba21efafd35eb8c0fe49b5b55528",
+      "publiclyAccessible": false
+    },
+    {
+      "name": "matching-wasm-hosted-build-04.json",
+      "sha256": "4c3fc64c538fe13d4e4f8c5607a540f073cf48e0fbb7ef63ecec2fe656dcd861",
+      "publiclyAccessible": false
+    }
+  ],
+  "walks": [
+    {
+      "player": 1,
+      "durationSeconds": 7.435791292,
+      "terminal": {
+        "id": "3",
+        "text": "Action #3 completed"
+      },
+      "peerAgreement": {
+        "tick": "408",
+        "hash": "a00cdbd428ac739a72e9837f87ba82a9fbf1539360b7ff879cda5aad1ecc2df5"
+      }
+    },
+    {
+      "player": 2,
+      "durationSeconds": 6.879826167,
+      "terminal": {
+        "id": "3",
+        "text": "Action #3 completed"
+      },
+      "peerAgreement": {
+        "tick": "650",
+        "hash": "e98f3724d180715055f8cc4e1dbc8d568b14a313211cc7ae1702ce54b5f89ce4"
+      }
+    }
+  ],
+  "animationWitness": {
+    "criterion": "Both original body-mesh buffer groups change vertex positions and a sampled pairwise squared distance by more than 0.01 during the completed source Walk window, in both independently authenticated browser contexts. Pair distances exclude rigid translation/rotation; original draw matrices remain separate. Ordinary screenshots and recordings must show the admitted original characters.",
+    "measurements": [
+      {
+        "player": 1,
+        "bodyVertexBufferBytes": 12708,
+        "distinctUploads": 264,
+        "distinctPositionSamples": 264,
+        "maxSquaredPairDistanceRange": 0.06234328013803636,
+        "nonRigidDeformation": true
+      },
+      {
+        "player": 1,
+        "bodyVertexBufferBytes": 17820,
+        "distinctUploads": 166,
+        "distinctPositionSamples": 166,
+        "maxSquaredPairDistanceRange": 0.2554460858072358,
+        "nonRigidDeformation": true
+      },
+      {
+        "player": 2,
+        "bodyVertexBufferBytes": 12708,
+        "distinctUploads": 252,
+        "distinctPositionSamples": 252,
+        "maxSquaredPairDistanceRange": 0.06234328013803636,
+        "nonRigidDeformation": true
+      },
+      {
+        "player": 2,
+        "bodyVertexBufferBytes": 17820,
+        "distinctUploads": 186,
+        "distinctPositionSamples": 186,
+        "maxSquaredPairDistanceRange": 0.26153420844049236,
+        "nonRigidDeformation": true
+      }
+    ],
+    "limits": [
+      "Passive test-only WebGL upload observation; no changed product bytes or GPU calls.",
+      "First four vertex positions per mesh retained; not exhaustive source animation equivalence or frame-rate proof.",
+      "Recordings are sampled at 8 fps, with documented dropped frames; no 30Hz animation timing claim.",
+      "Original scenery remains partially unavailable and the action panel can occlude a character."
+    ]
+  },
+  "browserArtifactCount": 149,
+  "contentFiles": 30,
+  "actualContentBytes": 92632333,
+  "oldDeclaredContentBytes": 92606922,
+  "cloudGameplayDeployed": false,
+  "strict30HzRequalified": false,
+  "independentReviewPerformed": false,
+  "incorporatedCheckpoints": [
+    "779934339f5ce3c06f006e5409e0cd5b6d1ba8d2",
+    "1090366570d4c35db748368fa5ecfe163dfd35d5",
+    "64735d81affba68d64dd4b53b4bf4abd8df92efe",
+    "c411ea2896a8199524a6b8fa359607be671478bc",
+    "e15e70f78461044916b95607f80754a2cf4a10fc",
+    "d77509c66021aa310978b3f7a1942ee46d2062e1"
+  ],
+  "privateRecordings": [
+    {
+      "name": "walk-player-1.mp4",
+      "bytes": 96532,
+      "sha256": "9757e00bcaf18f9a504f78d05da4f0db6f3858afe33ccc25833a3d5822a6c8d1",
+      "publiclyAccessible": false
+    },
+    {
+      "name": "walk-player-2.mp4",
+      "bytes": 116046,
+      "sha256": "493ad9b8d099b19abda265b12d4731e74fb8522770679210991e8e1d0ea805ce",
+      "publiclyAccessible": false
+    }
+  ]
+}
