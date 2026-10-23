@@ -30,8 +30,10 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     active = null,
     disposed = false,
     avatars = [];
+  let creator=null,pendingCreation=null,creationUnknown=false,createdAvatarId=null;
+  const digest=v=>typeof v==='string'&&/^[0-9a-f]{64}$/.test(v);
   const emit = (value) => {
-    if (!disposed) publish({ destinations: token ? destinations : [], admission_available: !!token && admissionAvailable, ...value });
+    if (!disposed) publish({creator_open:!!creator,creation_options:creator?structuredClone(creator):null,creation_pending:!!pendingCreation,creation_unknown:creationUnknown,created_avatar_id:createdAvatarId, destinations: token ? destinations : [], admission_available: !!token && admissionAvailable, ...value });
   };
   async function request(action, data, secret, signal) {
     const r = await fetcher(endpoint.href + "/" + action, {
@@ -53,6 +55,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
           : "The native account service is unavailable.",
       );
       error.unauthorized = r.status === 401;
+      error.status = r.status;
       throw error;
     }
     if (!r.headers.get("content-type")?.startsWith("application/json"))
@@ -241,6 +244,91 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       finish(job);
     }
   }
+
+  async function openCreator() {
+    if(!nativeLots||!token||owned||pendingEntry||detachPending||disposed||active||pendingCreation)return;
+    const job=begin("creator");if(!job)return;
+    try{
+      let after="0",release=null,slots=null;const entries=[],seen=new Set();
+      for(let page=0;page<257;page++){
+        const value=await request("creation-options",{after},token,job.controller.signal);
+        if(!current(job))return;
+        if(value.version!==1||value.state!=="creation_options"||!digest(value.release)
+          ||!Number.isSafeInteger(value.available_slots)||value.available_slots<0||value.available_slots>3
+          ||!Array.isArray(value.entries)||value.entries.length>64)throw Error("Invalid creation catalog.");
+        if(release!==null&&(value.release!==release||value.available_slots!==slots))throw Error("Creation catalog changed. Open the creator again.");
+        release=value.release;slots=value.available_slots;
+        for(const row of value.entries){
+          if(!decimal(row.key)||seen.has(row.key)||!["head","body"].includes(row.part)||!["male","female"].includes(row.gender)
+            ||!Array.isArray(row.skins)||!row.skins.length||row.skins.length>3||new Set(row.skins).size!==row.skins.length
+            ||!row.skins.every(s=>["light","medium","dark"].includes(s)))throw Error("Invalid creation appearance.");
+          seen.add(row.key);entries.push({...row,skins:row.skins.slice()});
+        }
+        if(entries.length>16384)throw Error("Creation catalog exceeds its resource budget.");
+        if(value.next===null)break;
+        if(!decimal(value.next)||BigInt(value.next)!==BigInt(after)+BigInt(value.entries.length)||!value.entries.length||page===256)
+          throw Error("Invalid creation catalog pagination.");
+        after=value.next;
+      }
+      if(!entries.some(e=>e.part==="head")||!entries.some(e=>e.part==="body"))throw Error("Character appearance is unavailable.");
+      creator={release,available_slots:slots,entries};creationUnknown=false;
+      emit({state:"account_ready",avatars,message:slots?"Choose your Sim's original appearance.":"This account already has three Sims."});
+    }catch(error){if(current(job)){
+      creator=null;if(error.unauthorized){token=null;avatars=[];}
+      emit({state:token?"account_error":"signed_out",avatars,message:error.message});
+    }}
+    finally{finish(job);}
+  }
+  function closeCreator(){
+    if(active||pendingCreation||disposed)return;
+    for(const controller of contentRequests)controller.abort();
+    creator=null;generation++;emit({state:token?"account_ready":"signed_out",avatars,message:"Choose your Sim and a property."});
+  }
+  function eligibleSpec(spec){
+    if(!creator||!spec||typeof spec!=="object"||Array.isArray(spec)
+      ||Object.keys(spec).sort().join(",")!=="body_key,description,gender,head_key,name,release,skin"
+      ||spec.release!==creator.release||!creator.available_slots
+      ||typeof spec.name!=="string"||!/^[a-zA-Z][a-zA-Z ]{2,23}$/.test(spec.name)
+      ||typeof spec.description!=="string"||spec.description.length>499
+      ||!["male","female"].includes(spec.gender)||!["light","medium","dark"].includes(spec.skin))
+      throw Error("Choose an available original appearance and a valid name.");
+    for(const part of ["head","body"])
+      if(!creator.entries.some(e=>e.part===part&&e.key===spec[part+"_key"]&&e.gender===spec.gender&&e.skins.includes(spec.skin)))
+        throw Error("This appearance is not eligible for character creation.");
+    return {name:spec.name,description:spec.description,gender:spec.gender,skin:spec.skin,head_key:spec.head_key,body_key:spec.body_key,release:spec.release};
+  }
+  async function createAvatar(spec){
+    if(!token||!creator||owned||pendingEntry||active||disposed)return;
+    let avatar;
+    try{avatar=eligibleSpec(spec);}catch(error){emit({state:"account_error",avatars,message:error.message});return;}
+    if(pendingCreation&&JSON.stringify(pendingCreation.avatar)!==JSON.stringify(avatar)){
+      emit({state:"account_error",avatars,message:"The previous creation is unconfirmed. Retry its exact request first."});return;
+    }
+    if(!pendingCreation){const operation=operationId();
+      if(typeof operation!=="string"||!/^[a-zA-Z0-9_-]{16,96}$/.test(operation))throw Error("Invalid creation operation.");
+      pendingCreation={operation,avatar};}
+    return sendCreation();
+  }
+  async function retryCreate(){if(token&&creator&&pendingCreation&&!active&&!disposed)return sendCreation();}
+  async function sendCreation(){
+    const job=begin("create");if(!job)return;const submitted=pendingCreation;creationUnknown=false;
+    emit({state:"account_refreshing",avatars,message:"Creating your Sim…"});
+    try{
+      const value=await request("create",submitted,token,job.controller.signal);
+      if(!current(job))return;
+      if(value.version!==1||value.state!=="avatar_created"||!decimal(value.avatar?.avatar_id)||BigInt(value.avatar.avatar_id)>16777215n
+        ||Object.entries(submitted.avatar).some(([key,v])=>value.avatar[key]!==v))throw Error("Invalid creation receipt.");
+      createdAvatarId=value.avatar.avatar_id;pendingCreation=null;creator=null;
+      await roster(job);createdAvatarId=null;
+    }catch(error){if(current(job)){
+      if(error.unauthorized){token=null;avatars=[];creator=null;pendingCreation=null;}
+      else if(error.status===400){pendingCreation=null;}
+      creationUnknown=!!pendingCreation;
+      emit({state:token?"account_error":"signed_out",avatars,
+        message:pendingCreation?"Creation was not confirmed. Retry the same request; another Sim will not be requested.":error.message});
+    }}finally{finish(job);}
+  }
+
   function validateDestinations(value) {
     if (!Array.isArray(value) || value.length > 128) throw Error("Invalid property directory.");
     const seen = new Set();
@@ -259,7 +347,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     return { binding, ticket: value.ticket, waiting };
   }
   async function enter(avatarId, lotId) {
-    if (!nativeLots || !token || !admissionAvailable || owned || detachPending || active || disposed) return;
+    if (!nativeLots || !token || !admissionAvailable || owned || detachPending || active || disposed || creator || pendingCreation) return;
     const avatar = avatars.find(v => v.avatar_id === avatarId);
     const lot = destinations.find(v => v.lot_id === lotId);
     if (!avatar || !lot) return;
@@ -375,6 +463,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     token = null;
     avatars = [];
     destinations = []; admissionAvailable = false; owned = null; pendingEntry = null; firstTicket = null; detachPending = false; placementPending = false;
+    creator=null;pendingCreation=null;creationUnknown=false;createdAvatarId=null;
     const job = begin("logout");
     if (!job) return;
     try {
@@ -404,8 +493,19 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     token = null;
     avatars = [];
     destinations = []; admissionAvailable = false; owned = null; pendingEntry = null; firstTicket = null; detachPending = false; placementPending = false;
+    creator=null;pendingCreation=null;creationUnknown=false;createdAvatarId=null;
   }
   async function contentFiles() {
+    if(creator&&!owned&&token&&!disposed&&!active){
+      const selection=creator,n=generation,secret=token,controller=new AbortController();
+      contentRequests.add(controller);const timer=setTimeout(()=>controller.abort(),60000);
+      try{return await loadNativeContent({signal:controller.signal,expectedRelease:selection.release,
+        current:()=>!disposed&&generation===n&&creator===selection&&token===secret,
+        read:(path,signal)=>fetcher(new URL(path.replace('/native-content/','/native-content/creator/'),origin).href,{
+          method:'POST',credentials:'omit',cache:'no-store',redirect:'error',signal,
+          headers:{'Content-Type':'application/json',Authorization:'Bearer '+secret},body:JSON.stringify({release:selection.release})})});
+      }finally{clearTimeout(timer);contentRequests.delete(controller);}
+    }
     if (!token || !owned || detachPending || placementPending || disposed)
       throw Error("No active owned content admission.");
     const selection=owned,n=generation,secret=token,controller=new AbortController();
@@ -426,5 +526,5 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     avatars: [],
     message: "Sign in to your native Wonderland account.",
   });
-  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles };
+  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate };
 }

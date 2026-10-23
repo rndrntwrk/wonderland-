@@ -1,6 +1,6 @@
 import type { AccountAuthority } from "../account/authority";
 import { digest, fields, decimal } from "../lot/contracts";
-import { token } from "../account/contracts";
+import { token, operation, avatar } from "../account/contracts";
 
 export interface AccountHttpEnv {
   NATIVE_ACCOUNT_HTTP?: string;
@@ -107,7 +107,14 @@ export async function accountHttp(
   const action = url.pathname.replace(/^\/native-account\//, "");
   if (
     !url.pathname.startsWith("/native-account/") ||
-    !["login", "roster", "logout", "rotate"].includes(action)
+    ![
+      "login",
+      "roster",
+      "logout",
+      "rotate",
+      "create",
+      "creation-options",
+    ].includes(action)
   )
     return reply(404, { error: "not_found" });
   if (request.method !== "POST")
@@ -143,6 +150,38 @@ export async function accountHttp(
     if (!authorization?.startsWith("Bearer "))
       return reply(401, { error: "unauthorized" });
     const secret = token(authorization.slice(7));
+    if (action === "creation-options") {
+      const v = fields(data, ["after"]);
+      return reply(200, {
+        version: 1,
+        state: "creation_options",
+        ...(await stub.creationOptions(secret, decimal(v.after))),
+      });
+    }
+    if (action === "create") {
+      let creation;
+      try {
+        const value = fields(data, ["operation", "avatar"]);
+        creation = {
+          operation: operation(value.operation),
+          avatar: avatar(value.avatar),
+        };
+      } catch {
+        throw new InvalidBody();
+      }
+      // The session selects the owner. The existing transactional authority
+      // validates pinned content and retains the exact operation/result; a
+      // retry cannot allocate another Sim or grant browser-supplied ownership.
+      return reply(200, {
+        version: 1,
+        state: "avatar_created",
+        avatar: await stub.createAvatar(
+          secret,
+          creation.operation,
+          creation.avatar,
+        ),
+      });
+    }
     if (action === "roster") {
       const v = fields(data, ["after"]);
       return reply(200, {

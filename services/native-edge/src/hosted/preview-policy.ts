@@ -30,7 +30,8 @@ export function assertPreviewActive(settings:PreviewSettings,now=Date.now()) {
   if(now<settings.starts||now>=settings.expires)throw Error("Preview outside approved window");
 }
 const postPaths=new Set(["/native-account/login","/native-account/roster","/native-account/logout",
-  "/native-account/rotate","/native-account/enter","/native-account/reconnect","/native-account/leave",
+  "/native-account/creation-options","/native-content/creator/manifest",
+  "/native-account/rotate","/native-account/create","/native-account/enter","/native-account/reconnect","/native-account/leave",
   "/native-content/manifest"]);
 export function isNativeRequest(request:Request,settings:PreviewSettings):boolean {
   const url=new URL(request.url);
@@ -38,6 +39,6 @@ export function isNativeRequest(request:Request,settings:PreviewSettings):boolea
   if(url.pathname==="/native-lot/stream")return request.method==="GET"
     &&request.headers.get("upgrade")?.toLowerCase()==="websocket"&&request.headers.get("origin")===settings.origin;
   return request.method==="POST"&&request.headers.get("origin")===settings.origin
-    &&(postPaths.has(url.pathname)||/^\/native-content\/file\/[0-9a-f]{64}$/.test(url.pathname));
+    &&(postPaths.has(url.pathname)||/^\/native-content\/(creator\/)?file\/[0-9a-f]{64}$/.test(url.pathname));
 }
 export function privatePrefix(settings:PreviewSettings){return `native-preview/${settings.id}/`;}

@@ -129,7 +129,7 @@ impl ContentUi {
         self.generation.set(generation);
         self.loading.set(true);
         self.notice
-            .set("Loading your property's game content…".into());
+            .set("Loading your game's original content…".into());
         let revision = target.state_revision.get_untracked();
         wasm_bindgen_futures::spawn_local(async move {
             let result =

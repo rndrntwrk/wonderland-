@@ -31,7 +31,12 @@ test('account HTTP retains public Origin and trusted ingress identity without th
  const f=setup();const res=await f.transport.dispatchFetch(origin+'/native-account/login',{method:'POST',headers:{origin,'content-type':'application/json','cf-connecting-ip':'192.0.2.1','x-owned-private':'must-not-forward'},body:'{"username":"fixture"}'});
  assert.equal(res.status,200);assert.deepEqual(f.http,[{url:origin+'/native-account/login',origin,ip:'192.0.2.1',private:null,body:{username:'fixture'}}]);assert.deepEqual(f.calls,[]);
 });
-test('only the four existing public account methods can cross the outbound bridge',async()=>{
+test('authenticated avatar creation preserves exact operation/body through the private bridge once',async()=>{
+ const f=setup(),body={operation:'native_http_create_01',avatar:{name:'Owned Traveller',head_key:'9007199254740993',body_key:'18446744073709551615'}};
+ const res=await f.transport.dispatchFetch(origin+'/native-account/create',{method:'POST',headers:{origin,'content-type':'application/json','cf-connecting-ip':'192.0.2.2','x-owned-private':'must-not-forward'},body:JSON.stringify(body)});
+ assert.equal(res.status,200);assert.deepEqual(f.http,[{url:origin+'/native-account/create',origin,ip:'192.0.2.2',private:null,body}]);assert.deepEqual(f.calls,[]);
+});
+test('only explicit public account methods can cross the outbound bridge',async()=>{
  const f=setup();for(const path of ['/native-account/register','/rpc','/native-account/login?x=1','/native-account/../rpc']){
   await assert.rejects(f.transport.dispatchFetch(origin+path,{method:'POST',headers:{origin,'content-type':'application/json'},body:'{}'}));
  }assert.equal(f.http.length,0);assert.equal(f.calls.length,0);

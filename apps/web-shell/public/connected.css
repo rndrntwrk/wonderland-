@@ -209,3 +209,10 @@
   .connected-shell:has(.connected-world):has(.connected-panel) { --lot-controls-height:204px; }
   .connected-shell:has(.connected-panel) .source-world-tools { grid-template-areas:"camera camera" "floor floor" "walls walls" "actions actions"; }
 }
+
+/* The native creator is a full screen, not a sign-in form flex item. */
+.connected-login:has(> .connected-creator){display:block;padding:0;height:auto;overflow:visible}
+.connected-login:has(> .connected-creator)>.connected-login-heading{display:none}
+.connected-login:has(> .connected-creator)>.connected-creator{width:100%;max-width:none}
+.connected-login:has(> .connected-creator)>button{position:absolute;top:16px;right:20px;z-index:100;padding:8px 16px}
+.connected-login:has(> .connected-creator)>p[role=status]{position:absolute;top:10px;left:20px;z-index:100;max-width:calc(100% - 160px);margin:0;padding:5px 9px;border-radius:9px;background:#16517acc;font-size:12px;color:#fff}

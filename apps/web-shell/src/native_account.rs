@@ -12,6 +12,10 @@ export async function openNativeAccount(base, update, nativeLots) {
 }
 export function nativeAccountCall(host, action, first, second) {
  if(!host)return; if(action==='login')void host.login(first,second);
+ else if(action==='openCreator')void host.openCreator();
+ else if(action==='closeCreator')host.closeCreator();
+ else if(action==='create')void host.createAvatar(JSON.parse(first));
+ else if(action==='retryCreate')void host.retryCreate();
  else if(action==='enter')void host.enter(first,second);
  else if(action==='retryPlacement')void host.retryPlacement();
  else if(action==='placementUnavailable')host.placementUnavailable();
@@ -30,6 +34,16 @@ extern "C" {
 }
 #[derive(Clone, Default, Deserialize)]
 struct Snapshot {
+    #[serde(default)]
+    creator_open: bool,
+    #[serde(default)]
+    creation_options: Option<crate::native_creation::CreationCatalog>,
+    #[serde(default)]
+    creation_pending: bool,
+    #[serde(default)]
+    creation_unknown: bool,
+    #[serde(default)]
+    created_avatar_id: Option<String>,
     state: String,
     avatars: Vec<Avatar>,
     message: String,
@@ -238,13 +252,30 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
             }
             return;
         }
-        if snapshot.state != "lot_ready" {
-            return;
-        }
-        let Some(grant) = snapshot.grant else {
+        let scope = if snapshot.creator_open {
+            snapshot
+                .creation_options
+                .as_ref()
+                .map(|c| format!("creator:{}:{}", c.release, owned.epoch.get_untracked()))
+        } else if snapshot.state == "lot_ready" {
+            snapshot
+                .grant
+                .as_ref()
+                .map(|g| format!("lot:{}:{}", g.recovery_scope, g.binding.lot_incarnation))
+        } else {
+            None
+        };
+        let Some(scope) = scope else {
+            if loaded_scope
+                .get_value()
+                .as_ref()
+                .is_some_and(|v| v.starts_with("creator:"))
+            {
+                content.clear_authenticated();
+                loaded_scope.set_value(None);
+            }
             return;
         };
-        let scope = format!("{}:{}", grant.recovery_scope, grant.binding.lot_incarnation);
         if loaded_scope.get_value().as_ref() == Some(&scope) {
             return;
         }
@@ -255,12 +286,19 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     });
     let callback = Closure::wrap(Box::new(move |raw: String| {
         if let Ok(next) = serde_json::from_str::<Snapshot>(&raw) {
-            let changed = state.with_untracked(|old| old.grant != next.grant);
+            let changed = state.with_untracked(|old| {
+                old.grant != next.grant || old.creator_open != next.creator_open
+            });
             if changed {
                 owned.epoch.update(|n| *n = n.saturating_add(1));
             }
             if next.state == "signed_out" || next.state == "signing_out" {
                 selected.set(None);
+            }
+            if let Some(id) = &next.created_avatar_id {
+                if next.avatars.iter().any(|v| &v.avatar_id == id) {
+                    selected.set(Some(id.clone()));
+                }
             }
             state.try_set(next);
         }
@@ -329,12 +367,14 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     <h2>"Come on in"</h2><label for="native-username">"Account name"</label><input id="native-username" autocomplete="username" required=true prop:value=move||username.get() on:input=move|e|username.set(event_target_value(&e))/>
     <label for="native-password">"Password"</label><input id="native-password" type="password" autocomplete="current-password" required=true prop:value=move||password.get() on:input=move|e|password.set(event_target_value(&e))/>
     <button class="chrome primary" type="submit" disabled=move||state.with(|s|s.state=="loading"||s.state=="signing_out"||s.state.is_empty())>"Sign in"</button></form>}>
+    <Show when=move||state.with(|s|s.creator_open) fallback=move||view!{
     <div class="connected-login-card chrome"><h2>"Your Sims"</h2>
     <For each=move||state.with(|s|s.avatars.clone()) key=|v|v.avatar_id.clone() children=move|v|{
         let id=v.avatar_id;let name=v.name;
         view!{<div class="native-owned-avatar"><p>{name.clone()}</p><Show when=move||native_lots && state.with(|s|s.admission_available)><button class="chrome primary" aria-pressed={let id=id.clone();move||(selected.get().as_ref()==Some(&id)).to_string()} disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click={let id=id.clone();move|_|selected.set(Some(id.clone()))}>{format!("Play as {name}")}</button></Show></div>}
     }/>
     <Show when=move||state.with(|s|s.state=="account_ready"&&s.avatars.is_empty())><p>"No Sims are saved to this account yet."</p></Show>
+    <Show when=move||native_lots><button class="chrome primary" disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")||s.avatars.len()>=3) on:click=move |_|owned.invoke("openCreator","","")>"Create a Sim"</button></Show>
     <Show when=move||native_lots && selected.get().is_some()><section aria-label="Available properties"><h3>"Choose a property"</h3><For each=move||state.with(|s|s.destinations.clone()) key=|v|v.lot_id.clone() children=move|v|view!{<button class="chrome" disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click=move|_|if let Some(id)=selected.get_untracked(){owned.invoke("enter",&id,&v.lot_id);}>{format!("Enter {}",v.name)}</button>}/></section></Show>
     <button class="chrome" disabled=move||state.with(|s|s.state!="account_ready"&&s.state!="account_error") on:click=move|_|owned.invoke("refresh","","")>"Refresh roster"</button>
     <button class="chrome" on:click=move|_|owned.invoke("logout","","")>"Sign out"</button>
@@ -342,7 +382,18 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     <Show when=move||state.with(|s|s.state=="detach_pending")><button class="chrome" on:click=move|_|owned.leave()>"Retry leaving"</button></Show>
     <Show when=move||!native_lots><p>"World entry and character creation are not available in this staged connection."</p></Show>
     <Show when=move||native_lots><details><summary>"Game content"</summary><ContentLoader/></details></Show>
-    </div></Show>
+    </div>}>
+    <crate::native_creator_browser::NativeCreator
+      catalog=Signal::derive(move||state.with(|s|s.creation_options.clone()))
+      busy=Signal::derive(move||state.with(|s|s.state=="account_refreshing"))
+      pending=Signal::derive(move||state.with(|s|s.creation_pending))
+      unknown=Signal::derive(move||state.with(|s|s.creation_unknown))
+      submit=Callback::new(move|spec:String|owned.invoke("create",&spec,""))
+      close=Callback::new(move|()|owned.invoke("closeCreator","",""))
+      retry=Callback::new(move|()|owned.invoke("retryCreate","",""))
+      reload=Callback::new(move|()|{if let Some(host)=provider.with_value(|p|p.host.clone()){content.load_authenticated(content_target,host);}})/>
+    <button class="chrome" on:click=move |_|owned.invoke("logout","","")>"Sign out"</button>
+    </Show></Show>
     <p role="status" aria-live="polite">{move||state.with(|s|s.message.clone())}</p>
     </section>}>
     <div hidden=move||state.with(|s|s.state=="admitted_awaiting_placement")><crate::native_lot::NativeLot owned=owned/></div>

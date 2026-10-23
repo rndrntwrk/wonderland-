@@ -1,0 +1,167 @@
+{
+  "schema": "wonderland.native-creator-qualified-checkpoint.v1",
+  "testedSource": {
+    "commit": "3ac33ec59fe3e068a3a9957b8bc2824ab52ad2e5",
+    "tree": "c532e76ceeebf3f99c957fe2fcc1725287de18ad",
+    "incorporates": [
+      "421ae9c1271e00a29e922597996ff3e39f5aa356",
+      "b9764aa506b0e750b59a9c750d8180266cf4c820",
+      "3ac33ec59fe3e068a3a9957b8bc2824ab52ad2e5"
+    ]
+  },
+  "publication": "Exact source postimages on PR82; publication commit differs because private local history is excluded. Later documentation-only commits do not change compiled inputs.",
+  "base": {
+    "pr": 81,
+    "commit": "b0741032bddff45f408420b25967c91041da6aa3"
+  },
+  "focusedValidation": {
+    "javascript": {
+      "passed": 40,
+      "failed": 0
+    },
+    "rustAppearanceModel": {
+      "passed": 3,
+      "failed": 0
+    },
+    "routing": {
+      "passed": 26,
+      "failed": 0
+    },
+    "realHttpJourney": {
+      "passedCheckGroups": 11
+    },
+    "wasmCheck": "passed",
+    "matchingOfflineReleaseBuild": {
+      "status": "success",
+      "artifactCount": 149,
+      "dependencyInstallsOrDownloads": false
+    }
+  },
+  "renderedJourney": {
+    "passed": true,
+    "started": "2026-10-23T22:52:34.236Z",
+    "finished": "2026-10-23T22:52:41.816Z",
+    "scope": "Existing disposable account \u2192 original eligible creator controls and authenticated 30-file content load \u2192 confirmed creation \u2192 owned roster selection \u2192 source-owned placement and rendered new Sim with advancing accepted ticks",
+    "viewports": [
+      {
+        "width": 1200,
+        "height": 800
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "responses": 68,
+    "non200Responses": 0,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "warnings": [
+      "Chromium preload destination ignores integrity attribute"
+    ],
+    "screenshotsVisuallyReviewed": true,
+    "browser": "Existing sandbox-enabled Chromium; no security protections disabled",
+    "nativeHostSha256": "81a9875ede8244790e435d07acec010a49130456f1150fd8000ec7d515e2fc8a"
+  },
+  "limits": [
+    "No hosted execution/deployment, performance retest or full-game completion",
+    "Browser fixture is an existing account, not empty-account onboarding; empty roster covered only in focused provider tests",
+    "Some source thumbnails and scenery unavailable; bounded creator pack has zero sound samples",
+    "Owned Buy/Build remains disabled",
+    "Source review by sole implementer; no new independent agent",
+    "Baseline TS7016 at services/native-edge/src/account/crypto.ts:7 missing generated account_crypto.js declaration",
+    "proc-macro-error2 v2.0.1 future incompatibility warning; no full workspace formatting/type-check claim",
+    "Creation policy/service errors remain fail-closed and can require an explicit same-request retry or sign-out; no generic full UX completion claim"
+  ],
+  "preservedFailedAttempts": [
+    "Initial WASM RSX parsing check corrected before green build",
+    "Initial browser wait occurred before WASM mount; no creation submitted",
+    "Second browser attempt timed out filling a closed description disclosure and exposed actual parent flex layout defect; harness disclosure interaction and scoped CSS corrected before fresh green run"
+  ],
+  "evidence": [
+    {
+      "label": "result.json",
+      "sha256": "26a10536e6096d254f0d3aa3ec48337bfc4ad7f8a572c0c384091ac4f379e9a2",
+      "bytes": 10800,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "creator-desktop.png",
+      "sha256": "04b171b7386dd23b99b8c1511812c19470229d3b51e01d96a877b045b8b3fcbb",
+      "bytes": 1465876,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "creator-mobile.png",
+      "sha256": "f4f2885b45c9a59dd5224b30144f601f71fbbdef9d214441f8c353c88f43d46c",
+      "bytes": 372885,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "created-roster.png",
+      "sha256": "01880fa0c17675b8229f0bd5ef100a35f523aafb44d2ebcba4437ca4246ad194",
+      "bytes": 447269,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "created-native-lot.png",
+      "sha256": "9d9336aa9ca4c7f003040cf7aa54d7814d59276f6385279d0749ff940c0f24bc",
+      "bytes": 140125,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-creator-js-green-03.log",
+      "sha256": "a5a449a8768894f754396b2a8074e31402091bf0e22ace85f08938e3b8140c74",
+      "bytes": 3960,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-creator-rust-tests-03.log",
+      "sha256": "f4ce70d47bfa884e6cab41056f2287c0c80b920e6cf1c27f7fa5d66d99f60118",
+      "bytes": 661,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-creator-routing-02.log",
+      "sha256": "0cb9b9199bf67b5ba9a526f2f1e77e0ff364c4bef309b085d84c9f84e54ce5e6",
+      "bytes": 2498,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-creator-options-green-01.log",
+      "sha256": "a25eed4d37ee1b76d28d67e5ce74e44cc6f8fb7466308b8f5a7718edc596a11d",
+      "bytes": 1569,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-creator-wasm-check-02.log",
+      "sha256": "bb7926d678a60671d2f27a7f458378bd21bc45b1d4802156c4a2003ee62fd01e",
+      "bytes": 434,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-creator-types-01.log",
+      "sha256": "0cae0286bfd59eb3dc868df33afd1f44bc856b7af4490da1e9f18fec22efe84d",
+      "bytes": 263,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "verify-native-creator-01.mjs",
+      "sha256": "b1000da95bb5dc3597608a88b2cddf0ba2fc68d5b2f15888399d0d619bf9c9fd",
+      "bytes": 9811,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "matching-wasm-creator-build-02.json",
+      "sha256": "47a7962db950300d3ee21c162f141f53e04898a13b459a5f539c018b1a22bd5d",
+      "bytes": 26450,
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "build-creator-browser-02.py",
+      "sha256": "b3e184c2aa7bb3f970b0a2e6428a8708e3718288bfa123979a30f5d965b1eb91",
+      "bytes": 3032,
+      "availability": "private retained original; not uploaded"
+    }
+  ]
+}

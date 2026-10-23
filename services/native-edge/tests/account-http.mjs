@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import assert from "node:assert/strict";
 import { createNativeAccountProvider } from "../../../apps/web-shell/public/native-account.mjs";
+import { createContainerEdgeTransport } from "../../../tools/native-browser/owned-demo/edge-transport.mjs";
+import { createSupervisorOutboundHandler } from "../src/hosted/supervisor-outbound.ts";
 const root = await mkdtemp(join(tmpdir(), "wonderland-account-http-"));
 const result = await build({
   entryPoints: ["tests/account-http-driver.ts"],
@@ -419,6 +421,220 @@ try {
   assert.deepEqual(await outage.json(), { error: "unavailable" });
   checks.push(
     "negative-only boundary: transient authority failure returns503 without private diagnostic or false revocation",
+  );
+  // Exercise the public creation boundary against the real SQLite authority.
+  // Removing authentication, operation identity or catalog validation must fail.
+  // Independent users avoid consuming the earlier interruption cases' five
+  // allowed authentication attempts; production throttles stay unchanged.
+  for (const [username, name] of [
+    ["http_creator_a", "Creator Alpha"],
+    ["http_creator_b", "Creator Beta"],
+  ])
+    assert.equal(
+      (await request("/test-setup", { username, name })).status,
+      200,
+    );
+  const spec = {
+    name: "Third Traveller",
+    description: "Created through authenticated HTTP",
+    gender: "female",
+    skin: "dark",
+    head_key: "1",
+    body_key: "2",
+    release: "b".repeat(64),
+  };
+  const createBody = { operation: "native_http_create_01", avatar: spec };
+  assert.equal(
+    (await request("/native-account/create", createBody)).status,
+    401,
+  );
+  const signIn = async (username) => {
+    const response = await request("/native-account/login", {
+      username,
+      password: "native-account-test-passphrase",
+    });
+    assert.equal(response.status, 200);
+    return response.json();
+  };
+  const sa = await signIn("http_creator_a"),
+    sb = await signIn("http_creator_b");
+  const ha = { authorization: "Bearer " + sa.token },
+    hb = { authorization: "Bearer " + sb.token };
+  assert.equal(
+    (await request("/native-account/creation-options", { after: "0" })).status,
+    401,
+  );
+  const optionsResponse = await request(
+    "/native-account/creation-options",
+    { after: "0" },
+    ha,
+  );
+  assert.equal(optionsResponse.status, 200);
+  assert.deepEqual(await optionsResponse.json(), {
+    version: 1,
+    state: "creation_options",
+    release: "b".repeat(64),
+    available_slots: 2,
+    entries: [
+      { key: "1", part: "head", gender: "female", skins: ["dark"] },
+      { key: "2", part: "body", gender: "female", skins: ["dark"] },
+    ],
+    next: null,
+  });
+  const end = await request(
+    "/native-account/creation-options",
+    { after: "2" },
+    ha,
+  );
+  assert.deepEqual((await end.json()).entries, []);
+  assert.equal(
+    (
+      await request("/native-account/create", createBody, {
+        ...ha,
+        origin: "https://other.invalid",
+      })
+    ).status,
+    403,
+  );
+  assert.equal(
+    (
+      await mf.dispatchFetch("https://test/native-account/create", {
+        method: "GET",
+        headers: { origin: "https://test", ...ha },
+      })
+    ).status,
+    405,
+  );
+  const creationBridge = createContainerEdgeTransport({
+    publicOrigin: "https://test",
+    fetchOutbound: createSupervisorOutboundHandler({
+      publicOrigin: "https://test",
+      dispatchRpc: async () => {
+        throw Error("Creation must not use supervisor RPC");
+      },
+      // Miniflare's dispatch API takes URL/init, not Node's Request instance.
+      accountHttp: async (request) =>
+        mf.dispatchFetch(request.url, {
+          method: request.method,
+          headers: Object.fromEntries(request.headers),
+          body: await request.arrayBuffer(),
+        }),
+    }),
+  });
+  const createdResponse = await creationBridge.dispatchFetch(
+    "https://test/native-account/create",
+    options(createBody, ha),
+  );
+  assert.equal(createdResponse.status, 200);
+  assert.equal(createdResponse.headers.get("cache-control"), "no-store");
+  const created = await createdResponse.json();
+  assert.equal(created.version, 1);
+  assert.equal(created.state, "avatar_created");
+  assert.deepEqual(created.avatar, { avatar_id: "5", ...spec });
+  assert.deepEqual(
+    await (await request("/native-account/create", createBody, ha)).json(),
+    created,
+  );
+  assert.deepEqual(
+    (
+      await (await request("/native-account/roster", { after: "0" }, ha)).json()
+    ).avatars.map((v) => v.name),
+    ["Creator Alpha", "Third Traveller"],
+  );
+  checks.push(
+    "authenticated creation retains exact original appearance and idempotent operation across a repeated/lost reply; no extra avatar allocated",
+  );
+  const changed = await request(
+    "/native-account/create",
+    { ...createBody, avatar: { ...spec, name: "Changed Traveller" } },
+    ha,
+  );
+  assert.equal(changed.status, 503);
+  assert.deepEqual(await changed.json(), { error: "unavailable" });
+  const other = await request(
+    "/native-account/create",
+    { ...createBody, avatar: { ...spec, name: "Other Traveller" } },
+    hb,
+  );
+  assert.equal(other.status, 200);
+  assert.equal((await other.json()).avatar.avatar_id, "6");
+  assert.deepEqual(
+    (
+      await (await request("/native-account/roster", { after: "0" }, hb)).json()
+    ).avatars.map((v) => v.name),
+    ["Creator Beta", "Other Traveller"],
+  );
+  checks.push(
+    "operation scope and roster remain account-owned; changed bytes under one identity reject without allocation",
+  );
+  for (const data of [
+    { ...createBody, account_id: sb.account_id },
+    { ...createBody, operation: "short" },
+    { ...createBody, avatar: { ...spec, principal: "2" } },
+    { ...createBody, avatar: { ...spec, head_key: 1 } },
+  ])
+    assert.equal(
+      (await request("/native-account/create", data, ha)).status,
+      400,
+    );
+  for (const change of [
+    { head_key: "999" },
+    { release: "c".repeat(64) },
+    { gender: "male" },
+    { skin: "light" },
+  ]) {
+    const rejected = await request(
+      "/native-account/create",
+      {
+        operation: "native_http_invalid_01",
+        avatar: { ...spec, ...change, name: "Denied Traveller" },
+      },
+      ha,
+    );
+    assert.equal(rejected.status, 503);
+    assert.deepEqual(await rejected.json(), { error: "unavailable" });
+  }
+  const last = await request(
+    "/native-account/create",
+    {
+      operation: "native_http_create_03",
+      avatar: { ...spec, name: "Last Traveller" },
+    },
+    ha,
+  );
+  assert.equal(last.status, 200);
+  assert.equal(
+    (
+      await request(
+        "/native-account/create",
+        {
+          operation: "native_http_create_04",
+          avatar: { ...spec, name: "Over Limit Traveller" },
+        },
+        ha,
+      )
+    ).status,
+    503,
+  );
+  assert.equal(
+    (await (await request("/native-account/roster", { after: "0" }, ha)).json())
+      .avatars.length,
+    3,
+  );
+  await request("/native-account/logout", { all: false }, ha);
+  assert.equal(
+    (await request("/native-account/create", createBody, ha)).status,
+    401,
+  );
+  await creationBridge.dispose();
+  const remaining = await request(
+    "/native-account/creation-options",
+    { after: "0" },
+    hb,
+  );
+  assert.equal((await remaining.json()).available_slots, 1);
+  checks.push(
+    "creation rejects foreign origin/method, malformed authority fields, unpinned appearance/release, revoked session and a fourth Sim; no signup route exposed",
   );
   const dir = resolve("../../tests/output/native-account-http");
   await mkdir(dir, { recursive: true });
