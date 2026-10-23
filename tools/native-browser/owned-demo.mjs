@@ -770,6 +770,32 @@ export async function createOwnedDemo({
         request.url.includes("%")
       )
         throw Error("Invalid request path.");
+      if (url.pathname === '/native-account/chat') {
+        const token=authorizeRequest(request),data=await readBody(request);
+        const value=await serially(async()=>{
+          const keys=['action','avatar_id','lot_id','operation','lot_incarnation'];
+          assert.ok(['read','send'].includes(data.action));
+          if(data.action==='send')keys.push('sequence','text');
+          assert.deepEqual(Object.keys(data).sort(),keys.sort());
+          assert.equal(data.lot_id,manifest.lot.lot_id);
+          const entry=admitted.get(key(token,data.avatar_id))??await restoreEntry(token,data);
+          assert.equal(entry.operation,data.operation);
+          assert.equal(data.lot_incarnation,entry.binding.lot_incarnation);
+          await sweepFences();
+          const current=await revalidate(entry);
+          assert.ok(ownedPlacement(current,entry).in_world);
+          const result=await lot('ownedLotChatV1',[{
+            control:{...entry.control,account_id:entry.export.account_id},
+            lot_id:data.lot_id,lot_incarnation:data.lot_incarnation,
+            message:data.action==='send'?{sequence:data.sequence,text:data.text}:null,
+          }]);
+          if(data.action==='send')await renewActivity(entry);
+          return result;
+        });
+        response.writeHead(200,{'content-type':'application/json','cache-control':'private, no-store',
+          'cross-origin-resource-policy':'same-origin','x-content-type-options':'nosniff'});
+        response.end(JSON.stringify(value));return;
+      }
       if (url.pathname.startsWith("/native-content/")) {
         if (!contentProvider) {
           response.writeHead(404); response.end(); return;

@@ -8,14 +8,14 @@ function fixture(result={ok:true}) {
  return {calls,dispatch:async (...args)=>{calls.push(args);return result;}};
 }
 test('private account and lot calls retain target/method/argument identity',async()=>{
- for(const [target,method] of [['account','roster'],['lot','getBatch']]){
+ for(const [target,method] of [['account','roster'],['lot','getBatch'],['lot','ownedLotChatV1']]){
   const f=fixture({marker:17});const response=await dispatchSupervisorRpc(call(target,method,['one',7]),f.dispatch);
   assert.equal(response.status,200);assert.deepEqual(await response.json(),{value:{marker:17}});
   assert.deepEqual(f.calls,[[target,method,['one',7]]]);
  }
 });
 test('unknown targets, method crossing and malformed calls fail before binding invocation',async()=>{
- const values=[null,[],{},call('public','register'),call('account','commitControlledBatchV2'),call('lot','register'),call('lot','constructor'),call('lot','getBatch',{}),call('lot','getBatch',Array(9).fill(null))];
+ const values=[null,[],{},call('public','register'),call('account','commitControlledBatchV2'),call('lot','register'),call('account','ownedLotChatV1'),call('lot','constructor'),call('lot','getBatch',{}),call('lot','getBatch',Array(9).fill(null))];
  for(const body of values){const f=fixture();const r=await dispatchSupervisorRpc(body,f.dispatch);assert.equal(r.status,400);assert.deepEqual(f.calls,[]);}
 });
 test('checkpoint conversion stays at the existing byte position and does not mutate caller data',async()=>{

@@ -1,0 +1,159 @@
+{
+  "schema": "wonderland.native-owned-lot-chat-checkpoint.v1",
+  "testedSource": {
+    "commit": "07739008063e2a6bf78a1b6dd294d411894cbbde",
+    "tree": "ee00e6bbb45a10ea3dc645ba3f0fd9b3e732d930",
+    "implementation": "63dba3e8060d49e98b4250618fb8c5c28da6be1c",
+    "packagingCorrection": "4787e2b167cde74cdbbc806d56e2330422e51f6c",
+    "visualCorrection": "07739008063e2a6bf78a1b6dd294d411894cbbde"
+  },
+  "stackedBase": {
+    "pr": 82,
+    "commit": "810b3eceb84bab91125f8aa86ccf173fce0cdc5e",
+    "tree": "2401649c1560990544db1d4fa9c52320d2b2615a"
+  },
+  "publication": "Exact source postimages; private local history excluded. Later test/document-only changes do not change compiled product inputs.",
+  "semantics": {
+    "audience": "currently authenticated, source-placed public lot members",
+    "channel": 0,
+    "historyMessages": 100,
+    "textLimitUtf16Units": 200,
+    "dedup": "monotonic per-avatar sequence; latest exact receipt survives history pruning",
+    "membership": "fresh reserved-account validation and native placement, then atomic coordinator installation/active/expiry/fence/lot/incarnation checks",
+    "attribution": "installed account export supplies avatar identity/name and bound ignore list",
+    "transport": "same-origin authenticated HTTP; one-second nonoverlapping reads only while panel and native connection are live",
+    "durability": "chat commit and sender receipt in one SQLite transaction before acknowledgement; chat does not synthesize VM or simulation ticks"
+  },
+  "results": {
+    "httpCheckGroups": 7,
+    "httpSource": "63dba3e8060d49e98b4250618fb8c5c28da6be1c",
+    "httpEquivalence": "Only index.html and connected.css changed between HTTP-tested and rendered source; service/transport bytes unchanged",
+    "sqliteCheckGroups": 5,
+    "javascriptCases": 36,
+    "routingCases": 11,
+    "wasmCheck": "passed; compiled new Rust UI in pinned release builds",
+    "releaseArtifactCount": 151,
+    "renderedChecks": [
+      "two separate authenticated browser contexts send/read with correct source names, stable identities and escaped text",
+      "actual server commit followed by intentionally dropped HTTP reply remains unknown, explicit identical retry delivers once",
+      "fresh authenticated socket reconnect reloads history without duplicate rows",
+      "native host recovery renews current bindings and both rendered clients reload the same durable history",
+      "mobile chat sends to desktop peer; input, retry visibility, feedback spacing and toolbar separation verified",
+      "sign-out removes the owned chat view while the eligible peer retains its room"
+    ],
+    "renderedPassed": true,
+    "viewports": [
+      "1200x800",
+      "390x844"
+    ],
+    "started": "2026-10-23T23:30:32.217Z",
+    "finished": "2026-10-23T23:30:47.151Z",
+    "retry": {
+      "sameExactRequest": true,
+      "attempts": 2,
+      "oneDurableMessage": true
+    },
+    "pageExceptions": 0,
+    "successfulChatResponses": 22,
+    "non200ChatResponses": 0,
+    "intentionalNetworkConsoleErrors": 2,
+    "preloadWarnings": 2,
+    "contentLifecycleAborts": 4,
+    "screenshotsVisuallyReviewed": true,
+    "sourceActorsAfterRecovery": 2,
+    "haltedAfterRecovery": null
+  },
+  "retainedFailures": [
+    "Initial HTTP fixture used a missing lot_id field; corrected before observing the real missing route failure",
+    "Missing chat route failed the real placed-member read before implementation",
+    "Initial module import test failed before client module existed",
+    "First store fixture lacked modulesRoot; corrected without changing storage behavior",
+    "Initial copied packaging-driver log filename collision prevented command execution; prior artifacts preserved",
+    "Browser 01 failed because native-chat.mjs was omitted from the explicit Trunk copy list",
+    "Browser 02 passed functional cases; visual review found retry hidden override and mobile toolbar overflow",
+    "Attempted static artifact reuse was rejected because CSS is Trunk-processed rather than a direct copy; incomplete copy retained and fresh pinned packaging used"
+  ],
+  "limitations": [
+    "Public lot conversation only; no mail, private messaging, private/moderated channels, slash commands or original VM speech bubble execution",
+    "Ignore projection is from the bound admission export; no live ignore editor/service added",
+    "One-second polling is functional delivery, not a latency or 30 Hz qualification",
+    "Browser fixtures are isolated local accounts; no hosted gameplay or complete-game claim",
+    "Bounded pack still lacks scenery/thumbnails/audio breadth; original movement/creator work preserved",
+    "Baseline TS7016 missing generated account_crypto.js declaration remains; unqualified tsc invocation also reports existing TS5097 imports unless allowImportingTsExtensions is supplied",
+    "No full repository format/type-check, new independent review, deployment or merge"
+  ],
+  "evidence": [
+    {
+      "label": "result.json",
+      "bytes": 4179,
+      "sha256": "212d9b253232f60f4cb066d2b4b749109a4feb20d93ed54d239d758edff42788",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "chat-player-1-desktop.png",
+      "bytes": 261662,
+      "sha256": "891972d0f5cf43d46839d6ccff2c0ee14b03255d6ec338c40dabaca0f3c6a5c8",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "chat-player-2-mobile.png",
+      "bytes": 191619,
+      "sha256": "0aab12b2f48de49eea3a4cb5d47914880967939b76e740b955666b97540ea2de",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "result.json",
+      "bytes": 2346,
+      "sha256": "bf4e0bf9c2818344941ec4b962fe5036ac1a68fc4c3e029eca5141ec06c693e1",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-chat-store-03.log",
+      "bytes": 413,
+      "sha256": "2aef2024af912066d65409deda6727dfeef10c249137195ba86def37496c20c5",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-chat-client-regression-02.log",
+      "bytes": 3634,
+      "sha256": "ead3a383646ddd590b260ac483d7274ee76b4ed350b8eb3c19b68ce77a5d8c81",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-chat-routing-01.log",
+      "bytes": 1094,
+      "sha256": "5a9eab2b7f81d94560abf7f4c9f15c64459b8b41cf28c9b1543fb916f2bdc6dc",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-chat-types-03.log",
+      "bytes": 263,
+      "sha256": "0cae0286bfd59eb3dc868df33afd1f44bc856b7af4490da1e9f18fec22efe84d",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "native-chat-wasm-check-01.log",
+      "bytes": 434,
+      "sha256": "063f26746ceb6391f20607eb813543e55c92efe568a59287fa3a6c3d5ca4b1ca",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "verify-native-chat-http-01.mjs",
+      "bytes": 7194,
+      "sha256": "09b4c0c6e03a30699bfd9bcf0c5384b984e904a935c7a2a9498a7e27b01f392a",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "verify-native-chat-browser-01.mjs",
+      "bytes": 12789,
+      "sha256": "8cfa4e27ceb9f995ee8ed9a89c815629a7604366101b369a7df2cb3d6b60f783",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "matching-wasm-chat-build-04.json",
+      "bytes": 26783,
+      "sha256": "b2c38ffa41cc9972c479f1208267422705db7254c923721bd5918c59457c30e9",
+      "availability": "private retained original; not uploaded"
+    }
+  ]
+}
