@@ -1,0 +1,80 @@
+{
+  "source": "421ae9c1271e00a29e922597996ff3e39f5aa356",
+  "tree": "d5b349c9c8444aa56e0c2fb3152b70bff3b5842a",
+  "parent": "de5e9eae2564ae744b901837811648c92d52f537",
+  "source_files": [
+    {
+      "path": "docs/integration/CURRENT-FULL-GAME-GAPS-20261023.md",
+      "sha256": "99899261245c0d2cbf3a9e743ccb5b324a4a5725cb34c98e04c8dfa62d5e555a"
+    },
+    {
+      "path": "services/native-edge/src/account/authority.ts",
+      "sha256": "609e0e57a0e466ded5161fd8cfeae1a7b08b63d1739c7b02e7ea84423d0f4d11"
+    },
+    {
+      "path": "services/native-edge/src/hosted/preview-policy.ts",
+      "sha256": "059664162f7f9732ed1a2b9207abcd8d9b7f74ebc05efde0d8ce865e8d289999"
+    },
+    {
+      "path": "services/native-edge/src/hosted/supervisor-outbound.ts",
+      "sha256": "c639b91358b7df2d3b50ec6b3ebfca06c7dee9031cb636ed32b7f5e8bb3814e2"
+    },
+    {
+      "path": "services/native-edge/src/http/accounts.ts",
+      "sha256": "c78b0b4893c13aa167a1164ac7d284a822e6265335230b4f29962ec5df17d079"
+    },
+    {
+      "path": "services/native-edge/tests/account-http.mjs",
+      "sha256": "4e73906ad231467d7aa7161fc7c193de2c52dc87973c927723244d6a2aff0dc9"
+    },
+    {
+      "path": "services/native-edge/tests/preview-policy.test.mjs",
+      "sha256": "a8940d83ebde64637460b37a9e11418bd42c1798ef29d88f94a35253ed407f6a"
+    },
+    {
+      "path": "services/native-edge/tests/supervisor-outbound.test.mjs",
+      "sha256": "eb67a29e5c13a3396063c59f15f62f6360d058201dccc70d3a71cb06279f3212"
+    },
+    {
+      "path": "tools/native-browser/owned-demo.mjs",
+      "sha256": "44b479979723f64d8e048fa687bd5b15ab03251e8922a4b1f88e78bb3ae3227e"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/edge-transport.mjs",
+      "sha256": "b0fd5f94828456cf51863737cf14dddc9ee51f4827063296315961acc6410b85"
+    }
+  ],
+  "qualification": {
+    "http_journey": "passed",
+    "http_check_groups": 11,
+    "path": "Private original receipt retained; its hash follows, not an accessible download.",
+    "actual_boundary": "Node private transport -> private outbound handler -> real workerd AccountHttp -> AccountAuthority/SQLite and Rust password WASM",
+    "routing_unit_cases_passed": 26,
+    "type_check": "Only retained baseline TS7016 in src/account/crypto.ts:7; no full pass",
+    "diff_and_node_syntax": "passed",
+    "browser_ui_or_hosted_creation": "not implemented or qualified",
+    "no_new_native_wasm_build": true,
+    "image_context": "Existing context-01 remains de5 source; regenerate for 421 before a future image build"
+  },
+  "scope": "Full 21-surface/30-EOD/20-obligation game remains unfinished; initial71 ledger rows are not exhaustive denominator; no completeness percentage",
+  "evidence": [
+    {
+      "sha256": "a25eed4d37ee1b76d28d67e5ce74e44cc6f8fb7466308b8f5a7718edc596a11d",
+      "kind": "avatar-create-http-green-04.log"
+    },
+    {
+      "sha256": "13a92cfe8257a1713827bd7ec403d20f98ec6c5ba3ef24eff755d6601788b363",
+      "kind": "avatar-create-routing-regression-02.log"
+    },
+    {
+      "sha256": "0cae0286bfd59eb3dc868df33afd1f44bc856b7af4490da1e9f18fec22efe84d",
+      "kind": "avatar-create-types-02.log"
+    },
+    {
+      "sha256": "4f6cee35d06cc57bf35cd559206ce81cb900bb0d68c4f4cacc130ffffedae321",
+      "kind": "avatar-create-http-journey-04.json"
+    }
+  ],
+  "publication_base": "b0741032bddff45f408420b25967c91041da6aa3",
+  "note": "HTTP increment only; CAS UI and hosted gameplay remain unfinished. Source review by implementer; no independent agent launched."
+}

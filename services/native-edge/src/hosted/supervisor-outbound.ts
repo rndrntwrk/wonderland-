@@ -9,6 +9,7 @@ interface SupervisorOutboundOptions {
 const ACCOUNT_PATHS = new Set([
   "/native-account/login", "/native-account/roster",
   "/native-account/logout", "/native-account/rotate",
+  "/native-account/create",
 ]);
 const MAX_PRIVATE_BYTES = 40 * 1024 * 1024;
 async function boundedJson(request: Request, maximum: number): Promise<unknown> {

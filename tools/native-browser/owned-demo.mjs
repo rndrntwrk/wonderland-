@@ -847,13 +847,14 @@ export async function createOwnedDemo({
         return;
       }
       if (url.pathname.startsWith("/native-account/")) {
-        // Only the four existing staged HTTP methods are forwarded, never RPC.
+        // Only explicitly admitted account HTTP methods are forwarded, never RPC.
         assert.ok(
           [
             "/native-account/login",
             "/native-account/roster",
             "/native-account/logout",
             "/native-account/rotate",
+            "/native-account/create",
           ].includes(url.pathname),
         );
         assert.equal(request.method, "POST");

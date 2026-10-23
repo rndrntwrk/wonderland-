@@ -30,7 +30,7 @@ export function assertPreviewActive(settings:PreviewSettings,now=Date.now()) {
   if(now<settings.starts||now>=settings.expires)throw Error("Preview outside approved window");
 }
 const postPaths=new Set(["/native-account/login","/native-account/roster","/native-account/logout",
-  "/native-account/rotate","/native-account/enter","/native-account/reconnect","/native-account/leave",
+  "/native-account/rotate","/native-account/create","/native-account/enter","/native-account/reconnect","/native-account/leave",
   "/native-content/manifest"]);
 export function isNativeRequest(request:Request,settings:PreviewSettings):boolean {
   const url=new URL(request.url);

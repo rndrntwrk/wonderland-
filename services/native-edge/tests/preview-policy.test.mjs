@@ -34,10 +34,13 @@ test('public route excludes private/bootstrap paths, bad origins, methods and qu
  const s=previewSettings(env());
  const req=(path,method='POST',origin=s.origin)=>new Request(s.origin+path,{method,headers:{origin}});
  assert.equal(isNativeRequest(req('/native-account/login'),s),true);
+ assert.equal(isNativeRequest(req('/native-account/create'),s),true);
  assert.equal(isNativeRequest(req('/native-content/file/'+'b'.repeat(64)),s),true);
  for(const path of ['/rpc','/bootstrap','/__native-preview/ready','/native-account/register','/native-account/login?x=1','/native-content/file/../secret'])
   assert.equal(isNativeRequest(req(path),s),false);
  assert.equal(isNativeRequest(req('/native-account/login','GET'),s),false);
  assert.equal(isNativeRequest(req('/native-account/login','POST','https://other.invalid'),s),false);
+ assert.equal(isNativeRequest(req('/native-account/create','GET'),s),false);
+ assert.equal(isNativeRequest(req('/native-account/create','POST','https://other.invalid'),s),false);
  assert.equal(isNativeRequest(new Request(s.origin+'/native-lot/stream',{headers:{origin:s.origin,upgrade:'websocket'}}),s),true);
 });

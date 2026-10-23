@@ -1121,7 +1121,11 @@ export class AccountAuthority extends DurableObject<DepartureReceiptEnv> {
       );
     }
   }
-  async createAvatar(rawToken: unknown, rawOperation: unknown, raw: unknown) {
+  async createAvatar(
+    rawToken: unknown,
+    rawOperation: unknown,
+    raw: unknown,
+  ): Promise<ReturnType<typeof avatar> & { avatar_id: string }> {
     const key = await this.tokenHash(rawToken),
       op = operation(rawOperation),
       spec = avatar(raw),

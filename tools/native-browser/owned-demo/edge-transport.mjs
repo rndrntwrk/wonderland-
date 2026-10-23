@@ -4,6 +4,7 @@ const privateRpc = 'http://owned-private.invalid/rpc';
 const accountPaths = new Set([
   '/native-account/login', '/native-account/roster',
   '/native-account/logout', '/native-account/rotate',
+  '/native-account/create',
 ]);
 export function createContainerEdgeTransport({publicOrigin, fetchOutbound=fetch}) {
   const origin = new URL(publicOrigin);
