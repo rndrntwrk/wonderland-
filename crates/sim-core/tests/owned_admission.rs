@@ -396,7 +396,7 @@ fn schema_three_migrates_to_uninitialized_control_and_preserves_last_receipt() {
         .unwrap();
     runtime.step(&tick).unwrap();
     let current = runtime.snapshot().unwrap();
-    let end = current.len() - 32 - 4 - 16 - 17;
+    let end = current.len() - 32 - 4 - 16 - 17 - 40;
     assert_eq!(&current[end..end + 4], &[0; 4]);
     let mut legacy = current[..end].to_vec();
     legacy[10..12].copy_from_slice(&3u16.to_le_bytes());

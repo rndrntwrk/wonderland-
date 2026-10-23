@@ -611,3 +611,39 @@ fn continuation_restore_binds_request_family_operand_and_literal_amount_to_sourc
     let (sleep_store, _, _) = setup(vec![instruction(0)]);
     assert!(thread.validate(&sleep_store).is_err());
 }
+
+#[test]
+fn timer_invocation_latches_exact_locals_and_caller_not_parameters_or_stack_object() {
+    let mut operand = [0, 1, 2, 0, 0, 0, 0, 0];
+    operand[4..8].copy_from_slice(&sim_core::eod::TIMER_PLUGIN_ID.to_le_bytes());
+    let (store, mut thread, mut host) = setup(vec![VmInstruction::new(62, 254, 255, operand)]);
+    let frame = thread.top_mut().unwrap();
+    frame.locals[..3].copy_from_slice(&[7, 8, -5]);
+    frame.args[..3].copy_from_slice(&[101, 102, 103]);
+    frame.context.stack_object = reference(2).object_id;
+    frame.context.stack_object_ref = Some(reference(2));
+    thread.temps[0] = 37;
+    host.responses
+        .push_back(HostResponse::Complete(PrimitiveExit::GotoTrue));
+    thread.run(&store, &mut host, 1);
+    let [HostRequest::InvokePlugin(request)] = host.requests.as_slice() else {
+        panic!("typed Timer request required");
+    };
+    assert_eq!(&request.locals[..3], &[7, 8, -5]);
+    assert_eq!(request.context.caller, reference(1));
+    assert_eq!(request.context.stack_object_ref, Some(reference(2)));
+    assert_eq!(request.temps[0], 37);
+    assert!(!request.is_check);
+}
+
+#[test]
+fn timer_reads_event_local_before_any_host_effect() {
+    let mut operand = [250, 251, 252, 0, 0, 0, 0, 0];
+    operand[4..8].copy_from_slice(&sim_core::eod::TIMER_PLUGIN_ID.to_le_bytes());
+    let (store, mut thread, mut host) = setup(vec![VmInstruction::new(62, 254, 255, operand)]);
+    assert!(matches!(
+        thread.run(&store, &mut host, 1).stop,
+        VmStop::Faulted(VmFault::Bounds { index: 252, .. })
+    ));
+    assert!(host.requests.is_empty());
+}

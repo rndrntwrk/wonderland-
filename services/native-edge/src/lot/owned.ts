@@ -1,6 +1,7 @@
 import { canonical, decimal, fields, hash, proposal } from "./contracts";
 import { actionEvidence } from "./action-outcomes";
 import { departureEvidenceV1 } from "./departures";
+import { nativeEodCandidateV1 } from "./native-eod";
 import { operation } from "../account/contracts";
 import {
   permissionBinding,
@@ -191,11 +192,12 @@ export function controlledProposal(raw: unknown) {
       "events_hex",
       "control_v2",
       ...(Object.hasOwn(v.payload as object, "action_v1") ? ["action_v1"] : []),
+      ...(Object.hasOwn(v.payload as object, "native_eod_v1") ? ["native_eod_v1"] : []),
       ...(Object.hasOwn(v.payload as object, "departure_v1")
         ? ["departure_v1"]
         : []),
     ]);
-  const { control_v2, action_v1, departure_v1, ...base } = p;
+  const { control_v2, action_v1, departure_v1, native_eod_v1, ...base } = p;
   const parsed = proposal({ ...v, payload: base });
   const control = fields(control_v2, [
     "schema_version",
@@ -224,6 +226,7 @@ export function controlledProposal(raw: unknown) {
       ...(Object.hasOwn(p, "departure_v1")
         ? { departure_v1: departureEvidenceV1(departure_v1) }
         : {}),
+      ...(Object.hasOwn(p, "native_eod_v1") ? { native_eod_v1: nativeEodCandidateV1(native_eod_v1) } : {}),
       control_v2: {
         schema_version: 2 as const,
         revision_before: decimal(control.revision_before),

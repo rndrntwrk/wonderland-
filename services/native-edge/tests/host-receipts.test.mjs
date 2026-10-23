@@ -164,6 +164,7 @@ function fixture({
   archived = false,
   controlled = false,
   actions = false,
+  committed = 2,
 } = {}) {
   if (actions) controlled = true;
   const s = storage(),
@@ -179,12 +180,12 @@ function fixture({
     actionStore = new ActionOutcomeStore(s);
   const checkpoint = new TextEncoder().encode("immutable checkpoint"),
     checkpointHash = sha(checkpoint);
-  const checkpointKey = `lots/7/1/2/${checkpointHash}`;
+  const checkpointKey = `lots/7/1/${committed}/${checkpointHash}`;
   bucket.objects.set(checkpointKey, checkpoint);
   const manifest = {
     schema_version: 1,
     binding: b,
-    cursor: cursor(2),
+    cursor: cursor(committed),
     object_key: checkpointKey,
     sha256: checkpointHash,
     byte_length: checkpoint.byteLength,
@@ -196,7 +197,7 @@ function fixture({
   );
   const records = [],
     payloads = [];
-  for (let i = 1; i <= 2; i++) {
+  for (let i = 1; i <= committed; i++) {
     const control = controlled
       ? {
           schema_version: 2,
@@ -289,60 +290,58 @@ function fixture({
       joined.byteLength,
       checkpointKey,
     );
-    s.sql.exec(
-      "INSERT INTO archived_batches VALUES(?,?,?,?)",
-      "1:1",
-      journalKey,
-      0,
-      payloads[0].byteLength,
-    );
-    s.sql.exec(
-      "INSERT INTO archived_batches VALUES(?,?,?,?)",
-      "1:2",
-      journalKey,
-      payloads[0].byteLength,
-      payloads[1].byteLength,
-    );
+    let offset = 0;
+    for (let i = 0; i < payloads.length; i++) {
+      s.sql.exec(
+        "INSERT INTO archived_batches VALUES(?,?,?,?)",
+        `1:${i + 1}`,
+        journalKey,
+        offset,
+        payloads[i].byteLength,
+      );
+      offset += payloads[i].byteLength;
+    }
   }
+  const deniedId = String(committed + 1);
   const denied = {
     status: "rejected",
     reason: "fence_drain_required",
-    batch_id: "3",
+    batch_id: deniedId,
     digest: h(999),
     control_revision: "1",
   };
   const rejectedPayload = actions
     ? {
-        ...JSON.parse(new TextDecoder().decode(payloads[1])),
-        batch_id: "3",
-        predecessor: cursor(2),
-        result: cursor(3),
+        ...JSON.parse(new TextDecoder().decode(payloads[committed - 1])),
+        batch_id: deniedId,
+        predecessor: cursor(committed),
+        result: cursor(committed + 1),
       }
     : null;
   if (actions) {
     rejectedPayload.action_v1 = actionFor(rejectedPayload);
     denied.digest = sha(encode(rejectedPayload));
     actionStore.record(h(66), "7", rejectedPayload, denied.digest, "rejected");
-    const stored = actionStore.forBatch("1:3");
+    const stored = actionStore.forBatch(`1:${deniedId}`);
     denied.action_outcome_sha256 = sha(
       encode({ input_sha256: stored.input_sha256, outcome: stored.outcome }),
     );
   }
   s.sql.exec(
     "INSERT INTO controlled_denials VALUES(?,?,?)",
-    "1:3",
+    `1:${deniedId}`,
     denied.digest,
     canonical(denied),
   );
   records.push({
-    batch_id: "3",
+    batch_id: deniedId,
     input_sha256: actions ? rejectedPayload.action_v1.input_sha256 : h(103),
     digest: denied.digest,
     reply: {
       kind: "rejected",
-      batch_id: "3",
+      batch_id: deniedId,
       digest: denied.digest,
-      cursor: cursor(2),
+      cursor: cursor(committed),
       receipt_hex: actions
         ? rejectedPayload.action_v1.rejected_receipt_hex
         : "ff012345",
@@ -351,9 +350,9 @@ function fixture({
   const envelope = {
     schema_version: 1,
     binding: b,
-    cursor: cursor(2),
+    cursor: cursor(committed),
     checkpoint_sha256: checkpointHash,
-    through_batch_id: "3",
+    through_batch_id: deniedId,
     records,
   };
   return {
@@ -371,6 +370,141 @@ function fixture({
 const persist = (f, e = f.envelope) => f.store.persist(e, sha(encode(e)));
 const count = (f) =>
   f.s.sql.exec("SELECT COUNT(*) AS n FROM host_receipts").one().n;
+
+function splitJournal(f) {
+  const keys = ["journal/split-first", "journal/split-second"];
+  for (let group = 0; group < 2; group++) {
+    const start = group * 16;
+    const payloads = f.payloads.slice(start, start + 16);
+    const bytes = Buffer.concat(payloads);
+    const key = keys[group];
+    f.bucket.objects.set(key, bytes);
+    f.s.sql.exec(
+      "INSERT INTO journal_archives VALUES(?,?,?,?)",
+      key,
+      sha(bytes),
+      bytes.length,
+      f.checkpointKey,
+    );
+    let offset = 0;
+    for (let i = 0; i < payloads.length; i++) {
+      f.s.sql.exec(
+        "UPDATE archived_batches SET object_key=?,byte_offset=? WHERE batch_key=?",
+        key,
+        offset,
+        `1:${start + i + 1}`,
+      );
+      offset += payloads[i].length;
+    }
+  }
+  return keys;
+}
+
+test("verifies a shared accepted archive at entry and exit, preserving every terminal reply", async () => {
+  const f = fixture({ archived: true, controlled: true, committed: 32 });
+  let journalReads = 0;
+  f.bucket.beforeGet = (key) => {
+    if (key === "journal/test-segment") journalReads++;
+  };
+  const ack = await persist(f);
+  assert.equal(ack.status, "persisted");
+  assert.equal(ack.through_batch_id, "33");
+  assert.equal(count(f), 33);
+  for (const record of f.envelope.records)
+    assert.deepEqual(await f.store.lookup("1", record.batch_id), {
+      status: "recorded",
+      record,
+    });
+  assert.equal(
+    journalReads,
+    2,
+    "one verified entry read and one fresh exit read, independent of record count",
+  );
+});
+
+test("rejects a shared archive corrupted before final verification without publishing receipt indexes", async () => {
+  const f = fixture({ archived: true, committed: 32 });
+  let reads = 0;
+  f.bucket.beforeGet = (key) => {
+    if (key === "journal/test-segment" && ++reads === 2) {
+      const damaged = Uint8Array.from(f.bucket.objects.get(key));
+      damaged[0] ^= 1;
+      f.bucket.objects.set(key, damaged);
+    }
+  };
+  await assert.rejects(persist(f), /digest|corrupt/);
+  assert.equal(count(f), 0);
+  assert.equal(f.bucket.puts, 0);
+});
+
+test("does not reuse verified archive bytes across persistence calls", async () => {
+  const f = fixture({ archived: true, committed: 32 });
+  await persist(f);
+  const damaged = Uint8Array.from(f.bucket.objects.get("journal/test-segment"));
+  damaged[0] ^= 1;
+  f.bucket.objects.set("journal/test-segment", damaged);
+  await assert.rejects(persist(f), /digest|corrupt/);
+  assert.equal(
+    count(f),
+    33,
+    "only the previously verified publication remains",
+  );
+  assert.equal(f.bucket.puts, 1);
+});
+
+test("rechecks each archived payload's bounds after a shared archive read", async () => {
+  const f = fixture({ archived: true, committed: 32 });
+  let changed = false;
+  f.bucket.beforeGet = (key) => {
+    if (key === "journal/test-segment" && !changed) {
+      changed = true;
+      f.s.sql.exec(
+        "UPDATE archived_batches SET byte_length=? WHERE batch_key='1:2'",
+        20 * 1024 * 1024,
+      );
+    }
+  };
+  await assert.rejects(persist(f), /bounds/);
+  assert.equal(count(f), 0);
+  assert.equal(f.bucket.puts, 0);
+});
+
+test("verifies each accepted archive on eviction and at the end of a mixed archive export", async () => {
+  const f = fixture({ archived: true, controlled: true, committed: 32 });
+  const keys = splitJournal(f);
+  const reads = new Map(keys.map((key) => [key, 0]));
+  f.bucket.beforeGet = (key) => {
+    if (reads.has(key)) reads.set(key, reads.get(key) + 1);
+  };
+  await persist(f);
+  assert.equal(count(f), 33);
+  for (const record of f.envelope.records)
+    assert.deepEqual(await f.store.lookup("1", record.batch_id), {
+      status: "recorded",
+      record,
+    });
+  assert.deepEqual([...reads.values()], [2, 2]);
+});
+
+test("rejects corruption of an outgoing accepted archive before reading the next one", async () => {
+  const f = fixture({ archived: true, committed: 32 });
+  const [first, second] = splitJournal(f);
+  let firstReads = 0,
+    secondReads = 0;
+  f.bucket.beforeGet = (key) => {
+    if (key === second) secondReads++;
+    if (key === first && ++firstReads === 2) {
+      const damaged = Uint8Array.from(f.bucket.objects.get(first));
+      damaged[0] ^= 1;
+      f.bucket.objects.set(first, damaged);
+    }
+  };
+  await assert.rejects(persist(f), /digest|corrupt/);
+  assert.equal(firstReads, 2);
+  assert.equal(secondReads, 0);
+  assert.equal(count(f), 0);
+  assert.equal(f.bucket.puts, 0);
+});
 
 for (const archived of [false, true])
   for (const controlled of [false, true]) {

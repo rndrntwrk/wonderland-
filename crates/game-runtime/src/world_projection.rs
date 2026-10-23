@@ -4,8 +4,8 @@ use crate::{GameRuntime, GameRuntimeError};
 use sim_core::world::{Cardinal, Diagonal, LotModel, LotPosition, TilePos};
 use wonderland_render_core::{AssetKey, EntityRef, Vec3};
 use wonderland_world_view::{
-    TerrainBoundary, WorldDiagnostic, WorldDiagonal, WorldDocument, WorldObject, WorldRevision,
-    WorldSourceKind, WorldTile, source_terrain,
+    ModelContext, TerrainBoundary, WorldDiagnostic, WorldDiagonal, WorldDocument, WorldObject,
+    WorldRevision, WorldSourceKind, WorldTile, source_terrain,
 };
 
 // Original Blueprint.TerrainFactor / EntityComponent story units, also used by
@@ -153,20 +153,13 @@ impl GameRuntime {
             let model = if info.is_avatar {
                 None
             } else {
-                appearance
-                    .objects
-                    .iter()
-                    .find(|o| o.entity == Some(reference) && o.source_guid == info.guid)
-                    .and_then(|o| o.model)
-                    .or_else(|| {
-                        let mut values = appearance
-                            .objects
-                            .iter()
-                            .filter(|o| o.source_guid == info.guid)
-                            .map(|o| o.model);
-                        let first = values.next().flatten()?;
-                        values.all(|value| value == Some(first)).then_some(first)
-                    })
+                object_model(
+                    appearance,
+                    reference,
+                    info.guid,
+                    self.sim.content().object(info.guid),
+                    entity.object_data[0],
+                )
             };
             if model.is_none() {
                 document.diagnostics.push(WorldDiagnostic {
@@ -249,6 +242,62 @@ impl GameRuntime {
             .map_err(|e| GameRuntimeError::Content(e.to_string()))?;
         Ok(document)
     }
+}
+
+/// VMGameObject.RefreshGraphic selects BaseGraphicID + Graphic, narrowed to
+/// ushort, within that object's effective IFF. A DGRP-bound model identifies a
+/// source family, not a permanent mesh for every instance of its GUID.
+/// Missing or ambiguous normalized source graphics stay unavailable.
+fn object_model(
+    appearance: &WorldDocument,
+    reference: EntityRef,
+    guid: u32,
+    definition: Option<&sim_core::state::ObjectDefinition>,
+    graphic: i16,
+) -> Option<usize> {
+    let exact = appearance
+        .objects
+        .iter()
+        .find(|object| object.entity == Some(reference) && object.source_guid == guid)
+        .and_then(|object| object.model);
+    let candidates: Vec<_> = if let Some(index) = exact {
+        vec![Some(index)]
+    } else {
+        appearance
+            .objects
+            .iter()
+            .filter(|object| object.source_guid == guid)
+            .map(|object| object.model)
+            .collect()
+    };
+    let first = candidates.first().copied().flatten()?;
+    let anchor = appearance.models.get(first)?;
+    let ModelContext::Dgrp { effective_iff, .. } = anchor.context else {
+        return candidates
+            .iter()
+            .all(|index| *index == Some(first))
+            .then_some(first);
+    };
+    if !candidates.iter().all(|index| {
+        index.and_then(|index| appearance.models.get(index)).is_some_and(|model| {
+            matches!(model.context, ModelContext::Dgrp { effective_iff: other, .. } if other == effective_iff)
+                && model.effective_content == anchor.effective_content
+        })
+    }) {
+        return None;
+    }
+    // Runtime definition starts with the two OBJD version words. The source
+    // BaseGraphicID is stored word 1, hence runtime definition index 3.
+    let base = *definition?.definition.get(3)? as u16;
+    let selected = base.wrapping_add(graphic as u16);
+    let mut matches = appearance.models.iter().enumerate().filter(|(_, model)| {
+        model.effective_content == anchor.effective_content
+            && matches!(model.context,
+                ModelContext::Dgrp { effective_iff: other, chunk_id }
+                    if other == effective_iff && chunk_id == selected)
+    });
+    let selected = matches.next()?.0;
+    matches.next().is_none().then_some(selected)
 }
 
 /// Presentation-only interpolation at the accepted 1/16-tile position.

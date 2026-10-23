@@ -36,6 +36,19 @@ import {
 } from "./action-outcomes";
 import { HostReceiptStore } from "./host-receipts";
 import {
+  OwnedEventReceipts,
+  eventKey,
+  ownedEventProof,
+  matchOwnedEventProof,
+  decodeOwnedEvents,
+} from "./owned-events";
+import {
+  NativeEodStore,
+  nativeEodCandidateV1,
+  verifyNativeEodCandidate,
+  type NativeEodCandidateV1,
+} from "./native-eod";
+import {
   DepartureStore,
   departureRequestV1,
   departureControlKey,
@@ -63,6 +76,8 @@ const ARCHIVE_LIMIT = 16 * 1024 * 1024;
 const ARCHIVE_BATCHES = 64;
 export class LotCoordinator extends DurableObject<Env> {
   private hostReceipts: HostReceiptStore;
+  private nativeEod: NativeEodStore;
+  private ownedEvents: OwnedEventReceipts;
   private actionOutcomes: ActionOutcomeStore;
   private departures: DepartureStore;
   constructor(ctx: DurableObjectState, env: Env) {
@@ -71,6 +86,8 @@ export class LotCoordinator extends DurableObject<Env> {
       `CREATE TABLE IF NOT EXISTS controlled_config(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_registry(id INTEGER PRIMARY KEY CHECK(id=1),sha256 TEXT NOT NULL,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_sequence(id INTEGER PRIMARY KEY CHECK(id=1),principal TEXT NOT NULL);CREATE TABLE IF NOT EXISTS actor_controls(control_key TEXT PRIMARY KEY,avatar_id TEXT NOT NULL UNIQUE,principal TEXT NOT NULL UNIQUE,export_digest TEXT NOT NULL UNIQUE,export_json TEXT NOT NULL,state TEXT NOT NULL,expires_at INTEGER NOT NULL,record TEXT NOT NULL,receipt TEXT);CREATE INDEX IF NOT EXISTS actor_controls_expiry ON actor_controls(state,expires_at);CREATE TABLE IF NOT EXISTS admission_operations(control_key TEXT PRIMARY KEY,export_digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_leases(control_key TEXT PRIMARY KEY,revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_recovery_receipts(old_incarnation TEXT PRIMARY KEY,control_json TEXT NOT NULL);CREATE TABLE IF NOT EXISTS controlled_denials(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS lot_control_state(id INTEGER PRIMARY KEY CHECK(id=1),revision TEXT NOT NULL);CREATE TABLE IF NOT EXISTS control_fences(authority TEXT NOT NULL, avatar_id TEXT NOT NULL, generation TEXT NOT NULL, receipt TEXT NOT NULL, PRIMARY KEY(authority,avatar_id,generation));CREATE TABLE IF NOT EXISTS lot_state(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS batches(batch_key TEXT PRIMARY KEY,digest TEXT NOT NULL,receipt TEXT NOT NULL,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_chunks(batch_key TEXT NOT NULL,ordinal INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(batch_key,ordinal));CREATE TABLE IF NOT EXISTS outbox(batch_key TEXT NOT NULL,lane TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(batch_key,lane));CREATE TABLE IF NOT EXISTS journal_live(batch_key TEXT PRIMARY KEY,bytes INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS journal_layout(id INTEGER PRIMARY KEY CHECK(id=1));CREATE TABLE IF NOT EXISTS journal_archives(object_key TEXT PRIMARY KEY,sha256 TEXT NOT NULL,bytes INTEGER NOT NULL,checkpoint_key TEXT NOT NULL);CREATE TABLE IF NOT EXISTS archived_batches(batch_key TEXT PRIMARY KEY,object_key TEXT NOT NULL,byte_offset INTEGER NOT NULL,byte_length INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS checkpoints(object_key TEXT PRIMARY KEY,manifest TEXT NOT NULL);CREATE TABLE IF NOT EXISTS recoveries(old_incarnation TEXT PRIMARY KEY,status TEXT NOT NULL,grant_json TEXT NOT NULL,marker_json TEXT);`,
     );
     this.hostReceipts = new HostReceiptStore(ctx.storage, env.CHECKPOINTS);
+    this.nativeEod = new NativeEodStore(ctx.storage);
+    this.ownedEvents = new OwnedEventReceipts(ctx.storage);
     this.actionOutcomes = new ActionOutcomeStore(ctx.storage);
     this.departures = new DepartureStore(ctx.storage);
     // One-time, restart-safe migration. Receipt rows stay forever; only this
@@ -254,6 +271,30 @@ export class LotCoordinator extends DurableObject<Env> {
       });
     }
     return expired.length > 0;
+  }
+  /** Private startup selection only. Existing initialize/restore validation is
+   * still authoritative; an incomplete first checkpoint may only retry the same
+   * pristine initialization. Never infer recovery success from process memory. */
+  inspectControlledStartupV1() {
+    return this.ctx.storage.transactionSync(() => {
+      const state = this.ctx.storage.sql.exec("SELECT value FROM lot_state WHERE id=1").toArray();
+      if (state.length === 0) {
+        if (this.ctx.storage.sql.exec("SELECT id FROM lot_control_state LIMIT 1").toArray().length
+          || this.ctx.storage.sql.exec("SELECT object_key FROM checkpoints LIMIT 1").toArray().length)
+          throw Error("Lot startup state is inconsistent");
+        return { schema_version: 1, mode: "initialize" };
+      }
+      this.controlledConfiguration();
+      const retained = this.ctx.storage.sql.exec("SELECT object_key FROM checkpoints LIMIT 1").toArray();
+      if (retained.length) return { schema_version: 1, mode: "recover" };
+      if (this.controlState()!.revision !== "0"
+        || this.ctx.storage.sql.exec("SELECT batch_key FROM batches LIMIT 1").toArray().length
+        || this.ctx.storage.sql.exec("SELECT batch_key FROM archived_batches LIMIT 1").toArray().length
+        || this.ctx.storage.sql.exec("SELECT batch_key FROM journal_live LIMIT 1").toArray().length
+        || this.ctx.storage.sql.exec("SELECT principal FROM actor_controls LIMIT 1").toArray().length)
+        throw Error("Non-pristine lot has no retained recovery checkpoint");
+      return { schema_version: 1, mode: "initialize" };
+    });
   }
   inspectControlledV2() {
     const config = this.controlledConfiguration();
@@ -598,6 +639,7 @@ export class LotCoordinator extends DurableObject<Env> {
       throw Error("controlled proposal digest mismatch");
     await verifyActionEvidence(p.payload);
     await verifyDepartureEvidence(p.payload);
+    await verifyNativeEodCandidate(p.payload.native_eod_v1);
     const departureEvidenceHash = p.payload.departure_v1
       ? await digest(encode(p.payload.departure_v1))
       : null;
@@ -658,6 +700,10 @@ export class LotCoordinator extends DurableObject<Env> {
         )
           throw Error("departure durable decision mismatch");
         this.actionOutcomes.assertReplay(p.payload, p.digest, "committed");
+        this.nativeEod.assertReplay(
+          p.payload.native_eod_v1,
+          JSON.parse(previous.receipt),
+        );
         return JSON.parse(previous.receipt);
       }
       const denied = this.ctx.storage.sql
@@ -792,6 +838,11 @@ export class LotCoordinator extends DurableObject<Env> {
         !equal(c.permission_before, config.permission_binding)
       )
         throw Error("stale control revision, registry or permissions");
+      this.nativeEod.validate(
+        p.payload.native_eod_v1,
+        state.binding,
+        state.cursor,
+      );
       const before = actorRegistry(JSON.parse(registry.value)),
         known = new Map(before.map((actor) => [actor.principal, actor]));
       for (const actor of before)
@@ -901,6 +952,7 @@ export class LotCoordinator extends DurableObject<Env> {
         ...(actionHashes
           ? { action_outcome_sha256: actionHashes.committed }
           : {}),
+        ...this.nativeEod.receipt(p.payload.native_eod_v1),
         batch_id: p.payload.batch_id,
         digest: p.digest,
         cursor: p.payload.result,
@@ -987,6 +1039,11 @@ export class LotCoordinator extends DurableObject<Env> {
       );
       if (!lineageAdvance) throw Error("departure lineage advance missing");
       this.departures.recordAdvance(lineageAdvance);
+      this.nativeEod.record(
+        p.payload.native_eod_v1,
+        state.binding,
+        p.payload.result,
+      );
       this.departures.recordAnchor(p, departure);
       if (departure) this.departures.record(p, departure, saveReceiptHash);
       this.actionOutcomes.record(
@@ -998,6 +1055,10 @@ export class LotCoordinator extends DurableObject<Env> {
       );
       return receipt;
     });
+  }
+  /** Private supervisor recovery read. Never returned through public HTTP. */
+  currentNativeEodV1() {
+    return this.nativeEod.current();
   }
   /** Private service request; this acknowledges fencing, not successful leave. */
   beginOwnedDepartureV1(raw: unknown) {
@@ -1040,6 +1101,120 @@ export class LotCoordinator extends DurableObject<Env> {
       return this.departures.begin(request);
     });
   }
+  private async checkedOwnedEventLane(key: string, expectedDigest: string) {
+    const [incarnation, id] = eventKey(key).split(":");
+    const row = this.ctx.storage.sql
+      .exec<{
+        digest: string;
+        receipt: string;
+      }>("SELECT digest,receipt FROM batches WHERE batch_key=?", key)
+      .toArray()[0];
+    if (!row || row.digest !== expectedDigest)
+      throw Error("owned event origin decision missing or changed");
+    const payload = await this.readBatch(incarnation, id);
+    if (!payload || (await digest(encode(payload))) !== expectedDigest)
+      throw Error("owned event original payload digest mismatch");
+    this.validateArchivedBatch(key, expectedDigest, row.receipt, payload);
+    return payload;
+  }
+  /** Private verified reader. Unsupported lanes are observable but never acked. */
+  async readOwnedEventLanesV1(after: unknown = "") {
+    this.controlledConfiguration();
+    if (after !== "") eventKey(after);
+    const rows = this.ctx.storage.sql
+      .exec<{
+        batch_key: string;
+        digest: string;
+      }>("SELECT batch_key,digest FROM outbox WHERE lane='events' AND batch_key>? ORDER BY batch_key LIMIT 17", String(after))
+      .toArray();
+    const lanes = [];
+    for (const row of rows.slice(0, 16)) {
+      const payload = await this.checkedOwnedEventLane(
+        row.batch_key,
+        row.digest,
+      );
+      const decoded = decodeOwnedEvents(payload.events_hex);
+      lanes.push({
+        batch_key: row.batch_key,
+        digest: row.digest,
+        events_hex: payload.events_hex,
+        supported: decoded.supported,
+        reason: decoded.supported ? null : decoded.reason,
+      });
+    }
+    return { lanes, next: rows.length > 16 ? rows[15].batch_key : null,
+      unsupported_effect_lanes: this.ctx.storage.sql.exec<{n:number}>("SELECT COUNT(*) AS n FROM outbox WHERE lane='effects'").one().n };
+  }
+  async retireOwnedEventLaneV1(raw: unknown) {
+    this.controlledConfiguration();
+    const input = fields(raw, ["batch_key", "digest", "proof"]),
+      key = eventKey(input.batch_key),
+      sha = hash(input.digest),
+      proof = ownedEventProof(input.proof);
+    const proofSha = await digest(encode(proof));
+    const prior = this.ownedEvents.prior(key, sha, proofSha);
+    if (prior) return prior;
+    const payload = await this.checkedOwnedEventLane(key, sha);
+    await matchOwnedEventProof(payload.events_hex, proof);
+    const dispositions: unknown[] = [];
+    for (const m of proof.members)
+      dispositions.push({
+        tick: m.tick,
+        ordinal: m.ordinal,
+        kind: m.kind,
+        detail: m.detail,
+        consumer: await this.departures.notificationProof(
+          m.request,
+          m.kind,
+          m.tick,
+          m.ordinal,
+          key,
+          sha,
+          m.detail.removal_reason,
+        ),
+      });
+    return this.ctx.storage.transactionSync(() => {
+      const prior = this.ownedEvents.prior(key, sha, proofSha);
+      if (prior) return prior;
+      this.assertActive();
+      const state = this.state(),
+        eod = this.nativeEod.current();
+      if (
+        !equal(state.binding, proof.binding) ||
+        !equal(state.cursor, proof.cursor) ||
+        !eod ||
+        !equal(eod.binding, state.binding) ||
+        !equal(eod.cursor, state.cursor) ||
+        eod.checkpoint_sha256 !== proof.native_eod_checkpoint_sha256
+      )
+        throw Error("stale paired owned event consumer proof");
+      if (
+        !this.ctx.storage.sql
+          .exec(
+            "SELECT 1 FROM outbox WHERE batch_key=? AND lane='events' AND digest=?",
+            key,
+            sha,
+          )
+          .toArray().length
+      )
+        throw Error("owned event lane missing or changed");
+      const receipt = {
+        schema_version: 1,
+        status: "owned_event_lane_consumed",
+        batch_key: key,
+        digest: sha,
+        events_sha256: proof.events_sha256,
+        proof_sha256: proofSha,
+        binding: proof.binding,
+        cursor: proof.cursor,
+        native_eod_checkpoint_sha256: proof.native_eod_checkpoint_sha256,
+        dispositions,
+      };
+      this.ownedEvents.record(key, sha, proofSha, receipt);
+      return receipt;
+    });
+  }
+
   lookupOwnedDepartureV1(raw: unknown) {
     return this.departures.lookup(raw);
   }
@@ -1224,7 +1399,17 @@ export class LotCoordinator extends DurableObject<Env> {
     return { ...bundle, schema_version: 2, control };
   }
   async finishControlledRecoveryV2(raw: unknown, bytes: Uint8Array) {
-    const v = fields(raw, ["schema_version", "marker", "control"]);
+    const hasEod = !!raw && typeof raw === "object" && "native_eod_v1" in raw;
+    const v = fields(raw, [
+      "schema_version",
+      "marker",
+      "control",
+      ...(hasEod ? ["native_eod_v1"] : []),
+    ]);
+    const nativeEod = hasEod
+      ? nativeEodCandidateV1(v.native_eod_v1)
+      : undefined;
+    await verifyNativeEodCandidate(nativeEod);
     if (v.schema_version !== 2) throw Error("unsupported controlled recovery");
     const control = this.parseRecoveryControl(v.control);
     if (
@@ -1236,8 +1421,14 @@ export class LotCoordinator extends DurableObject<Env> {
       bytes,
       true,
       control,
+      nativeEod,
     );
-    return { schema_version: 2, marker: result, control };
+    return {
+      schema_version: 2,
+      marker: result,
+      control,
+      ...this.nativeEod.receipt(nativeEod),
+    };
   }
   async publishControlledCheckpointV2(
     rawBinding: unknown,
@@ -1439,6 +1630,7 @@ export class LotCoordinator extends DurableObject<Env> {
     bytes: Uint8Array,
     controlled: boolean,
     expectedControl?: ReturnType<LotCoordinator["controlledRecoveryState"]>,
+    nativeEod?: NativeEodCandidateV1,
   ) {
     this.requireMutationMode(controlled);
     const marker = takeoverMarker(rawMarker),
@@ -1477,9 +1669,14 @@ export class LotCoordinator extends DurableObject<Env> {
           )
           .toArray()[0];
         if (!saved) throw Error("changed controlled recovery completion");
-        const { departure_lineage_tips: _tips, ...savedControl } = JSON.parse(
-          saved.control_json,
-        );
+        const savedReceipt = JSON.parse(saved.control_json);
+        this.nativeEod.assertReplay(nativeEod, savedReceipt);
+        const {
+          departure_lineage_tips: _tips,
+          native_eod_checkpoint_sha256: _eodHash,
+          native_eod_revision: _eodRevision,
+          ...savedControl
+        } = savedReceipt;
         if (!equal(savedControl, expectedControl))
           throw Error("changed controlled recovery completion");
       }
@@ -1570,12 +1767,17 @@ export class LotCoordinator extends DurableObject<Env> {
           checkpoint_sha256: marker.checkpoint_sha256,
         }),
       );
+      if (controlled) {
+        this.nativeEod.validate(nativeEod, grant.old_binding, grant.old_cursor);
+        this.nativeEod.record(nativeEod, grant.new_binding, c);
+      }
       if (controlled)
         this.ctx.storage.sql.exec(
           "INSERT INTO controlled_recovery_receipts(old_incarnation,control_json) VALUES(?,?)",
           grant.old_binding.lot_incarnation,
           canonical({
             ...expectedControl,
+            ...this.nativeEod.receipt(nativeEod),
             ...(Object.keys(lineageHeads).length
               ? { departure_lineage_tips: lineageHeads }
               : {}),

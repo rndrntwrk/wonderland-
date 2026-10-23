@@ -8,6 +8,24 @@ use wonderland_contracts::{Availability, authoring::*};
 
 type SourceFiles = Arc<Vec<(String, Vec<u8>)>>;
 
+#[wasm_bindgen::prelude::wasm_bindgen(inline_js = r#"
+export async function authenticatedContentFiles(host) {
+ if (!host) throw Error('Account connection closed');
+ return host.contentFiles();
+}
+"#)]
+extern "C" {
+    #[wasm_bindgen::prelude::wasm_bindgen(js_name=authenticatedContentFiles)]
+    fn authenticated_content_files(host: &JsValue) -> js_sys::Promise;
+}
+
+#[derive(serde::Deserialize)]
+struct AuthenticatedSelection {
+    skeleton_name: String,
+    head_collections: Vec<String>,
+    body_collections: Vec<String>,
+}
+
 /// A content consumer supplies its own busy/revision guard. Connected accounts
 /// never need a preview provider to import or render original resources.
 #[derive(Clone, Copy)]
@@ -89,16 +107,71 @@ impl ContentUi {
                 .set("Finish the pending save before loading content.".into());
             return;
         }
-        let limits = browser_limits();
-        let mut total = 0.;
         let mut selected = vec![];
         for i in 0..files.length() {
             if let Some(file) = files.item(i) {
-                total += file.size();
                 selected.push(file);
             }
         }
         input.set_value("");
+        self.load_selected(selected, target, false);
+    }
+    pub fn clear_authenticated(self) {
+        self.generation.update(|g| *g = g.wrapping_add(1));
+        self.loading.set(false);
+        self.files.set_value(Arc::new(vec![]));
+        self.imported.set(None);
+        self.audio.set(None);
+        self.choices.set(None);
+    }
+    pub fn load_authenticated(self, target: ContentTarget, host: JsValue) {
+        let generation = self.generation.get_untracked().wrapping_add(1);
+        self.generation.set(generation);
+        self.loading.set(true);
+        self.notice
+            .set("Loading your property's game content…".into());
+        let revision = target.state_revision.get_untracked();
+        wasm_bindgen_futures::spawn_local(async move {
+            let result =
+                wasm_bindgen_futures::JsFuture::from(authenticated_content_files(&host)).await;
+            if self.generation.try_get_untracked() != Some(generation) {
+                return;
+            }
+            self.loading.set(false);
+            if target.state_revision.get_untracked() != revision || target.busy.get_untracked() {
+                return;
+            }
+            let decoded = result.and_then(|pack| {
+                let manifest = js_sys::Reflect::get(&pack, &JsValue::from_str("manifest"))?
+                    .as_string()
+                    .ok_or_else(|| JsValue::from_str("Missing content manifest"))?;
+                let selection: AuthenticatedSelection = serde_json::from_str(&manifest)
+                    .map_err(|_| JsValue::from_str("Invalid content selection"))?;
+                let array = js_sys::Reflect::get(&pack, &JsValue::from_str("files"))?
+                    .dyn_into::<js_sys::Array>()?;
+                let files = array
+                    .iter()
+                    .map(|v| v.dyn_into::<web_sys::File>())
+                    .collect::<Result<Vec<_>, _>>()?;
+                Ok((selection, files))
+            });
+            match decoded {
+                Ok((selection, files)) => {
+                    self.skeleton.set(selection.skeleton_name);
+                    self.head.set(selection.head_collections.join(", "));
+                    self.body.set(selection.body_collections.join(", "));
+                    self.load_selected(files, target, true);
+                }
+                Err(error) => {
+                    self.notice
+                        .set(format!("Game content could not load: {error:?}"));
+                }
+            }
+        });
+    }
+    fn load_selected(self, selected: Vec<web_sys::File>, target: ContentTarget, apply: bool) {
+        let limits = browser_limits();
+        let total: f64 = selected.iter().map(|file| file.size()).sum();
         if selected.len() > limits.max_files || total > limits.max_total_input_bytes as f64 {
             self.notice.set("This selection exceeds the browser import memory budget. Load a smaller original resource set.".into());
             return;
@@ -189,6 +262,9 @@ impl ContentUi {
             self.notice.set(format!(
                 "{count} original files read. Check the collection names, then choose Apply files."
             ));
+            if apply {
+                self.apply(target);
+            }
         });
     }
     fn apply(self, target: ContentTarget) {

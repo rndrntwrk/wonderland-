@@ -1,0 +1,19 @@
+{
+  "schema": "wonderland.verified-original-banner-release.v1",
+  "binding_sha256": "cf3ac8024b207857eccf38b7311f19a6a9683e330d83d613c426cc0578600f99",
+  "manifest_sha256": "d6d6f0acb7019c0e807b18439aeeec715b6cf7c7d8c1d7e0eb7f3ef70ce95a68",
+  "runtime_content_sha256": "8d8ce40540ad19c92b634186cf70f5d9f0b38b572506bc67eaddaa7cbb999efe",
+  "source_iff_sha256": "260a9db1ed017eacf2604beaf92dbf0cafae6c651b1f0296605eab2429503ab7",
+  "effective_iff_sha256": "260a9db1ed017eacf2604beaf92dbf0cafae6c651b1f0296605eab2429503ab7",
+  "effective_identity": "b7f0a4b59a4970da47b16a4bbc0d2ddf67a309b4a4c017007691705461af3cf0",
+  "guid": 1668868582,
+  "source_path": "TSOClient/FSO.Content.TSO/Content/Objects/fso_decor_2-in-1_Racing_Banner.iff",
+  "source_kind": "retained original FreeSO repository object",
+  "base_graphic": 100,
+  "graphics": 6,
+  "behavior": "original OBJf/BHAV/TTAB retained in verified sealed release",
+  "visuals": "exact source DGRP/FSOM/MTEX; no replacement texture or geometry",
+  "public_asset_distribution": false,
+  "game_runtime_content_sha256": "cfdea272760f48aa6393f2a86cf41018cebfe8e2ed5edeb0f9234488803e2ce4",
+  "game_runtime_descriptor_derivation": "GameRuntime::from_cooked attaches original imported interaction tables and advertisements; sealed PreparedRelease descriptor is checked separately"
+}

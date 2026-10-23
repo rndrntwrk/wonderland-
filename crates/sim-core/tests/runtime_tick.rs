@@ -49,6 +49,77 @@ fn spawn() -> AcceptedCommand {
     })
 }
 
+// Independent canonical encoding is the contract; cached reads must equal it
+// across every successful or rejected state replacement.
+fn canonical_state_hash(runtime: &SimRuntime) -> [u8; 32] {
+    use bincode::Options;
+    use sha2::{Digest, Sha256};
+    let bytes = bincode::DefaultOptions::new()
+        .with_fixint_encoding()
+        .with_little_endian()
+        .serialize(runtime.state())
+        .unwrap();
+    Sha256::digest(bytes).into()
+}
+
+#[test]
+fn canonical_digest_survives_repeated_reads_ticks_and_rejected_ticks() {
+    let mut runtime = runtime(RuntimeRole::Authority);
+    let initial = canonical_state_hash(&runtime);
+    assert_eq!(runtime.state_hash().unwrap(), initial);
+    assert_eq!(runtime.state_hash().unwrap(), initial);
+    let input = runtime.next_tick(vec![spawn()]).unwrap();
+    let outcome = runtime.step(&input).unwrap();
+    let committed = canonical_state_hash(&runtime);
+    assert_ne!(initial, committed);
+    assert_eq!(outcome.state_hash, committed);
+    assert_eq!(runtime.state_hash().unwrap(), committed);
+    assert_eq!(runtime.step(&input).unwrap().state_hash, committed);
+    let mut conflict = input;
+    conflict.commands.clear();
+    assert!(runtime.step(&conflict).is_err());
+    assert_eq!(
+        runtime.state_hash().unwrap(),
+        canonical_state_hash(&runtime)
+    );
+    assert_eq!(runtime.state_hash().unwrap(), committed);
+}
+
+#[test]
+fn canonical_digest_tracks_restore_and_epoch_changes_at_the_same_tick() {
+    let mut runtime = runtime(RuntimeRole::Authority);
+    let initial = runtime.state_hash().unwrap();
+    let saved = runtime.snapshot().unwrap();
+    let input = runtime.next_tick(vec![spawn()]).unwrap();
+    runtime.step(&input).unwrap();
+    assert_ne!(runtime.state_hash().unwrap(), initial);
+    assert!(runtime.restore(b"invalid snapshot").is_err());
+    assert_eq!(
+        runtime.state_hash().unwrap(),
+        canonical_state_hash(&runtime)
+    );
+    runtime.restore(&saved).unwrap();
+    assert_eq!(runtime.state().completed_tick, 0);
+    assert_eq!(runtime.state_hash().unwrap(), initial);
+    runtime.adopt_epoch(2, RuntimeRole::Authority).unwrap();
+    assert_eq!(runtime.state().completed_tick, 0);
+    assert_ne!(runtime.state_hash().unwrap(), initial);
+    assert_eq!(
+        runtime.state_hash().unwrap(),
+        canonical_state_hash(&runtime)
+    );
+    let adopted = runtime.state_hash().unwrap();
+    assert!(runtime.adopt_epoch(2, RuntimeRole::Authority).is_err());
+    assert_eq!(runtime.state_hash().unwrap(), adopted);
+    let restored =
+        SimRuntime::from_state(runtime.state().clone(), content(), RuntimeRole::Replica).unwrap();
+    assert_eq!(
+        restored.state_hash().unwrap(),
+        canonical_state_hash(&restored)
+    );
+    assert_eq!(restored.state_hash().unwrap(), adopted);
+}
+
 #[test]
 fn authority_and_replica_replay_the_same_sorted_simulation() {
     let mut a = runtime(RuntimeRole::Authority);

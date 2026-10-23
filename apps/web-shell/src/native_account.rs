@@ -215,7 +215,7 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     let content = ContentUi::new();
     provide_context(content);
     provide_context(AvatarMotion(Signal::derive(|| false)));
-    provide_context(ContentTarget {
+    let content_target = ContentTarget {
         busy: Signal::derive(move || {
             state.with(|s| matches!(s.state.as_str(), "loading" | "lot_entering" | "lot_leaving"))
         }),
@@ -226,6 +226,32 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
                 .with(|c| c.as_ref().map(|c| c.revision).unwrap_or(0))
         }),
         install: Callback::new(|_: wonderland_contracts::authoring::AppearanceContent| Ok(())),
+    };
+    provide_context(content_target);
+    let loaded_scope = StoredValue::new(None::<String>);
+    Effect::new(move |_| {
+        let snapshot = state.get();
+        if matches!(snapshot.state.as_str(), "signed_out" | "signing_out") {
+            if loaded_scope.get_value().is_some() {
+                content.clear_authenticated();
+                loaded_scope.set_value(None);
+            }
+            return;
+        }
+        if snapshot.state != "lot_ready" {
+            return;
+        }
+        let Some(grant) = snapshot.grant else {
+            return;
+        };
+        let scope = format!("{}:{}", grant.recovery_scope, grant.binding.lot_incarnation);
+        if loaded_scope.get_value().as_ref() == Some(&scope) {
+            return;
+        }
+        if let Some(host) = provider.with_value(|p| p.host.clone()) {
+            loaded_scope.set_value(Some(scope));
+            content.load_authenticated(content_target, host);
+        }
     });
     let callback = Closure::wrap(Box::new(move |raw: String| {
         if let Ok(next) = serde_json::from_str::<Snapshot>(&raw) {

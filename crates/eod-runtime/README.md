@@ -208,3 +208,36 @@ The translated handlers and registration dictionaries derive from FreeSO at
 commit `4c6b3e8f5835b228723caea3c9f683c62f244f73`, by its original contributors,
 under the repository's [LICENSE.md](../../LICENSE.md). Existing C# source and
 notices are unchanged. No original game assets are added.
+
+## Candidate-only durable Timer delivery
+
+`NativeHost::fork_private_timer_transaction` creates an independent, Timer-only
+candidate. It refuses legacy pending queues because their public events do not
+carry immutable producer tickets. Each wrapper operation invokes the existing
+native handler and immediately captures output with the exact original
+`SessionTicket`; close/reopen cannot reassign an old event to a new session.
+Previously captured private output is kept outside the handler's purgeable queue.
+
+`PrivateTimerTransaction::stage_private_transaction` calls one private sink with
+a bounded opaque checkpoint containing both complete Timer state and the entire
+retained delivery ledger. The coordinator must commit it atomically with its
+source association/owner mapping, source request receipts and simulation cursor,
+checking its trusted predecessor revision/hash. Sink success is staging only.
+Keep the old committed transaction until that decision. A read, a socket send,
+or staging never acknowledges output.
+
+Public application and private acknowledgement/supersession/suppression are
+separate exact-receipt operations. Private acknowledgements require the original
+authenticated actor, transport incarnation, ticket and current host epoch.
+Supersession or suppression requires the coordinator's durable evidence for that
+exact association; it cannot be inferred from an absent connection. Settled
+records remain in the bounded ledger for exact retry/conflict checks. They count
+against queue/checkpoint limits, so long-lived operation eventually requires a
+separately designed, durable tombstone/compaction protocol. There is no implicit
+receipt eviction in this foundation.
+
+Restoration requires a strictly newer host epoch and a trusted latest expected
+stamp. Active participants are detached and require current authenticated actor
+rebind. Retained output keeps its original target and ticket, including old epoch
+outputs; those historical destinations never authorize a new transport. Existing
+`checkpoint_to` and `restore_from` contracts are unchanged.

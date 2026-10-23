@@ -1,4 +1,5 @@
-// Same-cloud, loopback-only integration runner. Requires a pinned source lot and
+// Same-cloud native supervisor. Defaults to loopback; hosted mode is explicit.
+// Requires a pinned source lot and
 // content release. No fixed actors, generic Spawn or scripted success fallback.
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
@@ -21,6 +22,7 @@ import {
 } from "./owned-demo/authored-genesis.mjs";
 import { ownedPlacement, ownedReadiness } from "./owned-demo/placement.mjs";
 import { openOwnedHost } from "./owned-demo/process.mjs";
+import { currentPreparationStatus } from "./owned-demo/preparation-status.mjs";
 import { drainControlFences } from "./owned-demo/fences.mjs";
 import {
   departureRequest,
@@ -29,10 +31,12 @@ import {
   deliverDepartureReceipts,
   drainOneDeparture,
 } from "./owned-demo/departures.mjs";
+import { authenticatedEod } from "./owned-demo/eod.mjs";
 import { settlePlayerAction } from "./owned-demo/actions.mjs";
 import { reconcileAuthenticatedPlayerAction } from "./owned-demo/action-results.mjs";
 import { validateOwnedManifest } from "./owned-demo/manifest.mjs";
 import { stageRecovery } from "./owned-demo/recovery.mjs";
+import { supervisorProfile } from "./owned-demo/supervisor-profile.mjs";
 import { loadOrCreateExport } from "./owned-demo/admission.mjs";
 import {
   askWithDurableReceipts,
@@ -40,9 +44,7 @@ import {
 } from "./owned-demo/receipts.mjs";
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const require = createRequire(join(repo, "services/native-edge/package.json"));
-const { Miniflare } = require("miniflare"),
-  { build } = require("esbuild"),
-  { WebSocketServer } = require("ws");
+const { WebSocketServer } = require("ws");
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const digest = (value) =>
   typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
@@ -66,21 +68,29 @@ const packet = (value) => {
 export async function createOwnedDemo({
   dist,
   manifest,
-  hostExecutable = resolve(repo, "target/debug/wonderland-native-lot-host"),
+  hostExecutable = resolve(repo, "target/release/wonderland-native-lot-host"),
   storageRoot,
   port = 0,
   resume = false,
   authorGenesis,
+  hosted,
+  contentProvider,
 }) {
+  const profile = supervisorProfile(hosted);
   validateOwnedManifest(manifest);
   manifest = JSON.parse(JSON.stringify(manifest));
+  if (contentProvider) {
+    assert.equal(contentProvider.release, manifest.content_release);
+    assert.equal(typeof contentProvider.manifest, "function");
+    assert.equal(typeof contentProvider.read, "function");
+  }
   assert.ok(authorGenesis === undefined || typeof authorGenesis === "function");
   assert.ok(
     !resume || authorGenesis === undefined,
     "Authored setup is fresh-only.",
   );
   assert.ok(
-    !resume || storageRoot,
+    !resume || profile.hosted || storageRoot,
     "Ingress recovery requires the original durable storage root.",
   );
   const root = storageRoot
@@ -98,7 +108,7 @@ export async function createOwnedDemo({
     firstOwnerReceipt = null,
     authoredSetupReceipt = null,
     ready = false;
-  if (resume) {
+  if (resume && !profile.hosted) {
     const prior = JSON.parse(await readFile(join(root, "runner.json"), "utf8"));
     assert.equal(prior.version, 1);
     assert.equal(prior.manifest_sha256, sha(JSON.stringify(manifest)));
@@ -128,9 +138,13 @@ export async function createOwnedDemo({
     ticking = false,
     departureWork = false,
     departureDeliveryError = null,
+    eventDeliveryError = null,
+    eventLaneCursor = "",
+    eventDeliveryPending = [],
     requestFailure = null,
     lastIdleFenceSweep = 0,
     accounts = null;
+  let resetTickCadence = () => {};
   const serially = (fn, { allowPaused = false } = {}) => {
     if (closing) return Promise.reject(Error("Demo closed."));
     if (queued >= 16)
@@ -173,11 +187,27 @@ export async function createOwnedDemo({
     }
     socket.send(bytes, { binary: true });
   };
+  const sendPrivate = (socket, value) => {
+    if (socket.readyState !== 1 || !socket.live) return;
+    const text = JSON.stringify(value);
+    assert.ok(Buffer.byteLength(text) <= 512 * 1024);
+    if (socket.bufferedAmount + Buffer.byteLength(text) > 82 * 1024 * 1024) { socket.close(1013); return; }
+    socket.send(text, {binary:false});
+  };
+  async function flushPrivate(socket) {
+    if (!socket.live || !socket.entry || socket.readyState !== 1) return;
+    const output = await host.ask({kind:"read_private_eod",control:socket.entry.control});
+    // A concurrently revoked owned session has no private delivery authority.
+    if (output.kind === "denied") return;
+    assert.equal(output.kind,"private_eod_outputs");
+    if (output.messages.length) sendPrivate(socket,{type:"native_eod_outputs",messages:output.messages});
+  }
   const broadcast = (hex) => {
     const bytes = packet(hex);
     for (const socket of sockets) if (socket.live) send(socket, bytes);
   };
   const stop = (error) => {
+    resetTickCadence();
     halted = String(error.message ?? error);
     for (const socket of sockets) socket.close(1012);
   };
@@ -234,6 +264,7 @@ export async function createOwnedDemo({
       throw Error("Host resolution mismatch.");
     }
     broadcast(result.ticks_hex);
+    for (const socket of sockets) await flushPrivate(socket);
     if (BigInt(result.cursor.completed_tick) - lastCheckpointTick >= 32n)
       await publishCheckpoint();
     return result;
@@ -267,6 +298,7 @@ export async function createOwnedDemo({
     lastCheckpointTick = BigInt(runtime.cursor.completed_tick);
   }
   async function recoverHost() {
+    resetTickCadence();
     // No snapshot is taken here. Process loss must be recoverable from the
     // checkpoint already retained in R2 plus the accepted durable journal tail.
     await sweepFences();
@@ -313,20 +345,25 @@ export async function createOwnedDemo({
         candidate.takeover_marker.checkpoint_sha256,
         sha(packet(candidate.checkpoint_hex)),
       );
+      const restored = await host.ask({kind:"restore_native_eod",checkpoint:await lot("currentNativeEodV1")});
+      assert.equal(restored.kind,"native_eod_restored",restored.reason);
       const finished = await lot("finishControlledRecoveryV2", [
         {
           schema_version: 2,
           marker: candidate.takeover_marker,
           control: bundle.control,
+          native_eod_v1: restored.native_eod_v1,
         },
         candidate.checkpoint_hex,
       ]);
       assert.equal(finished.schema_version, 2);
       assert.deepEqual(finished.marker, candidate.takeover_marker);
       assert.deepEqual(finished.control, bundle.control);
+      assert.equal(finished.native_eod_checkpoint_sha256, restored.native_eod_v1.checkpoint_sha256);
       const activated = await host.ask({
         kind: "activate_recovery",
         marker: finished.marker,
+        native_eod_checkpoint_sha256: finished.native_eod_checkpoint_sha256,
       });
       assert.equal(activated.kind, "committed_state");
       assert.equal(activated.recovery_pending, false);
@@ -356,7 +393,7 @@ export async function createOwnedDemo({
     return current;
   }
   async function prepare(kind, extra = {}) {
-    const current = await currentHost();
+    const current = await currentPreparationStatus(host);
     // Large terminal lanes can fill memory well before 32 semantic ticks.
     // Transfer their exact receipts before preparing another speculative batch.
     if (
@@ -637,6 +674,25 @@ export async function createOwnedDemo({
       }
     }
   }
+  async function deliverOwnedEvents() {
+    try {
+      const page=await lot("readOwnedEventLanesV1",[eventLaneCursor]);
+      eventDeliveryPending = page.unsupported_effect_lanes ? [{lane:"effects",reason:"no_consumer",count:page.unsupported_effect_lanes}] : [];
+      for(const lane of page.lanes){
+        if(!lane.supported){eventDeliveryPending.push({batch_key:lane.batch_key,reason:lane.reason});continue;}
+        const proof=await host.ask({kind:"inspect_owned_event_lane",events_hex:lane.events_hex});
+        assert.equal(proof.kind,"owned_event_lane_proof",proof.reason);
+        if(proof.pending.length){eventDeliveryPending.push({batch_key:lane.batch_key,pending:proof.pending});continue;}
+        await lot("retireOwnedEventLaneV1",[{batch_key:lane.batch_key,digest:lane.digest,proof}]);
+      }
+      eventLaneCursor=page.next??"";
+      eventDeliveryError=null;
+    } catch(error) {
+      // No successful consumer receipt: retain and retry exactly. This lane
+      // does not grant input or bypass the separate custody-release workflow.
+      eventDeliveryError=String(error.message??error);
+    }
+  }
   async function deliverDepartures() {
     try {
       await deliverDepartureReceipts({
@@ -645,6 +701,7 @@ export async function createOwnedDemo({
         onReleased: forgetReleased,
       });
       departureDeliveryError = null;
+      await deliverOwnedEvents();
       return true;
     } catch (error) {
       // An account/storage transport error cannot prove release. Retain durable
@@ -713,6 +770,40 @@ export async function createOwnedDemo({
         request.url.includes("%")
       )
         throw Error("Invalid request path.");
+      if (url.pathname.startsWith("/native-content/")) {
+        if (!contentProvider) {
+          response.writeHead(404); response.end(); return;
+        }
+        const token = authorizeRequest(request), data = await readBody(request);
+        const resource = url.pathname === "/native-content/manifest" ? null
+          : /^\/native-content\/file\/([0-9a-f]{64})$/.exec(url.pathname)?.[1];
+        assert.ok(resource !== undefined, "Unsupported content resource.");
+        // Recheck the live account reservation and committed source placement on
+        // every request. A manifest or hash is never a substitute for admission.
+        await serially(async () => {
+          assert.deepEqual(Object.keys(data).sort(), ["avatar_id", "lot_id", "operation"]);
+          assert.equal(data.lot_id, manifest.lot.lot_id);
+          const entry = admitted.get(key(token, data.avatar_id)) ?? await restoreEntry(token, data);
+          assert.equal(entry.operation, data.operation);
+          await sweepFences();
+          const current = await revalidate(entry);
+          assert.ok(ownedPlacement(current, entry).in_world);
+          await renewActivity(entry, token);
+        });
+        const body = resource === null ? JSON.stringify(contentProvider.manifest())
+          : await contentProvider.read(resource);
+        response.writeHead(200, {
+          "content-type": resource === null ? "application/json" : "application/octet-stream",
+          "cache-control": "private, no-store",
+          "cross-origin-resource-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+        });
+        response.end(body); return;
+      }
+      if (profile.hosted && url.pathname === "/__native-preview/ready" && request.method === "GET") {
+        response.writeHead(200, {"content-type":"application/json","cache-control":"no-store"});
+        response.end('{"ready":true}'); return;
+      }
       if (
         [
           "/native-account/enter",
@@ -768,9 +859,7 @@ export async function createOwnedDemo({
         assert.equal(request.method, "POST");
         assert.equal(request.headers.origin, origin);
         const data = await readBody(request),
-          headers = { ...request.headers, "cf-connecting-ip": "127.0.0.1" };
-        delete headers.host;
-        delete headers["content-length"];
+          headers = profile.accountHeaders(request.headers);
         const result = await serially(
           async () => {
             const reply = await mf.dispatchFetch(url.href, {
@@ -971,7 +1060,8 @@ export async function createOwnedDemo({
   }
   async function close() {
     closing = true;
-    if (timer) clearInterval(timer);
+    resetTickCadence();
+    if (timer) clearTimeout(timer);
     for (const socket of sockets) socket.terminate();
     if (wss) wss.close();
     if (host) await host.close().catch(() => {});
@@ -1009,65 +1099,71 @@ export async function createOwnedDemo({
     server.headersTimeout = 10000;
     await new Promise((resolve, reject) => {
       server.once("error", reject);
-      server.listen(port, "127.0.0.1", resolve);
+      server.listen(port, profile.listenHost, resolve);
     });
-    origin = `http://127.0.0.1:${server.address().port}`;
-    const bundle = await build({
-      entryPoints: [join(repo, "tools/native-browser/owned-demo/driver.ts")],
-      bundle: true,
-      format: "esm",
-      platform: "neutral",
-      external: ["cloudflare:workers"],
-      write: false,
-      plugins: [
-        {
-          name: "wasm",
-          setup(b) {
-            b.onResolve({ filter: /account_crypto_bg\.wasm$/ }, () => ({
-              path: "./account_crypto_bg.wasm",
-              external: true,
-            }));
+    origin = profile.hosted ? profile.publicOrigin
+      : `http://127.0.0.1:${server.address().port}`;
+    if (profile.hosted) {
+      mf = profile.transport;
+    } else {
+      const { Miniflare } = require("miniflare"), { build } = require("esbuild");
+      const bundle = await build({
+        entryPoints: [join(repo, "tools/native-browser/owned-demo/driver.ts")],
+        bundle: true,
+        format: "esm",
+        platform: "neutral",
+        external: ["cloudflare:workers"],
+        write: false,
+        plugins: [
+          {
+            name: "wasm",
+            setup(b) {
+              b.onResolve({ filter: /account_crypto_bg\.wasm$/ }, () => ({
+                path: "./account_crypto_bg.wasm",
+                external: true,
+              }));
+            },
           },
+        ],
+      });
+      mf = new Miniflare({
+        // This private loopback host needs no remote Request.cf metadata refresh.
+        // Miniflare otherwise fetches workers.cloudflare.com/cf.json by default.
+        cf: false,
+        modulesRoot: root,
+        modules: [
+          {
+            type: "ESModule",
+            path: join(root, "worker.mjs"),
+            contents: bundle.outputFiles[0].text,
+          },
+          {
+            type: "CompiledWasm",
+            path: join(root, "account_crypto_bg.wasm"),
+            contents: await readFile(
+              join(repo, "services/native-edge/generated/account_crypto_bg.wasm"),
+            ),
+          },
+        ],
+        compatibilityDate: "2026-07-01",
+        durableObjects: {
+          ACCOUNTS: { className: "AccountAuthority", useSQLite: true },
+          COORD: { className: "LotCoordinator", useSQLite: true },
         },
-      ],
-    });
-    mf = new Miniflare({
-      // This private loopback host needs no remote Request.cf metadata refresh.
-      // Miniflare otherwise fetches workers.cloudflare.com/cf.json by default.
-      cf: false,
-      modulesRoot: root,
-      modules: [
-        {
-          type: "ESModule",
-          path: join(root, "worker.mjs"),
-          contents: bundle.outputFiles[0].text,
+        durableObjectsPersist: join(root, "sqlite"),
+        r2Buckets: ["CHECKPOINTS"],
+        r2Persist: join(root, "r2"),
+        bindings: {
+          PRIVATE_CAPABILITY: privateCapability,
+          ACCOUNT_REALM: "owned-demo",
+          LOT_NAME: manifest.lot.lot_id,
+          NATIVE_ACCOUNT_HTTP: "staged-v1",
+          NATIVE_ACCOUNT_ORIGIN: origin,
+          NATIVE_ACCOUNT_REALM: "owned-demo",
         },
-        {
-          type: "CompiledWasm",
-          path: join(root, "account_crypto_bg.wasm"),
-          contents: await readFile(
-            join(repo, "services/native-edge/generated/account_crypto_bg.wasm"),
-          ),
-        },
-      ],
-      compatibilityDate: "2026-07-01",
-      durableObjects: {
-        ACCOUNTS: { className: "AccountAuthority", useSQLite: true },
-        COORD: { className: "LotCoordinator", useSQLite: true },
-      },
-      durableObjectsPersist: join(root, "sqlite"),
-      r2Buckets: ["CHECKPOINTS"],
-      r2Persist: join(root, "r2"),
-      bindings: {
-        PRIVATE_CAPABILITY: privateCapability,
-        ACCOUNT_REALM: "owned-demo",
-        LOT_NAME: manifest.lot.lot_id,
-        NATIVE_ACCOUNT_HTTP: "staged-v1",
-        NATIVE_ACCOUNT_ORIGIN: origin,
-        NATIVE_ACCOUNT_REALM: "owned-demo",
-      },
-    });
-    await mf.ready;
+      });
+      await mf.ready;
+    }
     await account("initializeAdmissionAuthorityV2", [manifest.authority_id]);
     await account("initializeCatalog", [manifest.catalog]);
     if (authorGenesis) {
@@ -1123,7 +1219,7 @@ export async function createOwnedDemo({
         },
       ]);
       await publishCheckpoint();
-      await writeFile(
+      if (!profile.hosted) await writeFile(
         join(root, "runner.json"),
         JSON.stringify({
           version: 1,
@@ -1196,6 +1292,15 @@ export async function createOwnedDemo({
           if (!binary) {
             assert.ok(socket.live && bytes.length <= 33500);
             const query = JSON.parse(bytes.toString("utf8"));
+            if (["native_eod_read","native_eod_ui","native_eod_ack"].includes(query.type)) {
+              await authenticatedEod(query,socket.entry,{
+                revalidate:async(entry)=>{await sweepFences(); const current=await revalidate(entry); assert.ok(ownedPlacement(current,entry).in_world);},
+                prepare,commit,
+                read:(control)=>host.ask({kind:"read_private_eod",control}),
+                send:(value)=>sendPrivate(socket,value),
+              });
+              return;
+            }
             if (query.type === "native_action_result") {
               await reconcileAuthenticatedPlayerAction(query, socket.entry, {
                 sweepFences,
@@ -1233,6 +1338,7 @@ export async function createOwnedDemo({
             send(socket, packet(checkpoint.packet_hex));
             socket.live = true;
             clearTimeout(deadline);
+            await flushPrivate(socket);
           } else if (magic === "WLC1") {
             assert.ok(socket.live);
             assert.ok(bytes.length <= 16384);
@@ -1260,36 +1366,94 @@ export async function createOwnedDemo({
     departureWork =
       (await activeDepartures(lot)).length > 0 ||
       (await lot("pendingOwnedDeparturesV1")).length > 0;
-    timer = setInterval(() => {
-      if (ticking || closing || halted) return;
-      const live = [...sockets].some((s) => s.live);
-      // Disconnection may precede lease expiry. Continue non-renewing security
-      // sweeps while idle so later expiry becomes durable departure work.
-      if (!departureWork && !live) {
-        if (Date.now() - lastIdleFenceSweep < 5000) return;
-        lastIdleFenceSweep = Date.now();
-      }
-      ticking = true;
-      serially(async () => {
-        await sweepFences();
-        if (!(await deliverDepartures())) return;
-        if (await drainOneDeparture({ lot, prepare, commit })) {
-          departureWork = true;
-          await deliverDepartures();
+    const tickPeriodMs = 1000 / 30;
+    const maxTickDebtMs = 100;
+    const maxRecoveryTurns = 6;
+    let nextTickDueAt, armedTimerDueAt, recoveryTurns = 0;
+    resetTickCadence = () => {
+      nextTickDueAt = undefined;
+      recoveryTurns = 0;
+    };
+    async function pumpTick() {
+      let bodyStartedAt;
+      let ordinaryCommitted = false;
+      try {
+        if (closing || halted) {
+          resetTickCadence();
           return;
         }
-        departureWork = (await lot("pendingOwnedDeparturesV1")).length > 0;
-        if (departureWork || ![...sockets].some((s) => s.live)) return;
-        const result = await commit(await prepare("prepare_player_tick"));
-        if (result.kind !== "committed")
-          throw Error("Authoritative tick was fenced.");
-      })
-        .catch(stop)
-        .finally(() => (ticking = false));
-    }, 1000 / 30);
+        if (performance.now() - armedTimerDueAt >= maxTickDebtMs)
+          resetTickCadence();
+        const live = [...sockets].some((s) => s.live);
+        // Disconnection may precede lease expiry. Continue non-renewing security
+        // sweeps while idle so later expiry becomes durable departure work.
+        if (!departureWork && !live) {
+          resetTickCadence();
+          if (Date.now() - lastIdleFenceSweep < 5000) return;
+          lastIdleFenceSweep = Date.now();
+        }
+        ticking = true;
+        const tickQueuedAt = performance.now();
+        await serially(async () => {
+          if (closing) return;
+          bodyStartedAt = performance.now();
+          const queueWaitMs = bodyStartedAt - tickQueuedAt;
+          // Only an active phase may recover short FIFO waits within the debt/burst caps.
+          // Initial, inactive and excessive waits start at actual execution instead.
+          if (queueWaitMs >= maxTickDebtMs) resetTickCadence();
+          if (nextTickDueAt === undefined) nextTickDueAt = bodyStartedAt;
+          await sweepFences();
+          if (!(await deliverDepartures())) return;
+          if (await drainOneDeparture({ lot, prepare, commit })) {
+            departureWork = true;
+            await deliverDepartures();
+            return;
+          }
+          departureWork = (await lot("pendingOwnedDeparturesV1")).length > 0;
+          if (departureWork || ![...sockets].some((s) => s.live)) return;
+          const result = await commit(await prepare("prepare_player_tick"));
+          if (result.kind !== "committed")
+            throw Error("Authoritative tick was fenced.");
+          ordinaryCommitted = true;
+          nextTickDueAt += tickPeriodMs;
+        });
+      } catch (error) {
+        stop(error);
+      } finally {
+        ticking = false;
+        let delay = tickPeriodMs;
+        if (!ordinaryCommitted || halted || closing || nextTickDueAt === undefined) {
+          resetTickCadence();
+        } else {
+          const now = performance.now();
+          const debtMs = now - nextTickDueAt;
+          if (debtMs > maxTickDebtMs) {
+            resetTickCadence();
+          } else if (debtMs >= 0 && recoveryTurns >= maxRecoveryTurns) {
+            resetTickCadence();
+            // Resume ordinary start spacing without adding another full idle period.
+            const remaining = bodyStartedAt + tickPeriodMs - now;
+            if (remaining > 0) delay = remaining;
+          } else {
+            delay = Math.max(0, -debtMs);
+            recoveryTurns = delay === 0 ? recoveryTurns + 1 : 0;
+          }
+        }
+        // One yielded FIFO body per turn; bounded recovery never batches source ticks.
+        // Keep harmless polling while halted so successful recovery can resume.
+        if (!closing) {
+          armedTimerDueAt = performance.now() + delay;
+          timer = setTimeout(pumpTick, delay);
+        }
+      }
+    }
+    armedTimerDueAt = performance.now() + tickPeriodMs;
+    timer = setTimeout(pumpTick, tickPeriodMs);
     ready = true;
     return {
       origin,
+      // Supervisor control only; never included in browser configuration.
+      localAddress: server.address(),
       storageRoot: root,
       manifest: JSON.parse(JSON.stringify(manifest)),
       authored_setup_receipt: authoredSetupReceipt,
@@ -1311,10 +1475,12 @@ export async function createOwnedDemo({
             journal: coordinator.journal,
             pending_outbox: coordinator.pending_outbox,
             departure_delivery_error: departureDeliveryError,
+            event_delivery_error: eventDeliveryError,
+            event_delivery_pending: eventDeliveryPending,
             request_failure: requestFailure,
             halted,
           };
-        });
+        }, { allowPaused: true });
       },
       // Supervisor-only evidence inspection. This object is never exposed by
       // the HTTP or WebSocket router; browser callers cannot choose proof RPCs.
@@ -1339,10 +1505,15 @@ export async function createOwnedDemo({
           const current = await currentHost();
           assert.ok(typeof current.checkpoint_hex === "string");
           return current.checkpoint_hex;
-        });
+        }, { allowPaused: true });
       },
-      async restartHost() {
-        return serially(recoverHost, { allowPaused: true });
+      async restartHost({ consecutive = 1 } = {}) {
+        assert.ok(Number.isSafeInteger(consecutive) && consecutive >= 1 && consecutive <= 3);
+        return serially(async () => {
+          const results = [];
+          for (let i=0; i<consecutive; i++) results.push(await recoverHost());
+          return consecutive === 1 ? results[0] : results;
+        }, { allowPaused: true });
       },
       close,
     };

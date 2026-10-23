@@ -206,6 +206,7 @@ impl Header {
             && schema != 3
             && schema != 4
             && schema != 5
+            && schema != 6
         {
             return Err(SnapshotError::UnsupportedSchema(schema));
         }
@@ -312,6 +313,7 @@ pub fn decode(
         &ReplicatedLotPermissions::Uninitialized,
         MAX_SNAPSHOT_PAYLOAD_BYTES,
     )?;
+    let empty_eod = canonical(&crate::eod::EodState::default(), MAX_SNAPSHOT_PAYLOAD_BYTES)?;
     let migration_bytes = match header.schema {
         1 => 16 + uninitialized.len() as u64 + 4 + 16 + 17,
         2 => uninitialized.len() as u64 + 4 + 16 + 17,
@@ -319,6 +321,10 @@ pub fn decode(
         4 => 16 + 17,
         5 => 17,
         _ => 0,
+    } + if header.schema < 7 {
+        empty_eod.len() as u64
+    } else {
+        0
     };
     let migrated;
     let decode_payload = if header.schema != SIMULATION_SCHEMA {
@@ -340,7 +346,10 @@ pub fn decode(
         }
         // No historical snapshot proves EOD sessions clear. Preserve unknown
         // knowledge while appending empty departure records and disconnect IDs.
-        value.extend_from_slice(&[0; 17]);
+        if header.schema < 6 {
+            value.extend_from_slice(&[0; 17]);
+        }
+        value.extend_from_slice(&empty_eod);
         migrated = value;
         migrated.as_slice()
     } else {
@@ -359,6 +368,11 @@ pub fn decode(
     }
     if state.schema != SIMULATION_SCHEMA {
         return Err(SnapshotError::HeaderPayloadMismatch("schema"));
+    }
+    if header.schema < 7 {
+        // Schema6 did not retain session associations or authoritative teardown
+        // receipts. Its old boolean cannot prove the new public EOD boundary.
+        state.owned_departures.eod_known_clear = false;
     }
     if state.lot_id != header.lot_id {
         return Err(SnapshotError::HeaderPayloadMismatch("lot ID"));
@@ -480,6 +494,7 @@ pub fn validate_state(state: &SimState, content: &ContentSet) -> Result<(), Snap
         .owned_departures
         .validate(state)
         .map_err(|e| invalid("owned_departures", e))?;
+    state.eod.validate(state).map_err(|e| invalid("eod", e))?;
     if state.lot_id == 0 || state.authority_epoch == 0 {
         return Err(invalid("identity", "lot ID and epoch must be nonzero"));
     }

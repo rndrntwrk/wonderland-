@@ -8,6 +8,7 @@
 pub mod avatars;
 pub mod clock;
 pub mod effects;
+pub mod eod;
 pub mod ids;
 pub mod interactions;
 pub mod lot_permissions;

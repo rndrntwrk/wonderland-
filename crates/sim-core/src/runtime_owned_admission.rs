@@ -4,7 +4,7 @@ use crate::lot_permissions::{
     PersistedPermissionGroup,
 };
 use crate::owned_admission::{
-    OwnedAdmissionState, OwnedAvatarAdmission, SourceJoinMetadata, MAX_OWNED_ACTORS,
+    MAX_OWNED_ACTORS, OwnedAdmissionState, OwnedAvatarAdmission, SourceJoinMetadata,
 };
 
 pub(super) fn initialize(
@@ -185,7 +185,7 @@ pub(super) fn admit(
     }
     let april_fools = source.april_fools_2019;
     projection(state, content)?; // Validate source readiness, never retain this pre-creation query.
-                                 // Bound all portable fields before object creation; apply itself is atomic.
+    // Bound all portable fields before object creation; apply itself is atomic.
     let mut validation = AvatarState::new(
         EntityRef {
             object_id: ObjectId(1),

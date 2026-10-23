@@ -201,6 +201,23 @@ pub fn external<H: VmHost + ?Sized>(
             }));
         }
     }
+    if opcode == 62
+        && u32::from_le_bytes(bytes[4..8].try_into().unwrap()) == crate::eod::TIMER_PLUGIN_ID
+    {
+        let frame = thread.top()?;
+        // VMInvokePlugin reads EventLocal first. Person/Object locals are read
+        // only when starting a connection; the reducer preserves that ordering.
+        index("EOD event local", i32::from(bytes[2]), frame.locals.len())?;
+        return Ok(PrimitiveOutcome::Request(HostRequest::InvokePlugin(
+            InvokePluginRequest {
+                context: frame.context.clone(),
+                operand: bytes,
+                locals: frame.locals.clone(),
+                temps: thread.temps,
+                is_check: thread.is_check,
+            },
+        )));
+    }
     let mut amount = None;
     if opcode == 25 && thread.mode == VmMode::Ts1 {
         return Err(VmFault::UnsupportedPrimitive {

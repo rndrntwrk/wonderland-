@@ -1,0 +1,276 @@
+{
+  "schema": "wonderland.native-timer-source-files.v1",
+  "base_commit": "1151d9ca1033a7e3a457529a8347d220f130613b",
+  "simulation_schema": 7,
+  "private_timer_checkpoint_schema": 1,
+  "sealed_binding_sha256": "8921d56fa9261bdfc0f96c740eaa9a1ee240c60784916d5f704c3ef3fe5a5da4",
+  "flow6_evidence_sha256": "6fae9e4bc1647c789ff1c2a2710986f1d30ee620b05d542454e625c2eaa424d9",
+  "files": [
+    {
+      "path": "Cargo.lock",
+      "bytes": 77235,
+      "sha256": "e528c22d99346401d58e3bbd198788ac39d6a7d69a199b2bdd40aed57f57dfb3"
+    },
+    {
+      "path": "crates/eod-runtime/README.md",
+      "bytes": 14085,
+      "sha256": "0ebb155b5eba0e21ee007d3f54431cbf41901a93dc6afb3001559e0e3785d417"
+    },
+    {
+      "path": "crates/eod-runtime/src/host.rs",
+      "bytes": 59094,
+      "sha256": "eec15878517c5a94f0705f0996d79e675f04457844b9ec09d01a48d696f459aa"
+    },
+    {
+      "path": "crates/eod-runtime/src/lib.rs",
+      "bytes": 2948,
+      "sha256": "957255ceac689a177d001fb85b0ca8a062f790194410ee68a773e1b909ad705f"
+    },
+    {
+      "path": "crates/eod-runtime/src/private_timer_transaction.rs",
+      "bytes": 39129,
+      "sha256": "43ad2065939d88ff75303d8d162f19a8438850ac7b8cedc2febfdbf4367e8c17"
+    },
+    {
+      "path": "crates/eod-runtime/src/timer.rs",
+      "bytes": 9463,
+      "sha256": "3ba905ffa51a496454cded1f0602ae95182da43c7dcdeb00bba27758fe3e077c"
+    },
+    {
+      "path": "crates/eod-runtime/tests/private_timer_transactions.rs",
+      "bytes": 27535,
+      "sha256": "ee14961ffa8e12716bdcaa0bd6b7f3c6a4f8eddc794add2515c56f874fdb15e9"
+    },
+    {
+      "path": "crates/native-host-contracts/src/eod.rs",
+      "bytes": 3632,
+      "sha256": "a7ab51545028f5d12b45be12a1d0f458f02b9889249ceec7e074b26db98d6ab9"
+    },
+    {
+      "path": "crates/native-host-contracts/src/lib.rs",
+      "bytes": 5745,
+      "sha256": "5dacad9d3f7347acfb14e6342f2553330dcc38f5c048b3e9f308e934759fb0b2"
+    },
+    {
+      "path": "crates/sim-core/src/eod.rs",
+      "bytes": 9534,
+      "sha256": "3fa3fed3e4da42d5296685252245fc670da27dcdf5006967720da70bd29d5201"
+    },
+    {
+      "path": "crates/sim-core/src/lib.rs",
+      "bytes": 752,
+      "sha256": "8d3a315d00ecefd0dfbaa9e723a36900df63f1cca0348abf8a0541d328456584"
+    },
+    {
+      "path": "crates/sim-core/src/primitives/external.rs",
+      "bytes": 9552,
+      "sha256": "0a06cf4200544c5927f6f7104fd4d2dfc7976557f4899f3cdf38df3acb759b7f"
+    },
+    {
+      "path": "crates/sim-core/src/runtime.rs",
+      "bytes": 141435,
+      "sha256": "eb8e1ef91ae64dcade68c71d868a35fc096d1f3baee9ff84402c5441fa3c1937"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_eod.rs",
+      "bytes": 11370,
+      "sha256": "18f63946ee6d599a0b9a9597fe547eb099391058fdde471469657589d710c66f"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_interactions.rs",
+      "bytes": 40443,
+      "sha256": "96fd480168dc3b94818d1c005349944445d91aa56e6e821f23a1d331f26caf2f"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_leave.rs",
+      "bytes": 33457,
+      "sha256": "c1adbac55b818abb8eec70acc71b00de0015b6359bd9e1d7835e40ba7666346a"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_owned_admission.rs",
+      "bytes": 14850,
+      "sha256": "209b31ab987540d8e3c8a18f7d8f9ddc11d8d5b76ff92806cf971ece9733340c"
+    },
+    {
+      "path": "crates/sim-core/src/snapshot.rs",
+      "bytes": 58480,
+      "sha256": "82998c6cd4be7d373f6bf43bc9b1a38130020849ffc213ff40fa1115779cd0d4"
+    },
+    {
+      "path": "crates/sim-core/src/state.rs",
+      "bytes": 26953,
+      "sha256": "971f2bc175dcbeccb3057638afa14f4a871b0a8d827d693e44256cd8567d315f"
+    },
+    {
+      "path": "crates/sim-core/src/vm/host.rs",
+      "bytes": 25346,
+      "sha256": "55e0941d514f1ae0599339411b3af88a83dfe4c69ee240971b331ed227850a1f"
+    },
+    {
+      "path": "crates/sim-core/tests/lot_permission_state.rs",
+      "bytes": 25475,
+      "sha256": "774e823ccbb7db93d841c913fd3e62d8993cfbcf47a2f1bacd53d01307d6983c"
+    },
+    {
+      "path": "crates/sim-core/tests/owned_admission.rs",
+      "bytes": 22331,
+      "sha256": "99d4570a90465f49981a79e932f05178bcc624df069245b92ca7a3d6ca03cc9f"
+    },
+    {
+      "path": "crates/sim-core/tests/primitives_external.rs",
+      "bytes": 21280,
+      "sha256": "b6b74e3e31015c199d2852dee2f58fcf178968791e0be13dcb5ecc9b0ee1fb3c"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_memory_reference.rs",
+      "bytes": 30399,
+      "sha256": "81507ad3f89e2e39422d961efdd79363481f18b6a6be1b8f6e3e59233fd43fad"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_owned_leave.rs",
+      "bytes": 46850,
+      "sha256": "65718ba91b405de22ee6d72a0261ab181b149af0aa055404cfa0c5b9952e6017"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_route_animation.rs",
+      "bytes": 29145,
+      "sha256": "31fabfd780e8af170abf51b77fc0ccf558bcce51a87108b923aec48085d136c9"
+    },
+    {
+      "path": "crates/sim-core/tests/snapshot_contract.rs",
+      "bytes": 42314,
+      "sha256": "9679cbc7b0b82a0c783056fc24b45186aea693a60f025ee184e98b22ca27bcb7"
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/DESIGN.md",
+      "bytes": 15953,
+      "sha256": "02c824cbe2552a510e1bd3ffa2550d6a63978c429bd5bd03b697f3991082f76e"
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/RESULTS.md",
+      "bytes": 8558,
+      "sha256": "02904089b04d2320b4c65547173ab22671ecef6424cc38cde029167e2413fbcf"
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/source-release.json",
+      "bytes": 2301,
+      "sha256": "15ea5ae634d4d184c7be72f040b1b504339eedb38a55c371fdd176797fdb76f1"
+    },
+    {
+      "path": "services/native-edge/src/lot/coordinator.ts",
+      "bytes": 86256,
+      "sha256": "119847b2c80af1c17a1f7310720f8f8f195481b98268366271212baa8be2b2f7"
+    },
+    {
+      "path": "services/native-edge/src/lot/departures.ts",
+      "bytes": 42760,
+      "sha256": "1681a59c2626a0988953220fa07cd15da6b6c5d7334ee7bc1fe835d7c0c9bfda"
+    },
+    {
+      "path": "services/native-edge/src/lot/native-eod.ts",
+      "bytes": 5534,
+      "sha256": "5f81d420a0d9bcef39cb0ebe989de3d97842f90f36b0d8299ced1a31502c3219"
+    },
+    {
+      "path": "services/native-edge/src/lot/owned-events.ts",
+      "bytes": 7684,
+      "sha256": "461bcd024bd566272c107fd48d87c5844b7164f30bd6a9ca7bcf432752a94e4f"
+    },
+    {
+      "path": "services/native-edge/src/lot/owned.ts",
+      "bytes": 9026,
+      "sha256": "9be557dc2f90ca81895b2d5df830f96d78d522f9014b916017dcd0fb4e30b2a2"
+    },
+    {
+      "path": "services/native-edge/tests/owned-departure-coordinator.test.mjs",
+      "bytes": 51173,
+      "sha256": "c120523f6105b1d76766028f780fb55b5ec8ad7a1df53361f84d59bc86e0e16d"
+    },
+    {
+      "path": "services/native-lot-host/Cargo.toml",
+      "bytes": 621,
+      "sha256": "7cba8bf9f6dbe5a1cb1138881ac3cb74a0d500d9bf0a5b4db4ca3b0558f77259"
+    },
+    {
+      "path": "services/native-lot-host/examples/owned-boundary-fixture.rs",
+      "bytes": 7688,
+      "sha256": "1c0c34156b1e9dba0199bd7d1e06e2602a78842b7834e55b0db7fcbdd2ee0a5b"
+    },
+    {
+      "path": "services/native-lot-host/src/eod.rs",
+      "bytes": 46173,
+      "sha256": "0c5903a87be4ad6f7ebcc681204cc525325e7afe5675d8bff9c319587becf4fd"
+    },
+    {
+      "path": "services/native-lot-host/src/main.rs",
+      "bytes": 2367,
+      "sha256": "5927bb2824194981182dab8f8d90d89d095d485a531adb0352939a1c1c92dbb8"
+    },
+    {
+      "path": "services/native-lot-host/src/owned_events.rs",
+      "bytes": 7287,
+      "sha256": "5d089060acad397abc9b72ad8ea633b021e5008138f05ea9dd7af2b9a282375b"
+    },
+    {
+      "path": "services/native-lot-host/src/runtime.rs",
+      "bytes": 34697,
+      "sha256": "9adf5855f6cbdb3ffbc59674c9f97dca4f495da85bc157d00b91fda65666a3e4"
+    },
+    {
+      "path": "tools/native-browser/owned-demo.mjs",
+      "bytes": 52423,
+      "sha256": "0d9768db8285f2636d9e0bc438624a0acf4b86e39e0b31871618a8dbaa887d41"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/driver.ts",
+      "bytes": 5082,
+      "sha256": "ba983845363e49bd41a5f3dd04c61a2169f578e43ae6f1492683c4c9beea0c5b"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/eod.mjs",
+      "bytes": 2182,
+      "sha256": "516f1e9c68f1e36e491e1c464cc72728f25c3102b47703bb6e3d85b79b611837"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/eod.test.mjs",
+      "bytes": 2403,
+      "sha256": "bf77f01d4e0fe6a1417f0c91a0dfbcd8d0c2cfee84e7d4b397421f18423af852"
+    },
+    {
+      "path": "tools/replay/inspect_original_timer_state.rs",
+      "bytes": 2315,
+      "sha256": "ef2538ebffb316155f89ad560708d4f254f1903220213e0851900ab3abb40a32"
+    },
+    {
+      "path": "tools/replay/native_authored_timer_join_anchor.rs",
+      "bytes": 10692,
+      "sha256": "157454a83ffae8fdb8922b62fafb7b16138544f93ed9af9760ead430eb580a37"
+    },
+    {
+      "path": "tools/replay/native_authored_timer_lot.rs",
+      "bytes": 16991,
+      "sha256": "b862e18c879eae0b384b4a433babc386bb239a0e4e9a91e946af8827ee6716e3"
+    },
+    {
+      "path": "tools/replay/native_original_timer_player.rs",
+      "bytes": 6940,
+      "sha256": "e8b31cd48415db466b48110f2c92369962b5b63dc21a1d3b97a3c88259332c0e"
+    }
+  ],
+  "excluded": [
+    "original game assets",
+    "private cooked content and checkpoints",
+    "raw owner/account receipts",
+    "generated helper binaries",
+    "node_modules/generated symlinks",
+    "frozen historical source and outbox"
+  ],
+  "handlerless_poll_follow_on": {
+    "base_commit": "9936c9457b89a2897ba5a5d02a65c2b1ff02b2f0",
+    "authored_poll_count": 8192,
+    "source_poll_log_sha256": "e26a0e1b48fd9044c52cecee16a7dbdcfe18fbb7691f56399bcd0f1d1e341172",
+    "retirement_cap_log_sha256": "a7e1c606051b7830a39b2cb4bdb99eccffb27ea3aaa83eb39531093d6db9da35",
+    "actual_beyond_cap_status": "not_qualified",
+    "full_suite_rerun": false
+  }
+}

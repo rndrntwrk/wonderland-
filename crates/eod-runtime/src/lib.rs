@@ -17,6 +17,7 @@ mod native_host;
 pub mod native_provider;
 pub mod persistence;
 pub mod plugins;
+mod private_timer_transaction;
 pub mod protocol;
 pub mod registry;
 mod source_plugins;
@@ -39,6 +40,11 @@ pub use native_host::{
 };
 pub use plugins::common::{Member, MemberInput};
 pub use plugins::{NativeCommand, NativePluginInput, NativeVmInput, OutfitScope};
+pub use private_timer_transaction::{
+    PrivateTimerDelivery, PrivateTimerDisposition, PrivateTimerDispositionKind,
+    PrivateTimerOutputId, PrivateTimerRecipient, PrivateTimerTransaction,
+    PrivateTimerTransactionSink, PrivateTimerTransactionStore,
+};
 pub use protocol::{
     ActorId, ClientMessage, ConnectionId, DispatchOutcome, Error, HostScopeId, InstanceAddress,
     InstanceId, InvokerId, PluginId, PrivateUiMessage, PublicVmEvent, SessionTicket, UiBody,

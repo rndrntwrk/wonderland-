@@ -634,14 +634,14 @@ impl NativeHost {
     /// Rebind an already restored private participant under fresh authentication
     /// and an explicitly scoped instance address. A prior ticket's epoch need not
     /// match after restore, but its instance_address must belong to this scope.
-    /// Caller supplies current authoritative registers for UI reconstruction only;
-    /// pending timer state/progress is preserved. This is not a new VM connection.
+    /// Timer reconstructs UI from retained private handler state, never arbitrary
+    /// source scratch registers. This is not a new VM connection or source Update.
     pub fn rebind(
         &mut self,
         authority: &impl ConnectionAuthority,
         connection: ConnectionId,
         address: InstanceAddress,
-        registers: TimerRegisters,
+        _registers: TimerRegisters,
     ) -> Result<SessionTicket, Error> {
         let actor = authenticate(authority, connection)?;
         if address.host_scope != self.identity.scope {
@@ -712,8 +712,9 @@ impl NativeHost {
             PrivateBody::Text(String::new()),
         );
         match &mut instance.handler {
-            HandlerState::Timer(_) => {
-                push_outputs(&mut next, &instance, ticket, Timer::show(registers))
+            HandlerState::Timer(timer) => {
+                let output = timer.resync();
+                push_outputs(&mut next, &instance, ticket, output)
             }
             HandlerState::DanceFloor { .. } => push_private(
                 &mut next,
