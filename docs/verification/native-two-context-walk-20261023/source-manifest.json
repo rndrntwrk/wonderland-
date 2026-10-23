@@ -1,0 +1,451 @@
+{
+  "schema": "wonderland.public-source-equivalence.v1",
+  "qualifiedSourceCommit": "932dc19a2f79de44020af2316a9394860e55e390",
+  "qualifiedSourceTree": "bce5194fbd9115560ad1042c4649ee13f9c715c0",
+  "publicationParent": "8299757d648fc9ea4ad5b881f5fd1271d838ee19",
+  "publicationParentTree": "b045878b6d3889609320c9ff570725bf47b35c82",
+  "productSourceAndAssetsUnchangedFromQualification": true,
+  "sourceDeltaFromPr80Paths": 67,
+  "sourceDelta": [
+    {
+      "path": "apps/web-shell/public/world-gpu.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "a06216a3402939e3155eae2f632c6cf270886aa2",
+      "baseBlob": "fc5841b5ca5b28a44c04a0d6cbcffb7cf0a0179d"
+    },
+    {
+      "path": "apps/web-shell/tests/gpu/browser.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "9cd9fe4845bbcc7897838899ea55428918d5a0b8",
+      "baseBlob": "c4960626284377a5d392ffd34a467fd9e03d7d21"
+    },
+    {
+      "path": "apps/web-shell/tests/gpu/replacement.test.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "f405c7b8f65442941d5495cea6a8eb18bf6ed0c4",
+      "baseBlob": "ca97c7c456ccddc522b1e362fc9c42fa191e268a"
+    },
+    {
+      "path": "Cargo.lock",
+      "mode": "100644",
+      "qualifiedBlob": "9be47ccffa00e148fed50459dfcac8a727be50be",
+      "baseBlob": "ece44ccd1c6c2bf5b4e580cbd4ed45adbf945711"
+    },
+    {
+      "path": "crates/eod-runtime/README.md",
+      "mode": "100644",
+      "qualifiedBlob": "3cd78e1a50a1b1564e28481dc04c0b2799bd51ce",
+      "baseBlob": "e389d6f9c5d4ebeebac719780290905b32b0d166"
+    },
+    {
+      "path": "crates/eod-runtime/src/host.rs",
+      "mode": "100644",
+      "qualifiedBlob": "513579c66a7c1f3ffb3af3da1d5b74e61392eb10",
+      "baseBlob": "eba911a4764863773e39b6ebaf8f96f105fbe4f1"
+    },
+    {
+      "path": "crates/eod-runtime/src/lib.rs",
+      "mode": "100644",
+      "qualifiedBlob": "af21af04aa88c60ab0818d7fe67a7ec1314cb516",
+      "baseBlob": "4321d8cd20002251413092d96b126df1d2060a82"
+    },
+    {
+      "path": "crates/eod-runtime/src/private_timer_transaction.rs",
+      "mode": "100644",
+      "qualifiedBlob": "013cba9a5f2ad88b53d6e375061bb86d3083831f",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/eod-runtime/src/timer.rs",
+      "mode": "100644",
+      "qualifiedBlob": "fd5127cf5f44289f268e1373de778e177da0a14b",
+      "baseBlob": "e1883ea5123dd2ede8e9d07bdac44ac6c8af735d"
+    },
+    {
+      "path": "crates/eod-runtime/tests/private_timer_transactions.rs",
+      "mode": "100644",
+      "qualifiedBlob": "550baf5532f8111be776094ce4538422dd2afb33",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/game-runtime/src/live_wire/player/appearance_v1.rs",
+      "mode": "100644",
+      "qualifiedBlob": "21e338138f845a03909b15e7c1eeacd17dcffe86",
+      "baseBlob": "02915d4aa09ba23c22e55485526c29562dc067b8"
+    },
+    {
+      "path": "crates/game-runtime/src/live_wire/player/appearance_v1/model_pixels.rs",
+      "mode": "100644",
+      "qualifiedBlob": "306c87f790beb2d6ca85710ae920dd6d60f5a616",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/game-runtime/src/world_projection.rs",
+      "mode": "100644",
+      "qualifiedBlob": "9fa9203e985db4f8ef5fff1813c97416a9f21ede",
+      "baseBlob": "c72274cf48a997e45e287c4321b6b103a7b7cbc5"
+    },
+    {
+      "path": "crates/game-runtime/tests/world_projection.rs",
+      "mode": "100644",
+      "qualifiedBlob": "86c8f73bdf27acc6205d9992b9fb1517f9c0279a",
+      "baseBlob": "2d0699d0d781c36b8f7e0c1147beccaef3b06728"
+    },
+    {
+      "path": "crates/native-host-contracts/src/eod.rs",
+      "mode": "100644",
+      "qualifiedBlob": "3cee4878caec7b063f206b9bc048c922826af381",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/native-host-contracts/src/lib.rs",
+      "mode": "100644",
+      "qualifiedBlob": "67d938ad05b462c07a44a25f3b51dcf6d634fd02",
+      "baseBlob": "4c8486c3513971f3a792b514530b5d34ab0504fa"
+    },
+    {
+      "path": "crates/sim-core/src/eod.rs",
+      "mode": "100644",
+      "qualifiedBlob": "b05371ea602015feb3284e889ea1e6b4e202be8e",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/sim-core/src/lib.rs",
+      "mode": "100644",
+      "qualifiedBlob": "a9b634cbb98584b6d35cba105b3e510575972c85",
+      "baseBlob": "64203f74c57dfd406881299b766c90cfbe9d8c3f"
+    },
+    {
+      "path": "crates/sim-core/src/primitives/external.rs",
+      "mode": "100644",
+      "qualifiedBlob": "b3d5086ec47135afa400db91a233729d93120909",
+      "baseBlob": "286a9a83da7718d0dc2c7f4a39a4ff2d31699d0f"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_eod.rs",
+      "mode": "100644",
+      "qualifiedBlob": "63433a6664370a300249563110d964b9c5150c77",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/sim-core/src/runtime_interactions.rs",
+      "mode": "100644",
+      "qualifiedBlob": "c524761b87241327b2458a129713cf68c9e11cea",
+      "baseBlob": "50b8ac29ea7bf679965480e7084be66c8400570b"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_leave.rs",
+      "mode": "100644",
+      "qualifiedBlob": "f2eadc8b495e1b49ba17c85761c01f9706254100",
+      "baseBlob": "b8336d5c6c3d893b2b143bc349e611851d070fe8"
+    },
+    {
+      "path": "crates/sim-core/src/runtime_owned_admission.rs",
+      "mode": "100644",
+      "qualifiedBlob": "d7702d5b3628abbd7c0b68fa739c38267f967e22",
+      "baseBlob": "83bdcfec137f01ceedbcd59e5d65cc875923e37c"
+    },
+    {
+      "path": "crates/sim-core/src/runtime.rs",
+      "mode": "100644",
+      "qualifiedBlob": "49e9cf1307009b47792418aad741132d9745dfe9",
+      "baseBlob": "899c8df1ba82b07199a0327f297b61e76c4999c3"
+    },
+    {
+      "path": "crates/sim-core/src/snapshot.rs",
+      "mode": "100644",
+      "qualifiedBlob": "83eb188ce957303b1221ac1b4ede62137c0d3631",
+      "baseBlob": "4fe06a6e483ba64fdfa27b3c876589f0d55147b7"
+    },
+    {
+      "path": "crates/sim-core/src/state.rs",
+      "mode": "100644",
+      "qualifiedBlob": "f8087935861b4951761bc0e8ed7b99767519bf73",
+      "baseBlob": "83b95a1a78c44ff9c369248f00f21f05b1a7a6d2"
+    },
+    {
+      "path": "crates/sim-core/src/vm/host.rs",
+      "mode": "100644",
+      "qualifiedBlob": "81a0cd157652f827aae6fe8eb7b0ed73deabb709",
+      "baseBlob": "aa0ab2b3b91742313cd7805a106c04ddd02e5d17"
+    },
+    {
+      "path": "crates/sim-core/tests/content_identity.rs",
+      "mode": "100644",
+      "qualifiedBlob": "01f7542f0e4a5a4461aaa6fe19c42c312e55596f",
+      "baseBlob": null
+    },
+    {
+      "path": "crates/sim-core/tests/lot_permission_state.rs",
+      "mode": "100644",
+      "qualifiedBlob": "bb8f23ae5a23a30d8e24cf5b7cd75a206caf16aa",
+      "baseBlob": "57d5f4d82ba6f6b8e2f86d5f0df42c31e4d375a8"
+    },
+    {
+      "path": "crates/sim-core/tests/owned_admission.rs",
+      "mode": "100644",
+      "qualifiedBlob": "b20ad50eda3a44ce05f06c866dc7596847857fc1",
+      "baseBlob": "116a038eac0d896f1c2bbf2937f72e14c3ced35a"
+    },
+    {
+      "path": "crates/sim-core/tests/primitives_external.rs",
+      "mode": "100644",
+      "qualifiedBlob": "d3c707913178cd853a33543a5a9a67e3480b0153",
+      "baseBlob": "e809b6b06ff87c500eccc190ad7df79140e35bba"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_memory_reference.rs",
+      "mode": "100644",
+      "qualifiedBlob": "c30d746f3023f44bd7b909ce08625ada886ac6cc",
+      "baseBlob": "362a6d1ff437247adce8fcb6ee868b13c5334e85"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_owned_leave.rs",
+      "mode": "100644",
+      "qualifiedBlob": "a45fe0178755bd925e2e256bbe824a529b63ea69",
+      "baseBlob": "811fe0bf684871183a3c9dee26d9e9911b3483b5"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_route_animation.rs",
+      "mode": "100644",
+      "qualifiedBlob": "7cf7f9a08ac19c62d8006acb7d0b99cd40485644",
+      "baseBlob": "e9078cff184aeac021bca3d4e7c63b00f7d6aed6"
+    },
+    {
+      "path": "crates/sim-core/tests/snapshot_contract.rs",
+      "mode": "100644",
+      "qualifiedBlob": "8e5a78b04fd8c048df4faa45df8dae69f74b3e1f",
+      "baseBlob": "db6213b17543870dfff245ed39438cb2efd6b0c5"
+    },
+    {
+      "path": "docs/verification/2026-10-15-authored-original-banner.md",
+      "mode": "100644",
+      "qualifiedBlob": "0e2520ce27dcb42c194d26eb3edd56ebf1bfec9c",
+      "baseBlob": null
+    },
+    {
+      "path": "docs/verification/2026-10-15-original-banner-acceptance.json",
+      "mode": "100644",
+      "qualifiedBlob": "f0e13a846bf136afc21d38ddaeba92cd499458d0",
+      "baseBlob": null
+    },
+    {
+      "path": "docs/verification/2026-10-15-original-banner-release.json",
+      "mode": "100644",
+      "qualifiedBlob": "35223bb00dd3ee2ccb30962b16393a4011140bc5",
+      "baseBlob": null
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/DESIGN.md",
+      "mode": "100644",
+      "qualifiedBlob": "fe502986ef3224a63d793405e5684dd0f6eb6fcc",
+      "baseBlob": null
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/FILES.json",
+      "mode": "100644",
+      "qualifiedBlob": "dcd6530527614c32cf3c6e65b400274241c50bb7",
+      "baseBlob": null
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/RESULTS.md",
+      "mode": "100644",
+      "qualifiedBlob": "5f901f0ac2b53a9b8592b849ee5bfb3140601206",
+      "baseBlob": null
+    },
+    {
+      "path": "docs/verification/native-timer-delivery-20261015/source-release.json",
+      "mode": "100644",
+      "qualifiedBlob": "3bd526a9f28f6cad9ce1b5733ef6a72224c73ce0",
+      "baseBlob": null
+    },
+    {
+      "path": "services/native-edge/src/lot/coordinator.ts",
+      "mode": "100644",
+      "qualifiedBlob": "5e10d35e749b5c94b212e29aaef6ea70b5f389cf",
+      "baseBlob": "3a79685da451cb04c828d0c92ac8b34c4de1cce4"
+    },
+    {
+      "path": "services/native-edge/src/lot/departures.ts",
+      "mode": "100644",
+      "qualifiedBlob": "c660c65971f229a38a8bb9bfdd4788c95d9472cb",
+      "baseBlob": "294e062465d7787de64a5a080ecb8eedc90917b6"
+    },
+    {
+      "path": "services/native-edge/src/lot/native-eod.ts",
+      "mode": "100644",
+      "qualifiedBlob": "6077062e8ccd65a31894723763583302eef49c7b",
+      "baseBlob": null
+    },
+    {
+      "path": "services/native-edge/src/lot/owned-events.ts",
+      "mode": "100644",
+      "qualifiedBlob": "1a3e02295f8f87facf74474f6153f8b3d0820699",
+      "baseBlob": null
+    },
+    {
+      "path": "services/native-edge/src/lot/owned.ts",
+      "mode": "100644",
+      "qualifiedBlob": "9afd97f0a6f8a611838f73fc0430e703d42bc1ad",
+      "baseBlob": "d267c79af11bb092f2b4172a9c42a08fe6ff1c63"
+    },
+    {
+      "path": "services/native-edge/tests/owned-departure-coordinator.test.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "0bbef5dd56a09380eef6368fc8dfda841e62b574",
+      "baseBlob": "4371628295f8507c8f7bcc724cfa394176ef5b50"
+    },
+    {
+      "path": "services/native-lot-host/Cargo.toml",
+      "mode": "100644",
+      "qualifiedBlob": "028e2e5396bfad727e4a6e469e393ca09db578a2",
+      "baseBlob": "5e0322dcdfa5f2107459a35d090fe04ba842f55c"
+    },
+    {
+      "path": "services/native-lot-host/examples/owned-boundary-fixture.rs",
+      "mode": "100644",
+      "qualifiedBlob": "546c1dc1605958702db70fd118297c53c8a033e8",
+      "baseBlob": "2808838d92fd67853b07043f6b3955eb6a22817f"
+    },
+    {
+      "path": "services/native-lot-host/src/eod.rs",
+      "mode": "100644",
+      "qualifiedBlob": "a9da9d5ef9ea0cafe1a4b017f928854cd002d5f3",
+      "baseBlob": null
+    },
+    {
+      "path": "services/native-lot-host/src/main.rs",
+      "mode": "100644",
+      "qualifiedBlob": "13666f1906ab9979baf86bec34bbb8f7822c3173",
+      "baseBlob": "fac995350631473a5760e8b242994dea79024b78"
+    },
+    {
+      "path": "services/native-lot-host/src/owned_events.rs",
+      "mode": "100644",
+      "qualifiedBlob": "72d2a972e89b42e0ef7fcd519c40087d4f9eb36d",
+      "baseBlob": null
+    },
+    {
+      "path": "services/native-lot-host/src/player_tests.rs",
+      "mode": "100644",
+      "qualifiedBlob": "ac7dfbfa18783771cb8fd7606835bcdb86cfa8b3",
+      "baseBlob": "6b792a0aeddc4521fee25ef4e9e31dbd358dceab"
+    },
+    {
+      "path": "services/native-lot-host/src/runtime.rs",
+      "mode": "100644",
+      "qualifiedBlob": "9b9609d40fb8c58e4ea3a807416fbac6272f974f",
+      "baseBlob": "22753bb461231cbe963cdb680c9d3a193a12987c"
+    },
+    {
+      "path": "tools/native-browser/owned-demo.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "746efb0c7497f477c1607099114013e7fbc4a3d8",
+      "baseBlob": "6c85272fcc58b5a9a156b66ff4a98b9a41f51375"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/driver.ts",
+      "mode": "100644",
+      "qualifiedBlob": "ab9a2e7bc5328c6834c4f933cdeb6cdc5c5786c3",
+      "baseBlob": "d469ae05c55e9efe703b0a8e16fb7810864600c9"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/eod.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "faf25239772879fbdc7c5150b749e6183b75d983",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/native-browser/owned-demo/eod.test.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "d3901258fc7f569d178bfd24065241d8decf803c",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/native-browser/owned-demo/preparation-status.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "dc1de2d0e5ffadba53c232e5584b66e8ba33ce32",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/native-browser/owned-demo/preparation-status.test.mjs",
+      "mode": "100644",
+      "qualifiedBlob": "85effcc6d1a3f0be324e18332c64e75e4d495969",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/replay/inspect_original_timer_state.rs",
+      "mode": "100644",
+      "qualifiedBlob": "5310c906b819d87a1d209ed5487fc03649de39a1",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/replay/native_authored_object_lot.rs",
+      "mode": "100644",
+      "qualifiedBlob": "4ccb66bae24a35e57283f26781b099c7a2e4bd78",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/replay/native_authored_timer_join_anchor.rs",
+      "mode": "100644",
+      "qualifiedBlob": "d5011f1482c45be8cfe6f5371e3a159978f400bb",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/replay/native_authored_timer_lot.rs",
+      "mode": "100644",
+      "qualifiedBlob": "27b7d6e35eda71d78df2b751fd4b9d9031a9a39e",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/replay/native_original_timer_player.rs",
+      "mode": "100644",
+      "qualifiedBlob": "43b2223076b5c8d6815482e7387d96c5670c0b74",
+      "baseBlob": null
+    },
+    {
+      "path": "tools/replay/original_banner_visuals.rs",
+      "mode": "100644",
+      "qualifiedBlob": "260edc771287e51bdee7205e32b5188a3f6b8f14",
+      "baseBlob": null
+    }
+  ],
+  "documentationException": {
+    "path": "docs/contracts/boundary-map.json",
+    "qualifiedBlob": "402206acab8d40211c4f6d5f73864fc8dec63747",
+    "publishedBlob": "40d9eb68df2f94db80a574a887176af2525e5162",
+    "reason": "Retain newer already-public PR80 contract inventory rather than reverting it to the older qualified snapshot table."
+  },
+  "incorporatedCheckpoints": [
+    {
+      "commit": "c52efcfd7b09a66b992d3ff5682033ed1854ad4a",
+      "tree": "824c83b6b7dd633e70814c306ab6db96ba42045a",
+      "description": "Preserved e08 staged source snapshot, schema-7 Timer/owned delivery and authored source intake"
+    },
+    {
+      "commit": "1bd262f7ac0f6ed838bcb6ed81529c15c0adbd2d",
+      "tree": "635b874172e0ad062f4504d60b48ce29a04dcd48",
+      "description": "Integrated published placement bridge repair into e08 source"
+    },
+    {
+      "commit": "e293bed6f6cf7d01741f5da7415eff84b3d8cbfe",
+      "tree": "c4d163306f6eaedfee5bbd82287ac782d1c509ad",
+      "description": "Immutable content validation and identity memoization"
+    },
+    {
+      "commit": "830639ab380569ba6f8de3ce0341c430d822389b",
+      "tree": "8d62cee2790f63962c312d92e0669d3105889645",
+      "description": "Same-turn clicked source-pixel readback; freshness/source authority retained"
+    },
+    {
+      "commit": "9c9883c8f5e2dfed333fc23b21b12063000efbaf",
+      "tree": "28ce853f7cf6a4647b98dc65780ff06baa27fe7d",
+      "description": "Intermediate compact-status draft; not independently qualified as a final checkpoint"
+    },
+    {
+      "commit": "932dc19a2f79de44020af2316a9394860e55e390",
+      "tree": "bce5194fbd9115560ad1042c4649ee13f9c715c0",
+      "description": "Final compact preparation status and fail-closed metadata guard"
+    }
+  ]
+}

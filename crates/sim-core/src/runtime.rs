@@ -5,7 +5,7 @@
 //! replicas run the same transition; only authorities expose effect dispatches.
 use crate::{
     avatars::{
-        motives::MotiveDecay, AvatarPlatform, AvatarState, AvatarTickContext, AvatarTickOutput,
+        AvatarPlatform, AvatarState, AvatarTickContext, AvatarTickOutput, motives::MotiveDecay,
     },
     clock::SimClock,
     effects::*,
@@ -26,6 +26,8 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 #[path = "runtime_build.rs"]
 mod build_adapter;
+#[path = "runtime_eod.rs"]
+mod eod_adapter;
 #[path = "runtime_goto.rs"]
 pub mod goto_adapter;
 #[path = "runtime_interactions.rs"]
@@ -194,6 +196,8 @@ pub enum AcceptedCommand {
     SourceGoto(goto_adapter::SourceGotoIntent),
     /// Trusted generation-fenced source leave; never a player command. Tag 31.
     RequestOwnedLeave(Box<leave_adapter::OwnedLeaveRequest>),
+    /// Authoritative exact-association EOD event. Append-only command tag 32.
+    EodEventDelivered(crate::eod::EodEventDelivery),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -280,6 +284,30 @@ pub enum RuntimeEvent {
     OwnedEodDisconnectRequested {
         actor: EntityRef,
         control_generation: u64,
+    },
+    EodConnectRequested {
+        session: crate::eod::EodSessionIdentity,
+        request_id: u64,
+        tick: u64,
+        temps: [i16; 20],
+    },
+    EodDisconnectRequested {
+        session: crate::eod::EodSessionIdentity,
+        request_id: u64,
+        tick: u64,
+    },
+    EodSimanticsRequested {
+        session: crate::eod::EodSessionIdentity,
+        request_id: u64,
+        tick: u64,
+        code: i16,
+        temps: [i16; 20],
+    },
+    /// Exact disposition at accepted command application, before source execution.
+    EodEventApplied {
+        delivery: crate::eod::EodEventDelivery,
+        attached: bool,
+        tick: u64,
     },
 }
 
@@ -397,6 +425,7 @@ impl SimRuntime {
             owned_admission: crate::owned_admission::OwnedAdmissionState::Uninitialized,
             source_routing: crate::route_motion::SourceRoutingState::default(),
             owned_departures: leave_adapter::OwnedDepartureState::fresh(),
+            eod: crate::eod::EodState::default(),
         };
         Self::from_state(state, content, role)
     }
@@ -812,6 +841,15 @@ fn apply_command(
     tick: u64,
 ) -> Result<(), RuntimeError> {
     match command {
+        AcceptedCommand::EodEventDelivered(event) => {
+            if let Some(attached) = eod_adapter::deliver(state, event)? {
+                work.events.push(RuntimeEvent::EodEventApplied {
+                    delivery: event.clone(),
+                    attached,
+                    tick,
+                });
+            }
+        }
         AcceptedCommand::RequestOwnedLeave(request) => {
             leave_adapter::request_owned_leave(state, content, work, *request.clone(), tick)?
         }
@@ -1472,13 +1510,23 @@ fn dispatch_entity(
     work: &mut TickWork,
     entity: EntityRef,
 ) -> Result<(), RuntimeError> {
-    if leave_adapter::refresh_blocker(state, content, entity)? {
+    if leave_adapter::refresh_blocker(state, content, entity)?
+        && !state
+            .owned_departures
+            .records
+            .get(&entity)
+            .is_some_and(|record| {
+                record.blocker == Some(leave_adapter::DepartureBlocker::PendingEodTeardown)
+            })
+    {
         state
             .scheduler
             .schedule_in(entity, 1, true)
             .map_err(invalid)?;
         return Ok(());
     }
+    // A supported source connection must keep executing to drain its FIFO.
+    // Lifecycle save/removal remains fenced until the exact teardown is accepted.
     // VMAvatar.Tick resets visual velocities before its thread/route dispatch.
     if let Some(motion) = state.source_routing.avatars.get_mut(&entity) {
         motion.velocity = [0.; 3];
@@ -1635,7 +1683,7 @@ fn tick_avatar(
                 state.scheduler.delete_at_end(entity)
             }
             crate::avatars::lifecycle::LifecycleRequest::ForceEodDisconnect => {
-                leave_adapter::request_eod_disconnect(state, work, entity);
+                leave_adapter::request_eod_disconnect(state, work, entity)?;
             }
             crate::avatars::lifecycle::LifecycleRequest::ForceWaitTimeout { .. } => {
                 // No native BlockingState exists for generic external waits.
@@ -2040,6 +2088,12 @@ fn remove_entity(
     if !state.ids.is_live(entity) {
         return Ok(());
     }
+    if state.eod.entity_teardown_pending(entity) {
+        return Err(invalid(
+            "entity removal lacks exact EOD teardown and event disposition",
+        ));
+    }
+    eod_adapter::clear_source_connection(state, entity);
     leave_adapter::prepare_removal(state, work, entity)?;
     cancel_continuations(state, entity)?;
     let contained: Vec<_> = state
@@ -2256,6 +2310,8 @@ fn reset_entity(
         return Ok(());
     }
     cancel_continuations(state, entity)?;
+    // VMEntity.Reset clears the old EODConnection before Reset/Main entrypoints.
+    eod_adapter::clear_source_connection(state, entity);
     let prior = state
         .threads
         .get(&entity.object_id)
@@ -2306,6 +2362,9 @@ fn reset_entity(
                 thread.temp_xl = result.temp_xl;
             }
         }
+    }
+    if live_entity(state, entity)?.avatar.is_some() {
+        leave_adapter::request_eod_disconnect(state, work, entity)?;
     }
     let item = live_entity_mut(state, entity)?;
     if let Some(avatar) = item.avatar.as_mut() {
@@ -3687,6 +3746,7 @@ impl VmHost for RuntimeHost<'_> {
     }
     fn request(&mut self, request: HostRequest) -> Result<HostResponse, VmFault> {
         match request {
+            HostRequest::InvokePlugin(request) => eod_adapter::invoke(self, request),
             HostRequest::Animation(request) => self.animation_request(request),
             HostRequest::MotiveChange(request) => {
                 avatar_mut(self.state, request.context.caller)?

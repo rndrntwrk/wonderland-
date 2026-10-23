@@ -51,6 +51,23 @@ impl Timer {
         )]
     }
 
+    /// Transport reconstruction, not OnConnection or a synthetic VM Update.
+    /// Source Timer_Set stores minutes multiplied by 256 until a real Update;
+    /// the UI meanwhile displays the minute byte that the user selected.
+    pub(crate) fn resync(&self) -> Vec<Output> {
+        let minutes = if self.minutes > 99 && self.minutes % 256 == 0 {
+            self.minutes / 256
+        } else {
+            self.minutes
+        };
+        Self::show(TimerRegisters([
+            i16::from(self.running),
+            i16::from(self.mode),
+            minutes,
+            self.seconds,
+        ]))
+    }
+
     pub(crate) fn binary(&mut self, event: &str, bytes: &[u8]) -> Vec<Output> {
         match (event, bytes) {
             ("Timer_State_Change", [mode @ 0..=1, ..]) if *mode != self.mode => {

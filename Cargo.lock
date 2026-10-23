@@ -2981,6 +2981,7 @@ dependencies = [
  "wonderland-asset-cooker",
  "wonderland-content-ir",
  "wonderland-content-runtime-bridge",
+ "wonderland-eod-runtime",
  "wonderland-game-runtime",
  "wonderland-legacy-formats",
  "wonderland-native-host-contracts",

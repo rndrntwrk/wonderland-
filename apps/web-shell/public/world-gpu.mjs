@@ -291,32 +291,21 @@ class WorldGpuOwner{
   pick(x,y){
     this.cancel('Newer pick requested');
     return new Promise((resolve,reject)=>{
-      let buffer,sync;
+      const gl=this.gl;
       try{
-        this.check();const scene=this.current,gl=this.gl;if(!scene)throw abort('No admitted GPU frame');
+        this.check();const scene=this.current;if(!scene)throw abort('No admitted GPU frame');
+        if(document.hidden)throw abort('Page suspended');
         if(!integer(x,0,scene.frame.width-1)||!integer(y,0,scene.frame.height-1))throw new Error('Pick is outside the backing store');
         this.draw(true);gl.bindFramebuffer(gl.FRAMEBUFFER,scene.framebuffer);
-        buffer=required(gl.createBuffer(),'pixel transfer');gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.bufferData(gl.PIXEL_PACK_BUFFER,4,gl.STREAM_READ);
-        gl.readPixels(x,scene.frame.height-y-1,1,1,gl.RGBA,gl.UNSIGNED_BYTE,0);sync=required(gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0),'pixel fence');gl.flush();
-        gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);this.check();
-        const pending={buffer,sync,reject,serial:++this.serial,timer:null,started:performance.now(),generation:scene.frame.generation};this.pending=pending;
-        const poll=()=>{
-          if(this.pending!==pending)return;
-          try{
-            this.check();if(!this.current||this.current.frame.generation!==pending.generation)throw abort('Stale GPU selection');
-            if(document.hidden)throw abort('Page suspended');
-            const result=gl.clientWaitSync(sync,0,0);
-            if(result===gl.WAIT_FAILED)throw new Error('Source pixel transfer failed');
-            if(result===gl.TIMEOUT_EXPIRED){if(performance.now()-pending.started>3000)throw new Error('Source pixel transfer timed out');pending.timer=setTimeout(poll,8);return;}
-            const pixels=new Uint8Array(4);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.getBufferSubData(gl.PIXEL_PACK_BUFFER,0,pixels);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);this.check();
-            this.pending=null;gl.deleteSync(sync);gl.deleteBuffer(buffer);
-            resolve(JSON.stringify({generation:pending.generation,index:pixels[0]|pixels[1]<<8|pixels[2]<<16,x,y}));
-          }catch(error){this.pending=null;gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);gl.deleteSync(sync);gl.deleteBuffer(buffer);reject(error);}
-        };
-        pending.timer=setTimeout(poll,0);
-      }catch(error){
-        const gl=this.gl;gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);if(sync)gl.deleteSync(sync);if(buffer)gl.deleteBuffer(buffer);reject(error);
-      }
+        // A deferred fence can settle after the next live render request, when
+        // the Rust freshness guard must discard it. Sample this one clicked
+        // pixel in the same turn; the receipt still carries its exact frame
+        // generation and remains subject to all source/intent checks.
+        const pixels=new Uint8Array(4);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);
+        gl.readPixels(x,scene.frame.height-y-1,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixels);this.check();
+        resolve(JSON.stringify({generation:scene.frame.generation,index:pixels[0]|pixels[1]<<8|pixels[2]<<16,x,y}));
+      }catch(error){reject(error);}
+      finally{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);gl.bindFramebuffer(gl.FRAMEBUFFER,null);}
     });
   }
   capture(generation,metadata){

@@ -21,6 +21,7 @@ import {
 } from "./owned-demo/authored-genesis.mjs";
 import { ownedPlacement, ownedReadiness } from "./owned-demo/placement.mjs";
 import { openOwnedHost } from "./owned-demo/process.mjs";
+import { currentPreparationStatus } from "./owned-demo/preparation-status.mjs";
 import { drainControlFences } from "./owned-demo/fences.mjs";
 import {
   departureRequest,
@@ -29,6 +30,7 @@ import {
   deliverDepartureReceipts,
   drainOneDeparture,
 } from "./owned-demo/departures.mjs";
+import { authenticatedEod } from "./owned-demo/eod.mjs";
 import { settlePlayerAction } from "./owned-demo/actions.mjs";
 import { reconcileAuthenticatedPlayerAction } from "./owned-demo/action-results.mjs";
 import { validateOwnedManifest } from "./owned-demo/manifest.mjs";
@@ -128,6 +130,9 @@ export async function createOwnedDemo({
     ticking = false,
     departureWork = false,
     departureDeliveryError = null,
+    eventDeliveryError = null,
+    eventLaneCursor = "",
+    eventDeliveryPending = [],
     requestFailure = null,
     lastIdleFenceSweep = 0,
     accounts = null;
@@ -173,6 +178,21 @@ export async function createOwnedDemo({
     }
     socket.send(bytes, { binary: true });
   };
+  const sendPrivate = (socket, value) => {
+    if (socket.readyState !== 1 || !socket.live) return;
+    const text = JSON.stringify(value);
+    assert.ok(Buffer.byteLength(text) <= 512 * 1024);
+    if (socket.bufferedAmount + Buffer.byteLength(text) > 82 * 1024 * 1024) { socket.close(1013); return; }
+    socket.send(text, {binary:false});
+  };
+  async function flushPrivate(socket) {
+    if (!socket.live || !socket.entry || socket.readyState !== 1) return;
+    const output = await host.ask({kind:"read_private_eod",control:socket.entry.control});
+    // A concurrently revoked owned session has no private delivery authority.
+    if (output.kind === "denied") return;
+    assert.equal(output.kind,"private_eod_outputs");
+    if (output.messages.length) sendPrivate(socket,{type:"native_eod_outputs",messages:output.messages});
+  }
   const broadcast = (hex) => {
     const bytes = packet(hex);
     for (const socket of sockets) if (socket.live) send(socket, bytes);
@@ -234,6 +254,7 @@ export async function createOwnedDemo({
       throw Error("Host resolution mismatch.");
     }
     broadcast(result.ticks_hex);
+    for (const socket of sockets) await flushPrivate(socket);
     if (BigInt(result.cursor.completed_tick) - lastCheckpointTick >= 32n)
       await publishCheckpoint();
     return result;
@@ -313,20 +334,25 @@ export async function createOwnedDemo({
         candidate.takeover_marker.checkpoint_sha256,
         sha(packet(candidate.checkpoint_hex)),
       );
+      const restored = await host.ask({kind:"restore_native_eod",checkpoint:await lot("currentNativeEodV1")});
+      assert.equal(restored.kind,"native_eod_restored",restored.reason);
       const finished = await lot("finishControlledRecoveryV2", [
         {
           schema_version: 2,
           marker: candidate.takeover_marker,
           control: bundle.control,
+          native_eod_v1: restored.native_eod_v1,
         },
         candidate.checkpoint_hex,
       ]);
       assert.equal(finished.schema_version, 2);
       assert.deepEqual(finished.marker, candidate.takeover_marker);
       assert.deepEqual(finished.control, bundle.control);
+      assert.equal(finished.native_eod_checkpoint_sha256, restored.native_eod_v1.checkpoint_sha256);
       const activated = await host.ask({
         kind: "activate_recovery",
         marker: finished.marker,
+        native_eod_checkpoint_sha256: finished.native_eod_checkpoint_sha256,
       });
       assert.equal(activated.kind, "committed_state");
       assert.equal(activated.recovery_pending, false);
@@ -356,7 +382,7 @@ export async function createOwnedDemo({
     return current;
   }
   async function prepare(kind, extra = {}) {
-    const current = await currentHost();
+    const current = await currentPreparationStatus(host);
     // Large terminal lanes can fill memory well before 32 semantic ticks.
     // Transfer their exact receipts before preparing another speculative batch.
     if (
@@ -637,6 +663,25 @@ export async function createOwnedDemo({
       }
     }
   }
+  async function deliverOwnedEvents() {
+    try {
+      const page=await lot("readOwnedEventLanesV1",[eventLaneCursor]);
+      eventDeliveryPending = page.unsupported_effect_lanes ? [{lane:"effects",reason:"no_consumer",count:page.unsupported_effect_lanes}] : [];
+      for(const lane of page.lanes){
+        if(!lane.supported){eventDeliveryPending.push({batch_key:lane.batch_key,reason:lane.reason});continue;}
+        const proof=await host.ask({kind:"inspect_owned_event_lane",events_hex:lane.events_hex});
+        assert.equal(proof.kind,"owned_event_lane_proof",proof.reason);
+        if(proof.pending.length){eventDeliveryPending.push({batch_key:lane.batch_key,pending:proof.pending});continue;}
+        await lot("retireOwnedEventLaneV1",[{batch_key:lane.batch_key,digest:lane.digest,proof}]);
+      }
+      eventLaneCursor=page.next??"";
+      eventDeliveryError=null;
+    } catch(error) {
+      // No successful consumer receipt: retain and retry exactly. This lane
+      // does not grant input or bypass the separate custody-release workflow.
+      eventDeliveryError=String(error.message??error);
+    }
+  }
   async function deliverDepartures() {
     try {
       await deliverDepartureReceipts({
@@ -645,6 +690,7 @@ export async function createOwnedDemo({
         onReleased: forgetReleased,
       });
       departureDeliveryError = null;
+      await deliverOwnedEvents();
       return true;
     } catch (error) {
       // An account/storage transport error cannot prove release. Retain durable
@@ -1196,6 +1242,15 @@ export async function createOwnedDemo({
           if (!binary) {
             assert.ok(socket.live && bytes.length <= 33500);
             const query = JSON.parse(bytes.toString("utf8"));
+            if (["native_eod_read","native_eod_ui","native_eod_ack"].includes(query.type)) {
+              await authenticatedEod(query,socket.entry,{
+                revalidate:async(entry)=>{await sweepFences(); const current=await revalidate(entry); assert.ok(ownedPlacement(current,entry).in_world);},
+                prepare,commit,
+                read:(control)=>host.ask({kind:"read_private_eod",control}),
+                send:(value)=>sendPrivate(socket,value),
+              });
+              return;
+            }
             if (query.type === "native_action_result") {
               await reconcileAuthenticatedPlayerAction(query, socket.entry, {
                 sweepFences,
@@ -1233,6 +1288,7 @@ export async function createOwnedDemo({
             send(socket, packet(checkpoint.packet_hex));
             socket.live = true;
             clearTimeout(deadline);
+            await flushPrivate(socket);
           } else if (magic === "WLC1") {
             assert.ok(socket.live);
             assert.ok(bytes.length <= 16384);
@@ -1311,10 +1367,12 @@ export async function createOwnedDemo({
             journal: coordinator.journal,
             pending_outbox: coordinator.pending_outbox,
             departure_delivery_error: departureDeliveryError,
+            event_delivery_error: eventDeliveryError,
+            event_delivery_pending: eventDeliveryPending,
             request_failure: requestFailure,
             halted,
           };
-        });
+        }, { allowPaused: true });
       },
       // Supervisor-only evidence inspection. This object is never exposed by
       // the HTTP or WebSocket router; browser callers cannot choose proof RPCs.
@@ -1339,10 +1397,15 @@ export async function createOwnedDemo({
           const current = await currentHost();
           assert.ok(typeof current.checkpoint_hex === "string");
           return current.checkpoint_hex;
-        });
+        }, { allowPaused: true });
       },
-      async restartHost() {
-        return serially(recoverHost, { allowPaused: true });
+      async restartHost({ consecutive = 1 } = {}) {
+        assert.ok(Number.isSafeInteger(consecutive) && consecutive >= 1 && consecutive <= 3);
+        return serially(async () => {
+          const results = [];
+          for (let i=0; i<consecutive; i++) results.push(await recoverHost());
+          return consecutive === 1 ? results[0] : results;
+        }, { allowPaused: true });
       },
       close,
     };

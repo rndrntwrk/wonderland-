@@ -223,12 +223,23 @@ pub struct ExternalRequest {
     pub is_check: bool,
     pub amount: Option<i32>,
 }
+/// Latched source frame values, not parameters or stack-object guesses.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InvokePluginRequest {
+    pub context: FrameContext,
+    pub operand: [u8; 8],
+    pub locals: Vec<i16>,
+    pub temps: [i16; 20],
+    pub is_check: bool,
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HostRequest {
     Animation(AnimationRequest),
     Route(RouteRequest),
     External(ExternalRequest),
     MotiveChange(MotiveChangeRequest),
+    /// Appended; preserve all existing serialized request tags.
+    InvokePlugin(InvokePluginRequest),
 }
 impl HostRequest {
     /// Bind a saved request to the immutable instruction which produced it.
@@ -340,6 +351,15 @@ impl HostRequest {
                     && request.is_check == thread.is_check
                     && amount_valid
             }
+            Self::InvokePlugin(request) => {
+                opcode == 62
+                    && request.operand == bytes
+                    && request.locals == frame.locals
+                    && request.temps == thread.temps
+                    && request.is_check == thread.is_check
+                    && u32::from_le_bytes(bytes[4..8].try_into().unwrap())
+                        == crate::eod::TIMER_PLUGIN_ID
+            }
             Self::MotiveChange(request) => {
                 opcode == 29
                     && request.motive == bytes[2]
@@ -362,6 +382,7 @@ impl HostRequest {
             Self::Route(request) => &request.context,
             Self::External(request) => &request.context,
             Self::MotiveChange(request) => &request.context,
+            Self::InvokePlugin(request) => &request.context,
         }
     }
     pub fn validate(&self) -> Result<(), VmFault> {
@@ -375,6 +396,12 @@ impl HostRequest {
             Self::Route(request) => request.parameters.len() > 255 || request.locals.len() > 1024,
             Self::External(request) => request.parameters.len() > 255 || request.opcode >= 256,
             Self::MotiveChange(request) => !request.clear_all && request.motive >= 16,
+            Self::InvokePlugin(request) => {
+                request.locals.len() > 1024
+                    || usize::from(request.operand[2]) >= request.locals.len()
+                    || u32::from_le_bytes(request.operand[4..8].try_into().unwrap())
+                        != crate::eod::TIMER_PLUGIN_ID
+            }
         };
         if oversized {
             Err(VmFault::InvalidContinuation(

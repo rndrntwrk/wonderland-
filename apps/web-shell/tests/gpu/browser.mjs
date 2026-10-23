@@ -106,15 +106,17 @@ try{
     for(let i=0;i<20;i++)window.setFrame({...frame,generation:String(100+i)});
     const final=api.worldGpuStats(canvas);
     for(const key of ['meshes','buffers','textures','framebuffers','renderbuffers'])if(initial[key]!==final[key])throw new Error('Resource growth: '+key);
-    // Delay a genuine pixel-transfer fence. A new frame cancels the old request.
-    const gl=canvas.getContext('webgl2'),wait=gl.clientWaitSync.bind(gl);gl.clientWaitSync=()=>gl.TIMEOUT_EXPIRED;
-    const pending=api.pickSourceWorld(canvas,100,100).then(()=>({completed:true}),error=>({name:error.name}));
-    window.setFrame({...frame,generation:'120'});
-    const stale=await pending;if(stale.name!=='AbortError')throw new Error('Stale GPU request was accepted');
-    gl.clientWaitSync=wait;
+    // A live repaint already queued for the next turn must not overtake the
+    // clicked pixel. Receipts retain their sampled generation; Rust rejects
+    // that generation if the caller observes it after a frame replacement.
+    const replacement=new Promise(resolve=>setTimeout(()=>{window.setFrame({...frame,generation:'120'});resolve();},0));
+    const sampled=JSON.parse(await api.pickSourceWorld(canvas,100,100));
+    if(sampled.generation!=='119'||api.worldGpuStats(canvas).generation!=='119')throw new Error('Queued repaint overtook the clicked pixel');
+    await replacement;
+    if(sampled.generation!=='119')throw new Error('Completed pick was relabelled as a newer frame');
     const newer=await api.pickSourceWorld(canvas,100,100);if(JSON.parse(newer).generation!=='120')throw new Error('Current GPU generation not retained');
   });
-  report.lifecycle.push('20 replacements retain owned-resource counts; real transfer cancelled on replacement; new generation remains pickable');
+  report.lifecycle.push('20 replacements retain owned-resource counts; clicked pixel precedes queued repaint; sampled generation retained; new generation remains pickable');
   await page.evaluate(async()=>{
     const api=window.sourceGpu,canvas=window.canvas,toBlob=canvas.toBlob;
     let release,encoded;const encoding=new Promise(resolve=>{encoded=resolve;});

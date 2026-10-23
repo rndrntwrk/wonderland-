@@ -1,0 +1,220 @@
+{
+  "schema": "wonderland.public-two-context-qualification.v1",
+  "qualifiedSourceCommit": "932dc19a2f79de44020af2316a9394860e55e390",
+  "qualifiedSourceTree": "bce5194fbd9115560ad1042c4649ee13f9c715c0",
+  "dependency": {
+    "pullRequest": 80,
+    "head": "8299757d648fc9ea4ad5b881f5fd1271d838ee19",
+    "headTree": "b045878b6d3889609320c9ff570725bf47b35c82",
+    "baseBranch": "work/native-owned-departure-entry-20261016",
+    "pr80DependsOn": "PR79 / work/native-action-outcome-recovery-20261015 at7bf4304935dc6cf2b2c62296d58ba5ef368d4d6f",
+    "defaultBranch": "master",
+    "defaultBranchAtPreflight": "a62301e2629e4824dee8f025fd0af22732912863"
+  },
+  "incorporatedCheckpoints": [
+    {
+      "commit": "c52efcfd7b09a66b992d3ff5682033ed1854ad4a",
+      "tree": "824c83b6b7dd633e70814c306ab6db96ba42045a",
+      "description": "Preserved e08 staged source snapshot, schema-7 Timer/owned delivery and authored source intake"
+    },
+    {
+      "commit": "1bd262f7ac0f6ed838bcb6ed81529c15c0adbd2d",
+      "tree": "635b874172e0ad062f4504d60b48ce29a04dcd48",
+      "description": "Integrated published placement bridge repair into e08 source"
+    },
+    {
+      "commit": "e293bed6f6cf7d01741f5da7415eff84b3d8cbfe",
+      "tree": "c4d163306f6eaedfee5bbd82287ac782d1c509ad",
+      "description": "Immutable content validation and identity memoization"
+    },
+    {
+      "commit": "830639ab380569ba6f8de3ce0341c430d822389b",
+      "tree": "8d62cee2790f63962c312d92e0669d3105889645",
+      "description": "Same-turn clicked source-pixel readback; freshness/source authority retained"
+    },
+    {
+      "commit": "9c9883c8f5e2dfed333fc23b21b12063000efbaf",
+      "tree": "28ce853f7cf6a4647b98dc65780ff06baa27fe7d",
+      "description": "Intermediate compact-status draft; not independently qualified as a final checkpoint"
+    },
+    {
+      "commit": "932dc19a2f79de44020af2316a9394860e55e390",
+      "tree": "bce5194fbd9115560ad1042c4649ee13f9c715c0",
+      "description": "Final compact preparation status and fail-closed metadata guard"
+    }
+  ],
+  "focusedTests": {
+    "compactStatusRust": {
+      "passed": 3,
+      "failed": 0,
+      "sourceCommit": "932dc19a2f79de44020af2316a9394860e55e390"
+    },
+    "compactStatusNode": {
+      "passed": 4,
+      "failed": 0,
+      "sourceCommit": "932dc19a2f79de44020af2316a9394860e55e390"
+    },
+    "retainedBridgeProvider": {
+      "passed": 25,
+      "sourceCommit": "1bd262f7ac0f6ed838bcb6ed81529c15c0adbd2d"
+    },
+    "retainedContentIdentity": {
+      "passed": 5,
+      "snapshotContractPassed": 26,
+      "nativeHostPassed": 32,
+      "sourceCommit": "e293bed6f6cf7d01741f5da7415eff84b3d8cbfe"
+    },
+    "retainedSelection": {
+      "nodePassed": 9,
+      "rustStalePublicationPassed": 2,
+      "sourceCommit": "830639ab380569ba6f8de3ce0341c430d822389b"
+    },
+    "note": "Retained source-pinned results; not a fresh full workspace suite or CI result for the publication commit. No rebuild or repeated qualification was performed for publication."
+  },
+  "nativeBuilds": {
+    "host": {
+      "sourceCommit": "932dc19a2f79de44020af2316a9394860e55e390",
+      "sourceTree": "bce5194fbd9115560ad1042c4649ee13f9c715c0",
+      "exitCode": 0,
+      "binaryBytes": 53696288,
+      "binarySha256": "c29aac28a054b4509b510580c164b06c670f7b4af475d76e940406f7a2d41efd"
+    },
+    "exporter": {
+      "sourceCommit": "932dc19a2f79de44020af2316a9394860e55e390",
+      "sourceTree": "bce5194fbd9115560ad1042c4649ee13f9c715c0",
+      "exitCode": 0,
+      "binaryBytes": 22251120,
+      "binarySha256": "a5c3fec6850fd51015559595f121b712718a69bd1221842aa5f57d2708a27e77"
+    }
+  },
+  "browserArtifacts": {
+    "newBuildPerformedForCompactStatus": false,
+    "verifiedFiles": 147,
+    "reusedBuildSourceCommit": "830639ab380569ba6f8de3ce0341c430d822389b",
+    "wasmSha256": "43315bfd01e0cbe6c1641bab01a844dcb4d326f4fd705ed92c86d7a22822bb5a",
+    "inputEquivalenceVerified": true
+  },
+  "renderedAcceptance": {
+    "passed": true,
+    "startedAtUtc": "2026-10-23T07:30:47.953Z",
+    "stoppedAtUtc": "2026-10-23T07:32:00.045Z",
+    "runnerExitCode": 0,
+    "separateBrowserContexts": 2,
+    "disposableLoopbackAccounts": 2,
+    "chromiumSandboxEnabled": true,
+    "sourceWalks": [
+      {
+        "player": 1,
+        "sourceActionId": "3",
+        "sourceLabel": "Walk Here",
+        "terminal": "Action #3 completed",
+        "seconds": 17.879,
+        "before": {
+          "x": 24,
+          "y": 24,
+          "level": 1
+        },
+        "after": {
+          "x": 104,
+          "y": 8,
+          "level": 1
+        },
+        "peerAgreement": {
+          "tick": "462",
+          "hash": "4dd2660331f3c8f3f6be5495ab657c43056b6c3d6618c5c01896b976bf86538e"
+        },
+        "usedDifferentExplicitDestinationAfterUnavailablePick": false
+      },
+      {
+        "player": 2,
+        "sourceActionId": "3",
+        "sourceLabel": "Walk Here",
+        "terminal": "Action #3 completed",
+        "seconds": 15.911,
+        "before": {
+          "x": 24,
+          "y": 56,
+          "level": 1
+        },
+        "after": {
+          "x": 8,
+          "y": 104,
+          "level": 1
+        },
+        "peerAgreement": {
+          "tick": "744",
+          "hash": "76269f6783577a9817602181093ce52f4a0cac9289875c9768d7333a4d6265ee"
+        },
+        "usedDifferentExplicitDestinationAfterUnavailablePick": true
+      }
+    ],
+    "deadlineSeconds": 45,
+    "authoritativeMovementAndPeerStateRequired": true,
+    "screenshotsReviewed": 6,
+    "videosRetainedPrivately": 2,
+    "pageErrors": 0,
+    "recordingsAreNotAnimationCadenceEvidence": true
+  },
+  "selectionRepeatabilityRetained": {
+    "sourceCommit": "830639ab380569ba6f8de3ce0341c430d822389b",
+    "freshTwoContextRuns": 3,
+    "firstClickMenusPassed": 30,
+    "sourceWalksPassed": 6,
+    "repeatedForPublication": false
+  },
+  "performance": {
+    "baselineRuns": 3,
+    "candidateRuns": 1,
+    "candidateScheduledBodies": 442,
+    "scheduledBodyMeanMs": {
+      "before": 75.14254191439684,
+      "after": 66.1602179886879,
+      "delta": -8.98232392570894,
+      "observedReductionPercent": 11.953713165495117
+    },
+    "committedProgressHz": {
+      "before": 9.558502328542977,
+      "after": 13.139982243267239
+    },
+    "exclusiveMsPerTick": {
+      "broadcast": 0.05406967873292094,
+      "checkpoint_receipts": 3.5581577217193816,
+      "native_preparation_status": 17.321255495475196,
+      "native_prepare": 32.44739780769228,
+      "native_resolve_private_eod": 0.7894502692311004,
+      "ordinary_miniflare_fetch": 10.32268204524896,
+      "ordinary_miniflare_response_json": 1.4275480248866126,
+      "unclassified_body": 0.2396569457014513
+    },
+    "targetBodyBudgetMs": 33.333333333333336,
+    "qualified30Hz": false,
+    "method": "Exact source Walk click-to-observed-terminal windows; exclusive native/RPC descendants of scheduled tick bodies. Request spans include IPC and waits; browser/Node work overlap. Three baseline runs versus one candidate run; local load varies."
+  },
+  "reviews": {
+    "bridgeContentSelectionAndCompactLanesIndependentlyReviewed": true,
+    "compactStatusFinding": "Malformed/missing metadata guard reproduced and fixed before final checkpoint.",
+    "compactStatusReviewSha256": "052168fd93dd86e7b15b57fa51ee38ad5341b53eca802dd384630c97e8ab6d4c",
+    "visualReviewSha256": "8ddc3ea63bacfce8ebe9438f292dfa5f6f18e159c324fd91cc2905df3a4421e8"
+  },
+  "privateEvidenceCommitments": {
+    "qualifiedReceiptSha256": "d16e8a1af11a24adfaebbccb5f9283f1a1c9701d888b468e14508e1462e64387",
+    "sourceBundleSha256": "caf34acced8d19cf68bb138bd993841e79692c9f309ed8ef04184699b208b841"
+  },
+  "publicationDifferences": {
+    "productSourceAndAssetsByteIdenticalToQualifiedSource": true,
+    "preservedNewerPr80Documentation": {
+      "path": "docs/contracts/boundary-map.json",
+      "blob": "40d9eb68df2f94db80a574a887176af2525e5162"
+    },
+    "addedPublicHandoffPrefix": "docs/verification/native-two-context-walk-20261023/",
+    "localHistoryNotUploaded": true,
+    "rawLocalLogsCredentialsInputsCheckpointsRecordingsAndBuildOutputsAdded": false
+  },
+  "limitations": [
+    "30Hz target unqualified; observed Walk-window committed progress13.140Hz.",
+    "Original Timer artwork/panel and original mailbox sprite remain absent from this acceptance.",
+    "Source-timed animation,native leave/save and object interaction are not assessed by this two-Walk run; historical source/native evidence retains its own separate scope.",
+    "P2 first destination is occupied: source refusal remains visible. The explicit fallback is a different destination and does not preserve the first destination intent.",
+    "No production readiness,full gameplay,merge or deployment claim."
+  ]
+}

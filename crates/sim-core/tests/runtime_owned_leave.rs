@@ -2,9 +2,9 @@
 use bincode::Options;
 use sim_core::{
     avatars::{
+        AvatarPlatform, AvatarState,
         motives::TsoMotiveTuning,
         state::{AvatarPermissions, TEMPLATE_PERSON},
-        AvatarPlatform, AvatarState,
     },
     ids::*,
     interactions::*,
@@ -282,9 +282,11 @@ fn source_leave_queue_uses_priority50_skip_permissions_and_no_duplicate() {
     );
     let id = entry.id;
     assert!(!runtime.state().interaction_access.contains_key(&actor));
-    assert!(runtime.state().owned_departures.records[&actor]
-        .capture
-        .is_some());
+    assert!(
+        runtime.state().owned_departures.records[&actor]
+            .capture
+            .is_some()
+    );
     for _ in 0..3 {
         step(
             &mut runtime,
@@ -377,9 +379,11 @@ fn unknown_or_plugin_session_history_blocks_owned_detach() {
     );
     assert!(runtime.state().ids.is_live(actor));
     assert!(outcome.effects.is_empty());
-    assert!(runtime.state().owned_departures.records[&actor]
-        .capture
-        .is_none());
+    assert!(
+        runtime.state().owned_departures.records[&actor]
+            .capture
+            .is_none()
+    );
 }
 #[test]
 fn generic_delete_cannot_impersonate_source_departure() {
@@ -412,9 +416,11 @@ fn deferred_check_rejection_is_not_detach_and_forced_cleanup_is_distinct() {
         .clone()
         .expect("first leave tick");
     assert!(runtime.state().ids.is_live(actor));
-    assert!(runtime.state().owned_departures.records[&actor]
-        .detached_tick
-        .is_none());
+    assert!(
+        runtime.state().owned_departures.records[&actor]
+            .detached_tick
+            .is_none()
+    );
     let mut state = runtime.state().clone();
     state
         .entities
@@ -573,9 +579,11 @@ fn existing_external_wait_is_retained_and_blocks_source_timeout_without_fake_rep
     );
     assert_eq!(runtime.state().effects, pending);
     assert_eq!(runtime.state().continuations, continuations);
-    assert!(runtime.state().owned_departures.records[&actor]
-        .capture
-        .is_none());
+    assert!(
+        runtime.state().owned_departures.records[&actor]
+            .capture
+            .is_none()
+    );
 }
 #[test]
 fn another_invoker_plugin_invalidates_fresh_lot_no_session_proof() {
@@ -598,9 +606,11 @@ fn another_invoker_plugin_invalidates_fresh_lot_no_session_proof() {
         Some(DepartureBlocker::UnsupportedEodSession)
     );
     assert!(runtime.state().ids.is_live(actor));
-    assert!(runtime.state().owned_departures.records[&actor]
-        .capture
-        .is_none());
+    assert!(
+        runtime.state().owned_departures.records[&actor]
+            .capture
+            .is_none()
+    );
 }
 
 #[test]
@@ -623,11 +633,13 @@ fn unsupported_deferred_check_is_failure_not_false_or_forced_success() {
     assert!(runtime.step(&tick).is_err());
     assert_eq!(runtime.snapshot().unwrap(), before);
     assert!(runtime.state().ids.is_live(actor));
-    assert!(!runtime
-        .state()
-        .owned_departures
-        .records
-        .contains_key(&actor));
+    assert!(
+        !runtime
+            .state()
+            .owned_departures
+            .records
+            .contains_key(&actor)
+    );
 }
 
 #[test]
@@ -636,7 +648,7 @@ fn schema_five_migration_keeps_source_state_but_has_no_eod_proof() {
     let runtime = fixture(content(Some(idle_action()), false));
     assert!(runtime.state().owned_departures.eod_known_clear);
     let current = runtime.snapshot().unwrap();
-    let end = current.len() - 32 - 17;
+    let end = current.len() - 32 - 17 - 40;
     let mut legacy = current[..end].to_vec();
     legacy[10..12].copy_from_slice(&5u16.to_le_bytes());
     legacy[108..110].copy_from_slice(&5u16.to_le_bytes());
@@ -725,4 +737,603 @@ fn retained_departure_rejects_forged_fence_capture_and_fault_classification() {
             "malformed departure case {case}"
         );
     }
+}
+
+// Authored source Timer boundary tests. These do not qualify original assets.
+fn timer_content() -> ContentSet {
+    let mut operand = [0, 1, 2, 0, 0, 0, 0, 0];
+    operand[4..8].copy_from_slice(&sim_core::eod::TIMER_PLUGIN_ID.to_le_bytes());
+    content(
+        Some(vec![
+            expr(Scope::Local, 0, Scope::Parameters, 0, 1),
+            expr(Scope::Local, 1, Scope::Parameters, 1, 2),
+            expr(Scope::Local, 2, Scope::Parameters, 2, 3),
+            VmInstruction::new(62, 254, 4, operand),
+            expr(Scope::Global, 0, Scope::Local, 2, 255),
+        ]),
+        false,
+    )
+}
+fn timer_start(
+    invoker: EntityRef,
+    actor: EntityRef,
+    object: EntityRef,
+    event: i16,
+) -> AcceptedCommand {
+    let mut context = FrameContext::for_entity(invoker, TEMPLATE_PERSON);
+    // Distinct stack object must never become the invoker or substitute locals.
+    context.stack_object = actor.object_id;
+    context.stack_object_ref = Some(actor);
+    AcceptedCommand::StartBehavior {
+        entity: invoker,
+        routine: RoutineKey {
+            scope: RoutineScope::SemiGlobal(900),
+            id: 8373,
+        },
+        context,
+        args: vec![actor.object_id.0, object.object_id.0, event, 0],
+        replace: true,
+    }
+}
+fn timer_event(
+    session: sim_core::eod::EodSessionIdentity,
+    event_id: u64,
+    code: i16,
+    data: Vec<i16>,
+) -> AcceptedCommand {
+    AcceptedCommand::EodEventDelivered(sim_core::eod::EodEventDelivery {
+        session,
+        event_id,
+        code,
+        data,
+    })
+}
+fn timer_connected() -> (SimRuntime, sim_core::eod::EodSessionIdentity) {
+    let mut runtime = fixture(timer_content());
+    let actor = runtime.state().owned_admission.actors().unwrap()[&1].actor;
+    let invoker = runtime.state().owned_admission.actors().unwrap()[&2].actor;
+    let outcome = step(&mut runtime, vec![timer_start(invoker, actor, invoker, -5)]);
+    let session = outcome
+        .events
+        .iter()
+        .find_map(|e| match e {
+            RuntimeEvent::EodConnectRequested {
+                session,
+                request_id,
+                tick,
+                ..
+            } => {
+                assert_eq!(*tick, outcome.tick);
+                assert_ne!(*request_id, 0);
+                Some(*session)
+            }
+            _ => None,
+        })
+        .unwrap();
+    assert_eq!(session.actor, actor);
+    assert_eq!(session.object, invoker);
+    assert_eq!(session.invoker, invoker);
+    assert_eq!(session.thread, invoker);
+    assert_eq!(session.control_generation, 1);
+    assert_eq!(runtime.state().threads[&invoker.object_id].temps[0], 0);
+    assert!(matches!(
+        runtime.state().threads[&invoker.object_id].stop,
+        VmStop::Sleeping { .. }
+    ));
+    assert!(runtime.state().effects.pending_requests().next().is_none());
+    assert!(runtime.state().owned_departures.eod_known_clear);
+    (runtime, session)
+}
+#[test]
+fn timer_source_locals_fifo_zero_event_and_events_before_ended() {
+    let (mut runtime, session) = timer_connected();
+    step(
+        &mut runtime,
+        vec![
+            timer_event(session, 1, -2, vec![]),
+            timer_event(session, 2, 0, vec![37, 91]),
+            timer_event(session, 3, 4, vec![12]),
+            timer_event(session, 4, -1, vec![]),
+            timer_start(session.invoker, session.actor, session.object, 0),
+        ],
+    );
+    assert_eq!(runtime.state().globals[0], 0);
+    assert_eq!(
+        &runtime.state().threads[&session.thread.object_id].temps[..2],
+        &[37, 91]
+    );
+    assert_eq!(
+        runtime.state().eod.sessions[&session.session_id]
+            .events
+            .len(),
+        2
+    );
+    assert!(runtime.state().eod.actor_teardown_pending(session.actor));
+    // Preserve the real source register bank across this poll. A replacement
+    // StartBehavior intentionally creates a fresh thread and resets its temps.
+    let mut poll = timer_start(session.invoker, session.actor, session.object, 0);
+    if let AcceptedCommand::StartBehavior { replace, .. } = &mut poll {
+        *replace = false;
+    }
+    step(&mut runtime, vec![poll]);
+    assert_eq!(runtime.state().globals[0], 4);
+    assert_eq!(
+        &runtime.state().threads[&session.thread.object_id].temps[..2],
+        &[12, 91]
+    );
+    assert!(
+        runtime
+            .state()
+            .eod
+            .connections
+            .contains_key(&session.thread)
+    );
+    step(
+        &mut runtime,
+        vec![timer_start(
+            session.invoker,
+            session.actor,
+            session.object,
+            0,
+        )],
+    );
+    assert!(
+        !runtime
+            .state()
+            .eod
+            .connections
+            .contains_key(&session.thread)
+    );
+    assert!(!runtime.state().eod.actor_teardown_pending(session.actor));
+    assert!(matches!(
+        runtime.state().threads[&session.thread.object_id].stop,
+        VmStop::Completed(PrimitiveExit::ReturnTrue)
+    ));
+}
+#[test]
+fn timer_repeated_connections_and_old_close_are_exact_session_bound() {
+    let (mut runtime, first) = timer_connected();
+    let outcome = step(
+        &mut runtime,
+        vec![timer_start(first.invoker, first.actor, first.object, -2)],
+    );
+    let disconnect = outcome.events.iter().position(|e| matches!(e, RuntimeEvent::EodDisconnectRequested { session, .. } if *session == first)).unwrap();
+    let connect = outcome
+        .events
+        .iter()
+        .position(|e| matches!(e, RuntimeEvent::EodConnectRequested { .. }))
+        .unwrap();
+    assert!(disconnect < connect);
+    let second = runtime.state().eod.sessions[&2].identity;
+    assert_eq!(second.control_generation, first.control_generation);
+    assert_eq!(
+        runtime.state().eod.connections[&first.thread],
+        second.session_id
+    );
+    step(&mut runtime, vec![timer_event(first, 1, -1, vec![])]);
+    assert_eq!(
+        runtime.state().eod.connections[&first.thread],
+        second.session_id
+    );
+    assert!(runtime.state().eod.actor_teardown_pending(first.actor));
+    let outcome = step(
+        &mut runtime,
+        vec![timer_start(second.invoker, second.actor, second.object, -1)],
+    );
+    assert!(outcome.events.iter().any(|e| matches!(e,
+        RuntimeEvent::EodDisconnectRequested { session, .. } if *session == second)));
+    assert!(runtime.state().eod.actor_teardown_pending(first.actor));
+    step(&mut runtime, vec![timer_event(second, 1, -1, vec![])]);
+    assert!(!runtime.state().eod.actor_teardown_pending(first.actor));
+    assert!(runtime.state().owned_departures.eod_known_clear);
+}
+#[test]
+fn timer_authoritative_events_reject_stale_conflicting_and_out_of_order_atomically() {
+    let (mut runtime, session) = timer_connected();
+    let event = timer_event(session, 1, 0, vec![7]);
+    step(&mut runtime, vec![event.clone()]);
+    step(&mut runtime, vec![event.clone()]);
+    assert_eq!(runtime.state().eod.sessions[&1].events.len(), 1);
+    let mut stale = session;
+    stale.actor.generation += 1;
+    for bad in [
+        timer_event(session, 1, 0, vec![8]),
+        timer_event(session, 3, 0, vec![]),
+        timer_event(stale, 2, 0, vec![]),
+        timer_event(session, 2, 0, vec![1; 21]),
+    ] {
+        let before = runtime.snapshot().unwrap();
+        let tick = runtime.next_tick(vec![bad]).unwrap();
+        assert!(runtime.step(&tick).is_err());
+        assert_eq!(runtime.snapshot().unwrap(), before);
+    }
+    let tick = runtime
+        .next_tick(vec![AcceptedCommand::Delete {
+            entity: session.actor,
+        }])
+        .unwrap();
+    assert!(runtime.step(&tick).is_err());
+}
+#[test]
+fn timer_snapshot_replay_keeps_fifo_receipts_ids_and_legacy_unknown() {
+    let (mut authority, session) = timer_connected();
+    step(
+        &mut authority,
+        vec![
+            timer_event(session, 1, -2, vec![]),
+            timer_event(session, 2, 0, vec![123]),
+        ],
+    );
+    let mut replica = SimRuntime::from_state(
+        authority.state().clone(),
+        authority.content().clone(),
+        RuntimeRole::Replica,
+    )
+    .unwrap();
+    replica.restore(&authority.snapshot().unwrap()).unwrap();
+    for commands in [
+        vec![timer_event(session, 2, 0, vec![123])],
+        vec![
+            timer_event(session, 3, -1, vec![]),
+            timer_start(session.invoker, session.actor, session.object, 0),
+        ],
+        vec![timer_start(
+            session.invoker,
+            session.actor,
+            session.object,
+            0,
+        )],
+    ] {
+        let tick = authority.next_tick(commands).unwrap();
+        assert_eq!(
+            authority.step(&tick).unwrap().state_hash,
+            replica.step(&tick).unwrap().state_hash
+        );
+    }
+    let mut unknown = authority.state().clone();
+    unknown.owned_departures.eod_known_clear = false;
+    let mut unknown =
+        SimRuntime::from_state(unknown, authority.content().clone(), RuntimeRole::Authority)
+            .unwrap();
+    step(
+        &mut unknown,
+        vec![timer_start(
+            session.invoker,
+            session.actor,
+            session.object,
+            -5,
+        )],
+    );
+    let current = unknown.state().eod.sessions[&2].identity;
+    step(
+        &mut unknown,
+        vec![
+            timer_event(current, 1, -1, vec![]),
+            timer_start(current.invoker, current.actor, current.object, 0),
+        ],
+    );
+    assert!(!unknown.state().owned_departures.eod_known_clear);
+}
+#[test]
+fn schema_six_eod_migration_keeps_legacy_cleanup_unknown() {
+    use sha2::{Digest, Sha256};
+    let runtime = fixture(content(Some(idle_action()), false));
+    let current = runtime.snapshot().unwrap();
+    let end = current.len() - 32 - 40;
+    let mut legacy = current[..end].to_vec();
+    legacy[10..12].copy_from_slice(&6u16.to_le_bytes());
+    legacy[108..110].copy_from_slice(&6u16.to_le_bytes());
+    legacy[100..108].copy_from_slice(&((end - 108) as u64).to_le_bytes());
+    legacy.extend_from_slice(&Sha256::digest(&legacy));
+    let restored = sim_core::snapshot::decode(
+        &legacy,
+        runtime.content(),
+        sim_core::snapshot::SnapshotExpectation::new(41, 7),
+    )
+    .unwrap();
+    assert!(!restored.owned_departures.eod_known_clear);
+    assert_eq!(restored.eod, sim_core::eod::EodState::default());
+}
+
+#[test]
+fn timer_peer_cancellation_and_reset_are_association_bound() {
+    struct QueueHarness;
+    impl sim_core::interactions::adapters::QueueRuntime for QueueHarness {
+        fn target_is_alive(&self, _: EntityKey) -> bool {
+            true
+        }
+        fn check_action(&mut self, _: &ActionInvocation) -> sim_core::interactions::Result<bool> {
+            Ok(true)
+        }
+        fn start_action(&mut self, _: &ActionInvocation) -> sim_core::interactions::Result<bool> {
+            Ok(true)
+        }
+    }
+    let (runtime, first) = timer_connected();
+    // A queued source action is enough for source CancelAction(index0) to
+    // force-disconnect the avatar even when an object/peer is its invoker.
+    let mut state = runtime.state().clone();
+    let mut definition = runtime
+        .content()
+        .interaction_table(TEMPLATE_PERSON)
+        .unwrap()
+        .definitions[0]
+        .clone();
+    definition.action.routine_id = 8373;
+    let actor_key = interaction_adapter::entity_key(first.actor);
+    let action = state
+        .interaction_queues
+        .get_mut(&first.actor.object_id)
+        .unwrap()
+        .enqueue_internal(
+            ActionInvocation::pushed(
+                actor_key,
+                actor_key,
+                definition,
+                PushPriority::UserDriven,
+                None,
+                false,
+                false,
+            ),
+            &QueueHarness,
+        )
+        .unwrap()
+        .result;
+    let mut runtime =
+        SimRuntime::from_state(state, runtime.content().clone(), RuntimeRole::Authority).unwrap();
+    let queue = &runtime.state().interaction_queues[&first.actor.object_id];
+    let cancel = CancelIntent {
+        principal: PrincipalKey(1),
+        world_revision: runtime.state().completed_tick,
+        actor: EntityVersion {
+            key: actor_key,
+            revision: runtime.state().entities[&first.actor.object_id].revision,
+        },
+        queue_revision: queue.revision(),
+        command_sequence: 1,
+        action,
+    };
+    let outcome = step(
+        &mut runtime,
+        vec![AcceptedCommand::CancelInteraction(cancel)],
+    );
+    assert!(outcome.events.iter().any(|event| matches!(event,
+        RuntimeEvent::EodDisconnectRequested { session, .. } if *session == first)));
+    let outcome = step(
+        &mut runtime,
+        vec![AcceptedCommand::Reset {
+            entity: first.actor,
+        }],
+    );
+    assert!(
+        !outcome
+            .events
+            .iter()
+            .any(|event| matches!(event, RuntimeEvent::EodDisconnectRequested { .. }))
+    );
+    step(
+        &mut runtime,
+        vec![
+            timer_event(first, 1, -1, vec![]),
+            timer_start(first.invoker, first.actor, first.object, 0),
+        ],
+    );
+    step(
+        &mut runtime,
+        vec![timer_start(first.invoker, first.actor, first.object, -5)],
+    );
+    let second = runtime.state().eod.sessions[&2].identity;
+    let outcome = step(
+        &mut runtime,
+        vec![AcceptedCommand::Reset {
+            entity: first.actor,
+        }],
+    );
+    assert!(outcome.events.iter().any(|event| matches!(event,
+        RuntimeEvent::EodDisconnectRequested { session, .. } if *session == second)));
+}
+#[test]
+fn timer_mismatched_caller_thread_is_explicitly_unsupported_without_side_effects() {
+    let mut runtime = fixture(timer_content());
+    let actor = runtime.state().owned_admission.actors().unwrap()[&1].actor;
+    let invoker = runtime.state().owned_admission.actors().unwrap()[&2].actor;
+    let mut command = timer_start(invoker, actor, invoker, -5);
+    if let AcceptedCommand::StartBehavior { context, .. } = &mut command {
+        context.caller = actor;
+    }
+    let before = runtime.snapshot().unwrap();
+    let tick = runtime.next_tick(vec![command]).unwrap();
+    assert!(matches!(
+        runtime.step(&tick),
+        Err(RuntimeError::Vm(VmFault::UnsupportedPrimitive {
+            opcode: 62,
+            ..
+        }))
+    ));
+    assert_eq!(runtime.snapshot().unwrap(), before);
+}
+
+#[test]
+fn timer_overlapping_actor_association_is_failure_atomic() {
+    let (mut runtime, first) = timer_connected();
+    let before = runtime.snapshot().unwrap();
+    let tick = runtime
+        .next_tick(vec![timer_start(
+            first.actor,
+            first.actor,
+            first.object,
+            -5,
+        )])
+        .unwrap();
+    assert!(matches!(
+        runtime.step(&tick),
+        Err(RuntimeError::Vm(VmFault::UnsupportedPrimitive {
+            opcode: 62,
+            ..
+        }))
+    ));
+    assert_eq!(runtime.snapshot().unwrap(), before);
+}
+
+#[test]
+fn timer_invoker_reset_disposes_source_fifo_but_cannot_prove_host_teardown() {
+    let (mut runtime, session) = timer_connected();
+    step(&mut runtime, vec![timer_event(session, 1, 0, vec![44])]);
+    let outcome = step(
+        &mut runtime,
+        vec![AcceptedCommand::Reset {
+            entity: session.invoker,
+        }],
+    );
+    assert!(
+        !runtime
+            .state()
+            .eod
+            .connections
+            .contains_key(&session.thread)
+    );
+    let retained = &runtime.state().eod.sessions[&session.session_id];
+    assert_eq!(retained.source_detached_tick, Some(outcome.tick));
+    assert!(retained.events.is_empty());
+    assert!(!retained.ended);
+    assert!(runtime.state().eod.actor_teardown_pending(session.actor));
+    // Resetting an invoker that is a different avatar does not fake
+    // ForceDisconnectObj; source ForceDisconnect(reset avatar) finds no match.
+    assert!(
+        !outcome
+            .events
+            .iter()
+            .any(|event| matches!(event, RuntimeEvent::EodDisconnectRequested { .. }))
+    );
+    step(&mut runtime, vec![timer_event(session, 2, -1, vec![])]);
+    assert!(!runtime.state().eod.actor_teardown_pending(session.actor));
+}
+
+#[test]
+fn timer_detached_check_cannot_inherit_live_connection() {
+    let (mut runtime, session) = timer_connected();
+    step(&mut runtime, vec![timer_event(session, 1, 0, vec![55])]);
+    let before = runtime.snapshot().unwrap();
+    for event in [0, -1, -2] {
+        let result = runtime
+            .query_behavior(
+                session.invoker,
+                RoutineKey {
+                    scope: RoutineScope::SemiGlobal(900),
+                    id: 8373,
+                },
+                FrameContext::for_entity(session.invoker, TEMPLATE_PERSON),
+                vec![
+                    session.actor.object_id.0,
+                    session.object.object_id.0,
+                    event,
+                    0,
+                ],
+                100,
+            )
+            .unwrap();
+        assert!(matches!(
+            result.stop,
+            VmStop::Faulted(VmFault::UnsupportedPrimitive { opcode: 62, .. })
+        ));
+        assert_eq!(runtime.snapshot().unwrap(), before);
+    }
+}
+
+#[test]
+fn timer_public_disposition_is_captured_before_same_tick_reset() {
+    let (mut runtime, session) = timer_connected();
+    let outcome = step(
+        &mut runtime,
+        vec![
+            timer_event(session, 1, 0, vec![44]),
+            AcceptedCommand::Reset {
+                entity: session.invoker,
+            },
+        ],
+    );
+    assert!(
+        runtime.state().eod.sessions[&session.session_id]
+            .source_detached_tick
+            .is_some()
+    );
+    assert!(outcome.events.iter().any(|e| matches!(e, RuntimeEvent::EodEventApplied { delivery, attached: true, .. } if delivery.event_id == 1)));
+    let outcome = step(&mut runtime, vec![timer_event(session, 2, -1, vec![])]);
+    assert!(outcome.events.iter().any(|e| matches!(e, RuntimeEvent::EodEventApplied { delivery, attached: false, .. } if delivery.event_id == 2)));
+}
+
+#[test]
+fn timer_handlerless_polls_do_not_allocate_receipts_across_restore_and_replay() {
+    let mut operand = [0, 1, 2, 0, 0, 0, 0, 0];
+    operand[4..8].copy_from_slice(&sim_core::eod::TIMER_PLUGIN_ID.to_le_bytes());
+    // An authored continuous InvokePlugin loop. Each live false-next-tick poll
+    // returns through instruction 4 and reaches InvokePlugin again next tick.
+    let mut authority = fixture(content(
+        Some(vec![
+            expr(Scope::Local, 0, Scope::Parameters, 0, 1),
+            expr(Scope::Local, 1, Scope::Parameters, 1, 2),
+            expr(Scope::Local, 2, Scope::Parameters, 2, 3),
+            VmInstruction::new(62, 254, 4, operand),
+            expr(Scope::Global, 0, Scope::Local, 2, 3),
+        ]),
+        false,
+    ));
+    let actor = authority.state().owned_admission.actors().unwrap()[&1].actor;
+    let invoker = authority.state().owned_admission.actors().unwrap()[&2].actor;
+    step(
+        &mut authority,
+        vec![timer_start(invoker, actor, invoker, -5)],
+    );
+    let session = authority.state().eod.sessions[&1].identity;
+    let next_request = authority.state().eod.next_request_id;
+    assert_eq!(next_request, 2);
+    let mut replica = SimRuntime::from_state(
+        authority.state().clone(),
+        authority.content().clone(),
+        RuntimeRole::Replica,
+    )
+    .unwrap();
+    for index in 0..8192 {
+        if index == 4096 {
+            // Exact snapshot restart keeps the source association, not a new one.
+            let saved = authority.snapshot().unwrap();
+            authority.restore(&saved).unwrap();
+            replica.restore(&saved).unwrap();
+        }
+        let tick = authority.next_tick(vec![]).unwrap();
+        let actual = authority.step(&tick).unwrap();
+        let replay = replica.step(&tick).unwrap();
+        assert_eq!(actual.state_hash, replay.state_hash);
+        assert_eq!(actual.events, replay.events);
+        assert!(!actual.events.iter().any(|event| matches!(
+            event,
+            RuntimeEvent::EodSimanticsRequested { .. }
+                | RuntimeEvent::EodConnectRequested { .. }
+                | RuntimeEvent::EodDisconnectRequested { .. }
+        )));
+        assert!(actual.effects.is_empty());
+        assert_eq!(authority.state().eod.next_request_id, next_request);
+        assert_eq!(authority.state().eod.connections.get(&invoker), Some(&1));
+        assert!(matches!(
+            authority.state().threads[&invoker.object_id].stop,
+            VmStop::Sleeping { .. }
+        ));
+    }
+    // A real public code zero still applies once and reaches the source FIFO.
+    let update = timer_event(session, 1, 0, vec![37]);
+    step(&mut authority, vec![update.clone()]);
+    step(&mut authority, vec![update]);
+    assert_eq!(authority.state().eod.delivered.len(), 1);
+    assert!(authority.state().eod.sessions[&1].events.is_empty());
+    assert_eq!(authority.state().eod.next_request_id, next_request);
+    // Handlerless optimization must not suppress the real source close effect.
+    let closed = step(
+        &mut authority,
+        vec![timer_start(invoker, actor, invoker, -1)],
+    );
+    assert!(closed.events.iter().any(|event| matches!(
+        event,
+        RuntimeEvent::EodDisconnectRequested { request_id: 2, .. }
+    )));
+    assert_eq!(authority.state().eod.next_request_id, 3);
 }

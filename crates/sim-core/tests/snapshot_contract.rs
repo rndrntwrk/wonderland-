@@ -212,6 +212,7 @@ fn fixture() -> (ContentSet, SimState, EntityRef) {
         owned_admission: sim_core::owned_admission::OwnedAdmissionState::Uninitialized,
         source_routing: sim_core::route_motion::SourceRoutingState::default(),
         owned_departures: sim_core::runtime::leave_adapter::OwnedDepartureState::default(),
+        eod: sim_core::eod::EodState::default(),
     };
     let entity = add_entity(&mut state, &content, false);
     (content, state, entity)

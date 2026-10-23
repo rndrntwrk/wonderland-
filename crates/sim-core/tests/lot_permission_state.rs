@@ -491,7 +491,7 @@ fn initialized_payload_rejects_unknown_tags_huge_hints_and_noncanonical_membersh
     let before = runtime.snapshot().unwrap();
     let mut prefix = canonical(runtime.state());
     assert_eq!(&prefix[prefix.len() - 4..], &[0; 4]);
-    prefix.truncate(prefix.len() - 8 - 16 - 17);
+    prefix.truncate(prefix.len() - 8 - 16 - 17 - 40);
     prefix[..2].copy_from_slice(&4u16.to_le_bytes());
     let valid = canonical(&ReplicatedLotPermissions::Initialized(lot()));
     // enum(u32), owner(u32), category(u8), size(i32), roommate count(u64).
@@ -533,7 +533,7 @@ fn initialized_payload_rejects_unknown_tags_huge_hints_and_noncanonical_membersh
 
 #[test]
 fn existing_accepted_command_tags_are_preserved_and_initializer_is_appended() {
-    for expected in 0_u32..=31 {
+    for expected in 0_u32..=32 {
         // Zero-valued payload fields are decodable fixtures, not admissible commands.
         // This checks every discriminant without relying on unrelated constructors.
         let mut bytes = expected.to_le_bytes().to_vec();
@@ -577,6 +577,7 @@ fn existing_accepted_command_tags_are_preserved_and_initializer_is_appended() {
             AcceptedCommand::AdmitOwnedAvatar(_) => 29,
             AcceptedCommand::SourceGoto(_) => 30,
             AcceptedCommand::RequestOwnedLeave(_) => 31,
+            AcceptedCommand::EodEventDelivered(_) => 32,
         };
         assert_eq!(actual, expected);
         let encoded = canonical(&command);

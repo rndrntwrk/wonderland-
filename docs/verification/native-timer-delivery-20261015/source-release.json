@@ -1,0 +1,30 @@
+{
+  "schema": "wonderland.original-timer-release-intake.v1",
+  "binding_sha256": "8921d56fa9261bdfc0f96c740eaa9a1ee240c60784916d5f704c3ef3fe5a5da4",
+  "source_inputs": {
+    "destination.iff": "c5097dde5acd87c88aab97d8f9688687649caef50a746d5c2aa5fd080ea181ed",
+    "destination.piff": "6958b1795ac1e23b49336164457f690fbf999822e5d4556a2c8c7a0681dff485",
+    "destination.str.piff": "2e51646619380ddfdfefba271acf0ca116be7d09bd5db807b29669b5183333f2",
+    "fso_decor_2-in-1_Racing_Banner.iff": "260a9db1ed017eacf2604beaf92dbf0cafae6c651b1f0296605eab2429503ab7",
+    "global.iff": "1f7a0b0a26bdd10b2b74a5dde2bfdbcda3d5164e15cedf61abe93a31d7847d33",
+    "global.otf": "38f8c132b454721c573da96415ca547eba7d8eb6d8555656c4f395b3daa4f523",
+    "global.piff": "c5ee12a94a8306bae93dc6bad7446d34f14be5ca51bd5e21aa5c7b71119be606",
+    "global.str.piff": "34192cb642bab821bafb11f927be3101e6f19385c220c20fc3ae848369cb2bb6",
+    "mailboxvacation.iff": "f00948388f143c22c08facd2bdf73896d44e41a1de6f223155acea6d40382de9",
+    "mailboxvacation.otf": "38c78d74067c7035dba0b820f2b470e6972592edebaca2857cb75385e6e06f6d",
+    "mailsemiglobal.iff": "f1b83b1b07daba9921f709748b7dcf97615a8380f0e0ee60c88f2ea7d47f1de3",
+    "personglobals.iff": "6a9d6f70085909ec55016015b905c3fa55c07f7057b2568e5665b8b2c6cdbfe9",
+    "personglobals.otf": "cbe84e7ffddb7ad188b4b53bcdd85c65ff38e0d71b3706b7783bb7dec8bf3bd4",
+    "personglobals.str.piff": "7dc860c140686fda69f8b638f7470957c3e819e8fe81de8b5c8c3288fc7a6cc1",
+    "personglobals_wakeup.piff": "8652394b426a2239f9186358407cfda0aa999a6fdaacae25effa143f14575f87",
+    "templateperson.iff": "d22e58528e10a57a490753bc21e1ef328334243d818235e842a7c1c5827eba44",
+    "templateperson_burn.piff": "cff54ee7e517b5716d6ab7f9024dad18b609aafe4187ffe226192057d052565c",
+    "timer.iff": "6927573513f0ffdcc26879d8366242f8c26c03baf21080d1a7126386ff04a092",
+    "timer.otf": "b13e020fe7c1a54450ef3fe58e3a9cfc458000c342128609213beda27452ff1e"
+  },
+  "runtime_content_sha256": "8800854b98ab40b6f8f2ea8f9586375791af491efdd6f129b9a0309983c38278",
+  "game_runtime_content_sha256": "bf77a41eee5b53a98ae69c5faade65fa747eb106063153a852aa58515b579a56",
+  "mailbox_guid": 496355760,
+  "timer_guid": 969952412,
+  "qualification_report_sha256": "57aff31d30ffd6399a6a80f46173383af7bc83265685fd87cd320908b9ed3861"
+}

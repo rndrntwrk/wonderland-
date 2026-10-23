@@ -39,6 +39,9 @@ const accountMethods = new Set([
 const lotMethods = new Set([
   "initializeControlledV2",
   "controlStateV2",
+  "currentNativeEodV1",
+  "readOwnedEventLanesV1",
+  "retireOwnedEventLaneV1",
   "installReservedAvatarV2",
   "commitControlledBatchV2",
   "recordControlFence",

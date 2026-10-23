@@ -1,6 +1,7 @@
 //! Frozen WLB1 appearance record. The file-facing WorldDocument may grow, but
 //! positional bincode fields must not change without a new bootstrap version.
 //! In particular, serde skip_serializing_if is not a binary optional field.
+mod model_pixels;
 use crate::world_view::*;
 use serde::{Deserialize, Deserializer, Serializer, ser::SerializeStruct};
 
@@ -35,6 +36,7 @@ struct AppearanceV1 {
     revision: WorldRevision,
     lot: WorldLot,
     objects: Vec<WorldObject>,
+    #[serde(deserialize_with = "model_pixels::deserialize")]
     models: Vec<WorldModel>,
     materials: Vec<WorldMaterial>,
     source_counts: Option<SourceCounts>,

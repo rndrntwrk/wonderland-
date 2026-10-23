@@ -16,9 +16,12 @@ use crate::{
 use bincode::Options;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::{
+    collections::{BTreeMap, BTreeSet, VecDeque},
+    sync::OnceLock,
+};
 
-pub const SIMULATION_SCHEMA: u16 = 6;
+pub const SIMULATION_SCHEMA: u16 = 7;
 const CONTENT_SCHEMA: u16 = 1;
 pub const MAX_CONTENT_BYTES: u64 = 32 * 1024 * 1024;
 
@@ -181,6 +184,21 @@ pub struct InteractionAdvertisement {
     pub joining_index: i32,
 }
 
+/// Derived results for one immutable content value, including validation errors.
+/// Builders reset these before editing; deserialization starts with empty cells.
+#[derive(Clone, Debug, Default)]
+struct ContentMemo {
+    validation: OnceLock<Result<(), String>>,
+    descriptor: OnceLock<Result<ContentDescriptor, String>>,
+}
+
+// Memoization is not part of content identity or its existing equality contract.
+impl PartialEq for ContentMemo {
+    fn eq(&self, _other: &Self) -> bool {
+        true
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ContentSet {
     routines: RoutineStore,
@@ -196,6 +214,8 @@ pub struct ContentSet {
     build_catalog: BTreeMap<u32, u32>,
     interaction_advertisements:
         BTreeMap<(u32, crate::interactions::InteractionKey), InteractionAdvertisement>,
+    #[serde(skip)]
+    memo: ContentMemo,
 }
 impl ContentSet {
     pub fn new(
@@ -230,6 +250,7 @@ impl ContentSet {
             interaction_tables: BTreeMap::new(),
             build_catalog: BTreeMap::new(),
             interaction_advertisements: BTreeMap::new(),
+            memo: ContentMemo::default(),
         };
         result.validate()?;
         Ok(result)
@@ -239,6 +260,7 @@ impl ContentSet {
     }
     /// Catalog identities are provided by source catalog content; they are not GUIDs.
     pub fn with_build_catalog(mut self, entries: Vec<(u32, u32)>) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (catalog, guid) in entries {
             if self.build_catalog.insert(catalog, guid).is_some() {
                 return Err("duplicate build catalog identity".into());
@@ -257,6 +279,7 @@ impl ContentSet {
             InteractionAdvertisement,
         )>,
     ) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (key, metadata) in entries {
             if self
                 .interaction_advertisements
@@ -280,6 +303,7 @@ impl ContentSet {
         mut self,
         tables: Vec<(u32, InteractionTable)>,
     ) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (guid, table) in tables {
             if self.interaction_tables.insert(guid, table).is_some() {
                 return Err("duplicate interaction table owner".into());
@@ -312,6 +336,7 @@ impl ContentSet {
         mut self,
         slots: Vec<((u32, u16), RoutingSlot)>,
     ) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (key, slot) in slots {
             if self.routing_slots.insert(key, slot).is_some() {
                 return Err("duplicate routing slot".into());
@@ -345,6 +370,7 @@ impl ContentSet {
         mut self,
         values: Vec<((i16, i16), LegacyJobUniform)>,
     ) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (key, value) in values {
             if self.legacy_job_uniforms.insert(key, value).is_some() {
                 return Err("duplicate job uniform".into());
@@ -354,6 +380,7 @@ impl ContentSet {
         Ok(self)
     }
     pub fn with_strings(mut self, values: Vec<((u32, u16), Vec<String>)>) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (key, value) in values {
             if self.strings.insert(key, value).is_some() {
                 return Err("duplicate string table".into());
@@ -366,6 +393,7 @@ impl ContentSet {
         mut self,
         values: Vec<((u32, String), RoutineKey)>,
     ) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (key, value) in values {
             if self.named_trees.insert(key, value).is_some() {
                 return Err("duplicate named routine".into());
@@ -378,6 +406,7 @@ impl ContentSet {
         mut self,
         values: Vec<((u32, u8, u16), crate::vm::ResolvedSuit)>,
     ) -> Result<Self, String> {
+        self.memo = ContentMemo::default();
         for (key, value) in values {
             if self.suits.insert(key, value).is_some() {
                 return Err("duplicate suit resource".into());
@@ -387,6 +416,12 @@ impl ContentSet {
         Ok(self)
     }
     pub fn validate(&self) -> Result<(), String> {
+        self.memo
+            .validation
+            .get_or_init(|| self.validate_uncached())
+            .clone()
+    }
+    fn validate_uncached(&self) -> Result<(), String> {
         if self.objects.len() > 32767
             || self.animations.len() > 65536
             || self.routines.len() > 65536
@@ -531,6 +566,12 @@ impl ContentSet {
         canonical_bytes(self, MAX_CONTENT_BYTES).map(|_| ())
     }
     pub fn descriptor(&self) -> Result<ContentDescriptor, String> {
+        self.memo
+            .descriptor
+            .get_or_init(|| self.descriptor_uncached())
+            .clone()
+    }
+    fn descriptor_uncached(&self) -> Result<ContentDescriptor, String> {
         let mut descriptor = ContentDescriptor {
             content_hash: hash(&canonical_bytes(
                 &(
@@ -721,6 +762,8 @@ pub struct SimState {
     pub source_routing: crate::route_motion::SourceRoutingState,
     /// Schema 6 appends source leave captures. Legacy EOD knowledge is unknown.
     pub owned_departures: crate::runtime::leave_adapter::OwnedDepartureState,
+    /// Schema 7 appends source Timer EOD associations and authoritative receipts.
+    pub eod: crate::eod::EodState,
 }
 
 pub(crate) fn canonical_bytes<T: Serialize>(value: &T, limit: u64) -> Result<Vec<u8>, String> {

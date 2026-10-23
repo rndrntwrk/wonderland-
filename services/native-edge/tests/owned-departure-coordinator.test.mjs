@@ -321,7 +321,7 @@ function noCommittedProof(f) {
   ])
     assert.equal(rows(f.s, t).length, 0, t);
 }
-async function takeover(f) {
+async function takeover(f, { nativeEod } = {}) {
   const state = JSON.parse(
     f.s.sql.exec("SELECT value FROM lot_state WHERE id=1").one().value,
   );
@@ -341,7 +341,7 @@ async function takeover(f) {
     checkpoint_sha256: sha(bytes),
   };
   const result = await f.lot.finishControlledRecoveryV2(
-    { schema_version: 2, marker, control: started.control },
+    { schema_version: 2, marker, control: started.control, ...(nativeEod ? {native_eod_v1:nativeEod} : {}) },
     bytes,
   );
   assert.deepEqual(result.marker, marker);
@@ -1192,4 +1192,150 @@ test("departure retry lookup binds exact owner session and admission after retir
       }),
     /fields/,
   );
+});
+
+// Opaque candidate bytes below exercise the actual private coordinator boundary,
+// not Timer source execution. Native producer semantics are separately qualified.
+function timerCandidate(f, {stale = false, id} = {}) {
+  const p=proposal(f,{departure:false,save:false,detach:false,id});
+  const current=f.lot.currentNativeEodV1();
+  const bytes=Buffer.from(`private_native_timer_${p.payload.batch_id}`);
+  p.payload.native_eod_v1={schema_version:1,revision_before:current?.revision??"0",
+    revision_after:(BigInt(current?.revision??"0")+1n).toString(),
+    predecessor_sha256:current?.checkpoint_sha256??null,checkpoint_sha256:sha(bytes),checkpoint_hex:bytes.toString("hex")};
+  if(stale)p.payload.native_eod_v1.predecessor_sha256=h(999);
+  return resign(p);
+}
+test("private Timer candidate and VM decision roll back together before and after sidecar write",async()=>{
+  for(const timing of ["fault","afterExec"]){
+    const f=fixture({begin:false}),p=timerCandidate(f),before=f.lot.inspectControlledV2();
+    f.s[timing]=sql=>{if(sql.startsWith("INSERT INTO native_eod_state("))throw Error("injected paired Timer failure")};
+    await assert.rejects(f.lot.commitControlledBatchV2(p),/injected paired Timer/);
+    f.s[timing]=null;
+    assert.equal(f.lot.currentNativeEodV1(),null);assert.deepEqual(f.lot.inspectControlledV2(),before);assert.equal(rows(f.s,"batches").length,0);
+    assert.equal((await f.lot.commitControlledBatchV2(p)).status,"committed");
+    assert.deepEqual(f.lot.currentNativeEodV1().cursor,p.payload.result);
+  }
+});
+test("private Timer initialized stream rejects missing, stale and corrupt sidecars without changing cursor",async()=>{
+  const f=fixture({begin:false});await f.lot.commitControlledBatchV2(timerCandidate(f));
+  const before=f.lot.inspectControlledV2(),privateBefore=f.lot.currentNativeEodV1();
+  await assert.rejects(f.lot.commitControlledBatchV2(timerCandidate(f,{stale:true})),/stale private EOD/);
+  await assert.rejects(f.lot.commitControlledBatchV2(proposal(f,{departure:false,detach:false})),/cannot be omitted/);
+  const corrupt=timerCandidate(f);corrupt.payload.native_eod_v1.checkpoint_hex="00";resign(corrupt);
+  await assert.rejects(f.lot.commitControlledBatchV2(corrupt),/checkpoint digest mismatch/);
+  assert.deepEqual(f.lot.inspectControlledV2(),before);assert.deepEqual(f.lot.currentNativeEodV1(),privateBefore);
+});
+test("private Timer exact retry survives real journal compaction using existing immutable decision receipt",async()=>{
+  const f=fixture({begin:false}),p=timerCandidate(f),receipt=await f.lot.commitControlledBatchV2(p);
+  const state=f.lot.inspectControlledV2();
+  await f.lot.publishControlledCheckpointV2(state.binding,state.cursor,state.checkpoint_sha256,Buffer.from(`checkpoint_${state.cursor.completed_tick}`),{control_revision:state.control_revision,actor_registry_sha256:state.actor_registry_sha256,actors:state.actors,permission_binding:state.permission_binding});
+  assert.equal(rows(f.s,"journal_live").length,0);assert.equal(rows(f.s,"journal_chunks").length,0);
+  assert.equal(rows(f.s,"archived_batches").length,1);
+  const reopened=f.reopen();assert.deepEqual(await reopened.commitControlledBatchV2(p),receipt);
+  assert.deepEqual((await reopened.readBatch(p.payload.binding.lot_incarnation,p.payload.batch_id)).native_eod_v1,p.payload.native_eod_v1);
+  assert.equal(f.s.sql.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='native_eod_batches'").toArray().length,0);
+});
+test("private Timer recovery atomically replaces bytes and survives two takeovers without a sim tick",async()=>{
+  const f=fixture({begin:false});await f.lot.commitControlledBatchV2(timerCandidate(f));
+  const before=f.lot.currentNativeEodV1(), initialState=f.lot.inspectControlledV2();
+  const candidate=timerCandidate(f,{id:99}).payload.native_eod_v1;
+  f.s.afterExec=sql=>{if(sql.startsWith("INSERT INTO native_eod_state("))throw Error("injected private takeover")};
+  await assert.rejects(takeover(f,{nativeEod:candidate}),/injected private takeover/);f.s.afterExec=null;
+  assert.deepEqual(f.lot.currentNativeEodV1(),before);assert.deepEqual(f.lot.inspectControlledV2().cursor,initialState.cursor);
+  await assert.rejects(takeover(f),/cannot be omitted/);
+  const marker=await takeover(f,{nativeEod:candidate}),after=f.lot.currentNativeEodV1();
+  assert.deepEqual(after.binding,marker.grant.new_binding);assert.deepEqual(after.cursor,marker.new_cursor);
+  assert.equal(after.checkpoint_hex,candidate.checkpoint_hex);assert.equal(after.revision,candidate.revision_after);
+  const secondCandidate=timerCandidate(f,{id:100}).payload.native_eod_v1;
+  const second=await takeover(f,{nativeEod:secondCandidate}),final=f.lot.currentNativeEodV1();
+  assert.equal(second.new_cursor.completed_tick,marker.new_cursor.completed_tick);
+  assert.equal(final.revision,(BigInt(before.revision)+2n).toString());
+  assert.deepEqual(final.binding,second.grant.new_binding);assert.equal(final.checkpoint_sha256,secondCandidate.checkpoint_sha256);
+  const saved=rows(f.s,"controlled_recovery_receipts");assert.equal(saved.length,2);
+  assert.equal(JSON.parse(saved[0].control_json).native_eod_checkpoint_sha256,candidate.checkpoint_sha256);
+});
+
+function ownedEventVector(tick, mixed=false){
+  const chunks=[];const u64=n=>{const b=Buffer.alloc(8);b.writeBigUInt64LE(BigInt(n));return b;};
+  const u32=n=>{const b=Buffer.alloc(4);b.writeUInt32LE(n);return b;};
+  const actor=Buffer.alloc(2);actor.writeInt16LE(identity.actor.object_id);
+  chunks.push(u64(mixed?4:3));
+  for(const [ordinal,tag] of [[0,6],[1,4],[2,5]])chunks.push(u64(tick),u32(ordinal),u32(tag),actor,u32(identity.actor.generation),u64(identity.control_generation),...(tag===6?[]:[u64(tick)]),...(tag===5?[u32(0)]:[]));
+  if(mixed)chunks.push(u64(tick),u32(3),u32(2),u64(42),u64(1),Buffer.from("x"));
+  return Buffer.concat(chunks).toString("hex");
+}
+function eventCandidate(f,mixed=false){
+ const p=proposal(f);p.payload.native_eod_v1=timerCandidate(f).payload.native_eod_v1;
+ p.payload.events_hex=ownedEventVector(p.payload.result.completed_tick,mixed);
+ p.payload.departure_v1.save.event_ordinal=1;p.payload.departure_v1.detach.event_ordinal=2;
+ return resign(p);
+}
+function eventProof(f,p){
+ const eod=f.lot.currentNativeEodV1(),tick=p.payload.result.completed_tick;
+ return {schema_version:1,kind:"owned_event_lane_proof",binding:eod.binding,cursor:eod.cursor,native_eod_checkpoint_sha256:eod.checkpoint_sha256,events_sha256:sha(Buffer.from(p.payload.events_hex,"hex")),pending:[],
+ members:[{kind:"eod",tick,ordinal:0,request:clone(request),detail:{disposition:"complete_known_clear",session_ids:[]}},{kind:"capture",tick,ordinal:1,request:clone(request),detail:{}},{kind:"detach",tick,ordinal:2,request:clone(request),detail:{removal_reason:"source_leave"}}]};
+}
+const eventInput=(f,p)=>({batch_key:p.payload.binding.lot_incarnation+":"+p.payload.batch_id,digest:p.digest,proof:eventProof(f,p)});
+test("owned whole-lane consumer verifies all source receipts and retries after compaction",async()=>{
+ const f=fixture(),p=eventCandidate(f);await f.lot.commitOwnedDrainV1(p);
+ const state=f.lot.inspectControlledV2();
+ await f.lot.publishControlledCheckpointV2(state.binding,state.cursor,state.checkpoint_sha256,Buffer.from(`checkpoint_${state.cursor.completed_tick}`),{control_revision:state.control_revision,actor_registry_sha256:state.actor_registry_sha256,actors:state.actors,permission_binding:state.permission_binding});
+ assert.equal(rows(f.s,"journal_chunks").length,0);
+ const page=await f.lot.readOwnedEventLanesV1();assert.equal(page.lanes.length,1);assert.equal(page.lanes[0].supported,true);assert.equal(page.lanes[0].events_hex,p.payload.events_hex);
+ const input=eventInput(f,p),receipt=await f.lot.retireOwnedEventLaneV1(input);
+ assert.equal(receipt.dispositions.length,3);assert.equal(rows(f.s,"outbox").length,0);assert.equal(rows(f.s,"owned_event_receipts").length,1);
+ assert.deepEqual(await f.reopen().retireOwnedEventLaneV1(input),receipt);
+ const conflict=clone(input);conflict.proof.members[0].detail={disposition:"exact_sessions_terminal",session_ids:["1"]};
+ await assert.rejects(f.lot.retireOwnedEventLaneV1(conflict),/identity reused/);
+});
+test("owned whole-lane consumer rolls back receipt and exact row retirement together",async()=>{
+ for(const timing of ["fault","afterExec"]){
+  const f=fixture(),p=eventCandidate(f);await f.lot.commitOwnedDrainV1(p);
+  f.s[timing]=sql=>{if(sql.startsWith("DELETE FROM outbox WHERE batch_key="))throw Error("injected event retirement")};
+  await assert.rejects(f.lot.retireOwnedEventLaneV1(eventInput(f,p)),/injected event retirement/);f.s[timing]=null;
+  assert.equal(rows(f.s,"outbox").length,1);assert.equal(rows(f.s,"owned_event_receipts").length,0);
+  await f.lot.retireOwnedEventLaneV1(eventInput(f,p));assert.equal(rows(f.s,"outbox").length,0);
+ }
+});
+test("owned whole-lane consumer retains mixed unresolved stale-owner and stale-private proofs",async()=>{
+ const f=fixture(),p=eventCandidate(f,true);await f.lot.commitOwnedDrainV1(p);
+ const page=await f.lot.readOwnedEventLanesV1();assert.equal(page.lanes[0].supported,false);
+ await assert.rejects(f.lot.retireOwnedEventLaneV1(eventInput(f,p)),/unsupported member/);
+ assert.equal(rows(f.s,"outbox").length,1);
+ const g=fixture(),q=eventCandidate(g);await g.lot.commitOwnedDrainV1(q);
+ for(const mutate of [p=>p.pending.push({reason:"historical EOD coverage missing"}),p=>p.members[0].request.identity.session_ref=h(999),p=>p.native_eod_checkpoint_sha256=h(998),p=>p.members.pop(),p=>p.members[0].ordinal=1]){
+  const input=eventInput(g,q);mutate(input.proof);await assert.rejects(g.lot.retireOwnedEventLaneV1(input));
+  assert.equal(rows(g.s,"outbox").length,1);assert.equal(rows(g.s,"owned_event_receipts").length,0);
+ }
+});
+test("owned whole-lane reader detects corrupt live payload before classification",async()=>{
+ const f=fixture(),p=eventCandidate(f);await f.lot.commitOwnedDrainV1(p);
+ f.s.sql.exec("UPDATE journal_chunks SET payload=replace(payload,?,?)",p.payload.events_hex,ownedEventVector("2"));
+ await assert.rejects(f.lot.readOwnedEventLanesV1(),/digest mismatch/);
+ assert.equal(rows(f.s,"outbox").length,1);
+});
+
+test("owned event receipt capacity retains notification but does not block ordinary commits",async()=>{
+ const f=fixture(),p=eventCandidate(f);await f.lot.commitOwnedDrainV1(p);
+ // Capacity fixture: seed only this local test DB, never delete real evidence.
+ f.s.sql.exec("WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<8192) INSERT INTO owned_event_receipts(batch_key,digest,proof_sha256,receipt) SELECT 'retained_test_'||x,?,?,? FROM n",h(700),h(701),"{}");
+ const before=f.lot.inspectControlledV2(),nativeBefore=f.lot.currentNativeEodV1();
+ await assert.rejects(f.lot.retireOwnedEventLaneV1(eventInput(f,p)),/retention capacity/);
+ assert.equal(rows(f.s,"outbox").length,1);assert.equal(rows(f.s,"owned_event_receipts").length,8192);
+ assert.deepEqual(f.lot.inspectControlledV2().cursor,before.cursor);
+ assert.deepEqual(f.lot.currentNativeEodV1(),nativeBefore);
+ // Complete the independent dedicated custody path with its exact account
+ // receipt. A failed generic retirement must not prevent this release.
+ const ref=references(f).release,detach=await f.lot.lookupCommittedAvatarDetachV1(ref);
+ const release=released(detach,ref);
+ f.env.ACCOUNT_REALM="configured-realm";
+ f.env.ACCOUNTS={idFromName:n=>n,get:()=>({lookupReleasedAvatarControlV1:async()=>clone(release)})};
+ assert.deepEqual(await f.lot.retireReleasedAvatarControlV1(ref),release);
+ assert.equal(rows(f.s,"departure_outbox").length,0);
+ // Retirement failure is independent of ordinary paired commits; the pending
+ // generic lane remains untouched after custody is safely released.
+ const next=timerCandidate(f);assert.equal((await f.lot.commitControlledBatchV2(next)).status,"committed");
+ assert.equal(BigInt(f.lot.inspectControlledV2().cursor.completed_tick),BigInt(before.cursor.completed_tick)+1n);
+ assert.equal(rows(f.s,"outbox").length,1);assert.equal(rows(f.s,"owned_event_receipts").length,8192);
 });

@@ -1,0 +1,102 @@
+{
+  "schema": "wonderland.original-banner-native-acceptance.v1",
+  "source_base_commit": "8473a12c819601b00fccff8e1dd98adb2a001973",
+  "release_binding_sha256": "cf3ac8024b207857eccf38b7311f19a6a9683e330d83d613c426cc0578600f99",
+  "scope": "private actual authenticated NativePlayer original menu action, authoritative state and shared DGRP selection; browser pixels unqualified",
+  "authoring": "fresh actual AccountAuthority owner; original Init/Main adjacency; both Visitor roles and source default unowned lot",
+  "action": {
+    "scope": "Local",
+    "tta_index": 1,
+    "label": "Manage/Set as: Finish",
+    "accepted": true,
+    "terminal": "completed",
+    "theme_attribute_before": 0,
+    "theme_attribute_after": 2,
+    "graphic_before": 3,
+    "graphic_after": 5,
+    "dgrp_before": 103,
+    "dgrp_after": 105,
+    "peer_theme_offers": 0,
+    "external_effects": 0,
+    "thread_faults": 0
+  },
+  "persistence": {
+    "host_restart": true,
+    "source_leave_save_release": true,
+    "same_avatar_new_control_reentry": true,
+    "returning_owner_start_offer": true,
+    "idle_no_activity_ms": 85001,
+    "real_lease_duration_ms": 60000,
+    "idle_departures_saved_and_released": 2,
+    "final_owned_actors": 0,
+    "dedicated_departure_outbox": 0,
+    "generic_event_notifications_pending": 6
+  },
+  "checks": {
+    "pixel_codec": 3,
+    "native_player": 24,
+    "native_player_admission": 14,
+    "world_projection": 4,
+    "native_rust_deny_warnings": "passed",
+    "wasm32_runtime_check": "passed",
+    "clippy": "unavailable in installed toolchain; not claimed"
+  },
+  "limitations": [
+    "No rendered two-account browser acceptance in this receipt",
+    "Original mailbox SPF absent",
+    "Explicit private authored object ownership; purchase, roommate grants and player creation are not implemented",
+    "Six generic events notification rows remain undelivered"
+  ],
+  "private_evidence": [
+    {
+      "file": "owned-original-banner-interaction-action-v4.json",
+      "bytes": 84002,
+      "sha256": "d297d8e3ea2b5722d293ab6bdce37ffd73811b76e6273bb90dc8b7f2bf9e19e3"
+    },
+    {
+      "file": "owned-original-banner-interaction-action-v4-core.json",
+      "bytes": 54936,
+      "sha256": "0ca2bb739195de3dc9e1c5f84eccd1b6767fa54689840b5bd892ad99c796b40d"
+    },
+    {
+      "file": "owned-original-banner-outbox-action-v4.json",
+      "bytes": 346,
+      "sha256": "d3dcd316e0bf0bbba92dce1191de894114add4146b84d6dbad9bfb891cef59fe"
+    },
+    {
+      "file": "original-banner-bootstrap-action-v2.bin",
+      "bytes": 1132152,
+      "sha256": "c4c163e1a2a729c5c7fcf4d912ffd11f80ca3555d2502379cf8ee1d741146e14"
+    },
+    {
+      "file": "banner-old-bootstrap-exact-byte-roundtrip.log",
+      "bytes": 103,
+      "sha256": "2b8a400102abeb5a187ec1ee0bbbbe24793f717180133e0f41e260a429e4bad2"
+    },
+    {
+      "file": "banner-pixel-codec-tests-v3.log",
+      "bytes": 820,
+      "sha256": "dd38fec7e8bd1b1ea58e2073bef3afb0d3316416f9d2c49e245c559b653548a5"
+    },
+    {
+      "file": "banner-native-regressions-v2.log",
+      "bytes": 4368,
+      "sha256": "c6c5ec9ef0c9dbbf7c920788d42d137e86e359be1f649678d9ca2033a11c9a0f"
+    },
+    {
+      "file": "banner-rust-warnings.log",
+      "bytes": 194,
+      "sha256": "d83932b782df3685f5914a2f3797ad8b9a1428a29d2f10853e2b76ef0bca62c2"
+    },
+    {
+      "file": "banner-wasm-check.log",
+      "bytes": 1405,
+      "sha256": "12fedb8fded93c78f9dda52f6329c676751a25f42d04cd7c2472d9d5a03da10e"
+    },
+    {
+      "file": "owned-original-banner-authoring-v2.json",
+      "bytes": 3388,
+      "sha256": "c5e9e5c87b5a4839969f373f31d1f491a35a72cb43c302492cb4fdb52dcce654"
+    }
+  ]
+}

@@ -433,12 +433,12 @@ impl CheckTreeProvider for RuntimeChecks<'_> {
             VmStop::Completed(PrimitiveExit::ReturnTrue) => ix::CheckExit::ReturnTrue,
             VmStop::Completed(_) => ix::CheckExit::ReturnFalse,
             VmStop::BudgetExhausted => {
-                return Err(ix::Error::LimitExceeded("check instruction budget"))
+                return Err(ix::Error::LimitExceeded("check instruction budget"));
             }
             VmStop::Faulted(_) => {
                 return Err(ix::Error::Unsupported(
                     "original check needs an unsupported runtime operation",
-                ))
+                ));
             }
             _ => ix::CheckExit::Yielded,
         };
@@ -654,7 +654,7 @@ fn install_events(
         }
         match event.kind {
             ix::QueueEventKind::EodDisconnectRequested => {
-                leave_adapter::request_eod_disconnect(state, work, actor);
+                leave_adapter::request_eod_disconnect(state, work, actor)?;
             }
             ix::QueueEventKind::ActorCancellationChanged { value } => {
                 let item = live_entity_mut(state, actor)?;

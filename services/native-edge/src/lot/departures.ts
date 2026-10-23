@@ -665,6 +665,62 @@ export class DepartureStore {
       throw Error("departure frozen lineage integrity mismatch");
     return receipt;
   }
+  /** Observation consumer: reuse committed source effects, never issue a second
+   * save/release and never accept an unanchored browser receipt. */
+  async notificationProof(
+    request: DepartureRequestV1,
+    kind: "capture" | "detach" | "eod",
+    tick: string,
+    ordinal: number,
+    batchKey: string,
+    proposalDigest: string,
+    removalReason?: unknown,
+  ) {
+    if (!this.operation(request))
+      throw Error("notification departure owner proof missing");
+    const key = departureControlKey(request.identity),
+      save = await this.checkedSave(key);
+    if (
+      !equal(save.identity, request.identity) ||
+      save.departure_operation !== request.departure_operation
+    )
+      throw Error("notification source owner mismatch");
+    if (kind === "eod")
+      return {
+        kind: "source_owner_anchored",
+        save_receipt_sha256: await digest(encode(save)),
+      };
+    let receipt: CommittedAvatarSaveV1 | CommittedAvatarDetachV1 = save;
+    if (kind === "detach") {
+      const row = this.receipt("departure_detaches", key);
+      if (!row) throw Error("notification detach proof pending");
+      const d = committedAvatarDetachV1(JSON.parse(row.receipt_json));
+      receipt = await this.lookupDetach({
+        schema_version: 1,
+        identity: request.identity,
+        departure_operation: request.departure_operation,
+        detach_sha256: row.receipt_sha256,
+        origin: d.origin,
+      });
+      if (receipt.removal_reason !== removalReason)
+        throw Error("notification detach reason mismatch");
+    }
+    const origin = receipt.origin;
+    if (
+      origin.binding.lot_incarnation + ":" + origin.batch_id !== batchKey ||
+      origin.proposal_digest !== proposalDigest ||
+      origin.captured_tick !== tick ||
+      origin.event_ordinal !== ordinal
+    )
+      throw Error("notification original source event mismatch");
+    return {
+      kind:
+        kind === "capture"
+          ? "committed_source_save_observed"
+          : "committed_actor_detach_observed",
+      receipt_sha256: await digest(encode(receipt)),
+    };
+  }
   private tipRows(): TipRow[] {
     const rows = this.storage.sql
       .exec<TipRow>(

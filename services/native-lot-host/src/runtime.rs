@@ -69,6 +69,7 @@ struct Pending {
     proposal: Value,
     action: Option<Vec<u8>>,
     supervisor_events: Vec<crate::events::EventEnvelope>,
+    eod: Option<crate::eod::TimerAdapter>,
 }
 struct Recorded {
     input_hash: Digest,
@@ -88,6 +89,8 @@ pub struct Host {
     history_bytes: usize,
     retired_through: u64,
     last_receipt_ack: Option<ReceiptCheckpointV1>,
+    eod: Option<crate::eod::TimerAdapter>,
+    recovery_eod_sha256: Option<String>,
 }
 impl Host {
     pub fn new(
@@ -98,6 +101,11 @@ impl Host {
         takeover_marker: Option<TakeoverMarkerV1>,
     ) -> Result<Self> {
         checkpoint(&runtime)?;
+        let eod = if takeover_marker.is_none() {
+            Some(crate::eod::TimerAdapter::fresh(&runtime)?)
+        } else {
+            None
+        };
         Ok(Self {
             committed: runtime,
             appearance: None,
@@ -111,12 +119,18 @@ impl Host {
             history_bytes: 0,
             retired_through: 0,
             last_receipt_ack: None,
+            recovery_eod_sha256: None,
+            eod,
         })
     }
     pub fn handle(&mut self, request: RequestV1) -> Result<Value> {
         match request {
             RequestV1::Inspect => Ok(
                 json!({"kind":if self.recovery_committed {"committed_state"} else {"recovery_candidate"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"checkpoint_hex":hex(&checkpoint(&self.committed)?),"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"retired_through_batch_id":DecimalId(self.retired_through),"retained_receipts":self.history.len(),"retained_receipt_bytes":self.history_bytes,"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_placements":crate::player::actor_placements(&self.committed)?,"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
+            ),
+            // Metadata only. Transaction and full-inspection validation stay unchanged.
+            RequestV1::InspectStatus {} => Ok(
+                json!({"kind":if self.recovery_committed {"committed_status"} else {"recovery_status"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"retired_through_batch_id":DecimalId(self.retired_through),"retained_receipts":self.history.len(),"retained_receipt_bytes":self.history_bytes,"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_placements":crate::player::actor_placements(&self.committed)?,"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
             ),
             RequestV1::PlayerBootstrap { control, binding } => {
                 self.player_bootstrap(control, binding)
@@ -147,6 +161,7 @@ impl Host {
                     vec![command],
                     None,
                     None,
+                    None,
                 )
             }
             RequestV1::PrepareOwnedDrain {
@@ -171,6 +186,7 @@ impl Host {
                     vec![command],
                     Some(departure),
                     None,
+                    None,
                 )
             }
             RequestV1::PreparePlayerTick {
@@ -190,6 +206,7 @@ impl Host {
                     expected_control_revision,
                     input,
                     vec![],
+                    None,
                     None,
                     None,
                 )
@@ -218,6 +235,7 @@ impl Host {
                         vec![command],
                         None,
                         Some(bytes.clone()),
+                        None,
                     )
                 });
                 match result {
@@ -227,9 +245,113 @@ impl Host {
                     ),
                 }
             }
-            RequestV1::ActivateRecovery { marker } => {
+            RequestV1::RestoreNativeEod { checkpoint } => {
+                if self.recovery_committed || self.pending.is_some() || self.eod.is_some() {
+                    return Err("private EOD restore requires inactive recovery candidate".into());
+                }
+                let marker = self
+                    .takeover_marker
+                    .as_ref()
+                    .ok_or("recovery marker missing")?;
+                let mut restored = match checkpoint {
+                    Some(checkpoint) => {
+                        crate::eod::TimerAdapter::restore(&self.committed, &checkpoint, marker)?
+                    }
+                    None => crate::eod::TimerAdapter::fresh(&self.committed)?,
+                };
+                let candidate = restored.prepare_checkpoint()?;
+                self.recovery_eod_sha256 = Some(candidate.checkpoint_sha256.clone());
+                self.eod = Some(restored);
+                Ok(
+                    json!({"kind":"native_eod_restored","cursor":cursor(&self.committed)?,"native_eod_v1":candidate}),
+                )
+            }
+            RequestV1::InspectOwnedEventLane { events_hex } => crate::owned_events::classify(
+                self,
+                self.eod.as_ref().ok_or("paired EOD state missing")?,
+                &events_hex,
+            ),
+            RequestV1::ReadPrivateEod { control } => {
+                if !self.recovery_committed {
+                    return Err("private EOD awaits recovery activation".into());
+                }
+                self.owned_control(&control)?;
+                self.eod
+                    .as_ref()
+                    .ok_or("paired private EOD state missing")?
+                    .private_outputs(&self.committed, &control)
+            }
+            RequestV1::PrepareEodUi {
+                batch_id,
+                binding,
+                predecessor,
+                expected_control_revision,
+                control,
+                message,
+            } => {
+                let input = json!({"kind":"prepare_eod_ui","batch_id":batch_id,"binding":binding,"predecessor":predecessor,"expected_control_revision":expected_control_revision,"control":control,"message":message});
+                if let Some(reply) = self.typed_prior(batch_id, &binding, &predecessor, &input)? {
+                    return Ok(reply);
+                }
+                self.owned_control(&control)?;
+                self.prepare_typed(
+                    batch_id,
+                    binding,
+                    predecessor,
+                    expected_control_revision,
+                    input,
+                    vec![],
+                    None,
+                    None,
+                    Some(crate::eod::Input::Ui(control, message)),
+                )
+            }
+            RequestV1::PrepareEodAck {
+                batch_id,
+                binding,
+                predecessor,
+                expected_control_revision,
+                control,
+                source_session_id,
+                output_id,
+                sha256,
+            } => {
+                let input = json!({"kind":"prepare_eod_ack","batch_id":batch_id,"binding":binding,"predecessor":predecessor,"expected_control_revision":expected_control_revision,"control":control,"source_session_id":source_session_id,"output_id":output_id,"sha256":sha256});
+                if let Some(reply) = self.typed_prior(batch_id, &binding, &predecessor, &input)? {
+                    return Ok(reply);
+                }
+                self.owned_control(&control)?;
+                self.prepare_typed(
+                    batch_id,
+                    binding,
+                    predecessor,
+                    expected_control_revision,
+                    input,
+                    vec![],
+                    None,
+                    None,
+                    Some(crate::eod::Input::Ack(
+                        control,
+                        source_session_id.0,
+                        output_id.0,
+                        sha256,
+                    )),
+                )
+            }
+            RequestV1::ActivateRecovery {
+                marker,
+                native_eod_checkpoint_sha256,
+            } => {
                 if self.takeover_marker.as_ref() != Some(&marker) {
                     return Err("recovery activation marker mismatch".into());
+                }
+                if self.eod.is_none()
+                    || self.recovery_eod_sha256.is_none()
+                    || self.recovery_eod_sha256 != native_eod_checkpoint_sha256
+                {
+                    return Err(
+                        "private EOD recovery must be durably paired before activation".into(),
+                    );
                 }
                 self.recovery_committed = true;
                 self.handle(RequestV1::Inspect)
@@ -272,7 +394,7 @@ impl Host {
                 {
                     return Err("controlled lot refuses raw supervisor commands".into());
                 }
-                self.prepare(batch_id, binding, predecessor, commands_hex)
+                self.prepare(batch_id, binding, predecessor, commands_hex, None)
             }
             RequestV1::Resolve {
                 batch_id,
@@ -287,6 +409,7 @@ impl Host {
         binding: HostBindingV1,
         predecessor: CursorV1,
         commands_hex: String,
+        eod_input: Option<crate::eod::Input>,
     ) -> Result<Value> {
         if id.0 == 0 || binding != self.binding {
             return Err("host binding or batch identity mismatch".into());
@@ -338,12 +461,45 @@ impl Host {
             RuntimeRole::Authority,
         )?;
         candidate.restore(&checkpoint(&self.committed)?)?;
+        let controlled = self
+            .committed
+            .sim()
+            .state()
+            .owned_admission
+            .actors()
+            .is_some();
+        let mut eod = if controlled {
+            Some(
+                self.eod
+                    .as_ref()
+                    .ok_or("paired private EOD state missing")?
+                    .fork(),
+            )
+        } else {
+            None
+        };
+        if let Some(input) = eod_input {
+            eod.as_mut()
+                .ok_or("private EOD requires owned control")?
+                .input(&candidate, input)?;
+        }
         let mut frames = Vec::new();
         let mut effects = Vec::new();
         let mut supervisor_events = Vec::new();
         for commands in commands.0 {
-            let accepted = candidate.sim().next_tick(commands.0)?;
+            let mut commands = commands.0;
+            if let Some(eod) = &mut eod {
+                let mut pending = eod.pending_commands();
+                eod.before_tick(&candidate)?;
+                pending.append(&mut commands);
+                commands = pending;
+            }
+            let accepted = candidate.sim().next_tick(commands)?;
             let outcome = candidate.apply_accepted(&accepted)?;
+            if let Some(eod) = &mut eod {
+                eod.after_tick(&candidate, &outcome.events)?;
+            }
+
             effects.extend(outcome.effects);
             crate::events::retain(outcome.tick, outcome.events, &mut supervisor_events);
             frames.push(TickFrame {
@@ -362,7 +518,10 @@ impl Host {
             .with_fixint_encoding()
             .with_limit(4 * 1024 * 1024)
             .serialize(&supervisor_events)?;
-        let payload = json!({"binding":self.binding,"batch_id":id,"predecessor":predecessor,"result":result,"ticks_hex":hex(&wire),"checkpoint_sha256":Digest::of(&snapshot),"effects_hex":hex(&effects_bytes),"events_hex":hex(&event_bytes)});
+        let mut payload = json!({"binding":self.binding,"batch_id":id,"predecessor":predecessor,"result":result,"ticks_hex":hex(&wire),"checkpoint_sha256":Digest::of(&snapshot),"effects_hex":hex(&effects_bytes),"events_hex":hex(&event_bytes)});
+        if let Some(eod) = &mut eod {
+            payload["native_eod_v1"] = serde_json::to_value(eod.prepare_checkpoint()?)?;
+        }
         let encoded = serde_json::to_vec(&payload)?;
         // Profile applies to the actual serialized supervisor message, not estimates.
         if encoded.len() > 16 * 1024 * 1024
@@ -382,6 +541,7 @@ impl Host {
             proposal: proposal.clone(),
             action: None,
             supervisor_events,
+            eod,
         });
         Ok(proposal)
     }
@@ -438,6 +598,7 @@ impl Host {
         commands: Vec<AcceptedCommand>,
         departure: Option<DepartureRequestV1>,
         action: Option<Vec<u8>>,
+        eod_input: Option<crate::eod::Input>,
     ) -> Result<Value> {
         if departure.is_none()
             && self
@@ -455,8 +616,12 @@ impl Host {
             .with_fixint_encoding()
             .with_limit(MAX_COMMAND_BYTES as u64)
             .serialize(&vec![commands])?;
-        self.prepare(id, binding, predecessor, hex(&command_bytes))?;
+        self.prepare(id, binding, predecessor, hex(&command_bytes), eod_input)?;
         let mut p = self.pending.take().ok_or("prepared candidate missing")?;
+        p.eod
+            .as_ref()
+            .ok_or("private EOD candidate missing")?
+            .validate_departures(&p.runtime)?;
         let evidence = departure
             .as_ref()
             .map(|request| {
@@ -560,6 +725,9 @@ impl Host {
         let reply = match decision {
             DecisionV1::Committed { .. } => {
                 self.committed = p.runtime;
+                if let Some(eod) = p.eod {
+                    self.eod = Some(eod);
+                }
                 let mut reply = json!({"kind":"committed","batch_id":id,"digest":digest,"cursor":p.result,"ticks_hex":p.proposal["payload"]["ticks_hex"],"effects_hex":p.proposal["payload"]["effects_hex"],"events_hex":p.proposal["payload"]["events_hex"],"control_v2":p.proposal["payload"]["control_v2"],"receipt_hex":p.action.map(|bytes|action_receipt(bytes,Some(p.result.completed_tick.0))).transpose()?});
                 if let Some(departure) = p.proposal["payload"].get("departure_v1") {
                     reply["departure_v1"] = departure.clone();

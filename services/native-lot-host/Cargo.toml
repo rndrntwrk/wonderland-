@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 [dependencies]
+wonderland-eod-runtime = {path="../../crates/eod-runtime"}
 wonderland-native-host-contracts = {path="../../crates/native-host-contracts"}
 wonderland-game-runtime.workspace = true
 wonderland-content-ir.workspace = true

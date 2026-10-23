@@ -10,7 +10,7 @@ const frame=(generation='1',id=7,width=64)=>({schema:2,width,height:48,generatio
 // device adapter, not graphics evidence; actual pixels are checked in Chromium.
 function device(){
  const allocated=new Set(),bound=new Map(),attributes=new Map(),events=new Map();
- let serial=0,id=0,target=null,visible=null,allocationFault=false,drawFault=false,lost=false;
+ let serial=0,id=0,target=null,visible=null,allocationFault=false,drawFault=false,readFault=false,lost=false;
  const gl={NO_ERROR:0,FRAMEBUFFER_COMPLETE:1,ALREADY_SIGNALED:2,MAX_TEXTURE_SIZE:3,STENCIL_BITS:4,
   ARRAY_BUFFER:5,ELEMENT_ARRAY_BUFFER:6,PIXEL_PACK_BUFFER:7,FRAMEBUFFER:8,
   getError:()=>0,isContextLost:()=>lost,getParameter:name=>name===4?8:4096,
@@ -20,7 +20,11 @@ function device(){
   uniform3f:(_,r,g,b)=>{id=Math.round(r*255)|(Math.round(g*255)<<8)|(Math.round(b*255)<<16);},
   drawElements:()=>{if(drawFault){drawFault=false;throw Error('injected draw refusal');}if(target===null)visible=id;},
   clear:()=>{if(target===null)visible=null;},
-  readPixels:()=>{bound.get(7).pixel=id;},
+  readPixels:(_x,_y,_w,_h,_format,_type,destination)=>{
+   if(readFault){readFault=false;throw Error('injected read refusal');}
+   if(destination instanceof Uint8Array)destination.set([id&255,(id>>>8)&255,(id>>>16)&255,255]);
+   else bound.get(7).pixel=id;
+  },
   getBufferSubData:(_,__,bytes)=>{const value=bound.get(7).pixel;bytes.set([value&255,(value>>>8)&255,(value>>>16)&255,255]);},
  };
  for(const type of ['VertexArray','Buffer','Texture','Framebuffer','Renderbuffer','Shader','Program','Sync']){
@@ -36,9 +40,10 @@ function device(){
  globalThis.document={hidden:false,addEventListener(){},removeEventListener(){}};
  globalThis.window={dispatchEvent(){}};
  return {canvas,allocated,get visible(){return visible;},failAllocate(){allocationFault=true;},failDraw(){drawFault=true;},
+  failRead(){readFault=true;},get packBuffer(){return bound.get(7);},get framebuffer(){return target;},
   lose(){lost=true;events.get('webglcontextlost')({preventDefault(){}});}};
 }
-test('allocation refusal retains actual owner, generation and an already pending ID transfer',async()=>{
+test('allocation refusal retains actual owner, generation and a completed ID receipt',async()=>{
  const d=device();paintSourceWorld(d.canvas,JSON.stringify(frame()));
  const before=worldGpuStats(d.canvas),resources=d.allocated.size;
  const pending=pickSourceWorld(d.canvas,12,13);
@@ -59,12 +64,29 @@ test('failed first candidate draw restores old pixels, dimensions, tickets and r
  assert.equal(d.allocated.size,resources);
  disposeSourceWorld(d.canvas);assert.equal(d.allocated.size,0);
 });
-test('only a successful draw retires the old frame and interrupts old picks',async()=>{
+test('one-pixel selection completes before an already queued frame replacement',async()=>{
  const d=device();paintSourceWorld(d.canvas,JSON.stringify(frame()));
- const pending=assert.rejects(pickSourceWorld(d.canvas,12,13),/replaced/i);
- paintSourceWorld(d.canvas,JSON.stringify(frame('2',9,96)));await pending;
- assert.equal(d.visible,9);assert.equal(d.canvas.width,96);
- assert.equal(JSON.parse(await pickSourceWorld(d.canvas,12,13)).generation,'2');
+ const replacement=new Promise(resolve=>setTimeout(()=>{paintSourceWorld(d.canvas,JSON.stringify(frame('2',9,96)));resolve();},0));
+ try{
+  const receipt=JSON.parse(await pickSourceWorld(d.canvas,12,13));
+  assert.deepEqual(receipt,{generation:'1',index:7,x:12,y:13});
+  assert.equal(worldGpuStats(d.canvas).generation,'1','readback must not wait for another rendering task');
+  await replacement;
+  assert.equal(d.visible,9);assert.equal(d.canvas.width,96);
+  assert.equal(receipt.generation,'1','a completed receipt must never be relabelled as the replacement frame');
+  assert.equal(JSON.parse(await pickSourceWorld(d.canvas,12,13)).generation,'2');
+ }finally{await replacement;disposeSourceWorld(d.canvas);assert.equal(d.allocated.size,0);}
+});
+test('suspended pages still refuse a source selection',async()=>{
+ const d=device();paintSourceWorld(d.canvas,JSON.stringify(frame()));document.hidden=true;
+ try{await assert.rejects(pickSourceWorld(d.canvas,12,13),/suspended/i);}
+ finally{disposeSourceWorld(d.canvas);assert.equal(d.allocated.size,0);}
+});
+test('readback refusal restores bindings and leaves the admitted frame pickable',async()=>{
+ const d=device();paintSourceWorld(d.canvas,JSON.stringify(frame()));const resources=d.allocated.size;
+ d.failRead();await assert.rejects(pickSourceWorld(d.canvas,12,13),/read refusal/);
+ assert.equal(d.packBuffer,null);assert.equal(d.framebuffer,null);assert.equal(d.allocated.size,resources);
+ assert.deepEqual(JSON.parse(await pickSourceWorld(d.canvas,12,13)),{generation:'1',index:7,x:12,y:13});
  disposeSourceWorld(d.canvas);assert.equal(d.allocated.size,0);
 });
 test('repeated refused candidates do not accumulate device resources',()=>{

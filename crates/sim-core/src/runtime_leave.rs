@@ -2,7 +2,7 @@
 //! Requests originate in the trusted owned-drain adapter, never a player packet.
 use super::*;
 use crate::avatars::{
-    lifecycle::{LeaveContext, LifecycleRequest, LEAVE_LOT_INTERACTION, LEAVE_LOT_ROUTINE},
+    lifecycle::{LEAVE_LOT_INTERACTION, LEAVE_LOT_ROUTINE, LeaveContext, LifecycleRequest},
     state::AvatarPersistState,
 };
 use crate::interactions as ix;
@@ -54,6 +54,8 @@ pub enum DepartureBlocker {
     UnsupportedEodSession,
     SourceExecutionFault,
     UnobservedSourceLeave,
+    /// Supported source session still needs an exact close/event disposition.
+    PendingEodTeardown,
 }
 impl DepartureBlocker {
     pub fn code(self) -> &'static str {
@@ -64,6 +66,7 @@ impl DepartureBlocker {
             Self::UnsupportedEodSession => "unsupported_eod_session",
             Self::SourceExecutionFault => "source_execution_fault",
             Self::UnobservedSourceLeave => "unobserved_source_leave",
+            Self::PendingEodTeardown => "pending_eod_teardown",
         }
     }
 }
@@ -92,9 +95,10 @@ pub struct OwnedDeparture {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OwnedDepartureState {
     pub records: BTreeMap<EntityRef, OwnedDeparture>,
-    /// Only a fresh native genesis can prove no plugin has participated. Any
-    /// InvokePlugin request clears this lot-wide conservative proof, including
-    /// object-invoked sessions. Legacy snapshots migrate to unknown/false.
+    /// Fresh native genesis establishes complete EOD coverage. Unsupported
+    /// InvokePlugin clears it; supported typed Timer sessions are tracked in
+    /// state.eod and must separately finish exact teardown. Legacy snapshots
+    /// migrate to unknown/false and cannot regain coverage through an ack.
     pub eod_known_clear: bool,
     /// One durable disconnect consequence per exact owned actor generation.
     pub eod_disconnect_requests: BTreeSet<(EntityRef, u64)>,
@@ -498,7 +502,12 @@ pub(super) fn request_owned_leave(
     Ok(())
 }
 
-pub(super) fn request_eod_disconnect(state: &mut SimState, work: &mut TickWork, actor: EntityRef) {
+pub(super) fn request_eod_disconnect(
+    state: &mut SimState,
+    work: &mut TickWork,
+    actor: EntityRef,
+) -> Result<(), RuntimeError> {
+    eod_adapter::disconnect_actor(state, work, actor)?;
     let generation = state
         .owned_admission
         .actors()
@@ -519,6 +528,7 @@ pub(super) fn request_eod_disconnect(state: &mut SimState, work: &mut TickWork, 
             });
         }
     }
+    Ok(())
 }
 
 /// Absence of an outbox request is not an absence-of-session proof. Unsupported
@@ -546,6 +556,8 @@ pub(super) fn refresh_blocker(
         Some(DepartureBlocker::MissingSourceAction)
     } else if !state.owned_departures.eod_known_clear {
         Some(DepartureBlocker::UnsupportedEodSession)
+    } else if state.eod.actor_teardown_pending(actor) {
+        Some(DepartureBlocker::PendingEodTeardown)
     } else if state.effects.pending_requests().next().is_some() {
         Some(DepartureBlocker::UnreconciledExternalEffect)
     } else if state
@@ -614,6 +626,7 @@ pub(super) fn prepare_removal(
     if record.blocker.is_some()
         || record.removal_reason.is_none()
         || !state.owned_departures.eod_known_clear
+        || state.eod.actor_teardown_pending(actor)
         || state.effects.pending_requests().next().is_some()
     {
         return Err(invalid("owned removal lacks source cleanup proof"));
@@ -871,13 +884,15 @@ mod tests {
                 )
                 .unwrap();
             let mut work = TickWork::default();
-            assert!(!unwind_other_avatars(
-                &mut state,
-                &mut work,
-                leaver,
-                &[(peer.object_id, detached)].into()
-            )
-            .unwrap());
+            assert!(
+                !unwind_other_avatars(
+                    &mut state,
+                    &mut work,
+                    leaver,
+                    &[(peer.object_id, detached)].into()
+                )
+                .unwrap()
+            );
             let queue = &state.interaction_queues[&peer.object_id];
             assert!(queue.active().unwrap().notify_idle);
             assert!(work.events.iter().any(|event|matches!(event,RuntimeEvent::Interaction(event) if event.kind==ix::QueueEventKind::CancelRequested)));

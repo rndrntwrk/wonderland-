@@ -233,6 +233,100 @@ fn tick_request(host: &Host, batch: u64) -> Value {
     json!({"kind":"prepare_player_tick","batch_id":DecimalId(batch),"binding":host.binding,"predecessor":crate::runtime::cursor(&host.committed).unwrap(),"expected_control_revision":"1"})
 }
 
+fn preparation_status(host: &mut Host) -> Value {
+    let before = host.handle(RequestV1::Inspect).unwrap();
+    let mut expected = before.clone();
+    expected.as_object_mut().unwrap().remove("checkpoint_hex");
+    expected["kind"] = json!(if before["recovery_pending"] == true {
+        "recovery_status"
+    } else {
+        "committed_status"
+    });
+    let request = serde_json::from_value(json!({"kind":"inspect_status"}))
+        .expect("additive preparation-status request must decode");
+    let actual = host.handle(request).unwrap();
+    assert_eq!(
+        actual, expected,
+        "only checkpoint and response kind may differ"
+    );
+    assert!(actual.get("checkpoint_hex").is_none());
+    assert_eq!(
+        host.handle(RequestV1::Inspect).unwrap(),
+        before,
+        "status must be read-only"
+    );
+    actual
+}
+
+#[test]
+fn preparation_status_preserves_full_metadata_through_transaction_and_retirement() {
+    let mut host = host();
+    let initial = preparation_status(&mut host);
+    let request = tick_request(&host, 1);
+    let proposal = host
+        .handle(serde_json::from_value(request).unwrap())
+        .unwrap();
+    let pending = preparation_status(&mut host);
+    assert_eq!(pending["cursor"], initial["cursor"]);
+    assert_eq!(pending["pending_batch"], "1");
+    commit(&mut host, &proposal, 1);
+    let committed = preparation_status(&mut host);
+    assert_ne!(committed["cursor"], initial["cursor"]);
+    assert_eq!(committed["retained_receipts"], 1);
+    let request = tick_request(&host, 2);
+    let proposal = host
+        .handle(serde_json::from_value(request).unwrap())
+        .unwrap();
+    host.handle(RequestV1::Resolve {
+        batch_id: DecimalId(2),
+        digest: proposal["digest"].as_str().unwrap().into(),
+        decision: DecisionV1::Rejected,
+    })
+    .unwrap();
+    let rejected = preparation_status(&mut host);
+    assert_eq!(rejected["cursor"], committed["cursor"]);
+    assert_eq!(rejected["retained_receipts"], 2);
+    let exported = host.handle(RequestV1::ExportReceipts).unwrap();
+    acknowledge_export(&mut host, &exported);
+    let retired = preparation_status(&mut host);
+    assert_eq!(retired["retained_receipts"], 0);
+    assert_eq!(retired["retained_receipt_bytes"], 0);
+    assert_eq!(retired["retired_through_batch_id"], "2");
+}
+
+#[test]
+fn preparation_status_does_not_activate_recovery_or_validate_stale_transactions() {
+    let mut host = host();
+    let before = preparation_status(&mut host);
+    let mut stale = tick_request(&host, 1);
+    stale["predecessor"]["state_hash"] = json!("0".repeat(64));
+    assert!(host.handle(serde_json::from_value(stale).unwrap()).is_err());
+    assert_eq!(preparation_status(&mut host), before);
+    host.recovery_committed = false;
+    let recovering = preparation_status(&mut host);
+    assert_eq!(recovering["kind"], "recovery_status");
+    assert_eq!(recovering["recovery_pending"], true);
+    let request = tick_request(&host, 1);
+    assert!(
+        host.handle(serde_json::from_value(request).unwrap())
+            .is_err()
+    );
+    assert_eq!(preparation_status(&mut host), recovering);
+    host.recovery_committed = true;
+    assert_eq!(preparation_status(&mut host), before);
+}
+
+#[test]
+fn preparation_status_request_is_additive_and_rejects_payload_fields() {
+    assert!(serde_json::from_value::<RequestV1>(json!({"kind":"inspect"})).is_ok());
+    assert!(serde_json::from_value::<RequestV1>(json!({"kind":"inspect_status"})).is_ok());
+    for extra in ["checkpoint_hex", "commands_hex", "decision", "control"] {
+        let mut request = json!({"kind":"inspect_status"});
+        request[extra] = json!("not an input to a read-only status request");
+        assert!(serde_json::from_value::<RequestV1>(request).is_err());
+    }
+}
+
 fn acknowledge_export(host: &mut Host, exported: &Value) -> ReceiptCheckpointV1 {
     let p = &exported["payload"];
     let ack: ReceiptCheckpointV1 = serde_json::from_value(json!({

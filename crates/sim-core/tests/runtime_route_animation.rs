@@ -385,7 +385,7 @@ fn schema_four_migrates_empty_maps_without_inventing_inflight_timing() {
     let mut sim = runtime(false, false, Facing::EAST);
     // A genuine schema4 body has no trailing source state. Start with no routes.
     let frame = sim.snapshot().unwrap();
-    let end = frame.len() - 32 - 16 - 17;
+    let end = frame.len() - 32 - 16 - 17 - 40;
     assert_eq!(&frame[end..end + 16], &[0; 16]);
     let mut legacy = frame[..end].to_vec();
     legacy[10..12].copy_from_slice(&4u16.to_le_bytes());

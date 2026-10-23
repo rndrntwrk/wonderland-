@@ -42,6 +42,8 @@ pub struct HostBindingV1 {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum RequestV1 {
     Inspect,
+    /// Read-only preparation metadata; never serializes or validates a new checkpoint.
+    InspectStatus {},
     PlayerBootstrap {
         control: OwnedControlV2,
         binding: PlayerBindingV1,
@@ -81,8 +83,37 @@ pub enum RequestV1 {
         predecessor: CursorV1,
         expected_control_revision: DecimalId,
     },
+    RestoreNativeEod {
+        checkpoint: Option<NativeEodCheckpointV1>,
+    },
+    InspectOwnedEventLane {
+        events_hex: String,
+    },
+    ReadPrivateEod {
+        control: OwnedControlV2,
+    },
+    PrepareEodUi {
+        batch_id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        expected_control_revision: DecimalId,
+        control: OwnedControlV2,
+        message: NativeEodUiV1,
+    },
+    PrepareEodAck {
+        batch_id: DecimalId,
+        binding: HostBindingV1,
+        predecessor: CursorV1,
+        expected_control_revision: DecimalId,
+        control: OwnedControlV2,
+        source_session_id: DecimalId,
+        output_id: DecimalId,
+        sha256: String,
+    },
     ActivateRecovery {
         marker: TakeoverMarkerV1,
+        #[serde(default)]
+        native_eod_checkpoint_sha256: Option<String>,
     },
     Prepare {
         batch_id: DecimalId,
@@ -161,3 +192,6 @@ pub use player::*;
 
 mod departure;
 pub use departure::*;
+
+mod eod;
+pub use eod::*;
