@@ -46,6 +46,10 @@ test('revocation during a resource read discards late bytes',async()=>{
 test('authentication failures never fall back to unauthenticated or public content',async()=>{
  let calls=0;await assert.rejects(loadNativeContent({read:async()=>{calls++;return new Response(null,{status:401});}}),/unavailable/);assert.equal(calls,1);
 });
+test('creator content must match the eligible account release before any file read',async()=>{
+ const f=setup();await assert.rejects(loadNativeContent({...f,expectedRelease:'b'.repeat(64)}),/release/);
+ assert.equal(f.calls.length,1);
+});
 test('account provider signs resource requests with the current exact owned selection only',async()=>{
  const content=setup(),requests=[];
  const provider=createNativeAccountProvider('/native-account',()=>{}, {origin:'https://fixture.invalid',nativeLots:true,
@@ -65,4 +69,25 @@ test('account provider signs resource requests with the current exact owned sele
    assert.equal(options.cache,'no-store');assert.equal(options.redirect,'error');}
  }finally{provider.dispose();}
  await assert.rejects(provider.contentFiles(),/No active/);
+});
+
+test('creator resources require a live signed-in eligible catalog without a manufactured avatar grant',async()=>{
+ const content=setup(),requests=[];
+ const provider=createNativeAccountProvider('/native-account',()=>{}, {origin:'https://fixture.invalid',nativeLots:true,
+ fetch:async(url,options)=>{
+  const path=new URL(url).pathname;
+  if(path.includes('/native-content/')){requests.push({path,body:JSON.parse(options.body),headers:options.headers});return content.read(path.replace('/creator/','/'));}
+  if(path.endsWith('/login'))return Response.json({version:1,state:'account_ready',admission_available:true,token:'b'.repeat(64)});
+  if(path.endsWith('/roster'))return Response.json({version:1,state:'account_ready',admission_available:true,account_id:'1',avatars:[],destinations:[],next:null});
+  if(path.endsWith('/creation-options'))return Response.json({version:1,state:'creation_options',release:'a'.repeat(64),available_slots:3,
+    entries:[{key:'1',part:'head',gender:'female',skins:['dark']},{key:'2',part:'body',gender:'female',skins:['dark']}],next:null});
+  if(path.endsWith('/logout'))return Response.json({signed_out:true});
+  throw Error('Unexpected creator request');
+ }});
+ try{await provider.login('fixture','local');await provider.openCreator();
+ const pack=await provider.contentFiles();assert.equal(pack.files.length,1);
+ assert.deepEqual(requests.map(r=>r.path),['/native-content/creator/manifest','/native-content/creator/file/'+sha]);
+ for(const r of requests){assert.deepEqual(r.body,{release:'a'.repeat(64)});assert.equal(r.headers.Authorization,'Bearer '+'b'.repeat(64));}
+ await provider.logout();await assert.rejects(provider.contentFiles(),/No active/);
+ }finally{provider.dispose();}
 });

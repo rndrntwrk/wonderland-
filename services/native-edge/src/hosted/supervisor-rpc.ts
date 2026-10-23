@@ -12,6 +12,7 @@ const accountMethods = new Set([
   "logout",
   "roster",
   "createAvatar",
+  "creationOptions",
   "ownedAvatar",
   "ownedAssets",
   "reserveAvatarControl",

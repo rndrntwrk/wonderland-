@@ -19,7 +19,7 @@ async function bytes(response,maximum,type){
   for(const chunk of chunks){result.set(chunk,offset);offset+=chunk.byteLength;}return result;
  }finally{await reader.cancel().catch(()=>{});reader.releaseLock();}
 }
-export async function loadNativeContent({read,signal,current=()=>true,crypto=globalThis.crypto}){
+export async function loadNativeContent({read,signal,current=()=>true,crypto=globalThis.crypto,expectedRelease}){
  const assertCurrent=()=>{if(signal?.aborted||!current())throw Error('This owned content session changed.');};
  assertCurrent();
  const manifest=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(
@@ -29,6 +29,7 @@ export async function loadNativeContent({read,signal,current=()=>true,crypto=glo
   ||!Array.isArray(manifest.files)||!manifest.files.length||manifest.files.length>256
   ||!Number.isSafeInteger(manifest.total_input_bytes)||manifest.total_input_bytes<1
   ||manifest.total_input_bytes>128*1024*1024)throw Error('Invalid private game content manifest.');
+ if(expectedRelease!==undefined&&manifest.content_release!==expectedRelease)throw Error('Game content release does not match the eligible account catalog.');
  for(const key of ['head_collections','body_collections'])
   if(!Array.isArray(manifest[key])||!manifest[key].length||manifest[key].length>16||!manifest[key].every(name))
    throw Error('Invalid game content collection selection.');

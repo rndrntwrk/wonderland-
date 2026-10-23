@@ -461,6 +461,33 @@ try {
   const ha = { authorization: "Bearer " + sa.token },
     hb = { authorization: "Bearer " + sb.token };
   assert.equal(
+    (await request("/native-account/creation-options", { after: "0" })).status,
+    401,
+  );
+  const optionsResponse = await request(
+    "/native-account/creation-options",
+    { after: "0" },
+    ha,
+  );
+  assert.equal(optionsResponse.status, 200);
+  assert.deepEqual(await optionsResponse.json(), {
+    version: 1,
+    state: "creation_options",
+    release: "b".repeat(64),
+    available_slots: 2,
+    entries: [
+      { key: "1", part: "head", gender: "female", skins: ["dark"] },
+      { key: "2", part: "body", gender: "female", skins: ["dark"] },
+    ],
+    next: null,
+  });
+  const end = await request(
+    "/native-account/creation-options",
+    { after: "2" },
+    ha,
+  );
+  assert.deepEqual((await end.json()).entries, []);
+  assert.equal(
     (
       await request("/native-account/create", createBody, {
         ...ha,
@@ -600,6 +627,12 @@ try {
     401,
   );
   await creationBridge.dispose();
+  const remaining = await request(
+    "/native-account/creation-options",
+    { after: "0" },
+    hb,
+  );
+  assert.equal((await remaining.json()).available_slots, 1);
   checks.push(
     "creation rejects foreign origin/method, malformed authority fields, unpinned appearance/release, revoked session and a fourth Sim; no signup route exposed",
   );

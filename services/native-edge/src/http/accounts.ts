@@ -107,7 +107,14 @@ export async function accountHttp(
   const action = url.pathname.replace(/^\/native-account\//, "");
   if (
     !url.pathname.startsWith("/native-account/") ||
-    !["login", "roster", "logout", "rotate", "create"].includes(action)
+    ![
+      "login",
+      "roster",
+      "logout",
+      "rotate",
+      "create",
+      "creation-options",
+    ].includes(action)
   )
     return reply(404, { error: "not_found" });
   if (request.method !== "POST")
@@ -143,6 +150,14 @@ export async function accountHttp(
     if (!authorization?.startsWith("Bearer "))
       return reply(401, { error: "unauthorized" });
     const secret = token(authorization.slice(7));
+    if (action === "creation-options") {
+      const v = fields(data, ["after"]);
+      return reply(200, {
+        version: 1,
+        state: "creation_options",
+        ...(await stub.creationOptions(secret, decimal(v.after))),
+      });
+    }
     if (action === "create") {
       let creation;
       try {

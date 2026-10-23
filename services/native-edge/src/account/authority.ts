@@ -1277,6 +1277,27 @@ export class AccountAuthority extends DurableObject<DepartureReceiptEnv> {
       };
     });
   }
+  async creationOptions(rawToken: unknown, after: unknown = "0"): Promise<{
+    release: string; available_slots: number;
+    entries: ReturnType<typeof catalog>["entries"]; next: string | null;
+  }> {
+    const key = await this.tokenHash(rawToken), cursor = decimal(after);
+    if (BigInt(cursor) > 16384n) throw Error("invalid catalog cursor");
+    return this.ctx.storage.transactionSync(() => {
+      const owner = this.authorize(key);
+      const row = this.ctx.storage.sql.exec<{value:string}>(
+        "SELECT value FROM account_meta WHERE key='catalog'").toArray()[0];
+      if (!row) throw Error("avatar content unavailable");
+      const pinned = catalog(JSON.parse(row.value));
+      const start = Number(cursor);
+      if (start > pinned.entries.length) throw Error("invalid catalog cursor");
+      const count = this.ctx.storage.sql.exec<{n:number}>(
+        "SELECT COUNT(*) AS n FROM avatars WHERE account_id=?",owner.id).one().n;
+      return { release:pinned.release, available_slots:Math.max(0,3-count),
+        entries:pinned.entries.slice(start,start+64),
+        next:start+64<pinned.entries.length?String(start+64):null };
+    });
+  }
   async ownedAvatar(raw: unknown, id: unknown, touchIdle = true) {
     if (typeof touchIdle !== "boolean") throw Error("invalid activity mode");
     const key = await this.tokenHash(raw),

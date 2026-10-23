@@ -775,12 +775,21 @@ export async function createOwnedDemo({
           response.writeHead(404); response.end(); return;
         }
         const token = authorizeRequest(request), data = await readBody(request);
-        const resource = url.pathname === "/native-content/manifest" ? null
-          : /^\/native-content\/file\/([0-9a-f]{64})$/.exec(url.pathname)?.[1];
+        const creator = url.pathname.startsWith("/native-content/creator/");
+        const resource = url.pathname === (creator ? "/native-content/creator/manifest" : "/native-content/manifest") ? null
+          : /^\/native-content\/(?:creator\/)?file\/([0-9a-f]{64})$/.exec(url.pathname)?.[1];
         assert.ok(resource !== undefined, "Unsupported content resource.");
         // Recheck the live account reservation and committed source placement on
         // every request. A manifest or hash is never a substitute for admission.
         await serially(async () => {
+          if (creator) {
+            assert.deepEqual(Object.keys(data),["release"]);
+            const options = await account("creationOptions",[token,"0"]);
+            assert.equal(data.release,options.release);
+            assert.equal(contentProvider.release,options.release);
+            assert.ok(options.available_slots>0,"Account has no available character slots.");
+            return;
+          }
           assert.deepEqual(Object.keys(data).sort(), ["avatar_id", "lot_id", "operation"]);
           assert.equal(data.lot_id, manifest.lot.lot_id);
           const entry = admitted.get(key(token, data.avatar_id)) ?? await restoreEntry(token, data);
@@ -855,6 +864,7 @@ export async function createOwnedDemo({
             "/native-account/logout",
             "/native-account/rotate",
             "/native-account/create",
+            "/native-account/creation-options",
           ].includes(url.pathname),
         );
         assert.equal(request.method, "POST");
