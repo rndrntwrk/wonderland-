@@ -29,7 +29,7 @@ export function previewSettings(env: PreviewEnv): PreviewSettings {
 export function assertPreviewActive(settings:PreviewSettings,now=Date.now()) {
   if(now<settings.starts||now>=settings.expires)throw Error("Preview outside approved window");
 }
-const postPaths=new Set(["/native-account/login","/native-account/roster","/native-account/logout",
+const postPaths=new Set(["/native-account/chat","/native-account/login","/native-account/roster","/native-account/logout",
   "/native-account/creation-options","/native-content/creator/manifest",
   "/native-account/rotate","/native-account/create","/native-account/enter","/native-account/reconnect","/native-account/leave",
   "/native-content/manifest"]);

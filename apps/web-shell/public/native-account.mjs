@@ -69,7 +69,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
         const { done, value } = await reader.read();
         if (done) break;
         size += value.length;
-        if (size > 65536) throw Error("Account response exceeds its limit.");
+        if (size > (action === 'chat' ? 128 * 1024 : 65536)) throw Error("Account response exceeds its limit.");
         chunks.push(value);
       }
       const bytes = new Uint8Array(size);
@@ -526,5 +526,19 @@ export function createNativeAccountProvider(base, publish, options = {}) {
     avatars: [],
     message: "Sign in to your native Wonderland account.",
   });
-  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate };
+  async function lotChat(action,payload,signal){
+    if(!['read','send'].includes(action)||!token||!owned||placementPending||detachPending||disposed||active)
+      throw Error('No active owned lot for chat.');
+    if(!payload||typeof payload!=='object'||Array.isArray(payload)
+      ||Object.keys(payload).sort().join(',')!==(action==='read'?'':'sequence,text'))throw Error('Invalid chat request.');
+    const selection=owned,secret=token;
+    const data={...payload,avatar_id:selection.avatar_id,lot_id:selection.lot_id,operation:selection.operation,
+      lot_incarnation:selection.binding.lot_incarnation,action};
+    const value=await request('chat',data,secret,signal);
+    if(disposed||token!==secret||owned!==selection||detachPending||placementPending
+      ||value.viewer_id!==selection.avatar_id||value.lot_id!==selection.lot_id
+      ||value.lot_incarnation!==selection.binding.lot_incarnation)throw Error('Owned chat scope changed.');
+    return value;
+  }
+  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate,lotChat };
 }

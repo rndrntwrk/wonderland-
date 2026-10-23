@@ -110,6 +110,9 @@ pub struct NativeOwnedUi {
     provider: StoredValue<Provider, LocalStorage>,
 }
 impl NativeOwnedUi {
+    pub(super) fn chat_provider(self) -> Option<JsValue> {
+        self.provider.with_value(|p| p.host.clone())
+    }
     pub fn track(self) {
         self.state.track();
     }

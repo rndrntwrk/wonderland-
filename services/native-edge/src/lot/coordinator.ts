@@ -33,7 +33,9 @@ import {
   decodeActionRequest,
   verifyActionEvidence,
   type ActionControl,
+  actionControl,
 } from "./action-outcomes";
+import { LotChatStore, chatAudience } from './chat';
 import { HostReceiptStore } from "./host-receipts";
 import {
   OwnedEventReceipts,
@@ -80,6 +82,7 @@ export class LotCoordinator extends DurableObject<Env> {
   private ownedEvents: OwnedEventReceipts;
   private actionOutcomes: ActionOutcomeStore;
   private departures: DepartureStore;
+  private lotChat: LotChatStore;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     ctx.storage.sql.exec(
@@ -90,6 +93,7 @@ export class LotCoordinator extends DurableObject<Env> {
     this.ownedEvents = new OwnedEventReceipts(ctx.storage);
     this.actionOutcomes = new ActionOutcomeStore(ctx.storage);
     this.departures = new DepartureStore(ctx.storage);
+    this.lotChat = new LotChatStore(ctx.storage);
     // One-time, restart-safe migration. Receipt rows stay forever; only this
     // bounded live set is charged against the hot-journal profile.
     ctx.storage.transactionSync(() => {
@@ -100,6 +104,29 @@ export class LotCoordinator extends DurableObject<Env> {
   }
   persistHostReceiptsV1(raw: unknown, sha: unknown) {
     return this.hostReceipts.persist(raw, sha);
+  }
+  /** Private supervisor call after fresh account and native placement validation.
+   * Recheck the durable control atomically; caller cannot supply attribution. */
+  ownedLotChatV1(raw: unknown) {
+    const q=fields(raw,['control','lot_id','lot_incarnation','message']);
+    const control=actionControl(q.control),lot=decimal(q.lot_id),incarnation=decimal(q.lot_incarnation);
+    return this.ctx.storage.transactionSync(()=>{
+      const config=this.controlledConfiguration(),state=this.state();
+      this.assertActive();
+      this.expireControls();
+      if(state.cursor.lot_id!==lot||state.binding.lot_incarnation!==incarnation)throw Error('chat lot scope mismatch');
+      this.requireActionInstallation(control,config.authority_id,lot);
+      const row=this.ctx.storage.sql.exec<{state:string;expires_at:number;export_json:string}>(
+        'SELECT state,expires_at,export_json FROM actor_controls WHERE avatar_id=?',control.avatar_id).one();
+      if(row.state!=='active'||row.expires_at<=this.now()
+        ||this.coveringFence(config.authority_id,control.avatar_id,control.control_generation))throw Error('chat membership unavailable');
+      const e=exportV2(JSON.parse(row.export_json)),source=JSON.parse(e.portable_json),name=source.name;
+      if(typeof name!=='string'||!name||name.length>100)throw Error('chat source name unavailable');
+      const receipt=q.message===null?null:this.lotChat.append(control.avatar_id,name,q.message,this.now());
+      const history=this.lotChat.read(control.avatar_id);
+      return {version:1,state:'lot_chat',lot_id:lot,lot_incarnation:incarnation,viewer_id:control.avatar_id,
+        ...history,messages:chatAudience(history.messages,source.ignored_avatars),receipt};
+    });
   }
   lookupHostReceiptV1(incarnation: unknown, id: unknown) {
     return this.hostReceipts.lookup(incarnation, id);
