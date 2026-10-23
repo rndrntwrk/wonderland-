@@ -272,6 +272,30 @@ export class LotCoordinator extends DurableObject<Env> {
     }
     return expired.length > 0;
   }
+  /** Private startup selection only. Existing initialize/restore validation is
+   * still authoritative; an incomplete first checkpoint may only retry the same
+   * pristine initialization. Never infer recovery success from process memory. */
+  inspectControlledStartupV1() {
+    return this.ctx.storage.transactionSync(() => {
+      const state = this.ctx.storage.sql.exec("SELECT value FROM lot_state WHERE id=1").toArray();
+      if (state.length === 0) {
+        if (this.ctx.storage.sql.exec("SELECT id FROM lot_control_state LIMIT 1").toArray().length
+          || this.ctx.storage.sql.exec("SELECT object_key FROM checkpoints LIMIT 1").toArray().length)
+          throw Error("Lot startup state is inconsistent");
+        return { schema_version: 1, mode: "initialize" };
+      }
+      this.controlledConfiguration();
+      const retained = this.ctx.storage.sql.exec("SELECT object_key FROM checkpoints LIMIT 1").toArray();
+      if (retained.length) return { schema_version: 1, mode: "recover" };
+      if (this.controlState()!.revision !== "0"
+        || this.ctx.storage.sql.exec("SELECT batch_key FROM batches LIMIT 1").toArray().length
+        || this.ctx.storage.sql.exec("SELECT batch_key FROM archived_batches LIMIT 1").toArray().length
+        || this.ctx.storage.sql.exec("SELECT batch_key FROM journal_live LIMIT 1").toArray().length
+        || this.ctx.storage.sql.exec("SELECT principal FROM actor_controls LIMIT 1").toArray().length)
+        throw Error("Non-pristine lot has no retained recovery checkpoint");
+      return { schema_version: 1, mode: "initialize" };
+    });
+  }
   inspectControlledV2() {
     const config = this.controlledConfiguration();
     return this.ctx.storage.transactionSync(() => {

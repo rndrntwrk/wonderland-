@@ -1,0 +1,41 @@
+{
+  // HELD TEMPLATE. Do not deploy before R2, native-input, plan and budget gates.
+  "name": "wonderland-demo",
+  "main": "src/hosted/preview-entry.ts",
+  "compatibility_date": "2026-10-23",
+  "observability": { "enabled": false },
+  "assets": { "directory": "REPLACE_WITH_VERIFIED_BROWSER_DIST", "binding": "ASSETS", "run_worker_first": true },
+  "containers": [{
+    "name": "wonderland-native-preview", "class_name": "NativePreview",
+    "scheduling_policy": "durable_object", "max_instances": 1,
+    "images": { "native": { "image": "REPLACE_WITH_MANAGED_REGISTRY_IMAGE_AT_SHA256" } },
+    "observability": { "enabled": false }
+  }],
+  "durable_objects": { "bindings": [
+    { "name": "NATIVE_PREVIEW", "class_name": "NativePreview" },
+    { "name": "ACCOUNTS", "class_name": "AccountAuthority" },
+    { "name": "COORD", "class_name": "LotCoordinator" }
+  ] },
+  "exports": {
+    "NativePreview": { "type": "durable-object", "storage": "sqlite", "container": "wonderland-native-preview" },
+    "AccountAuthority": { "type": "durable-object", "storage": "sqlite" },
+    "LotCoordinator": { "type": "durable-object", "storage": "sqlite" }
+  },
+  "r2_buckets": [
+    { "binding": "CHECKPOINTS", "bucket_name": "REPLACE_WITH_AUTHORIZED_PRIVATE_CHECKPOINT_BUCKET" },
+    { "binding": "GAME_CONTENT", "bucket_name": "REPLACE_WITH_AUTHORIZED_PRIVATE_CONTENT_BUCKET" }
+  ],
+  "vars": {
+    "NATIVE_PREVIEW_APPROVAL": "inactive",
+    "NATIVE_PREVIEW_ID": "REPLACE_WITH_FIXED_PREVIEW_ID",
+    "NATIVE_PREVIEW_ORIGIN": "https://wonderland-demo.gl4sspr1sm.workers.dev",
+    "NATIVE_PREVIEW_START_MS": "REPLACE_AFTER_APPROVAL",
+    "NATIVE_PREVIEW_EXPIRES_MS": "REPLACE_WITH_FIXED_EXPIRY_AT_MOST_1H",
+    "NATIVE_BOOTSTRAP_SHA256": "REPLACE_WITH_APPROVED_BOOTSTRAP_HASH",
+    "LOT_NAME": "REPLACE_WITH_APPROVED_LOT",
+    "ACCOUNT_REALM": "REPLACE_WITH_APPROVED_ACCOUNT_REALM",
+    "NATIVE_ACCOUNT_HTTP": "staged-v1",
+    "NATIVE_ACCOUNT_ORIGIN": "https://wonderland-demo.gl4sspr1sm.workers.dev",
+    "NATIVE_ACCOUNT_REALM": "REPLACE_WITH_SAME_ACCOUNT_REALM"
+  }
+}

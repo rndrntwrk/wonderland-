@@ -34,7 +34,7 @@ async function boundedJson(request: Request, maximum: number): Promise<unknown> 
   const bytes = new Uint8Array(length);
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-  return JSON.parse(new TextDecoder("utf-8", {fatal:true}).decode(bytes));
+  return JSON.parse(new TextDecoder("utf-8", {fatal:true,ignoreBOM:false}).decode(bytes));
 }
 export function createSupervisorOutboundHandler(options: SupervisorOutboundOptions) {
   const origin = new URL(options.publicOrigin);

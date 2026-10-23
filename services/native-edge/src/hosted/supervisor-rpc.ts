@@ -28,6 +28,7 @@ const accountMethods = new Set([
   "lookupReleasedAvatarControlV1",
 ]);
 const lotMethods = new Set([
+  "inspectControlledStartupV1",
   "initializeControlledV2",
   "controlStateV2",
   "currentNativeEodV1",

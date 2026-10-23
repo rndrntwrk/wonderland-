@@ -800,6 +800,10 @@ export async function createOwnedDemo({
         });
         response.end(body); return;
       }
+      if (profile.hosted && url.pathname === "/__native-preview/ready" && request.method === "GET") {
+        response.writeHead(200, {"content-type":"application/json","cache-control":"no-store"});
+        response.end('{"ready":true}'); return;
+      }
       if (
         [
           "/native-account/enter",

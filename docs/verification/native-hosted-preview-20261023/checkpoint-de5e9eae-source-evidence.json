@@ -1,0 +1,177 @@
+{
+  "schema": "wonderland.native-preview-source-checkpoint.v1",
+  "local_source": {
+    "commit": "de5e9eae2564ae744b901837811648c92d52f537",
+    "tree": "c938a87aa3806c353dd43b7e1cb80959b355331b",
+    "previous_local": "d77509c66021aa310978b3f7a1942ee46d2062e1",
+    "native_fixture_source": "6f7b89348fa7796221051c519fa03546d761cb9d",
+    "native_fixture_inputs_unchanged": [
+      "tools/native-browser/owned-demo/container-bootstrap.mjs",
+      "tools/native-browser/owned-demo/container-main.mjs",
+      "services/native-edge/src/lot/coordinator.ts",
+      "tools/native-browser/owned-demo.mjs"
+    ]
+  },
+  "publication": {
+    "parent": "78709a09cf3a9b32775612286a414e26e690949b",
+    "branch": "work/qualified-two-context-walk-20261023",
+    "pr": 81,
+    "mode": "16 exact source postimages and two sanitized documents; no private local history"
+  },
+  "source_files": [
+    {
+      "path": "services/native-edge/src/hosted/README.md",
+      "sha256": "6cc02d6115b7d1a1b9480473c2b85af74b61d9e752d609d6cbaa1e4d7b47e330"
+    },
+    {
+      "path": "services/native-edge/src/hosted/preview-entry.ts",
+      "sha256": "d67bccbbe7b4607decc8300e5c1ce243d1b4aa8671c5874c8d00172f78126603"
+    },
+    {
+      "path": "services/native-edge/src/hosted/preview-lifecycle.ts",
+      "sha256": "136d3744f3ac0c31f99ce4ecee5346c7e3d196edffb692176cae23406fa8aa03"
+    },
+    {
+      "path": "services/native-edge/src/hosted/preview-policy.ts",
+      "sha256": "94636f442242d3999691a9f286d429802401bbafb8d447232f35af2ef45dbdde"
+    },
+    {
+      "path": "services/native-edge/src/hosted/supervisor-outbound.ts",
+      "sha256": "0367ef62c136f425c5050e931b220c5de9604e1387a85f50fd0f66ba0fc60149"
+    },
+    {
+      "path": "services/native-edge/src/hosted/supervisor-rpc.ts",
+      "sha256": "6c7a72f82d3cd83bf822c86bc4dd3956c8c03139077b96dd0520571b8de2b82b"
+    },
+    {
+      "path": "services/native-edge/src/lot/coordinator.ts",
+      "sha256": "6df40554c7ded0cb9ec07e4efbd75a5d6b613e0105609a416ea5da850554f713"
+    },
+    {
+      "path": "services/native-edge/tests/preview-entry.test.mjs",
+      "sha256": "77c3285ecb5047a4bf2ce4fb196b36b4f3230cd539527dd71f98bfef6a9b9d5d"
+    },
+    {
+      "path": "services/native-edge/tests/preview-policy.test.mjs",
+      "sha256": "342f3e41ad08745293b04c751bfc579c852c0beafff088ba3af79514fc8f578b"
+    },
+    {
+      "path": "services/native-edge/wrangler.native-preview.example.jsonc",
+      "sha256": "08eed4709fee036149c67d5c1d69be42345166f1ba54ab51850edae6486adbd9"
+    },
+    {
+      "path": "tools/native-browser/owned-demo.mjs",
+      "sha256": "71ce3ab3dbe34f77b7742670b700134fe54837157158deacf4f1becd270130f6"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/Dockerfile",
+      "sha256": "76ec07bb50f75e8161ebfa702db887eea0da2cdd91fff7c31141b2183ca63c47"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/container-bootstrap.mjs",
+      "sha256": "8803222206244bc4bf8429c775a1d4e83955db8a4b80d27563c0c319d55e9b13"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/container-bootstrap.test.mjs",
+      "sha256": "722fe81633c2924429f1475e05314f309613ff256b455c7d4e6bd43fd4221bff"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/container-main.mjs",
+      "sha256": "ae244f2c6ba76994243718628016dfa776ee22e312d7233a5b58b84540b32ee2"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/prepare-image-context.mjs",
+      "sha256": "ea17c65d2343089cd99905724a4e4ed74e2b9fc4c5bebde744f0ab2f9cce5c44"
+    }
+  ],
+  "focused_tests": [
+    {
+      "path": "services/native-edge/tests/preview-policy.test.mjs",
+      "cases_passed": 5,
+      "sha256": "342f3e41ad08745293b04c751bfc579c852c0beafff088ba3af79514fc8f578b"
+    },
+    {
+      "path": "services/native-edge/tests/supervisor-outbound.test.mjs",
+      "cases_passed": 9,
+      "sha256": "095b06100678fe71186d5a1c40263a12e35658830da5bd9c39cc4f759303bf85"
+    },
+    {
+      "path": "services/native-edge/tests/supervisor-rpc.test.mjs",
+      "cases_passed": 6,
+      "sha256": "3a5350a415cac2d37866c74accdcfd3527b886217ad829468f778f68e45239bf"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/container-bootstrap.test.mjs",
+      "cases_passed": 4,
+      "sha256": "722fe81633c2924429f1475e05314f309613ff256b455c7d4e6bd43fd4221bff"
+    },
+    {
+      "path": "services/native-edge/tests/preview-entry.test.mjs",
+      "cases_passed": 5,
+      "sha256": "77c3285ecb5047a4bf2ce4fb196b36b4f3230cd539527dd71f98bfef6a9b9d5d"
+    }
+  ],
+  "native_fixture": {
+    "passed": true,
+    "checks": [
+      "explicit hosted startup; loopback fixture listener; no runner.json authority",
+      "two real account logins and source-owned admissions; binary socket bootstraps; used tickets rejected",
+      "foreign Origin and public private-RPC path fail closed",
+      "native ingress and local durable-object process stopped completely",
+      "cold recovery from persisted SQLite/R2 into empty native cache; actors and registry preserved; both original sessions reconnect"
+    ],
+    "source": "6f7b89348fa7796221051c519fa03546d761cb9d",
+    "original_receipt_sha256": "6b06d40494d8c7bfa72a03a050cd39479abe3a61ce291a07d4f276a247ada36e",
+    "private_script_sha256": "63604cdc2e3a427702c6be853848e31acb972ef26a2743b8d59d965032193c1b",
+    "private_original_not_uploaded": true
+  },
+  "reused_rendered_qualification": {
+    "source": "d77509c66021aa310978b3f7a1942ee46d2062e1",
+    "original_receipt_sha256": "1adb8bcc3f202af7cdb9722dac19b711162d5f224b1d1e61ae32e3e8fe02c8a5",
+    "animation_witness_sha256": "30768e7ce2c28ffbdf913a7163eefc01c85aba21efafd35eb8c0fe49b5b55528",
+    "walk_seconds": [
+      7.435791292,
+      6.879826167
+    ],
+    "walk_deadline_seconds": 45,
+    "peer_agreement": true,
+    "automatic_original_resource_count": 30,
+    "new_rendered_or_30hz_run": false
+  },
+  "image_preparation": {
+    "files": 784,
+    "linux_image_built": false,
+    "context_source": "de5e9eae2564ae744b901837811648c92d52f537",
+    "original_assets_baked": false,
+    "manifest_files": [
+      "context-manifest.json"
+    ]
+  },
+  "limitations": [
+    "Offline Container adapter tests do not establish Linux Container execution or hosted gameplay.",
+    "Strict edge type-check retains baseline TS7016 in src/account/crypto.ts:7 for generated account_crypto.js.",
+    "No new independent reviewer was launched under the current single-task instruction; implementation review is not independent review.",
+    "Historical strict 30.0 Hz gates remain failed; the owner separately accepted scheduled 29.987938/29.940126 Hz.",
+    "Original broader Rust formatting discrepancies remain; no full format pass claimed."
+  ],
+  "deployment": {
+    "activated": false,
+    "r2_upload": false,
+    "cloud_image_build_or_push": false,
+    "subscription_or_access_change": false,
+    "static_preview_unchanged": true,
+    "remaining_dependencies": [
+      "Existing private R2 bucket/product and narrowly scoped access; original REST error 10000 not retried.",
+      "Qualified digest-pinned Linux image; local Docker-compatible builder absent.",
+      "Separate approval for eight native startup/metadata inputs and intended hosted owner/cohort.",
+      "Existing paid-plan/allowance and expected all-in one-hour usage must fit approved USD1; no subscription upgrade, no hard billing cap."
+    ]
+  },
+  "approval_clarification": {
+    "same_original_file_count": 30,
+    "corrected_bytes": 92632333,
+    "additional_original_file": false,
+    "same_file_total_correction_cleared": true,
+    "native_startup_upload_still_unapproved": true
+  }
+}
