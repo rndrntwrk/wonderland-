@@ -250,6 +250,27 @@ fn preparation_status(host: &mut Host) -> Value {
         "only checkpoint and response kind may differ"
     );
     assert!(actual.get("checkpoint_hex").is_none());
+    let compact = host.handle(RequestV1::InspectPreparationStatus {}).unwrap();
+    let mut projected = serde_json::Map::new();
+    for key in [
+        "kind",
+        "recovery_pending",
+        "binding",
+        "cursor",
+        "retained_receipts",
+        "retained_receipt_bytes",
+    ] {
+        projected.insert(key.into(), actual[key].clone());
+    }
+    assert_eq!(
+        compact,
+        Value::Object(projected),
+        "preparation response must contain only the validated guard metadata"
+    );
+    assert!(
+        serde_json::to_vec(&compact).unwrap().len() < serde_json::to_vec(&actual).unwrap().len(),
+        "preparation response must not transfer full inspection metadata"
+    );
     assert_eq!(
         host.handle(RequestV1::Inspect).unwrap(),
         before,
@@ -320,7 +341,13 @@ fn preparation_status_does_not_activate_recovery_or_validate_stale_transactions(
 fn preparation_status_request_is_additive_and_rejects_payload_fields() {
     assert!(serde_json::from_value::<RequestV1>(json!({"kind":"inspect"})).is_ok());
     assert!(serde_json::from_value::<RequestV1>(json!({"kind":"inspect_status"})).is_ok());
+    assert!(
+        serde_json::from_value::<RequestV1>(json!({"kind":"inspect_preparation_status"})).is_ok()
+    );
     for extra in ["checkpoint_hex", "commands_hex", "decision", "control"] {
+        let mut compact = json!({"kind":"inspect_preparation_status"});
+        compact[extra] = json!("not an input to a read-only status request");
+        assert!(serde_json::from_value::<RequestV1>(compact).is_err());
         let mut request = json!({"kind":"inspect_status"});
         request[extra] = json!("not an input to a read-only status request");
         assert!(serde_json::from_value::<RequestV1>(request).is_err());

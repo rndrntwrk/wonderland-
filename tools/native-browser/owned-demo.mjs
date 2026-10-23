@@ -68,7 +68,7 @@ const packet = (value) => {
 export async function createOwnedDemo({
   dist,
   manifest,
-  hostExecutable = resolve(repo, "target/debug/wonderland-native-lot-host"),
+  hostExecutable = resolve(repo, "target/release/wonderland-native-lot-host"),
   storageRoot,
   port = 0,
   resume = false,
@@ -136,6 +136,7 @@ export async function createOwnedDemo({
     requestFailure = null,
     lastIdleFenceSweep = 0,
     accounts = null;
+  let resetTickCadence = () => {};
   const serially = (fn, { allowPaused = false } = {}) => {
     if (closing) return Promise.reject(Error("Demo closed."));
     if (queued >= 16)
@@ -198,6 +199,7 @@ export async function createOwnedDemo({
     for (const socket of sockets) if (socket.live) send(socket, bytes);
   };
   const stop = (error) => {
+    resetTickCadence();
     halted = String(error.message ?? error);
     for (const socket of sockets) socket.close(1012);
   };
@@ -288,6 +290,7 @@ export async function createOwnedDemo({
     lastCheckpointTick = BigInt(runtime.cursor.completed_tick);
   }
   async function recoverHost() {
+    resetTickCadence();
     // No snapshot is taken here. Process loss must be recoverable from the
     // checkpoint already retained in R2 plus the accepted durable journal tail.
     await sweepFences();
@@ -1017,7 +1020,8 @@ export async function createOwnedDemo({
   }
   async function close() {
     closing = true;
-    if (timer) clearInterval(timer);
+    resetTickCadence();
+    if (timer) clearTimeout(timer);
     for (const socket of sockets) socket.terminate();
     if (wss) wss.close();
     if (host) await host.close().catch(() => {});
@@ -1316,33 +1320,89 @@ export async function createOwnedDemo({
     departureWork =
       (await activeDepartures(lot)).length > 0 ||
       (await lot("pendingOwnedDeparturesV1")).length > 0;
-    timer = setInterval(() => {
-      if (ticking || closing || halted) return;
-      const live = [...sockets].some((s) => s.live);
-      // Disconnection may precede lease expiry. Continue non-renewing security
-      // sweeps while idle so later expiry becomes durable departure work.
-      if (!departureWork && !live) {
-        if (Date.now() - lastIdleFenceSweep < 5000) return;
-        lastIdleFenceSweep = Date.now();
-      }
-      ticking = true;
-      serially(async () => {
-        await sweepFences();
-        if (!(await deliverDepartures())) return;
-        if (await drainOneDeparture({ lot, prepare, commit })) {
-          departureWork = true;
-          await deliverDepartures();
+    const tickPeriodMs = 1000 / 30;
+    const maxTickDebtMs = 100;
+    const maxRecoveryTurns = 6;
+    let nextTickDueAt, armedTimerDueAt, recoveryTurns = 0;
+    resetTickCadence = () => {
+      nextTickDueAt = undefined;
+      recoveryTurns = 0;
+    };
+    async function pumpTick() {
+      let bodyStartedAt;
+      let ordinaryCommitted = false;
+      try {
+        if (closing || halted) {
+          resetTickCadence();
           return;
         }
-        departureWork = (await lot("pendingOwnedDeparturesV1")).length > 0;
-        if (departureWork || ![...sockets].some((s) => s.live)) return;
-        const result = await commit(await prepare("prepare_player_tick"));
-        if (result.kind !== "committed")
-          throw Error("Authoritative tick was fenced.");
-      })
-        .catch(stop)
-        .finally(() => (ticking = false));
-    }, 1000 / 30);
+        if (performance.now() - armedTimerDueAt >= maxTickDebtMs)
+          resetTickCadence();
+        const live = [...sockets].some((s) => s.live);
+        // Disconnection may precede lease expiry. Continue non-renewing security
+        // sweeps while idle so later expiry becomes durable departure work.
+        if (!departureWork && !live) {
+          resetTickCadence();
+          if (Date.now() - lastIdleFenceSweep < 5000) return;
+          lastIdleFenceSweep = Date.now();
+        }
+        ticking = true;
+        const tickQueuedAt = performance.now();
+        await serially(async () => {
+          if (closing) return;
+          bodyStartedAt = performance.now();
+          const queueWaitMs = bodyStartedAt - tickQueuedAt;
+          // Only an active phase may recover short FIFO waits within the debt/burst caps.
+          // Initial, inactive and excessive waits start at actual execution instead.
+          if (queueWaitMs >= maxTickDebtMs) resetTickCadence();
+          if (nextTickDueAt === undefined) nextTickDueAt = bodyStartedAt;
+          await sweepFences();
+          if (!(await deliverDepartures())) return;
+          if (await drainOneDeparture({ lot, prepare, commit })) {
+            departureWork = true;
+            await deliverDepartures();
+            return;
+          }
+          departureWork = (await lot("pendingOwnedDeparturesV1")).length > 0;
+          if (departureWork || ![...sockets].some((s) => s.live)) return;
+          const result = await commit(await prepare("prepare_player_tick"));
+          if (result.kind !== "committed")
+            throw Error("Authoritative tick was fenced.");
+          ordinaryCommitted = true;
+          nextTickDueAt += tickPeriodMs;
+        });
+      } catch (error) {
+        stop(error);
+      } finally {
+        ticking = false;
+        let delay = tickPeriodMs;
+        if (!ordinaryCommitted || halted || closing || nextTickDueAt === undefined) {
+          resetTickCadence();
+        } else {
+          const now = performance.now();
+          const debtMs = now - nextTickDueAt;
+          if (debtMs > maxTickDebtMs) {
+            resetTickCadence();
+          } else if (debtMs >= 0 && recoveryTurns >= maxRecoveryTurns) {
+            resetTickCadence();
+            // Resume ordinary start spacing without adding another full idle period.
+            const remaining = bodyStartedAt + tickPeriodMs - now;
+            if (remaining > 0) delay = remaining;
+          } else {
+            delay = Math.max(0, -debtMs);
+            recoveryTurns = delay === 0 ? recoveryTurns + 1 : 0;
+          }
+        }
+        // One yielded FIFO body per turn; bounded recovery never batches source ticks.
+        // Keep harmless polling while halted so successful recovery can resume.
+        if (!closing) {
+          armedTimerDueAt = performance.now() + delay;
+          timer = setTimeout(pumpTick, delay);
+        }
+      }
+    }
+    armedTimerDueAt = performance.now() + tickPeriodMs;
+    timer = setTimeout(pumpTick, tickPeriodMs);
     ready = true;
     return {
       origin,

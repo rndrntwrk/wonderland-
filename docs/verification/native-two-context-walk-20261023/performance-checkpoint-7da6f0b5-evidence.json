@@ -1,0 +1,844 @@
+{
+  "schema": "wonderland.public-performance-checkpoint-evidence.v1",
+  "preparedAtUtc": "2026-10-23T17:26:18.586539+00:00",
+  "disposition": "REVIEWED_FUNCTIONAL_CHECKPOINT; STRICT_30_HZ_QUALIFICATION_FAIL",
+  "repository": "rndrntwrk/wonderland-",
+  "targetPullRequest": 81,
+  "targetBranch": "work/qualified-two-context-walk-20261023",
+  "publication": "Prepared for parent publication; this evidence preparation performs no remote mutation, merge or deployment.",
+  "source": {
+    "localCheckpoint": "7da6f0b58d154b2e1c4aaef9f677a5c810113150",
+    "tree": "7d4495dd8fae9b3f73f486d5465ca40040c267b4",
+    "parent": "8dbbbef0a1c8a4bed19af36777ec9fe588970663",
+    "publishedComparisonBase": "23205b88e3eb8c826dcd58ae1c04c6c459b35411",
+    "localComparisonBase": "932dc19a2f79de44020af2316a9394860e55e390",
+    "localCheckpointIdsAreProvenanceNotPublishedAncestors": true,
+    "files": [
+      {
+        "path": "crates/native-host-contracts/src/lib.rs",
+        "mode": "100644",
+        "gitBlobSha": "ad4aa8a7825ab5ea31eee03fc42650acff34e626",
+        "bytes": 5972,
+        "sha256": "973a3314caa7984b208035cc0c9401b52fc66a59ed4924cedf46867ac2cd7a81"
+      },
+      {
+        "path": "crates/sim-core/src/runtime.rs",
+        "mode": "100644",
+        "gitBlobSha": "b6342b7edd5177d684e0ba316a9d541f610e0a19",
+        "bytes": 141981,
+        "sha256": "b6ab4baefc2c9dedb76e2a5cc98a038e66e036a98299eed57d4785a40c311123"
+      },
+      {
+        "path": "crates/sim-core/tests/runtime_tick.rs",
+        "mode": "100644",
+        "gitBlobSha": "69c66602d26d22ef9675793fca96062596eb4866",
+        "bytes": 8850,
+        "sha256": "192a35291b1dc4dd3314144d5e3f2fa759307cfdc2d739056cbdb34da4372402"
+      },
+      {
+        "path": "services/native-edge/src/lot/host-receipts.ts",
+        "mode": "100644",
+        "gitBlobSha": "33a337f09ef85258a7ab870e3367b6113af74698",
+        "bytes": 22650,
+        "sha256": "7b752be87ab1c27e85fb098206d0fb3cfd190e5edfc3b51b6083289d167212ca"
+      },
+      {
+        "path": "services/native-edge/tests/host-receipts.test.mjs",
+        "mode": "100644",
+        "gitBlobSha": "d98e127df0621461fa0bcdb6ce730486e6991a03",
+        "bytes": 33258,
+        "sha256": "3bb863bec2bfa889f2aca7f2be58c6bb733a1c93d28fbc95f72a89bb5808b5fd"
+      },
+      {
+        "path": "services/native-lot-host/src/player_tests.rs",
+        "mode": "100644",
+        "gitBlobSha": "e63f473e9b108e2793a4cef997df0ce0ae40206d",
+        "bytes": 50309,
+        "sha256": "00f03651ba43cb19c71054347767e0e4977820f7d9b3f9e7ec65fdbc3414ce22"
+      },
+      {
+        "path": "services/native-lot-host/src/runtime.rs",
+        "mode": "100644",
+        "gitBlobSha": "1e6ff80ae0100da403bb89d7009b0c8dc52f9bd5",
+        "bytes": 36733,
+        "sha256": "0ee574b23c229dd51d289eb304ac8b061709b390331e28907257ea0b8cb7a52d"
+      },
+      {
+        "path": "tools/native-browser/owned-demo.mjs",
+        "mode": "100644",
+        "gitBlobSha": "bddda01c8bd30ceb7fbc26ceb463c04dcb0dcf56",
+        "bytes": 54961,
+        "sha256": "12feb8e625e986da213078a54aee6ab68a74eee432f1e71c0b0113036b5d5046"
+      },
+      {
+        "path": "tools/native-browser/owned-demo/README.md",
+        "mode": "100644",
+        "gitBlobSha": "275709333b2424c2383f31c04a588644e131ea4f",
+        "bytes": 11758,
+        "sha256": "ce286a43d3c9f77167d307fc0bb52cf3e0f8f1968d2fdcce1bade9484d6c6481"
+      },
+      {
+        "path": "tools/native-browser/owned-demo/preparation-status.mjs",
+        "mode": "100644",
+        "gitBlobSha": "348bbc87d6dc50230fca927388395e645c9108f6",
+        "bytes": 1325,
+        "sha256": "02f1a52b39f855045fbb3623d5fc3ff531d75bf7b260efeb0ae535453b2ec5f4"
+      },
+      {
+        "path": "tools/native-browser/owned-demo/preparation-status.test.mjs",
+        "mode": "100644",
+        "gitBlobSha": "9b33c0f8f80c4ca3c7a5aa04c22635d661ab87af",
+        "bytes": 4184,
+        "sha256": "da5d6c8956ec106c57b18881741e9aeee7aa2370bc2c35e314c5dc2341276dd1"
+      },
+      {
+        "path": "tools/native-browser/owned-demo/tick-scheduler.test.mjs",
+        "mode": "100644",
+        "gitBlobSha": "bd8c63556e6aa2fe8df7310d46e9e726848f7fb7",
+        "bytes": 13150,
+        "sha256": "3d39e9902d675236b4829ed5fb9eee82b4c7e74633bdb009a88461819b56e15c"
+      }
+    ]
+  },
+  "plannedRepositoryRefs": {
+    "thisEvidence": "docs/verification/native-two-context-walk-20261023/performance-checkpoint-7da6f0b5-evidence.json",
+    "qualificationNote": {
+      "path": "docs/verification/native-two-context-walk-20261023/performance-checkpoint-7da6f0b5.md",
+      "sha256": "2f741207831d24bef5eb9070d803f1676a1b573a4dc43fe141c2bf73f65b3722"
+    },
+    "priorQualification": "docs/verification/native-two-context-walk-20261023/qualification.json",
+    "sourceManifest": "docs/verification/native-two-context-walk-20261023/performance-checkpoint-7da6f0b5-source-manifest.json"
+  },
+  "artifacts": {
+    "qualificationSourceCommit": "7da6f0b58d154b2e1c4aaef9f677a5c810113150",
+    "qualificationSourceTree": "7d4495dd8fae9b3f73f486d5465ca40040c267b4",
+    "nativeHost": {
+      "compiledFromSourceCommit": "83c7840abbd33f95cefe563a67ff76dfa4f61f5c",
+      "compiledFromSourceTree": "615fe3f34cf393e1705c9f9a5988a1deb51d93fd",
+      "profile": "release",
+      "buildPerformed": false,
+      "artifactVerificationPerformed": true,
+      "originalBuildReceiptSha256": "a3850e5e6b45bc092c06b8cf6a4fef0b8b457950d76336f4258754fdbe094e16",
+      "exitCode": 0,
+      "binary": {
+        "bytes": 10539056,
+        "sha256": "81a9875ede8244790e435d07acec010a49130456f1150fd8000ec7d515e2fc8a"
+      },
+      "overflowChecks": true
+    },
+    "browserWasm": {
+      "compiledFromSourceCommit": "69d1caafe545f057257d923e61f6d20116b3fecc",
+      "compiledFromSourceTree": "49332cd66863a8be469e724c0706c0b2f3b22d0c",
+      "profile": "release",
+      "buildPerformed": false,
+      "artifactVerificationPerformed": true,
+      "originalBuildReceiptSha256": "a7e54ca820bb13307078de5cb10f880ee9a0bbc5c2ca2f64cfef79348eb20471",
+      "exitCode": 0,
+      "overflowChecks": true,
+      "artifactCount": 147,
+      "packagedFileCount": 147,
+      "packagedArtifactManifestSha256": "5d579c173d22cf865a876c200a3ec70beeb2d51c13780af59238cb378b17d890",
+      "sourceInputEquivalenceVerified": true
+    },
+    "fixtureExporter": {
+      "compiledFromSourceCommit": "250787f92648088018642d5d823871dccfbf55ef",
+      "compiledFromSourceTree": "568b6ac9616c309a662a33110ab2108153c7e57f",
+      "profile": "direct-rustc-fixture-exporter",
+      "buildPerformed": false,
+      "artifactVerificationPerformed": true,
+      "originalBuildReceiptSha256": "a8e23a72e7b1862fb357a6ed7397ff9e26401e78a0aa445843749d8061665a41",
+      "exitCode": 0,
+      "binary": {
+        "bytes": 6794576,
+        "sha256": "020ddd26208342fd27fa1a809476c465f65379e961413003bd5f7ea7ef134021"
+      },
+      "overflowChecks": true,
+      "defaultOptimizationLevel": 0,
+      "linkedDependencyProfile": "release",
+      "linkedReleaseLibraries": 7
+    },
+    "note": "Retained artifacts were verified by the matching-source/input-equivalence receipts; no new build was represented. Exporter itself uses default optimization level0 with seven release libraries. No binary or game-input content is included."
+  },
+  "testsAndReview": {
+    "schedulerAtExactCheckpoint": {
+      "tests": 40,
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "syntaxCheckExitCode": 0,
+      "diffCheckExitCode": 0,
+      "independentReview": "no blocking findings",
+      "blockingFindings": 0,
+      "reviewerRanTests": false
+    },
+    "earlierFocusedResults": [
+      {
+        "scope": "native-host release",
+        "directSourceCommit": "69d1caafe545f057257d923e61f6d20116b3fecc",
+        "directSourceTree": "49332cd66863a8be469e724c0706c0b2f3b22d0c",
+        "passed": 35,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "exitCode": 0
+      },
+      {
+        "scope": "native preparation-status compatibility",
+        "directSourceCommit": "250787f92648088018642d5d823871dccfbf55ef",
+        "directSourceTree": "568b6ac9616c309a662a33110ab2108153c7e57f",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 32,
+        "exitCode": 0
+      },
+      {
+        "scope": "sim-core runtime_tick canonical-hash contract",
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "exitCode": 0,
+        "sourceIdentityRecordedInReceipt": false,
+        "limitation": "Earlier receipt omits commit/tree, so exact current-source provenance of this9-test run is unverified."
+      },
+      {
+        "scope": "host-receipt storage/archive-cache, existing node:test with real SQLite and bounded Bucket faults",
+        "directSourceCommit": "09078560293bef393177ebfd4dd2a56833563019",
+        "directSourceTree": "9ed38fee12d162ceb7eb830d7718047ffce59d10",
+        "passed": 66,
+        "failed": 0,
+        "skipped": 0,
+        "exitCode": 0,
+        "adapter": "Existing esbuild0.28.2 compiled the TypeScript test because Node26 strip-only mode rejects existing parameter properties; no new framework/dependency."
+      }
+    ],
+    "earlierResultsRerunOn7da": false,
+    "fullSuitePassClaimed": false
+  },
+  "baselineLimitations": {
+    "typecheck": {
+      "candidateSourceCommit": "09078560293bef393177ebfd4dd2a56833563019",
+      "passed": false,
+      "exitCode": 1,
+      "sameErrorOnBaselineCommit": "250787f92648088018642d5d823871dccfbf55ef",
+      "diagnostic": "TS7016 missing generated account_crypto.js declaration at src/account/crypto.ts:7",
+      "noUnrelatedStubOrDependencyInstall": true,
+      "rerunOn7da": false
+    },
+    "format": {
+      "sourceCommit": "250787f92648088018642d5d823871dccfbf55ef",
+      "passed": false,
+      "exitCode": 1,
+      "reportedFiles": [
+        "crates/sim-core/src/runtime.rs",
+        "crates/sim-core/src/runtime_leave.rs",
+        "crates/sim-core/src/runtime_owned_admission.rs",
+        "crates/sim-core/tests/runtime_owned_leave.rs",
+        "services/native-lot-host/examples/owned-boundary-fixture.rs",
+        "services/native-lot-host/src/main.rs"
+      ],
+      "introducedTestWrappingHadRemainingDiff": false,
+      "rerunOn7da": false,
+      "limitation": "Six broader formatting discrepancies were reported. No full format pass or independent proof that every discrepancy predates the earliest source baseline is claimed."
+    }
+  },
+  "twoContextAcceptance": {
+    "sourceCommit": "7da6f0b58d154b2e1c4aaef9f677a5c810113150",
+    "freshFlows": 2,
+    "walksPassed": 4,
+    "sameSourceAndArtifact": true,
+    "nonoverlapping": true,
+    "sourceMovementPeerAndTickIntegrityPassed": true,
+    "visual": "PASS_WITH_KNOWN_WARNINGS",
+    "visualScope": "Retained still-image endpoint review supports model visibility/displacement, not animation smoothness or frame cadence; object interaction and leave/save are outside this exercised path.",
+    "warnings": [
+      "Some original scenery is unavailable.",
+      "Source terrain actions unavailable notice remains in the final view after a completed Walk.",
+      "Actions panel occludes some own-avatar endpoints; peer images provide unobstructed displacement evidence.",
+      "Chromium preload-destination integrity warnings."
+    ],
+    "pageOrConsoleErrorsObserved": false,
+    "strictUtcGate": "FAIL",
+    "strictMonotonicGate": "FAIL",
+    "thirtyHzQualified": false,
+    "gate": "Each flow requires scheduled and verified complete-body rates and committed progress>=30.0 over its two original click-to-observed-terminal windows; mean body<1000/30ms; both UTC and monotonic Walk duration<=45000ms; all source, movement, peer, artifact and freshness checks. No tolerance, rounding, retimed window or synthetic tick.",
+    "flows": [
+      {
+        "flow": 13,
+        "elapsedMonotonicNs": "14005631208",
+        "bodies": 420,
+        "requiredBodies": 421,
+        "rates": {
+          "scheduledBodyHz": 29.987937977411292,
+          "verifiedScheduledCommitHz": 29.987937977411292,
+          "committedProgressHz": 30.130737682065632,
+          "bodyMeanMs": 18.8581993095238
+        },
+        "walks": [
+          {
+            "player": 1,
+            "elapsedMonotonicNs": "7459521708",
+            "utcWallMs": 7459,
+            "scheduledBodies": 223,
+            "verifiedScheduledCommitBodies": 223,
+            "scheduledBodyHz": 29.894678067742944,
+            "committedProgressHz": 30.028734920064664,
+            "committedTickDelta": 224,
+            "scheduledCommitMarks": 223,
+            "actionOrOtherCommitMarks": 1,
+            "sourceCompletionPassed": true,
+            "authoritativeMovementPassed": true,
+            "peerAgreementPassed": true
+          },
+          {
+            "player": 2,
+            "elapsedMonotonicNs": "6546109500",
+            "utcWallMs": 6547,
+            "scheduledBodies": 197,
+            "verifiedScheduledCommitBodies": 197,
+            "scheduledBodyHz": 30.094210920242016,
+            "committedProgressHz": 30.24697341222294,
+            "committedTickDelta": 198,
+            "scheduledCommitMarks": 197,
+            "actionOrOtherCommitMarks": 1,
+            "sourceCompletionPassed": true,
+            "authoritativeMovementPassed": true,
+            "peerAgreementPassed": true
+          }
+        ],
+        "sourceMovementPeerAndIntegrity": "PASS",
+        "utcAndMonotonicThirtyHz": "FAIL",
+        "visual": "PASS_WITH_KNOWN_WARNINGS"
+      },
+      {
+        "flow": 14,
+        "elapsedMonotonicNs": "13961196958",
+        "bodies": 418,
+        "requiredBodies": 419,
+        "rates": {
+          "scheduledBodyHz": 29.940126284120574,
+          "verifiedScheduledCommitHz": 29.940126284120574,
+          "committedProgressHz": 30.08338047686756,
+          "bodyMeanMs": 17.95435075119617
+        },
+        "walks": [
+          {
+            "player": 1,
+            "elapsedMonotonicNs": "7443473875",
+            "utcWallMs": 7444,
+            "scheduledBodies": 223,
+            "verifiedScheduledCommitBodies": 223,
+            "scheduledBodyHz": 29.959129802144968,
+            "committedProgressHz": 30.09347567569719,
+            "committedTickDelta": 224,
+            "scheduledCommitMarks": 223,
+            "actionOrOtherCommitMarks": 1,
+            "sourceCompletionPassed": true,
+            "authoritativeMovementPassed": true,
+            "peerAgreementPassed": true
+          },
+          {
+            "player": 2,
+            "elapsedMonotonicNs": "6517723083",
+            "utcWallMs": 6518,
+            "scheduledBodies": 195,
+            "verifiedScheduledCommitBodies": 195,
+            "scheduledBodyHz": 29.91842358393734,
+            "committedProgressHz": 30.071851397188304,
+            "committedTickDelta": 196,
+            "scheduledCommitMarks": 195,
+            "actionOrOtherCommitMarks": 1,
+            "sourceCompletionPassed": true,
+            "authoritativeMovementPassed": true,
+            "peerAgreementPassed": true
+          }
+        ],
+        "sourceMovementPeerAndIntegrity": "PASS",
+        "utcAndMonotonicThirtyHz": "FAIL",
+        "visual": "PASS_WITH_KNOWN_WARNINGS"
+      }
+    ]
+  },
+  "windowInvestigation": {
+    "retainedEvidenceOnly": true,
+    "sourceGateOrRuntimeChanged": false,
+    "periodNs": {
+      "numerator": "100000000",
+      "denominator": "3"
+    },
+    "requiredCount": "ceil(30*sum(windowDurationNs)/1000000000)",
+    "decomposition": "D-N*P=(u+v-P)+((lastEnd-firstEnd)-(N-1)*P); u=firstEnd-click, v=terminal-lastEnd; exact rational nanoseconds. Sum the two Walk identities per flow.",
+    "clocks": "Start is before awaited Playwright click. End is after terminal-history DOM observation, JSON retrieval and handle disposal; later movement/peer checks are excluded. Body completion is after the full awaited source/commit/checkpoint work.",
+    "idealPhase": {
+      "finding": "Even an exactly periodic nominal30Hz completion train can fail the unchanged finite-window count gate.",
+      "method": "Independent direct rational enumeration of lattice points in every open phase cell and singleton breakpoint for both original window pairs; compares base and constant-18ms shifted trains against analytic floor/ceil counts and unchanged gate.",
+      "independentComparisons": 112,
+      "allComparisonsPassed": true,
+      "phaseProportionsAreNotActualSchedulerProbabilities": true,
+      "samePhaseAcrossBothWalksWithinEachFlow": true,
+      "constantOffsetIllustrationNs": "18000000",
+      "flows": [
+        {
+          "flow": 13,
+          "idealCountRange": [
+            419,
+            421
+          ],
+          "idealPassPhaseProportion": {
+            "numerator": "89817",
+            "denominator": "400000"
+          },
+          "idealFailPhaseProportion": {
+            "numerator": "310183",
+            "denominator": "400000"
+          },
+          "windows": [
+            {
+              "startNs": "9541973462250",
+              "endNs": "9549432983958",
+              "durationNs": "7459521708",
+              "idealExpectedCount": {
+                "numerator": "5594641281",
+                "denominator": "25000000"
+              }
+            },
+            {
+              "startNs": "9550834837500",
+              "endNs": "9557380947000",
+              "durationNs": "6546109500",
+              "idealExpectedCount": {
+                "numerator": "39276657",
+                "denominator": "200000"
+              }
+            }
+          ],
+          "countDistributionByPhaseLength": [
+            {
+              "count": 419,
+              "phaseProportion": {
+                "numerator": "2780313",
+                "denominator": "50000000"
+              }
+            },
+            {
+              "count": 420,
+              "phaseProportion": {
+                "numerator": "17996281",
+                "denominator": "25000000"
+              }
+            },
+            {
+              "count": 421,
+              "phaseProportion": {
+                "numerator": "89817",
+                "denominator": "400000"
+              }
+            }
+          ]
+        },
+        {
+          "flow": 14,
+          "idealCountRange": [
+            418,
+            420
+          ],
+          "idealPassPhaseProportion": {
+            "numerator": "3466953",
+            "denominator": "6250000"
+          },
+          "idealFailPhaseProportion": {
+            "numerator": "2783047",
+            "denominator": "6250000"
+          },
+          "windows": [
+            {
+              "startNs": "9573195645125",
+              "endNs": "9580639119000",
+              "durationNs": "7443473875",
+              "idealExpectedCount": {
+                "numerator": "178643373",
+                "denominator": "800000"
+              }
+            },
+            {
+              "startNs": "9581896412458",
+              "endNs": "9588414135541",
+              "durationNs": "6517723083",
+              "idealExpectedCount": {
+                "numerator": "19553169249",
+                "denominator": "100000000"
+              }
+            }
+          ],
+          "countDistributionByPhaseLength": [
+            {
+              "count": 418,
+              "phaseProportion": {
+                "numerator": "2783047",
+                "denominator": "6250000"
+              }
+            },
+            {
+              "count": 419,
+              "phaseProportion": {
+                "numerator": "13675811",
+                "denominator": "50000000"
+              }
+            },
+            {
+              "count": 420,
+              "phaseProportion": {
+                "numerator": "14059813",
+                "denominator": "50000000"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "actualDecomposition": [
+      {
+        "flow": 13,
+        "edgeTermNs": {
+          "numerator": "-17300747",
+          "denominator": "3",
+          "millisecondsApprox": -5.766915666666667
+        },
+        "interiorTermNs": {
+          "numerator": "34194371",
+          "denominator": "3",
+          "millisecondsApprox": 11.398123666666667
+        },
+        "DMinusNPeriodsNs": {
+          "numerator": "5631208",
+          "denominator": "1",
+          "millisecondsApprox": 5.631208
+        },
+        "exactIdentityVerified": true,
+        "genuineActionCommitTicks": [
+          "107",
+          "372"
+        ],
+        "actionMapping": "One successful prepare_player_action then resolve/cursor commit per single submitted Walk; matching rendered source action completes. Correlation uses source/FIFO chronology, not a logged private payload ID.",
+        "windows": [
+          {
+            "player": 1,
+            "startNs": "9541973462250",
+            "endNs": "9549432983958",
+            "bodies": 223,
+            "firstCompletionNs": "9541984090000",
+            "lastCompletionNs": "9549406071666",
+            "decomposition": {
+              "uNs": "10627750",
+              "vNs": "26912292",
+              "edgeTermNs": {
+                "numerator": "12620126",
+                "denominator": "3",
+                "millisecondsApprox": 4.206708666666667
+              },
+              "interiorTermNs": {
+                "numerator": "21981666",
+                "denominator": "1",
+                "millisecondsApprox": 21.981666
+              },
+              "DMinusNPeriodsNs": {
+                "numerator": "78565124",
+                "denominator": "3",
+                "millisecondsApprox": 26.188374666666668
+              },
+              "exactIdentityVerified": true
+            },
+            "inWindowScheduledCommitsWhoseBodyEndsAfterTerminal": 0
+          },
+          {
+            "player": 2,
+            "startNs": "9550834837500",
+            "endNs": "9557380947000",
+            "bodies": 197,
+            "firstCompletionNs": "9550844316250",
+            "lastCompletionNs": "9557367066041",
+            "decomposition": {
+              "uNs": "9478750",
+              "vNs": "13880959",
+              "edgeTermNs": {
+                "numerator": "-29920873",
+                "denominator": "3",
+                "millisecondsApprox": -9.973624333333333
+              },
+              "interiorTermNs": {
+                "numerator": "-31750627",
+                "denominator": "3",
+                "millisecondsApprox": -10.583542333333334
+              },
+              "DMinusNPeriodsNs": {
+                "numerator": "-61671500",
+                "denominator": "3",
+                "millisecondsApprox": -20.557166666666667
+              },
+              "exactIdentityVerified": true
+            },
+            "inWindowScheduledCommitsWhoseBodyEndsAfterTerminal": 0
+          }
+        ]
+      },
+      {
+        "flow": 14,
+        "edgeTermNs": {
+          "numerator": "1059373",
+          "denominator": "3",
+          "millisecondsApprox": 0.3531243333333333
+        },
+        "interiorTermNs": {
+          "numerator": "82531501",
+          "denominator": "3",
+          "millisecondsApprox": 27.510500333333333
+        },
+        "DMinusNPeriodsNs": {
+          "numerator": "83590874",
+          "denominator": "3",
+          "millisecondsApprox": 27.863624666666666
+        },
+        "exactIdentityVerified": true,
+        "genuineActionCommitTicks": [
+          "107",
+          "367"
+        ],
+        "actionMapping": "One successful prepare_player_action then resolve/cursor commit per single submitted Walk; matching rendered source action completes. Correlation uses source/FIFO chronology, not a logged private payload ID.",
+        "windows": [
+          {
+            "player": 1,
+            "startNs": "9573195645125",
+            "endNs": "9580639119000",
+            "bodies": 223,
+            "firstCompletionNs": "9573217743041",
+            "lastCompletionNs": "9580613346708",
+            "decomposition": {
+              "uNs": "22097916",
+              "vNs": "25772292",
+              "edgeTermNs": {
+                "numerator": "43610624",
+                "denominator": "3",
+                "millisecondsApprox": 14.536874666666666
+              },
+              "interiorTermNs": {
+                "numerator": "-4396333",
+                "denominator": "1",
+                "millisecondsApprox": -4.396333
+              },
+              "DMinusNPeriodsNs": {
+                "numerator": "30421625",
+                "denominator": "3",
+                "millisecondsApprox": 10.140541666666667
+              },
+              "exactIdentityVerified": true
+            },
+            "inWindowScheduledCommitsWhoseBodyEndsAfterTerminal": 0
+          },
+          {
+            "player": 2,
+            "startNs": "9581896412458",
+            "endNs": "9588414135541",
+            "bodies": 195,
+            "firstCompletionNs": "9581912875625",
+            "lastCompletionNs": "9588411449125",
+            "decomposition": {
+              "uNs": "16463167",
+              "vNs": "2686416",
+              "edgeTermNs": {
+                "numerator": "-42551251",
+                "denominator": "3",
+                "millisecondsApprox": -14.183750333333334
+              },
+              "interiorTermNs": {
+                "numerator": "95720500",
+                "denominator": "3",
+                "millisecondsApprox": 31.906833333333335
+              },
+              "DMinusNPeriodsNs": {
+                "numerator": "17723083",
+                "denominator": "1",
+                "millisecondsApprox": 17.723083
+              },
+              "exactIdentityVerified": true
+            },
+            "inWindowScheduledCommitsWhoseBodyEndsAfterTerminal": 0
+          }
+        ]
+      }
+    ],
+    "causalLimit": "Actual aggregate interior completion-spacing deviation coexists with phase-sensitive finite windows. Pure boundary causality is not established. This arithmetic does not make either actual gate pass or establish a new product fix/long-run30Hz rate.",
+    "inclusiveIdealCountFormula": "floor((30*b-theta)/1000000000)-ceil((30*a-theta)/1000000000)+1; one common theta=30*completion_phase_ns mod1000000000 per flow"
+  },
+  "retainedInputPins": [
+    {
+      "id": "source-manifest.json",
+      "bytes": 4233,
+      "sha256": "f0512da7578395d4c634302b0472a4a140cc3aa4eb7353a4f93b1bf5d7960d2a",
+      "originalPublished": false
+    },
+    {
+      "id": "cooldown-regression-7da6f0b5.json",
+      "bytes": 2241,
+      "sha256": "7daee79b6425fb970259185b006e9a5142f2816c86fbb74802c0c8335f9b54c6",
+      "originalPublished": false
+    },
+    {
+      "id": "cooldown-independent-review-7da6f0b5.json",
+      "bytes": 1454,
+      "sha256": "948a612d06aff61204898c49090d941afc5e7943c688c4701eee5c1fa654536d",
+      "originalPublished": false
+    },
+    {
+      "id": "cooldown-13-14-monotonic-thirty-hz.json",
+      "bytes": 14121,
+      "sha256": "ec9f3ccd78d32bde2098ae3297fd8e0290fe23f0c460f82011bfb1e1f68c2503",
+      "originalPublished": false
+    },
+    {
+      "id": "cooldown-13-14-utc-thirty-hz.json",
+      "bytes": 12659,
+      "sha256": "7598e006a05afa817108855fcf369b6e2ff2fa0042b48f93f4b582bb638571fd",
+      "originalPublished": false
+    },
+    {
+      "id": "actual-completed-body-window-13-14.json",
+      "bytes": 24796,
+      "sha256": "06fbad0954d34e48bba8ba3508ad8524e06be6e1a6e5e8a5d61b60d89e84193b",
+      "originalPublished": false
+    },
+    {
+      "id": "ideal-completed-body-gate-01.json",
+      "bytes": 43596,
+      "sha256": "e734aa896ea65d15680ea9d3149b8b0c24caba3853c16bdb9748f2765b2d54d8",
+      "originalPublished": false
+    },
+    {
+      "id": "ideal-completed-body-gate-01-enumeration-review.json",
+      "bytes": 749,
+      "sha256": "538786bfdeeb5ea0f7bac8412cf5b32927c17ebe87c6e129bc8dc394257dad7a",
+      "originalPublished": false
+    },
+    {
+      "id": "native-host-cooldown-runtime-binding-01.json",
+      "bytes": 13656,
+      "sha256": "b261a52e3cfdbc8bb14429e86b5c8366f6d412eca95731bca71ae88a70970b50",
+      "originalPublished": false
+    },
+    {
+      "id": "matching-wasm-cooldown-reuse-01.json",
+      "bytes": 49728,
+      "sha256": "1de616c79784f3fc5a2b9143bd609b8ba7b723f9d17570afabdfe8e7f1eb034d",
+      "originalPublished": false
+    },
+    {
+      "id": "native-exporter-cooldown-runtime-binding-01.json",
+      "bytes": 13497,
+      "sha256": "97a269f715651d7dbdf3c087d5e45397c17e6464a8b1c8fee3284dbbe917054b",
+      "originalPublished": false
+    },
+    {
+      "id": "accepted-archive-cache-regression-09078560.json",
+      "bytes": 2623,
+      "sha256": "01f1509eb11f98239093e92e889b55541f7449e71a15ff2c135381a6119e225a",
+      "originalPublished": false
+    },
+    {
+      "id": "paced-format-check-250787f9.json",
+      "bytes": 1236,
+      "sha256": "073c6f11eca7f737b8d2f0c5572f1322625d1201b25ea5a9d036b4baac2d260f",
+      "originalPublished": false
+    },
+    {
+      "id": "native-host-hash-regression-02.json",
+      "bytes": 607,
+      "sha256": "3e7cb60c3766c865bdccf290b48438fa05ab1cb064d72c8a74526d57ccdce9b9",
+      "originalPublished": false
+    },
+    {
+      "id": "paced-native-status-regression-02.json",
+      "bytes": 755,
+      "sha256": "abd89e2dbb3ac070263e2af7d2ed3541d22ad5273320b5fb8178f66e399641ac",
+      "originalPublished": false
+    },
+    {
+      "id": "canonical-hash-regression.json",
+      "bytes": 492,
+      "sha256": "1141ff20c8f9e146075af3116c227e1f7a20d71bb5736e88af0007021d56e7a9",
+      "originalPublished": false
+    },
+    {
+      "id": "canonical-hash-regression.log",
+      "bytes": 990,
+      "sha256": "0daa5228f5fbec97155d298e6e0372b9e66509d3446e2b1dc941300c5fddb747",
+      "originalPublished": false
+    },
+    {
+      "id": "native-host-hash-regression-02.log",
+      "bytes": 3936,
+      "sha256": "7e572cce5817657a1a0efd0f494986bde603beea247c93b2db7cd0c8c648c4e7",
+      "originalPublished": false
+    },
+    {
+      "id": "paced-native-status-regression-02.log",
+      "bytes": 716,
+      "sha256": "0a751085675f8da4b9a19f64cf077a52159b80b5dda4e5c10645ad859e73859f",
+      "originalPublished": false
+    },
+    {
+      "id": "cooldown-scheduler-green-01.log",
+      "bytes": 3106,
+      "sha256": "1f60b7d5f46d0f0366290ca86c6e83671b76bf3acfe6d05da8487225b816ee05",
+      "originalPublished": false
+    },
+    {
+      "id": "archive-cache-green-02.log",
+      "bytes": 5673,
+      "sha256": "535a26f256549591b31ba74673689b5b0bf7506ccf59c66fed75492b0f03bf4f",
+      "originalPublished": false
+    },
+    {
+      "id": "archive-cache-typecheck-01.log",
+      "bytes": 263,
+      "sha256": "0cae0286bfd59eb3dc868df33afd1f44bc856b7af4490da1e9f18fec22efe84d",
+      "originalPublished": false
+    },
+    {
+      "id": "archive-cache-baseline-typecheck-01.log",
+      "bytes": 267,
+      "sha256": "38a03675206d20c1212ee099c76702a1086752dcbbc062fc878411a702f781e9",
+      "originalPublished": false
+    },
+    {
+      "id": "visual-review.json",
+      "bytes": 7035,
+      "sha256": "3780a66e1a490ae6883f5cff907bbd4395b33ffa386fa997f87ce169deb9bb5d",
+      "originalPublished": false
+    },
+    {
+      "id": "visual-review.json",
+      "bytes": 5515,
+      "sha256": "edf2e1c8b9f7646fd7046d52dda2bbfe5b913c1e68a1437f44b6c221b3306801",
+      "originalPublished": false
+    }
+  ],
+  "sanitization": {
+    "selfContainedSummary": true,
+    "localFilesystemPaths": false,
+    "privateAssetContent": false,
+    "fixtureAccountOrCredentialMaterial": false,
+    "rawLogsOrRecordings": false,
+    "artifactBinaries": false,
+    "newTestsBuildsOrGameplay": false,
+    "originalInputsSummarizedNotPublished": true
+  },
+  "ownerAcceptance": {
+    "accepted": true,
+    "acceptedAtUtc": "2026-10-23T19:32:00Z",
+    "scheduledBodyRatesHz": [
+      29.987937977411292,
+      29.940126284120574
+    ],
+    "scope": "Owner accepts the measured rates for the requested release. Historical strict30Hz test results remain FAIL; no test threshold or source changed."
+  }
+}

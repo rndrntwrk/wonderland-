@@ -42,9 +42,13 @@ esbuild and ws from the locked edge dependency tree.
 Build the private host and WASM app:
 
 ```sh
-cargo build --locked -p wonderland-native-lot-host
+cargo build --locked --release -p wonderland-native-lot-host
 node apps/web-shell/scripts/build.mjs
 ```
+
+The default private host path is `target/release/wonderland-native-lot-host`.
+The release profile retains overflow checks. A development host can be selected
+explicitly with `--host`, but its throughput requires separate measurement.
 
 After importing and qualifying the original content, supply a private manifest:
 

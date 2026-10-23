@@ -132,6 +132,22 @@ impl Host {
             RequestV1::InspectStatus {} => Ok(
                 json!({"kind":if self.recovery_committed {"committed_status"} else {"recovery_status"},"recovery_pending":!self.recovery_committed,"binding":self.binding,"cursor":cursor(&self.committed)?,"runtime_content":self.committed.sim().state().content,"sealed_release":self.report,"takeover_marker":self.takeover_marker,"pending_batch":self.pending.as_ref().map(|p|DecimalId(p.id)),"retired_through_batch_id":DecimalId(self.retired_through),"retained_receipts":self.history.len(),"retained_receipt_bytes":self.history_bytes,"admission_ready":self.committed.sim().state().owned_admission.actors().is_some(),"source_lot_location":crate::player::source_location(&self.committed),"permission_binding":crate::player::permission(&self.committed)?,"actors":crate::player::actors(&self.committed),"actor_placements":crate::player::actor_placements(&self.committed)?,"actor_registry_sha256":crate::player::registry_hash(&self.committed)?}),
             ),
+            RequestV1::InspectPreparationStatus {} => {
+                // Keep all fallible status checks. Only the returned projection
+                // changes; source authority and full inspection remain intact.
+                let current_cursor = cursor(&self.committed)?;
+                let _ = crate::player::permission(&self.committed)?;
+                let _ = crate::player::actor_placements(&self.committed)?;
+                let _ = crate::player::registry_hash(&self.committed)?;
+                Ok(json!({
+                    "kind": if self.recovery_committed { "committed_status" } else { "recovery_status" },
+                    "recovery_pending": !self.recovery_committed,
+                    "binding": self.binding,
+                    "cursor": current_cursor,
+                    "retained_receipts": self.history.len(),
+                    "retained_receipt_bytes": self.history_bytes
+                }))
+            }
             RequestV1::PlayerBootstrap { control, binding } => {
                 self.player_bootstrap(control, binding)
             }

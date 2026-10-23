@@ -1,0 +1,126 @@
+{
+  "schema": "wonderland.public-performance-source-manifest.v1",
+  "qualificationSourceCommit": "7da6f0b58d154b2e1c4aaef9f677a5c810113150",
+  "qualificationSourceTree": "7d4495dd8fae9b3f73f486d5465ca40040c267b4",
+  "localComparisonBase": "932dc19a2f79de44020af2316a9394860e55e390",
+  "publishedParentCommit": "23205b88e3eb8c826dcd58ae1c04c6c459b35411",
+  "publishedParentTree": "1dc9bfdbe344f0bc9836fe4e240bc1a401c8d6b1",
+  "relationship": "The12source postimages match the immutable local checkpoint exactly. Publication inherits the existing public tree and adds sanitized checkpoint documentation; its commit/tree differs from the local qualification identity. Local history/private inputs are not pushed.",
+  "performanceQualified": false,
+  "files": [
+    {
+      "path": "crates/native-host-contracts/src/lib.rs",
+      "mode": "100644",
+      "gitBlobSha": "ad4aa8a7825ab5ea31eee03fc42650acff34e626",
+      "bytes": 5972,
+      "sha256": "973a3314caa7984b208035cc0c9401b52fc66a59ed4924cedf46867ac2cd7a81"
+    },
+    {
+      "path": "crates/sim-core/src/runtime.rs",
+      "mode": "100644",
+      "gitBlobSha": "b6342b7edd5177d684e0ba316a9d541f610e0a19",
+      "bytes": 141981,
+      "sha256": "b6ab4baefc2c9dedb76e2a5cc98a038e66e036a98299eed57d4785a40c311123"
+    },
+    {
+      "path": "crates/sim-core/tests/runtime_tick.rs",
+      "mode": "100644",
+      "gitBlobSha": "69c66602d26d22ef9675793fca96062596eb4866",
+      "bytes": 8850,
+      "sha256": "192a35291b1dc4dd3314144d5e3f2fa759307cfdc2d739056cbdb34da4372402"
+    },
+    {
+      "path": "services/native-edge/src/lot/host-receipts.ts",
+      "mode": "100644",
+      "gitBlobSha": "33a337f09ef85258a7ab870e3367b6113af74698",
+      "bytes": 22650,
+      "sha256": "7b752be87ab1c27e85fb098206d0fb3cfd190e5edfc3b51b6083289d167212ca"
+    },
+    {
+      "path": "services/native-edge/tests/host-receipts.test.mjs",
+      "mode": "100644",
+      "gitBlobSha": "d98e127df0621461fa0bcdb6ce730486e6991a03",
+      "bytes": 33258,
+      "sha256": "3bb863bec2bfa889f2aca7f2be58c6bb733a1c93d28fbc95f72a89bb5808b5fd"
+    },
+    {
+      "path": "services/native-lot-host/src/player_tests.rs",
+      "mode": "100644",
+      "gitBlobSha": "e63f473e9b108e2793a4cef997df0ce0ae40206d",
+      "bytes": 50309,
+      "sha256": "00f03651ba43cb19c71054347767e0e4977820f7d9b3f9e7ec65fdbc3414ce22"
+    },
+    {
+      "path": "services/native-lot-host/src/runtime.rs",
+      "mode": "100644",
+      "gitBlobSha": "1e6ff80ae0100da403bb89d7009b0c8dc52f9bd5",
+      "bytes": 36733,
+      "sha256": "0ee574b23c229dd51d289eb304ac8b061709b390331e28907257ea0b8cb7a52d"
+    },
+    {
+      "path": "tools/native-browser/owned-demo.mjs",
+      "mode": "100644",
+      "gitBlobSha": "bddda01c8bd30ceb7fbc26ceb463c04dcb0dcf56",
+      "bytes": 54961,
+      "sha256": "12feb8e625e986da213078a54aee6ab68a74eee432f1e71c0b0113036b5d5046"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/README.md",
+      "mode": "100644",
+      "gitBlobSha": "275709333b2424c2383f31c04a588644e131ea4f",
+      "bytes": 11758,
+      "sha256": "ce286a43d3c9f77167d307fc0bb52cf3e0f8f1968d2fdcce1bade9484d6c6481"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/preparation-status.mjs",
+      "mode": "100644",
+      "gitBlobSha": "348bbc87d6dc50230fca927388395e645c9108f6",
+      "bytes": 1325,
+      "sha256": "02f1a52b39f855045fbb3623d5fc3ff531d75bf7b260efeb0ae535453b2ec5f4"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/preparation-status.test.mjs",
+      "mode": "100644",
+      "gitBlobSha": "9b33c0f8f80c4ca3c7a5aa04c22635d661ab87af",
+      "bytes": 4184,
+      "sha256": "da5d6c8956ec106c57b18881741e9aeee7aa2370bc2c35e314c5dc2341276dd1"
+    },
+    {
+      "path": "tools/native-browser/owned-demo/tick-scheduler.test.mjs",
+      "mode": "100644",
+      "gitBlobSha": "bd8c63556e6aa2fe8df7310d46e9e726848f7fb7",
+      "bytes": 13150,
+      "sha256": "3d39e9902d675236b4829ed5fb9eee82b4c7e74633bdb009a88461819b56e15c"
+    },
+    {
+      "path": "docs/verification/native-two-context-walk-20261023/performance-checkpoint-7da6f0b5.md",
+      "mode": "100644",
+      "gitBlobSha": "5331b0826a2d98071199442d4922d3c202d66b3f",
+      "bytes": 4521,
+      "sha256": "2f741207831d24bef5eb9070d803f1676a1b573a4dc43fe141c2bf73f65b3722"
+    },
+    {
+      "path": "docs/verification/native-two-context-walk-20261023/performance-checkpoint-7da6f0b5-evidence.json",
+      "mode": "100644",
+      "gitBlobSha": "124408aea2faa8c76473f23af28bbad42320bb51",
+      "bytes": 31844,
+      "sha256": "6af4ad584076610f6487e37add9a8edb130d1dfe323c920963bd812167cc105b"
+    }
+  ],
+  "preservePublishedFiles": {
+    "docs/contracts/boundary-map.json": "40d9eb68df2f94db80a574a887176af2525e5162",
+    "docs/verification/native-two-context-walk-20261023/README.md": "24b28ed3d16ae51ee3560187e25350a3ada238e9",
+    "docs/verification/native-two-context-walk-20261023/qualification.json": "886c9f04a15c2ae4933847efee030758e824f5c1",
+    "docs/verification/native-two-context-walk-20261023/source-manifest.json": "0a4d8f123b3d24f615d78b5a86aae88c89543c6c"
+  },
+  "selfExcludedFromFileHashList": true,
+  "ownerAcceptance": {
+    "accepted": true,
+    "acceptedAtUtc": "2026-10-23T19:32:00Z",
+    "scheduledBodyRatesHz": [
+      29.987937977411292,
+      29.940126284120574
+    ],
+    "scope": "Owner accepts the measured rates for the requested release. Historical strict30Hz test results remain FAIL; no test threshold or source changed."
+  }
+}

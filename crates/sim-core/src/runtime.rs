@@ -23,6 +23,7 @@ use crate::{
 use bincode::Options;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::sync::OnceLock;
 
 #[path = "runtime_build.rs"]
 mod build_adapter;
@@ -366,6 +367,9 @@ fn host_error(value: impl std::fmt::Debug) -> VmFault {
 
 pub struct SimRuntime {
     state: SimState,
+    // State is private and changes only through validated atomic replacements.
+    // Reuse the exact canonical digest, never a tick/epoch approximation of it.
+    state_hash: OnceLock<[u8; 32]>,
     content: ContentSet,
     role: RuntimeRole,
 }
@@ -438,6 +442,7 @@ impl SimRuntime {
             .map_err(|e| RuntimeError::Snapshot(format!("{e:?}")))?;
         Ok(Self {
             state,
+            state_hash: OnceLock::new(),
             content,
             role,
         })
@@ -452,7 +457,12 @@ impl SimRuntime {
         self.role
     }
     pub fn state_hash(&self) -> Result<[u8; 32], RuntimeError> {
-        state_hash(&self.state)
+        if let Some(hash) = self.state_hash.get() {
+            return Ok(*hash);
+        }
+        let hash = state_hash(&self.state)?;
+        let _ = self.state_hash.set(hash);
+        Ok(hash)
     }
     pub fn next_tick(&self, commands: Vec<AcceptedCommand>) -> Result<AcceptedTick, RuntimeError> {
         Ok(AcceptedTick {
@@ -481,6 +491,7 @@ impl SimRuntime {
         let restored = crate::snapshot::decode(bytes, &self.content, expectation)
             .map_err(|e| RuntimeError::Snapshot(format!("{e:?}")))?;
         self.state = restored;
+        self.state_hash.take();
         Ok(())
     }
     /// Called only after the external lease/fencing protocol grants this epoch.
@@ -494,6 +505,7 @@ impl SimRuntime {
         crate::snapshot::validate_state(&next, &self.content)
             .map_err(|e| RuntimeError::Snapshot(format!("{e:?}")))?;
         self.state = next;
+        self.state_hash.take();
         self.role = role;
         Ok(())
     }
@@ -595,6 +607,7 @@ impl SimRuntime {
             Vec::new()
         };
         self.state = next;
+        self.state_hash = OnceLock::from(state_hash);
         Ok(TickOutcome {
             tick: input.tick,
             duplicate: false,

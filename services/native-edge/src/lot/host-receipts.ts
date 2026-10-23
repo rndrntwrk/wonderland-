@@ -88,6 +88,11 @@ type Archive = {
   checkpoint_sha256: string;
   through_batch_id: string;
 };
+type AcceptedArchiveRead = (
+  objectKey: string,
+  sha256: string,
+  bytes: number,
+) => Promise<Uint8Array>;
 
 function nonzero(raw: unknown): string {
   const value = decimal(raw);
@@ -316,7 +321,11 @@ export class HostReceiptStore {
       throw Error("host receipt checkpoint manifest mismatch");
     return { json: row.manifest, bytes: m.byte_length as number };
   }
-  private async acceptedPayload(key: string, sha: string) {
+  private async acceptedPayload(
+    key: string,
+    sha: string,
+    readArchive: AcceptedArchiveRead,
+  ) {
     const stored = this.storage.sql
       .exec<{
         bytes: number;
@@ -383,7 +392,7 @@ export class HostReceiptStore {
         a.byte_offset + a.byte_length > a.bytes
       )
         throw Error("host receipt accepted archive bounds mismatch");
-      bytes = (await this.readObject(a.object_key, a.sha256, a.bytes)).slice(
+      bytes = (await readArchive(a.object_key, a.sha256, a.bytes)).slice(
         a.byte_offset,
         a.byte_offset + a.byte_length,
       );
@@ -403,7 +412,11 @@ export class HostReceiptStore {
       ? controlledProposal(p).payload
       : proposal(p).payload;
   }
-  private async validateDecision(e: HostReceiptEnvelope, r: HostReceiptRecord) {
+  private async validateDecision(
+    e: HostReceiptEnvelope,
+    r: HostReceiptRecord,
+    readArchive: AcceptedArchiveRead,
+  ) {
     const key = e.binding.lot_incarnation + ":" + r.batch_id;
     const row = this.decision(key, r.reply.kind),
       decision = JSON.parse(row.receipt);
@@ -431,7 +444,7 @@ export class HostReceiptStore {
     )
       throw Error("host receipt differs from atomic player action outcome");
     if (r.reply.kind === "committed") {
-      const p = await this.acceptedPayload(key, r.digest);
+      const p = await this.acceptedPayload(key, r.digest, readArchive);
       if (
         !equal(p.binding, e.binding) ||
         p.batch_id !== r.batch_id ||
@@ -489,13 +502,39 @@ export class HostReceiptStore {
     );
     const decisions: DecisionRow[] = [],
       recordHashes: string[] = [];
+    // One bounded, authenticated archive snapshot per persist call. Each payload
+    // still gets its own SQL bounds, copied slice, digest and semantic checks.
+    // Reverify an outgoing snapshot before eviction or receipt publication.
+    let acceptedArchive:
+      | { key: string; sha256: string; size: number; data: Uint8Array }
+      | undefined;
+    const verifyAcceptedArchive = async () => {
+      if (!acceptedArchive) return;
+      const { key, sha256, size } = acceptedArchive;
+      acceptedArchive = undefined;
+      await this.readObject(key, sha256, size);
+    };
+    const readArchive: AcceptedArchiveRead = async (key, sha256, size) => {
+      if (
+        !acceptedArchive ||
+        acceptedArchive.key !== key ||
+        acceptedArchive.sha256 !== sha256 ||
+        acceptedArchive.size !== size
+      ) {
+        if (acceptedArchive) await verifyAcceptedArchive();
+        const data = await this.readObject(key, sha256, size);
+        acceptedArchive = { key, sha256, size, data };
+      }
+      return acceptedArchive.data;
+    };
     for (const r of e.records) {
-      decisions.push(await this.validateDecision(e, r));
+      decisions.push(await this.validateDecision(e, r, readArchive));
       recordHashes.push(await digest(encode(r)));
       const prior = await this.lookup(e.binding.lot_incarnation, r.batch_id);
       if (prior.status === "recorded" && !equal(prior.record, r))
         throw Error("host receipt batch identity reused");
     }
+    if (acceptedArchive) await verifyAcceptedArchive();
     const key = objectKey(e, sha),
       existing = await this.bucket.get(key);
     if (existing) {

@@ -7,7 +7,7 @@ const decimal = (value, zero = false) => typeof value === "string"
 const count = value => Number.isSafeInteger(value) && value >= 0;
 
 export async function currentPreparationStatus(host) {
-  const current = await host.ask({kind: "inspect_status"});
+  const current = await host.ask({kind: "inspect_preparation_status"});
   const binding = current?.binding, cursor = current?.cursor;
   if (current?.kind !== "committed_status" || current.recovery_pending !== false
     || !record(binding) || binding.protocol !== 1

@@ -44,6 +44,8 @@ pub enum RequestV1 {
     Inspect,
     /// Read-only preparation metadata; never serializes or validates a new checkpoint.
     InspectStatus {},
+    /// Minimal private preparation response; retains the status validation checks.
+    InspectPreparationStatus {},
     PlayerBootstrap {
         control: OwnedControlV2,
         binding: PlayerBindingV1,

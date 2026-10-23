@@ -7,7 +7,6 @@ const validStatus = () => ({
   binding: {protocol: 1, source_pin: "paired fixture", binding_sha256: "a".repeat(64), lot_incarnation: "1"},
   cursor: {lot_id: "41", authority_epoch: "7", completed_tick: "17", state_hash: "b".repeat(64)},
   retained_receipts: 2, retained_receipt_bytes: 321,
-  actors: [], pending_batch: null,
 });
 
 test("preparation requests explicit compact status and retains its metadata", async () => {
@@ -15,7 +14,7 @@ test("preparation requests explicit compact status and retains its metadata", as
   let calls = 0;
   const host = {async ask(request) {
     calls++;
-    assert.deepEqual(request, {kind: "inspect_status"});
+    assert.deepEqual(request, {kind: "inspect_preparation_status"});
     return value;
   }};
   assert.equal(await currentPreparationStatus(host), value);
@@ -55,13 +54,13 @@ test("preparation fails closed on recovery, unsupported hosts and malformed stat
     {kind: "committed_status", recovery_pending: true},
     {kind: "committed_status"},
     {kind: "committed_state", recovery_pending: false, checkpoint_hex: "unused"},
-    {kind: "denied", reason: "unknown variant inspect_status"},
+    {kind: "denied", reason: "unknown variant inspect_preparation_status"},
     null,
   ]) {
     let calls = 0;
     await assert.rejects(currentPreparationStatus({async ask(request) {
       calls++;
-      assert.deepEqual(request, {kind: "inspect_status"});
+      assert.deepEqual(request, {kind: "inspect_preparation_status"});
       return response;
     }}), /preparation status/);
     assert.equal(calls, 1, "do not retry or silently fall back to full inspection");
@@ -76,4 +75,19 @@ test("a failed status transport is propagated without another request", async ()
     throw failure;
   }}), error => error === failure);
   assert.equal(calls, 1);
+});
+
+test("minimal preparation status keeps exact receipt thresholds without inspection payload", async () => {
+  for (const [retained_receipts, retained_receipt_bytes] of [[31, 0], [32, 0], [0, 8 * 1024 * 1024 - 1], [0, 8 * 1024 * 1024]]) {
+    const value = {...validStatus(), retained_receipts, retained_receipt_bytes};
+    const result = await currentPreparationStatus({async ask(request) {
+      assert.deepEqual(request, {kind: "inspect_preparation_status"});
+      return value;
+    }});
+    assert.equal(result.retained_receipts, retained_receipts);
+    assert.equal(result.retained_receipt_bytes, retained_receipt_bytes);
+    assert.deepEqual(Object.keys(result).sort(), [
+      "binding", "cursor", "kind", "recovery_pending", "retained_receipt_bytes", "retained_receipts",
+    ]);
+  }
 });
