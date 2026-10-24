@@ -1,0 +1,159 @@
+{
+  "schema": "wonderland.native-owned-assets-checkpoint.v1",
+  "testedSource": {
+    "commit": "dd0ba061b5ca2612cd9b7a4a74f203fd2adcb4a8",
+    "tree": "ab4e74cecdba5590b444cbd84f56dedd3f16d323"
+  },
+  "stackedBase": {
+    "pr": 85,
+    "commit": "49b1e782c3e43dbad5e0c55858781b373df344d0",
+    "tree": "8f502e957a27b7f2a9d150d1d5e8d019325c60d6",
+    "localEquivalent": "5796b869b2a0a2e69f0f80840b35910e4b10d17d"
+  },
+  "scope": "read-only saved balance and existing owned outfit instances; not durable purchase execution, object inventory, wearing/selling or a live in-lot economy",
+  "authority": "fresh account session, account-owned avatar, explicit ownership initialization receipt; one SQLite transaction per page; original full private ownedAssets remains unchanged",
+  "sourceDefaults": {
+    "savedBalance": "0",
+    "casOwnedInstances": 3,
+    "suitTypes": [
+      0,
+      5,
+      2
+    ],
+    "readGrantsOrDebits": false
+  },
+  "pagination": {
+    "transportPage": 64,
+    "hasMoreSentinelRowsRead": 65,
+    "cursor": "canonical decimal outfit instance identity; numeric length/id order; no game inventory cap",
+    "crossPageSnapshot": "each page is a fresh atomic read, not a promised multi-page snapshot across future inventory mutations"
+  },
+  "results": {
+    "clientCasesPassed": 53,
+    "newAssetsClientCases": 4,
+    "sqliteHttpGroupsPassed": 6,
+    "sqliteHttpChecks": [
+      "actual SQLite source CAS ownership returns three unique instances and zero saved balance; no catalog eligibility is treated as ownership",
+      "repeat reads preserve identities/balance; foreign owner, missing token, foreign Origin and injected/malformed query fields reject",
+      "64-instance transport pages preserve complete numeric ordering and exact identities above 2^53 without imposing a game inventory cap; rows are test-only pagination inputs, not purchases",
+      "real workerd/SQLite cold restart and a discarded read response preserve exact saved budget and owned instances without grants/debits",
+      "revoked session cannot inspect possessions while the independent owner retains access",
+      "legacy ownership without an initialization receipt fails closed; reading neither recreates ownership nor changes retained outfit counts"
+    ],
+    "existingAccountHttpGroupsPassed": 11,
+    "routingCasesPassed": 16,
+    "wasmCheck": "passed",
+    "releaseArtifactsVerified": 153,
+    "nativeHost": "verified existing 7ce003d65e1f55003a9965838fd4474500584428b09e67e2b6d67b460049be8c reused; native Rust inputs unchanged",
+    "renderedPassed": true,
+    "renderedGroups": [
+      "actual original-account zero saved balance and three unique owned CAS instances render; no funds, catalog ownership or purchase actions are fabricated",
+      "a genuine successful read with deliberately lost HTTP reply removes stale rows; explicit refresh returns the identical durable identities and zero budget",
+      "closing while an actual read is pending prevents its late response from reopening or repopulating the saved-possessions view",
+      "mobile inspection and real native entry/departure preserve saved ownership; Buy/Build remains disabled and sign-out removes the private view"
+    ],
+    "viewports": [
+      "1200x800",
+      "390x844"
+    ],
+    "browserPath": "Browser plugin not available; established sandbox-enabled Playwright",
+    "pageExceptions": 0,
+    "intentionalNetworkError": 1,
+    "preloadWarnings": 1,
+    "successfulRecordedResponses": 14,
+    "allRecordedResponses200": true,
+    "screenshotsVisuallyReviewed": true,
+    "started": "2026-10-24T00:56:24.995Z",
+    "finished": "2026-10-24T00:56:32.071Z"
+  },
+  "limitations": [
+    "Buy/Build remains disabled; no debit, credit, purchase, sale, object ownership/inventory or durable geometry settlement is implemented or qualified by this increment",
+    "Large-ID/pagination fixture rows are test-only storage inputs, never rendered original objects or evidence of purchases",
+    "Rendered fixture inspects one real original-account Sim with three source CAS outfits; it does not qualify every original outfit mesh/thumbnail or multi-page browser content",
+    "Saved account balance is not a live mutable in-lot budget; each page independently reauthorizes and reads durable state",
+    "No new performance gate, full game, independent review, full type-check/format, hosted gameplay, merge or deployment claim",
+    "The type-check attempt with allowImportingTsExtensions reports only existing generated crypto TS7016; the old unqualified-invocation TS5097 remains a separate recorded limitation",
+    "No agents, credentials/grants, installs, spending, provider operation or private input/media upload"
+  ],
+  "remainingAcceptance": [
+    "Connect trusted construction quote/consent and effect lifecycle to durable debit/object ownership/inventory plus exact operation receipts",
+    "Qualify geometry/accounting acknowledgement, ambiguity, crash/replay, fencing, rejection/rollback and same-operation retries before enabling purchases",
+    "Use the actual permitted original object/content cohort for rendered Buy/Build; synthetic persistence rows do not close that gate",
+    "Object inventory, wardrobe changes, full city/multi-lot and the current full-game inventory remain open",
+    "Timer graphics and real-object needs input gates remain open; consolidated external dependencies are listed separately"
+  ],
+  "evidence": [
+    {
+      "label": "real browser result",
+      "bytes": 2762,
+      "sha256": "e9cf0e77f02160607eb5207eb99608735bcf53eefc279b2dedf8b420bc62c748",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "desktop saved possessions",
+      "bytes": 371384,
+      "sha256": "dcf54369dc449156393a2bb84ca9d71247be229c6c32087e03492fe47b2a408c",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "mobile saved possessions",
+      "bytes": 250308,
+      "sha256": "0a867374eee81ede27348714068173ea4714e3b3f17d47acd51302467ea74911",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "53 client cases",
+      "bytes": 5339,
+      "sha256": "968e19046d45a72b896fbff786abfa3b6dae1ca54cb942366278b449b265c431",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "six SQLite HTTP groups",
+      "bytes": 944,
+      "sha256": "7e1dd39a83ac88be04b59257b4b4662dd520521007a65a84c5eaeca2e1e940d2",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "eleven existing account HTTP groups",
+      "bytes": 1569,
+      "sha256": "a25eed4d37ee1b76d28d67e5ce74e44cc6f8fb7466308b8f5a7718edc596a11d",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "sixteen routing cases",
+      "bytes": 1527,
+      "sha256": "914cc0f05463768f26592bb52e36876a869c3245e3965b52856e213b16808ea5",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "missing route semantic red",
+      "bytes": 451,
+      "sha256": "57239a49a247fa2def66cb0ebde3c1789fad4b8449eb813cd03dbccd3db0b548",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "missing control rendered red",
+      "bytes": 1347,
+      "sha256": "c4e170bdd4b65dcbca08779f6dbd250981f87f117b61cf8b8ae99eac7b9611ec",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "targeted WASM check",
+      "bytes": 434,
+      "sha256": "335b87f249c27a36380ea24c010f26b1b8d15459a817e7c01c9934860a89353b",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "matching release receipt",
+      "bytes": 27132,
+      "sha256": "94c7704295286cd99428f4efe730c1e3af7cda5938834848acd74ac64d5896d5",
+      "availability": "private retained receipt/image; not uploaded"
+    },
+    {
+      "label": "type check attempt",
+      "bytes": 263,
+      "sha256": "0cae0286bfd59eb3dc868df33afd1f44bc856b7af4490da1e9f18fec22efe84d",
+      "availability": "private retained receipt/image; not uploaded"
+    }
+  ]
+}

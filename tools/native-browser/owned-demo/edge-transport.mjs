@@ -6,6 +6,7 @@ const accountPaths = new Set([
   '/native-account/logout', '/native-account/rotate',
   '/native-account/create',
   '/native-account/creation-options',
+  '/native-account/assets',
 ]);
 export function createContainerEdgeTransport({publicOrigin, fetchOutbound=fetch}) {
   const origin = new URL(publicOrigin);

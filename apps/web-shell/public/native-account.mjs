@@ -550,5 +550,31 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       ||value.lot_incarnation!==selection.binding.lot_incarnation)throw Error('Owned dialog scope changed.');
     return value;
   }
-  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate,lotChat,lotEod };
+  async function ownedAssets(avatarId,after='0'){
+    const cursor=v=>v==='0'||decimal(v);
+    if(!token||disposed||active||owned||pendingEntry||detachPending||creator
+      ||!avatars.some(a=>a.avatar_id===avatarId)||!cursor(after))throw Error('No current owned Sim inventory.');
+    const secret=token,n=generation,controller=new AbortController();contentRequests.add(controller);
+    const timeout=setTimeout(()=>controller.abort(),15000);
+    try{
+      const value=await request('assets',{avatar_id:avatarId,after},secret,controller.signal);
+      if(disposed||token!==secret||generation!==n||owned||pendingEntry||detachPending
+        ||!avatars.some(a=>a.avatar_id===avatarId))throw Error('Owned inventory scope changed.');
+      if(value?.version!==1||value.state!=='owned_assets'||!decimal(value.account_id)||value.avatar_id!==avatarId
+        ||!cursor(value.balance)||BigInt(value.balance)>4294967295n||!Array.isArray(value.outfits)||value.outfits.length>64)
+        throw Error('Invalid saved inventory.');
+      let previous=BigInt(after);
+      for(const item of value.outfits){
+        if(!decimal(item.id)||BigInt(item.id)<=previous||item.avatar_id!==avatarId||!cursor(item.asset_key)
+          ||!Number.isInteger(item.suit_type)||item.suit_type<0||item.suit_type>65535
+          ||typeof item.source!=='string'||!item.source.length||item.source.length>64||/[\u0000-\u001f]/.test(item.source)
+          ||!cursor(item.purchase_price)||!cursor(item.sale_price))throw Error('Invalid owned outfit.');
+        previous=BigInt(item.id);
+      }
+      if(value.next!==null&&(!decimal(value.next)||value.outfits.length!==64||value.next!==value.outfits.at(-1).id))
+        throw Error('Invalid saved inventory cursor.');
+      return value;
+    }finally{clearTimeout(timeout);contentRequests.delete(controller);}
+  }
+  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate,lotChat,lotEod,ownedAssets };
 }

@@ -41,6 +41,11 @@ test('only explicit public account methods can cross the outbound bridge',async(
   await assert.rejects(f.transport.dispatchFetch(origin+path,{method:'POST',headers:{origin,'content-type':'application/json'},body:'{}'}));
  }assert.equal(f.http.length,0);assert.equal(f.calls.length,0);
 });
+test('saved-assets page crosses both account allowlists without changing its owned identity or cursor',async()=>{
+ const f=setup(),body={avatar_id:'7',after:'9007199254740993'};
+ const r=await f.transport.dispatchFetch(origin+'/native-account/assets',{method:'POST',headers:{origin,'content-type':'application/json','x-owned-private':'must-not-forward'},body:JSON.stringify(body)});
+ assert.equal(r.status,200);assert.deepEqual(f.http,[{url:origin+'/native-account/assets',origin,ip:null,private:null,body}]);assert.deepEqual(f.calls,[]);
+});
 test('cross-origin, credentials, non-JSON and non-POST forwarding fail closed',async()=>{
  const f=setup();for(const [url,init] of [
   ['https://other.invalid/native-account/login',{method:'POST',headers:{origin,'content-type':'application/json'},body:'{}'}],
