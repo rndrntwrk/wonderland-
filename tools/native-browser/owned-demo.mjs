@@ -195,7 +195,7 @@ export async function createOwnedDemo({
     socket.send(text, {binary:false});
   };
   async function flushPrivate(socket) {
-    if (!socket.live || !socket.entry || socket.readyState !== 1) return;
+    if (!socket.live || !socket.entry || socket.readyState !== 1 || socket.privateEod === false) return;
     const output = await host.ask({kind:"read_private_eod",control:socket.entry.control});
     // A concurrently revoked owned session has no private delivery authority.
     if (output.kind === "denied") return;
@@ -770,6 +770,29 @@ export async function createOwnedDemo({
         request.url.includes("%")
       )
         throw Error("Invalid request path.");
+      if (url.pathname === '/native-account/eod') {
+        const token=authorizeRequest(request),data=await readBody(request);
+        const value=await serially(async()=>{
+          assert.deepEqual(Object.keys(data).sort(),['avatar_id','lot_id','operation','lot_incarnation','query'].sort());
+          assert.equal(data.lot_id,manifest.lot.lot_id);
+          const entry=admitted.get(key(token,data.avatar_id))??await restoreEntry(token,data);
+          assert.equal(entry.operation,data.operation);
+          assert.equal(data.lot_incarnation,entry.binding.lot_incarnation);
+          let output;
+          await authenticatedEod(data.query,entry,{
+            revalidate:async currentEntry=>{await sweepFences();const current=await revalidate(currentEntry);assert.ok(ownedPlacement(current,currentEntry).in_world);},
+            prepare,commit,read:control=>host.ask({kind:'read_private_eod',control}),
+            send:value=>{output=value;},
+          });
+          assert.ok(output);
+          return {version:1,state:'native_eod',lot_id:data.lot_id,lot_incarnation:data.lot_incarnation,
+            viewer_id:data.avatar_id,...output,
+            accepted_ui:data.query.type==='native_eod_ui'?data.query.message:null};
+        });
+        response.writeHead(200,{'content-type':'application/json','cache-control':'private, no-store',
+          'cross-origin-resource-policy':'same-origin','x-content-type-options':'nosniff'});
+        response.end(JSON.stringify(value));return;
+      }
       if (url.pathname === '/native-account/chat') {
         const token=authorizeRequest(request),data=await readBody(request);
         const value=await serially(async()=>{
@@ -1302,9 +1325,11 @@ export async function createOwnedDemo({
             assert.equal(auth.type, "native_auth");
             assert.ok(
               Object.keys(auth).every((k) =>
-                ["type", "ticket", "resume"].includes(k),
+                ["type", "ticket", "resume", "private_eod"].includes(k),
               ),
             );
+            assert.ok(auth.private_eod===undefined||auth.private_eod===false);
+            socket.privateEod=auth.private_eod!==false;
             const value = tickets.get(auth.ticket);
             tickets.delete(auth.ticket);
             assert.ok(value && value.expires >= Date.now());

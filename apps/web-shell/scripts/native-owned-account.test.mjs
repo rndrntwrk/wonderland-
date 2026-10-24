@@ -15,6 +15,24 @@ function setup(handler=()=>Response.json(grant())) {
   return handler(action,options);
  }});return {provider,calls,get latest(){return latest;}};
 }
+test('private EOD requests inject only the current owned scope and never expose the bearer',async()=>{
+ const query={type:'native_eod_read'};const s=setup(action=>Response.json(action==='eod'?{viewer_id:'7',lot_id:'11',lot_incarnation:'4',messages:[]}:grant()));
+ try{await assert.rejects(s.provider.lotEod(query));await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  const value=await s.provider.lotEod(query);assert.deepEqual(value.messages,[]);
+  assert.deepEqual(s.calls.at(-1).body,{avatar_id:'7',lot_id:'11',operation:'owned_operation_0001',lot_incarnation:'4',query});
+  assert.equal(JSON.stringify(value).includes('a'.repeat(64)),false);
+ }finally{s.provider.dispose();}
+});
+test('private EOD scope mismatches and signed-out late replies fail closed',async()=>{
+ for(const changed of [{viewer_id:'8'},{lot_id:'12'},{lot_incarnation:'5'}]){
+  const s=setup(action=>Response.json(action==='eod'?{viewer_id:'7',lot_id:'11',lot_incarnation:'4',...changed}:grant()));
+  try{await s.provider.login('owner','secret');await s.provider.enter('7','11');await assert.rejects(s.provider.lotEod({type:'native_eod_read'}),/scope changed/);}finally{s.provider.dispose();}
+ }
+ let resolve;const gate=new Promise(r=>resolve=r);const s=setup(action=>action==='eod'?gate:Response.json(grant()));
+ try{await s.provider.login('owner','secret');await s.provider.enter('7','11');const pending=s.provider.lotEod({type:'native_eod_read'});const rejected=assert.rejects(pending,/scope changed/);
+  await s.provider.logout();resolve(Response.json({viewer_id:'7',lot_id:'11',lot_incarnation:'4'}));await rejected;
+ }finally{s.provider.dispose();}
+});
 test('owned entry submits only selection and exposes no bearer or actor grant before committed response',async()=>{
  let resolve;const gate=new Promise(r=>resolve=r);const s=setup(()=>gate);
  try{await s.provider.login('owner','secret');assert.deepEqual(s.latest.destinations,destinations);const enter=s.provider.enter('7','11');assert.equal(s.latest.state,'lot_entering');assert.equal(s.latest.grant,undefined);assert.deepEqual(s.calls.at(-1).body,{avatar_id:'7',lot_id:'11',operation:'owned_operation_0001'});resolve(Response.json(grant()));await enter;assert.equal(s.latest.state,'lot_ready');assert.deepEqual(s.latest.grant.binding,binding);assert.equal(JSON.stringify(s.latest).includes('a'.repeat(64)),false);assert.equal('ticket' in s.latest.grant,false);const ticket=await s.provider.socketGrant();assert.equal(ticket.ticket,'b'.repeat(48));assert.deepEqual(ticket.binding,binding);}finally{resolve?.(Response.json(grant()));s.provider.dispose();}

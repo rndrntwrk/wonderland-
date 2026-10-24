@@ -69,7 +69,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
         const { done, value } = await reader.read();
         if (done) break;
         size += value.length;
-        if (size > (action === 'chat' ? 128 * 1024 : 65536)) throw Error("Account response exceeds its limit.");
+        if (size > (action === 'eod' ? 512 * 1024 : action === 'chat' ? 128 * 1024 : 65536)) throw Error("Account response exceeds its limit.");
         chunks.push(value);
       }
       const bytes = new Uint8Array(size);
@@ -540,5 +540,15 @@ export function createNativeAccountProvider(base, publish, options = {}) {
       ||value.lot_incarnation!==selection.binding.lot_incarnation)throw Error('Owned chat scope changed.');
     return value;
   }
-  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate,lotChat };
+  async function lotEod(query,signal){
+    if(!token||!owned||placementPending||detachPending||disposed||active)throw Error('No active owned lot dialog.');
+    const selection=owned,secret=token;
+    const value=await request('eod',{avatar_id:selection.avatar_id,lot_id:selection.lot_id,operation:selection.operation,
+      lot_incarnation:selection.binding.lot_incarnation,query},secret,signal);
+    if(disposed||token!==secret||owned!==selection||detachPending||placementPending
+      ||value.viewer_id!==selection.avatar_id||value.lot_id!==selection.lot_id
+      ||value.lot_incarnation!==selection.binding.lot_incarnation)throw Error('Owned dialog scope changed.');
+    return value;
+  }
+  return { login, refresh, logout, dispose, enter, socketGrant, leave, retryPlacement, placementUnavailable, contentFiles,openCreator,closeCreator,createAvatar,retryCreate,lotChat,lotEod };
 }

@@ -35,7 +35,7 @@ test('public route excludes private/bootstrap paths, bad origins, methods and qu
  const req=(path,method='POST',origin=s.origin)=>new Request(s.origin+path,{method,headers:{origin}});
  assert.equal(isNativeRequest(req('/native-account/login'),s),true);
  assert.equal(isNativeRequest(req('/native-account/create'),s),true);
- for(const path of ['/native-account/chat','/native-account/creation-options','/native-content/creator/manifest','/native-content/creator/file/'+'b'.repeat(64)]){
+ for(const path of ['/native-account/eod','/native-account/chat','/native-account/creation-options','/native-content/creator/manifest','/native-content/creator/file/'+'b'.repeat(64)]){
   assert.equal(isNativeRequest(req(path),s),true);
   assert.equal(isNativeRequest(req(path,'GET'),s),false);
   assert.equal(isNativeRequest(req(path,'POST','https://other.invalid'),s),false);

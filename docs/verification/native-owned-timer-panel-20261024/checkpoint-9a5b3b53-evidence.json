@@ -1,0 +1,151 @@
+{
+  "schema": "wonderland.native-owned-timer-panel-checkpoint.v1",
+  "testedSource": {
+    "commit": "9a5b3b53d966495a8f9b283810cc9aed0229b83d",
+    "tree": "49a5b70f141b8d1a79468d064eb3904f5f90de69",
+    "transportAndNativeCursor": "971717e186064212046fe3246463b11cd8f07b80",
+    "clientAndBridge": "e25ee7a0a2219579740cec733f4650d384996a2f",
+    "staleSessionCorrection": "9a5b3b53d966495a8f9b283810cc9aed0229b83d"
+  },
+  "stackedBase": {
+    "pr": 83,
+    "commit": "9b62016b40d1d722a8197db44d251b7b3d0b3b8b",
+    "tree": "20850fdc449fed083ded7c8d5fe7453f2763cdb7",
+    "localEquivalent": "82c9728b71b0a5476738a00462c4dad4531a4622"
+  },
+  "results": {
+    "javascriptFocusedPassed": 28,
+    "ownedAccountCasesPassed": 27,
+    "previewPolicyGroupsPassed": 5,
+    "nativeCursorUnitPassed": 1,
+    "nativeOtherTestsFilteredOut": 35,
+    "targetedWasmCheck": "passed",
+    "releaseArtifactsVerified": 153,
+    "nativeTransportCheckGroupsPassed": 5,
+    "nativeTransportChecks": [
+      "two authenticated source-placed members read empty private lanes",
+      "authentic NativePlayer selects the original Timer local TTAB 5 offer; accepted action emits verified private Show only to its source owner",
+      "real controls commit; exact retry preserves one UI receipt; changed bytes, peer session, wrong identity/lot/incarnation/operation and unauthenticated/foreign-origin requests reject",
+      "source Close produces private exit and an actual typed VM terminal; both independently replicated players agree and have no thread faults",
+      "durable restart retains the closed Timer and renews owned bindings; stale incarnation rejects instead of reopening a dialog"
+    ],
+    "sourceSelection": {
+      "interaction": {
+        "scope": "Local",
+        "tta_index": 5
+      },
+      "label": "Be Timekeeper",
+      "param0": 0,
+      "target": {
+        "generation": 1,
+        "object_id": 2
+      }
+    },
+    "sourceAction": 3,
+    "terminal": "completed",
+    "peerAgreementTicks": 203,
+    "threadFaults": 0,
+    "renderedObjectClick": {
+      "status": "blocked",
+      "reason": "Original Timer graphics cohort is absent; action is submitted by an authentic NativePlayer using the actual projected TTAB offer."
+    },
+    "renderedPanelIntegration": "not executed; no actual object selection without original visuals",
+    "independentReview": "not performed under single-task/no-additional-agent direction; sole-implementer source review only"
+  },
+  "semantics": {
+    "sourcePlugin": "0xAA65FE9E",
+    "objectGuid": "0x39D04C9C",
+    "interaction": "Local TTAB 5 / Be Timekeeper / BHAV 4113",
+    "transport": "same-origin authenticated private HTTP through existing source-owned admission and native prepare/commit; owned socket opts out of text, old clients remain compatible",
+    "privateDelivery": "verified output digest before presentation and acknowledgement; current source-session cursor; exact ambiguous UI request retained until receipt/identical retry",
+    "completion": "UI receipt confirms control only; actual source VM terminal remains authoritative",
+    "bounds": "existing 64 source associations / 4096 UI receipts / checkpoint limits unchanged; 512 KiB bounded HTTP EOD response",
+    "recoveryCoverage": "closed Timer survives process restart and renewed source binding; active rendered panel recovery not qualified",
+    "artwork": "no invented original asset or placeholder Timer mesh"
+  },
+  "missingInputs": {
+    "originalLogic": {
+      "filename": "timer.iff",
+      "bytes": 12727,
+      "sha256": "6927573513f0ffdcc26879d8366242f8c26c03baf21080d1a7126386ff04a092",
+      "visualChunks": 0
+    },
+    "worldGraphics": "matching original Timer timer.spf from its objspf*.far cohort, resolved through packingslips/objecttable.xml for GUID 0x39D04C9C; alternatively a provenance-verified matching original FSO mesh and textures",
+    "originalPanelSkin": "timereod.uis and its referenced SubpanelBackground/button graphics; current functional panel uses established application chrome",
+    "provenance": [
+      "TSOClient/tso.content/WorldObjectProvider.cs",
+      "TSOClient/tso.client/UI/Panels/EODs/UITimerPluginEOD.cs"
+    ],
+    "status": "missing retained input, not an approval denial; no broader search/download attempted"
+  },
+  "retainedFailures": [
+    "Initial opt-out semantic failure before implementation",
+    "Initial Timer client module import failed before module existed",
+    "Stale old-session confirmation demonstrably changed the new window before guarded correction",
+    "First real native probe omitted required WebSocket Origin and hung up; corrected probe passed with no product change"
+  ],
+  "limitations": [
+    "No rendered Timer object click, panel visual inspection, browser queue cancel or active panel reconnect/recovery pass",
+    "Real native probe invokes the actual source offer programmatically; this is not a rendered object click",
+    "Other object/EOD/person families, Timer long-run receipt capacity and complete game remain open",
+    "No new throughput test or changed 30 Hz result",
+    "Baseline TS7016 and unqualified-invocation TS5097 remain; no full format/type-check claim",
+    "No public hosted native game, private inputs uploaded, grants, installs, paid activation, merge or deployment"
+  ],
+  "evidence": [
+    {
+      "label": "28 client/socket/private-route tests",
+      "bytes": 2701,
+      "sha256": "a6cb3851cf1c385866f79bf2160d107f33153d32e69099961343c6b8fc14826c",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "27 owned-account tests",
+      "bytes": 2811,
+      "sha256": "24c69cce8242ec71851327b8f86afa5379978d472ce3474f06e4a3481a5f3bd3",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "5 preview-policy groups",
+      "bytes": 526,
+      "sha256": "1cc861ed6bfe5ce1f5a1d008d65659190339a095049b2478ff6a0f23e841d082",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "native cursor unit",
+      "bytes": 1910,
+      "sha256": "a9cffd964ce0e2e5854eb7fcb346e8552b6391d8b8b6d7e1d40e6d5978f045e2",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "targeted WASM check",
+      "bytes": 434,
+      "sha256": "106ee198b09e5fcdfebe82b0d833a48ae6b9d4fd7ca19cec71dacc220dad7ed9",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "real native transport result",
+      "bytes": 1270,
+      "sha256": "e09640fd05ae96cd19f5bbfb99c03c03188c51fb5afaa1f10bc940a7c340b458",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "failed missing-Origin probe",
+      "bytes": 978,
+      "sha256": "2113acca2bdea1a40fac89869b105bb72ca49687280736a49a843d67ada94120",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "matching release receipt",
+      "bytes": 27129,
+      "sha256": "8283805284849284fde5c355420227e6884ee8da8c1c2440dec088d37712bbda",
+      "availability": "private retained receipt; raw file not uploaded"
+    },
+    {
+      "label": "stale-session semantic failure",
+      "bytes": 1664,
+      "sha256": "9e7cb654e7fcd3275d96733e8b7ab6c5134ca95d3b0199df807a94c64aaabe1a",
+      "availability": "private retained receipt; raw file not uploaded"
+    }
+  ]
+}
