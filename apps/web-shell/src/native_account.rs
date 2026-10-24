@@ -23,6 +23,7 @@ export function nativeAccountCall(host, action, first, second) {
  else if(action==='refresh')void host.refresh();else if(action==='logout')void host.logout();else if(action==='dispose')host.dispose();
 }
 export async function nativeOwnedSocketGrant(host) { if(!host)throw Error('Account closed');return JSON.stringify(await host.socketGrant()); }
+export async function nativeOwnedAssetPage(host,avatar,after) { if(!host)throw Error('Account closed');return JSON.stringify(await host.ownedAssets(avatar,after)); }
 "#)]
 extern "C" {
     #[wasm_bindgen(js_name=openNativeAccount)]
@@ -31,6 +32,8 @@ extern "C" {
     fn call(host: &JsValue, action: &str, first: &str, second: &str);
     #[wasm_bindgen(js_name=nativeOwnedSocketGrant)]
     fn socket_grant(host: &JsValue) -> js_sys::Promise;
+    #[wasm_bindgen(js_name=nativeOwnedAssetPage)]
+    fn asset_page(host: &JsValue, avatar: &str, after: &str) -> js_sys::Promise;
 }
 #[derive(Clone, Default, Deserialize)]
 struct Snapshot {
@@ -384,6 +387,7 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
         let id=v.avatar_id;let name=v.name;
         view!{<div class="native-owned-avatar"><p>{name.clone()}</p><Show when=move||native_lots && state.with(|s|s.admission_available)><button class="chrome primary" aria-pressed={let id=id.clone();move||(selected.get().as_ref()==Some(&id)).to_string()} disabled=move||state.with(|s|s.entry_pending.is_some()||!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click={let id=id.clone();move|_|selected.set(Some(id.clone()))}>{format!("Play as {name}")}</button></Show></div>}
     }/>
+    <Show when=move||native_lots && selected.get().is_some()><SavedPossessions state selected owned/></Show>
     <Show when=move||state.with(|s|s.state=="account_ready"&&s.avatars.is_empty())><p>"No Sims are saved to this account yet."</p></Show>
     <Show when=move||native_lots><button class="chrome primary" disabled=move||state.with(|s|s.entry_pending.is_some()||!matches!(s.state.as_str(),"account_ready"|"account_error")||s.avatars.len()>=3) on:click=move |_|owned.invoke("openCreator","","")>"Create a Sim"</button></Show>
     <Show when=move||native_lots && selected.get().is_some()><PropertyDirectory state selected owned/></Show>
@@ -412,6 +416,83 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     <div class="top-tools"><button class="chrome" on:click=move|_|owned.invoke("logout","","")>"Sign out"</button></div>
     </Show>
     </main>}
+}
+
+#[derive(Clone, Deserialize)]
+struct AssetPage {
+    avatar_id: String,
+    balance: String,
+    outfits: Vec<OwnedOutfit>,
+    next: Option<String>,
+}
+#[derive(Clone, Deserialize)]
+struct OwnedOutfit {
+    id: String,
+    asset_key: String,
+    suit_type: u16,
+}
+#[component]
+fn SavedPossessions(
+    state: RwSignal<Snapshot>,
+    selected: RwSignal<Option<String>>,
+    owned: NativeOwnedUi,
+) -> impl IntoView {
+    let open_panel = RwSignal::new(false);
+    let busy = RwSignal::new(false);
+    let page = RwSignal::new(None::<AssetPage>);
+    let message = RwSignal::new(String::new());
+    let serial = RwSignal::new(0u64);
+    let allowed = Memo::new(move |_| state.with(|s| s.entry_pending.is_none()
+        && matches!(s.state.as_str(), "account_ready" | "account_error")));
+    let close = move || {
+        serial.update(|n| *n = n.saturating_add(1));
+        open_panel.set(false);busy.set(false);page.set(None);message.set(String::new());
+    };
+    Effect::new(move |_| {selected.track();if !allowed.get() || open_panel.get_untracked(){close();}});
+    let read = Callback::new(move |after: String| {
+        if !allowed.get_untracked() || busy.get_untracked() {return;}
+        let Some(id) = selected.get_untracked() else {return;};
+        let Some(host) = owned.provider.with_value(|p|p.host.clone()) else {return;};
+        serial.update(|n| *n = n.saturating_add(1));let request = serial.get_untracked();
+        open_panel.set(true);busy.set(true);page.set(None);message.set("Reading saved possessions…".into());
+        let promise = asset_page(&host,&id,&after);
+        wasm_bindgen_futures::spawn_local(async move {
+            let result = wasm_bindgen_futures::JsFuture::from(promise).await;
+            if serial.try_get_untracked()!=Some(request) || selected.try_get_untracked()!=Some(Some(id.clone())) {return;}
+            busy.set(false);
+            let value=result.ok().and_then(|v|v.as_string()).and_then(|s|serde_json::from_str::<AssetPage>(&s).ok()).filter(|p|p.avatar_id==id);
+            if let Some(value)=value {page.set(Some(value));message.set(String::new());}
+            else {message.set("Saved possessions could not be read. Refresh or sign in again.".into());}
+        });
+    });
+    view! {
+        <button class="chrome" type="button" disabled=move||!allowed.get()||busy.get()
+            on:click=move|_|read.run("0".into())>"Your possessions"</button>
+        <Show when=move||open_panel.get()>
+            <section class="native-owned-assets" aria-label="Saved possessions">
+                <button class="connected-text-button" type="button" on:click=move|_|close()>"Close possessions"</button>
+                <h3>"Saved possessions"</h3>
+                <p>{move||state.with(|s|s.avatars.iter().find(|a|Some(&a.avatar_id)==selected.get().as_ref()).map(|a|a.name.clone()).unwrap_or_default())}</p>
+                <p role="status">{move||message.get()}</p>
+                <Show when=move||page.with(|p|p.is_some())>
+                    <dl><dt>"Saved balance"</dt><dd>{move||page.with(|p|p.as_ref().map(|p|format!("{} Simoleons",p.balance)).unwrap_or_default())}</dd></dl>
+                    <h4>"Owned outfits"</h4>
+                    <ul class="native-owned-assets-list">
+                        <For each=move||page.with(|p|p.as_ref().map(|p|p.outfits.clone()).unwrap_or_default()) key=|o|o.id.clone() children=move|o|view!{
+                            <li data-owned-outfit=o.id.clone()><strong>{match o.suit_type {0=>"Everyday",5=>"Sleepwear",2=>"Swimwear",_=>"Outfit"}}</strong>
+                                <span>{format!("Owned instance #{}",o.id)}</span><small>{format!("Asset {}",o.asset_key)}</small></li>
+                        }/>
+                    </ul>
+                    <Show when=move||page.with(|p|p.as_ref().is_some_and(|p|p.outfits.is_empty()))><p>"No owned outfits on this page."</p></Show>
+                </Show>
+                <div class="native-assets-actions">
+                    <button class="chrome" type="button" disabled=move||busy.get() on:click=move|_|read.run("0".into())>"Refresh possessions"</button>
+                    <button class="chrome" type="button" disabled=move||busy.get()||page.with(|p|p.as_ref().and_then(|p|p.next.as_ref()).is_none())
+                        on:click=move|_|if let Some(next)=page.with_untracked(|p|p.as_ref().and_then(|p|p.next.clone())){read.run(next)}>"Next outfits"</button>
+                </div>
+            </section>
+        </Show>
+    }
 }
 
 /// Browse only the authenticated destination projection. Entry and departure

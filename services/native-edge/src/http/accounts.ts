@@ -114,6 +114,7 @@ export async function accountHttp(
       "rotate",
       "create",
       "creation-options",
+      "assets",
     ].includes(action)
   )
     return reply(404, { error: "not_found" });
@@ -150,6 +151,15 @@ export async function accountHttp(
     if (!authorization?.startsWith("Bearer "))
       return reply(401, { error: "unauthorized" });
     const secret = token(authorization.slice(7));
+    if (action === "assets") {
+      let avatarId: string, after: string;
+      try {
+        const v = fields(data, ["avatar_id", "after"]);
+        avatarId = decimal(v.avatar_id); after = decimal(v.after);
+        if (avatarId === "0" || BigInt(avatarId) > 16777215n) throw new InvalidBody();
+      } catch { throw new InvalidBody(); }
+      return reply(200, {state:"owned_assets",...(await stub.ownedAssetsPage(secret,avatarId,after))});
+    }
     if (action === "creation-options") {
       const v = fields(data, ["after"]);
       return reply(200, {

@@ -11,6 +11,7 @@ const ACCOUNT_PATHS = new Set([
   "/native-account/logout", "/native-account/rotate",
   "/native-account/create",
   "/native-account/creation-options",
+  "/native-account/assets",
 ]);
 const MAX_PRIVATE_BYTES = 40 * 1024 * 1024;
 async function boundedJson(request: Request, maximum: number): Promise<unknown> {

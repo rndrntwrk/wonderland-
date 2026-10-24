@@ -914,6 +914,7 @@ export async function createOwnedDemo({
             "/native-account/rotate",
             "/native-account/create",
             "/native-account/creation-options",
+            "/native-account/assets",
           ].includes(url.pathname),
         );
         assert.equal(request.method, "POST");

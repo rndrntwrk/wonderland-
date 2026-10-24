@@ -1321,6 +1321,34 @@ export class AccountAuthority extends DurableObject<DepartureReceiptEnv> {
       };
     });
   }
+  /** Read one saved-ownership page. This never initializes legacy ownership,
+   * grants content, applies a build effect or changes the saved budget. */
+  async ownedAssetsPage(raw: unknown, id: unknown, after: unknown) {
+    const key = await this.tokenHash(raw), avatarId = decimal(id), cursor = decimal(after);
+    return this.ctx.storage.transactionSync(() => {
+      const account = this.authorize(key);
+      if (!this.ctx.storage.sql.exec(
+        "SELECT id FROM avatars WHERE id=? AND account_id=?",avatarId,account.id,
+      ).toArray().length) throw Error("avatar unavailable");
+      const initialized = this.ctx.storage.sql.exec<{version:number}>(
+        "SELECT version FROM avatar_ownership_initializations WHERE avatar_id=?",avatarId,
+      ).toArray()[0];
+      if (initialized?.version !== 1) throw Error("avatar ownership migration required");
+      const budget = this.ctx.storage.sql.exec<{balance:string}>(
+        "SELECT balance FROM avatar_balances WHERE avatar_id=?",avatarId,
+      ).toArray()[0];
+      if (!budget || BigInt(decimal(budget.balance)) > 4294967295n)
+        throw Error("avatar budget unavailable");
+      const rows = this.ctx.storage.sql.exec<{
+        id:string;avatar_id:string;asset_key:string;suit_type:number;source:string;purchase_price:string;sale_price:string;
+      }>(
+        "SELECT id,avatar_id,asset_key,suit_type,source,purchase_price,sale_price FROM avatar_outfits WHERE avatar_id=? AND (length(id)>length(?) OR (length(id)=length(?) AND id>?)) ORDER BY length(id),id LIMIT 65",
+        avatarId,cursor,cursor,cursor,
+      ).toArray();
+      return {version:1,account_id:account.id,avatar_id:avatarId,balance:budget.balance,
+        outfits:rows.slice(0,64),next:rows.length>64?rows[63].id:null};
+    });
+  }
   async ownedAssets(raw: unknown, id: unknown) {
     const key = await this.tokenHash(raw),
       avatarId = decimal(id);
