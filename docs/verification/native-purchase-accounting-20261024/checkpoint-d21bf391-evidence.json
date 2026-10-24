@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "source_commit": "d21bf39163dbb398ad0b061035acdccfbef80567",
+  "source_tree": "e75ae6e84d91c5995219d608e53e0b9fb2dd8a92",
+  "public_base": {
+    "pr": 86,
+    "commit": "59ef8af8f2821ab8aa15a24ca01a4c8496591dd0",
+    "tree": "2d78449f74cbb960f02e09e475dd3db960a56f1f"
+  },
+  "product_files": [
+    {
+      "path": "services/native-edge/src/account/authority.ts",
+      "sha256": "912508002fd6c43efa24c324a7c4b74e534cae9254eb0875b2427ad018fe5b46"
+    },
+    {
+      "path": "services/native-edge/src/account/purchases.ts",
+      "sha256": "948a3f3f95bf9304570463c488acc584d986510dd7c50775faa2093aa2034276"
+    },
+    {
+      "path": "services/native-edge/tests/account-http.mjs",
+      "sha256": "aa6c5d83de629b0f17178c4ad34c60743deb2ffd497a0f37cb1fd4db316a4756"
+    },
+    {
+      "path": "services/native-edge/tests/purchase-accounting.mjs",
+      "sha256": "986a5fcdbe4bf2a49f5a7c1fe2484458e92faade317049f85776b9b57d210131"
+    },
+    {
+      "path": "services/native-edge/tests/purchase-contract.test.mjs",
+      "sha256": "d0430a9c0e3a3c9584a3834db425021ed9af88dc8aa1877c74b7c809346fb305"
+    },
+    {
+      "path": "services/native-edge/tests/purchase-driver.ts",
+      "sha256": "24230225c796ed6b901d58bfe16a1da6c5248b13ef7e660982abcdde9cb1aec3"
+    },
+    {
+      "path": "services/native-edge/tests/purchase-worker.mjs",
+      "sha256": "12ae7b202f67daf6adeb2b8df1daffdbd2caca026c2bd32df9027ee8893c63f1"
+    }
+  ],
+  "checks": {
+    "purchase_sqlite_groups": 9,
+    "contract_cases": 6,
+    "saved_assets_sqlite_groups": 6,
+    "account_http_groups": 11,
+    "formatting": "five new files pass; full repository formatting not claimed",
+    "typecheck": "failed: pre-existing generated account_crypto.js TS7016; no new error reported",
+    "rust_native_browser_builds": "not run; disk constrained and no Rust/browser inputs changed",
+    "rendered_purchase": "not run; UI disabled and native completion/geometry path unfinished",
+    "review": "sole implementer; no independent worker under no-extra-agent instruction"
+  },
+  "boundary": {
+    "journal": "test-authored fixed-width source-format bytes seeded into actual Coordinator journal tables; existing getBatch/readBatch and all account/SQLite methods execute; no fresh native producer claim",
+    "funding": "test-only existing helper funds disposable local game-currency fixtures; no production funding",
+    "allocator": "explicit immutable empty-cohort/high-water receipt intake; not proof of legacy/global allocator migration",
+    "objects": "pending_geometry only; no placed/usable object or event-lane acknowledgement",
+    "crash": "dedicated test-owned process group SIGKILL before call and after commit before reply; persisted workerd restart and exact retry",
+    "public_access": "same-origin account HTTP returns404 and supervisor dispatch returns400 without calling authority for both new methods"
+  },
+  "private_receipt_hashes": [
+    {
+      "receipt": "purchase-accounting-red-01.log",
+      "bytes": 586,
+      "sha256": "4299e235d76bc0370785347b70b955ffc10650e8439e8038ae29d06059648b4d",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-accounting-green-01.log",
+      "bytes": 652,
+      "sha256": "0c7f5fbee705ee26fc95c2696d113bd9aa5b8c5f031ada00bd346994002310ab",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-accounting-green-03.log",
+      "bytes": 1227,
+      "sha256": "a990ec24241bc672e99e5f8cf7415e7a1cd97f1d70e3cd951c6b25b09e699d65",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-accounting-final-01.log",
+      "bytes": 480,
+      "sha256": "38ddadf5de963d16951e634031f260d9d53bd8ed9366788a127522a06b8d19b2",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-accounting-final-02.log",
+      "bytes": 1227,
+      "sha256": "5e14e56c587ad0309347fd1c6af21691d75f457f13bc15efa7f6281ba5da0211",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-contract-final-01.log",
+      "bytes": 682,
+      "sha256": "e7edf72bc5f461620c78f5463024a05217e21de10bfd057828f77e19c61c45ed",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-assets-regression-final-01.log",
+      "bytes": 944,
+      "sha256": "ec94d55bc770392e0bcbc7e0f6a2652d240a880c56545c311bbe418f1a98ebce",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-account-http-final-01.log",
+      "bytes": 1569,
+      "sha256": "a25eed4d37ee1b76d28d67e5ce74e44cc6f8fb7466308b8f5a7718edc596a11d",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-types-final-01.log",
+      "bytes": 263,
+      "sha256": "0cae0286bfd59eb3dc868df33afd1f44bc856b7af4490da1e9f18fec22efe84d",
+      "availability": "private retained receipt; hash is not a public download"
+    },
+    {
+      "receipt": "purchase-cache-candidates-20261024.json",
+      "bytes": 1190,
+      "sha256": "ecca79b9f3ef5dcfaec945c160cb3060ecebf637790c84f83483845e879f8558",
+      "availability": "private retained receipt; hash is not a public download"
+    }
+  ]
+}

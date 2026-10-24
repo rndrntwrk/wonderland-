@@ -1,6 +1,11 @@
 import { controlTarget, type ControlClaim } from "./control";
 import { AccountLotSaveStore } from "./lot-save";
 import {
+  AccountPurchaseStore,
+  configuredPurchaseReader,
+  type PurchaseJournalEnv,
+} from "./purchases";
+import {
   configuredDepartureReceiptReader,
   type DepartureReceiptEnv,
 } from "./departure-proof";
@@ -53,9 +58,15 @@ type Session = {
   idle: number;
 };
 /** Private realm account boundary. Binding access is trusted; there is no public auth route. */
-export class AccountAuthority extends DurableObject<DepartureReceiptEnv> {
+export class AccountAuthority extends DurableObject<
+  DepartureReceiptEnv & PurchaseJournalEnv
+> {
   private readonly lotSaves: AccountLotSaveStore;
-  constructor(ctx: DurableObjectState, env: DepartureReceiptEnv) {
+  private readonly purchases: AccountPurchaseStore;
+  constructor(
+    ctx: DurableObjectState,
+    env: DepartureReceiptEnv & PurchaseJournalEnv,
+  ) {
     super(ctx, env);
     ctx.storage.sql.exec(`
       CREATE TABLE IF NOT EXISTS account_meta(key TEXT PRIMARY KEY,value TEXT NOT NULL);
@@ -87,6 +98,19 @@ export class AccountAuthority extends DurableObject<DepartureReceiptEnv> {
       ctx.storage,
       configuredDepartureReceiptReader(env),
     );
+    this.purchases = new AccountPurchaseStore(
+      ctx.storage,
+      configuredPurchaseReader(env),
+      () => this.now(),
+    );
+  }
+  /** Trusted binding only. Neither method is exposed through account HTTP or
+   * the supervisor RPC allowlist. Financial commit never acknowledges geometry. */
+  initializeEmptyPurchaseInventoryV1(raw: unknown) {
+    return this.purchases.initializeEmpty(raw);
+  }
+  applyCommittedPurchaseV1(reference: unknown) {
+    return this.purchases.apply(reference);
   }
   /** Trusted binding only. Source bytes are fetched from committed lot evidence;
    * no browser HTTP route accepts these methods or writable avatar state.
