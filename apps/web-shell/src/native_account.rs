@@ -53,16 +53,24 @@ struct Snapshot {
     admission_available: bool,
     #[serde(default)]
     grant: Option<OwnedGrant>,
+    #[serde(default)]
+    entry_pending: Option<PendingEntry>,
 }
 #[derive(Clone, Deserialize)]
 struct Avatar {
     avatar_id: String,
     name: String,
 }
-#[derive(Clone, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Deserialize)]
 struct Destination {
     lot_id: String,
     name: String,
+    lot_location: u32,
+}
+#[derive(Clone, PartialEq, Eq, Deserialize)]
+struct PendingEntry {
+    avatar_id: String,
+    lot_id: String,
 }
 #[derive(Clone, PartialEq, Eq, Deserialize)]
 struct OwnedGrant {
@@ -371,15 +379,15 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     <label for="native-password">"Password"</label><input id="native-password" type="password" autocomplete="current-password" required=true prop:value=move||password.get() on:input=move|e|password.set(event_target_value(&e))/>
     <button class="chrome primary" type="submit" disabled=move||state.with(|s|s.state=="loading"||s.state=="signing_out"||s.state.is_empty())>"Sign in"</button></form>}>
     <Show when=move||state.with(|s|s.creator_open) fallback=move||view!{
-    <div class="connected-login-card chrome"><h2>"Your Sims"</h2>
+    <div class=move||if selected.get().is_some(){"connected-login-card native-account-card native-directory-card chrome"}else{"connected-login-card native-account-card chrome"}><h2>"Your Sims"</h2>
     <For each=move||state.with(|s|s.avatars.clone()) key=|v|v.avatar_id.clone() children=move|v|{
         let id=v.avatar_id;let name=v.name;
-        view!{<div class="native-owned-avatar"><p>{name.clone()}</p><Show when=move||native_lots && state.with(|s|s.admission_available)><button class="chrome primary" aria-pressed={let id=id.clone();move||(selected.get().as_ref()==Some(&id)).to_string()} disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click={let id=id.clone();move|_|selected.set(Some(id.clone()))}>{format!("Play as {name}")}</button></Show></div>}
+        view!{<div class="native-owned-avatar"><p>{name.clone()}</p><Show when=move||native_lots && state.with(|s|s.admission_available)><button class="chrome primary" aria-pressed={let id=id.clone();move||(selected.get().as_ref()==Some(&id)).to_string()} disabled=move||state.with(|s|s.entry_pending.is_some()||!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click={let id=id.clone();move|_|selected.set(Some(id.clone()))}>{format!("Play as {name}")}</button></Show></div>}
     }/>
     <Show when=move||state.with(|s|s.state=="account_ready"&&s.avatars.is_empty())><p>"No Sims are saved to this account yet."</p></Show>
-    <Show when=move||native_lots><button class="chrome primary" disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")||s.avatars.len()>=3) on:click=move |_|owned.invoke("openCreator","","")>"Create a Sim"</button></Show>
-    <Show when=move||native_lots && selected.get().is_some()><section aria-label="Available properties"><h3>"Choose a property"</h3><For each=move||state.with(|s|s.destinations.clone()) key=|v|v.lot_id.clone() children=move|v|view!{<button class="chrome" disabled=move||state.with(|s|!matches!(s.state.as_str(),"account_ready"|"account_error")) on:click=move|_|if let Some(id)=selected.get_untracked(){owned.invoke("enter",&id,&v.lot_id);}>{format!("Enter {}",v.name)}</button>}/></section></Show>
-    <button class="chrome" disabled=move||state.with(|s|s.state!="account_ready"&&s.state!="account_error") on:click=move|_|owned.invoke("refresh","","")>"Refresh roster"</button>
+    <Show when=move||native_lots><button class="chrome primary" disabled=move||state.with(|s|s.entry_pending.is_some()||!matches!(s.state.as_str(),"account_ready"|"account_error")||s.avatars.len()>=3) on:click=move |_|owned.invoke("openCreator","","")>"Create a Sim"</button></Show>
+    <Show when=move||native_lots && selected.get().is_some()><PropertyDirectory state selected owned/></Show>
+    <button class="chrome" disabled=move||state.with(|s|s.entry_pending.is_some()||s.state!="account_ready"&&s.state!="account_error") on:click=move|_|owned.invoke("refresh","","")>"Refresh roster"</button>
     <button class="chrome" on:click=move|_|owned.invoke("logout","","")>"Sign out"</button>
     <Show when=move||state.with(|s|s.state=="admitted_awaiting_placement")><button class="chrome" on:click=move|_|owned.invoke("retryPlacement","","")>"Check placement"</button><button class="chrome" on:click=move|_|owned.leave()>"Leave property"</button></Show>
     <Show when=move||state.with(|s|s.state=="detach_pending")><button class="chrome" on:click=move|_|owned.leave()>"Retry leaving"</button></Show>
@@ -404,4 +412,92 @@ pub fn NativeAccountGame(#[prop(default = false)] native_lots: bool) -> impl Int
     <div class="top-tools"><button class="chrome" on:click=move|_|owned.invoke("logout","","")>"Sign out"</button></div>
     </Show>
     </main>}
+}
+
+/// Browse only the authenticated destination projection. Entry and departure
+/// authority stay in the existing account provider and native runtime.
+#[component]
+fn PropertyDirectory(
+    state: RwSignal<Snapshot>,
+    selected: RwSignal<Option<String>>,
+    owned: NativeOwnedUi,
+) -> impl IntoView {
+    let query = RwSignal::new(String::new());
+    let chosen = RwSignal::new(None::<String>);
+    let pending = Memo::new(move |_| state.with(|s| s.entry_pending.clone()));
+    let busy = Memo::new(move |_| {
+        state.with(|s| !matches!(s.state.as_str(), "account_ready" | "account_error"))
+    });
+    let locked = move || busy.get() || pending.get().is_some();
+    Effect::new(move |_| {
+        selected.track();
+        query.set(String::new());
+        chosen.set(None);
+    });
+    Effect::new(move |_| {
+        if let Some(entry) = pending.get() {
+            if selected.get_untracked().as_ref() != Some(&entry.avatar_id) {
+                selected.set(Some(entry.avatar_id));
+            }
+            chosen.set(Some(entry.lot_id));
+        } else if state.with(|s| s.state == "account_refreshing") {
+            chosen.set(None);
+        }
+    });
+    let properties = Memo::new(move |_| {
+        let needle = query.get().trim().to_lowercase();
+        state.with(|s| {
+            s.destinations
+                .iter()
+                .filter(|p| p.name.to_lowercase().contains(&needle) || p.lot_id == needle)
+                .cloned()
+                .collect::<Vec<_>>()
+        })
+    });
+    let property = Memo::new(move |_| {
+        chosen.get().and_then(|id| {
+            state.with(|s| s.destinations.iter().find(|p| p.lot_id == id).cloned())
+        })
+    });
+    let visit = move |_| {
+        if let Some(entry) = pending.get_untracked() {
+            owned.invoke("enter", &entry.avatar_id, &entry.lot_id);
+        } else if let (Some(avatar), Some(property)) =
+            (selected.get_untracked(), property.get_untracked())
+        {
+            owned.invoke("enter", &avatar, &property.lot_id);
+        }
+    };
+    view! {
+        <section class="native-property-directory" aria-label="Property directory">
+            <h3>"Property directory"</h3>
+            <p>"Find a place to visit with your selected Sim."</p>
+            <label for="native-property-search">"Find a property"</label>
+            <input id="native-property-search" type="search" maxlength="96" disabled=locked
+                prop:value=move||query.get() on:input=move|e|{query.set(event_target_value(&e));chosen.set(None);}/>
+            <div class="native-property-list" aria-label="Properties">
+                <For each=move||properties.get() key=|p|p.lot_id.clone() children=move|p|{
+                    let id=p.lot_id.clone();let pressed=p.lot_id.clone();
+                    view!{<button class="connected-directory-row native-property-row" type="button" aria-label=format!("View {}",p.name)
+                        aria-pressed=move||(chosen.get().as_ref()==Some(&pressed)).to_string() disabled=locked
+                        on:click=move|_|chosen.set(Some(id.clone()))>
+                        <span class="connected-row-text"><strong>{p.name.clone()}</strong><small>{format!("Property #{}",p.lot_id)}</small></span>
+                    </button>}
+                }/>
+            </div>
+            <Show when=move||properties.get().is_empty()><p role="status">"No properties match your search."</p></Show>
+            <Show when=move||property.get().is_some()>
+                <aside class="native-property-placard" aria-label="Property details">
+                    <button class="connected-text-button" type="button" disabled=locked on:click=move|_|chosen.set(None)>"Back to properties"</button>
+                    <h4>{move||property.get().map(|p|p.name).unwrap_or_default()}</h4>
+                    <dl><dt>"Property"</dt><dd>{move||property.get().map(|p|format!("#{}",p.lot_id)).unwrap_or_default()}</dd>
+                        <dt>"Location"</dt><dd>{move||property.get().map(|p|format!("{}, {}",p.lot_location>>16,p.lot_location&65535)).unwrap_or_default()}</dd></dl>
+                    <Show when=move||pending.get().is_some()><p role="status">"Entry is unconfirmed. Retry this same Sim and property before choosing another."</p></Show>
+                    <button class="chrome primary" type="button" disabled=move||busy.get() on:click=visit>
+                        {move||property.get().map(|p|format!("{} {}",if pending.get().is_some(){"Retry entering"}else{"Enter"},p.name)).unwrap_or_default()}
+                    </button>
+                </aside>
+            </Show>
+        </section>
+    }
 }
