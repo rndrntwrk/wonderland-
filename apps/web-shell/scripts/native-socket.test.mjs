@@ -36,6 +36,11 @@ test('ticket is sent in the first frame, never in URL or subprotocol', () => {
   assert.ok(!JSON.stringify(s.states).includes('ticket-only-in-memory'));
   s.client.dispose(); assert.equal(s.timers.size, 0);
 });
+test('owned browser can explicitly route private EOD through authenticated HTTP without changing binary decoding',()=>{
+  const s=setup({privateEod:false});s.socket.open();
+  assert.deepEqual(JSON.parse(s.socket.sent[0]),{type:'native_auth',ticket:'ticket-only-in-memory',private_eod:false});
+  s.socket.frame(packet(3));assert.deepEqual(s.frames,[[3]]);s.client.dispose();
+});
 test('every binary message is delivered synchronously in socket order', () => {
   const s = setup(); s.socket.open();
   for (let i = 0; i < 20; i++) s.socket.frame(packet(i));

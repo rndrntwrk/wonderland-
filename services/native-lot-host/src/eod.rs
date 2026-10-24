@@ -73,6 +73,15 @@ struct UiReceipt {
     sequence: u64,
     sha256: String,
 }
+fn ui_cursor(receipts: &[UiReceipt], session: u64) -> (u64, Option<&UiReceipt>) {
+    let mut next = 1;
+    let mut last = None;
+    for receipt in receipts.iter().filter(|r| r.session == session) {
+        next += 1;
+        last = Some(receipt);
+    }
+    (next, last)
+}
 #[derive(Clone, Serialize, Deserialize)]
 struct Stored {
     schema_version: u32,
@@ -948,7 +957,26 @@ impl TimerAdapter {
             let payload = hex(bytes);
             messages.push(json!({"source_session_id":DecimalId(a.source.session_id),"output_id":DecimalId(d.id().0),"plugin_id":a.source.plugin_id,"event":message.event(),"binary":binary,"payload_hex":payload,"sha256":private_digest(a.source.session_id,d.id().0,message.event(),binary,&payload)}));
         }
-        Ok(json!({"kind":"private_eod_outputs","messages":messages}))
+        let mut source_sessions = vec![];
+        for a in &self.stored.associations {
+            if self.check_control(state, a, control).is_err()
+                || (a.closed
+                    && !messages
+                        .iter()
+                        .any(|m| m["source_session_id"] == json!(DecimalId(a.source.session_id))))
+            {
+                continue;
+            }
+            let (next, last) = ui_cursor(&self.stored.ui_receipts, a.source.session_id);
+            source_sessions.push(json!({
+                "source_session_id":DecimalId(a.source.session_id),"plugin_id":a.source.plugin_id,"closed":a.closed,
+                "next_ui_sequence":DecimalId(next),
+                "last_ui_receipt":last.map(|r|json!({"sequence":DecimalId(r.sequence),"sha256":r.sha256}))
+            }));
+        }
+        Ok(
+            json!({"kind":"private_eod_outputs","messages":messages,"source_sessions":source_sessions}),
+        )
     }
     pub(crate) fn acknowledge(
         &mut self,
@@ -998,6 +1026,35 @@ impl TimerAdapter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn private_ui_cursor_retains_only_the_requested_source_session_sequence() {
+        let receipts = vec![
+            UiReceipt {
+                session: 8,
+                sequence: 1,
+                sha256: "a".repeat(64),
+            },
+            UiReceipt {
+                session: 9,
+                sequence: 1,
+                sha256: "b".repeat(64),
+            },
+            UiReceipt {
+                session: 8,
+                sequence: 2,
+                sha256: "c".repeat(64),
+            },
+        ];
+        let (next, last) = ui_cursor(&receipts, 8);
+        assert_eq!(next, 3);
+        assert_eq!(last.unwrap().sha256, "c".repeat(64));
+        let (next, last) = ui_cursor(&receipts, 9);
+        assert_eq!(next, 2);
+        assert_eq!(last.unwrap().sha256, "b".repeat(64));
+        let (next, last) = ui_cursor(&receipts, 10);
+        assert_eq!(next, 1);
+        assert!(last.is_none());
+    }
     fn connected() -> (eod::PrivateTimerTransaction, Auth, eod::SessionTicket) {
         let authority = Auth([(eod::ConnectionId(1), eod::ActorId(9))].into());
         let mut tx = eod::NativeHost::new(

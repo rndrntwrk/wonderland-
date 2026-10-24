@@ -66,6 +66,8 @@ pub mod native_creation;
 mod native_creator_browser;
 #[cfg(target_arch = "wasm32")]
 mod native_chat_browser;
+#[cfg(target_arch = "wasm32")]
+mod native_timer_browser;
 
 #[cfg(target_arch = "wasm32")]
 pub(crate) mod native_build_browser;

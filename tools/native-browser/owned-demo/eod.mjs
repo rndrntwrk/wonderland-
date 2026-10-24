@@ -38,5 +38,6 @@ export async function authenticatedEod(query, entry, {revalidate,prepare,commit,
   }
   const output=await read(entry.control);
   assert.equal(output.kind,"private_eod_outputs");
-  send({type:"native_eod_outputs",messages:output.messages});
+  send({type:"native_eod_outputs",messages:output.messages,
+    ...(output.source_sessions?{source_sessions:output.source_sessions}:{})});
 }

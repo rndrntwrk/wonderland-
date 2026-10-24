@@ -28,7 +28,7 @@ use wonderland_world_view::{ViewportControls, WallMode, WorldDocument, WorldPick
 export async function openNativePlayerSocket(url,ticket,frame,state,origin,resume,presence,signal) {
   const module=await import('/native-socket.mjs');
   if(signal.aborted) return null;
-  const host=module.connectNativeSocket(url,ticket,frame,state,{allowedOrigin:origin,resume,presence});
+  const host=module.connectNativeSocket(url,ticket,frame,state,{allowedOrigin:origin,resume,presence,...(presence?{privateEod:false}:{})});
   const abort=()=>host.dispose();signal.addEventListener('abort',abort,{once:true});
   return {actionResult:(incarnation,b)=>host.actionResult(incarnation,b),ready:()=>host.ready(),settled:()=>host.settled(),send:b=>host.send(b),control:b=>host.control(b),dispose:()=>{signal.removeEventListener('abort',abort);host.dispose();}};
 }
@@ -1044,6 +1044,7 @@ pub(crate) fn NativeLot(
                 [("Energy",Some(n.energy)),("Comfort",Some(n.comfort)),("Hunger",Some(n.hunger)),("Hygiene",Some(n.hygiene)),("Bladder",Some(n.bladder)),("Social",Some(n.social)),("Fun",Some(n.fun)),("Room",n.room)].into_iter().map(|(name,value)|view!{<label><span>{name}</span>{value.map(|value|view!{<progress max="100" value=value>{value}</progress>}.into_any()).unwrap_or_else(||view!{<span>"Unavailable"</span>}.into_any())}</label>}).collect_view()
             })}</div></aside></Show>
             {owned.map(move |owned|view!{<crate::native_chat_browser::NativeChat owned live=ctl.live open_panel=chat_open/>})}
+            {owned.map(move |owned|view!{<crate::native_timer_browser::NativeTimer owned live=ctl.live on_show=Callback::new(move |()|{chat_open.set(false);ctl.needs_open.set(false);ctl.choices.set(Vec::new());build.hide();})/>})}
             <crate::native_build_browser::BuildPanel ctl=build controls/>
         </section>
     }
