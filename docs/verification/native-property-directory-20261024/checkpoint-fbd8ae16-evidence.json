@@ -1,0 +1,128 @@
+{
+  "schema": "wonderland.native-property-directory-checkpoint.v1",
+  "testedSource": {
+    "commit": "fbd8ae164f503e875c11100f00345a930d847a3e",
+    "tree": "463042184b93d5532ec65943ae209ff9e6feb6d9",
+    "implementation": "5481c7ac70a38a2e9e61762506c3ab8c6ecea490",
+    "layoutCorrection": "fbd8ae164f503e875c11100f00345a930d847a3e",
+    "laterChanges": "tests, inventory and sanitized documentation only"
+  },
+  "stackedBase": {
+    "pr": 84,
+    "commit": "61ad4f95e92fe53eeee5bcdc72ecd79780e62d3b",
+    "tree": "0f04323f7bb4c4311c47584e15511bebf363c056",
+    "localEquivalent": "5da7984f46637244d40daf2159794a1d4507ffc1"
+  },
+  "journey": "select owned Sim -> authenticated configured property search/details -> source-owned entry -> accepted native rendered actor -> authoritative departure -> same-property re-entry after lost commit reply -> exact explicit retry -> chat -> confirmed departure/refresh/sign-out",
+  "dataAuthority": "existing validated native account roster destinations; existing provider/native admission/departure, operation deduplication, save and fencing paths; no new backend/identity/authority or invented directory records",
+  "results": {
+    "clientCasesPassed": 49,
+    "ownedAccountCasesIncluded": 29,
+    "targetedWasmCheck": "passed at 5481c7ac; later product change is CSS only",
+    "verifiedReleaseArtifacts": 153,
+    "reusedWasmBytesIdentical": true,
+    "nativeHostReused": "verified 7ce003d65e1f55003a9965838fd4474500584428b09e67e2b6d67b460049be8c; native/service inputs unchanged",
+    "renderedPassed": true,
+    "renderedCheckGroups": [
+      "authenticated configured property list supports case-insensitive search, empty results, details dismissal and original location/ID without inventing a city",
+      "details entry reaches an actual source-owned placed/rendered Sim; authoritative departure returns to the directory",
+      "actual committed entry with deliberately lost HTTP reply fixes the selected Sim/property; mobile explicit retry uses identical bytes and leaves one native actor",
+      "public chat remains usable after re-entry; repeated departure and refreshed directory work, and sign-out removes the directory"
+    ],
+    "viewports": [
+      "1200x800",
+      "390x844"
+    ],
+    "browserPath": "Browser plugin not available; established sandbox-enabled Playwright",
+    "retry": {
+      "attempts": 2,
+      "sameExactOperation": true,
+      "oneNativeActor": true
+    },
+    "pageExceptions": 0,
+    "intentionalNetworkErrors": 1,
+    "preloadWarnings": 1,
+    "contentLifecycleAborts": 3,
+    "responseCount": 18,
+    "allRecordedRosterEntryLeaveResponses200": true,
+    "screenshotsVisuallyReviewed": true,
+    "desktopEntryVisible": true,
+    "mobileRetryReachable": true,
+    "horizontalOverflow": false,
+    "started": "2026-10-24T00:29:39.280Z",
+    "finished": "2026-10-24T00:29:48.164Z"
+  },
+  "retainedFailures": [
+    "Initial browser provenance guard rejected a doc/test-only HEAD mismatch; exact product equivalence was checked before reusing preceding bytes",
+    "Missing Property directory heading reproduced the actual UI gap on preceding source",
+    "First WASM check caught a moved String in the new row; clone corrected before the passing check",
+    "First implemented browser run passed its first three groups, then asserted search enabled while second departure was still pending; probe now waits for confirmed return",
+    "Visual review found the old login columns compressed/clipped the directory; scoped responsive directory layout corrected and freshly packaged using identical cached WASM bytes"
+  ],
+  "limitations": [
+    "Only authenticated configured native property records (one actual property in the rendered fixture); no full city map, people/neighborhood/top-lot/search service, multi-lot host routing, ownership/purchase rights or live presence",
+    "Actual browser uses one owned Sim/property; provider regression uses multiple eligible owned Sims/properties to verify pending selection cannot be replaced",
+    "Creator/chat/Timer client regressions pass; no new full creator or Timer object browser journey is claimed",
+    "Real-object needs cycle remains blocked by unavailable original object/visual cohort; Timer timer.spf/objspf*.far/timereod.uis gate remains open",
+    "No new throughput/performance qualification; Buy/Build stays disabled",
+    "Sole-implementer review; no additional agent, independent review, full repository formatting/type-check or hosted-game completion claim",
+    "Baseline generated crypto TS7016 and TS5097 under an unqualified tsc invocation remain; existing proc-macro future-compatibility warning retained",
+    "No assets, tokens, operation material, stores, screenshots or recordings uploaded; no provider change, grants, installs, spending, deployment or merge"
+  ],
+  "evidence": [
+    {
+      "label": "final rendered result",
+      "bytes": 3589,
+      "sha256": "a3296503d06fd08be74200f05b4fa4fb21271d84678235770b4bf501b7bea713",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "desktop directory image",
+      "bytes": 399742,
+      "sha256": "2824f054219608ee042169bf21145c58345b3aa64eb1842c751139526460d15b",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "mobile uncertain-entry image",
+      "bytes": 224384,
+      "sha256": "1c2677e47d8739bad60700af381c85c0e1ace90269f10d63f24d8d1ddc49a76a",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "49 client regression cases",
+      "bytes": 4918,
+      "sha256": "4e6a971a84c05395803616252536898251bb43ae4d7891a3357c134527f60b63",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "pending-selection semantic red",
+      "bytes": 1120,
+      "sha256": "bd4248a5b9a49601e5d6ea5733590144ae3181f688c1f599a1cd59f8f586a3e0",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "missing directory rendered red",
+      "bytes": 1349,
+      "sha256": "84742d923e7a046fa264356c0e2a409449c8f0c243ddf03d4a493fbc4c999491",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "initial departure assertion and layout findings",
+      "bytes": 3229,
+      "sha256": "d1b24df850485c6cdcb0521b5d3dda12fd46c55bb6c590cf349e47554feb8268",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "targeted WASM check",
+      "bytes": 434,
+      "sha256": "79a23e2fe30e61b5891b3cdd83afa58ce92843a59721e653aa6034952fe2dbca",
+      "availability": "private retained original; not uploaded"
+    },
+    {
+      "label": "matching release receipt",
+      "bytes": 27142,
+      "sha256": "bb0fa924838cc86553226cd971ad0284a445004e3cc822805c7cc4c9dcbe79da",
+      "availability": "private retained original; not uploaded"
+    }
+  ]
+}

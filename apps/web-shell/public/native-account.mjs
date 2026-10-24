@@ -33,7 +33,7 @@ export function createNativeAccountProvider(base, publish, options = {}) {
   let creator=null,pendingCreation=null,creationUnknown=false,createdAvatarId=null;
   const digest=v=>typeof v==='string'&&/^[0-9a-f]{64}$/.test(v);
   const emit = (value) => {
-    if (!disposed) publish({creator_open:!!creator,creation_options:creator?structuredClone(creator):null,creation_pending:!!pendingCreation,creation_unknown:creationUnknown,created_avatar_id:createdAvatarId, destinations: token ? destinations : [], admission_available: !!token && admissionAvailable, ...value });
+    if (!disposed) publish({entry_pending:token&&pendingEntry?{avatar_id:pendingEntry.avatar_id,lot_id:pendingEntry.lot_id}:null,creator_open:!!creator,creation_options:creator?structuredClone(creator):null,creation_pending:!!pendingCreation,creation_unknown:creationUnknown,created_avatar_id:createdAvatarId, destinations: token ? destinations : [], admission_available: !!token && admissionAvailable, ...value });
   };
   async function request(action, data, secret, signal) {
     const r = await fetcher(endpoint.href + "/" + action, {

@@ -5,12 +5,12 @@ const avatars=[{avatar_id:'7',name:'First Traveller'}];
 const destinations=[{lot_id:'11',lot_location:16777472,name:'Shared Garden'}];
 const binding={source_epoch:'3',lot_incarnation:'4',lot_location:16777472,avatar_id:7};
 const grant=()=>({version:1,state:'lot_ready',binding:{...binding},ticket:'b'.repeat(48)});
-function setup(handler=()=>Response.json(grant())) {
+function setup(handler=()=>Response.json(grant()),directory={avatars,destinations}) {
  let latest; const calls=[];
  const provider=createNativeAccountProvider('/native-account',v=>latest=v,{origin:'http://127.0.0.1:18888',nativeLots:true,operationId:()=> 'owned_operation_0001',fetch:async(url,options)=>{
   const action=url.split('/').at(-1);calls.push({action,body:JSON.parse(options.body),signal:options.signal});
   if(action==='login')return Response.json({version:1,state:'account_ready',admission_available:true,token:'a'.repeat(64)});
-  if(action==='roster')return Response.json({version:1,state:'account_ready',admission_available:true,account_id:'1',avatars,destinations,next:null});
+  if(action==='roster')return Response.json({version:1,state:'account_ready',admission_available:true,account_id:'1',...directory,next:null});
   if(action==='logout')return Response.json({signed_out:true});
   return handler(action,options);
  }});return {provider,calls,get latest(){return latest;}};
@@ -40,6 +40,26 @@ test('owned entry submits only selection and exposes no bearer or actor grant be
 test('cross-avatar admission is refused and unknown enter reuses the same operation',async()=>{
  let attempts=0;const s=setup(()=>{attempts++;if(attempts===1)throw Error('lost reply');const value=grant();if(attempts===2)value.binding.avatar_id=8;return Response.json(value);});
  try{await s.provider.login('owner','secret');await s.provider.enter('7','11');assert.equal(s.latest.state,'account_error');await s.provider.enter('7','11');assert.equal(s.latest.state,'account_error');await s.provider.enter('7','11');assert.equal(s.latest.state,'lot_ready');assert.equal(new Set(s.calls.filter(c=>c.action==='enter').map(c=>c.body.operation)).size,1);}finally{s.provider.dispose();}
+});
+
+test('unconfirmed property entry exposes its fixed selection without secret or operation and clears on confirmation',async()=>{
+ let attempts=0;const s=setup(()=>{if(++attempts===1)throw Error('lost committed entry reply');return Response.json(grant());});
+ try{await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  assert.deepEqual(s.latest.entry_pending,{avatar_id:'7',lot_id:'11'});
+  assert.equal(JSON.stringify(s.latest.entry_pending).includes('owned_operation'),false);
+  await s.provider.enter('7','11');assert.equal(s.latest.entry_pending,null);assert.equal(s.latest.state,'lot_ready');
+  assert.deepEqual(s.calls.filter(c=>c.action==='enter').map(c=>c.body.operation),['owned_operation_0001','owned_operation_0001']);
+ }finally{s.provider.dispose();}
+});
+
+test('another eligible owned Sim or property cannot replace the pending entry and sign-out removes its projection',async()=>{
+ const s=setup(()=>{throw Error('lost entry reply');},{avatars:[...avatars,{avatar_id:'8',name:'Second Traveller'}],destinations:[...destinations,{lot_id:'12',lot_location:16777473,name:'Other Garden'}]});
+ try{await s.provider.login('owner','secret');await s.provider.enter('7','11');
+  await s.provider.enter('8','11');await s.provider.enter('7','12');
+  assert.equal(s.calls.filter(c=>c.action==='enter').length,1);
+  assert.deepEqual(s.latest.entry_pending,{avatar_id:'7',lot_id:'11'});
+  await s.provider.logout();assert.equal(s.latest.entry_pending,null);assert.equal(s.latest.state,'signed_out');
+ }finally{s.provider.dispose();}
 });
 test('sign-out during admission rejects late success and never returns a socket ticket',async()=>{
  let resolve;const gate=new Promise(r=>resolve=r);const s=setup(()=>gate);
