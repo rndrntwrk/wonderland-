@@ -42,7 +42,7 @@ On 24 October, the bounded command lookup found no Docker, Podman, Colima or Lim
 
 ## Source work that is not an external-access blocker
 
-- Native purchase accounting still needs the trusted construction effects connected to durable debit/ownership/inventory, exact operation receipts, geometry acknowledgement and crash/replay/fencing behavior. The existing construction session explicitly leaves durable accounting host-owned; its prior controlled provider is RAM-only. Downloading art or enabling R2 does not complete this work.
+- The private atomic purchase financial prerequisite now retains a journal-bound debit, pending object ownership and exact receipt, with focused SQLite crash/retry coverage (checkpoint `d21bf391`). It is not activated gameplay: actual native producer/completion encoding, geometry/reconciliation/refund, source budget/export rebase, allocator intake/migration and rendered purchase acceptance remain unfinished. Buy/Build stays disabled. Downloading art or enabling R2 does not complete this source work.
 - The saved-balance/owned-wardrobe reader is a read-only prerequisite, not purchases, object inventory, outfit changing or a live in-lot economy. Original CAS initializes three owned outfits and zero balance; reads never fund or mint ownership. Buy/Build stays disabled.
 - Multi-lot/city/provider work, broader gameplay obligations, baseline generated crypto TS7016 and full release qualification remain source/verification tasks. They must not be misreported as permissions the user needs to grant.
 

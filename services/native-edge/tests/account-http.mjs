@@ -79,6 +79,8 @@ try {
     "/native-account/register",
     "/native-account/createAvatar",
     "/native-account/reserveAvatarControl",
+    "/native-account/applyCommittedPurchaseV1",
+    "/native-account/initializeEmptyPurchaseInventoryV1",
     "/rpc/commitBatch",
   ])
     assert.equal((await request(path, {})).status, 404);
